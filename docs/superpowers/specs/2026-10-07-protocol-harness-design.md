@@ -2,17 +2,18 @@
 
 Date: 2026-10-07.
 
-Status: **Owner approved the written design in chat. Implementation planning is
-paused on the verified library-support correction in section 9. A replacement
-harness architecture has not been approved. Not an independent security approval,
-implementation result, or release authorization.**
+Status: **Owner approved the written design and the Java/Python architecture
+correction in chat. Implementation plan pending owner review. Not an independent
+security approval, implementation result, or release authorization.**
 
 ## 1. Intent, scope, and approval boundaries
 
 The owner has confirmed that no client exists and authorized a test harness and
 research-based protocol preparation. The owner approved the standards-based
-.NET/Python approach presented in chat. This document makes that approach precise
-enough for a test-first implementation plan and subsequent security review.
+.NET/Python approach presented in chat, then approved replacing only the reference
+.NET harness with Java after verifying the library-support correction in section
+9. This document makes that approach precise enough for a test-first implementation
+plan and subsequent security review. The production API remains .NET.
 
 Success means two separately implemented harnesses can produce, consume, and
 reject the same versioned contracts. Neither implementation may delegate its
@@ -69,7 +70,7 @@ length. There is no forward-secrecy claim for stored recipient envelopes.
 Considered alternatives:
 
 - **Selected:** standardized AES-GCM, Argon2id, HKDF, HPKE and ECDSA contracts,
-  checked by independent .NET and Python libraries. This retains the approved
+  checked by independent Java and Python libraries. This retains the approved
   outline and makes cross-language review reproducible.
 - A libsodium-specific XChaCha20/Curve25519 profile is viable but changes more of
   the proposed suite and its library/encoding contracts.
@@ -438,7 +439,7 @@ Proposed layout:
 
 ```text
 tools/protocol-harness/
-  dotnet/       reference contract library/CLI and its tests
+  java/         reference contract library/CLI and its tests
   python/       independently written contract implementation and tests
   README.md     isolated setup, verification and benchmark commands
 docs/security/
@@ -460,7 +461,7 @@ implementations, including Argon2id and HPKE. Research at design time found stab
 Bouncy Castle C# 2.7.0 and Python `cryptography` 50.0.2; a release existing does not
 prove it supplies every selected primitive.
 
-**Proposed correction, awaiting owner approval:** replace only the .NET reference
+**Owner-approved correction:** replace only the .NET reference
 harness with a Java/Bouncy Castle reference harness. Keep Python as the other
 independent implementation and keep the protocol, production .NET projects,
 non-production isolation, and pending security gate unchanged. Use
@@ -469,12 +470,12 @@ stable Java library release, its exact HPKE API and known-answer vectors, the JD
 and build dependencies, and applicable vulnerability checks before adoption. The
 Java version is not assumed to equal the C# version.
 
-An alternative is to retain .NET after qualifying a maintained library providing
-the exact HPKE suite. No such dependency has been qualified here. Do not silently
+An unselected alternative is to retain .NET after qualifying a maintained library
+providing the exact HPKE suite. No such dependency has been qualified here. Do not silently
 substitute another suite, introduce a handwritten HPKE construction, use preview
 runtime APIs, delegate .NET cryptography to Python, or label a partial harness
-complete. The implementation plan remains unwritten until the owner selects the
-correction; no harness dependencies or code have been installed or implemented.
+complete. The owner selected Java/Python in chat; no harness dependencies or code
+have been installed or implemented at this planning stage.
 
 Each side owns its encoders, strict parsers, context constructors, crypto calls,
 and verification rules. Sharing only a data-only vector corpus is allowed. Use

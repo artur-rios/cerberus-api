@@ -83,28 +83,28 @@ Follow the documented milestone dependencies, then specification order within ea
 
 **Interface:** `CerberusOptionsValidator.Validate(string? name, CerberusOptions options)` returns the configuration validation result; bound options carry required operator values without production defaults.
 
-- [ ] Write tests for missing/invalid retention, unsupported provider, nonpositive or overflowing durations, missing ledger location, invalid limits and environment precedence. Assert that failures reveal setting names and never values.
-- [ ] Confirm the tests fail for the missing validation behavior, then implement typed configuration with environment secrets taking precedence.
-- [ ] Write functional tests for no-store headers, finite request limits and redacted error/log behavior; implement one structured logging pipeline without payload logging.
-- [ ] Run the affected tests and commit the verified task.
+- [x] Write tests for missing/invalid retention, unsupported provider, nonpositive or overflowing durations, missing ledger location, invalid limits and environment precedence. Assert that failures reveal setting names and never values.
+- [x] Confirm the tests fail for the missing validation behavior, then implement typed configuration with environment secrets taking precedence.
+- [x] Write functional tests for no-store headers, finite request limits and redacted error/log behavior; implement one structured logging pipeline without payload logging.
+- [x] Run the affected tests and commit the verified task.
 
 ### Task 3: Add PostgreSQL persistence and migration primitives — IR-04, IR-07, IR-10
 
 **Files:** `src/Infrastructure/ArturRios.Cerberus.Data/AppDbContext.cs`; `Configuration/`; `EntityMaps/`; `Migrations/`; repository contracts in Domain; `tests/Infrastructure/ArturRios.Cerberus.Data.Tests/` fixtures and constraint tests.
 
-- [ ] Write real PostgreSQL tests for singular snake_case mapping, migration application, uniqueness, optimistic concurrency and transaction rollback. Add only foundation infrastructure entities here; business entities arrive with their owning issues.
-- [ ] Observe failing behavior tests, then implement family provider/context integration and async repository abstractions.
-- [ ] Provide an explicit migration command and configuration validation; do not migrate implicitly on each HTTP request.
-- [ ] Rerun real-database tests and commit.
+- [x] Write real PostgreSQL tests for singular snake_case mapping, migration application, uniqueness, optimistic concurrency and transaction rollback. Add only foundation infrastructure entities here; business entities arrive with their owning issues.
+- [x] Observe failing behavior tests, then implement family provider/context integration and async repository abstractions.
+- [x] Provide an explicit migration command and configuration validation; do not migrate implicitly on each HTTP request.
+- [x] Rerun real-database tests and commit.
 
 ### Task 4: Bootstrap scoped Heimdall contracts and token validation — IR-05
 
 **Files:** `src/Application/ArturRios.Cerberus.Shared/Identity/IHeimdallClient.cs`; `Identity/HeimdallClient.cs`; `Identity/HeimdallContracts.cs`; WebApi security registration; controlled HTTP fixtures under Shared.Tests and WebApi.Tests.
 
-- [ ] Inspect Heimdall login, challenge completion, scoped registration and validation contracts from the reference implementation. Record the inspected revision and payload shapes.
-- [ ] Write fixtures rejecting invalid issuer/audience/signature/expiry/scope, unsupported upstream responses, rejected credentials, timeouts and missing service privilege. Assert no privilege escalation or credential logging.
-- [ ] Observe expected failures; implement typed adapter contracts and token validation using the inspected first-party libraries. Do not implement UC-01/UC-02 endpoint behavior under the foundation issue.
-- [ ] Run all adapter/security fixtures and commit.
+- [x] Inspect Heimdall login, challenge completion, scoped registration and validation contracts from the reference implementation. Record the inspected revision and payload shapes.
+- [x] Write fixtures rejecting invalid issuer/audience/signature/expiry/scope, unsupported upstream responses, rejected credentials, timeouts and missing service privilege. Assert no privilege escalation or credential logging.
+- [x] Observe expected failures; implement typed adapter contracts and token validation using the inspected first-party libraries. Do not implement UC-01/UC-02 endpoint behavior under the foundation issue.
+- [x] Run all adapter/security fixtures and commit.
 
 ### Task 5: Add durable erasure, restore and worker primitives — IR-11, IR-12, IR-13
 
@@ -112,20 +112,20 @@ Follow the documented milestone dependencies, then specification order within ea
 
 **Interfaces:** `IErasureLedger.RecordAsync(ErasureEntry entry, CancellationToken cancellationToken)` records a durable deletion; `IErasureLedger.ReadAsync(CancellationToken cancellationToken)` streams entries for replay. `IRestoreReconciler.ReconcileAsync(CancellationToken cancellationToken)` must succeed before restored traffic is enabled.
 
-- [ ] Write tests for duplicate erasure records, interrupted writes, inaccessible ledger storage and replay after a database rollback. Assert deleted IDs remain inaccessible and failures keep traffic disabled.
-- [ ] Implement durable ledger records outside the restorable database using the operator-approved storage and documented access control.
-- [ ] Write concurrent PostgreSQL work-claim tests, retry/crash-recovery tests with a deterministic clock and restore authorization-reconciliation tests; implement idempotent infrastructure primitives.
-- [ ] Exercise the isolated restore procedure against disposable data and commit. Defer domain deletion/expiry behavior to its specified use cases.
+- [x] Write tests for duplicate erasure records, interrupted writes, inaccessible ledger storage and replay after a database rollback. Assert deleted IDs remain inaccessible and failures keep traffic disabled.
+- [x] Implement durable ledger records outside the restorable database using the operator-approved storage and documented access control.
+- [x] Write concurrent PostgreSQL work-claim tests, retry/crash-recovery tests with a deterministic clock and restore authorization-reconciliation tests; implement idempotent infrastructure primitives.
+- [x] Exercise the isolated restore procedure against disposable data and commit. Defer domain deletion/expiry behavior to its specified use cases.
 
 ### Task 6: Enforce protocol review and delivery verification — IR-08, IR-09, IR-10
 
 **Files:** versioned protocol decision/review record; `.github/workflows/tests.yml`; `Dockerfile`; `.dockerignore`; OpenAPI generator under `tools/`; `scripts/openapi.py`; coverage tooling tests; installation/testing sections of README and formal Testing/Technology documents.
 
-- [ ] Test that an absent or unapproved protocol record blocks dependent implementation/release validation. Record pending review honestly; do not substitute a fabricated approval marker.
-- [ ] Test merged coverage aggregation without test assemblies or stale input; retain the 90% floor and fail when no valid report exists.
-- [ ] Add generated OpenAPI drift checks and a Docker artifact compatible with the approved host; retain all required CI checks.
-- [ ] Run restore/build, the unfiltered application suite, merged coverage, vulnerability scan, specification/helper tests, OpenAPI checks and Docker build. Validate README commands against a clean checkout.
-- [ ] Review IR-01–IR-14 individually and resolve required operator/protocol decisions before declaring the foundation ready.
+- [x] Test that an absent or unapproved protocol record blocks dependent implementation/release validation. Record pending review honestly; do not substitute a fabricated approval marker.
+- [x] Test merged coverage aggregation without test assemblies or stale input; retain the 90% floor and fail when no valid report exists.
+- [x] Add generated OpenAPI drift checks and a Docker artifact compatible with the approved host; retain all required CI checks.
+- [x] Run restore/build, the unfiltered application suite, merged coverage, vulnerability scan, specification/helper tests, OpenAPI checks and Docker build. Validate README commands against a clean checkout.
+- [x] Review IR-01–IR-14 individually. Beta design inputs approved; IR-09 gate implemented with pending real NFR-11 review, which blocks dependent encryption/recovery work rather than foundation acceptance. Final branch review and required CI remain before merge.
 
 ## Per-use-case execution loop
 

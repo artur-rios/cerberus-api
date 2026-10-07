@@ -12,12 +12,8 @@ and passed to ReportGenerator as -license. It is never echoed. Unset, generation
 the free version — which is what happens on pull requests from forks, where GitHub withholds secrets
 by design.
 
-Two things here are deliberate rather than incidental, and both come from the same incident. The
-project was renamed from `identity-manager-api` to `heimdall-api`; `dotnet build` only overwrites
-files it produces, so the pre-rename `ArturRios.IdentityManager.*` assemblies stayed behind in every
-bin/ and obj/. coverlet instruments whatever assemblies it finds in the test output directory, so
-those stale ones were instrumented too and a third of the report described classes that no longer
-exist. Hence:
+Builds only overwrite files they produce. After a project rename, old assemblies can remain in
+bin/ and obj/, and coverlet can instrument those stale files. To avoid obsolete coverage inputs:
 
   * --clean wipes bin/ and obj/ before building, so only current assemblies can be instrumented.
   * The report directory is always emptied before ReportGenerator writes to it, so a page for a

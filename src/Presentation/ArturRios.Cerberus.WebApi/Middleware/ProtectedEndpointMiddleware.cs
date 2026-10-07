@@ -19,10 +19,13 @@ public sealed class ProtectedEndpointMiddleware(RequestDelegate next)
         var header = headers.Count == 1 ? headers[0] : null;
         var token = header?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true ? header[7..] : string.Empty;
         var principal = await tokens.ValidateAsync(token);
-        if (principal is null || !await identity.RevalidateAsync(token, context.RequestAborted))
+        var authorization = principal is null ? HeimdallAuthorization.Denied
+            : await identity.RevalidateAsync(token, context.RequestAborted);
+        if (principal is null || authorization != HeimdallAuthorization.Authorized)
         {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsJsonAsync(ProcessOutput.New.WithError("authentication_required"), context.RequestAborted);
+            var unavailable = authorization == HeimdallAuthorization.Unavailable;
+            context.Response.StatusCode = unavailable ? StatusCodes.Status503ServiceUnavailable : StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsJsonAsync(ProcessOutput.New.WithError(unavailable ? "identity_unavailable" : "authentication_required"), context.RequestAborted);
             return;
         }
         context.User = principal;

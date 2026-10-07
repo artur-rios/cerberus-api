@@ -32,7 +32,8 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
         })
         {
             Require(TimeSpan.TryParseExact(value, "c", CultureInfo.InvariantCulture, out var interval) && interval > TimeSpan.Zero
-                && (key != "CERBERUS_RETENTION_INTERVAL" || interval <= TimeSpan.FromMilliseconds(uint.MaxValue - 1)),
+                && (key != "CERBERUS_RETENTION_INTERVAL" || (interval >= TimeSpan.FromMilliseconds(1)
+                    && interval <= TimeSpan.FromMilliseconds(uint.MaxValue - 1))),
                 key);
         }
 

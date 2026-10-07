@@ -5,6 +5,9 @@ Contracts were inspected at Heimdall revision
 `success/errors/data` JSON envelope. Unknown, oversized, malformed, timed-out or rejected
 responses fail closed. Redirects are disabled; the whole response has a ten-second bound,
 including its body. The typed HTTP client emits no HTTP request/response logs.
+Protected requests distinguish current identity denial (401) from unavailable/incompatible
+required identity service (503 `identity_unavailable`). Both outcomes prevent execution;
+upstream error text is never returned.
 
 - Login: `POST /api/auth/login`, email/password and configured scope in the body.
 - Challenge completion: `POST /api/auth/2fa/verify`, challenge and code/recovery code in the

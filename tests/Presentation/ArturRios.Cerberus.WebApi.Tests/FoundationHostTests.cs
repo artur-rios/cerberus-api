@@ -67,6 +67,8 @@ public class FoundationHostTests : WebApiTest<Program>
 
     [FunctionalTheory]
     [InlineData("--CERBERUS_MAX_PAGE_SIZE=invalid")]
+    [InlineData("--CERBERUS_DATA_CONNECTIONSTRING=not-a-connection-string")]
+    [InlineData("--CERBERUS_DATA_CONNECTIONSTRING=Host=localhost;unsupported-secret=protected-value")]
     [InlineData("--CERBERUS_ERASURE_LEDGER_PATH=/tmp/cerberus-test-not-provisioned-storage")]
     public async Task GivenInvalidSettingsOrMissingLedger_WhenValidatingWithCli_ThenExitFailure(string setting)
     {

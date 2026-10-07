@@ -8,7 +8,8 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<App
     public AppDbContext CreateDbContext(string[] args)
     {
         var connection = Environment.GetEnvironmentVariable("CERBERUS_DATA_CONNECTIONSTRING");
-        if (string.IsNullOrWhiteSpace(connection)) throw new InvalidOperationException("CERBERUS_DATA_CONNECTIONSTRING is required.");
+        if (PostgresConfiguration.Validate(connection).Failed)
+            throw new InvalidOperationException("Invalid or missing CERBERUS_DATA_CONNECTIONSTRING.");
         return new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(connection).Options);
     }
 }

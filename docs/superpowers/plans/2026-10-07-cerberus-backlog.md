@@ -10,7 +10,7 @@
 
 **Spec:** [System Requirements](../../requirements/System%20Requirements%20Document.md), [Operations & Infrastructure](../../requirements/Operations%20%26%20Infrastructure%20Document.md), [Use Case Specification](../../requirements/Use%20Case%20Specification%20Document.md), [Technology Stack](../../requirements/Technology%20Stack%20Document.md) and [Testing Specification](../../requirements/Testing%20Specification%20Document.md).
 
-**Status:** Batch authorized by the user's “Yes, go ahead”. Foundation implementation is in progress on `feature/project-foundation`; no issue is complete or merged. Beta setting design inputs are approved; independent protocol review is still pending.
+**Status:** Batch authorized by the user's “Yes, go ahead”. Foundation tasks are implemented, tested and reviewed in PR #57; required CI gates its merge. All 55 business use cases remain Todo. Beta setting design inputs are approved; independent protocol review is still pending and blocks dependent implementation.
 
 ## Global Constraints
 
@@ -125,7 +125,7 @@ Follow the documented milestone dependencies, then specification order within ea
 - [x] Test merged coverage aggregation without test assemblies or stale input; retain the 90% floor and fail when no valid report exists.
 - [x] Add generated OpenAPI drift checks and a Docker artifact compatible with the approved host; retain all required CI checks.
 - [x] Run restore/build, the unfiltered application suite, merged coverage, vulnerability scan, specification/helper tests, OpenAPI checks and Docker build. Validate README commands against a clean checkout.
-- [x] Review IR-01–IR-14 individually. Beta design inputs approved; IR-09 gate implemented with pending real NFR-11 review, which blocks dependent encryption/recovery work rather than foundation acceptance. Final branch review and required CI remain before merge.
+- [x] Review IR-01–IR-14 individually. Beta design inputs approved; IR-09 gate implemented with pending real NFR-11 review, which blocks dependent encryption/recovery work rather than foundation acceptance. Whole-branch review findings reproduced/fixed and full suite green; required CI gates the merge.
 
 ## Per-use-case execution loop
 

@@ -11,6 +11,10 @@ them or put them in shell history. The Linux erasure ledger must be private (070
 the service user, durably preprovisioned and independently preserved. Verify actual storage
 durability and flush new directory entries in their parents during provisioning. Missing,
 nonprivate or symlinked storage is rejected; the API does not recreate it.
+Configuration validation parses PostgreSQL settings without opening a connection and
+rejects worker intervals outside the timer's one-millisecond-to-4,294,967,294-millisecond
+range. Failures expose setting names only. A successful syntax check does not prove network
+connectivity, credentials, current ownership or deployment readiness.
 
 Back up PostgreSQL using operator-managed `pg_dump` or a consistent physical backup. Encrypt
 backups with an operator-managed key independent of client vault keys. Restrict access,

@@ -76,7 +76,7 @@ public sealed class HeimdallClientTests
         var result = await Client(new FixtureHandler(_ => Task.FromResult(Envelope(new
         { id = Identity, scopeId = CerberusOptionsValidatorTests.ValidOptions().HeimdallScopeId, role = 3, isDeleted = true }))))
             .RevalidateAsync(Token(), default);
-        Assert.False(result);
+        Assert.Equal(HeimdallAuthorization.Denied, result);
     }
 
     [UnitFact]
@@ -89,7 +89,7 @@ public sealed class HeimdallClientTests
             Assert.Equal(token, request.Headers.Authorization?.Parameter);
             return Task.FromResult(Envelope(new { id = Identity, scopeId = CerberusOptionsValidatorTests.ValidOptions().HeimdallScopeId, role = 3, isDeleted = false }));
         })).RevalidateAsync(token, default);
-        Assert.True(result);
+        Assert.Equal(HeimdallAuthorization.Authorized, result);
     }
 
     [UnitFact]

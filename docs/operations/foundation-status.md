@@ -1,6 +1,7 @@
 # Foundation implementation status
 
-Issue #1 is undergoing final verification and review. No backlog issue has been merged or closed. This is not a usable
+Foundation issue #1 is implemented and reviewed through [PR #57](https://github.com/artur-rios/cerberus-api/pull/57).
+All 55 business use cases remain unimplemented. This is not a usable
 vault application and must not be deployed for production traffic.
 
 ## Implemented and tested
@@ -31,16 +32,20 @@ excludes framework/HTTP/EF payload logging. Restored startup reconciles before H
 execution. Each future domain module must register its restore and idempotent retention
 handlers; no domain lifecycle feature is considered implemented by these primitives.
 
-Fresh local verification on 2026-10-07 passed 113 unfiltered solution tests, 23 helper tests,
+Fresh local verification on 2026-10-07 passed 124 unfiltered solution tests, 23 helper tests,
 specification validation, OpenAPI drift and formatting checks. Merged production coverage
-is 95.3% line (953/1000), 80.6% branch (334/414), from six fresh collector reports, excluding
-test/foreign assemblies. The updated development container built successfully. Final review
-and required remote CI still determine foundation acceptance; these are not production or
+is 95.2% line (974/1023), 80.9% branch (356/440), from six fresh collector reports, excluding
+test/foreign assemblies. The updated development container built successfully. Required
+remote CI gates every merge; these are not production or
 client interoperability results.
 
 The checkpoint code review found and verified fixes for ledger auto-recreation, nonlocal HTTP
 transport and protocol-approval artifact binding. Ledger storage must now be durably
 preprovisioned; its absence fails startup without writing to an unexpected directory.
+The final whole-branch review found dependency-outage status mapping and timer-range defects;
+the fix pass reproduced both and verified 503 versus 401 and the full supported timer range.
+Malformed database configuration was also reproduced and fixed: validation parses provider
+settings without connecting or exposing their values. The complete suite then passed again.
 
 ## Required decisions
 

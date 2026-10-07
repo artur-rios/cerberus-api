@@ -10,6 +10,8 @@ public interface IHeimdallClient
     Task<HeimdallLogin?> LoginAsync(string email, string password, CancellationToken cancellationToken);
     Task<HeimdallLogin?> CompleteChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken);
     Task<HeimdallPerson?> RegisterAsync(HeimdallRegistration registration, CancellationToken cancellationToken);
-    Task<bool> RevalidateAsync(string token, CancellationToken cancellationToken);
+    Task<HeimdallAuthorization> RevalidateAsync(string token, CancellationToken cancellationToken);
     Task<bool> VerifyScopeAsync(CancellationToken cancellationToken);
 }
+
+public enum HeimdallAuthorization { Unavailable, Denied, Authorized }

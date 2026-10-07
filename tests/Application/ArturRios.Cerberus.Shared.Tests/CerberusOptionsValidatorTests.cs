@@ -120,4 +120,19 @@ public class CerberusOptionsValidatorTests
         options.RestoreRequired = null;
         Assert.True(new CerberusOptionsValidator().Validate(null, options).Failed);
     }
+
+    [UnitTheory]
+    [InlineData("00:00:00.0000001", false)]
+    [InlineData("00:00:00.0009999", false)]
+    [InlineData("00:00:00.0010000", true)]
+    [InlineData("49.17:02:47.2940000", true)]
+    [InlineData("49.17:02:47.2950000", false)]
+    public void GivenTimerBoundaryInterval_WhenValidating_ThenMatchSupportedPeriodicTimerRange(string interval, bool valid)
+    {
+        var options = ValidOptions();
+        options.RetentionInterval = interval;
+        var result = new CerberusOptionsValidator().Validate(null, options);
+        Assert.Equal(valid, result.Succeeded);
+        if (!valid) Assert.Equal(["Invalid or missing CERBERUS_RETENTION_INTERVAL."], result.Failures);
+    }
 }

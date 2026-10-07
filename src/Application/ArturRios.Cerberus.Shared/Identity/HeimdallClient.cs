@@ -15,13 +15,13 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
         var principal = await tokens.ValidateServiceAsync(credential);
         if (principal is null) return false;
         var id = Guid.Parse(principal.FindFirst("id")!.Value);
-        var data = await SendAsync(HttpMethod.Get, $"/api/scopes/{options.HeimdallScopeId:D}", null, credential, cancellationToken);
+        var data = (await SendAsync(HttpMethod.Get, $"/api/scopes/{options.HeimdallScopeId:D}", null, credential, cancellationToken)).Data;
         if (data is null) return false;
         ScopeSnapshot? scope;
         try { scope = data.Value.Deserialize<ScopeSnapshot>(Json); }
         catch (JsonException) { return false; }
         if (scope is null || scope.Id != options.HeimdallScopeId || scope.IsDeleted || scope.OwnerIds?.Contains(id) != true) return false;
-        var personData = await SendAsync(HttpMethod.Get, $"/api/persons/{id:D}", null, credential, cancellationToken);
+        var personData = (await SendAsync(HttpMethod.Get, $"/api/persons/{id:D}", null, credential, cancellationToken)).Data;
         var person = ParsePerson(personData, requireDeletionState: true);
         return person is { IsDeleted: false, Role: 2 } && person.Id == id && person.OwnedScopeIds?.Contains(options.HeimdallScopeId) == true;
     }
@@ -31,13 +31,13 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
 
     public async Task<HeimdallLogin?> LoginAsync(string email, string password, CancellationToken cancellationToken)
     {
-        var data = await SendAsync(HttpMethod.Post, "/api/auth/login", new { email, password, scopeId = options.HeimdallScopeId }, null, cancellationToken);
+        var data = (await SendAsync(HttpMethod.Post, "/api/auth/login", new { email, password, scopeId = options.HeimdallScopeId }, null, cancellationToken)).Data;
         return await ParseLoginAsync(data, challengeCompletion: false);
     }
 
     public async Task<HeimdallLogin?> CompleteChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken)
     {
-        var data = await SendAsync(HttpMethod.Post, "/api/auth/2fa/verify", new { challengeToken = challenge, code, recoveryCode }, null, cancellationToken);
+        var data = (await SendAsync(HttpMethod.Post, "/api/auth/2fa/verify", new { challengeToken = challenge, code, recoveryCode }, null, cancellationToken)).Data;
         return await ParseLoginAsync(data, challengeCompletion: true);
     }
 
@@ -45,19 +45,22 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
     {
         var credential = options.HeimdallServiceCredential!;
         if (await tokens.ValidateServiceAsync(credential) is null) return null;
-        var data = await SendAsync(HttpMethod.Post, $"/api/scopes/{options.HeimdallScopeId:D}/persons", registration, credential, cancellationToken);
+        var data = (await SendAsync(HttpMethod.Post, $"/api/scopes/{options.HeimdallScopeId:D}/persons", registration, credential, cancellationToken)).Data;
         var person = ParsePerson(data, requireDeletionState: false);
         return person is { Role: 3 } && person.ScopeId == options.HeimdallScopeId ? person : null;
     }
 
-    public async Task<bool> RevalidateAsync(string token, CancellationToken cancellationToken)
+    public async Task<HeimdallAuthorization> RevalidateAsync(string token, CancellationToken cancellationToken)
     {
         var principal = await tokens.ValidateAsync(token);
-        if (principal is null) return false;
+        if (principal is null) return HeimdallAuthorization.Denied;
         var id = Guid.Parse(principal.FindFirst("id")!.Value);
-        var data = await SendAsync(HttpMethod.Get, $"/api/persons/{id:D}", null, token, cancellationToken);
-        var person = ParsePerson(data, requireDeletionState: true);
-        return person is { Role: 3, IsDeleted: false } && person.Id == id && person.ScopeId == options.HeimdallScopeId;
+        var response = await SendAsync(HttpMethod.Get, $"/api/persons/{id:D}", null, token, cancellationToken);
+        if (response.Data is null) return response.Status;
+        var person = ParsePerson(response.Data, requireDeletionState: true);
+        if (person is null) return HeimdallAuthorization.Unavailable;
+        return person is { Role: 3, IsDeleted: false } && person.Id == id && person.ScopeId == options.HeimdallScopeId
+            ? HeimdallAuthorization.Authorized : HeimdallAuthorization.Denied;
     }
 
     private async Task<HeimdallLogin?> ParseLoginAsync(JsonElement? data, bool challengeCompletion)
@@ -89,7 +92,11 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
         catch (JsonException) { return null; }
     }
 
-    private async Task<JsonElement?> SendAsync(HttpMethod method, string route, object? body, string? bearer, CancellationToken cancellationToken)
+    private sealed record DependencyResponse(JsonElement? Data, HeimdallAuthorization Status);
+    private static readonly DependencyResponse Unavailable = new(null, HeimdallAuthorization.Unavailable);
+    private static readonly DependencyResponse Denied = new(null, HeimdallAuthorization.Denied);
+
+    private async Task<DependencyResponse> SendAsync(HttpMethod method, string route, object? body, string? bearer, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -102,27 +109,29 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
         try
         {
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, dependencyToken);
+            if (response.StatusCode is System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.NotFound)
+                return Denied;
             if (!response.IsSuccessStatusCode || response.Content.Headers.ContentType?.MediaType != "application/json"
-                || response.Content.Headers.ContentLength > options.MaxRequestBytes) return null;
+                || response.Content.Headers.ContentLength > options.MaxRequestBytes) return Unavailable;
             await using var stream = await response.Content.ReadAsStreamAsync(dependencyToken);
             using var buffer = new MemoryStream();
             var block = new byte[4096];
             int read;
             while ((read = await stream.ReadAsync(block, dependencyToken)) != 0)
             {
-                if (buffer.Length > options.MaxRequestBytes - read) return null;
+                if (buffer.Length > options.MaxRequestBytes - read) return Unavailable;
                 await buffer.WriteAsync(block.AsMemory(0, read), dependencyToken);
             }
             using var document = JsonDocument.Parse(buffer.ToArray());
             var root = document.RootElement;
             if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("success", out var success) || success.ValueKind != JsonValueKind.True
                 || !root.TryGetProperty("errors", out var errors) || errors.ValueKind != JsonValueKind.Array || errors.GetArrayLength() != 0
-                || !root.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Object) return null;
-            return data.Clone();
+                || !root.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Object) return Unavailable;
+            return new DependencyResponse(data.Clone(), HeimdallAuthorization.Authorized);
         }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return null; }
-        catch (HttpRequestException) { return null; }
-        catch (JsonException) { return null; }
-        catch (IOException) { return null; }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return Unavailable; }
+        catch (HttpRequestException) { return Unavailable; }
+        catch (JsonException) { return Unavailable; }
+        catch (IOException) { return Unavailable; }
     }
 }

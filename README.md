@@ -4,11 +4,11 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** foundation implementation in progress; no issue is complete. The development host
+> **Status:** foundation infrastructure implemented; all 55 business use cases remain unimplemented. The host
 > exposes no business endpoints. Independent protocol review and actual deployment provisioning remain
 > required decisions. See [foundation status](docs/operations/foundation-status.md).
 
-## What it does
+## Planned capabilities
 
 - Distinct Cerberus accounts and vault profiles integrated with Heimdall identity.
 - Named custom/template records, nested folders and multi-profile collections.
@@ -120,7 +120,7 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| [#1](https://github.com/artur-rios/cerberus-api/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | In Progress |
+| [#1](https://github.com/artur-rios/cerberus-api/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | Done |
 
 ### M-02 — Account identity and vault protection
 

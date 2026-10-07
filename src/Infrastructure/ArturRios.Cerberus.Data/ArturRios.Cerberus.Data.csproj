@@ -2,6 +2,7 @@
   <PropertyGroup><GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles></PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ArturRios.Data.PostgreSql" />
+    <PackageReference Include="Npgsql" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design"><PrivateAssets>all</PrivateAssets><IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets></PackageReference>

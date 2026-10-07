@@ -1,4 +1,5 @@
 using ArturRios.Cerberus.Data;
+using ArturRios.Cerberus.Data.Configuration;
 using ArturRios.Cerberus.Data.Erasure;
 using ArturRios.Cerberus.Data.Operations;
 using ArturRios.Cerberus.Domain.Operations;
@@ -24,6 +25,8 @@ public static class Startup
         var options = CerberusConfiguration.Load(builder.Configuration);
         var result = new CerberusOptionsValidator(production: !builder.Environment.IsEnvironment("local")).Validate(null, options);
         if (result.Failed) throw new OptionsValidationException(nameof(CerberusOptions), typeof(CerberusOptions), result.Failures);
+        var database = PostgresConfiguration.Validate(options.ConnectionString);
+        if (database.Failed) throw new OptionsValidationException(nameof(CerberusOptions), typeof(CerberusOptions), database.Failures);
 
         // Do not load arbitrary logging enrichers/sinks from request-controlled configuration.
         builder.Logging.ClearProviders();

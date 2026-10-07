@@ -2,8 +2,10 @@
 
 Date: 2026-10-07.
 
-Status: **Written design submitted for owner review. Not an independent security
-approval, implementation result, or release authorization.**
+Status: **Owner approved the written design in chat. Implementation planning is
+paused on the verified library-support correction in section 9. A replacement
+harness architecture has not been approved. Not an independent security approval,
+implementation result, or release authorization.**
 
 ## 1. Intent, scope, and approval boundaries
 
@@ -445,12 +447,34 @@ docs/security/
   protocol-review.json           unchanged pending approval until real review
 ```
 
-The .NET side uses Bouncy Castle managed implementations for AES-GCM, Argon2id,
-HKDF, HPKE and ECDSA. The Python side uses `cryptography` and its separate
-Rust/OpenSSL-backed implementations, including Argon2id and HPKE. Research at
-design time found stable Bouncy Castle 2.7.0 and Python `cryptography` 50.0.2;
-implementation must verify available stable versions, pin exact dependency
-versions, and run applicable vulnerability checks before adoption.
+The originally proposed .NET side selected Bouncy Castle managed implementations
+for AES-GCM, Argon2id, HKDF, HPKE and ECDSA. **The HPKE availability claim was
+incorrect and is withdrawn.** During implementation planning on 2026-10-07, the
+complete official C# `release-2.7.0` source tree contained 3,442 entries, was not
+truncated, and contained no HPKE implementation. Bouncy Castle's Java API does
+provide RFC 9180 HPKE, including P-256, HKDF-SHA-256 and AES-256-GCM. Java API
+availability must not be attributed to its C# package.
+
+The Python side uses `cryptography` and its separate Rust/OpenSSL-backed
+implementations, including Argon2id and HPKE. Research at design time found stable
+Bouncy Castle C# 2.7.0 and Python `cryptography` 50.0.2; a release existing does not
+prove it supplies every selected primitive.
+
+**Proposed correction, awaiting owner approval:** replace only the .NET reference
+harness with a Java/Bouncy Castle reference harness. Keep Python as the other
+independent implementation and keep the protocol, production .NET projects,
+non-production isolation, and pending security gate unchanged. Use
+`tools/protocol-harness/java/` instead of `dotnet/`. Verify and pin an available
+stable Java library release, its exact HPKE API and known-answer vectors, the JDK
+and build dependencies, and applicable vulnerability checks before adoption. The
+Java version is not assumed to equal the C# version.
+
+An alternative is to retain .NET after qualifying a maintained library providing
+the exact HPKE suite. No such dependency has been qualified here. Do not silently
+substitute another suite, introduce a handwritten HPKE construction, use preview
+runtime APIs, delegate .NET cryptography to Python, or label a partial harness
+complete. The implementation plan remains unwritten until the owner selects the
+correction; no harness dependencies or code have been installed or implemented.
 
 Each side owns its encoders, strict parsers, context constructors, crypto calls,
 and verification rules. Sharing only a data-only vector corpus is allowed. Use
@@ -567,5 +591,7 @@ design decisions submitted for review, not quotations from these documents.
 - [RFC 7518, section 3.4](https://www.rfc-editor.org/rfc/rfc7518.html#section-3.4): ES256 and fixed-width signature encoding.
 - [RFC 8725](https://www.rfc-editor.org/rfc/rfc8725.html): algorithm allowlists, explicit token typing and separate validation rules.
 - [Bouncy Castle C# downloads](https://www.bouncycastle.org/download/bouncy-castle-c/): maintained reference-library release information.
+- [Bouncy Castle C# 2.7.0 complete source tree](https://api.github.com/repos/bcgit/bc-csharp/git/trees/release-2.7.0?recursive=1): verified during planning; no HPKE implementation in this release.
+- [Bouncy Castle Java HPKE API](https://downloads.bouncycastle.org/java/docs/bcprov-jdk18on-javadoc/org/bouncycastle/crypto/hpke/HPKE.html): actual supported HPKE API; this is not a C# API or a selected dependency version.
 - [Python cryptography HPKE](https://cryptography.io/en/stable/hazmat/primitives/hpke/), [KDFs](https://cryptography.io/en/stable/hazmat/primitives/key-derivation-functions/), and [ECDSA](https://cryptography.io/en/stable/hazmat/primitives/asymmetric/ec/): independent APIs, supported primitives and runtime constraints.
 - [NIST FIPS 203](https://csrc.nist.gov/pubs/fips/203/final): standardized ML-KEM; it does not make this classical P-256 v1 profile quantum-resistant.

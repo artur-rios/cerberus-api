@@ -7,6 +7,7 @@ namespace ArturRios.Cerberus.Data;
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseDbContext(options)
 {
     public DbSet<RetentionWorkItem> RetentionWorkItems => Set<RetentionWorkItem>();
+    public DbSet<TerminalErasure> TerminalErasures => Set<TerminalErasure>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
         optionsBuilder.UseSnakeCaseNamingConvention().EnableDetailedErrors(false).EnableSensitiveDataLogging(false);
@@ -19,5 +20,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
         work.HasIndex(x => x.PublicId).IsUnique();
         work.HasIndex(x => x.OperationKey).IsUnique();
         work.Property(x => x.OperationKey).HasMaxLength(128).IsRequired();
+        var erasure = modelBuilder.Entity<TerminalErasure>();
+        erasure.ToTable("terminal_erasure");
+        erasure.HasIndex(x => x.ResourceId).IsUnique();
+        erasure.Property(x => x.ResourceKind).HasMaxLength(16).IsRequired();
     }
 }

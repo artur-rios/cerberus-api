@@ -10,7 +10,7 @@
 
 **Spec:** [System Requirements](../../requirements/System%20Requirements%20Document.md), [Operations & Infrastructure](../../requirements/Operations%20%26%20Infrastructure%20Document.md), [Use Case Specification](../../requirements/Use%20Case%20Specification%20Document.md), [Technology Stack](../../requirements/Technology%20Stack%20Document.md) and [Testing Specification](../../requirements/Testing%20Specification%20Document.md).
 
-**Status:** Batch authorized by the user's “Yes, go ahead”. Foundation implementation is in progress on `feature/project-foundation`; no issue is complete or merged. Independent protocol review and operator settings are still pending.
+**Status:** Batch authorized by the user's “Yes, go ahead”. Foundation implementation is in progress on `feature/project-foundation`; no issue is complete or merged. Beta setting design inputs are approved; independent protocol review is still pending.
 
 ## Global Constraints
 
@@ -65,7 +65,7 @@ Follow the documented milestone dependencies, then specification order within ea
 - Received authorization covering design/implementation stage transitions, pushing and opening pull requests, merging verified pull requests into `develop`, closing issues, updating project/README status and deleting merged feature branches for issues #1–#56.
 - The cryptographic suite and binary contracts remain deliberately unselected. Before encrypted-contract implementation, prepare a protocol design covering algorithms, KDF parameters, nonce uniqueness, authenticated metadata, recipient public-key verification, proof domain separation, key rotation and client test vectors; obtain the required review. An automated test run does not constitute independent security or client review.
 - Operations §3 requires operator-chosen backup, log and sync retention, worker interval, storage paths and request/page limits before foundation approval. Obtain those choices or explicit authority to propose them for review. Keep production secrets out of the plan and source control.
-- Do not mark this plan or foundation complete while those required decisions remain unresolved.
+- The foundation may supply the review gate while its record is pending (IR-09); do not begin encryption/recovery implementation until actual review evidence is approved (NFR-11). Do not mark the batch complete while those decisions remain unresolved.
 
 ## Foundation tasks — issue #1
 

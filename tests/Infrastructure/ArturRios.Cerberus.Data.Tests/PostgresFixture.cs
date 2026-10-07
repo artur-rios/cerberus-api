@@ -3,10 +3,11 @@ using Testcontainers.PostgreSql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-public sealed class PostgresFixture : IAsyncLifetime
+public sealed class PostgresFixture : IAsyncLifetime, IDbContextFactory<AppDbContext>
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:18.6-alpine").Build();
     public AppDbContext CreateContext() => new(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(_container.GetConnectionString()).Options);
+    public AppDbContext CreateDbContext() => CreateContext();
     public async Task InitializeAsync()
     {
         await _container.StartAsync();

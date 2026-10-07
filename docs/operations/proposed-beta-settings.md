@@ -1,8 +1,8 @@
 # Proposed beta operational settings
 
-Status: **Proposed for operator review; not deployment configuration.**
+Status: **Approved as beta design inputs by the user's “Go ahead” on 2026-10-07; not deployed configuration.**
 
-These values are review inputs for Operations §3. Production startup requires explicit settings; no value in this document is installed as a silent default. Secrets, identity scope and deployment host details must be supplied through the operator's protected configuration.
+These values are approved design inputs for Operations §3. Production startup still requires explicit settings; no value in this document is installed as a silent default. Secrets, identity scope and deployment host details must be supplied through the operator's protected configuration. Load, restore and deployment ownership verification remain required before production traffic.
 
 | Setting | Proposed value | Reason for review |
 | --- | --- | --- |
@@ -19,4 +19,4 @@ The erasure ledger directory must be durably preprovisioned, private to its oper
 
 The first four values use the invariant .NET constant TimeSpan format. These deployment retentions do not change the specified 30-day trash/account-closure period or the initial 24-hour account offline policy.
 
-Record approval, deployment-specific changes, storage/backup access ownership and successful load/restore evidence before accepting production traffic. No deployment, benchmark, expiry enforcement by external log collection or operator approval is claimed by this proposal.
+Record deployment-specific changes, storage/backup access ownership and successful load/restore evidence before accepting production traffic. Design approval does not claim deployment, benchmarks, storage provisioning or expiry enforcement by external log collection.

@@ -23,6 +23,16 @@ The development host validates configuration and ledger storage before starting,
 the database without implicitly migrating it, and exposes no business endpoints. Its single
 console logging pipeline has no request/body logging.
 
+Checkpoint verification on 2026-10-07: the unfiltered solution suite passed 49 tests, helper
+tests passed 15, specification validation passed, and the dependency vulnerability scan found
+no reported vulnerable packages. Fresh merged application coverage was 94.7% line and 81.5%
+branch. The development container built successfully. These results do not establish the
+unfinished foundation's Definition of Done or production readiness.
+
+The checkpoint code review found and verified fixes for ledger auto-recreation, nonlocal HTTP
+transport and protocol-approval artifact binding. Ledger storage must now be durably
+preprovisioned; its absence fails startup without writing to an unexpected directory.
+
 ## Required decisions
 
 1. Complete the independent security and client-interoperability review required by NFR-11.
@@ -41,8 +51,8 @@ does not constitute an independent security review or approve unspecified deploy
   execution and retry/crash recovery.
 - Restore reconciliation and tested restoration of current authorization before traffic.
 - Redacted failure-path logging tests, complete startup/security pipeline integration.
-- OpenAPI generation/drift checks, merged coverage verification, final artifact verification
-  and required CI. The 90% coverage gate must not be bypassed.
+- OpenAPI generation/drift checks, automated coverage-tooling verification, final artifact
+  verification and required CI. The 90% coverage gate must not be bypassed.
 
 No dependent use case can start until the foundation Definition of Done is met. The per-issue
 plan is [the backlog implementation plan](../superpowers/plans/2026-10-07-cerberus-backlog.md).

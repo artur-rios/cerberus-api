@@ -15,7 +15,8 @@ public sealed class FileErasureLedger : IErasureLedger
         if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException("Durable ledger requires the approved Linux host.");
         if (!Path.IsPathFullyQualified(directory)) throw new ArgumentException("Ledger path must be absolute.", nameof(directory));
         _directory = Path.GetFullPath(directory);
-        Directory.CreateDirectory(_directory, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        if (!Directory.Exists(_directory))
+            throw new IOException("Durable ledger storage must be provisioned before startup.");
         for (var current = new DirectoryInfo(_directory); current is not null; current = current.Parent)
             if (current.LinkTarget is not null) throw new IOException("Ledger path must not contain symbolic links.");
         var mode = File.GetUnixFileMode(_directory);
@@ -35,7 +36,9 @@ public sealed class FileErasureLedger : IErasureLedger
         {
             await using (var file = new FileStream(temporary, new FileStreamOptions
             {
-                Mode = FileMode.CreateNew, Access = FileAccess.Write, Share = FileShare.None,
+                Mode = FileMode.CreateNew,
+                Access = FileAccess.Write,
+                Share = FileShare.None,
                 Options = FileOptions.Asynchronous | FileOptions.WriteThrough,
                 UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite
             }))

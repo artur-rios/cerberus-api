@@ -16,11 +16,17 @@ public sealed class HeimdallTokenValidator(CerberusOptions options)
             var handler = new JwtSecurityTokenHandler { MapInboundClaims = false };
             var principal = handler.ValidateToken(token, new TokenValidationParameters
             {
-                ValidIssuer = options.AuthIssuer, ValidAudience = options.AuthAudience,
+                ValidIssuer = options.AuthIssuer,
+                ValidAudience = options.AuthAudience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(options.AuthValidationSecret!)),
-                ValidateIssuer = true, ValidateAudience = true, ValidateLifetime = true,
-                ValidateIssuerSigningKey = true, RequireSignedTokens = true, RequireExpirationTime = true,
-                ValidAlgorithms = [SecurityAlgorithms.HmacSha256], ClockSkew = TimeSpan.Zero
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                RequireSignedTokens = true,
+                RequireExpirationTime = true,
+                ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
+                ClockSkew = TimeSpan.Zero
             }, out _);
             if (!Guid.TryParse(principal.FindFirst("id")?.Value, out var id) || id == Guid.Empty
                 || !Guid.TryParse(principal.FindFirst("scopeId")?.Value, out var scope) || scope != options.HeimdallScopeId

@@ -45,9 +45,11 @@ public class HeimdallTokenValidatorTests
         {
             token = new JwtSecurityTokenHandler().CreateEncodedJwt(new SecurityTokenDescriptor
             {
-                Issuer = options.AuthIssuer, Audience = options.AuthAudience,
+                Issuer = options.AuthIssuer,
+                Audience = options.AuthAudience,
                 Claims = claims.ToDictionary(pair => pair.Key, pair => (object)pair.Value),
-                NotBefore = DateTime.UtcNow.AddMinutes(-2), Expires = DateTime.UtcNow.AddMinutes(-1),
+                NotBefore = DateTime.UtcNow.AddMinutes(-2),
+                Expires = DateTime.UtcNow.AddMinutes(-1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(options.AuthValidationSecret!)), SecurityAlgorithms.HmacSha256)
             });
         }

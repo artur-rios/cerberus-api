@@ -58,6 +58,11 @@ Lease signing keys are operational credentials, independent of vault content key
 - Measured client KDF resource consumption and randomness/nonce behavior.
 - Explicit reviewer identities, reviewed artifact hashes, date, outcome and any unresolved findings. User approval of batch automation is not evidence that these reviews occurred.
 
+The approval manifest must hash both this designated document (`docs/security/protocol-review.md`)
+and the actual reviewed client vectors (`docs/security/interoperability-vectors.json`). Hashing
+unrelated repository files does not satisfy the gate. No vector file is created until actual
+independent implementation evidence is available; a stub would not establish interoperability.
+
 No review result or client test-vector execution is claimed here. The recovery proof construction, challenge endpoint and client verification/clock policy must be resolved before this protocol can be approved.
 
 ## Primary review inputs

@@ -28,6 +28,11 @@ def validate(record, root):
     if not isinstance(artifacts, list) or not artifacts:
         errors.append("Reviewed artifacts are required.")
         return errors
+    required = {"docs/security/protocol-review.md", "docs/security/interoperability-vectors.json"}
+    reviewed_paths = {artifact.get("path") for artifact in artifacts
+                      if isinstance(artifact, dict) and isinstance(artifact.get("path"), str)}
+    if not required.issubset(reviewed_paths):
+        errors.append("Protocol document and interoperability vectors must both be reviewed.")
     root = root.resolve()
     for artifact in artifacts:
         if not isinstance(artifact, dict) or not isinstance(artifact.get("path"), str):

@@ -15,7 +15,7 @@ These values are review inputs for Operations §3. Production startup requires e
 | `CERBERUS_MAX_REQUEST_BYTES` | `1048576` | Initial one-MiB bound; test against actual encrypted export/sync payloads before adoption. |
 | `CERBERUS_MAX_PAGE_SIZE` | `100` | Initial bounded pagination; load-test authorization filtering and sync batches before adoption. |
 
-The erasure ledger directory must be private to its operator/service account, with no symbolic-link components. Ledger files contain only resource GUID, resource kind and deletion time. The service durably flushes committed records and their directory before acknowledging a deletion record. The operator must verify the filesystem/storage actually honors these durability primitives and ensure its external ledger survives database restores.
+The erasure ledger directory must be durably preprovisioned, private to its operator/service account, with no symbolic-link components. Provisioning must flush newly created directory entries in their parent directories and verify the filesystem/storage actually honors durability primitives. The service never creates missing ledger storage: absence fails startup rather than silently replacing a lost ledger with an empty one. Ledger files contain only resource GUID, resource kind and deletion time. The service durably flushes committed records and their directory before acknowledging a deletion record. Ensure its external ledger survives database restores; directory ownership must match the container's non-root service user.
 
 The first four values use the invariant .NET constant TimeSpan format. These deployment retentions do not change the specified 30-day trash/account-closure period or the initial 24-hour account offline policy.
 

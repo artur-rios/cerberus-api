@@ -1,6 +1,7 @@
 using ArturRios.Configuration.Enums;
 using ArturRios.Util.Test.Functional;
 using ArturRios.Cerberus.WebApi;
+using Microsoft.Extensions.Options;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
@@ -17,6 +18,17 @@ public class FoundationHostTests : WebApiTest<Program>
         Assert.True(response.Headers.CacheControl?.NoStore);
     }
 
+    [FunctionalTheory]
+    [InlineData("Staging")]
+    [InlineData("Development")]
+    [InlineData("custom-environment")]
+    public void GivenNonLocalHost_WhenConfiguringHttpHeimdall_ThenRejectTransport(string environment)
+    {
+        var exception = Assert.Throws<OptionsValidationException>(() => Startup.CreateApplication(
+            ["--environment=" + environment, "--CERBERUS_HEIMDALL_BASE_URL=http://localhost:1234"]));
+        Assert.Contains("CERBERUS_HEIMDALL_BASE_URL", exception.Message);
+    }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -30,7 +42,7 @@ public class FoundationHostTests : WebApiTest<Program>
 
         public static EnvironmentType Configure()
         {
-            _ledger = Path.Combine(Path.GetTempPath(), "cerberus-host-test-" + Guid.NewGuid().ToString("N"));
+            _ledger = Directory.CreateTempSubdirectory("cerberus-host-test-").FullName;
             var values = new Dictionary<string, string>
             {
                 ["CERBERUS_DATA_CONNECTIONSTRING"] = "Host=localhost;Database=unused;Username=test;Password=test",

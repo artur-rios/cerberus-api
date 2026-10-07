@@ -102,7 +102,7 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| [#1](https://github.com/artur-rios/cerberus-api/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | Todo |
+| [#1](https://github.com/artur-rios/cerberus-api/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | In Progress |
 
 ### M-02 — Account identity and vault protection
 

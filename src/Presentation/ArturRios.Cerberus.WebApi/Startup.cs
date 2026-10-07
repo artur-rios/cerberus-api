@@ -17,7 +17,7 @@ public static class Startup
     {
         var builder = WebApplication.CreateBuilder(args);
         var options = CerberusConfiguration.Load(builder.Configuration);
-        var result = new CerberusOptionsValidator(builder.Environment.IsProduction()).Validate(null, options);
+        var result = new CerberusOptionsValidator(production: !builder.Environment.IsEnvironment("local")).Validate(null, options);
         if (result.Failed) throw new OptionsValidationException(nameof(CerberusOptions), typeof(CerberusOptions), result.Failures);
 
         // Do not load arbitrary logging enrichers/sinks from request-controlled configuration.

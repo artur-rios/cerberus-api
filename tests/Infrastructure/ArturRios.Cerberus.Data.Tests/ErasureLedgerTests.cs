@@ -8,7 +8,15 @@ public class ErasureLedgerTests : IDisposable
     private readonly string _directory = Directory.CreateTempSubdirectory("cerberus-ledger-test-").FullName;
 
     [FunctionalFact]
-    public async Task GivenRecordedDeletion_WhenReopeningLedger_ThenRetainIdentifierAcrossDatabaseRestore()
+    public void GivenMissingProvisionedStorage_WhenOpeningLedger_ThenFailWithoutRecreatingIt()
+    {
+        var missing = Path.Combine(_directory, "missing", "ledger");
+        Assert.Throws<IOException>(() => new FileErasureLedger(missing));
+        Assert.False(Directory.Exists(Path.Combine(_directory, "missing")));
+    }
+
+    [FunctionalFact]
+    public async Task GivenRecordedDeletion_WhenReopeningLedger_ThenRetainIdentifier()
     {
         var entry = new ErasureEntry(Guid.NewGuid(), "record", DateTimeOffset.Parse("2026-10-07T00:00:00Z"));
         await new FileErasureLedger(_directory).RecordAsync(entry, default);

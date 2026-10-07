@@ -108,8 +108,9 @@ dotnet build src/ArturRios.Cerberus.sln --no-restore
 dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi
 ```
 
-The scaffold establishes this solution path; these commands are not executable against the
-current documentation-only repository.
+The foundation establishes this solution path. Host execution requires explicit validated
+configuration and preprovisioned ledger storage; see the operational runbook. Run with
+`--validate-configuration` or `--migrate` for explicit maintenance without starting traffic.
 
 ---
 

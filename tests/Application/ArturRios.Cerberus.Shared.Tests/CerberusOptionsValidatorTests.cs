@@ -104,4 +104,20 @@ public class CerberusOptionsValidatorTests
         MaxRequestBytes = 1024 * 1024,
         MaxPageSize = 100
     };
+
+    [UnitFact]
+    public void GivenIntervalOutsideTimerRange_WhenValidating_ThenRejectBeforeWorkerStarts()
+    {
+        var options = ValidOptions();
+        options.RetentionInterval = "100.00:00:00";
+        Assert.True(new CerberusOptionsValidator().Validate(null, options).Failed);
+    }
+
+    [UnitFact]
+    public void GivenUnparseableRestoreFlag_WhenValidating_ThenRejectRatherThanBypassReconciliation()
+    {
+        var options = ValidOptions();
+        options.RestoreRequired = null;
+        Assert.True(new CerberusOptionsValidator().Validate(null, options).Failed);
+    }
 }

@@ -18,4 +18,5 @@ public sealed class CerberusOptions
     public string? ErasureLedgerPath { get; set; }
     public long MaxRequestBytes { get; set; }
     public int MaxPageSize { get; set; }
+    public bool? RestoreRequired { get; set; } = false;
 }

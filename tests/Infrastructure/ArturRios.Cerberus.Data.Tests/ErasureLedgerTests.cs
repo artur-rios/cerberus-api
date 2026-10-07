@@ -8,6 +8,22 @@ public class ErasureLedgerTests : IDisposable
     private readonly string _directory = Directory.CreateTempSubdirectory("cerberus-ledger-test-").FullName;
 
     [FunctionalFact]
+    public void GivenNonPrivateStorage_WhenOpeningLedger_ThenFailClosed()
+    {
+        if (!OperatingSystem.IsLinux()) return;
+        File.SetUnixFileMode(_directory, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead);
+        Assert.Throws<IOException>(() => new FileErasureLedger(_directory));
+    }
+
+    [FunctionalFact]
+    public void GivenSymlinkedStorage_WhenOpeningLedger_ThenRejectAliasedLocation()
+    {
+        var linked = Path.Combine(_directory, "linked");
+        Directory.CreateSymbolicLink(linked, _directory);
+        Assert.Throws<IOException>(() => new FileErasureLedger(linked));
+    }
+
+    [FunctionalFact]
     public void GivenMissingProvisionedStorage_WhenOpeningLedger_ThenFailWithoutRecreatingIt()
     {
         var missing = Path.Combine(_directory, "missing", "ledger");

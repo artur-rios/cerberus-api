@@ -31,7 +31,8 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
             (options.RetentionInterval, "CERBERUS_RETENTION_INTERVAL")
         })
         {
-            Require(TimeSpan.TryParseExact(value, "c", CultureInfo.InvariantCulture, out var interval) && interval > TimeSpan.Zero,
+            Require(TimeSpan.TryParseExact(value, "c", CultureInfo.InvariantCulture, out var interval) && interval > TimeSpan.Zero
+                && (key != "CERBERUS_RETENTION_INTERVAL" || interval <= TimeSpan.FromMilliseconds(uint.MaxValue - 1)),
                 key);
         }
 
@@ -40,6 +41,7 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
                 && !IsWithin(options.ErasureLedgerPath!, options.BackupPath), "CERBERUS_ERASURE_LEDGER_PATH");
         Require(options.MaxRequestBytes > 0, "CERBERUS_MAX_REQUEST_BYTES");
         Require(options.MaxPageSize > 0, "CERBERUS_MAX_PAGE_SIZE");
+        Require(options.RestoreRequired.HasValue, "CERBERUS_RESTORE_REQUIRED");
         return errors.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(errors);
     }
 

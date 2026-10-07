@@ -16,7 +16,7 @@ public sealed class RetentionWorkItem : VersionedEntity
     {
         if (token == Guid.Empty || duration <= TimeSpan.Zero || now.Offset != TimeSpan.Zero
             || duration.Ticks > DateTimeOffset.MaxValue.UtcTicks - now.UtcTicks
-            || CompletedAt is not null || DueAt > now || ClaimExpiresAt > now)
+            || Attempts is < 0 or int.MaxValue || CompletedAt is not null || DueAt > now || ClaimExpiresAt > now)
             return false;
         ClaimToken = token;
         ClaimExpiresAt = now + duration;
@@ -26,7 +26,8 @@ public sealed class RetentionWorkItem : VersionedEntity
 
     public bool TryComplete(Guid token, DateTimeOffset now)
     {
-        if (token == Guid.Empty || ClaimToken != token || ClaimExpiresAt <= now || CompletedAt is not null) return false;
+        if (token == Guid.Empty || now.Offset != TimeSpan.Zero || ClaimToken != token || ClaimExpiresAt is null
+            || ClaimExpiresAt <= now || CompletedAt is not null) return false;
         CompletedAt = now;
         return true;
     }

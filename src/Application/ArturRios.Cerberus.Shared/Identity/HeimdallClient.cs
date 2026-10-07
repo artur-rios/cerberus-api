@@ -2,12 +2,32 @@ using ArturRios.Cerberus.Shared.Configuration;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ArturRios.Cerberus.Shared.Identity;
 
 public sealed class HeimdallClient(HttpClient client, CerberusOptions options, HeimdallTokenValidator tokens) : IHeimdallClient
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    public async Task<bool> VerifyScopeAsync(CancellationToken cancellationToken)
+    {
+        var credential = options.HeimdallServiceCredential!;
+        var principal = await tokens.ValidateServiceAsync(credential);
+        if (principal is null) return false;
+        var id = Guid.Parse(principal.FindFirst("id")!.Value);
+        var data = await SendAsync(HttpMethod.Get, $"/api/scopes/{options.HeimdallScopeId:D}", null, credential, cancellationToken);
+        if (data is null) return false;
+        ScopeSnapshot? scope;
+        try { scope = data.Value.Deserialize<ScopeSnapshot>(Json); }
+        catch (JsonException) { return false; }
+        if (scope is null || scope.Id != options.HeimdallScopeId || scope.IsDeleted || scope.OwnerIds?.Contains(id) != true) return false;
+        var personData = await SendAsync(HttpMethod.Get, $"/api/persons/{id:D}", null, credential, cancellationToken);
+        var person = ParsePerson(personData, requireDeletionState: true);
+        return person is { IsDeleted: false, Role: 2 } && person.Id == id && person.OwnedScopeIds?.Contains(options.HeimdallScopeId) == true;
+    }
+
+    private sealed record ScopeSnapshot([property: JsonRequired] Guid Id, [property: JsonRequired] bool IsDeleted,
+        [property: JsonRequired] IReadOnlyList<Guid>? OwnerIds);
 
     public async Task<HeimdallLogin?> LoginAsync(string email, string password, CancellationToken cancellationToken)
     {
@@ -72,22 +92,26 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
     private async Task<JsonElement?> SendAsync(HttpMethod method, string route, object? body, string? bearer, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var limit = TimeSpan.FromSeconds(10);
+        timeout.CancelAfter(client.Timeout > TimeSpan.Zero && client.Timeout < limit ? client.Timeout : limit);
+        var dependencyToken = timeout.Token;
         using var request = new HttpRequestMessage(method, route);
         if (body is not null) request.Content = JsonContent.Create(body, options: Json);
         if (bearer is not null) request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
         try
         {
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, dependencyToken);
             if (!response.IsSuccessStatusCode || response.Content.Headers.ContentType?.MediaType != "application/json"
                 || response.Content.Headers.ContentLength > options.MaxRequestBytes) return null;
-            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            await using var stream = await response.Content.ReadAsStreamAsync(dependencyToken);
             using var buffer = new MemoryStream();
             var block = new byte[4096];
             int read;
-            while ((read = await stream.ReadAsync(block, cancellationToken)) != 0)
+            while ((read = await stream.ReadAsync(block, dependencyToken)) != 0)
             {
                 if (buffer.Length > options.MaxRequestBytes - read) return null;
-                await buffer.WriteAsync(block.AsMemory(0, read), cancellationToken);
+                await buffer.WriteAsync(block.AsMemory(0, read), dependencyToken);
             }
             using var document = JsonDocument.Parse(buffer.ToArray());
             var root = document.RootElement;

@@ -5,6 +5,18 @@ namespace ArturRios.Cerberus.WebApi.Tests;
 
 public class CerberusConfigurationTests
 {
+    [UnitTheory]
+    [InlineData("true", true)]
+    [InlineData("false", false)]
+    [InlineData("invalid", null)]
+    public void GivenRestoreFlag_WhenLoading_ThenBindWithoutSilentlyDisabling(string value, bool? expected)
+    {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["CERBERUS_RESTORE_REQUIRED"] = value
+        }).Build();
+        Assert.Equal(expected, CerberusConfiguration.Load(configuration).RestoreRequired);
+    }
     [UnitFact]
     public void GivenEnvironmentSecretAndCheckedInValue_WhenLoading_ThenEnvironmentWins()
     {

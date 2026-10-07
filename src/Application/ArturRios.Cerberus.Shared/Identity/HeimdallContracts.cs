@@ -11,4 +11,5 @@ public interface IHeimdallClient
     Task<HeimdallLogin?> CompleteChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken);
     Task<HeimdallPerson?> RegisterAsync(HeimdallRegistration registration, CancellationToken cancellationToken);
     Task<bool> RevalidateAsync(string token, CancellationToken cancellationToken);
+    Task<bool> VerifyScopeAsync(CancellationToken cancellationToken);
 }

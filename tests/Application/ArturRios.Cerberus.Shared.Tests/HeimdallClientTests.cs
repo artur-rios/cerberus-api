@@ -35,8 +35,12 @@ public sealed class HeimdallClientTests
     {
         var result = await Client(new FixtureHandler(_ => Task.FromResult(Envelope(new
         {
-            token = (string?)null, expiresAt = (DateTimeOffset?)null, emailVerified = (bool?)null,
-            requiresTwoFactor = true, challengeToken = "opaque-challenge", availableMethods = new[] { "App" }
+            token = (string?)null,
+            expiresAt = (DateTimeOffset?)null,
+            emailVerified = (bool?)null,
+            requiresTwoFactor = true,
+            challengeToken = "opaque-challenge",
+            availableMethods = new[] { "App" }
         })))).LoginAsync("fixture@example.test", "fixture-password", default);
         Assert.NotNull(result);
         Assert.True(result.RequiresTwoFactor);
@@ -142,11 +146,75 @@ public sealed class HeimdallClientTests
             new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = role, ["ownedScopeIds"] = ownedScopes }));
     }
 
+    [UnitTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GivenConfiguredScopeOwner_WhenVerifyingRestoreAuthorization_ThenRequireCurrentOwnership(bool revoked)
+    {
+        var options = CerberusOptionsValidatorTests.ValidOptions();
+        options.HeimdallServiceCredential = ServiceToken("2", options.HeimdallScopeId.ToString());
+        var result = await Client(new FixtureHandler(request =>
+        {
+            Assert.Equal(options.HeimdallServiceCredential, request.Headers.Authorization?.Parameter);
+            if (request.RequestUri!.AbsolutePath == "/api/scopes/527a1001-8ef5-4c9b-a565-111111111111")
+                return Task.FromResult(Envelope(new
+                {
+                    id = options.HeimdallScopeId,
+                    name = "Fixture",
+                    description = (string?)null,
+                    googleSignInEnabled = false,
+                    defaultLegalBasis = (int?)null,
+                    privacyNoticeUri = (string?)null,
+                    isDeleted = false,
+                    ownerIds = revoked ? Array.Empty<Guid>() : new[] { Identity },
+                    createdAt = "2026-10-07T00:00:00Z",
+                    updatedAt = "2026-10-07T00:00:00Z"
+                }));
+            Assert.Equal("/api/persons/527a1001-8ef5-4c9b-a565-222222222222", request.RequestUri.AbsolutePath);
+            return Task.FromResult(Envelope(new
+            {
+                id = Identity,
+                name = "Fixture",
+                email = "fixture@example.test",
+                role = 2,
+                emailVerified = true,
+                twoFactorEnabled = false,
+                isDeleted = false,
+                scopeId = (Guid?)null,
+                ownedScopeIds = new[] { options.HeimdallScopeId },
+                createdAt = "2026-10-07T00:00:00Z",
+                updatedAt = "2026-10-07T00:00:00Z"
+            }));
+        }), options).VerifyScopeAsync(default);
+        Assert.Equal(!revoked, result);
+    }
+
     private static string Token()
     {
         var options = CerberusOptionsValidatorTests.ValidOptions();
         return new JwtHandler().CreateToken(new JwtConfiguration(60, options.AuthIssuer!, options.AuthAudience!, options.AuthValidationSecret!,
             new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = "3", ["scopeId"] = options.HeimdallScopeId.ToString() }));
+    }
+
+    [UnitFact]
+    public async Task GivenHeadersButStalledBody_WhenReadingDependency_ThenApplyTimeoutToWholeResponse()
+    {
+        var options = CerberusOptionsValidatorTests.ValidOptions();
+        var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StreamContent(new StalledStream()) };
+        response.Content.Headers.ContentType = new("application/json");
+        using var transport = new HttpClient(new FixtureHandler(_ => Task.FromResult(response)))
+        { BaseAddress = new Uri(options.HeimdallBaseUrl!), Timeout = TimeSpan.FromMilliseconds(50) };
+        var client = new HeimdallClient(transport, options, new HeimdallTokenValidator(options));
+        Assert.Null(await client.LoginAsync("fixture@example.test", "fixture-password", default).WaitAsync(TimeSpan.FromSeconds(2)));
+    }
+
+    private sealed class StalledStream : MemoryStream
+    {
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            return 0;
+        }
     }
 
     private static HeimdallClient Client(HttpMessageHandler handler, ArturRios.Cerberus.Shared.Configuration.CerberusOptions? configuration = null)

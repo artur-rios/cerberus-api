@@ -14,10 +14,20 @@ public interface IRestoreReconciler
 
 public sealed class RestoreTrafficGate
 {
-    private int _ready;
-    public bool IsReady => Volatile.Read(ref _ready) == 1;
-    internal void Close() => Interlocked.Exchange(ref _ready, 0);
-    internal void Open() => Interlocked.Exchange(ref _ready, 1);
+    private readonly object _state = new();
+    private long _generation;
+    private bool _ready;
+    public bool IsReady { get { lock (_state) return _ready; } }
+    internal long Close() { lock (_state) { _ready = false; return ++_generation; } }
+    internal bool Open(long generation)
+    {
+        lock (_state)
+        {
+            if (_generation != generation) return false;
+            _ready = true;
+            return true;
+        }
+    }
 }
 
 public sealed class RestoreReconciler(IErasureLedger ledger, ITerminalErasureStore erasures,
@@ -27,15 +37,14 @@ public sealed class RestoreReconciler(IErasureLedger ledger, ITerminalErasureSto
 
     public async Task<bool> ReconcileAsync(CancellationToken cancellationToken)
     {
+        var generation = gate.Close();
         await _reconciliation.WaitAsync(cancellationToken);
-        gate.Close();
         try
         {
             await foreach (var entry in ledger.ReadAsync(cancellationToken))
                 await erasures.ReapplyAsync(entry, cancellationToken);
             if (!await authorization.VerifyAsync(cancellationToken)) return false;
-            gate.Open();
-            return true;
+            return gate.Open(generation);
         }
         finally { _reconciliation.Release(); }
     }

@@ -5,7 +5,7 @@ records. Cerberus manages encrypted storage, organization and resource permissio
 handles identity, and authorized clients encrypt/decrypt locally.
 
 > **Status:** foundation implementation in progress; no issue is complete. The development host
-> exposes no business endpoints. Protocol review and concrete deployment configuration remain
+> exposes no business endpoints. Independent protocol review and actual deployment provisioning remain
 > required decisions. See [foundation status](docs/operations/foundation-status.md).
 
 ## What it does
@@ -51,12 +51,20 @@ The foundation branch contains the .NET 10 solution. Use an SDK accepted by `glo
 and a Docker-compatible runtime for functional tests. Starting the development host requires
 explicit database, Heimdall and operational configuration; no production defaults are supplied.
 The container is a development artifact, not a release-ready vault API.
+See [operational settings](docs/operations/proposed-beta-settings.md), the nonsecret
+[configuration example](docs/operations/appsettings.example.json),
+[Heimdall contracts](docs/operations/heimdall.md) and [restore runbook](docs/operations/restore.md).
+Copy the reviewed nonsecret settings into the host's `appsettings.json` or supply named
+`CERBERUS_...` environment keys, which take precedence over `Cerberus:Property` values.
+Supply all credentials and identity scope separately through protected configuration.
 
 From the repository root:
 
 ```bash
 dotnet restore src/ArturRios.Cerberus.sln
 dotnet build src/ArturRios.Cerberus.sln --no-restore
+dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi -- --validate-configuration
+dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi -- --migrate
 dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi
 ```
 
@@ -73,12 +81,22 @@ dotnet test src/ArturRios.Cerberus.sln --filter "Category=Functional"
 dotnet test src/ArturRios.Cerberus.sln --collect:"XPlat Code Coverage"
 python3 -m unittest discover -s scripts -p 'test_*.py'
 python3 scripts/verify_specs.py
+python3 scripts/openapi.py
+dotnet tool install --global dotnet-reportgenerator-globaltool
+python3 scripts/coverage.py
+python3 scripts/vulnerabilities.py
+docker build -t cerberus-api:local .
 ```
 
 Current functional tests use disposable PostgreSQL containers and an in-memory HTTP host.
 Every implemented use case must ship with main/alternative-flow tests. The required merged
 line-coverage floor is 90%; branch coverage must be reported before foundation approval.
 `python3 scripts/verify_protocol.py` intentionally fails while the review record is pending.
+CI requires it for use-case branches, promotion to `main` and version-tag releases. Never
+begin dependent encryption/recovery work without actual security/client review evidence.
+After reviewing a deliberate API contract change, run `python3 scripts/openapi.py --write`
+and commit its result. The foundation's empty contract is intentional: no business routes
+exist yet. OpenAPI generation starts no server and requires no deployment credentials.
 
 ## Roadmap
 

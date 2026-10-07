@@ -1,0 +1,60 @@
+# Isolated backup restore
+
+This is the foundation procedure, not a claim that the unfinished vault is production-ready.
+Only an authorized operator performs a restore. Never test it against the live database.
+
+## Provisioning and backup
+
+Use the approved beta inputs in [operational settings](proposed-beta-settings.md). Supply
+database and Heimdall credentials through protected environment configuration; never commit
+them or put them in shell history. The Linux erasure ledger must be private (0700), owned by
+the service user, durably preprovisioned and independently preserved. Verify actual storage
+durability and flush new directory entries in their parents during provisioning. Missing,
+nonprivate or symlinked storage is rejected; the API does not recreate it.
+
+Back up PostgreSQL using operator-managed `pg_dump` or a consistent physical backup. Encrypt
+backups with an operator-managed key independent of client vault keys. Restrict access,
+verify backup integrity and enforce the configured seven-day expiry. Keep the erasure ledger
+outside the database restore/backup rollback boundary; never replace it with an older copy.
+Preserve it for the lifetime of terminal identifiers. The configured log collector must
+restrict access and enforce seven-day expiry; the API's console sink cannot enforce an
+external collector's policy. No credentials, body, ciphertext or personal details are logged.
+
+## Restore steps
+
+1. Stop all API/worker processes and disable ingress. Isolate a new database and verify the
+   backup and preserved external ledger. Do not overwrite the live database.
+2. Restore the backup into the isolated database using `pg_restore` or `psql`, matching the
+   operator's backup format. Point the protected connection configuration at that database.
+3. Run `dotnet ArturRios.Cerberus.WebApi.dll --validate-configuration`, then
+   `dotnet ArturRios.Cerberus.WebApi.dll --migrate`. Any nonzero exit keeps ingress disabled.
+4. Run `dotnet ArturRios.Cerberus.WebApi.dll --reconcile-restore`. It replays all committed
+   ledger records idempotently and verifies the configured scope and service identity's
+   **current** ownership in Heimdall, not just stale JWT claims. Each implemented domain
+   module must register `IRestoreVerificationStep` checks for deadlines, grants, epochs and
+   terminal resources before it can serve restored data. A failed, unavailable, cancelled or
+   corrupt reconciliation does not open the traffic gate.
+5. Independently verify terminal IDs remain erased and restored grants/deadlines are current.
+   Set `CERBERUS_RESTORE_REQUIRED=true` for the restored instance. Normal startup repeats
+   reconciliation before starting HTTP or the worker; its in-memory gate is not a durable
+   certificate from an earlier maintenance process. Keep this mode on for restored instances.
+6. Enable ingress only after successful startup and authorized operational verification.
+   Record the operator, backup identity and safe result codes, not protected payloads. If
+   verification fails, retain the isolated database for investigation and leave traffic off.
+
+The worker uses bounded pages and timed exclusive PostgreSQL claims. Failed work remains
+uncompleted and can be reclaimed after the lease expires. Handlers must be idempotent and
+fence mutations with the persisted claim token; this is at-least-once, not exactly-once,
+execution. Unknown operation kinds fail rather than silently completing work. Stable warning
+codes and the `cerberus.retention.failures` counter expose failures without exception payloads.
+Operators must monitor these signals; a worker outage never extends a product deadline.
+
+## Reproducible foundation evidence
+
+`RestoreReconcilerTests.GivenBackupBeforeErasure_WhenRestoringActualPostgresDump_ThenReplayLedgerBeforeOpeningTraffic`
+uses an isolated PostgreSQL 18 container: dump the schema, durably record an erasure, restore
+the older dump, confirm the marker is absent, replay the preserved ledger and verify the
+marker before opening the gate. Other tests cover revoked current authority, corruption,
+cancellation, duplicate replay and queued-reconciliation races. The migration CLI is tested
+against a separate blank PostgreSQL container. These fixtures establish infrastructure
+behavior, not actual domain deletion, client interoperability or a production restore drill.

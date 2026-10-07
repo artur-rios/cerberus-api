@@ -43,6 +43,7 @@ Requires the ReportGenerator global tool:
 
 import argparse
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -56,13 +57,8 @@ SRC_DIR = REPO_ROOT / "src"
 REPORT_DIR = REPO_ROOT / "docs/coverage-report"
 LICENSE_VARIABLE = "REPORTGENERATOR_LICENSE"
 
-# Line coverage, merged across both suites. Measured at 96.7% when this gate was introduced, so it
-# is a floor with real room under it rather than a number the suite has to be nursed against: it
-# catches a subsystem arriving untested, not a method.
-#
-# Line coverage only. Branch coverage was 77.4% at the same moment, and gating that at 90% would
-# have failed the build on the day it was added — a threshold that has to be met before it can be
-# committed gets set to whatever passes, which measures nothing.
+# The project workflow requires merged production line coverage of at least 90%.
+# Branch coverage is reported alongside it, not hidden or misrepresented as line coverage.
 MINIMUM_LINE_COVERAGE = 90.0
 SUMMARY_FILE = "Summary.json"
 
@@ -143,6 +139,7 @@ def generate_report():
         # files, say — double-counts every line an assembly shares and produces a figure that
         # disagrees with the report it sits next to.
         "-reporttypes:Html;JsonSummary",
+        "-assemblyfilters:+ArturRios.Cerberus.*;-*.Tests",
         "-title:Cerberus API",
     ]
     echo = list(command)
@@ -171,13 +168,18 @@ def read_line_coverage(summary_path):
     """
     try:
         with open(summary_path, encoding="utf-8") as file:
-            summary = json.load(file).get("summary", {})
+            document = json.load(file)
     except (OSError, ValueError):
         return None
 
+    summary = document.get("summary") if isinstance(document, dict) else None
+    if not isinstance(summary, dict):
+        return None
     coverage = summary.get("linecoverage")
-
-    return float(coverage) if isinstance(coverage, (int, float)) else None
+    lines = summary.get("coverablelines")
+    if type(lines) is not int or lines <= 0 or type(coverage) not in (int, float):
+        return None
+    return float(coverage) if math.isfinite(coverage) and 0 <= coverage <= 100 else None
 
 
 def check_threshold(minimum):

@@ -8,6 +8,7 @@ public static class CerberusConfiguration
     public static CerberusOptions Load(IConfiguration configuration)
     {
         string? Value(string key, string property) => configuration[key] ?? configuration[$"Cerberus:{property}"];
+        var restore = Value("CERBERUS_RESTORE_REQUIRED", nameof(CerberusOptions.RestoreRequired));
         return new CerberusOptions
         {
             ConnectionString = Value("CERBERUS_DATA_CONNECTIONSTRING", nameof(CerberusOptions.ConnectionString)),
@@ -25,7 +26,8 @@ public static class CerberusConfiguration
             BackupPath = Value("CERBERUS_BACKUP_PATH", nameof(CerberusOptions.BackupPath)),
             ErasureLedgerPath = Value("CERBERUS_ERASURE_LEDGER_PATH", nameof(CerberusOptions.ErasureLedgerPath)),
             MaxRequestBytes = long.TryParse(Value("CERBERUS_MAX_REQUEST_BYTES", nameof(CerberusOptions.MaxRequestBytes)), NumberStyles.None, CultureInfo.InvariantCulture, out var bytes) ? bytes : 0,
-            MaxPageSize = int.TryParse(Value("CERBERUS_MAX_PAGE_SIZE", nameof(CerberusOptions.MaxPageSize)), NumberStyles.None, CultureInfo.InvariantCulture, out var page) ? page : 0
+            MaxPageSize = int.TryParse(Value("CERBERUS_MAX_PAGE_SIZE", nameof(CerberusOptions.MaxPageSize)), NumberStyles.None, CultureInfo.InvariantCulture, out var page) ? page : 0,
+            RestoreRequired = restore is null ? false : bool.TryParse(restore, out var required) ? required : null
         };
     }
 }

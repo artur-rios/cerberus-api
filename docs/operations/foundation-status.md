@@ -33,7 +33,7 @@ handlers; no domain lifecycle feature is considered implemented by these primiti
 
 Fresh local verification on 2026-10-07 passed 113 unfiltered solution tests, 23 helper tests,
 specification validation, OpenAPI drift and formatting checks. Merged production coverage
-is 95.3% line (953/1000), 80.4% branch (333/414), from six fresh collector reports, excluding
+is 95.3% line (953/1000), 80.6% branch (334/414), from six fresh collector reports, excluding
 test/foreign assemblies. The updated development container built successfully. Final review
 and required remote CI still determine foundation acceptance; these are not production or
 client interoperability results.

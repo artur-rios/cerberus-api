@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="ArturRios.Output" />
+    <PackageReference Include="ArturRios.Jwt" />
+    <PackageReference Include="ArturRios.Util" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj" />
+  </ItemGroup>
+</Project>

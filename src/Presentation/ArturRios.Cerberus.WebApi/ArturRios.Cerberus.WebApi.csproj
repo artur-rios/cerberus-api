@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup><OutputType>Library</OutputType></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ArturRios.Configuration" />
+    <PackageReference Include="ArturRios.Logging" />
+    <PackageReference Include="ArturRios.Util.WebApi" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj" />
+    <ProjectReference Include="../../Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj" />
+    <ProjectReference Include="../../Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj" />
+    <ProjectReference Include="../../Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj" />
+  </ItemGroup>
+</Project>

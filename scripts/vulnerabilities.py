@@ -5,9 +5,8 @@
 anything or not, so a CI step that just runs it is a step that can never fail. This runs it,
 parses what it printed, and turns findings into a non-zero exit.
 
-`--include-transitive` is not optional here. The vulnerability this project actually shipped with
-was in SSH.NET, pulled in transitively; a scan of direct references only would have reported a
-clean tree while the CVE sat two levels down.
+`--include-transitive` is not optional here. A scan of direct references alone can miss
+vulnerabilities in packages brought in by another dependency.
 
 Usage (from anywhere in the repository):
 

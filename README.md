@@ -4,10 +4,11 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** formal specifications and GitHub backlog published; implementation not started.
-> Protocol review and concrete deployment configuration remain explicit preimplementation/release decisions.
+> **Status:** foundation infrastructure implemented; all 55 business use cases remain unimplemented. The host
+> exposes no business endpoints. Independent protocol review and actual deployment provisioning remain
+> required decisions. See [foundation status](docs/operations/foundation-status.md).
 
-## What it does
+## Planned capabilities
 
 - Distinct Cerberus accounts and vault profiles integrated with Heimdall identity.
 - Named custom/template records, nested folders and multi-profile collections.
@@ -46,17 +47,24 @@ Start with the initial context, then the normative formal requirements.
 
 ## Installation
 
-The repository currently contains documentation only. The following commands are intended
-for the scaffold defined in [Technology Stack](docs/requirements/Technology%20Stack%20Document.md)
-and [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md).
-Use the selected stable SDK and a Docker-compatible runtime for functional tests. Configure
-the database, Heimdall scope/credentials and required operational settings first.
+The foundation branch contains the .NET 10 solution. Use an SDK accepted by `global.json`
+and a Docker-compatible runtime for functional tests. Starting the development host requires
+explicit database, Heimdall and operational configuration; no production defaults are supplied.
+The container is a development artifact, not a release-ready vault API.
+See [operational settings](docs/operations/proposed-beta-settings.md), the nonsecret
+[configuration example](docs/operations/appsettings.example.json),
+[Heimdall contracts](docs/operations/heimdall.md) and [restore runbook](docs/operations/restore.md).
+Copy the reviewed nonsecret settings into the host's `appsettings.json` or supply named
+`CERBERUS_...` environment keys, which take precedence over `Cerberus:Property` values.
+Supply all credentials and identity scope separately through protected configuration.
 
-From the repository root after scaffolding:
+From the repository root:
 
 ```bash
 dotnet restore src/ArturRios.Cerberus.sln
 dotnet build src/ArturRios.Cerberus.sln --no-restore
+dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi -- --validate-configuration
+dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi -- --migrate
 dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi
 ```
 
@@ -65,17 +73,30 @@ Clone the repository with `git clone https://github.com/artur-rios/cerberus-api.
 ## Testing
 
 Follow [Testing Specification](docs/requirements/Testing%20Specification%20Document.md).
-After scaffolding, from the repository root:
+From the repository root:
 
 ```bash
 dotnet test src/ArturRios.Cerberus.sln --filter "Category=Unit"
 dotnet test src/ArturRios.Cerberus.sln --filter "Category=Functional"
 dotnet test src/ArturRios.Cerberus.sln --collect:"XPlat Code Coverage"
+python3 -m unittest discover -s scripts -p 'test_*.py'
+python3 scripts/verify_specs.py
+python3 scripts/openapi.py
+dotnet tool install --global dotnet-reportgenerator-globaltool
+python3 scripts/coverage.py
+python3 scripts/vulnerabilities.py
+docker build -t cerberus-api:local .
 ```
 
-Functional tests use real database containers and controlled Heimdall fixtures. Every use
-case ships with main/alternative-flow tests. The merged line-coverage floor is 90%; branch
-coverage is reported. Product tests cannot run until the scaffold exists.
+Current functional tests use disposable PostgreSQL containers and an in-memory HTTP host.
+Every implemented use case must ship with main/alternative-flow tests. The required merged
+line-coverage floor is 90%; branch coverage must be reported before foundation approval.
+`python3 scripts/verify_protocol.py` intentionally fails while the review record is pending.
+CI requires it for use-case branches, promotion to `main` and version-tag releases. Never
+begin dependent encryption/recovery work without actual security/client review evidence.
+After reviewing a deliberate API contract change, run `python3 scripts/openapi.py --write`
+and commit its result. The foundation's empty contract is intentional: no business routes
+exist yet. OpenAPI generation starts no server and requires no deployment credentials.
 
 ## Roadmap
 
@@ -99,7 +120,7 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| [#1](https://github.com/artur-rios/cerberus-api/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | Todo |
+| [#1](https://github.com/artur-rios/cerberus-api/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | Done |
 
 ### M-02 — Account identity and vault protection
 

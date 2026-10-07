@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="ArturRios.Mediator" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="ArturRios.Validation" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj" />
+    <ProjectReference Include="../../Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj" />
+  </ItemGroup>
+</Project>

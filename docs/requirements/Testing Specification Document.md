@@ -164,7 +164,12 @@ dotnet test src/ArturRios.Cerberus.sln
 | Functional | `dotnet test src/ArturRios.Cerberus.sln --filter "Category=Functional"` |
 | Coverage input | `dotnet test src/ArturRios.Cerberus.sln --collect:"XPlat Code Coverage"` |
 
-The foundation defines and tests the exact merged-report/gate invocation and records it here
-before its PR is complete. Docker must be available for functional tests. CI runs categories
-as separate checks, merges coverage, and fails below the approved floor. No test suite has
-been run yet because product/test projects do not exist.
+Run `python3 scripts/coverage.py` for a fresh unfiltered collection, merged HTML/JSON report
+and 90% production line-coverage gate. Install `dotnet-reportgenerator-globaltool` first.
+The script removes old TestResults, excludes test/foreign assemblies and fails on missing,
+empty or invalid summaries. Branch coverage is reported without a numerical threshold.
+Docker must be available for functional tests. CI runs categories separately plus the full
+unfiltered suite, then `python3 scripts/coverage.py --report-only` on that checkout's fresh
+inputs. Run `python3 scripts/openapi.py` to check contract drift and the Python helper suite
+to test these gates. No benchmark, independent crypto review or client compatibility result
+is implied by the foundation fixtures.

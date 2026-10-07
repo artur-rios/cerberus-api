@@ -1,0 +1,45 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <!-- Util.Test 3 and PostgreSql 3 require Relational.Core 4; upgrade these together. -->
+  <ItemGroup>
+    <PackageVersion Include="ArturRios.Output" Version="3.2.0" />
+    <PackageVersion Include="ArturRios.Util" Version="2.1.0" />
+    <PackageVersion Include="ArturRios.Extensions" Version="1.4.0" />
+    <PackageVersion Include="ArturRios.Configuration" Version="1.2.0" />
+    <PackageVersion Include="ArturRios.Logging" Version="2.0.0" />
+    <PackageVersion Include="ArturRios.Jwt" Version="1.2.0" />
+    <PackageVersion Include="ArturRios.Validation" Version="2.0.0" />
+    <PackageVersion Include="ArturRios.Mediator" Version="2.0.0" />
+    <PackageVersion Include="ArturRios.Data.Relational.Core" Version="4.0.1" />
+    <PackageVersion Include="ArturRios.Data.PostgreSql" Version="3.0.2" />
+    <PackageVersion Include="ArturRios.Util.WebApi" Version="5.1.0" />
+    <PackageVersion Include="ArturRios.Util.Test" Version="3.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Analyzers" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.12" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+    <PackageVersion Include="Npgsql" Version="10.0.3" />
+    <PackageVersion Include="EFCore.NamingConventions" Version="10.0.1" />
+    <PackageVersion Include="FluentValidation" Version="12.1.1" />
+    <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.3.0" />
+    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageVersion Include="Moq" Version="4.21.0" />
+    <PackageVersion Include="Bogus" Version="35.6.5" />
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.15.0" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
+    <PackageVersion Include="SSH.NET" Version="2026.0.0" />
+  </ItemGroup>
+</Project>

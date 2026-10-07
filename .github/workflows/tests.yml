@@ -3,6 +3,8 @@ name: Tests
 
 on:
   push:
+    tags:
+      - 'v*'
     branches:
       - main
       - develop
@@ -24,6 +26,12 @@ jobs:
 
       - name: Validate specifications
         run: python3 scripts/verify_specs.py
+
+      - name: Require reviewed protocol before dependent work or release
+        if: >-
+          github.ref == 'refs/heads/main' || github.base_ref == 'main' ||
+          startsWith(github.ref, 'refs/tags/') || startsWith(github.head_ref, 'feature/uc-')
+        run: python3 scripts/verify_protocol.py
 
       - name: Detect foundation scaffold
         id: scaffold
@@ -59,6 +67,10 @@ jobs:
         if: steps.scaffold.outputs.ready == 'true'
         run: dotnet build src/ArturRios.Cerberus.sln --configuration Release --no-restore
 
+      - name: Check generated OpenAPI contract
+        if: steps.scaffold.outputs.ready == 'true'
+        run: python3 scripts/openapi.py
+
       - name: Run unit tests
         if: steps.scaffold.outputs.ready == 'true'
         run: >-
@@ -75,6 +87,15 @@ jobs:
           --configuration Release
           --no-build
           --filter "Category=Functional"
+          --collect:"XPlat Code Coverage"
+
+      - name: Run complete unfiltered suite
+        if: steps.scaffold.outputs.ready == 'true'
+        run: >-
+          dotnet test src/ArturRios.Cerberus.sln
+          --configuration Release
+          --no-build
+          --logger trx
           --collect:"XPlat Code Coverage"
 
       - name: Install ReportGenerator

@@ -1,0 +1,10 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Cerberus API",
+    "description": "Foundation only. Business endpoints are added by their reviewed use cases.",
+    "version": "v1"
+  },
+  "paths": {},
+  "components": {}
+}

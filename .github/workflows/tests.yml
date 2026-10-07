@@ -1,0 +1,132 @@
+name: Tests
+
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Validate specifications
+        run: python3 scripts/verify_specs.py
+
+      - name: Detect foundation scaffold
+        id: scaffold
+        run: |
+          if test -f src/ArturRios.Cerberus.sln; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          elif find src tests -name '*.csproj' -print -quit 2>/dev/null | grep -q .; then
+            echo "::error::C# projects exist without the required solution."
+            exit 1
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Documentation-only stage; application checks start with the foundation scaffold."
+          fi
+
+      - name: Setup .NET
+        if: steps.scaffold.outputs.ready == 'true'
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Run the Python helper tests
+        run: python3 -m unittest discover -s scripts -p "test_*.py" --verbose
+
+      - name: Restore dependencies
+        if: steps.scaffold.outputs.ready == 'true'
+        run: dotnet restore src/ArturRios.Cerberus.sln
+
+      - name: Scan for vulnerable dependencies
+        if: steps.scaffold.outputs.ready == 'true'
+        run: python3 scripts/vulnerabilities.py
+
+      - name: Build solution
+        if: steps.scaffold.outputs.ready == 'true'
+        run: dotnet build src/ArturRios.Cerberus.sln --configuration Release --no-restore
+
+      - name: Run unit tests
+        if: steps.scaffold.outputs.ready == 'true'
+        run: >-
+          dotnet test src/ArturRios.Cerberus.sln
+          --configuration Release
+          --no-build
+          --filter "Category=Unit"
+          --collect:"XPlat Code Coverage"
+
+      - name: Run functional tests
+        if: steps.scaffold.outputs.ready == 'true'
+        run: >-
+          dotnet test src/ArturRios.Cerberus.sln
+          --configuration Release
+          --no-build
+          --filter "Category=Functional"
+          --collect:"XPlat Code Coverage"
+
+      - name: Install ReportGenerator
+        if: steps.scaffold.outputs.ready == 'true'
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Generate coverage report and enforce the minimum
+        if: steps.scaffold.outputs.ready == 'true'
+        env:
+          REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
+        run: python3 scripts/coverage.py --report-only
+
+      - name: Upload coverage report
+        if: always() && steps.scaffold.outputs.ready == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: docs/coverage-report
+          if-no-files-found: error
+
+      - name: Upload test results
+        if: always() && steps.scaffold.outputs.ready == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: '**/TestResults/*.trx'
+          if-no-files-found: warn
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Detect Docker scaffold
+        id: scaffold
+        run: |
+          if test -f Dockerfile; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          elif test -f src/ArturRios.Cerberus.sln; then
+            echo "::error::The foundation solution requires its Dockerfile."
+            exit 1
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Documentation-only stage; Docker build starts with the foundation scaffold."
+          fi
+
+      - name: Build the container image
+        if: steps.scaffold.outputs.ready == 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false

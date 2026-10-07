@@ -1,4 +1,4 @@
-# Development Workflow Document â€” Cerberus API
+# Development Workflow Document — Cerberus API
 
 ## 1. Purpose
 
@@ -7,9 +7,9 @@ approval gates, branch pattern and Definition of Done.
 
 > **One use case = one branch = one issue = one pull request.**
 
-The first foundation issue establishes the platform before use-case issues start. GitHub is
-the intended tracker; its repository is to be supplied by the user. A project-board selection
-does not change the normative status lifecycle.
+The [foundation issue](https://github.com/artur-rios/cerberus-api/issues/1) establishes the
+platform before use-case issues start. The [public Cerberus project](https://github.com/users/artur-rios/projects/15)
+tracks all 56 approved issues using the normative status lifecycle below.
 
 ---
 
@@ -58,7 +58,7 @@ merely because product code exists or some tests passed.
 
 ## 4. Step-by-step
 
-### Step 1 â€” Branch from the develop branch
+### Step 1 — Branch from the develop branch
 
 First load the target use case, all alternative flows, traced requirements, permissions,
 technology, testing and operations documents from disk. Refine a concrete design and written
@@ -76,23 +76,23 @@ Pattern: `feature/uc-##-use-case-name`. The concrete example now names UC-01 fro
 use-case inventory. The foundation issue uses `feature/project-foundation`, keeping a separate
 issue/branch/PR. Remote commands require the user-configured repository.
 
-### Step 2 â€” Move the issue to In Progress
+### Step 2 — Move the issue to In Progress
 
 Make this transition once the branch exists and work begins. It is the only default unattended
 transition.
 
-### Step 3 â€” Implement
+### Step 3 — Implement
 
 Execute the approved plan, implementing the main and all alternative flows. Grow meaningful
 tests with the implementation, preserve encryption/ownership rules, and commit on the branch.
 Do not change approved business rules or add services silently.
 
-### Step 4 â€” Move the issue to Testing
+### Step 4 — Move the issue to Testing
 
 Present the code-complete change and ask before advancing, unless that transition is explicitly
 authorized unattended.
 
-### Step 5 â€” Test until green
+### Step 5 — Test until green
 
 Finish the required tests and run the full required unit and functional suites. Fix failures,
 rerun the affected checks, and confirm the coverage gate. Test response and database behavior
@@ -106,19 +106,19 @@ dotnet test src/ArturRios.Cerberus.sln --filter "Category=Functional"
 Report fresh passing evidence and request approval before a pull request unless explicitly
 authorized to make that transition unattended.
 
-### Step 6 â€” Open a pull request
+### Step 6 — Open a pull request
 
 After the required approval, push and open a PR into `develop`, referencing its actual issue
 number with a closing reference. Explain the resulting behavior and validation. Attach every
 created PR to the active Codex chat when working through Codex.
 
-### Step 7 â€” Human review and merge
+### Step 7 — Human review and merge
 
 A human reviews, merges and deletes the branch by default. Review changes remain on that
 branch and rerun required checks. Agent merge/deletion is permitted only by explicit scoped
 authorization for those actions; never infer it from authorization to implement.
 
-### Step 8 â€” Close the issue
+### Step 8 — Close the issue
 
 After merge and branch deletion, obtain the required approval for Done, confirm the issue is
 closed, and update the repository-root README backlog entry. Use explicitly authorized

@@ -4,8 +4,8 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** formal specifications drafted; implementation not started. Protocol review and
-> concrete deployment configuration remain explicit preimplementation/release decisions.
+> **Status:** formal specifications and GitHub backlog published; implementation not started.
+> Protocol review and concrete deployment configuration remain explicit preimplementation/release decisions.
 
 ## What it does
 
@@ -79,18 +79,19 @@ coverage is reported. Product tests cannot run until the scaffold exists.
 
 ## Roadmap
 
-This is the reviewable backlog plan. No GitHub issue or milestone has been created. Every
-milestone depends on Foundation; dependencies refer only to earlier milestones. No due dates
-or labels were supplied.
+Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
+Each use case has one issue; the foundation issue comes first. Every milestone depends on
+Foundation, with dependencies only on earlier milestones. Counts below are the snapshot at
+creation; GitHub milestone pages show live progress. No due dates or labels were assigned.
 
 | Milestone | Delivers | Depends on | Issues | Status |
 | --- | --- | --- | --- | --- |
-| M-01 — Foundation | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | planned |
-| M-02 — Account identity and vault protection | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | planned |
-| M-03 — Organized vault | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | planned |
-| M-04 — Controlled sharing and software secrets | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | planned |
-| M-05 — Offline synchronization | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | planned |
-| M-06 — Recoverable deletion and beta operations | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | planned |
+| [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 0 / 1 closed |
+| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 0 / 9 closed |
+| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 0 / 26 closed |
+| [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
+| [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
+| [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
 
 ## Backlog
 
@@ -98,87 +99,87 @@ or labels were supplied.
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| - | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | planned |
+| [#1](https://github.com/artur-rios/cerberus-api/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | Todo |
 
 ### M-02 — Account identity and vault protection
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| - | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | planned |
-| - | UC-02 — Authenticate | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-02-authenticate) | planned |
-| - | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | planned |
-| - | UC-04 — Update account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-04-update-account) | planned |
-| - | UC-05 — Update identity details | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-05-update-identity-details) | planned |
-| - | UC-38 — Initialize vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-38-initialize-vault-protection) | planned |
-| - | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | planned |
-| - | UC-40 — Recover vault access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-40-recover-vault-access) | planned |
-| - | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | planned |
+| [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Todo |
+| [#3](https://github.com/artur-rios/cerberus-api/issues/3) | UC-02 — Authenticate | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-02-authenticate) | Todo |
+| [#4](https://github.com/artur-rios/cerberus-api/issues/4) | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | Todo |
+| [#5](https://github.com/artur-rios/cerberus-api/issues/5) | UC-04 — Update account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-04-update-account) | Todo |
+| [#6](https://github.com/artur-rios/cerberus-api/issues/6) | UC-05 — Update identity details | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-05-update-identity-details) | Todo |
+| [#39](https://github.com/artur-rios/cerberus-api/issues/39) | UC-38 — Initialize vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-38-initialize-vault-protection) | Todo |
+| [#40](https://github.com/artur-rios/cerberus-api/issues/40) | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | Todo |
+| [#41](https://github.com/artur-rios/cerberus-api/issues/41) | UC-40 — Recover vault access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-40-recover-vault-access) | Todo |
+| [#42](https://github.com/artur-rios/cerberus-api/issues/42) | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | Todo |
 
 ### M-03 — Organized vault
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| - | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | planned |
-| - | UC-10 — List profiles | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-10-list-profiles) | planned |
-| - | UC-11 — Get profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-11-get-profile) | planned |
-| - | UC-12 — Update profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-12-update-profile) | planned |
-| - | UC-13 — Delete profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-13-delete-profile) | planned |
-| - | UC-14 — Set profile associations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-14-set-profile-associations) | planned |
-| - | UC-15 — Open profile access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-15-open-profile-access) | planned |
-| - | UC-16 — Create record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-16-create-record) | planned |
-| - | UC-17 — List records | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-17-list-records) | planned |
-| - | UC-18 — Get record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-18-get-record) | planned |
-| - | UC-19 — Update record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-19-update-record) | planned |
-| - | UC-20 — Delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-20-delete-record) | planned |
-| - | UC-21 — Move record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-21-move-record) | planned |
-| - | UC-22 — Permanently delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-22-permanently-delete-record) | planned |
-| - | UC-23 — Create folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-23-create-folder) | planned |
-| - | UC-24 — List folders | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-24-list-folders) | planned |
-| - | UC-25 — Get folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-25-get-folder) | planned |
-| - | UC-26 — Update folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-26-update-folder) | planned |
-| - | UC-27 — Delete folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-27-delete-folder) | planned |
-| - | UC-28 — Move folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-28-move-folder) | planned |
-| - | UC-29 — Create collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-29-create-collection) | planned |
-| - | UC-30 — List collections | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-30-list-collections) | planned |
-| - | UC-31 — Get collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-31-get-collection) | planned |
-| - | UC-32 — Update collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-32-update-collection) | planned |
-| - | UC-33 — Delete collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-33-delete-collection) | planned |
-| - | UC-34 — Set collection membership | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-34-set-collection-membership) | planned |
+| [#10](https://github.com/artur-rios/cerberus-api/issues/10) | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | Todo |
+| [#11](https://github.com/artur-rios/cerberus-api/issues/11) | UC-10 — List profiles | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-10-list-profiles) | Todo |
+| [#12](https://github.com/artur-rios/cerberus-api/issues/12) | UC-11 — Get profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-11-get-profile) | Todo |
+| [#13](https://github.com/artur-rios/cerberus-api/issues/13) | UC-12 — Update profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-12-update-profile) | Todo |
+| [#14](https://github.com/artur-rios/cerberus-api/issues/14) | UC-13 — Delete profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-13-delete-profile) | Todo |
+| [#15](https://github.com/artur-rios/cerberus-api/issues/15) | UC-14 — Set profile associations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-14-set-profile-associations) | Todo |
+| [#16](https://github.com/artur-rios/cerberus-api/issues/16) | UC-15 — Open profile access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-15-open-profile-access) | Todo |
+| [#17](https://github.com/artur-rios/cerberus-api/issues/17) | UC-16 — Create record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-16-create-record) | Todo |
+| [#18](https://github.com/artur-rios/cerberus-api/issues/18) | UC-17 — List records | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-17-list-records) | Todo |
+| [#19](https://github.com/artur-rios/cerberus-api/issues/19) | UC-18 — Get record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-18-get-record) | Todo |
+| [#20](https://github.com/artur-rios/cerberus-api/issues/20) | UC-19 — Update record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-19-update-record) | Todo |
+| [#21](https://github.com/artur-rios/cerberus-api/issues/21) | UC-20 — Delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-20-delete-record) | Todo |
+| [#22](https://github.com/artur-rios/cerberus-api/issues/22) | UC-21 — Move record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-21-move-record) | Todo |
+| [#23](https://github.com/artur-rios/cerberus-api/issues/23) | UC-22 — Permanently delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-22-permanently-delete-record) | Todo |
+| [#24](https://github.com/artur-rios/cerberus-api/issues/24) | UC-23 — Create folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-23-create-folder) | Todo |
+| [#25](https://github.com/artur-rios/cerberus-api/issues/25) | UC-24 — List folders | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-24-list-folders) | Todo |
+| [#26](https://github.com/artur-rios/cerberus-api/issues/26) | UC-25 — Get folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-25-get-folder) | Todo |
+| [#27](https://github.com/artur-rios/cerberus-api/issues/27) | UC-26 — Update folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-26-update-folder) | Todo |
+| [#28](https://github.com/artur-rios/cerberus-api/issues/28) | UC-27 — Delete folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-27-delete-folder) | Todo |
+| [#29](https://github.com/artur-rios/cerberus-api/issues/29) | UC-28 — Move folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-28-move-folder) | Todo |
+| [#30](https://github.com/artur-rios/cerberus-api/issues/30) | UC-29 — Create collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-29-create-collection) | Todo |
+| [#31](https://github.com/artur-rios/cerberus-api/issues/31) | UC-30 — List collections | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-30-list-collections) | Todo |
+| [#32](https://github.com/artur-rios/cerberus-api/issues/32) | UC-31 — Get collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-31-get-collection) | Todo |
+| [#33](https://github.com/artur-rios/cerberus-api/issues/33) | UC-32 — Update collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-32-update-collection) | Todo |
+| [#34](https://github.com/artur-rios/cerberus-api/issues/34) | UC-33 — Delete collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-33-delete-collection) | Todo |
+| [#35](https://github.com/artur-rios/cerberus-api/issues/35) | UC-34 — Set collection membership | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-34-set-collection-membership) | Todo |
 
 ### M-04 — Controlled sharing and software secrets
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| - | UC-35 — Grant collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-35-grant-collection-access) | planned |
-| - | UC-36 — Change collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-36-change-collection-access) | planned |
-| - | UC-37 — Revoke collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-37-revoke-collection-access) | planned |
-| - | UC-42 — Grant software access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-42-grant-software-access) | planned |
-| - | UC-43 — Retrieve software secrets | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-43-retrieve-software-secrets) | planned |
-| - | UC-44 — Revoke software access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-44-revoke-software-access) | planned |
+| [#36](https://github.com/artur-rios/cerberus-api/issues/36) | UC-35 — Grant collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-35-grant-collection-access) | Todo |
+| [#37](https://github.com/artur-rios/cerberus-api/issues/37) | UC-36 — Change collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-36-change-collection-access) | Todo |
+| [#38](https://github.com/artur-rios/cerberus-api/issues/38) | UC-37 — Revoke collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-37-revoke-collection-access) | Todo |
+| [#43](https://github.com/artur-rios/cerberus-api/issues/43) | UC-42 — Grant software access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-42-grant-software-access) | Todo |
+| [#44](https://github.com/artur-rios/cerberus-api/issues/44) | UC-43 — Retrieve software secrets | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-43-retrieve-software-secrets) | Todo |
+| [#45](https://github.com/artur-rios/cerberus-api/issues/45) | UC-44 — Revoke software access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-44-revoke-software-access) | Todo |
 
 ### M-05 — Offline synchronization
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| - | UC-45 — Get offline policy | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-45-get-offline-policy) | planned |
-| - | UC-46 — Set offline policy | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-46-set-offline-policy) | planned |
-| - | UC-47 — Renew offline authorization | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-47-renew-offline-authorization) | planned |
-| - | UC-48 — Download synchronization changes | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-48-download-synchronization-changes) | planned |
-| - | UC-49 — Upload offline edits | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-49-upload-offline-edits) | planned |
+| [#46](https://github.com/artur-rios/cerberus-api/issues/46) | UC-45 — Get offline policy | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-45-get-offline-policy) | Todo |
+| [#47](https://github.com/artur-rios/cerberus-api/issues/47) | UC-46 — Set offline policy | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-46-set-offline-policy) | Todo |
+| [#48](https://github.com/artur-rios/cerberus-api/issues/48) | UC-47 — Renew offline authorization | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-47-renew-offline-authorization) | Todo |
+| [#49](https://github.com/artur-rios/cerberus-api/issues/49) | UC-48 — Download synchronization changes | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-48-download-synchronization-changes) | Todo |
+| [#50](https://github.com/artur-rios/cerberus-api/issues/50) | UC-49 — Upload offline edits | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-49-upload-offline-edits) | Todo |
 
 ### M-06 — Recoverable deletion and beta operations
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| - | UC-06 — Request account closure | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-06-request-account-closure) | planned |
-| - | UC-07 — Cancel account closure | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-07-cancel-account-closure) | planned |
-| - | UC-08 — Permanently delete account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-08-permanently-delete-account) | planned |
-| - | UC-50 — List trash | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-50-list-trash) | planned |
-| - | UC-51 — Restore trash entry | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-51-restore-trash-entry) | planned |
-| - | UC-52 — Empty trash | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-52-empty-trash) | planned |
-| - | UC-53 — Expire retained deletions | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-53-expire-retained-deletions) | planned |
-| - | UC-54 — Export account data | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-54-export-account-data) | planned |
-| - | UC-55 — Check API health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-55-check-api-health) | planned |
+| [#7](https://github.com/artur-rios/cerberus-api/issues/7) | UC-06 — Request account closure | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-06-request-account-closure) | Todo |
+| [#8](https://github.com/artur-rios/cerberus-api/issues/8) | UC-07 — Cancel account closure | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-07-cancel-account-closure) | Todo |
+| [#9](https://github.com/artur-rios/cerberus-api/issues/9) | UC-08 — Permanently delete account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-08-permanently-delete-account) | Todo |
+| [#51](https://github.com/artur-rios/cerberus-api/issues/51) | UC-50 — List trash | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-50-list-trash) | Todo |
+| [#52](https://github.com/artur-rios/cerberus-api/issues/52) | UC-51 — Restore trash entry | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-51-restore-trash-entry) | Todo |
+| [#53](https://github.com/artur-rios/cerberus-api/issues/53) | UC-52 — Empty trash | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-52-empty-trash) | Todo |
+| [#54](https://github.com/artur-rios/cerberus-api/issues/54) | UC-53 — Expire retained deletions | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-53-expire-retained-deletions) | Todo |
+| [#55](https://github.com/artur-rios/cerberus-api/issues/55) | UC-54 — Export account data | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-54-export-account-data) | Todo |
+| [#56](https://github.com/artur-rios/cerberus-api/issues/56) | UC-55 — Check API health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-55-check-api-health) | Todo |
 
 ## Contributing
 

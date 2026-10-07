@@ -1,4 +1,4 @@
-# Operations & Infrastructure Document â€” Cerberus API
+# Operations & Infrastructure Document — Cerberus API
 
 ## 1. Introduction
 
@@ -157,7 +157,7 @@ component names/states and elapsed durations; never credentials, topology secret
 stacks. Liveness does not imply identity/database availability. Health probes use a non-user
 dependency probe contract; do not register accounts or attempt user authentication for a probe.
 
-### 5.3 Use Case â€” UC-55: Check API health
+### 5.3 Use Case — UC-55: Check API health
 
 The normative actor, pre/postconditions, main flow and AF rows are defined in
 [Use Case Specification](Use%20Case%20Specification%20Document.md#uc-55-check-api-health).

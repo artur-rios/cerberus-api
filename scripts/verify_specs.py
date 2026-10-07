@@ -24,6 +24,7 @@ def slug(heading):
     return re.sub(r'[^\w\- ]','',heading.lower()).replace(' ','-')
 for file in files:
     content=file.read_text(encoding='utf-8')
+    check('\u00e2\u20ac' not in content and '\u00e2\u2020' not in content, f'{file.name}: invalid UTF-8 transcoding')
     check(not re.search(r'\b(?:TBD|TODO)\b|\{\{|<!--|GUIDANCE|<[^>]+-path>',content),f'{file.name}: placeholder/guidance')
     check(len(re.findall(r'^```',content,re.M))%2==0,f'{file.name}: unbalanced fences')
     check(not re.search(r'[ \t]+$',content,re.M),f'{file.name}: trailing whitespace')
@@ -78,6 +79,9 @@ backlog_ids=re.findall(r'^\| [^|]+ \| (UC-\d{2}) ',backlog,re.M)
 check(sorted(backlog_ids)==ids,'Each UC must appear exactly once in README backlog')
 check(backlog.count('Project scaffold and initial infrastructure')==1,'Expected one foundation issue')
 check(len(backlog_ids)+1==56,'Issue count != UC count plus one')
+roadmap=readme.split('## Roadmap',1)[1].split('## Backlog',1)[0]
+counts=[int(n) for n in re.findall(r'\| (\d+) \| (?:planned|\d+ / \d+ closed) \|',roadmap)]
+check(len(counts)==6 and sum(counts)==56, f'Invalid milestone issue counts: {counts}')
 initial=(root/'docs/initial/Workflow.md').read_text(encoding='utf-8')
 formal=text('Development Workflow Document.md')
 initial_dod=initial.split('## Definition of Done',1)[1].split('Reference convention:',1)[0].strip()
@@ -90,4 +94,4 @@ check('No numerical latency, throughput or availability thresholds' in system,'A
 check('explicitly deferred' in system,'Protocol review decision missing')
 if errors:
     print('\n'.join('FAIL '+e for e in errors)); raise SystemExit(1)
-print(f'PASS: {len(files)} Markdown files; 7 template structures; links/anchors; no placeholders or duplicated framework versions; {len(frdefs)} FRs fully covered by 55 UCs; 12 features; 29 BRs; workflow parity; 6 ordered milestones and 56 planned issues.')
+print(f'PASS: {len(files)} Markdown files; 7 template structures; links/anchors; no placeholders or duplicated framework versions; {len(frdefs)} FRs fully covered by 55 UCs; 12 features; 29 BRs; workflow parity; 6 milestones and 56 backlog entries.')

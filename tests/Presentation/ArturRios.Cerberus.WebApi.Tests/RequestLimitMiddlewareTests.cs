@@ -36,4 +36,14 @@ public class RequestLimitMiddlewareTests
         Assert.Equal(8, output.Length);
         Assert.Equal(200, context.Response.StatusCode);
     }
+
+    [UnitFact]
+    public async Task GivenMaximumRepresentableLimit_WhenReadingSmallBody_ThenAcceptWithoutOverflow()
+    {
+        var context = new DefaultHttpContext();
+        context.Request.Body = new MemoryStream(new byte[8]);
+        var output = new MemoryStream();
+        await new RequestLimitMiddleware(request => request.Request.Body.CopyToAsync(output), long.MaxValue).InvokeAsync(context);
+        Assert.Equal(8, output.Length);
+    }
 }

@@ -2,6 +2,7 @@
   <ItemGroup>
     <PackageReference Include="ArturRios.Output" />
     <PackageReference Include="ArturRios.Jwt" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
     <PackageReference Include="ArturRios.Util" />
     <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Microsoft.Extensions.Http" />

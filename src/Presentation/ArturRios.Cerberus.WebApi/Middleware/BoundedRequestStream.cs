@@ -16,7 +16,7 @@ internal sealed class BoundedRequestStream(Stream inner, long maximum) : Stream
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
         Count(await inner.ReadAsync(buffer.AsMemory(offset, Allowed(count)), cancellationToken));
 
-    private int Allowed(int requested) => (int)Math.Min(requested, Math.Min(int.MaxValue, maximum - _read + 1));
+    private int Allowed(int requested) => maximum - _read >= requested ? requested : (int)Math.Min(requested, maximum - _read + 1);
     private int Count(int count)
     {
         _read += count;

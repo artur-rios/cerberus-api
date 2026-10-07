@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles></PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ArturRios.Data.PostgreSql" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />

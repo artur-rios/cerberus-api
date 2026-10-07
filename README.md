@@ -4,8 +4,9 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** formal specifications and GitHub backlog published; implementation not started.
-> Protocol review and concrete deployment configuration remain explicit preimplementation/release decisions.
+> **Status:** foundation implementation in progress; no issue is complete. The development host
+> exposes no business endpoints. Protocol review and concrete deployment configuration remain
+> required decisions. See [foundation status](docs/operations/foundation-status.md).
 
 ## What it does
 
@@ -46,13 +47,12 @@ Start with the initial context, then the normative formal requirements.
 
 ## Installation
 
-The repository currently contains documentation only. The following commands are intended
-for the scaffold defined in [Technology Stack](docs/requirements/Technology%20Stack%20Document.md)
-and [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md).
-Use the selected stable SDK and a Docker-compatible runtime for functional tests. Configure
-the database, Heimdall scope/credentials and required operational settings first.
+The foundation branch contains the .NET 10 solution. Use an SDK accepted by `global.json`
+and a Docker-compatible runtime for functional tests. Starting the development host requires
+explicit database, Heimdall and operational configuration; no production defaults are supplied.
+The container is a development artifact, not a release-ready vault API.
 
-From the repository root after scaffolding:
+From the repository root:
 
 ```bash
 dotnet restore src/ArturRios.Cerberus.sln
@@ -65,17 +65,20 @@ Clone the repository with `git clone https://github.com/artur-rios/cerberus-api.
 ## Testing
 
 Follow [Testing Specification](docs/requirements/Testing%20Specification%20Document.md).
-After scaffolding, from the repository root:
+From the repository root:
 
 ```bash
 dotnet test src/ArturRios.Cerberus.sln --filter "Category=Unit"
 dotnet test src/ArturRios.Cerberus.sln --filter "Category=Functional"
 dotnet test src/ArturRios.Cerberus.sln --collect:"XPlat Code Coverage"
+python3 -m unittest discover -s scripts -p 'test_*.py'
+python3 scripts/verify_specs.py
 ```
 
-Functional tests use real database containers and controlled Heimdall fixtures. Every use
-case ships with main/alternative-flow tests. The merged line-coverage floor is 90%; branch
-coverage is reported. Product tests cannot run until the scaffold exists.
+Current functional tests use disposable PostgreSQL containers and an in-memory HTTP host.
+Every implemented use case must ship with main/alternative-flow tests. The required merged
+line-coverage floor is 90%; branch coverage must be reported before foundation approval.
+`python3 scripts/verify_protocol.py` intentionally fails while the review record is pending.
 
 ## Roadmap
 

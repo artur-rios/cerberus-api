@@ -79,6 +79,29 @@ public class ProfileAssociationStoreTests(PostgresFixture fixture)
     {
         using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var state=await ProfileSetup.Create(fixture,owner);var profile=await Add(state,owner,scoped);var first=await AssociationSetup.Items(fixture,state);var next=await AssociationSetup.Items(fixture,state);Assert.Null((await Store().SetAsync(new(state.Actor,state.Verifier,profile.ProfileId,For(first)),default)).Error);await using(var db=fixture.CreateContext()){var row=await db.Profiles.SingleAsync(x=>x.PublicId==profile.ProfileId);await db.VaultAccessSessions.Where(x=>x.HandleVerifier==state.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ProfileId,row.Id));}var input=For(first,2);input=kind switch {"record"=>input with {RecordIds=[first.Record.PublicId,next.Record.PublicId]},"folder"=>input with {FolderIds=[first.Folder.PublicId,next.Folder.PublicId]},_=>input with {CollectionIds=[first.Collection.PublicId,next.Collection.PublicId]}};var before=await Snapshot(profile.ProfileId);Assert.Equal("not_found",(await Store().SetAsync(new(state.Actor,state.Verifier,profile.ProfileId,input),default)).Error);Assert.Equal(before,await Snapshot(profile.ProfileId));var subset=For(first,2) with {FolderIds=[],CollectionIds=[]};Assert.Null((await Store().SetAsync(new(state.Actor,state.Verifier,profile.ProfileId,subset),default)).Error);Assert.Null((await Store().SetAsync(new(state.Actor,state.Verifier,profile.ProfileId,Input(3)),default)).Error);
     }
+    [FunctionalTheory][InlineData("grant")][InlineData("ownerPins")][InlineData("recipientPins")]
+    public async Task GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollection_ThenNotFoundWithoutChangingProfileOrLinks(string kind)
+    {
+        using var owner=new ProtectionFixture();using var client=new ProtectionFixture();using var scoped=new ProtectionFixture();
+        var foreign=await ProfileSetup.Create(fixture,owner);var state=await ProfileSetup.Create(fixture,client);
+        var profile=await Add(state,client,scoped);var own=await AssociationSetup.Items(fixture,state);var shared=await AssociationSetup.Items(fixture,foreign);
+        var grant=await AssociationSetup.Grant(fixture,foreign,owner,state,client,shared.Collection);
+        Assert.Null((await Store().SetAsync(new(state.Actor,state.Verifier,profile.ProfileId,For(own)),default)).Error);
+        var row=await Row(profile.ProfileId);
+        await using(var db=fixture.CreateContext())
+        {
+            await db.VaultAccessSessions.Where(x=>x.HandleVerifier==state.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ProfileId,row.Id));
+            if(kind=="grant")await db.CollectionGrants.Where(x=>x.Id==grant.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.RecipientKeyEnvelope,new byte[]{1}));
+            else await db.VaultProtections.Where(x=>x.AccountId==(kind=="ownerPins"?foreign.InternalId:state.InternalId)).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.Material,new byte[]{1}));
+        }
+        var before=await Snapshot(profile.ProfileId);
+        var result=await Store().SetAsync(new(state.Actor,state.Verifier,profile.ProfileId,For(own,2) with {CollectionIds=[own.Collection.PublicId,shared.Collection.PublicId]}),default);
+        Assert.Equal("not_found",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(profile.ProfileId));
+        await using var actual=fixture.CreateContext();
+        Assert.Equal(own.Record.Id,(await actual.ProfileRecords.SingleAsync(x=>x.ProfileId==row.Id)).RecordId);
+        Assert.Equal(own.Folder.Id,(await actual.ProfileFolders.SingleAsync(x=>x.ProfileId==row.Id)).FolderId);
+        Assert.Equal(own.Collection.Id,(await actual.ProfileCollections.SingleAsync(x=>x.ProfileId==row.Id)).CollectionId);
+    }
     [FunctionalTheory][InlineData("edit")][InlineData("trash")][InlineData("same")]
     public async Task GivenConcurrentReplacementAndOtherWrite_WhenCommitting_ThenOneWinnerAndStableRetry(string kind)
     {

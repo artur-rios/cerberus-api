@@ -38,15 +38,19 @@ public sealed class ProfileAssociationStore(IDbContextFactory<AppDbContext> fact
                 || await db.TerminalErasures.AnyAsync(x=>x.ResourceId==profile.PublicId,cancellationToken))return new(Error:"not_found");
             if(profile.Revision is <=0 or >ProtocolBinary.MaxInteger || profile.ServerSequence is <=0 or >ProtocolBinary.MaxInteger)return new(Error:"persistence_unavailable");
             if(profile.Revision!=input.ExpectedRevision || profile.Revision==ProtocolBinary.MaxInteger)return new(Error:"revision_conflict");
+            // Reject additions before inspecting native metadata outside the selected profile.
+            if(session.ProfileId is not null)
+            {
+                if(await (from link in db.ProfileRecords join resource in db.Records on link.RecordId equals resource.Id
+                        where link.ProfileId==profile.Id && input.RecordIds.Contains(resource.PublicId) select link).CountAsync(cancellationToken)!=input.RecordIds.Length
+                    || await (from link in db.ProfileFolders join resource in db.Folders on link.FolderId equals resource.Id
+                        where link.ProfileId==profile.Id && input.FolderIds.Contains(resource.PublicId) select link).CountAsync(cancellationToken)!=input.FolderIds.Length
+                    || await (from link in db.ProfileCollections join resource in db.Collections on link.CollectionId equals resource.Id
+                        where link.ProfileId==profile.Id && input.CollectionIds.Contains(resource.PublicId) select link).CountAsync(cancellationToken)!=input.CollectionIds.Length)return new(Error:"not_found");
+            }
             var resolved=await ProfileAssociationResolver.ResolveAsync(db,account.Id,request.Actor,input.RecordIds,input.FolderIds,input.CollectionIds,cancellationToken);
             if(!Permitted(await Now(db,cancellationToken)))return new(Error:"vault_access_denied");
             if(resolved.Error is not null)return new(Error:resolved.Error);
-            if(session.ProfileId is not null)
-            {
-                if(await db.ProfileRecords.CountAsync(x=>x.ProfileId==profile.Id && resolved.Records.Contains(x.RecordId),cancellationToken)!=resolved.Records.Length
-                    || await db.ProfileFolders.CountAsync(x=>x.ProfileId==profile.Id && resolved.Folders.Contains(x.FolderId),cancellationToken)!=resolved.Folders.Length
-                    || await db.ProfileCollections.CountAsync(x=>x.ProfileId==profile.Id && resolved.Collections.Contains(x.CollectionId),cancellationToken)!=resolved.Collections.Length)return new(Error:"not_found");
-            }
             var changed=await db.Database.ExecuteSqlInterpolatedAsync($"""
                 UPDATE cerberus.profile AS p SET revision=p.revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={Guid.NewGuid()}
                 WHERE p.id={profile.Id} AND p.account_id={account.Id} AND p.revision={input.ExpectedRevision} AND p.deleted_at IS NULL

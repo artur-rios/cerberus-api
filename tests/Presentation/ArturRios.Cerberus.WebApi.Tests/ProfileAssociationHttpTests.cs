@@ -30,6 +30,23 @@ public class ProfileAssociationHttpTests(RegistrationApiFixture fixture):WebApiT
         using var repeat=await Send(p.PublicId.ToString(),s.Access,input);await Failure(repeat,409,"revision_conflict");using var identical=await Send(p.PublicId.ToString(),s.Access,input with {ExpectedRevision=2});Assert.Equal(3,(await Success(identical)).Revision);
         using var clear=await Send(p.PublicId.ToString(),s.Access,new(3,[],[],[]));Assert.Equal(4,(await Success(clear)).Revision);await Visible(s,p.PublicId,[],[],[]);Assert.Equal(before,await Content(s,foreign));
     }
+    [FunctionalTheory][InlineData("grant")][InlineData("ownerPins")][InlineData("recipientPins")]
+    public async Task GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollectionOverHttp_ThenNotFoundWithoutChangingProfileOrLinks(string kind)
+    {
+        using var owner=new ProtectionFixture();using var client=new ProtectionFixture();using var scoped=new ProtectionFixture();
+        var foreign=await Setup(owner);var s=await Setup(client);var own=await Items(s);var shared=await Items(foreign);
+        var grant=await Grant(foreign,owner,s,client,shared.Collection);
+        var input=new ProfileAssociationInput(1,[own.Record.PublicId],[own.Folder.PublicId],[own.Collection.PublicId]);
+        var profile=await Add(s,client,scoped,input);var selected=await Selected(s,profile.Id);
+        await using(var db=fixture.Context())
+        {
+            if(kind=="grant")await db.CollectionGrants.Where(x=>x.Id==grant.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.RecipientKeyEnvelope,new byte[]{1}));
+            else await db.VaultProtections.Where(x=>x.AccountId==(kind=="ownerPins"?foreign.InternalId:s.InternalId)).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.Material,new byte[]{1}));
+        }
+        var before=await Snapshot(s);Authorize(RegistrationApiFixture.Token(s.Actor));
+        using var response=await Send(profile.PublicId.ToString(),selected,input with {CollectionIds=[own.Collection.PublicId,shared.Collection.PublicId]});
+        await Failure(response,404,"not_found");Assert.Equal(before,await Snapshot(s));
+    }
     [FunctionalFact]
     public async Task GivenNonemptyCreateAndTrash_WhenUsingHttp_ThenReadActualSetsAndRetainResourcesWithSnapshot()
     {

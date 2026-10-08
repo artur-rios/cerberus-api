@@ -19,8 +19,8 @@ Create Data/Records/RecordCreateStore.cs plus focusedpartial scopehelper ifneede
 FinalconditionalSQL insert checks currentownedactiveaccount/session/policy/gen/lifetime/selection/profile+folderstate at statement_timestamp afterwaits. Insertrecord +directlinks +atomicparentmetadata increments/stamps/globalnextval preservingcontent/EditedAt; no replacements. Verify all metadata beforecommit; unexpectedprojection/seqregression/link/parentwritefailure503rollbacksall/retrysameIDworks; globalSeqexhaust409. Expiry afteraccount/session/profile/folderlockwaits andimmediatelybeforeinsert, terminalreservationatboundary; concurrentcreates/association-set/trash winner without lostlinks. Tests mayusecontrolledDBinterceptors/triggerfixtures, no toycrypto. GREENwholeData; commit.
 Interfaces: implementsTask1IRecordCreateStore; consumedbyTask3. Scopehelper remains internal and used only for thisadmission; newhelper output ownedProfile rows/currentfolderchain/selectedscope and stableerror, not rawclientIDs trusted.
 
-- [ ] Write the specified failing tests, run the focused project and read the expected RED output.
-- [ ] Implement only this task, run the named whole-family tests, read zero failures/skips and commit.
+- [x] Write the specified failing tests, run the focused project and read the expected RED output.
+- [x] Implement only this task, run the named whole-family tests, read zero failures/skips and commit.
 
 ### Task 3: Strict record command boundary
 

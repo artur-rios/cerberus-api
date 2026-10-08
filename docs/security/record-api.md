@@ -94,6 +94,8 @@ fails `503`; a hidden ancestor takes precedence and omits that content.
 
 One PostgreSQL statement captures current account/session/selection authority,
 folder ancestry, permitted inventory, native grant evidence, boundary and page.
+Traversal starts from current permitted routes and then validates complete ancestry
+for the candidate records.
 Relevant foreign grants must bind the current collection envelope and epoch, grant
 ID/revision, owner author pin and recipient identity/key pin. Corrupt relevant native
 evidence fails the whole response `503`, including any otherwise valid owned items;

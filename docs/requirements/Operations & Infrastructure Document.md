@@ -390,6 +390,8 @@ foreign keys; the migration preserves existing ciphertext and metadata. Public
 collection mutation remains its separate use case. Listing uses one read-only SQL
 snapshot for current session and selected scope, full folder ancestry, native
 recipient grant evidence, permitted sequence integrity, highwater and bounded page.
+Current permitted direct/member/descendant routes bound record admission before
+complete ancestry is traversed.
 Grant/public-pin evidence stays internal; output contains only five encrypted record
 fields and an opaque continuation. Hidden ancestry omits content before corruption
 checks; fully active relevant cycles or invalid relevant native grants fail `503`.

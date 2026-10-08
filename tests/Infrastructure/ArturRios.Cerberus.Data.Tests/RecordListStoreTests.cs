@@ -1,6 +1,8 @@
 using System.Data.Common;
 using System.Security.Cryptography;
 using System.Text.Json;
+using Npgsql;
+using Xunit.Abstractions;
 using ArturRios.Cerberus.Data.Records;
 using ArturRios.Cerberus.Data.Profiles;
 using ArturRios.Cerberus.Domain.Accounts;
@@ -15,7 +17,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace ArturRios.Cerberus.Data.Tests;
 
 [Collection("PostgreSQL")]
-public class RecordListStoreTests(PostgresFixture fixture)
+public class RecordListStoreTests(PostgresFixture fixture, ITestOutputHelper output)
 {
     [FunctionalFact]
     public async Task GivenForeignTrashAndTerminalRows_WhenPaging_ThenFilterBeforeTakeAndKeepInitialBoundary()
@@ -107,6 +109,33 @@ public class RecordListStoreTests(PostgresFixture fixture)
     [FunctionalTheory][InlineData(false,false)][InlineData(false,true)][InlineData(true,false)][InlineData(true,true)]
     public async Task GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(bool selected,bool terminal)
     {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var root=await Folder(s);var child=await Folder(s,root.Id);var hidden=await Record(s,child.Id);var visible=await Record(s);var p=await Profile(s,owner,scoped,[hidden.PublicId,visible.PublicId],[root.PublicId]);await using(var db=fixture.CreateContext()){await db.Folders.Where(x=>x.Id==root.Id).ExecuteUpdateAsync(x=>x.SetProperty(f=>f.ParentFolderId,child.Id).SetProperty(f=>f.DeletedAt,terminal?(DateTimeOffset?)null:DateTimeOffset.UtcNow));if(terminal){db.TerminalErasures.Add(new(){ResourceId=root.PublicId,ResourceKind="folder",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}}var r=await List(selected?s with{Verifier=await Selected(s,p.Id)}:s);Assert.Null(r.Error);Assert.Equal(visible.PublicId,Assert.Single(r.Data!.Items).RecordId);}
+
+    [FunctionalTheory][InlineData(false,true,false)][InlineData(true,true,false)][InlineData(true,false,false)][InlineData(true,true,true)]
+    public async Task GivenUnrelatedDeepFolderInventory_WhenListingOnePermittedRecord_ThenDoNotAdmitOrTraverseUnrelatedRows(bool selected,bool foreign,bool shared)
+    {
+        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);
+        var unrelated=foreign?await ProfileSetup.Create(fixture,owner):s;var visible=await Record(shared?unrelated:s);Guid[] collections=[];
+        if(shared){var resources=await AssociationSetup.Items(fixture,unrelated);await AssociationSetup.Grant(fixture,unrelated,owner,s,owner,resources.Collection);await Members(unrelated,resources.Collection,[visible.Id],[]);collections=[resources.Collection.PublicId];}
+        var p=await Profile(s,owner,scoped,shared?[]:[visible.PublicId],collections:collections);
+        long? parent=null;for(var depth=0;depth<100;depth++){var folder=await Folder(unrelated,parent);await Record(unrelated,folder.Id);parent=folder.Id;}
+        var capture=new CapturePlan();var store=new RecordListStore(new ProfileSetup.Factory(fixture,capture));
+        var result=await store.ListAsync(new(s.Actor,selected?await Selected(s,p.Id):s.Verifier,1,0,null),default);
+        Assert.Null(result.Error);Assert.Equal(visible.PublicId,Assert.Single(result.Data!.Items).RecordId);Assert.False(result.Data.HasMore);Assert.Equal(1,capture.Readers);
+        await using var db=fixture.CreateContext();await db.Database.OpenConnectionAsync();await using var command=db.Database.GetDbConnection().CreateCommand();
+        command.CommandText="EXPLAIN (ANALYZE, FORMAT JSON) "+capture.Sql;foreach(var parameter in capture.Parameters)command.Parameters.Add(parameter.Clone());
+        using var plan=JsonDocument.Parse((string)(await command.ExecuteScalarAsync())!);output.WriteLine(plan.RootElement.GetRawText());
+        static IEnumerable<JsonElement> Nodes(JsonElement node){yield return node;if(node.TryGetProperty("Plans",out var children))foreach(var child in children.EnumerateArray())foreach(var descendant in Nodes(child))yield return descendant;}
+        var nodes=Nodes(plan.RootElement[0].GetProperty("Plan")).ToArray();
+        var candidates=Assert.Single(nodes,x=>x.TryGetProperty("Subplan Name",out var name)&&name.GetString()=="CTE candidates");
+        var ancestry=Assert.Single(nodes,x=>x.TryGetProperty("Subplan Name",out var name)&&name.GetString()=="CTE ancestry");
+        Assert.Equal(1d,candidates.GetProperty("Actual Rows").GetDouble());Assert.Equal(0d,ancestry.GetProperty("Actual Rows").GetDouble());
+    }
+    private sealed class CapturePlan:DbCommandInterceptor
+    {
+        public int Readers{get;private set;}public string Sql{get;private set;}="";public NpgsqlParameter[] Parameters{get;private set;}=[];
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<DbDataReader> result,CancellationToken ct=default)
+        {Readers++;Sql=command.CommandText;Parameters=command.Parameters.Cast<NpgsqlParameter>().Select(x=>x.Clone()).ToArray();return ValueTask.FromResult(result);}
+    }
 
     private RecordListStore Store()=>new(fixture);
     private Task<VaultResult<RecordListPage>> List(ProfileSetup.State s,int size=100,long after=0,long? boundary=null)=>Store().ListAsync(new(s.Actor,s.Verifier,size,after,boundary),default);

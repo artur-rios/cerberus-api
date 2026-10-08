@@ -25,6 +25,9 @@ public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : I
             await using var db = await factory.CreateDbContextAsync(ct);
             // One statement captures authorization, complete ancestry, permitted inventory,
             // grant signatures/pins, and the page. Never re-read authority after this snapshot.
+            // Admit only current own/direct/member/descendant routes before walking full ancestry.
+            // Recursive UNION visits each permitted folder once and terminates overlapping/cyclic
+            // descendant routes; complete upward paths then diagnose only relevant active cycles.
             var snapshots = await db.Database.SqlQuery<Snapshot>($"""
                 WITH RECURSIVE actor AS (
                     SELECT a.* FROM cerberus.account a WHERE a.heimdall_public_id={request.Actor}
@@ -40,20 +43,6 @@ public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : I
                       AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile p
                           WHERE p.id=s.profile_id AND p.account_id=a.id AND p.deleted_at IS NULL
                             AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id)))
-                ), candidates AS (
-                    SELECT r.* FROM cerberus.record r JOIN cerberus.account owner ON owner.id=r.account_id
-                    WHERE EXISTS(SELECT FROM session) AND owner.state={(int)AccountState.Active}
-                      AND r.deleted_at IS NULL
-                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=r.public_id OR e.resource_id=owner.public_id)
-                ), ancestry AS (
-                    SELECT r.id record_id,r.account_id,f.id,f.parent_folder_id,ARRAY[f.id] path,false cycle,
-                        (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)) hidden
-                    FROM candidates r JOIN cerberus.folder f ON f.id=r.folder_id AND f.account_id=r.account_id
-                    UNION ALL
-                    SELECT t.record_id,t.account_id,f.id,f.parent_folder_id,t.path||f.id,f.id=ANY(t.path),
-                        t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
-                    FROM ancestry t JOIN cerberus.folder f ON f.id=t.parent_folder_id AND f.account_id=t.account_id
-                    WHERE NOT t.cycle
                 ), collections AS (
                     SELECT c.*,g.id grant_id FROM cerberus.collection c
                     JOIN cerberus.account owner ON owner.id=c.account_id CROSS JOIN session s
@@ -66,6 +55,41 @@ public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : I
                       AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=owner.public_id OR e.resource_id=c.public_id)
                       AND (c.account_id=s.account_id OR g.id IS NOT NULL)
                       AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile_collection pc WHERE pc.profile_id=s.profile_id AND pc.collection_id=c.id))
+                ), roots AS (
+                    SELECT pf.account_id,pf.folder_id id FROM cerberus.profile_folder pf JOIN session s
+                        ON pf.account_id=s.account_id AND pf.profile_id=s.profile_id
+                    UNION
+                    SELECT cf.account_id,cf.folder_id FROM cerberus.collection_folder cf JOIN collections c
+                        ON cf.collection_id=c.id AND cf.account_id=c.account_id
+                ), reachable(account_id,id) AS (
+                    SELECT f.account_id,f.id FROM roots root JOIN cerberus.folder f ON f.account_id=root.account_id AND f.id=root.id
+                    WHERE f.deleted_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
+                    UNION
+                    SELECT f.account_id,f.id FROM reachable parent JOIN cerberus.folder f
+                        ON f.account_id=parent.account_id AND f.parent_folder_id=parent.id
+                    WHERE f.deleted_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
+                ), admitted AS (
+                    SELECT r.id record_id FROM session s JOIN cerberus.record r ON r.account_id=s.account_id WHERE s.profile_id IS NULL
+                    UNION
+                    SELECT pr.record_id FROM session s JOIN cerberus.profile_record pr ON pr.account_id=s.account_id AND pr.profile_id=s.profile_id
+                    UNION
+                    SELECT cr.record_id FROM collections c JOIN cerberus.collection_record cr ON cr.collection_id=c.id AND cr.account_id=c.account_id
+                    UNION
+                    SELECT r.id FROM reachable f JOIN cerberus.record r ON r.account_id=f.account_id AND r.folder_id=f.id
+                ), candidates AS (
+                    SELECT r.* FROM admitted i JOIN cerberus.record r ON r.id=i.record_id JOIN cerberus.account owner ON owner.id=r.account_id
+                    WHERE owner.state={(int)AccountState.Active}
+                      AND r.deleted_at IS NULL
+                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=r.public_id OR e.resource_id=owner.public_id)
+                ), ancestry AS (
+                    SELECT r.id record_id,r.account_id,f.id,f.parent_folder_id,ARRAY[f.id] path,false cycle,
+                        (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)) hidden
+                    FROM candidates r JOIN cerberus.folder f ON f.id=r.folder_id AND f.account_id=r.account_id
+                    UNION ALL
+                    SELECT t.record_id,t.account_id,f.id,f.parent_folder_id,t.path||f.id,f.id=ANY(t.path),
+                        t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
+                    FROM ancestry t JOIN cerberus.folder f ON f.id=t.parent_folder_id AND f.account_id=t.account_id
+                    WHERE NOT t.cycle
                 ), included AS (
                     SELECT r.id record_id,c.id collection_id,c.grant_id FROM candidates r JOIN collections c ON c.account_id=r.account_id
                     WHERE EXISTS(SELECT FROM cerberus.collection_record cr WHERE cr.collection_id=c.id AND cr.record_id=r.id AND cr.account_id=r.account_id)

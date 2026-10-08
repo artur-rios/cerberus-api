@@ -98,5 +98,5 @@ public class RegisterAccountHandlerTests
 
     private static RegisterAccountHandler Handler(IRegistrationStore store, string secret = "fixture-server-secret-at-least-32-characters") =>
         new(new RegisterAccountValidator(), store, new Mock<IHeimdallClient>(MockBehavior.Strict).Object,
-            new CerberusOptions { AuthValidationSecret = secret, HeimdallScopeId = Guid.Parse("527a1001-8ef5-4c9b-a565-111111111111") });
+            new CerberusOptions { RegistrationFingerprintKey = secret, HeimdallScopeId = Guid.Parse("527a1001-8ef5-4c9b-a565-111111111111") });
 }

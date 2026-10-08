@@ -28,7 +28,7 @@ public sealed class AccountController(CommandMediator commands) : ControllerBase
         if (authorization.Count != 0)
         {
             var header = authorization.Count == 1 ? authorization[0] : null;
-            command.IdentityToken = header?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true ? header[7..] : string.Empty;
+            command.SetIdentityProof(header?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true ? header[7..] : string.Empty);
         }
         var result = await commands.ExecuteCommandAsync<RegisterAccountCommand, RegisterAccountOutput>(command, cancellationToken);
         return result.ToActionResult(statusMap: AccountMessages.StatusCodes);

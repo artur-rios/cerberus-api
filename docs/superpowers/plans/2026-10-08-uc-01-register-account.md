@@ -32,10 +32,10 @@
 
 **Interfaces:** `EncryptedEnvelope.IsValid()`; `RegisterAccountCommand : BaseCommand` with account/operation GUIDs, identity registration input and encrypted details; `RegisterAccountValidator : AbstractValidator<RegisterAccountCommand>`.
 
-- [ ] Write literal valid/invalid envelope and registration validation tests, including unknown JSON members, canonical encoding, exact nonce/tag lengths, invalid identifiers and credential shape.
-- [ ] Run the new tests; expected missing behavior fails before implementation.
-- [ ] Implement strict metadata validation without decrypting content and validator rules matching Heimdall's name/email/password contract.
-- [ ] Run Domain and Command tests; expected all pass. Commit the verified task.
+- [x] Write literal valid/invalid envelope and registration validation tests, including unknown JSON members, canonical encoding, exact nonce/tag lengths, invalid identifiers and credential shape.
+- [x] Run the new tests; expected missing behavior fails before implementation.
+- [x] Implement strict metadata validation without decrypting content and validator rules matching Heimdall's name/email/password contract.
+- [x] Run Domain and Command tests; expected all pass. Commit the verified task.
 
 ### Task 2: Establish proved scoped identity
 
@@ -43,9 +43,9 @@
 
 **Interfaces:** `IHeimdallClient.EstablishRegistrationIdentityAsync(HeimdallRegistration registration, string? proofToken, CancellationToken cancellationToken)` returns `RegistrationIdentity`; `IRegistrationStore.RegisterAsync(RegistrationRequest request, Func<CancellationToken, Task<RegistrationIdentity>> establishIdentity, CancellationToken cancellationToken)` returns `RegistrationResult`.
 
-- [ ] Add HTTP fixtures for new creation, proved existing login, explicit proof, MFA, duplicate email, malformed/denied/unavailable response and lost-create-response retry. Observe expected failures.
-- [ ] Implement typed outcomes; only rejected login permits constrained creation. Revalidate all existing identity proofs and preserve original adapter contracts.
-- [ ] Run the complete Shared suite; expected all pass. Commit.
+- [x] Add HTTP fixtures for new creation, proved existing login, explicit proof, MFA, duplicate email, malformed/denied/unavailable response and lost-create-response retry. Observe expected failures.
+- [x] Implement typed outcomes; only rejected login permits constrained creation. Revalidate all existing identity proofs and preserve original adapter contracts.
+- [x] Run the complete Shared suite; expected all pass. Commit.
 
 ### Task 3: Persist and reconcile registrations
 
@@ -53,10 +53,10 @@
 
 **Interfaces:** Implement `IRegistrationStore` using real PostgreSQL; `RegisterAccountHandler : ICommandHandlerAsync<RegisterAccountCommand, RegisterAccountOutput>` returns `DataOutput<RegisterAccountOutput?>`.
 
-- [ ] Add PostgreSQL tests for preserved ciphertext, unique identity/account/operation constraints, changed-input conflicts, concurrent attempts, terminal identifiers, and failure after upstream creation followed by retry. Observe failures.
-- [ ] Implement a durable pending-operation transaction followed by serialized identity establishment and atomic account binding. Key input fingerprints with the configured server secret; store no credentials.
-- [ ] Add handler tests for input denial, status mapping and dependency unavailability; observe failures, then implement handler and output.
-- [ ] Run Data and Command suites; expected all pass. Commit migration and implementation.
+- [x] Add PostgreSQL tests for preserved ciphertext, unique identity/account/operation constraints, changed-input conflicts, concurrent attempts, terminal identifiers, and failure after upstream creation followed by retry. Observe failures.
+- [x] Implement a durable pending-operation transaction followed by serialized identity establishment and atomic account binding. Key input fingerprints with the configured server secret; store no credentials.
+- [x] Add handler tests for input denial, status mapping and dependency unavailability; observe failures, then implement handler and output.
+- [x] Run Data and Command suites; expected all pass. Commit migration and implementation.
 
 ### Task 4: Deliver HTTP registration
 
@@ -64,7 +64,7 @@
 
 **Interfaces:** Anonymous `POST /api/accounts` passes optional bearer proof through the command mediator; stable DataOutput statuses 200/201/400/401/403/404/409/503.
 
-- [ ] Write real-host success and every AF test, including no-store, credentials redaction, persisted ciphertext and pending-operation retry. Observe failures, then implement route/DI/status map.
-- [ ] Generate and inspect OpenAPI with `python3 scripts/openapi.py --write`; mark only UC-01 done in branch README.
-- [ ] Run `dotnet test src/ArturRios.Cerberus.sln --configuration Release --logger trx` unfiltered, `python3 scripts/coverage.py`, helper/spec/OpenAPI checks and applicable dependency/harness checks. Expected zero failures/skips and coverage at least 90%.
+- [x] Write real-host success and every AF test, including no-store, credentials redaction, persisted ciphertext and pending-operation retry. Observe failures, then implement route/DI/status map.
+- [x] Generate and inspect OpenAPI with `python3 scripts/openapi.py --write`; mark only UC-01 done in branch README.
+- [x] Run `dotnet test src/ArturRios.Cerberus.sln --configuration Release --logger trx` unfiltered, `python3 scripts/coverage.py`, helper/spec/OpenAPI checks and applicable dependency/harness checks. Expected zero failures/skips and coverage at least 90%.
 - [ ] Perform one fresh whole-branch code review; fix important findings with observed red/green tests. Push/open PR closing #2, require green CI, merge, close issue, delete feature branch and sync base under batch authorization.

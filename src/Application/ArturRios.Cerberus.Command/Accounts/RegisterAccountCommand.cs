@@ -12,5 +12,7 @@ public sealed class RegisterAccountCommand : BaseCommand
     public Guid IdempotencyKey { get; set; }
     public HeimdallRegistration Identity { get; set; } = null!;
     public EncryptedEnvelope Details { get; set; } = null!;
-    [JsonIgnore] public string? IdentityToken { get; set; }
+    internal string? IdentityToken { get; private set; }
+
+    public void SetIdentityProof(string token) => IdentityToken = token;
 }

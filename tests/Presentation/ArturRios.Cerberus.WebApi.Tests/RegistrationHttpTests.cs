@@ -16,6 +16,26 @@ namespace ArturRios.Cerberus.WebApi.Tests;
 public class RegistrationHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
 {
     [FunctionalFact]
+    public async Task GivenHarnessContentEnvelope_WhenRegistering_ThenAcceptAndPreserveEveryField()
+    {
+        var command = Request();
+        var node = JsonSerializer.SerializeToNode(command, new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+        // Literal protocol harness worked envelope, independent of the server DTO.
+        var envelope = JsonNode.Parse("""
+            {"format":"cerberus-content-v1","keyEpoch":1,
+             "keySalt":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8",
+             "nonce":"AAECAwQFBgcICQoL","ciphertext":"xvJT8pCjlfo5xRIRpss",
+             "tag":"S66V63rqlxPAHtHfeemDGg"}
+            """)!;
+        node["details"] = envelope.DeepClone();
+        using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", node);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        await using var context = fixture.Context();
+        var account = await context.Accounts.SingleAsync(x => x.PublicId == command.AccountId);
+        Assert.True(JsonNode.DeepEquals(envelope, JsonNode.Parse(account.DetailsEnvelope)));
+    }
+
+    [FunctionalFact]
     public async Task GivenNewAccount_WhenPostingRegistration_ThenBindIdentityAndPreserveCiphertextWithoutKeys()
     {
         var command = Request();
@@ -39,11 +59,14 @@ public class RegistrationHttpTests(RegistrationApiFixture fixture) : WebApiTest<
     [FunctionalTheory]
     [InlineData("ownerId")]
     [InlineData("vaultPassword")]
+    [InlineData("identityToken")]
     [InlineData("badEnvelope")]
     [InlineData("missingGuid")]
     public async Task GivenMalformedOrUnknownInput_WhenPosting_ThenRejectBeforeIdentityCreation(string invalid)
     {
         var command = Request();
+        _ = Gateway.Client;
+        var identityCalls = fixture.IdentityCalls;
         var node = JsonSerializer.SerializeToNode(command, new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
         if (invalid == "badEnvelope") node["details"]!["nonce"] = "bad";
         else if (invalid == "missingGuid") node["accountId"] = Guid.Empty.ToString();
@@ -51,6 +74,9 @@ public class RegistrationHttpTests(RegistrationApiFixture fixture) : WebApiTest<
         using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", node);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.False(fixture.Users.ContainsKey(command.Identity.Email));
+        Assert.Equal(identityCalls, fixture.IdentityCalls);
+        await using var pendingContext = fixture.Context();
+        Assert.False(await pendingContext.RegistrationOperations.AnyAsync(x => x.OperationId == command.IdempotencyKey));
         await using var context = fixture.Context();
         Assert.False(await context.Accounts.AnyAsync(x => x.PublicId == command.AccountId));
     }
@@ -151,8 +177,44 @@ public class RegistrationHttpTests(RegistrationApiFixture fixture) : WebApiTest<
     {
         AccountId = Guid.NewGuid(), IdempotencyKey = Guid.NewGuid(),
         Identity = new HeimdallRegistration("Fixture Owner", prefix + "-" + Guid.NewGuid().ToString("N") + "@example.test", "fixture-password"),
-        Details = new EncryptedEnvelope("cerberus-aes256gcm-v1", 1, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA")
+        Details = new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA")
     };
+
+    [FunctionalTheory]
+    [InlineData("\"keyEpoch\":1", "\"keyEpoch\":\"1\"")]
+    [InlineData("\"keyEpoch\":1", "\"keyEpoch\":9007199254740992")]
+    [InlineData("\"keyEpoch\":1", "\"KeyEpoch\":1")]
+    public async Task GivenNonProtocolEpoch_WhenPosting_ThenRejectBeforeSideEffects(string original, string replacement)
+    {
+        var command = Request();
+        _ = Gateway.Client;
+        var identityCalls = fixture.IdentityCalls;
+        var raw = JsonSerializer.Serialize(command, new JsonSerializerOptions(JsonSerializerDefaults.Web)).Replace(original, replacement);
+        using var response = await Gateway.Client.PostAsync("/api/accounts", new StringContent(raw, System.Text.Encoding.UTF8, "application/json"));
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.False(fixture.Users.ContainsKey(command.Identity.Email));
+        Assert.Equal(identityCalls, fixture.IdentityCalls);
+        await using var pendingContext = fixture.Context();
+        Assert.False(await pendingContext.RegistrationOperations.AnyAsync(x => x.OperationId == command.IdempotencyKey));
+    }
+
+    [FunctionalTheory]
+    [InlineData("accountId")]
+    [InlineData("idempotencyKey")]
+    public async Task GivenNonCanonicalGuid_WhenPosting_ThenRejectBeforeSideEffects(string field)
+    {
+        var command = Request();
+        _ = Gateway.Client;
+        var identityCalls = fixture.IdentityCalls;
+        var node = JsonSerializer.SerializeToNode(command, new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+        node[field] = "527A1001-8EF5-4C9B-A565-111111111111";
+        using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", node);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.False(fixture.Users.ContainsKey(command.Identity.Email));
+        Assert.Equal(identityCalls, fixture.IdentityCalls);
+        await using var pendingContext = fixture.Context();
+        Assert.False(await pendingContext.RegistrationOperations.AnyAsync(x => x.OperationId == command.IdempotencyKey));
+    }
 
     [FunctionalTheory]
     [InlineData("accountId")]
@@ -161,11 +223,16 @@ public class RegistrationHttpTests(RegistrationApiFixture fixture) : WebApiTest<
     public async Task GivenDuplicateJsonMembers_WhenPosting_ThenRejectBeforeSideEffects(string member)
     {
         var command = Request();
+        _ = Gateway.Client;
+        var identityCalls = fixture.IdentityCalls;
         var value = member switch { "accountId" => command.AccountId.ToString(), "nonce" => command.Details.Nonce, _ => command.Identity.Password };
         var raw = JsonSerializer.Serialize(command, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         raw = raw.Replace("\"" + member + "\":", "\"" + member + "\":\"" + value + "\",\"" + member + "\":");
         using var response = await Gateway.Client.PostAsync("/api/accounts", new StringContent(raw, System.Text.Encoding.UTF8, "application/json"));
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.False(fixture.Users.ContainsKey(command.Identity.Email));
+        Assert.Equal(identityCalls, fixture.IdentityCalls);
+        await using var pendingContext = fixture.Context();
+        Assert.False(await pendingContext.RegistrationOperations.AnyAsync(x => x.OperationId == command.IdempotencyKey));
     }
 }

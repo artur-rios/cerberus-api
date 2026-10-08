@@ -23,8 +23,11 @@ public class CerberusConfigurationTests
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["Cerberus:AuthValidationSecret"] = "checked-in-placeholder",
-            ["CERBERUS_AUTH_VALIDATION_SECRET"] = "environment-secret-value"
+            ["CERBERUS_AUTH_VALIDATION_SECRET"] = "environment-secret-value",
+            ["Cerberus:RegistrationFingerprintKey"] = "checked-in-placeholder",
+            ["CERBERUS_REGISTRATION_FINGERPRINT_KEY"] = "protected-durable-key-value"
         }).Build();
         Assert.Equal("environment-secret-value", CerberusConfiguration.Load(configuration).AuthValidationSecret);
+        Assert.Equal("protected-durable-key-value", CerberusConfiguration.Load(configuration).RegistrationFingerprintKey);
     }
 }

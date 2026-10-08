@@ -22,6 +22,8 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
     private readonly Dictionary<string, string?> _previous = new();
     private WebApplication _identity = null!;
     private string _ledger = null!;
+    private int _identityCalls;
+    public int IdentityCalls => Volatile.Read(ref _identityCalls);
     public ConcurrentDictionary<string, User> Users { get; } = new(StringComparer.OrdinalIgnoreCase);
     public sealed record User(Guid Id, string Password, bool Mfa = false);
 
@@ -32,6 +34,11 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
         var builder = WebApplication.CreateSlimBuilder();
         builder.Logging.ClearProviders();
         _identity = builder.Build();
+        _identity.Use(async (_, next) =>
+        {
+            Interlocked.Increment(ref _identityCalls);
+            await next();
+        });
         _identity.Urls.Add("http://127.0.0.1:0");
         _identity.MapPost("/api/auth/login", (LoginInput input) =>
         {
@@ -68,6 +75,7 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
             ["CERBERUS_HEIMDALL_SERVICE_CREDENTIAL"] = _serviceToken,
             ["CERBERUS_AUTH_ISSUER"] = "fixture-issuer", ["CERBERUS_AUTH_AUDIENCE"] = "fixture-audience",
             ["CERBERUS_AUTH_VALIDATION_SECRET"] = Secret,
+            ["CERBERUS_REGISTRATION_FINGERPRINT_KEY"] = "independent-durable-fixture-key-32-bytes",
             ["CERBERUS_BACKUP_RETENTION"] = "7.00:00:00", ["CERBERUS_LOG_RETENTION"] = "7.00:00:00",
             ["CERBERUS_SYNC_RETENTION"] = "30.00:00:00", ["CERBERUS_RETENTION_INTERVAL"] = "00:05:00",
             ["CERBERUS_BACKUP_PATH"] = "/srv/cerberus/backups", ["CERBERUS_ERASURE_LEDGER_PATH"] = _ledger,

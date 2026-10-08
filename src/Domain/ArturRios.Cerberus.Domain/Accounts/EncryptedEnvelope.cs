@@ -3,9 +3,10 @@ using System.Text.Json.Serialization;
 namespace ArturRios.Cerberus.Domain.Accounts;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record EncryptedEnvelope(string Format, long KeyEpoch, string Nonce, string Ciphertext, string Tag)
+public sealed record EncryptedEnvelope(string Format, long KeyEpoch, string KeySalt, string Nonce, string Ciphertext, string Tag)
 {
-    public bool IsValid() => Format == "cerberus-aes256gcm-v1" && KeyEpoch > 0
+    public bool IsValid() => Format == "cerberus-content-v1" && KeyEpoch is > 0 and <= 9007199254740991
+        && KeySalt is { Length: 43 } && Canonical(KeySalt, 32)
         && Nonce is { Length: 16 } && Canonical(Nonce, 12)
         && Tag is { Length: 22 } && Canonical(Tag, 16) && Canonical(Ciphertext, null);
 

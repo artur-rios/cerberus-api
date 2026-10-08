@@ -208,6 +208,10 @@
             "type": "integer",
             "format": "int64"
           },
+          "keySalt": {
+            "type": "string",
+            "nullable": true
+          },
           "nonce": {
             "type": "string",
             "nullable": true

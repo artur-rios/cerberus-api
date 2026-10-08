@@ -10,12 +10,16 @@ envelope and Heimdall name/email/password registration input. Optional bearer id
 proof is accepted only after signature/scope and current identity revalidation. The
 API never accepts a caller-selected Heimdall identity GUID. Unknown JSON members,
 malformed canonical base64url, unsupported envelope format, invalid nonce/tag sizes,
-nonpositive epoch and missing identifiers produce 400 without any writes.
+epochs outside 1..9007199254740991 and noncanonical identifiers produce 400 without writes.
+The six-field `cerberus-content-v1` envelope includes a canonical 32-byte `keySalt`.
+JSON field casing, integer types and duplicate/unknown-member rules match the protocol.
 
 A command handler validates with FluentValidation, fingerprints the operation input
-using a server-keyed HMAC and calls a Domain registration-store interface. Persisted
+using an independent durable registration HMAC key and calls a Domain registration-store interface. Persisted
 registration operations contain public identifiers, opaque envelope bytes and keyed
-fingerprints only. Identity credentials remain transient. PostgreSQL transactions
+fingerprints only. Identity credentials remain transient. Replicas
+use the same registration key across routine identity-key rotations; operators
+preserve it with protected restore configuration. PostgreSQL transactions
 serialize attempts for the same normalized scoped email, persist the pending operation
 before calling Heimdall, and atomically bind the identity and account after success.
 Unique constraints cover operation GUID, account GUID and identity GUID. Terminally

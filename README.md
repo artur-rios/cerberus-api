@@ -58,6 +58,8 @@ See [operational settings](docs/operations/proposed-beta-settings.md), the nonse
 Copy the reviewed nonsecret settings into the host's `appsettings.json` or supply named
 `CERBERUS_...` environment keys, which take precedence over `Cerberus:Property` values.
 Supply all credentials and identity scope separately through protected configuration.
+Registration requires an independent durable `CERBERUS_REGISTRATION_FINGERPRINT_KEY`;
+preserve it across replicas, restores and routine identity-signing-key rotation.
 
 From the repository root:
 

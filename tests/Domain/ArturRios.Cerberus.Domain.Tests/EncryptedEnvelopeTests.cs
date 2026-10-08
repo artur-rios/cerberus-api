@@ -15,8 +15,14 @@ public class EncryptedEnvelopeTests
 
     [UnitTheory]
     [InlineData("format", "unknown")]
+    [InlineData("format", "cerberus-aes256gcm-v1")]
     [InlineData("epoch", "0")]
     [InlineData("epoch", "-1")]
+    [InlineData("epoch", "9007199254740992")]
+    [InlineData("salt", "")]
+    [InlineData("salt", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")]
+    [InlineData("salt", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")]
+    [InlineData("salt", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB")]
     [InlineData("nonce", "AAAAAAAAAAAAAAA")]
     [InlineData("nonce", "AAAAAAAAAAAAAAAAAA")]
     [InlineData("nonce", "AAAAAAAAAAAAAAAA=")]
@@ -35,6 +41,7 @@ public class EncryptedEnvelopeTests
         {
             "format" => envelope with { Format = value },
             "epoch" => envelope with { KeyEpoch = long.Parse(value) },
+            "salt" => envelope with { KeySalt = value },
             "nonce" => envelope with { Nonce = value },
             "tag" => envelope with { Tag = value },
             _ => envelope with { Ciphertext = value }
@@ -48,10 +55,10 @@ public class EncryptedEnvelopeTests
     [InlineData("ownerId")]
     public void GivenUnknownEnvelopeMember_WhenDeserializing_ThenReject(string member)
     {
-        var json = "{\"format\":\"cerberus-aes256gcm-v1\",\"keyEpoch\":1,\"nonce\":\"AAAAAAAAAAAAAAAA\",\"ciphertext\":\"AQID\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA\",\"" + member + "\":\"forbidden\"}";
+        var json = "{\"format\":\"cerberus-content-v1\",\"keyEpoch\":1,\"nonce\":\"AAAAAAAAAAAAAAAA\",\"ciphertext\":\"AQID\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA\",\"" + member + "\":\"forbidden\"}";
         Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<EncryptedEnvelope>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
     }
 
-    private static EncryptedEnvelope Valid() => new("cerberus-aes256gcm-v1", 1,
+    private static EncryptedEnvelope Valid() => new("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA");
 }

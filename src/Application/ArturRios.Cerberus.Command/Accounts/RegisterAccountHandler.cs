@@ -20,7 +20,7 @@ public sealed class RegisterAccountHandler(IValidator<RegisterAccountCommand> va
     {
         var output = DataOutput<RegisterAccountOutput?>.New;
         if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
-        var key = Encoding.UTF8.GetBytes(options.AuthValidationSecret!);
+        var key = Encoding.UTF8.GetBytes(options.RegistrationFingerprintKey!);
         var input = JsonSerializer.SerializeToUtf8Bytes(new object[]
         {
             "cerberus-registration-input-v1", options.HeimdallScopeId, command.AccountId,

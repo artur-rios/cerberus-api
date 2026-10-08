@@ -1,4 +1,5 @@
 using ArturRios.Cerberus.Domain.Operations;
+using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Data.Relational.Core.Configuration;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,6 +7,8 @@ namespace ArturRios.Cerberus.Data;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseDbContext(options)
 {
+    public DbSet<Account> Accounts => Set<Account>();
+    public DbSet<RegistrationOperation> RegistrationOperations => Set<RegistrationOperation>();
     public DbSet<RetentionWorkItem> RetentionWorkItems => Set<RetentionWorkItem>();
     public DbSet<TerminalErasure> TerminalErasures => Set<TerminalErasure>();
 
@@ -15,6 +18,16 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("cerberus");
+        var account = modelBuilder.Entity<Account>();
+        account.ToTable("account");
+        account.HasIndex(x => x.PublicId).IsUnique();
+        account.HasIndex(x => x.HeimdallPublicId).IsUnique();
+        account.Property(x => x.DetailsEnvelope).IsRequired();
+        account.Property(x => x.Revision).IsConcurrencyToken();
+        var registration = modelBuilder.Entity<RegistrationOperation>();
+        registration.ToTable("registration_operation");
+        registration.HasIndex(x => x.OperationId).IsUnique();
+        registration.Property(x => x.RequestFingerprint).HasMaxLength(64).IsRequired();
         var work = modelBuilder.Entity<RetentionWorkItem>();
         work.ToTable("retention_work_item");
         work.HasIndex(x => x.PublicId).IsUnique();

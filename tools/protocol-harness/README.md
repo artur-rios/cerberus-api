@@ -13,6 +13,22 @@ lease verification, cross-language evidence and benchmarks are subsequent tasks
 in [the approved plan](../../docs/superpowers/plans/2026-10-07-protocol-harness.md).
 There is no successful interoperability or benchmark claim at this stage.
 
+The fail-closed dependency audit is implemented (14 tests). The actual OSV scan
+on 2026-10-08 queried 154 distinct coordinates, including Maven's bundled build
+libraries, and failed. See [the recorded result](audit-failure-2026-10-08.json).
+The approved plan's stop condition applies: Task 2 is incomplete and no crypto
+primitive has been adopted. These findings are in the isolated Java build graph,
+not a vulnerability assessment of the production .NET API.
+
+Proposed narrow correction, not yet implemented: override affected Maven plugin
+dependencies with patched releases, resolve again into a fresh cache, update
+artifact hashes, rerun all tests and require a clean live audit before proceeding.
+BeanUtils 1.9.4 is pulled in by the dependency plugin's Velocity tools; its
+[advisory](https://github.com/advisories/GHSA-wxr5-93ph-8wr9) identifies 1.11.0
+as patched. The [Plexus advisory](https://github.com/advisories/GHSA-6fmv-xxpf-w3cw)
+identifies 3.6.1 and 4.0.3 as patched within their respective major lines.
+Do not suppress findings or change cryptographic parameters to pass this gate.
+
 ## Reproducible local setup
 
 Supported reference measurement/test platform: Linux x86_64, JDK 25 and CPython
@@ -38,9 +54,29 @@ recorded only after matching the official Maven Central SHA-512. Maven and Pytho
 caches live in the selected temporary directory, not in production projects.
 
 `dependencies.lock.json` records actual runtime versions, package/artifact hashes
-and resolved Maven build/test dependencies. Before primitive adoption the next
-task audits the graph and package versions against current public advisories.
+and resolved Maven build/test dependencies. The audit checks all actual JAR and
+wheel hashes, installed Python versions and Maven distribution contents before
+sending only public package names/versions to the official OSV batch API.
+Five distribution JARs omit Maven metadata; their explicit package identities
+and byte hashes are pinned in `mavenDistribution.embeddedCoordinateOverrides`.
+Unknown or changed bundled JARs fail, rather than being excluded from the scan.
 No missing runtime, empty test run or failed dependency scan may be counted green.
+
+Run against the exact fresh resolved cache, downloaded locked Python wheels and
+verified Maven ZIP, using the Python environment where locked packages are installed:
+
+```bash
+"$HARNESS_TMP/venv/bin/python" tools/protocol-harness/audit.py \
+  --maven-cache "$HARNESS_TMP/m2" \
+  --wheels "$HARNESS_TMP/wheels" \
+  --maven-distribution "$HARNESS_TMP/maven.zip"
+python3 -m unittest discover -s tools/protocol-harness/tests -p test_audit.py -v
+```
+
+The supplied paths must exist; this command does not download or regenerate
+evidence. Missing input, drift, vulnerabilities and feed failure exit nonzero.
+An OSV result with no findings is a dated database observation, not independent
+security approval or a claim that all vulnerabilities are known.
 
 ## Encoding rules
 

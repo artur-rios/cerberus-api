@@ -1,0 +1,13 @@
+{
+  "feed": "https://api.osv.dev/v1/querybatch",
+  "findings": [
+    {"ecosystem": "Maven", "ids": ["GHSA-wxr5-93ph-8wr9"], "name": "commons-beanutils:commons-beanutils", "version": "1.9.4"},
+    {"ecosystem": "Maven", "ids": ["GHSA-6fmv-xxpf-w3cw"], "name": "org.codehaus.plexus:plexus-utils", "version": "3.6.0"},
+    {"ecosystem": "Maven", "ids": ["GHSA-6fmv-xxpf-w3cw"], "name": "org.codehaus.plexus:plexus-utils", "version": "4.0.2"}
+  ],
+  "limitations": "Version-based OSV snapshot, not proof of library correctness; native runtime/OS vulnerabilities require separate review.",
+  "lockSha256": "41c792d0ed70fd34a44a97b08e6b25abaf8a03f8ce4d0181c4f4463c818ad9eb",
+  "queriedPackages": 154,
+  "scannedAtUtc": "2026-10-08T00:18:12.011707+00:00",
+  "status": "failed"
+}

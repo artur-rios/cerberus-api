@@ -11,7 +11,14 @@
     "version": "3.10.0",
     "url": "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.10.0/apache-maven-3.10.0-bin.zip",
     "sha256": "1f6d9909266510f039f59aa0e13dcd2c66da85f043e56276e41f2918f8bddaff",
-    "sha512": "22d31676d5b92ed53308c19ecded3245d0efd0cddfec51ec7bab62f4f13ad70ddddceff8e62940e0e8e2421f3cde8106737f4becec0aa034ffeff2a754e88337"
+    "sha512": "22d31676d5b92ed53308c19ecded3245d0efd0cddfec51ec7bab62f4f13ad70ddddceff8e62940e0e8e2421f3cde8106737f4becec0aa034ffeff2a754e88337",
+    "embeddedCoordinateOverrides": [
+      {"relativePath": "apache-maven-3.10.0/lib/aopalliance-1.0.jar", "name": "aopalliance:aopalliance", "version": "1.0", "sha256": "0addec670fedcd3f113c5c8091d783280d23f75e3acb841b61a9cdb079376a08"},
+      {"relativePath": "apache-maven-3.10.0/lib/guice-5.1.0-classes.jar", "name": "com.google.inject:guice", "version": "5.1.0", "sha256": "142ad4475e19524d2fe3ac995b3f7cbc962fc726f2edb9dbdccc61feab9b2bf9"},
+      {"relativePath": "apache-maven-3.10.0/lib/jspecify-1.0.1.jar", "name": "org.jspecify:jspecify", "version": "1.0.1", "sha256": "070d75f261fe4c5b8202508366715f7f2d4660f88c8ef7e6d3575e48c9683b66"},
+      {"relativePath": "apache-maven-3.10.0/lib/asm-9.10.1.jar", "name": "org.ow2.asm:asm", "version": "9.10.1", "sha256": "ed825d10ab1399c8c0cb669e688cf0c8c82629b4c8399b58352b68e92ca10fcb"},
+      {"relativePath": "apache-maven-3.10.0/lib/javax.inject-1.jar", "name": "javax.inject:javax.inject", "version": "1", "sha256": "91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff"}
+    ]
   },
   "resolution": "Fresh Maven cache: clean test dependency:tree; includes runtime, test runner and invoked plugins/transitives. No security approval implied.",
   "packages": [

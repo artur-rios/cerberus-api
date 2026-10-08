@@ -12,6 +12,11 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Encrypted record creation with owned profile/folder links (UC-16), including new
+  content inside native selected-profile access, atomic parent metadata updates and
+  rollback on failure. See [record API](docs/security/record-api.md) for the request,
+  scope, timestamp and retry rules.
+
 - Opening profile access with native scoped proofs in Master and PerProfile modes (UC-15): fresh-identity
   challenge bootstrap, one-use proof consumption and opaque handles restricted to the selected profile.
   See [profile access API](docs/security/profile-access-api.md) for exact bodies, expiry and retry behavior.

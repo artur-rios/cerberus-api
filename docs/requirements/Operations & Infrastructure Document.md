@@ -367,6 +367,21 @@ recovery-material read creates no session and consumes no credential. Secrets re
 client-held; independent protocol/client approvals and strict release gate persist.
 
 
+### Encrypted record creation (UC16)
+
+`POST /api/records` uses current Heimdall identity and opaque vault access to create
+owned native ciphertext, with required `recordId`, `envelope`, `editedAt`, `profileIds`
+and optional nullable `folderId`. Account-wide access permits owned active links;
+selected access requires exactly its selected profile and an already permitted owned
+folder subtree. Foreign collection grants do not confer creation ownership.
+Creation, direct links and parent structural revision/sequence updates are atomic,
+preserving existing ciphertext, wrappers and edit times. Access/lifecycle is checked
+after waits and at statement time. UTC timestamps are floored to microseconds before
+binding, with minimum 10 ticks. No schema migration or dependency update is required.
+New records enter the complete protection-rotation inventory. The separate typed
+terminal-erasure repair remains required before physical purge. See the
+[record API](../security/record-api.md) for exact scope, fields, errors and retries.
+
 ### Profile creation and protection inventory (UC09)
 
 `POST /api/profiles` requires current Heimdall identity and a current account-wide

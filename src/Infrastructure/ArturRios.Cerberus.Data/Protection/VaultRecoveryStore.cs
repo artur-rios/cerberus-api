@@ -2,6 +2,7 @@ using System.Data.Common;
 using System.Security.Cryptography;
 using System.Text.Json;
 using ArturRios.Cerberus.Domain.Accounts;
+using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Protection;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +26,7 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) 
             await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", cancellationToken);
             var a = await db.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == request.Actor)
-                .Select(x => new { x.Id, x.PublicId, x.State, x.PolicyRevision, x.RevocationGeneration }).SingleOrDefaultAsync(cancellationToken);
+                .Select(x => new { x.Id, x.PublicId, x.State, x.PolicyRevision, x.RevocationGeneration, x.RenewalEnabled }).SingleOrDefaultAsync(cancellationToken);
             if (a is null || a.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => x.ResourceId == a.PublicId, cancellationToken)) return new(Error: "not_found");
             var now = await Now(db, cancellationToken);
             if (!Fresh(request.IdentityIssuedAt, now)) return new(Error: "fresh_authentication_required");
@@ -49,8 +50,22 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) 
             if (protection.Revision >= ProtocolBinary.MaxInteger || protection.KeyEpoch >= ProtocolBinary.MaxInteger
                 || protection.RecoveryGeneration >= ProtocolBinary.MaxInteger || a.RevocationGeneration >= ProtocolBinary.MaxInteger)
                 return new(Error: "revision_conflict");
-            if (input.RecoveryWrapper.Generation <= protection.RecoveryGeneration) return new(Error: "recovery_credential_consumed");
+            if (input.Operation == "recover" && input.RecoveryWrapper.Generation <= protection.RecoveryGeneration) return new(Error: "recovery_credential_consumed");
             if (input.ExpectedRevision != protection.Revision) return new(Error: "revision_conflict");
+            var recover = input.Operation == "recover";
+            var accessVerifier = request.AccessVerifier ?? string.Empty;
+            VaultAccessSession? session = null;
+            if (!recover)
+            {
+                await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={a.Id} AND handle_verifier={accessVerifier} FOR UPDATE", cancellationToken);
+                session = await db.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.HandleVerifier == accessVerifier, cancellationToken);
+            }
+            bool Permitted(DateTimeOffset at) => recover || session is not null && session.ProfileId is null && !session.Revoked
+                && session.PolicyRevision == a.PolicyRevision && session.RevocationGeneration == a.RevocationGeneration
+                && session.IssuedAt <= at && (a.RenewalEnabled ? session.ExpiresAt > at : session.ExpiresAt is null);
+            now = await Now(db, cancellationToken);
+            if (!Fresh(request.IdentityIssuedAt, now)) return new(Error: "fresh_authentication_required");
+            if (!Permitted(now)) return new(Error: "vault_access_denied");
             if (!input.IsValidTransition(current)) return new(Error: "validation_failed");
             var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.PublicId == request.ChallengeId, cancellationToken);
             if (row is null || row.Consumed) return new(Error: "vault_proof_rejected");
@@ -61,16 +76,27 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) 
                 || challenge.Operation == "recover" && challenge.Generation != protection.RecoveryGeneration) return new(Error: "revision_conflict");
             now = await Now(db, cancellationToken);
             if (!Fresh(request.IdentityIssuedAt, now)) return new(Error: "fresh_authentication_required");
-            var binding = new VaultProofBinding("recover", request.Actor, a.PublicId, "account", a.PublicId, protection.KeyEpoch, protection.Revision, protection.RecoveryGeneration);
-            if (!VaultProof.Verify(challenge, binding, request.RawBody, current.RecoveryVerifier, request.Proof, now.ToUnixTimeSeconds())
+            var binding = new VaultProofBinding(input.Operation, request.Actor, a.PublicId, "account", a.PublicId, protection.KeyEpoch, protection.Revision, recover ? protection.RecoveryGeneration : null);
+            if (!Permitted(now)) return new(Error: "vault_access_denied");
+            if (!VaultProof.Verify(challenge, binding, request.RawBody, recover ? current.RecoveryVerifier : current.UnlockVerifier, request.Proof, now.ToUnixTimeSeconds())
                 || !Matches(input, request.RawBody)) return new(Error: "vault_proof_rejected");
             var consumed = await db.Database.ExecuteSqlInterpolatedAsync($"""
                 UPDATE cerberus.vault_unlock_challenge SET consumed=TRUE
                 WHERE id={row.Id} AND NOT consumed AND expires_at>statement_timestamp()
                 AND floor(extract(epoch from statement_timestamp()))>={request.IdentityIssuedAt}
                 AND floor(extract(epoch from statement_timestamp()))<{request.IdentityIssuedAt}+60
+                AND ({recover} OR EXISTS(SELECT 1 FROM cerberus.vault_access_session
+                    WHERE account_id={a.Id} AND handle_verifier={accessVerifier}
+                    AND profile_id IS NULL AND NOT revoked AND policy_revision={a.PolicyRevision}
+                    AND revocation_generation={a.RevocationGeneration} AND issued_at<=statement_timestamp()
+                    AND (({a.RenewalEnabled} AND expires_at>statement_timestamp())
+                        OR (NOT {a.RenewalEnabled} AND expires_at IS NULL))))
                 """, cancellationToken);
-            if (consumed != 1) return new(Error: Fresh(request.IdentityIssuedAt, await Now(db, cancellationToken)) ? "vault_proof_rejected" : "fresh_authentication_required");
+            if (consumed != 1)
+            {
+                now = await Now(db, cancellationToken);
+                return new(Error: !Fresh(request.IdentityIssuedAt, now) ? "fresh_authentication_required" : !Permitted(now) ? "vault_access_denied" : "vault_proof_rejected");
+            }
             protection.Material = JsonSerializer.SerializeToUtf8Bytes(input.Replace(current), Json);
             protection.Revision++; protection.KeyEpoch++; protection.RecoveryGeneration++;
             var changed = await db.Accounts.Where(x => x.Id == a.Id).ExecuteUpdateAsync(set => set.SetProperty(x => x.RevocationGeneration, x => x.RevocationGeneration + 1), cancellationToken);

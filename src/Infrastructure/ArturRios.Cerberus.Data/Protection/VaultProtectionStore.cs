@@ -43,7 +43,7 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
     public Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string operation, string requestHash, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (operation is not ("unlock-account" or "change-protection" or "recover") || !ProtocolBinary.TryDecode(requestHash, 32, out _)) return Task.FromResult(new VaultResult<VaultProofChallenge>(Error: "validation_failed"));
+        if (operation is not ("unlock-account" or "change-protection" or "recover" or "refresh-recovery") || !ProtocolBinary.TryDecode(requestHash, 32, out _)) return Task.FromResult(new VaultResult<VaultProofChallenge>(Error: "validation_failed"));
         return Run<VaultProofChallenge>(actor, cancellationToken, async (db, account, ct) =>
         {
             var row = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, ct);

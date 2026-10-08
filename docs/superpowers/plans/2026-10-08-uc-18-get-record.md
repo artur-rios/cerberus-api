@@ -1,6 +1,6 @@
 # UC18 Get Record Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 Goal: get one accessible native encrypted record with only current visible public
 relationships. Spec: docs/superpowers/specs/2026-10-08-uc-18-get-record.md.
@@ -57,7 +57,7 @@ whole Data. Commit.
 Interfaces produces IRecordReadStore.ReadAsync(RecordReadRequest,ct), Details(Row,
 ProfileIds,FolderId,CollectionIds) to Task2; Task3 HTTP uses samecontract.
 
-- [ ] Write specified failing tests, run and read expected RED before product code.
+- [x] Write specified failing tests, run and read expected RED before product code.
 - [ ] Implement this task, run named whole-family verification, read zero failures/skips and commit.
 
 ### Task 2: Strict get-record query and output

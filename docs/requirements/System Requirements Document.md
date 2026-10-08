@@ -546,6 +546,11 @@ new access from an unchecked local cache.
 | NFR-11 | Protocol | The system shall block encryption/recovery implementation until the versioned protocol passes the approved security and client-interoperability review. |
 | NFR-12 | Operability | The system shall provide redacted health/diagnostic results without revealing connection credentials or vault contents. |
 
+Development exception authorized by the owner on 2026-10-08: defer NFR-11's independent
+review prerequisite while implementing the open backlog into `develop`. The approval
+manifest remains pending and release validation still requires actual review. The exact
+scope and instruction are recorded in [development review deferral](../security/development-review-deferral.json).
+
 No numerical latency, throughput or availability thresholds are defined for the beta by the
 approved decision. Measure them without treating invented numbers as acceptance criteria.
 Retention intervals beyond the product's 30-day deletion windows are explicit operator inputs

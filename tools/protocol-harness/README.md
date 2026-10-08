@@ -13,16 +13,18 @@ lease verification, cross-language evidence and benchmarks are subsequent tasks
 in [the approved plan](../../docs/superpowers/plans/2026-10-07-protocol-harness.md).
 There is no successful interoperability or benchmark claim at this stage.
 
-The fail-closed dependency audit is implemented (14 tests). The actual OSV scan
+The fail-closed dependency audit is implemented (14 tests). The initial OSV scan
 on 2026-10-08 queried 154 distinct coordinates, including Maven's bundled build
 libraries, and failed. See [the recorded result](audit-failure-2026-10-08.json).
-The approved plan's stop condition applies: Task 2 is incomplete and no crypto
-primitive has been adopted. These findings are in the isolated Java build graph,
-not a vulnerability assessment of the production .NET API.
+The owner approved targeted plugin dependency upgrades. Fresh resolution and a
+new live audit returned no findings across 153 package versions; see
+[the patched scan](audit-pass-2026-10-08.json). Task 2 primitive qualification is
+still in progress. This is not a vulnerability assessment of the production
+.NET API or independent security approval.
 
-Proposed narrow correction, not yet implemented: override affected Maven plugin
-dependencies with patched releases, resolve again into a fresh cache, update
-artifact hashes, rerun all tests and require a clean live audit before proceeding.
+The resources plugin now selects Plexus 3.6.1, the clean plugin Plexus 4.0.3,
+and the dependency plugin BeanUtils 1.11.0. Hashes reflect a new clean cache;
+the failed scan is retained as historical evidence against its original lock.
 BeanUtils 1.9.4 is pulled in by the dependency plugin's Velocity tools; its
 [advisory](https://github.com/advisories/GHSA-wxr5-93ph-8wr9) identifies 1.11.0
 as patched. The [Plexus advisory](https://github.com/advisories/GHSA-6fmv-xxpf-w3cw)

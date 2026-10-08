@@ -233,3 +233,23 @@ modeled high-water time remains retained. Disabled-expiry policy does not manufa
 periodic expiration. Lease-key rotations use a separate signed domain and retain
 old verification pins for outstanding leases; they cannot instantly revoke offline
 copies. A real client still needs reviewed platform time and key-storage behavior.
+
+## Isolated derivation measurements
+
+```bash
+"$HARNESS_TMP/venv/bin/python" tools/protocol-harness/benchmark.py --samples 10 --output docs/security/protocol-harness-benchmarks.json
+```
+
+Each implementation runs in its own fresh process, performs one warm-up, then
+records monotonic elapsed samples for the fixed 65,536-KiB/3-pass/4-lane Argon2id
+profile. The sample count is bounded to 1–1,000 to limit reference-tool work.
+The parent measures Linux process peak RSS using `wait4`; its KiB result is
+converted to bytes and includes the JVM/Python runtime and JIT baseline. It is
+not the KDF's isolated allocation. Unsupported measurement platforms fail rather
+than fabricate RSS. The public artifact records the runtime/library/OS/architecture,
+all ten observations, min/median/nearest-rank p95/max and measurement method.
+
+The recorded desktop run observed median derivation times of about 165 ms in
+Java and 91 ms in Python, with process peaks of about 376 MiB and 93 MiB respectively.
+These observations establish no latency SLO, mobile compatibility or security approval.
+CI checks the harness and committed corpus; it does not benchmark hardware as an acceptance gate.

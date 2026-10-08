@@ -1,0 +1,81 @@
+{
+  "classification": "public-test-fixtures-reference-measurements-not-performance-acceptance",
+  "java": {
+    "elapsedMilliseconds": [
+      185.183398,
+      165.110206,
+      164.900741,
+      153.513926,
+      153.336351,
+      172.056182,
+      161.507564,
+      184.069397,
+      170.025987,
+      159.876878
+    ],
+    "environment": {
+      "architecture": "amd64",
+      "library": "Bouncy Castle 1.86",
+      "os": "Linux 7.0.0-34-generic",
+      "runtime": "Ubuntu 25.0.4.1"
+    },
+    "implementation": "java",
+    "peakRssBytes": 394510336,
+    "profile": {
+      "iterations": 3,
+      "length": 32,
+      "memoryKiB": 65536,
+      "parallelism": 4
+    },
+    "rssMethod": "Linux wait4 ru_maxrss KiB converted to bytes; includes runtime/JIT baseline",
+    "samples": 10,
+    "statisticsMilliseconds": {
+      "max": 185.183398,
+      "median": 165.0054735,
+      "min": 153.336351,
+      "p95": 185.183398
+    },
+    "version": "1.0.0"
+  },
+  "limitations": "Linux desktop observations only; peak RSS includes runtime/JIT baseline; no latency SLO, isolated allocation or mobile compatibility claim.",
+  "measuredAtUtc": "2026-10-08T09:46:35.588685+00:00",
+  "python": {
+    "elapsedMilliseconds": [
+      70.602604,
+      124.200279,
+      85.562518,
+      79.138044,
+      103.681539,
+      97.253399,
+      79.931294,
+      99.524625,
+      78.626176,
+      105.460837
+    ],
+    "environment": {
+      "architecture": "x86_64",
+      "library": "cryptography 50.0.2",
+      "os": "Linux-7.0.0-34-generic-x86_64-with-glibc2.43",
+      "runtime": "3.14.4"
+    },
+    "implementation": "python",
+    "peakRssBytes": 97189888,
+    "profile": {
+      "iterations": 3,
+      "length": 32,
+      "memoryKiB": 65536,
+      "parallelism": 4
+    },
+    "rssMethod": "Linux wait4 ru_maxrss KiB converted to bytes; includes runtime/JIT baseline",
+    "samples": 10,
+    "statisticsMilliseconds": {
+      "max": 124.200279,
+      "median": 91.4079585,
+      "min": 70.602604,
+      "p95": 124.200279
+    },
+    "version": "1.0.0"
+  },
+  "schemaVersion": 1,
+  "warmupDerivations": 1
+}

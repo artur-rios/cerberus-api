@@ -24,7 +24,7 @@ public class RecoveryReplacementTests
         using var current=new ProtectionFixture();using var next=new ProtectionFixture();var r=Replacement(current,next);
         r=invalid switch
         {
-            "operation"=>r with { Operation="refresh-recovery" },"idempotency"=>r with { IdempotencyKey=Guid.Empty },
+            "operation"=>r with { Operation="unsupported" },"idempotency"=>r with { IdempotencyKey=Guid.Empty },
             "revision"=>r with { ExpectedRevision=0 },"unsafeRevision"=>r with { ExpectedRevision=9007199254740992 },
             "password"=>r with { PasswordWrapper=null! },"recovery"=>r with { RecoveryWrapper=null! },"verifier"=>r with { NewRecoveryVerifier=null! },
             "offCurve"=>r with { NewRecoveryVerifier=r.NewRecoveryVerifier with { X=ProtectionFixture.Encode(new byte[32]),Y=ProtectionFixture.Encode(new byte[32]) } },
@@ -62,6 +62,20 @@ public class RecoveryReplacementTests
         using var current=new ProtectionFixture();using var next=new ProtectionFixture();var raw=JsonSerializer.Serialize(Replacement(current,next),ProtectionFixture.Json);
         raw=invalid switch { "unknown"=>raw.Insert(1,"\"recoverySecret\":\"secret\","),"private"=>raw.Replace("\"crv\":","\"d\":\"private\",\"crv\":"),_=>raw.Replace("\"expectedRevision\":1","\"expectedRevision\":\"1\"") };
         Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<RecoveryReplacement>(raw,ProtectionFixture.Json));
+    }
+    [UnitFact]
+    public void GivenNativeFullWrapperRefresh_WhenApplying_ThenAdvanceRecoveryAndRetainOtherPins()
+    {
+        using var current=new ProtectionFixture();using var next=new ProtectionFixture();var r=Replacement(current,next) with { Operation="refresh-recovery" };
+        Assert.True(r.IsValid());Assert.True(r.IsValidTransition(current.Material));var m=r.Replace(current.Material);
+        Assert.Equal(current.Material.UnlockVerifier,m.UnlockVerifier);Assert.Equal(current.Material.RecipientKey,m.RecipientKey);Assert.Equal(current.Material.AuthorKey,m.AuthorKey);Assert.Equal(next.Material.RecoveryVerifier,m.RecoveryVerifier);
+        Assert.Equal(2,m.PasswordWrapper.KeyEpoch);Assert.Equal(2,m.RecoveryWrapper.Generation);
+    }
+    [UnitFact]
+    public void GivenRefreshPreservingOldPasswordWrapper_WhenValidating_ThenRejectUnreviewedMixedSlotTransition()
+    {
+        using var current=new ProtectionFixture();using var next=new ProtectionFixture();var r=Replacement(current,next) with { Operation="refresh-recovery",PasswordWrapper=current.Material.PasswordWrapper };
+        Assert.False(r.IsValidTransition(current.Material));
     }
     private static RecoveryReplacement Replacement(ProtectionFixture current,ProtectionFixture next)
     {

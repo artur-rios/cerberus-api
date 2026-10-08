@@ -8,7 +8,7 @@ namespace ArturRios.Cerberus.Domain.Protection;
 public sealed record RecoveryReplacement(string Operation, Guid IdempotencyKey, long ExpectedRevision,
     PasswordWrapper PasswordWrapper, RecoveryWrapper RecoveryWrapper, PublicJwk NewRecoveryVerifier)
 {
-    public bool IsValid() => Operation == "recover" && IdempotencyKey != Guid.Empty
+    public bool IsValid() => Operation is ("recover" or "refresh-recovery") && IdempotencyKey != Guid.Empty
         && ExpectedRevision is > 0 and <= ProtocolBinary.MaxInteger
         && PasswordWrapper?.IsValid() == true && RecoveryWrapper?.IsValid() == true && NewRecoveryVerifier?.IsValid() == true
         && PasswordWrapper.KeyEpoch == RecoveryWrapper.KeyEpoch && RecoveryWrapper.ProofKeyFingerprint == NewRecoveryVerifier.Fingerprint();
@@ -26,7 +26,7 @@ public sealed record RecoveryReplacement(string Operation, Guid IdempotencyKey, 
     { PasswordWrapper = PasswordWrapper, RecoveryWrapper = RecoveryWrapper, RecoveryVerifier = NewRecoveryVerifier };
 }
 
-public sealed record RecoveryRequest(Guid Actor, long IdentityIssuedAt, Guid ChallengeId, string Proof, byte[] RawBody, RecoveryReplacement Replacement);
+public sealed record RecoveryRequest(Guid Actor, long IdentityIssuedAt, Guid ChallengeId, string Proof, byte[] RawBody, RecoveryReplacement Replacement, string? AccessVerifier = null);
 public sealed record RecoveryDetails(string Status, long ProtectionRevision, long Generation, long RevocationGeneration);
 public interface IVaultRecoveryStore
 {

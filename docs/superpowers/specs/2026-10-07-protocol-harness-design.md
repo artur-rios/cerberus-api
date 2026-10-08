@@ -3,7 +3,7 @@
 Date: 2026-10-07.
 
 Status: **Owner approved the written design and the Java/Python architecture
-correction in chat. Implementation plan pending owner review. Not an independent
+correction and written implementation plan in chat. Implementation in progress. Not an independent
 security approval, implementation result, or release authorization.**
 
 ## 1. Intent, scope, and approval boundaries
@@ -121,6 +121,8 @@ Define `C(array)` as strict UTF-8 bytes of a JSON array with no insignificant
 whitespace. Elements in authenticated arrays below are ASCII strings, nested
 arrays, JSON integers, booleans, or `null`. Emit strings without unnecessary
 escapes. This constrained serializer is not an arbitrary-object canonicalizer.
+Required Unicode escapes for ASCII control characters use lowercase hexadecimal
+digits so library defaults cannot change authenticated bytes.
 
 - Public GUIDs use lowercase canonical D form and are nonzero.
 - Protocol integers are JSON integers, not booleans, decimals, exponent notation,

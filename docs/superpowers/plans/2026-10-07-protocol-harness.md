@@ -10,7 +10,7 @@
 
 **Spec:** [Approved corrected design](../specs/2026-10-07-protocol-harness-design.md). Read the entire design before execution; it defines all field sets and authenticated byte arrays.
 
-**Execution:** Preserve inline/native execution using `superpowers:executing-plans`. This plan awaits owner review; its creation is not implementation approval. Work in the existing isolated `feature/protocol-harness-design` worktree; preserve the user's original worktree changes.
+**Execution:** Owner approved this written plan in chat; execute inline/native using `superpowers:executing-plans`. Work in the existing isolated `feature/protocol-harness-design` worktree; preserve the user's original worktree changes. Approval is not independent protocol security approval.
 
 ## Global Constraints
 

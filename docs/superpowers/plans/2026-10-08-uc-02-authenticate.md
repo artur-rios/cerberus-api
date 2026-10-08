@@ -33,8 +33,8 @@
 
 **Interfaces:** `HeimdallAuthentication(HeimdallLogin? Login = null, Guid? IdentityId = null, string? Error = null)`; `IHeimdallClient.AuthenticateAsync(string email, string password, CancellationToken)` and `VerifyChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken)`.
 
-- [ ] Write adapter fixtures for completed login/challenge, MFA, 401/403, malformed/unavailable, foreign-scope/invalid token, current denial/outage and caller cancellation. Run targeted tests: expected missing interface or behavior fails.
-- [ ] Add typed adapter methods preserving existing nullable methods. Structural parse precedes signed/current identity validation; pending challenge carries no identity GUID. Run full Shared suite: expected green. Commit.
+- [x] Write adapter fixtures for completed login/challenge, MFA, 401/403, malformed/unavailable, foreign-scope/invalid token, current denial/outage and caller cancellation. Run targeted tests: expected missing interface or behavior fails.
+- [x] Add typed adapter methods preserving existing nullable methods. Structural parse precedes signed/current identity validation; pending challenge carries no identity GUID. Run full Shared suite: expected green. Commit.
 
 ### Task 2: Read permitted account context
 
@@ -42,8 +42,8 @@
 
 **Interfaces:** `AuthenticationAccount(Guid Id, long Revision)`; `AccountAuthenticationResult(AuthenticationAccount? Account = null, string? Error = null)`; `IAccountAuthenticationStore.FindAsync(Guid identityId, CancellationToken)`.
 
-- [ ] Write real PostgreSQL tests for active, absent, closure-pending, erased and unavailable database outcomes plus cancellation. Run: expected missing types/behavior fails.
-- [ ] Implement no-tracking account/tombstone lookup and typed provider-failure result; no writes or credentials. Run full Data suite: expected green. Commit.
+- [x] Write real PostgreSQL tests for active, absent, closure-pending, erased and unavailable database outcomes plus cancellation. Run: expected missing types/behavior fails.
+- [x] Implement no-tracking account/tombstone lookup and typed provider-failure result; no writes or credentials. Run full Data suite: expected green. Commit.
 
 ### Task 3: Validated mediator/HTTP delivery
 
@@ -51,7 +51,7 @@
 
 **Interfaces:** `LoginCommand : BaseCommand` email/password; `VerifyChallengeCommand : BaseCommand` challengeToken/code/recoveryCode; both handlers return `DataOutput<AuthenticationOutput?>` with `HeimdallLogin Identity` and nullable `AuthenticationAccount Account`; adapter outcome selects store lookup only for completed identity.
 
-- [ ] Write validator/handler tests covering invalid input, pending MFA no store calls, all stable errors, unbound/active/inactive accounts and both authentication modes. Run: expected missing behavior fails; implement and run full Command suite green.
-- [ ] Add real-host tests for both routes and every AF, including malformed/duplicate bodies before calls, generic credential denial, inactive/erased accounts, controlled upstream failures and database failure. Run: expected routes absent; implement mediator dispatch/DI/status mapping. Run WebApi suite: expected green.
-- [ ] Generate OpenAPI, inspect both routes and public schemas; mark UC-02 done in branch README. Run fresh unfiltered coverage.py, helper/spec/OpenAPI/format checks: expected zero failures/skips and coverage>=90%.
+- [x] Write validator/handler tests covering invalid input, pending MFA no store calls, all stable errors, unbound/active/inactive accounts and both authentication modes. Run: expected missing behavior fails; implement and run full Command suite green.
+- [x] Add real-host tests for both routes and every AF, including malformed/duplicate bodies before calls, generic credential denial, inactive/erased accounts, controlled upstream failures and database failure. Run: expected routes absent; implement mediator dispatch/DI/status mapping. Run WebApi suite: expected green.
+- [x] Generate OpenAPI, inspect both routes and public schemas; mark UC-02 done in branch README. Run fresh unfiltered coverage.py, helper/spec/OpenAPI/format checks: expected zero failures/skips and coverage>=90%.
 - [ ] One fresh whole-branch review; reproduce/fix important issues, record all rulings/declines/minors. Push/open PR closing #3; green CI, merge, close issue/set Done/delete branch/sync under batch authorization.

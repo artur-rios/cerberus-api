@@ -134,6 +134,7 @@ public class FoundationHostTests : WebApiTest<Program>
                 ["CERBERUS_AUTH_ISSUER"] = "fixture-issuer",
                 ["CERBERUS_AUTH_AUDIENCE"] = "fixture-audience",
                 ["CERBERUS_AUTH_VALIDATION_SECRET"] = "fixture-only-signing-key-32-characters",
+                ["CERBERUS_REGISTRATION_FINGERPRINT_KEY"] = "independent-durable-fixture-key-32-bytes",
                 ["CERBERUS_BACKUP_RETENTION"] = "7.00:00:00",
                 ["CERBERUS_LOG_RETENTION"] = "7.00:00:00",
                 ["CERBERUS_SYNC_RETENTION"] = "30.00:00:00",

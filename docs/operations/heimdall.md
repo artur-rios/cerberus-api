@@ -25,4 +25,4 @@ upstream error text is never returned.
 Credentials are never returned or logged. Header/body transport is intentional; the API
 does not mint identities. Public endpoints require explicit anonymous metadata; unknown
 routes still return 404. Business ownership/profile/grant checks remain with the owning use
-case, and this bootstrap does not implement login or account-registration endpoints.
+case. UC-01 now exposes `POST /api/accounts`; login delivery is tracked separately as UC-02.

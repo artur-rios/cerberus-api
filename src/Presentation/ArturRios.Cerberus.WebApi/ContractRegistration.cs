@@ -1,4 +1,5 @@
 using ArturRios.Output;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 
@@ -9,6 +10,13 @@ public static class ContractRegistration
     public static IServiceCollection AddCerberusContracts(this IServiceCollection services)
     {
         services.AddControllers().AddApplicationPart(typeof(Program).Assembly)
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.AllowDuplicateProperties = false;
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
+                options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+                options.JsonSerializerOptions.Converters.Add(new CanonicalGuidConverter());
+            })
             .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = _ =>
                 new BadRequestObjectResult(ProcessOutput.New.WithError("validation_failed")));
         services.AddEndpointsApiExplorer();
@@ -16,7 +24,7 @@ public static class ContractRegistration
         {
             Title = "Cerberus API",
             Version = "v1",
-            Description = "Foundation only. Business endpoints are added by their reviewed use cases."
+            Description = "Cerberus encrypted vault API. Identity authentication and vault access are separate."
         }));
         return services;
     }

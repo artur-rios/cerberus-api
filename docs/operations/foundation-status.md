@@ -1,8 +1,9 @@
 # Foundation implementation status
 
 Foundation issue #1 is implemented and reviewed through [PR #57](https://github.com/artur-rios/cerberus-api/pull/57).
-All 55 business use cases remain unimplemented. This is not a usable
-vault application and must not be deployed for production traffic.
+The implementation and verification below describe the foundation snapshot of
+2026-10-07. Current business delivery is tracked in the [README backlog](../../README.md);
+UC-01 now exposes account registration. The API remains a development artifact.
 
 ## Implemented and tested
 
@@ -25,7 +26,7 @@ vault application and must not be deployed for production traffic.
 - A protocol-review record validator. The actual record remains pending; synthetic approval
   fixtures used by tests are not real approvals.
 
-The development host validates configuration and ledger storage before starting, registers
+At that foundation snapshot, the development host validates configuration and ledger storage before starting, registers
 the database without implicitly migrating it, and exposes no business endpoints. Its single
 JSON console logging pipeline admits only deliberately redacted application events and
 excludes framework/HTTP/EF payload logging. Restored startup reconciles before HTTP/worker
@@ -49,16 +50,16 @@ settings without connecting or exposing their values. The complete suite then pa
 
 ## Required decisions
 
-1. Complete the independent security and client-interoperability review required by NFR-11.
-   [Protocol proposal](../security/protocol-review.md) lists unresolved questions; no client
-   compatibility vectors or review approval currently exist.
+1. Complete the independent security and client-operability review before release.
+   [Protocol proposal](../security/protocol-review.md) lists unresolved questions. The
+   executable reference harness and compatibility vectors exist; actual approval remains pending.
 2. Actual deployment provisioning and ownership/load checks remain before production traffic.
    [Beta settings](proposed-beta-settings.md) were approved as design inputs by the user's
    latest “Go ahead”; they are not secretly installed defaults or deployed values.
 
-Dependent encryption/recovery implementation must stop at the review gate. IR-09 permits
-the foundation to establish that gate while the review is pending. A general instruction to
-implement the backlog is not evidence that an independent security/client review occurred.
+The owner's [explicit development deferral](../security/development-review-deferral.json)
+allows backlog implementation while review is pending. The strict main/tag release gate
+remains; this deferral is not evidence that an independent review occurred.
 
 ## Foundation requirement evidence
 

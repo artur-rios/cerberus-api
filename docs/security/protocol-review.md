@@ -95,11 +95,11 @@ bundle, and verified against the registered public recovery verifier on unwrap.
 The server holds only that public verifier. No deterministic secret-to-scalar
 construction or recovery plaintext endpoint exists.
 
-Proposed UC-01 registration adds client-generated `proposedAccountPublicId` beside
-its idempotency key and envelope, permitting encryption before registration. Production
-must atomically enforce uniqueness and terminal tombstones and bind that ID to the
+UC-01 registration accepts client-generated `accountId` beside
+its `idempotencyKey` and content envelope, permitting encryption before registration. The implementation
+atomically enforces uniqueness and terminal tombstones and binds that ID to the
 verified Heimdall identity. A GUID/email is never ownership proof; retries retain the
-same ID and bytes. This is a proposed product extension, not an implemented route.
+same ID and bytes. The route is implemented for development; protocol approval remains pending.
 
 ## Recipient envelopes and trust transitions
 

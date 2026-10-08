@@ -1,0 +1,5 @@
+/java/target/
+/python/.venv/
+**/__pycache__/
+*.pyc
+/artifacts/

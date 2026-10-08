@@ -23,8 +23,8 @@ families, then checks each producer with both consumers. It writes evidence only
 all checks pass, and preserves previous evidence on failure. Corpus replay verifies
 the original randomized ciphertexts instead of demanding fresh random bytes match.
 Input, manifest, dependency and source hashes bind the evidence to the checked code.
-Benchmarks remain a subsequent task in
-[the approved plan](../../docs/superpowers/plans/2026-10-07-protocol-harness.md).
+Actual measurements are recorded separately below and never count as security
+approval or performance acceptance in CI.
 
 The fail-closed dependency audit is implemented (14 tests). The initial OSV scan
 on 2026-10-08 queried 154 distinct coordinates, including Maven's bundled build
@@ -56,9 +56,22 @@ From the repository root, choose a new task-specific temporary directory:
 ```bash
 HARNESS_TMP=$(mktemp -d /tmp/cerberus-protocol.XXXXXX)
 python3.14 -m venv "$HARNESS_TMP/venv"
-"$HARNESS_TMP/venv/bin/python" -m pip install --only-binary=:all: --require-hashes -r tools/protocol-harness/python/requirements.lock
 export MAVEN_USER_HOME="$HARNESS_TMP/maven-user"
-tools/protocol-harness/java/mvnw -Dmaven.repo.local="$HARNESS_TMP/m2" -f tools/protocol-harness/java/pom.xml test
+export HARNESS_MAVEN_CACHE="$HARNESS_TMP/m2"
+export CERBERUS_PYTHON_WHEELS="$HARNESS_TMP/wheels"
+export CERBERUS_MAVEN_DISTRIBUTION="$HARNESS_TMP/maven.zip"
+"$HARNESS_TMP/venv/bin/python" -m pip download --only-binary=:all: --require-hashes -r tools/protocol-harness/python/requirements.lock --dest "$CERBERUS_PYTHON_WHEELS"
+"$HARNESS_TMP/venv/bin/python" -m pip install --no-index --find-links "$CERBERUS_PYTHON_WHEELS" --only-binary=:all: --require-hashes -r tools/protocol-harness/python/requirements.lock
+"$HARNESS_TMP/venv/bin/python" - <<'PY'
+import hashlib, json, os, pathlib, urllib.request
+lock = json.loads(pathlib.Path('tools/protocol-harness/dependencies.lock.json').read_text())['mavenDistribution']
+with urllib.request.urlopen(lock['url'], timeout=60) as response:
+    data = response.read(32 * 1024 * 1024 + 1)
+if len(data) > 32 * 1024 * 1024 or hashlib.sha256(data).hexdigest() != lock['sha256']:
+    raise SystemExit('unsupported_dependency')
+pathlib.Path(os.environ['CERBERUS_MAVEN_DISTRIBUTION']).write_bytes(data)
+PY
+tools/protocol-harness/java/mvnw -B -Dmaven.repo.local="$HARNESS_MAVEN_CACHE" -f tools/protocol-harness/java/pom.xml clean test dependency:tree
 PYTHONPATH=tools/protocol-harness/python "$HARNESS_TMP/venv/bin/python" -m unittest discover -s tools/protocol-harness/python/tests -t tools/protocol-harness/python -v
 ```
 
@@ -108,7 +121,7 @@ the original published seal/open bytes for sequences 0 and 1. Python's public
 single-shot API fixes AAD empty; its pinned upstream test-only native entry point
 checks the original sequence-0 vector with nonempty AAD, and a separate public-API
 smoke test checks the approved empty-AAD profile. This is primitive qualification,
-not yet evidence of cross-language protocol interoperability.
+separate from the executed protocol interoperability corpus.
 
 ## Encoding rules
 
@@ -130,7 +143,7 @@ Only explicit `sealFixture` / `seal_fixture` test APIs accept fixed materials.
 Receivers supply the expected owner, content kind, immutable resource ID and
 epoch; the ciphertext's own claims never establish those trusted bindings.
 Public content APIs accept only `cerberus-content-v1` and empty extra context;
-the following wrapper tasks own their named extensions.
+the wrapper APIs own their named extensions.
 
 `NonceGuard` is an atomic local reference model. A valid salt reservation remains
 consumed after a failed or unsent encryption. Retries reuse saved bytes. Budgets
@@ -253,3 +266,44 @@ The recorded desktop run observed median derivation times of about 165 ms in
 Java and 91 ms in Python, with process peaks of about 376 MiB and 93 MiB respectively.
 These observations establish no latency SLO, mobile compatibility or security approval.
 CI checks the harness and committed corpus; it does not benchmark hardware as an acceptance gate.
+
+## CI acceptance and independent review handoff
+
+The existing required `test` job sets up JDK 25 and CPython 3.14 with pinned
+[setup-java v6.0.1](https://github.com/actions/setup-java/releases/tag/v6.0.1) and
+[setup-python v7.0.0](https://github.com/actions/setup-python/releases/tag/v7.0.0)
+action commits. Each run uses new Maven/wheel directories, resolves the locked
+build/test graph, verifies artifact hashes and installed versions, queries OSV,
+then runs both complete native suites, all known answers and committed-corpus
+replay. Helper/delivery tests run too. No cache with extra artifacts is accepted.
+CI never regenerates the corpus or runs benchmarks as an acceptance gate. The
+.NET coverage steps and Docker job remain separate and unchanged.
+
+After setup, run the complete acceptance checks from the repository root:
+
+```bash
+"$HARNESS_TMP/venv/bin/python" tools/protocol-harness/audit.py --maven-cache "$HARNESS_MAVEN_CACHE" --wheels "$CERBERUS_PYTHON_WHEELS" --maven-distribution "$CERBERUS_MAVEN_DISTRIBUTION"
+"$HARNESS_TMP/venv/bin/python" tools/protocol-harness/verify.py --check docs/security/interoperability-vectors.json
+python3 -m unittest discover -s tools/protocol-harness/tests -v
+python3 -m unittest discover -s scripts -p 'test_*.py' -v
+python3 scripts/verify_specs.py
+python3 scripts/vulnerabilities.py
+dotnet test src/ArturRios.Cerberus.sln --configuration Release --logger trx
+python3 scripts/openapi.py
+python3 scripts/verify_protocol.py
+```
+
+The last command must currently exit 1 with
+`BLOCKED: Protocol security and client review is pending.` Missing and stale
+records also block. The existing main/tag/dependent-use-case gate condition is
+preserved; green reference tests do not satisfy it.
+
+Submit [the consolidated review input](../../docs/security/protocol-review.md),
+[the full design](../../docs/superpowers/specs/2026-10-07-protocol-harness-design.md),
+source/lock hashes, executed public vectors and measurements for independent
+security and interoperability review. The document describes proposed registration
+GUID binding, raw-body proof headers, HPKE author signatures, independent recovery
+keys and explicit offline no-expiry/restart policy. These are reference contracts,
+not implemented production endpoints. Future real clients must qualify their own
+parsers, entropy, key storage, resource budgets and time anchors. The pending
+approval manifest and all business backlog items remain unchanged by this work.

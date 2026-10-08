@@ -12,6 +12,35 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
+    public async Task<HeimdallAuthentication> AuthenticateAsync(string email, string password, CancellationToken cancellationToken) =>
+        await AuthenticateResponseAsync(await SendAsync(HttpMethod.Post, "/api/auth/login",
+            new { email, password, scopeId = options.HeimdallScopeId }, null, cancellationToken), false, cancellationToken);
+
+    public async Task<HeimdallAuthentication> VerifyChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken) =>
+        await AuthenticateResponseAsync(await SendAsync(HttpMethod.Post, "/api/auth/2fa/verify",
+            new { challengeToken = challenge, code, recoveryCode }, null, cancellationToken), true, cancellationToken);
+
+    private async Task<HeimdallAuthentication> AuthenticateResponseAsync(DependencyResponse response, bool challengeCompletion, CancellationToken cancellationToken)
+    {
+        if (response.Data is null) return new(Error: response.HttpStatus switch
+        {
+            HttpStatusCode.Forbidden => "authentication_forbidden",
+            HttpStatusCode.Unauthorized or HttpStatusCode.NotFound => "authentication_required",
+            _ => "identity_unavailable"
+        });
+        var login = await ParseLoginAsync(response.Data, challengeCompletion, validateToken: false);
+        if (login is null) return new(Error: "identity_unavailable");
+        if (login.RequiresTwoFactor) return new(Login: login);
+        var principal = await tokens.ValidateAsync(login.Token!);
+        if (principal is null) return new(Error: "authentication_required");
+        return await RevalidateAsync(login.Token!, cancellationToken) switch
+        {
+            HeimdallAuthorization.Authorized => new(Login: login, IdentityId: Guid.Parse(principal.FindFirst("id")!.Value)),
+            HeimdallAuthorization.Denied => new(Error: "authentication_required"),
+            _ => new(Error: "identity_unavailable")
+        };
+    }
+
     public async Task<RegistrationIdentity> EstablishRegistrationIdentityAsync(
         HeimdallRegistration registration, string? proofToken, CancellationToken cancellationToken)
     {
@@ -111,7 +140,7 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
             ? HeimdallAuthorization.Authorized : HeimdallAuthorization.Denied;
     }
 
-    private async Task<HeimdallLogin?> ParseLoginAsync(JsonElement? data, bool challengeCompletion)
+    private async Task<HeimdallLogin?> ParseLoginAsync(JsonElement? data, bool challengeCompletion, bool validateToken = true)
     {
         if (data is null) return null;
         HeimdallLogin? result;
@@ -124,7 +153,8 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
                 && result.AvailableMethods.All(x => x is "App" or "Email") ? result : null;
         if ((!challengeCompletion && !data.Value.TryGetProperty("requiresTwoFactor", out _))
             || result.ExpiresAt is null || result.ExpiresAt <= DateTimeOffset.UtcNow || result.EmailVerified is null
-            || result.ChallengeToken is not null || await tokens.ValidateAsync(result.Token ?? string.Empty) is null)
+            || result.ChallengeToken is not null || result.Token is null
+            || (validateToken && await tokens.ValidateAsync(result.Token) is null))
             return null;
         return result;
     }

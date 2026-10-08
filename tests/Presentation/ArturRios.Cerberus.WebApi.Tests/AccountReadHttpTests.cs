@@ -11,6 +11,8 @@ using ArturRios.Configuration.Enums;
 using ArturRios.Output;
 using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
@@ -110,15 +112,45 @@ public class AccountReadHttpTests(RegistrationApiFixture fixture) : WebApiTest<P
     [InlineData("duplicate")]
     [InlineData("query")]
     [InlineData("body")]
+    [InlineData("http2Body")]
+    [InlineData("emptyHandle")]
+    [InlineData("whitespaceHandle")]
     public async Task GivenUnexpectedVisibleInput_WhenReading_ThenRejectWithoutContent(string invalid)
     {
         var input = await Setup();
         Authorize(RegistrationApiFixture.Token(input.Identity));
         using var request = new HttpRequestMessage(HttpMethod.Get, "/api/accounts/me" + (invalid == "query" ? "?ownerId=" + Guid.NewGuid() : ""));
-        request.Headers.TryAddWithoutValidation(Header, invalid == "duplicate" ? new[] { input.Handle, input.Handle } : new[] { invalid == "handle" ? "bad" : input.Handle });
+        request.Headers.TryAddWithoutValidation(Header, invalid == "duplicate" ? new[] { input.Handle, input.Handle } : new[] { invalid == "handle" ? "bad" : invalid == "emptyHandle" ? "" : invalid == "whitespaceHandle" ? " " : input.Handle });
+        if (invalid == "http2Body")
+        {
+            request.Version = HttpVersion.Version20;
+            request.Content = new UnspecifiedLengthContent();
+        }
         if (invalid == "body") request.Content = new StringContent("{\"ownerId\":\"untrusted\"}", Encoding.UTF8, "application/json");
-        using var response = await Gateway.Client.SendAsync(request);
-        await Failure(response, HttpStatusCode.BadRequest);
+        if (invalid == "emptyHandle")
+        {
+            // HttpClient/TestServer omits zero-value headers. Inject the actual
+            // wire-equivalent empty value into the host so absence is not tested.
+            using var host = new WebApplicationFactory<Program>();
+            var raw = await host.Server.SendAsync(context =>
+            {
+                context.Request.Method = "GET";
+                context.Request.Path = "/api/accounts/me";
+                context.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(input.Identity);
+                context.Request.Headers[Header] = "";
+            });
+            Assert.Equal(400, raw.Response.StatusCode);
+            Assert.Contains("no-store", raw.Response.Headers.CacheControl.ToString());
+            var result = (await JsonSerializer.DeserializeAsync<DataOutput<AccountOutput>>(raw.Response.Body,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web)))!;
+            Assert.False(result.Success);
+            Assert.Null(result.Data);
+        }
+        else
+        {
+            using var response = await Gateway.Client.SendAsync(request);
+            await Failure(response, HttpStatusCode.BadRequest);
+        }
         await using var context = fixture.Context();
         Assert.Equal(3, (await context.Accounts.SingleAsync(x => x.PublicId == input.AccountId)).Revision);
     }
@@ -146,6 +178,13 @@ public class AccountReadHttpTests(RegistrationApiFixture fixture) : WebApiTest<P
         using var response = await Send(input.Handle);
         await Failure(response, HttpStatusCode.ServiceUnavailable);
         Assert.DoesNotContain("not-json", await response.Content.ReadAsStringAsync());
+    }
+
+    private sealed class UnspecifiedLengthContent : HttpContent
+    {
+        protected override bool TryComputeLength(out long length) { length = 0; return false; }
+        protected override Task SerializeToStreamAsync(Stream stream, System.Net.TransportContext? context) =>
+            stream.WriteAsync(Encoding.UTF8.GetBytes("{}")).AsTask();
     }
 
     private async Task<(Guid Identity, Guid AccountId, string Handle, EncryptedEnvelope Details)> Setup(string state = "active")

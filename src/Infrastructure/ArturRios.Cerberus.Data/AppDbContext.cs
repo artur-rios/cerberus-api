@@ -1,4 +1,5 @@
 using ArturRios.Cerberus.Domain.Operations;
+using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Access;
@@ -10,6 +11,8 @@ namespace ArturRios.Cerberus.Data;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseDbContext(options)
 {
+    public DbSet<TrashOperation> TrashOperations => Set<TrashOperation>();
+    public DbSet<TrashEntry> TrashEntries => Set<TrashEntry>();
     public DbSet<Profile> Profiles => Set<Profile>();
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<VaultAccessSession> VaultAccessSessions => Set<VaultAccessSession>();
@@ -36,6 +39,18 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
         profile.Property(x=>x.Revision).IsConcurrencyToken();
         profile.Property(x=>x.ServerSequence).HasDefaultValueSql("nextval('cerberus.server_sequence')");
         profile.HasOne<Account>().WithMany().HasForeignKey(x=>x.AccountId).OnDelete(DeleteBehavior.Cascade);
+        var trash = modelBuilder.Entity<TrashOperation>();
+        trash.ToTable("trash_operation");
+        trash.HasIndex(x=>x.PublicId).IsUnique();
+        trash.HasIndex(x=>new{x.AccountId,x.PurgeAt});
+        trash.Property(x=>x.RootResourceKind).HasMaxLength(16).IsRequired();
+        trash.HasOne<Account>().WithMany().HasForeignKey(x=>x.AccountId).OnDelete(DeleteBehavior.Cascade);
+        var entry = modelBuilder.Entity<TrashEntry>();
+        entry.ToTable("trash_entry");
+        entry.HasIndex(x=>new{x.ResourceKind,x.ResourceId}).IsUnique();
+        entry.Property(x=>x.ResourceKind).HasMaxLength(16).IsRequired();
+        entry.Property(x=>x.AssociationSnapshot).IsRequired();
+        entry.HasOne<TrashOperation>().WithMany().HasForeignKey(x=>x.OperationId).OnDelete(DeleteBehavior.Cascade);
         var account = modelBuilder.Entity<Account>();
         account.ToTable("account");
         account.HasIndex(x => x.PublicId).IsUnique();

@@ -239,6 +239,24 @@ erasure recovery procedures must also cover interrupted cross-system/ledger oper
 
 ---
 
+## Account read access
+
+`GET /api/accounts/me` requires a current scoped Heimdall identity and a single
+`X-Cerberus-Vault-Access` header containing a canonical unpadded base64url 32-byte
+opaque handle. Only its SHA-256 verifier is stored. Account reads accept no query
+parameters or request body and return public account metadata with the original
+opaque encrypted details envelope; responses are not cacheable.
+
+The account-wide session must belong to the current active, non-erased account,
+match its current policy and revocation generations, and remain unrevoked and
+unexpired. Profile-only access cannot read account details. With renewal disabled,
+a session must explicitly have no expiry. UC-03 provides verification and storage;
+trusted session issuance and vault initialization remain UC-38, and profile access
+issuance remains UC-15. Authentication and account reads never create access sessions.
+Apply the additive `VaultAccessSessions` migration before enabling this route.
+
+---
+
 ## 8. Traceability
 
 | Platform capability | Requirements |

@@ -34,8 +34,8 @@
 
 **Interfaces:** `OpaqueAccessHandle.TryHash(string? token, out string verifier)`; `AccountSnapshot(Guid Id,long Revision,AccountState State,byte[] DetailsEnvelope)`; `AccountReadResult(AccountSnapshot? Account=null,string? Error=null)`; `IAccountReadStore.ReadAsync(Guid identityId,string verifier,DateTimeOffset now,CancellationToken)`.
 
-- [ ] Add canonical handle and real PostgreSQL tests for valid/no-expiry sessions, expiry equality/future issuance, profile scope, stale policy/generation, revocation, cross-account use, hidden account, corruption boundary and provider failure/cancellation. Run: expected missing types/behavior fails.
-- [ ] Implement verifier-only session schema with account FK/cascade and unique verifier, current authorization predicates and conditional ciphertext projection. Generate migration. Run Domain/Data tests: expected green. Commit.
+- [x] Add canonical handle and real PostgreSQL tests for valid/no-expiry sessions, expiry equality/future issuance, profile scope, stale policy/generation, revocation, cross-account use, hidden account, corruption boundary and provider failure/cancellation. Run: expected missing types/behavior fails.
+- [x] Implement verifier-only session schema with account FK/cascade and unique verifier, current authorization predicates and conditional ciphertext projection. Generate migration. Run Domain/Data tests: expected green. Commit.
 
 ### Task 2: Deliver protected account query
 
@@ -43,7 +43,7 @@
 
 **Interfaces:** server-created `GetAccountQuery(Guid identityId,string? vaultAccess):BaseQuery`; `IQueryHandlerAsync<GetAccountQuery,AccountOutput>`; public output ID/revision/state/EncryptedEnvelope details.
 
-- [ ] Add unit tests for missing/invalid handles/actor, store outcomes, public projection and corrupt metadata; observe RED, implement using TimeProvider and Domain store, run Query suite GREEN.
-- [ ] Add real-host tests for main/every AF, missing/current denied identity, header/query/body validation, isolation, expired/revoked/profile session and actual database outage; observe absent route RED. Implement trusted-actor/header extraction, QueryMediator/DI/status mapping; run WebApi suite GREEN.
-- [ ] Generate/inspect OpenAPI, mark only UC-03 done and update milestone progress. Run fresh unfiltered coverage.py/helper/spec/contract/format checks: expect zero failures/skips and >=90% line coverage.
+- [x] Add unit tests for missing/invalid handles/actor, store outcomes, public projection and corrupt metadata; observe RED, implement using TimeProvider and Domain store, run Query suite GREEN.
+- [x] Add real-host tests for main/every AF, missing/current denied identity, header/query/body validation, isolation, expired/revoked/profile session and actual database outage; observe absent route RED. Implement trusted-actor/header extraction, QueryMediator/DI/status mapping; run WebApi suite GREEN.
+- [x] Generate/inspect OpenAPI, mark only UC-03 done and update milestone progress. Run fresh unfiltered coverage.py/helper/spec/contract/format checks: expect zero failures/skips and >=90% line coverage.
 - [ ] One fresh final review; reproduce/fix Important findings once, ledger rulings/minors/declines. Open own PR closing #4; required CI green, merge/close/projectDone/delete feature branch/sync under existing authorization.

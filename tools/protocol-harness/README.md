@@ -9,10 +9,10 @@ directory; its tests do not count toward production coverage.
 ## Current implementation
 
 Strict encoding, primitives, P256 key/signature handling, context-bound content
-envelopes and scoped password/recovery bundles are implemented and tested
-independently (106 Java tests and 84 Python tests). Known-answer selections
+envelopes, scoped password/recovery bundles and signed recipient wrapping are
+implemented and tested independently (119 Java tests and 97 Python tests). Known-answer selections
 and source hashes/licenses are in [fixtures/sources.json](fixtures/sources.json).
-Recipient wrapping, challenge proofs, atomic recovery state, lease verification,
+Challenge proofs, atomic recovery state, lease verification,
 cross-language evidence and benchmarks are subsequent tasks
 in [the approved plan](../../docs/superpowers/plans/2026-10-07-protocol-harness.md).
 There is no successful interoperability or benchmark claim at this stage.
@@ -153,3 +153,21 @@ bundle; unwrap verifies both against external public verifiers and membership.
 Public test fixtures model this provisioning, not a complete real-client key graph.
 These APIs are client-side reference code; no server route returns decrypted keys.
 Managed/native memory handling still needs independent security review.
+
+## Recipient envelopes and trusted key transitions
+
+Recipients use native HPKE base mode with the qualified P256/HKDF-SHA256/AES-256-GCM
+suite, empty AAD and one raw 32-byte resource root per fresh context. Base mode
+alone does not authenticate the sender. A separate P1363 author signature binds
+the full context and encoded encapsulation/ciphertext; receivers validate trusted
+account, recipient, author, grant and resource bindings before decapsulation.
+Envelope-supplied public keys are not accepted as authority.
+
+`ClientTrust(accountId, recipientJwk, authorJwk, directoryRevision)` requires an
+independently trusted account and separate role keys. The plan's original
+three-argument constructor omitted the account input needed by its required
+cross-account rejection; the implementation makes that authority explicit.
+An increasing directory revision and the previously pinned author's signature
+authorize each role-specific transition. New-key self-signatures, role reuse and
+cross-account transitions fail without changing pins. Revocation excludes future
+wrappers; it cannot erase roots already copied by an earlier recipient.

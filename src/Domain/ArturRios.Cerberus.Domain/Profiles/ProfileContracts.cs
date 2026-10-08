@@ -30,7 +30,7 @@ public sealed record ProfileCreateInput(Guid ProfileId, EncryptedEnvelope Envelo
     public bool IsValid() => ProfileId != Guid.Empty && Envelope?.IsValid() == true && Envelope.KeyEpoch == 1
         && KeyWrappers?.IsValid() == true && KeyWrappers.MasterKeyWrapper.KeyEpoch == 1 && KeyWrappers.MasterKeyWrapper.GrantRevision == 1
         && (KeyWrappers.PasswordWrapper is null || KeyWrappers.PasswordWrapper.KeyEpoch == 1)
-        && EditedAt != default && EditedAt.Offset == TimeSpan.Zero
+        && EditedAt.Ticks >= TimeSpan.TicksPerMicrosecond && EditedAt.Offset == TimeSpan.Zero
         && ValidIds(RecordIds) && ValidIds(FolderIds) && ValidIds(CollectionIds);
     private static bool ValidIds(Guid[]? ids) => ids is not null && ids.All(x=>x!=Guid.Empty) && ids.Distinct().Count()==ids.Length;
 }

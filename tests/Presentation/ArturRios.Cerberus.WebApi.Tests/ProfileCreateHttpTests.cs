@@ -138,6 +138,17 @@ public class ProfileCreateHttpTests(RegistrationApiFixture fixture):WebApiTest<P
         await using var db=fixture.Context();var p=await db.Profiles.SingleAsync(x=>x.PublicId==input.ProfileId);Assert.Equal(2,p.Revision);Assert.Equal(c.ContentReplacements[1].KeyWrappers,JsonSerializer.Deserialize<ProfileKeyWrappers>(p.KeyWrappers,ProtectionFixture.Json));
         s=s with {Access=await Unlock(client,2)};using var next=await Send(Bytes(Input(s,client,scoped)),s.Access);Assert.Equal(HttpStatusCode.Created,next.StatusCode);
     }
+    [FunctionalTheory][InlineData(1,400)][InlineData(9,400)][InlineData(10,201)]
+    public async Task GivenTimestampAtMinimumStorageBoundary_WhenCreating_ThenRejectUnrepresentableWithoutBreakingReads(long ticks,int expectedStatus)
+    {
+        using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(s);var input=Input(s,f,scoped) with {EditedAt=DateTimeOffset.MinValue.AddTicks(ticks)};
+        using var response=await Send(Bytes(input),s.Access);
+        using var listRequest=new HttpRequestMessage(HttpMethod.Get,"/api/profiles");listRequest.Headers.Add("X-Cerberus-Vault-Access",s.Access);using var list=await Gateway.Client.SendAsync(listRequest);
+        using var getRequest=new HttpRequestMessage(HttpMethod.Get,"/api/profiles/"+input.ProfileId);getRequest.Headers.Add("X-Cerberus-Vault-Access",s.Access);using var get=await Gateway.Client.SendAsync(getRequest);
+        Assert.Equal((expectedStatus,200,expectedStatus==400?404:200),((int)response.StatusCode,(int)list.StatusCode,(int)get.StatusCode));
+        if(expectedStatus==400){await Failure(response,400);Assert.Equal(before,await Snapshot(s));}
+        else {var r=(await response.Content.ReadFromJsonAsync<DataOutput<CreateProfileOutput>>())!.Data!;Assert.Equal(DateTimeOffset.Parse("0001-01-01T00:00:00.0000010Z"),r.EditedAt);}
+    }
     private sealed record State(Guid Actor,Guid AccountId,long InternalId,string Access);
     private async Task<State> Setup(ProtectionFixture client,bool initialize=true,bool session=true)
     {

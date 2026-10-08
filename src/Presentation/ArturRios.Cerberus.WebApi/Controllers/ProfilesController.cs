@@ -14,6 +14,28 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 [Route("api/profiles")]
 public sealed class ProfilesController(CommandMediator commands, QueryMediator queries):ControllerBase
 {
+    [HttpPut("{id}")]
+    [VaultProofBody]
+    [ProducesResponseType(typeof(DataOutput<UpdateProfileOutput>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<UpdateProfileOutput?>>> Update([FromRoute]string id,[FromBody]UpdateProfileCommand command,
+        [FromHeader(Name="X-Cerberus-Vault-Access")]string? vaultAccess,CancellationToken cancellationToken)
+    {
+        if(Request.Query.Count!=0 || Request.Headers["X-Cerberus-Vault-Access"].Count>1
+            || !Guid.TryParseExact(id,"D",out var profileId) || profileId==Guid.Empty || id!=profileId.ToString("D"))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if(!Guid.TryParse(User.FindFirst("id")?.Value,out var actor))return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess=Request.Headers.TryGetValue("X-Cerberus-Vault-Access",out var raw)?raw.ToString():null;
+        command.SetContext(actor,vaultAccess,profileId);
+        var result=await commands.ExecuteCommandAsync<UpdateProfileCommand,UpdateProfileOutput>(command,cancellationToken);
+        return result.ToActionResult(statusMap:UpdateProfileMessages.StatusCodes);
+    }
+
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(DataOutput<ProfileDetailsOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]

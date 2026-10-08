@@ -8,7 +8,10 @@ directory; its tests do not count toward production coverage.
 
 ## Current implementation
 
-Strict encoding is implemented and tested independently. Encryption, recovery,
+Strict encoding, primitives and P256 key/signature handling are implemented and
+tested independently (67 Java tests and 44 Python tests). Known-answer selections
+and source hashes/licenses are in [fixtures/sources.json](fixtures/sources.json).
+Encryption contracts, recovery,
 lease verification, cross-language evidence and benchmarks are subsequent tasks
 in [the approved plan](../../docs/superpowers/plans/2026-10-07-protocol-harness.md).
 There is no successful interoperability or benchmark claim at this stage.
@@ -18,8 +21,7 @@ on 2026-10-08 queried 154 distinct coordinates, including Maven's bundled build
 libraries, and failed. See [the recorded result](audit-failure-2026-10-08.json).
 The owner approved targeted plugin dependency upgrades. Fresh resolution and a
 new live audit returned no findings across 153 package versions; see
-[the patched scan](audit-pass-2026-10-08.json). Task 2 primitive qualification is
-still in progress. This is not a vulnerability assessment of the production
+[the patched scan](audit-pass-2026-10-08.json). This is not a vulnerability assessment of the production
 .NET API or independent security approval.
 
 The resources plugin now selects Plexus 3.6.1, the clean plugin Plexus 4.0.3,
@@ -79,6 +81,24 @@ The supplied paths must exist; this command does not download or regenerate
 evidence. Missing input, drift, vulnerabilities and feed failure exit nonzero.
 An OSV result with no findings is a dated database observation, not independent
 security approval or a claim that all vulnerabilities are known.
+
+## Primitive qualification
+
+The suites check RFC 5869 HKDF, published NIST AES-256-GCM cases (including empty
+plaintext and nonempty AAD), RFC 6979 deterministic P256/P1363 signatures,
+RFC 7638 canonical hashing, RFC 9106 Argon2id and the selected RFC 9180 HPKE base
+suite. Altered tags/AAD/messages, invalid points/scalars and malformed/trailing,
+wrong-curve or inconsistent private-key DER are rejected with stable diagnostics.
+Protocol Argon2 is fixed at 65536 KiB / 3 passes / 4 lanes / 32 output bytes;
+the RFC primitive-only test's alternate memory, secret and AD are not public
+protocol parameters. RSA is not an accepted protocol key type.
+
+HPKE qualification calls native libraries, not custom KEM/KDF code. Java checks
+the original published seal/open bytes for sequences 0 and 1. Python's public
+single-shot API fixes AAD empty; its pinned upstream test-only native entry point
+checks the original sequence-0 vector with nonempty AAD, and a separate public-API
+smoke test checks the approved empty-AAD profile. This is primitive qualification,
+not yet evidence of cross-language protocol interoperability.
 
 ## Encoding rules
 

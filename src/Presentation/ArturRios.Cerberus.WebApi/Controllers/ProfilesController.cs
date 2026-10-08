@@ -12,7 +12,7 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 
 [ApiController]
 [Route("api/profiles")]
-public sealed class ProfilesController(CommandMediator commands, QueryMediator queries):ControllerBase
+public sealed partial class ProfilesController(CommandMediator commands, QueryMediator queries, TimeProvider clock):ControllerBase
 {
     [HttpDelete("{id}")]
     [VaultProofBody]

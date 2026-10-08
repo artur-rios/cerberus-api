@@ -43,30 +43,30 @@
 
 **Files:** Modify Data/Profiles/{ProfileCreateStore,ProfileReadStore,ProfileListStore,ProfileTrashStore,ProfileAssociationVisibility}.cs, create Data/Profiles/ProfileProjectionQuery.cs, Domain/Profiles/ProfileListContracts.cs, Query/Profiles/{ProfileListOutput,ProfileProjection}.cs; tests/Data/ProfileAssociationIntegrationTests.cs, Query tests and existing list HTTP shape assertion.
 **Interfaces:** Consumes resolver/visibility; ProfileListRow and ProfileListItem gain nonnull init RecordIds/FolderIds/CollectionIds arrays default[], get Details keeps its arrays. Creation resolves actual sets. Trash snapshots all stored IDs and deletes links in existing transaction.
-- [ ] Write failing integration tests actual create with owned/shared sets then get/list same-snapshot visible IDs; revoke/trash/closing/terminal omits links; selectedscope unchanged; invalid list arrays fail503. Actual trash retains underlying bytes/owners/grants and otherprofilelinks while snapshotting actual IDs; failure rolls back link deletion. Runfocused; expected old empty projection/unresolved404 failures.
-- [ ] Integrate create admission/finalcurrentvisibility, EF single-query ID projections without N+1, list typed arrays/validation; trash actual snapshot/deactivation. Update existing strict list response expectation to additive9fields. Run wholeData/Query; expected allpass0skip. Commit.
+- [x] Write failing integration tests actual create with owned/shared sets then get/list same-snapshot visible IDs; revoke/trash/closing/terminal omits links; selectedscope unchanged; invalid list arrays fail503. Actual trash retains underlying bytes/owners/grants and otherprofilelinks while snapshotting actual IDs; failure rolls back link deletion. Runfocused; expected old empty projection/unresolved404 failures.
+- [x] Integrate create admission/finalcurrentvisibility, EF single-query ID projections without N+1, list typed arrays/validation; trash actual snapshot/deactivation. Update existing strict list response expectation to additive9fields. Run wholeData/Query; expected allpass0skip. Commit.
 **Completion:** No fake empty links remain and deletion preserves underlying content.
 
 ### Task 4: Complete content and active-grant rotation
 
 **Files:** Modify Domain/Protection/ProtectionChange.cs and Data/Protection/VaultProtectionChangeStore.cs, create Domain/Resources/CollectionGrantReplacement.cs; tests/Domain/ProtectionChangeTests.cs plus Data/VaultResourceRotationTests.cs.
 **Interfaces:** Extend ContentReplacement kinds; onlyprofileKeyWrappers, additive ProtectionChange.GrantReplacements default[]; CollectionGrantReplacement(Guid GrantId,long ExpectedRevision,RecipientEnvelope KeyEnvelope). Existing old requests unchanged for empty new inventory; rewrap requires both manifests empty.
-- [ ] Write native realPG fullaccount/profiles/record/folder/collection/activeownedgrant rotation incltrash; missing/extra/duplicate/foreign resources/grants, received/revoked grants not authorized, stale/corrupt current/new epoch/native recipient/author/resource/grant/revision, no proof consumption on validation failure, fresh salts/nonces, rollback afterconsume, preserveEditedAt/owner and monotonics, rewrap byte retention. Runfocused; expected old domain/store rejects new manifest RED.
-- [ ] Extend complete inventory/validation before proof consume, validate current/replacement native bindings against recipient/owner pins, atomic resource/grant updates/counters/collectionepoch and signedbody comparison. Run wholeDomain/Data; expected allpass0skip. Commit.
+- [x] Write native realPG fullaccount/profiles/record/folder/collection/activeownedgrant rotation incltrash; missing/extra/duplicate/foreign resources/grants, received/revoked grants not authorized, stale/corrupt current/new epoch/native recipient/author/resource/grant/revision, no proof consumption on validation failure, fresh salts/nonces, rollback afterconsume, preserveEditedAt/owner and monotonics, rewrap byte retention. Runfocused; expected old domain/store rejects new manifest RED.
+- [x] Extend complete inventory/validation before proof consume, validate current/replacement native bindings against recipient/owner pins, atomic resource/grant updates/counters/collectionepoch and signedbody comparison. Run wholeDomain/Data; expected allpass0skip. Commit.
 **Completion:** New content/grants cannot escape or undermine existing rotation guarantees.
 
 ### Task 5: Strict command and result
 
 **Files:** Create Command/Profiles/SetProfileAssociations{Command,Validator,Handler,Output,Messages}.cs, tests/Command/SetProfileAssociationsHandlerTests.cs.
 **Interfaces:** SetProfileAssociationsCommand body4fields/context(actor,access,profileId), consumes IProfileAssociationStore; output6fields; status200/400/401/403/404/409/503.
-- [ ] Write trusted request/hash/currentcontext/input tests, success exact sets/newrev/safe seq, storeerror/cancel, corrupt/null/outputIDs/set mismatch503nullpayload. Runfocused; expected missingcommand RED.
-- [ ] Implement strictJSON/validator/failclosedhandler and stable statuses; wholeCommand expected allpass0skip. Commit.
+- [x] Write trusted request/hash/currentcontext/input tests, success exact sets/newrev/safe seq, storeerror/cancel, corrupt/null/outputIDs/set mismatch503nullpayload. Runfocused; expected missingcommand RED.
+- [x] Implement strictJSON/validator/failclosedhandler and stable statuses; wholeCommand expected allpass0skip. Commit.
 **Completion:** Body cannot forge context or return malformed dependency state.
 
 ### Task 6: Actual HTTP associations and verified delivery
 
-**Files:** Modify ProfilesController.cs/Startup.cs, README/CHANGELOG/OpenAPI; create WebApi.Tests/ProfileAssociationHttpTests.cs and docs/operations/profile-associations.md; update native protection operations docs with complete inventory.
+**Files:** Modify ProfilesController.cs/Startup.cs and Command/Protection/ChangeVaultProtectionCommand.cs (add/map default-empty grant manifest), README/CHANGELOG/OpenAPI; create WebApi.Tests/ProfileAssociationHttpTests.cs and docs/operations/profile-associations.md; update native protection operations docs with complete inventory.
 **Interfaces:** PUT/api/profiles/{id}/associations strict4fieldbody/6fieldresponse; list gains3arrays.
-- [ ] Write actualHTTP/PG/nativeidentity tests owned and shared sets/read-only profile organization/get/list/trash/immutableownership, hidden resources/profile/currentaccess, no scope escape, stale/concurrent/retry, strictroute/header/query/body, identity/persistence failures, actual response/status/no-store and rollback. Runfocused; expected missingroute404/405.
-- [ ] Implement endpoint/DI; focusedHTTP expected allpass0skip. Update truthfuldocs/backlog M03six/changelog/actualOpenAPI. helper23/spec/drift/diff pass; fullunfiltered sixfamilies0fail/0skip >=90%productionline/reportbranch. Commit.
+- [x] Write actualHTTP/PG/nativeidentity tests owned and shared sets/read-only profile organization/get/list/trash/immutableownership, hidden resources/profile/currentaccess, no scope escape, stale/concurrent/retry, strictroute/header/query/body, identity/persistence failures, actual response/status/no-store and rollback. Runfocused; expected missingroute404/405.
+- [x] Implement endpoint/DI; focusedHTTP expected allpass0skip. Update truthfuldocs/backlog M03six/changelog/actualOpenAPI. helper23/spec/drift/diff pass; fullunfiltered sixfamilies0fail/0skip >=90%productionline/reportbranch. Commit.
 **Completion:** One ordinary final review/oneTDDblockerfixpass, every declined scope cost ruled/minors retained; requiredCI strictcheckednormalmerge, issue15Done/remoteabsent/testedtree/userSHA/archive thenUC15.

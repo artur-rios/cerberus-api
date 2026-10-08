@@ -23,10 +23,10 @@ identity as owner-wrapper recipient and matching profile/content-epoch context.
 The server cannot establish client-only encrypted-content decryptability.
 
 Collection grants expose included collection content through a recipient's own
-profiles; they do not expose somebody else's unrelated profile metadata. Currently
-there are no record/folder/collection/association/grant entities and profile creation
-rejects unresolved nonempty relationships, so these three arrays are accurately
-empty. Those resource use cases must extend creation and the same-snapshot visible
-relationship projection before releasing their links. Selected-session proof minting
-and cross-profile key isolation belong to UC15. Independent security/client
-approvals remain deferred for development; release gates remain pending.
+profiles; they do not expose somebody else's unrelated profile metadata. The three
+arrays contain actual stored links filtered for current resource/owner/grant visibility
+in that same statement. Revoked, trashed, erased and closing-owner links are omitted.
+Creation accepts valid nonempty sets using the [association rules](profile-associations.md).
+Selected-session proof minting and cross-profile key isolation belong to UC15.
+Independent security/client approvals remain deferred for development; release gates
+remain pending.

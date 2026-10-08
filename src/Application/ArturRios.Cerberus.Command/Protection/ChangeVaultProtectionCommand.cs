@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using ArturRios.Cerberus.Domain.Protection;
+using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Mediator.Command;
 
 namespace ArturRios.Cerberus.Command.Protection;
@@ -14,12 +15,13 @@ public sealed class ChangeVaultProtectionCommand : BaseCommand
     public string Mode { get; set; } = null!;
     public ProtectionMaterial Material { get; set; } = null!;
     public ContentReplacement[] ContentReplacements { get; set; } = null!;
+    public CollectionGrantReplacement[] GrantReplacements { get; set; } = [];
     internal Guid Actor { get; private set; }
     internal string? Access { get; private set; }
     internal Guid ChallengeId { get; private set; }
     internal string Proof { get; private set; } = null!;
     internal byte[] RawBody { get; private set; } = [];
-    public ProtectionChange ToChange() => new(AccountId, ExpectedProtectionRevision, ExpectedAccountRevision, Mode, Material, ContentReplacements);
+    public ProtectionChange ToChange() => new(AccountId, ExpectedProtectionRevision, ExpectedAccountRevision, Mode, Material, ContentReplacements) {GrantReplacements=GrantReplacements};
     public void SetContext(Guid actor, string? access, Guid challengeId, string proof, byte[] rawBody)
     { Actor = actor; Access = access; ChallengeId = challengeId; Proof = proof; RawBody = rawBody; }
 }

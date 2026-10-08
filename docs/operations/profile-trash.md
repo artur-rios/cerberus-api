@@ -8,7 +8,13 @@ The transaction locks account, current session and profile in that order. It rec
 
 Success200 contains exactly `profileId`, `trashOperationId`, new `revision`, new monotonic `serverSequence`, server UTC `deletedAt` and `purgeAt`. The deadline is exactly720hours (30days) after deletion, independent of the database session time zone. Profile ciphertext, key wrappers, ownership and client `editedAt` are retained unchanged. Active profile reads/listing immediately omit it. All owned handles selected to the deleted profile are revoked; account-wide and unrelated selected handles survive. Restoration must require a fresh selected unlock rather than revive old handles.
 
-A durable operation identifies the root and its typed membership. The current profile association snapshot contains empty record/folder/collection arrays because those entities and links do not exist yet; create currently rejects nonempty associations. The first resource/sharing use cases must extend this same transaction to deactivate actual links and snapshot their identifiers while preserving underlying records, folders and collections. Trashed profiles remain in the complete owner key-rotation inventory until physical purge.
+A durable operation identifies the root and its typed membership. The profile snapshot
+contains all stored record/folder/collection identifiers, including links currently hidden
+by grant revocation. The same transaction removes only this profile's links, preserving
+underlying records, folders, collections, grants and other profiles' memberships.
+A queue or membership failure rolls back those changes together. Restoration must
+revalidate current resource, owner and grant visibility before recreating links.
+Trashed profiles remain in the complete owner key-rotation inventory until physical purge.
 
 Deletion is recoverable. UC50–52 will provide trash listing, restoration and explicit purge; UC53 will register the typed retention handler that physically purges expired entries. This change queues durable `trash/{trashOperationId}` work due at `purgeAt`; the existing worker fails closed for an unregistered handler and retries. It does not claim that physical cleanup is already implemented. Future restore/list handlers must immediately enforce the deadline, operation membership and associations even while worker retries are pending. Before any physical purge, repair cross-kind terminal-erasure identifier collisions and prove that unrelated content survives.
 

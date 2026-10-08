@@ -22,7 +22,8 @@ public sealed class ProfileUpdateStore(IDbContextFactory<AppDbContext> factory):
             await using var tx=await db.Database.BeginTransactionAsync(cancellationToken);
             // Same lock order as account protection rotation. Never use transaction-start time.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE",cancellationToken);
-            var account=await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x=>x.HeimdallPublicId==request.Actor,cancellationToken);
+            var account=await db.Accounts.AsNoTracking().Where(x=>x.HeimdallPublicId==request.Actor)
+                .Select(x=>new{x.Id,x.PublicId,x.State,x.PolicyRevision,x.RevocationGeneration,x.RenewalEnabled}).SingleOrDefaultAsync(cancellationToken);
             if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>x.ResourceId==account.PublicId,cancellationToken))return new(Error:"not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE",cancellationToken);
             var session=await db.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==account.Id && x.HandleVerifier==request.AccessVerifier,cancellationToken);
@@ -47,7 +48,8 @@ public sealed class ProfileUpdateStore(IDbContextFactory<AppDbContext> factory):
                 || protection.Revision is <=0 or >ProtocolBinary.MaxInteger || envelope?.IsValid()!=true || wrappers?.IsValid()!=true
                 || wrappers.MasterKeyWrapper.GrantRevision>profile.Revision
                 || !wrappers.IsBound(account.PublicId,profile.PublicId,envelope.KeyEpoch,wrappers.MasterKeyWrapper.GrantRevision,request.Actor,pins))return new(Error:"persistence_unavailable");
-            if(input.Envelope.KeyEpoch!=envelope.KeyEpoch)return new(Error:"validation_failed");
+            if(input.Envelope.KeyEpoch!=envelope.KeyEpoch || input.Envelope!=envelope
+                && (input.Envelope.KeySalt==envelope.KeySalt || input.Envelope.Nonce==envelope.Nonce))return new(Error:"validation_failed");
             var bytes=JsonSerializer.SerializeToUtf8Bytes(input.Envelope,Json);
             var editedAt=input.EditedAt.AddTicks(-(input.EditedAt.Ticks%TimeSpan.TicksPerMicrosecond));
             var changed=await db.Database.ExecuteSqlInterpolatedAsync($"""

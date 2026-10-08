@@ -383,7 +383,8 @@ name remains a client-required encrypted payload member with no uniqueness rule.
 Profile `keyWrappers` has Master/PerProfile mode, distinct scoped unlock public
 verifier, a native owner recipient wrapper and a password wrapper only in PerProfile
 mode. Owner wrapper bindings are account/profile/public-ID/content-epoch,
-grant-ID=profile-ID, grant-revision=profile-revision, recipient identity=owner identity,
+grant-ID=profile-ID, grant-revision=profile-revision at wrapper creation/rotation (it can
+precede later content-only revisions), recipient identity=owner identity,
 and the existing pinned account recipient/author fingerprints. The server verifies
 the pinned author's native signature, valid SEC1 public point and visible structure;
 it cannot validate HPKE plaintext/decryptability. This owner wrapper grants no sharing

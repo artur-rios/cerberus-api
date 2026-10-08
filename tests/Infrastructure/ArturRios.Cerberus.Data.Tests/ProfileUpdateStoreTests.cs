@@ -93,6 +93,12 @@ public class ProfileUpdateStoreTests(PostgresFixture fixture)
     {
         var request=new ProfileUpdateRequest(Guid.NewGuid(),new string('a',64),Guid.NewGuid(),Input());var dead=new ProfileSetup.Factory(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql("Host=127.0.0.1;Port=1;Database=absent;Username=fixture;Password=fixture;Timeout=1").Options);Assert.Equal("persistence_unavailable",(await new ProfileUpdateStore(dead).UpdateAsync(request,default)).Error);using var c=new CancellationTokenSource();c.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>Store().UpdateAsync(request,c.Token));
     }
+    [FunctionalTheory][InlineData("salt")][InlineData("nonce")]
+    public async Task GivenChangedCiphertextReusesCurrentEncryptionContext_WhenUpdating_ThenRejectWithoutMutation(string kind)
+    {
+        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var i=await Add(s,owner,scoped);var before=await Snapshot(i.ProfileId);var input=Input();input=input with {Envelope=kind=="salt"?input.Envelope with {KeySalt=i.Envelope.KeySalt,Ciphertext="BAUG"}:input.Envelope with {Nonce=i.Envelope.Nonce,Ciphertext="BAUG"}};
+        var r=await Store().UpdateAsync(new(s.Actor,s.Verifier,i.ProfileId,input),default);Assert.Equal("validation_failed",r.Error);Assert.Equal(before,await Snapshot(i.ProfileId));
+    }
     private ProfileUpdateStore Store()=>new(fixture);
     private static ProfileUpdateInput Input(long revision=1)=>new(revision,ProfileSetup.Envelope(),DateTimeOffset.Parse("2026-10-08T12:00:00Z"));
     private async Task<ProfileCreateInput> Add(ProfileSetup.State s,ProtectionFixture owner,ProtectionFixture scoped,string mode="Master"){var i=ProfileSetup.Input(s,owner,scoped,mode);Assert.Null((await new ProfileCreateStore(fixture).CreateAsync(new(s.Actor,s.Verifier,i),default)).Error);return i;}

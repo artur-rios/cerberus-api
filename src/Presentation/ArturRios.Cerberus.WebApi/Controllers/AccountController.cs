@@ -1,16 +1,42 @@
 using ArturRios.Cerberus.Command.Accounts;
+using ArturRios.Cerberus.Query.Accounts;
 using ArturRios.Mediator.Command;
+using ArturRios.Mediator.Query;
 using ArturRios.Output;
 using ArturRios.Util.WebApi.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace ArturRios.Cerberus.WebApi.Controllers;
 
 [ApiController]
 [Route("api/accounts")]
-public sealed class AccountController(CommandMediator commands) : ControllerBase
+public sealed class AccountController(CommandMediator commands, QueryMediator queries) : ControllerBase
 {
+    [HttpGet("me")]
+    [ProducesResponseType(typeof(DataOutput<AccountOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<AccountOutput?>>> GetCurrent(
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
+    {
+        if (Request.Query.Count != 0 || HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true
+            || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0
+            || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        // MVC normalizes an empty header to null; preserve raw presence so only
+        // an absent handle requests authentication, while malformed input is 400.
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var rawAccess) ? rawAccess.ToString() : null;
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var identityId))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        var result = await queries.ExecuteQueryAsync<GetAccountQuery, AccountOutput>(new GetAccountQuery(identityId, vaultAccess), cancellationToken);
+        return result.ToActionResult(statusMap: AccountQueryMessages.StatusCodes);
+    }
+
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(typeof(DataOutput<RegisterAccountOutput>), StatusCodes.Status201Created)]

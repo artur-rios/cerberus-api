@@ -170,9 +170,9 @@ online replacement. Signing-key retirement cannot immediately revoke a disconnec
 ## Executed evidence and reproduction
 
 [interoperability-vectors.json](interoperability-vectors.json) is labeled public test
-material, never production secrets. It contains 309 cases from each producer, checked
+material, never production secrets. It contains 322 cases from each producer, checked
 by both consumers, all six primitive known-answer families, native-suite results and
-43 source/input/dependency SHA-256 bindings. Java/Bouncy Castle and Python/cryptography
+44 source/input/dependency SHA-256 bindings. Java/Bouncy Castle and Python/cryptography
 independently own their parsers, context encoders and crypto. The harness has no production
 project references and is excluded from Docker and production coverage.
 
@@ -184,10 +184,14 @@ actual graph/bytes and current feed; an old clean report is not current acceptan
 complete commands. CI runs locked dependency installation/audit, both complete native
 suites, published vectors and committed-corpus replay in the existing required `test`
 job; it neither regenerates evidence nor bypasses the independent review gate.
+The negative-consumer oracle distinguishes protocol rejection from fixture-value
+mismatch. Embedded-key cases include malformed inner DER/version/curve/tags/scalar
+width and valid controls. The supervisor enforces pipe/result bounds while children
+run and terminates their process groups on timeout or excessive output.
 
 [protocol-harness-benchmarks.json](protocol-harness-benchmarks.json) records ten samples
-after warm-up in separate processes on the actual Linux host. Java median 165.0054735 ms,
-Python median 91.4079585 ms; Linux wait4 peak RSS includes runtime/JIT baseline, not
+after warm-up in separate processes on the actual Linux host. Java median 164.8325625 ms,
+Python median 63.3498705 ms; Linux wait4 peak RSS includes runtime/JIT baseline, not
 isolated Argon2 allocation. These measurements impose no SLO and qualify no phone/browser.
 
 Recovery, nonce accounting, trust transitions and clocks are **reference models**.

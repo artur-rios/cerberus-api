@@ -1,4 +1,6 @@
 import importlib.util
+import json
+from pathlib import Path
 import unittest
 
 from cryptography.hazmat.primitives import serialization
@@ -12,6 +14,15 @@ ORDER = int("FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551", 
 
 
 class KeysTest(unittest.TestCase):
+    def test_GivenEmbeddedPrivateKeyMatrix_WhenImported_ThenOnlyValidControlsAccepted(self):
+        from cerberus_protocol import keys
+        path=Path(__file__).resolve().parents[2]/'fixtures/private-key-cases.json'
+        for row in json.loads(path.read_text())['cases']:
+            with self.subTest(case=row['id']):
+                der=unbase64(row['der'],len(row['der'])*3//4)
+                if row['expect']=='success': self.assertEqual(fixture('author')['publicJwk'],keys.public_jwk(der))
+                else:
+                    with self.assertRaisesRegex(ProtocolError,'^invalid_protocol$'): keys.public_jwk(der)
     def setUp(self):
         self.assertIsNotNone(importlib.util.find_spec("cerberus_protocol.keys"), "key feature missing")
         from cerberus_protocol import keys

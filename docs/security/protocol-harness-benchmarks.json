@@ -2,16 +2,16 @@
   "classification": "public-test-fixtures-reference-measurements-not-performance-acceptance",
   "java": {
     "elapsedMilliseconds": [
-      185.183398,
-      165.110206,
-      164.900741,
-      153.513926,
-      153.336351,
-      172.056182,
-      161.507564,
-      184.069397,
-      170.025987,
-      159.876878
+      204.047899,
+      190.920253,
+      181.706263,
+      161.003166,
+      166.92143,
+      175.277884,
+      162.743695,
+      144.325465,
+      151.838191,
+      160.937797
     ],
     "environment": {
       "architecture": "amd64",
@@ -20,7 +20,7 @@
       "runtime": "Ubuntu 25.0.4.1"
     },
     "implementation": "java",
-    "peakRssBytes": 394510336,
+    "peakRssBytes": 394960896,
     "profile": {
       "iterations": 3,
       "length": 32,
@@ -30,27 +30,27 @@
     "rssMethod": "Linux wait4 ru_maxrss KiB converted to bytes; includes runtime/JIT baseline",
     "samples": 10,
     "statisticsMilliseconds": {
-      "max": 185.183398,
-      "median": 165.0054735,
-      "min": 153.336351,
-      "p95": 185.183398
+      "max": 204.047899,
+      "median": 164.8325625,
+      "min": 144.325465,
+      "p95": 204.047899
     },
     "version": "1.0.0"
   },
   "limitations": "Linux desktop observations only; peak RSS includes runtime/JIT baseline; no latency SLO, isolated allocation or mobile compatibility claim.",
-  "measuredAtUtc": "2026-10-08T09:46:35.588685+00:00",
+  "measuredAtUtc": "2026-10-08T10:31:52.035442+00:00",
   "python": {
     "elapsedMilliseconds": [
-      70.602604,
-      124.200279,
-      85.562518,
-      79.138044,
-      103.681539,
-      97.253399,
-      79.931294,
-      99.524625,
-      78.626176,
-      105.460837
+      59.793552,
+      60.143507,
+      58.524408,
+      60.747072,
+      60.260423,
+      67.891547,
+      65.952669,
+      70.964635,
+      67.38742,
+      70.293419
     ],
     "environment": {
       "architecture": "x86_64",
@@ -59,7 +59,7 @@
       "runtime": "3.14.4"
     },
     "implementation": "python",
-    "peakRssBytes": 97189888,
+    "peakRssBytes": 97103872,
     "profile": {
       "iterations": 3,
       "length": 32,
@@ -69,10 +69,10 @@
     "rssMethod": "Linux wait4 ru_maxrss KiB converted to bytes; includes runtime/JIT baseline",
     "samples": 10,
     "statisticsMilliseconds": {
-      "max": 124.200279,
-      "median": 91.4079585,
-      "min": 70.602604,
-      "p95": 124.200279
+      "max": 70.964635,
+      "median": 63.3498705,
+      "min": 58.524408,
+      "p95": 70.964635
     },
     "version": "1.0.0"
   },

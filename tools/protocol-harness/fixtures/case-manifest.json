@@ -1546,6 +1546,71 @@
       "id": "clock.import",
       "kind": "clock",
       "expect": "success"
+    },
+    {
+      "id": "encoding.private-key.inner-version-zero",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.inner-version-two",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.inner-nonminimal-length",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.inner-trailing-null",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.inner-unknown-tag",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.inner-curve-p384",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.inner-duplicate-public",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.inner-duplicate-parameters",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.inner-reordered-optionals",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.inner-scalar-31",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.inner-scalar-33",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.private-key.original",
+      "kind": "encoding",
+      "expect": "success"
+    },
+    {
+      "id": "encoding.private-key.inner-curve-p256",
+      "kind": "encoding",
+      "expect": "success"
     }
   ]
 }

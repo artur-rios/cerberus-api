@@ -91,7 +91,10 @@ def produce(public_inputs):
         identity=rule["id"]; parts=identity.split("."); family=".".join(parts[:2]); kind=parts[0]
         if family not in bases: bases[family]=_base(family) if parts[1]!="invalid" else {}
         output=copy.deepcopy(bases[family])
-        if kind=="encoding" and parts[1]=="invalid":
+        if kind=="encoding" and parts[1]=="private-key":
+            matrix={row['id']:row for row in read(FIXTURES/'private-key-cases.json')['cases']}
+            output=dict(der=matrix[parts[2]]['der'])
+        elif kind=="encoding" and parts[1]=="invalid":
             invalid={"duplicate":b'{"x":1,"x":2}',"nested-duplicate":b'{"x":{"y":1,"y":2}}',"bom":b'\xef\xbb\xbf{}',"unicode":b'{"x":"\\ud800"}',
                      "decimal":b'{"x":1.0}',"exponent":b'{"x":1e0}',"overflow":b'{"x":9007199254740992}',"over-limit":b' '*MAX_REQUEST+b'{}'}
             output=dict(raw=base64(invalid[parts[2]]))
@@ -123,7 +126,7 @@ def produce(public_inputs):
 
 
 def _expect_equal(left,right):
-    if left!=right: raise ProtocolError()
+    if left!=right: raise AssertionError('fixture_mismatch')
 
 
 def _execute(case):
@@ -143,6 +146,9 @@ def _execute(case):
         verifier=key("lease" if parts[-1]=="wrong-key" else role(name))["public"]
         challenge.verify(output["challenge"],binding(name),unbase64(output["raw"],len(output["raw"])*3//4),verifier,unbase64(output["proof"],64),now)
     elif kind=="lease": lease.verify(output["token"],authority(name=="enabled"),LeaseTrust(ISSUER,key("lease")["public"],1),NOW)
+    elif kind=="encoding" and name=="private-key":
+        public=keys.public_jwk(unbase64(output['der'],len(output['der'])*3//4))
+        if case['expect']=='success': _expect_equal(key('author')['public'],public)
     elif kind=="encoding" and name=="invalid": parse_object(unbase64(output["raw"],len(output["raw"])*3//4))
     else: _expect_equal(_base(kind+"."+name),output)
 

@@ -5,12 +5,9 @@ import importlib.util
 import math
 import os
 from pathlib import Path
-import signal
 import statistics
-import subprocess
 import sys
 import tempfile
-import time
 
 _spec=importlib.util.spec_from_file_location("cerberus_measure_verify",Path(__file__).with_name("verify.py"))
 _verify=importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_verify)
@@ -23,20 +20,7 @@ def measure(command,samples):
     if sys.platform!="linux" or not hasattr(os,"wait4"): raise HarnessFailure("unsupported_dependency")
     with tempfile.TemporaryDirectory(prefix="cerberus-measure-") as directory:
         path=Path(directory); target=path/"result.json"
-        with (path/"stdout").open("wb") as stdout,(path/"stderr").open("wb") as stderr:
-            process=subprocess.Popen([*command,"benchmark",str(samples),str(target)],cwd=_verify.ROOT,
-                env={**os.environ,"PYTHONPATH":str(_verify.HARNESS/"python")},stdout=stdout,stderr=stderr,start_new_session=True)
-            deadline=time.monotonic()+300
-            try:
-                while True:
-                    pid,status,usage=os.wait4(process.pid,os.WNOHANG)
-                    if pid: break
-                    if time.monotonic()>=deadline: raise HarnessFailure()
-                    time.sleep(0.05)
-            except BaseException:
-                os.killpg(process.pid,signal.SIGKILL); _,status,_=os.wait4(process.pid,0); process.returncode=os.waitstatus_to_exitcode(status); raise
-            process.returncode=os.waitstatus_to_exitcode(status)
-            if process.returncode or any((path/name).stat().st_size>1048576 for name in ("stdout","stderr")): raise HarnessFailure()
+        _,usage=_verify._supervise([*command,"benchmark",str(samples),str(target)],result_path=target,measure=True,limit=1048576)
         value=_verify.read_document(target); value.update(peakRssBytes=usage.ru_maxrss*1024,rssMethod=RSS_METHOD)
         return value
 

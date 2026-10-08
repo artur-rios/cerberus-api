@@ -74,7 +74,11 @@ public final class FixtureCases {
         for(Object entry:(List<?>)read(FIXTURES.resolve("case-manifest.json")).get("cases")) {
             var rule=map(entry); String id=(String)rule.get("id"); String[] p=id.split("\\."); String kind=p[0],family=p[0]+"."+p[1];
             var output=copy(bases.computeIfAbsent(family,x->p[1].equals("invalid")?Map.of():base(x)));
-            if(kind.equals("encoding") && p[1].equals("invalid")) {
+            if(kind.equals("encoding") && p[1].equals("private-key")) {
+                for(Object value:(List<?>)read(FIXTURES.resolve("private-key-cases.json")).get("cases")) {
+                    var fixture=map(value); if(fixture.get("id").equals(p[2])) output=new LinkedHashMap<>(Map.of("der",fixture.get("der")));
+                }
+            } else if(kind.equals("encoding") && p[1].equals("invalid")) {
                 String bad=switch(p[2]) { case "duplicate" -> "{\"x\":1,\"x\":2}"; case "nested-duplicate" -> "{\"x\":{\"y\":1,\"y\":2}}"; case "bom" -> "\ufeff{}"; case "unicode" -> "{\"x\":\"\\ud800\"}"; case "decimal" -> "{\"x\":1.0}"; case "exponent" -> "{\"x\":1e0}"; case "overflow" -> "{\"x\":9007199254740992}"; case "over-limit" -> " ".repeat(ProtocolJson.MAX_REQUEST)+"{}"; default -> throw new ProtocolError(); };
                 output.put("raw",ProtocolJson.base64(bad.getBytes(StandardCharsets.UTF_8)));
             } else if(p.length>2 && p[2].equals("mutate")) {
@@ -94,7 +98,7 @@ public final class FixtureCases {
             var row=new LinkedHashMap<>(rule); row.put("output",output); row.put("digest",digest(output)); row.put("deterministic",Set.of("encoding","kdf","hkdf","signature","clock","model").contains(kind)); rows.add(row);
         } return document("cases",rows);
     }
-    static void equal(Object a,Object b) { if(!Objects.deepEquals(a,b)) throw new ProtocolError(); }
+    static void equal(Object a,Object b) { if(!Objects.deepEquals(a,b)) throw new AssertionError("fixture_mismatch"); }
     static void execute(Map<String,Object> test) {
         String[] p=((String)test.get("id")).split("\\."); String kind=p[0],name=p[1]; var output=map(test.get("output"));
         if(Set.of("content","password","recovery","recipient").contains(kind)) {
@@ -108,6 +112,10 @@ public final class FixtureCases {
             }
         } else if(kind.equals("challenge")) { String last=p[p.length-1]; long now=last.equals("expiry")?NOW+60:last.equals("future")?NOW-1:NOW; Challenge.verify(map(output.get("challenge")),binding(name),decode((String)output.get("raw")),jwk(last.equals("wrong-key")?"lease":role(name)),ProtocolJson.unbase64((String)output.get("proof"),64),now); }
         else if(kind.equals("lease")) Lease.verify((String)output.get("token"),authority(name.equals("enabled")),new LeaseTrust(ISSUER,jwk("lease"),1),NOW);
+        else if(kind.equals("encoding") && name.equals("private-key")) {
+            var publicKey=Keys.publicJwk(decode((String)output.get("der")));
+            if(test.get("expect").equals("success")) equal(jwk("author"),publicKey);
+        }
         else if(kind.equals("encoding") && name.equals("invalid")) ProtocolJson.object(decode((String)output.get("raw")),ProtocolJson.MAX_REQUEST);
         else equal(base(kind+"."+name),output);
     }

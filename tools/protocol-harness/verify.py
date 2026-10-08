@@ -5,9 +5,12 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import selectors
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -15,6 +18,7 @@ HARNESS = ROOT / "tools/protocol-harness"
 KNOWN_IDS = {"hkdf", "gcm", "ecdsa", "thumbprint", "argon2", "hpke"}
 VERSION = "1.0.0"
 LIMIT = 64 * 1024 * 1024
+PROCESS_TIMEOUT = 300
 
 
 class HarnessFailure(Exception):
@@ -72,20 +76,63 @@ def manifest():
     return result
 
 
-def _run(command):
+def _supervise(command, result_path=None, *, measure=False, limit=None):
+    """Bound pipes/files during execution and own the complete child process group."""
+    if os.name != 'posix' or measure and not hasattr(os, 'wait4'):
+        raise HarnessFailure('unsupported_dependency')
+    bound = LIMIT if limit is None else limit
+    process = None
     try:
-        process = subprocess.run(command, cwd=ROOT, env={**os.environ, "PYTHONPATH": str(HARNESS/"python")},
-                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=300)
-        if process.returncode or len(process.stdout)+len(process.stderr) > LIMIT: raise HarnessFailure()
-        return process.stdout
+        process = subprocess.Popen(command, cwd=ROOT, env={**os.environ, "PYTHONPATH": str(HARNESS/"python")},
+                                   stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   start_new_session=True)
+        deadline = time.monotonic() + PROCESS_TIMEOUT
+        chunks, total, usage = [], 0, None
+        with selectors.DefaultSelector() as streams:
+            streams.register(process.stdout, selectors.EVENT_READ)
+            streams.register(process.stderr, selectors.EVENT_READ)
+            while streams.get_map() or process.returncode is None:
+                if time.monotonic() >= deadline: raise HarnessFailure()
+                if result_path is not None and Path(result_path).exists() and Path(result_path).stat().st_size > bound:
+                    raise HarnessFailure()
+                for key, _ in streams.select(min(0.05, max(0, deadline-time.monotonic()))):
+                    raw = os.read(key.fd, min(65536, bound-total+1))
+                    if not raw:
+                        streams.unregister(key.fileobj)
+                        continue
+                    total += len(raw)
+                    if total > bound: raise HarnessFailure()
+                    if key.fileobj is process.stdout: chunks.append(raw)
+                if process.returncode is None:
+                    if measure:
+                        pid, status, observed = os.wait4(process.pid, os.WNOHANG)
+                        if pid:
+                            process.returncode = os.waitstatus_to_exitcode(status)
+                            usage = observed
+                    else: process.poll()
+            if result_path is not None and Path(result_path).exists() and Path(result_path).stat().st_size > bound:
+                raise HarnessFailure()
+        if process.returncode: raise HarnessFailure()
+        return b''.join(chunks), usage
     except FileNotFoundError: raise HarnessFailure("unsupported_dependency") from None
     except (subprocess.TimeoutExpired, OSError): raise HarnessFailure() from None
+    finally:
+        if process is not None:
+            try: os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError: pass
+            if process.returncode is None: process.wait()
+            process.stdout.close()
+            process.stderr.close()
+
+
+def _run(command, result_path=None):
+    return _supervise(command, result_path)[0]
 
 
 def invoke(command, operation, *inputs):
     with tempfile.TemporaryDirectory(prefix="cerberus-child-") as directory:
         target = Path(directory)/"result.json"
-        _run([*command, operation, *map(str, inputs), str(target)])
+        _run([*command, operation, *map(str, inputs), str(target)], result_path=target)
         return read_document(target)
 
 
@@ -137,7 +184,7 @@ def native_suites(java_command, python_command):
 
 
 def _provenance():
-    filenames = ["fixtures/input.json", "fixtures/known-answers.json", "fixtures/sources.json", "fixtures/case-manifest.json", "dependencies.lock.json"]
+    filenames = ["fixtures/input.json", "fixtures/known-answers.json", "fixtures/sources.json", "fixtures/case-manifest.json", "fixtures/private-key-cases.json", "dependencies.lock.json"]
     filenames += [str(path.relative_to(HARNESS)) for directory, pattern in ((HARNESS/"java/src/main", "*.java"), (HARNESS/"python/cerberus_protocol", "*.py")) for path in sorted(directory.rglob(pattern))]
     filenames += ["verify.py"]
     return {name: hashlib.sha256((HARNESS/name).read_bytes()).hexdigest() for name in filenames if (HARNESS/name).exists()}

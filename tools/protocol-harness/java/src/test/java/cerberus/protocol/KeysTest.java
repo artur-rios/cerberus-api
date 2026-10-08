@@ -11,10 +11,45 @@ import org.bouncycastle.crypto.generators.ECKeyPairGenerator;
 import org.bouncycastle.crypto.params.*;
 import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.bouncycastle.asn1.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static cerberus.protocol.Fixtures.*;
 
 class KeysTest {
+    static java.util.stream.Stream<byte[]> malformedEmbeddedKeys() throws Exception {
+        var info=PrivateKeyInfo.getInstance(privateDer("author"));
+        var inner=ASN1Sequence.getInstance(info.parsePrivateKey());
+        var variants=new ArrayList<byte[]>();
+        for(int version:List.of(0,2)) variants.add(new DERSequence(new ASN1Encodable[]{new ASN1Integer(version),inner.getObjectAt(1),inner.getObjectAt(2)}).getEncoded("DER"));
+        byte[] raw=inner.getEncoded("DER");
+        byte[] nonminimal=new byte[raw.length+1]; nonminimal[0]=0x30; nonminimal[1]=(byte)(raw[1]+1); nonminimal[2]=2; nonminimal[3]=(byte)0x81; nonminimal[4]=1;
+        System.arraycopy(raw,4,nonminimal,5,raw.length-4); variants.add(nonminimal);
+        byte[] trailing=Arrays.copyOf(raw,raw.length+2); trailing[raw.length]=5; variants.add(trailing);
+        var fields=new ASN1Encodable[]{inner.getObjectAt(0),inner.getObjectAt(1)};
+        var pub=inner.getObjectAt(2);
+        var params=new DERTaggedObject(true,0,SECObjectIdentifiers.secp256r1);
+        variants.add(new DERSequence(new ASN1Encodable[]{fields[0],fields[1],pub,new DERTaggedObject(true,2,DERNull.INSTANCE)}).getEncoded("DER"));
+        variants.add(new DERSequence(new ASN1Encodable[]{fields[0],fields[1],new DERTaggedObject(true,0,SECObjectIdentifiers.secp384r1),pub}).getEncoded("DER"));
+        variants.add(new DERSequence(new ASN1Encodable[]{fields[0],fields[1],pub,pub}).getEncoded("DER"));
+        variants.add(new DERSequence(new ASN1Encodable[]{fields[0],fields[1],params,params,pub}).getEncoded("DER"));
+        variants.add(new DERSequence(new ASN1Encodable[]{fields[0],fields[1],pub,params}).getEncoded("DER"));
+        byte[] scalar=ASN1OctetString.getInstance(fields[1]).getOctets();
+        for(int size:List.of(31,33)) variants.add(new DERSequence(new ASN1Encodable[]{fields[0],new DEROctetString(Arrays.copyOf(scalar,size)),pub}).getEncoded("DER"));
+        var result=new ArrayList<byte[]>();
+        for(byte[] variant:variants) result.add(new PrivateKeyInfo(info.getPrivateKeyAlgorithm(),variant).getEncoded("DER"));
+        return result.stream();
+    }
+    @ParameterizedTest @MethodSource("malformedEmbeddedKeys")
+    void GivenMalformedEmbeddedEcPrivateKey_WhenImportedOrSigned_ThenRedactedRejection(byte[] der) {
+        rejected(()->publicKey(der)); rejected(()->sign(der,new byte[]{1}));
+    }
+    @Test void GivenMatchingOptionalCurve_WhenImported_ThenAccepted() throws Exception {
+        var info=PrivateKeyInfo.getInstance(privateDer("author")); var inner=ASN1Sequence.getInstance(info.parsePrivateKey());
+        var valid=new DERSequence(new ASN1Encodable[]{inner.getObjectAt(0),inner.getObjectAt(1),new DERTaggedObject(true,0,SECObjectIdentifiers.secp256r1),inner.getObjectAt(2)});
+        assertEquals(publicKey(privateDer("author")),publicKey(new PrivateKeyInfo(info.getPrivateKeyAlgorithm(),valid).getEncoded("DER")));
+    }
     private static final BigInteger ORDER=new BigInteger("FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551",16);
     private byte[] sign(byte[] key,byte[] message) { return (byte[])call("Keys","sign",new Class<?>[]{byte[].class,byte[].class},key,message); }
     private boolean verify(Map<String,Object> key,byte[] message,byte[] signature) {

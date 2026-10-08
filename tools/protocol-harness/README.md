@@ -11,9 +11,9 @@ directory; its tests do not count toward production coverage.
 Strict encoding, qualified primitives, scoped encrypted bundles, signed recipient
 wrapping, exact-body proofs, atomic local recovery/refresh/retry models and strict
 offline lease, clock and signing-key trust models are implemented independently.
-The native suites include 160 Java tests and 140 Python tests. Known-answer selections
+The native suites include 173 Java tests and 142 Python tests. Known-answer selections
 and source hashes/licenses are in [fixtures/sources.json](fixtures/sources.json).
-The process interface exchanges 309 manifest cases, including each envelope field,
+The process interface exchanges 322 manifest cases, including each envelope field,
 trusted binding changes, raw-body ordering, malformed encodings, policy/header
 rejections and local model scenarios. These remain reference tests; production
 transactions, identity/permission checks and mobile time anchors are separate obligations.
@@ -224,6 +224,12 @@ export MAVEN_USER_HOME="$HARNESS_TMP/maven-user"
 After deliberate reference-code changes, generate new evidence with
 `--output docs/security/interoperability-vectors.json`, then replay it with `--check`.
 CI replays committed evidence; it never regenerates evidence to hide drift.
+Fixture-value mismatches abort verification separately from protocol rejection; a
+negative case can pass only when the contract operation actually rejects. Public
+embedded-key fixtures cover eleven malformed DER/schema variants and two valid
+controls. Child stdout/stderr and result-file sizes are monitored during execution;
+timeout or excess output terminates the complete child process group. Benchmark
+children use the same supervisor with a 1-MiB output bound.
 The explicit `produce`, `consume` and `self-test` child commands accept public
 fixtures only. Success diagnostics contain case counts/digests; failure diagnostics
 contain only `invalid_protocol` or `unsupported_dependency`. Public passwords,
@@ -263,7 +269,7 @@ than fabricate RSS. The public artifact records the runtime/library/OS/architect
 all ten observations, min/median/nearest-rank p95/max and measurement method.
 
 The recorded desktop run observed median derivation times of about 165 ms in
-Java and 91 ms in Python, with process peaks of about 376 MiB and 93 MiB respectively.
+Java and 63 ms in Python, with process peaks of about 377 MiB and 93 MiB respectively.
 These observations establish no latency SLO, mobile compatibility or security approval.
 CI checks the harness and committed corpus; it does not benchmark hardware as an acceptance gate.
 

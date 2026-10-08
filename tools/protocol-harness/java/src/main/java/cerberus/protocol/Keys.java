@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
-import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.sec.SECNamedCurves;
 import org.bouncycastle.asn1.sec.SECObjectIdentifiers;
@@ -30,8 +30,24 @@ public final class Keys {
             PrivateKeyInfo info=PrivateKeyInfo.getInstance(object);
             if(!info.getVersion().hasValue(0) || !X9ObjectIdentifiers.id_ecPublicKey.equals(info.getPrivateKeyAlgorithm().getAlgorithm())
                 || !SECObjectIdentifiers.secp256r1.equals(info.getPrivateKeyAlgorithm().getParameters())) throw new ProtocolError();
+            // The PKCS#8 OCTET STRING is opaque to outer DER validation.
+            byte[] innerBytes=info.getPrivateKey().getOctets();
+            ASN1Primitive inner=ASN1Primitive.fromByteArray(innerBytes);
+            if(!Arrays.equals(innerBytes,inner.getEncoded("DER"))) throw new ProtocolError();
+            ASN1Sequence sequence=ASN1Sequence.getInstance(inner);
+            if(sequence.size()<2 || sequence.size()>4 || !ASN1Integer.getInstance(sequence.getObjectAt(0)).hasValue(1)
+                || ASN1OctetString.getInstance(sequence.getObjectAt(1)).getOctets().length!=32) throw new ProtocolError();
+            int previous=-1;
+            for(int i=2;i<sequence.size();i++) {
+                ASN1TaggedObject field=ASN1TaggedObject.getInstance(sequence.getObjectAt(i));
+                int tag=field.getTagNo();
+                if(!field.hasContextTag() || !field.isExplicit() || tag<0 || tag>1 || tag<=previous) throw new ProtocolError();
+                previous=tag;
+                if(tag==0 && !SECObjectIdentifiers.secp256r1.equals(field.getExplicitBaseObject())) throw new ProtocolError();
+                if(tag==1 && ASN1BitString.getInstance(field.getExplicitBaseObject()).getPadBits()!=0) throw new ProtocolError();
+            }
             ECPrivateKeyParameters key=(ECPrivateKeyParameters)PrivateKeyFactory.createKey(info);
-            var embedded=org.bouncycastle.asn1.sec.ECPrivateKey.getInstance(info.parsePrivateKey()).getPublicKey();
+            var embedded=org.bouncycastle.asn1.sec.ECPrivateKey.getInstance(inner).getPublicKey();
             if(embedded!=null) {
                 var claimed=DOMAIN.getCurve().decodePoint(embedded.getBytes());
                 var derived=DOMAIN.getG().multiply(key.getD()).normalize();

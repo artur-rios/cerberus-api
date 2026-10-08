@@ -255,6 +255,16 @@ trusted session issuance and vault initialization remain UC-38, and profile acce
 issuance remains UC-15. Authentication and account reads never create access sessions.
 Apply the additive `VaultAccessSessions` migration before enabling this route.
 
+`PUT /api/accounts/me` uses the same current identity and account-wide access header.
+Its strict JSON body contains only a positive integer `expectedRevision` and the
+replacement `details` envelope. It atomically rechecks account state, erasure,
+session access and expected revision before changing details and incrementing revision.
+The identity link, policy and session records remain intact. Concurrent edits with
+the same expected revision permit one winner; a stale edit or lost-response retry
+returns `409/revision_conflict` and requires reloading the current account before
+retrying. Success returns only the public account ID and new revision. No additional
+migration is required for UC-04.
+
 ---
 
 ## 8. Traceability

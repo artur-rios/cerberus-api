@@ -14,6 +14,28 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 [Route("api/accounts")]
 public sealed class AccountController(CommandMediator commands, QueryMediator queries) : ControllerBase
 {
+    [HttpPut("me")]
+    [ProducesResponseType(typeof(DataOutput<UpdateAccountOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<UpdateAccountOutput?>>> UpdateCurrent(
+        [FromBody] UpdateAccountCommand command,
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
+    {
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var identityId))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var rawAccess) ? rawAccess.ToString() : null;
+        command.SetAccess(identityId, vaultAccess);
+        var result = await commands.ExecuteCommandAsync<UpdateAccountCommand, UpdateAccountOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: UpdateAccountMessages.StatusCodes);
+    }
+
     [HttpGet("me")]
     [ProducesResponseType(typeof(DataOutput<AccountOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]

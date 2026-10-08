@@ -126,11 +126,11 @@ push PR and verified Testing, fresh exact-head latest branch-policy/test/dockerS
 MERGEABLE+CLEAN/unchanged testedbase normalmatchheadmerge, close/Done/allDoD/remotebranch
 absent/develop exact testedtree/user SHA/archive only owned scratch. Continue UC18.
 
-- [ ] Write specified failing tests, run and read expected RED before product code.
-- [ ] Implement this task, run named whole-family verification, read zero failures/skips and commit.
+- [x] Write specified failing tests, run and read expected RED before product code.
+- [x] Implement this task, run named whole-family verification, read zero failures/skips and commit.
 
 Verification: whole Data for Tasks1/2, whole Query for Task3, focused RecordListHttpTests
 then whole Web and full python3 scripts/coverage.py for Task4. Serialize shared .NET
 build commands; native cache /tmp/cerberus-protocol.fCQIq1. A just-completed unchanged
 whole-family/full-suite log can be audited for task-done rather than rerunning it.
-Fresh UC16 merge DoD is complete; no UC17 code/tests yet.
+Baseline: UC16 merge DoD completed before UC17 implementation.

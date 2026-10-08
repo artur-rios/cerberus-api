@@ -3,6 +3,7 @@ using ArturRios.Cerberus.Query.Profiles;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Data.Profiles;
 using ArturRios.Cerberus.Command.Records;
+using ArturRios.Cerberus.Query.Records;
 using ArturRios.Cerberus.Domain.Records;
 using ArturRios.Cerberus.Data.Records;
 using ArturRios.Cerberus.Data;
@@ -69,6 +70,9 @@ public static class Startup
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
         builder.Services.AddScoped<IRecordCreateStore, RecordCreateStore>();
+        builder.Services.AddScoped<IRecordListStore, RecordListStore>();
+        builder.Services.AddSingleton<RecordListCursor>();
+        builder.Services.AddScoped<IQueryHandlerAsync<ListRecordsQuery, RecordListOutput>, ListRecordsHandler>();
         builder.Services.AddScoped<IValidator<CreateRecordCommand>, CreateRecordValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<CreateRecordCommand, CreateRecordOutput>, CreateRecordHandler>();
         builder.Services.AddScoped<IProfileAccessStore, ProfileAccessStore>();

@@ -94,9 +94,10 @@ public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : I
                 SELECT EXISTS(SELECT FROM actor a WHERE a.state={(int)AccountState.Active}
                     AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id)) AS actor_active,
                     EXISTS(SELECT FROM session) AS allowed,
-                    EXISTS(SELECT FROM scoped r JOIN ancestry t ON t.record_id=r.id WHERE t.cycle) AS corrupt_ancestry,
-                    EXISTS(SELECT FROM visible r WHERE r.server_sequence<=0 OR r.server_sequence>{ProtocolBinary.MaxInteger}
-                        OR EXISTS(SELECT FROM visible other WHERE other.id<>r.id AND other.server_sequence=r.server_sequence)) AS corrupt_ordering,
+                    EXISTS(SELECT FROM scoped r JOIN ancestry t ON t.record_id=r.id WHERE t.cycle
+                        AND NOT EXISTS(SELECT FROM ancestry hidden WHERE hidden.record_id=r.id AND hidden.hidden)) AS corrupt_ancestry,
+                    EXISTS(SELECT FROM visible r GROUP BY r.server_sequence
+                        HAVING r.server_sequence<=0 OR r.server_sequence>{ProtocolBinary.MaxInteger} OR COUNT(*)>1) AS corrupt_ordering,
                     (SELECT value FROM boundary) AS boundary,
                     EXISTS(SELECT FROM page OFFSET {request.PageSize}) AS has_more,
                     COALESCE((SELECT jsonb_agg(jsonb_build_object('recordId',p.public_id,'revision',p.revision,

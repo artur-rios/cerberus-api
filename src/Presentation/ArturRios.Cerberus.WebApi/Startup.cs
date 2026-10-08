@@ -5,6 +5,10 @@ using ArturRios.Cerberus.Command.Authentication;
 using ArturRios.Cerberus.Command.Identity;
 using ArturRios.Cerberus.Domain.Identity;
 using ArturRios.Cerberus.Data.Identity;
+using ArturRios.Cerberus.Command.Protection;
+using ArturRios.Cerberus.Domain.Protection;
+using ArturRios.Cerberus.Data.Protection;
+using ArturRios.Cerberus.Query.Protection;
 using ArturRios.Cerberus.Query.Accounts;
 using ArturRios.Mediator.Query;
 using ArturRios.Mediator.Query.Interfaces;
@@ -58,6 +62,14 @@ public static class Startup
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
         builder.Services.AddScoped<IIdentityUpdateStore, IdentityUpdateStore>();
+        builder.Services.AddScoped<IVaultProtectionStore, VaultProtectionStore>();
+        builder.Services.AddScoped<IValidator<InitializeVaultCommand>, InitializeVaultValidator>();
+        builder.Services.AddScoped<IValidator<IssueVaultChallengeCommand>, IssueVaultChallengeValidator>();
+        builder.Services.AddScoped<IValidator<UnlockVaultCommand>, UnlockVaultValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<InitializeVaultCommand, VaultInitializationOutput>, InitializeVaultHandler>();
+        builder.Services.AddScoped<ICommandHandlerAsync<IssueVaultChallengeCommand, VaultChallengeOutput>, IssueVaultChallengeHandler>();
+        builder.Services.AddScoped<ICommandHandlerAsync<UnlockVaultCommand, VaultUnlockOutput>, UnlockVaultHandler>();
+        builder.Services.AddScoped<IQueryHandlerAsync<GetVaultProtectionQuery, VaultProtectionOutput>, GetVaultProtectionHandler>();
         builder.Services.AddScoped<IValidator<UpdateIdentityCommand>, UpdateIdentityValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<UpdateIdentityCommand, UpdateIdentityOutput>, UpdateIdentityHandler>();
         builder.Services.AddScoped<IValidator<UpdateAccountCommand>, UpdateAccountValidator>();
@@ -97,6 +109,7 @@ public static class Startup
         application.UseRouting();
         if (options.RestoreRequired == true) application.UseMiddleware<RestoreBarrierMiddleware>();
         application.UseMiddleware<ProtectedEndpointMiddleware>();
+        application.UseMiddleware<VaultProofBodyMiddleware>();
         application.MapControllers();
         return application;
     }

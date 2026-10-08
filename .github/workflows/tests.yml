@@ -27,10 +27,12 @@ jobs:
       - name: Validate specifications
         run: python3 scripts/verify_specs.py
 
-      - name: Require reviewed protocol before dependent work or release
+      # Development review is explicitly deferred by the repository owner.
+      # See docs/security/development-review-deferral.json; releases remain gated.
+      - name: Require reviewed protocol before release
         if: >-
           github.ref == 'refs/heads/main' || github.base_ref == 'main' ||
-          startsWith(github.ref, 'refs/tags/') || startsWith(github.head_ref, 'feature/uc-')
+          startsWith(github.ref, 'refs/tags/')
         run: python3 scripts/verify_protocol.py
 
       - name: Detect foundation scaffold

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "status": "deferred",
+  "authorizedAt": "2026-10-08",
+  "authorizedBy": "repository owner, in the active implementation conversation",
+  "instruction": "Skip the independent security and client-operability checks for now and keep going",
+  "scope": "Development implementation and verified merges into develop for open issues #2 through #56",
+  "excluded": ["production deployment", "release approval", "claiming independent review has passed"],
+  "reviewManifest": "docs/security/protocol-review.json",
+  "reviewStatus": "pending",
+  "releaseGate": "python3 scripts/verify_protocol.py remains mandatory for main and release tags",
+  "resumeReview": "Before release, obtain genuine independent security and real-client interoperability evidence and validate the reviewed artifact hashes"
+}

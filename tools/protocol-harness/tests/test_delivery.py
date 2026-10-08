@@ -5,12 +5,11 @@ import re
 import subprocess
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[3]
-GATE = ("github.ref == 'refs/heads/main' || github.base_ref == 'main' || "
-        "startsWith(github.ref, 'refs/tags/') || startsWith(github.head_ref, 'feature/uc-')")
 
 
 def steps(workflow):
@@ -50,7 +49,7 @@ class DeliveryTests(unittest.TestCase):
         return subprocess.run([sys.executable, "scripts/verify_protocol.py", *arguments],
                               cwd=ROOT, capture_output=True, text=True, timeout=30)
 
-    def test_GivenGreenHarnessAndPendingReview_WhenGateRuns_ThenDependentWorkBlocked(self):
+    def test_GivenGreenHarnessAndPendingReview_WhenReleaseGateRuns_ThenReleaseBlocked(self):
         result = self.gate()
         self.assertEqual(1, result.returncode)
         self.assertEqual("BLOCKED: Protocol security and client review is pending.\n", result.stdout)
@@ -106,8 +105,21 @@ class DeliveryTests(unittest.TestCase):
         self.assertNotIn("verify.py --write", self.workflow)
 
     def test_GivenHarnessCI_WhenParsed_ThenProductionChecksRetained(self):
-        gate = self.steps["Require reviewed protocol before dependent work or release"]
-        self.assertEqual(GATE, scalar(gate, "if"))
+        gate = self.steps["Require reviewed protocol before release"]
+        condition = scalar(gate, "if").replace("||", " or ").replace("&&", " and ")
+        contexts = [
+            ("refs/heads/main", "", "", True),
+            ("refs/pull/1/merge", "main", "release/1.0.0", True),
+            ("refs/tags/v1.0.0", "", "", True),
+            ("refs/pull/2/merge", "develop", "feature/uc-01-register-account", False),
+            ("refs/pull/3/merge", "develop", "feature/protocol-harness-design", False),
+            ("refs/heads/develop", "", "", False),
+        ]
+        for ref, base, head, expected in contexts:
+            with self.subTest(ref=ref, base=base, head=head):
+                github = SimpleNamespace(ref=ref, base_ref=base, head_ref=head)
+                self.assertEqual(expected, eval(condition, {"__builtins__": {}},
+                    {"github": github, "startsWith": str.startswith}))
         self.assertEqual("python3 scripts/verify_protocol.py", scalar(gate, "run"))
         self.assertNotIn("continue-on-error", gate)
         for name, category in (("Run unit tests", "Unit"), ("Run functional tests", "Functional")):

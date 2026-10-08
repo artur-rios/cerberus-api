@@ -43,6 +43,10 @@ public sealed class RegistrationStore(IDbContextFactory<AppDbContext> factory) :
         }
         catch (DbUpdateException) { return new(Error: "persistence_unavailable"); }
         catch (DbException) { return new(Error: "persistence_unavailable"); }
+        // Npgsql's non-retrying EF strategy wraps transient provider errors.
+        // Surface the retryable outcome without replaying the external side effect.
+        catch (InvalidOperationException exception) when (exception.InnerException is DbUpdateException or DbException or TimeoutException)
+        { return new(Error: "persistence_unavailable"); }
         catch (TimeoutException) { return new(Error: "persistence_unavailable"); }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
     }

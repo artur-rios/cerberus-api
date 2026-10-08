@@ -4,9 +4,10 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** foundation infrastructure implemented; all 55 business use cases remain unimplemented. The host
-> exposes no business endpoints. Independent protocol review and actual deployment provisioning remain
-> required decisions. See [foundation status](docs/operations/foundation-status.md).
+> **Status:** foundation infrastructure and UC-01 account registration implemented; 54 business
+> use cases remain. Independent protocol review is explicitly deferred for development and
+> remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
+> and [foundation status](docs/operations/foundation-status.md).
 
 ## Planned capabilities
 
@@ -92,11 +93,11 @@ Current functional tests use disposable PostgreSQL containers and an in-memory H
 Every implemented use case must ship with main/alternative-flow tests. The required merged
 line-coverage floor is 90%; branch coverage must be reported before foundation approval.
 `python3 scripts/verify_protocol.py` intentionally fails while the review record is pending.
-CI requires it for use-case branches, promotion to `main` and version-tag releases. Never
-begin dependent encryption/recovery work without actual security/client review evidence.
+CI requires it for promotion to `main` and version-tag releases. The owner explicitly
+deferred independent review for development into `develop`; actual approval remains pending.
 After reviewing a deliberate API contract change, run `python3 scripts/openapi.py --write`
-and commit its result. The foundation's empty contract is intentional: no business routes
-exist yet. OpenAPI generation starts no server and requires no deployment credentials.
+and commit its result. OpenAPI includes each implemented business route. Generation starts
+no server and requires no deployment credentials.
 
 ## Roadmap
 
@@ -107,8 +108,8 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
 
 | Milestone | Delivers | Depends on | Issues | Status |
 | --- | --- | --- | --- | --- |
-| [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 0 / 1 closed |
-| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 0 / 9 closed |
+| [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
+| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 1 / 9 closed |
 | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 0 / 26 closed |
 | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
 | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
@@ -126,7 +127,7 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Todo |
+| [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Done |
 | [#3](https://github.com/artur-rios/cerberus-api/issues/3) | UC-02 — Authenticate | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-02-authenticate) | Todo |
 | [#4](https://github.com/artur-rios/cerberus-api/issues/4) | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | Todo |
 | [#5](https://github.com/artur-rios/cerberus-api/issues/5) | UC-04 — Update account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-04-update-account) | Todo |

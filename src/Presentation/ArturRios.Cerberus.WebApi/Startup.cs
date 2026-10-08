@@ -1,4 +1,10 @@
 using ArturRios.Cerberus.Data;
+using ArturRios.Cerberus.Data.Accounts;
+using ArturRios.Cerberus.Command.Accounts;
+using ArturRios.Cerberus.Domain.Accounts;
+using ArturRios.Mediator.Command;
+using ArturRios.Mediator.Command.Interfaces;
+using FluentValidation;
 using ArturRios.Cerberus.Data.Configuration;
 using ArturRios.Cerberus.Data.Erasure;
 using ArturRios.Cerberus.Data.Operations;
@@ -39,6 +45,10 @@ public static class Startup
         builder.Services.AddSingleton(options);
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddSingleton<HeimdallTokenValidator>();
+        builder.Services.AddScoped<CommandMediator>();
+        builder.Services.AddScoped<IValidator<RegisterAccountCommand>, RegisterAccountValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<RegisterAccountCommand, RegisterAccountOutput>, RegisterAccountHandler>();
+        builder.Services.AddScoped<IRegistrationStore, RegistrationStore>();
         builder.Services.AddDbContextFactory<AppDbContext>(configuration => configuration.UseNpgsql(options.ConnectionString));
         builder.Services.AddHttpClient<IHeimdallClient, HeimdallClient>(client =>
             {
@@ -67,7 +77,6 @@ public static class Startup
         if (options.RestoreRequired == true) application.UseMiddleware<RestoreBarrierMiddleware>();
         application.UseMiddleware<ProtectedEndpointMiddleware>();
         application.MapControllers();
-        // No business routes are exposed until their reviewed use-case implementation exists.
         return application;
     }
 }

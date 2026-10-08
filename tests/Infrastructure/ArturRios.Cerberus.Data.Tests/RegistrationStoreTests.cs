@@ -163,6 +163,23 @@ public class RegistrationStoreTests(PostgresFixture fixture)
     }
 
     private RegistrationStore Store() => new(fixture);
+    [FunctionalFact]
+    public async Task GivenPostgresConnectionFailureAfterIdentitySuccess_WhenRegistering_ThenLeaveRetryableOperation()
+    {
+        var request = Request();
+        await using var setup = fixture.CreateContext();
+        await setup.Database.ExecuteSqlRawAsync("CREATE TABLE cerberus.fixture_failed_registration (public_id uuid NOT NULL); CREATE FUNCTION cerberus.fail_registration() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF EXISTS (SELECT 1 FROM cerberus.fixture_failed_registration WHERE public_id = NEW.public_id) THEN RAISE EXCEPTION 'synthetic persistence outage' USING ERRCODE = '08006'; END IF; RETURN NEW; END $$; CREATE TRIGGER fail_registration BEFORE INSERT ON cerberus.account FOR EACH ROW EXECUTE FUNCTION cerberus.fail_registration();");
+        await setup.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.fixture_failed_registration VALUES ({request.AccountId})");
+        try
+        {
+            var result = await Store().RegisterAsync(request, _ => Verified(Guid.NewGuid()), default);
+            Assert.Equal("persistence_unavailable", result.Error);
+        }
+        finally
+        {
+            await setup.Database.ExecuteSqlRawAsync("DROP TRIGGER fail_registration ON cerberus.account; DROP FUNCTION cerberus.fail_registration(); DROP TABLE cerberus.fixture_failed_registration;");
+        }
+    }
     private static Task<RegistrationIdentity> Verified(Guid id) => Task.FromResult(new RegistrationIdentity(RegistrationIdentityStatus.Verified, id));
     private static RegistrationRequest Request() => new(Guid.NewGuid(), Guid.NewGuid(), [1, 2, 3, 4], new string('a', 64), Random.Shared.NextInt64());
 

@@ -1,5 +1,6 @@
 using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.Domain.Accounts;
+using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Data.Relational.Core.Configuration;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ namespace ArturRios.Cerberus.Data;
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseDbContext(options)
 {
     public DbSet<Account> Accounts => Set<Account>();
+    public DbSet<VaultAccessSession> VaultAccessSessions => Set<VaultAccessSession>();
     public DbSet<RegistrationOperation> RegistrationOperations => Set<RegistrationOperation>();
     public DbSet<RetentionWorkItem> RetentionWorkItems => Set<RetentionWorkItem>();
     public DbSet<TerminalErasure> TerminalErasures => Set<TerminalErasure>();
@@ -24,6 +26,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
         account.HasIndex(x => x.HeimdallPublicId).IsUnique();
         account.Property(x => x.DetailsEnvelope).IsRequired();
         account.Property(x => x.Revision).IsConcurrencyToken();
+        var access = modelBuilder.Entity<VaultAccessSession>();
+        access.ToTable("vault_access_session");
+        access.HasIndex(x => x.HandleVerifier).IsUnique();
+        access.Property(x => x.HandleVerifier).HasMaxLength(64).IsRequired();
+        access.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Cascade);
         var registration = modelBuilder.Entity<RegistrationOperation>();
         registration.ToTable("registration_operation");
         registration.HasIndex(x => x.OperationId).IsUnique();

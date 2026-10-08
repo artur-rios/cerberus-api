@@ -112,7 +112,7 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
 | --- | --- | --- | --- | --- |
 | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
 | [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 9 / 9 closed |
-| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 0 / 26 closed |
+| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 1 / 26 closed |
 | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
 | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
 | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
@@ -143,7 +143,7 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| [#10](https://github.com/artur-rios/cerberus-api/issues/10) | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | Todo |
+| [#10](https://github.com/artur-rios/cerberus-api/issues/10) | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | Done |
 | [#11](https://github.com/artur-rios/cerberus-api/issues/11) | UC-10 — List profiles | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-10-list-profiles) | Todo |
 | [#12](https://github.com/artur-rios/cerberus-api/issues/12) | UC-11 — Get profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-11-get-profile) | Todo |
 | [#13](https://github.com/artur-rios/cerberus-api/issues/13) | UC-12 — Update profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-12-update-profile) | Todo |

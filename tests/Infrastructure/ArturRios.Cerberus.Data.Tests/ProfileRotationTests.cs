@@ -73,7 +73,7 @@ public class ProfileRotationTests(PostgresFixture fixture)
         Assert.Null((await new VaultProtectionChangeStore(fixture).ChangeAsync(request,default)).Error);Assert.Equal(before,JsonSerializer.Serialize((await Snapshot(s)).Profiles));
     }
     [FunctionalFact]
-    public async Task GivenFailureAfterProfileWrites_WhenRotating_ThenRollbackAccountProfilesProtectionAndProof()
+    public async Task GivenFailureDuringFinalWrites_WhenRotating_ThenRollbackAccountProfilesProtectionAndProof()
     {
         using var client=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,client);var i=await Create(s,client,scoped,"PerProfile");
         var request=await Request(s,client,Change(s,client,scoped,i));var before=JsonSerializer.Serialize(await Snapshot(s));

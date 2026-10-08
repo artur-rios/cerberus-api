@@ -940,6 +940,183 @@
         }
       }
     },
+    "/api/profiles": {
+      "post": {
+        "tags": [
+          "Profiles"
+        ],
+        "parameters": [
+          {
+            "name": "X-Cerberus-Vault-Access",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProfileCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProfileCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProfileCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateProfileOutputDataOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateProfileOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateProfileOutputDataOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/vault/protection": {
       "post": {
         "tags": [
@@ -2422,6 +2599,106 @@
           },
           "envelope": {
             "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "keyWrappers": {
+            "$ref": "#/components/schemas/ProfileKeyWrappers"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateProfileCommand": {
+        "type": "object",
+        "properties": {
+          "profileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "keyWrappers": {
+            "$ref": "#/components/schemas/ProfileKeyWrappers"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recordIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "folderIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "collectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateProfileOutput": {
+        "type": "object",
+        "properties": {
+          "profileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "serverSequence": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateProfileOutputDataOutput": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "success": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/CreateProfileOutput"
           }
         },
         "additionalProperties": false
@@ -2639,6 +2916,25 @@
         },
         "additionalProperties": false
       },
+      "ProfileKeyWrappers": {
+        "type": "object",
+        "properties": {
+          "unlockMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "unlockVerifier": {
+            "$ref": "#/components/schemas/PublicJwk"
+          },
+          "masterKeyWrapper": {
+            "$ref": "#/components/schemas/RecipientEnvelope"
+          },
+          "passwordWrapper": {
+            "$ref": "#/components/schemas/PasswordWrapper"
+          }
+        },
+        "additionalProperties": false
+      },
       "ProtectionMaterial": {
         "type": "object",
         "properties": {
@@ -2679,6 +2975,52 @@
             "nullable": true
           },
           "y": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecipientEnvelope": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "nullable": true
+          },
+          "keyEpoch": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grantRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "recipientIdentityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipientKeyFingerprint": {
+            "type": "string",
+            "nullable": true
+          },
+          "authorKeyFingerprint": {
+            "type": "string",
+            "nullable": true
+          },
+          "enc": {
+            "type": "string",
+            "nullable": true
+          },
+          "ciphertext": {
+            "type": "string",
+            "nullable": true
+          },
+          "signature": {
             "type": "string",
             "nullable": true
           }
@@ -3313,6 +3655,9 @@
     },
     {
       "name": "Identity"
+    },
+    {
+      "name": "Profiles"
     },
     {
       "name": "Vault"

@@ -41,10 +41,12 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
             if(await db.Profiles.AnyAsync(x=>x.PublicId==input.ProfileId,cancellationToken)
                 || await db.TerminalErasures.AnyAsync(x=>x.ResourceId==input.ProfileId,cancellationToken))return new(Error:"revision_conflict");
             var envelope=JsonSerializer.SerializeToUtf8Bytes(input.Envelope,Json);var wrappers=JsonSerializer.SerializeToUtf8Bytes(input.KeyWrappers,Json);
+            // Normalize before binding: provider truncation is relative to its 2000 epoch.
+            var editedAt=input.EditedAt.AddTicks(-(input.EditedAt.Ticks%TimeSpan.TicksPerMicrosecond));
             // Atomic permission check uses statement time after lock waits and validation.
             var inserted=await db.Database.ExecuteSqlInterpolatedAsync($"""
                 INSERT INTO cerberus.profile(public_id,account_id,envelope,key_wrappers,revision,edited_at,concurrency_stamp)
-                SELECT {input.ProfileId},{account.Id},{envelope},{wrappers},1,{input.EditedAt},{Guid.NewGuid()}
+                SELECT {input.ProfileId},{account.Id},{envelope},{wrappers},1,{editedAt},{Guid.NewGuid()}
                 FROM cerberus.vault_access_session
                 WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier}
                 AND profile_id IS NULL AND NOT revoked AND policy_revision={account.PolicyRevision}

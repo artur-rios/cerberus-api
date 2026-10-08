@@ -16,6 +16,14 @@ def module(name):
     value=importlib.util.module_from_spec(spec); spec.loader.exec_module(value); return value
 
 
+def process_stopped(status):
+    try:
+        return status.read_text().split()[2] == 'Z'
+    except (FileNotFoundError, ProcessLookupError):
+        # A reaped descendant has no procfs entry, including if it vanishes on read.
+        return True
+
+
 class ProcessLimitTests(unittest.TestCase):
     def setUp(self):
         self.api=module('verify')
@@ -47,14 +55,39 @@ class ProcessLimitTests(unittest.TestCase):
             self.assertTrue(pidfile.exists())
             pid=int(pidfile.read_text()); status=Path(f'/proc/{pid}/stat')
             deadline=time.monotonic()+1
-            while status.exists() and status.read_text().split()[2]!='Z' and time.monotonic()<deadline:
+            while not process_stopped(status) and time.monotonic()<deadline:
                 time.sleep(0.01)
-            self.assertTrue(not status.exists() or status.read_text().split()[2]=='Z')
+            self.assertTrue(process_stopped(status))
             self.assertFalse(self.marker.exists())
         finally:
             if pidfile.exists():
                 try: os.kill(int(pidfile.read_text()),signal.SIGKILL)
                 except ProcessLookupError: pass
+
+    def test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup(self):
+        original_read = Path.read_text
+        original_exists = Path.exists
+        def exists(path):
+            return True if str(path).startswith('/proc/') and path.name == 'stat' else original_exists(path)
+        for exception in (FileNotFoundError, ProcessLookupError):
+            with self.subTest(exception=exception.__name__):
+                def read(path, *args, **kwargs):
+                    if str(path).startswith('/proc/') and path.name == 'stat':
+                        raise exception('descendant already reaped')
+                    return original_read(path, *args, **kwargs)
+                with patch.object(Path, 'exists', exists), patch.object(Path, 'read_text', read):
+                    self.test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped()
+
+    def test_GivenLiveOrUnreadableDescendant_WhenCheckingTimeout_ThenNeverAcceptStoppedGroup(self):
+        status=Path(self.tmp.name)/'stat'
+        for state in ('S', 'R'):
+            status.write_text(f'123 (python) {state} 0')
+            self.assertFalse(process_stopped(status))
+        status.write_text('123 (python) Z 0')
+        self.assertTrue(process_stopped(status))
+        with patch.object(Path, 'read_text', side_effect=PermissionError('unreadable procfs')):
+            with self.assertRaises(PermissionError):
+                process_stopped(status)
 
     def test_GivenBenchmarkOutputOrResultGrowth_WhenMeasured_ThenStoppedBeforeFurtherWork(self):
         benchmark=module('benchmark')

@@ -34,6 +34,22 @@ public class ProfileCreateHttpTests(RegistrationApiFixture fixture):WebApiTest<P
         Assert.Equal(input.KeyWrappers,JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers,ProtectionFixture.Json));Assert.Equal(input.Envelope,JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope,ProtectionFixture.Json));
     }
     [FunctionalTheory]
+    [InlineData("1999-12-31T23:59:59.9999999Z", "1999-12-31T23:59:59.9999990Z")]
+    [InlineData("2000-01-01T00:00:00.0000000Z", "2000-01-01T00:00:00.0000000Z")]
+    [InlineData("2000-01-01T00:00:00.0000001Z", "2000-01-01T00:00:00.0000000Z")]
+    public async Task GivenSubMicrosecondEditAroundPostgresEpoch_WhenCreating_ThenReturnCommittedNormalizedTimestamp(string timestamp,string normalizedTimestamp)
+    {
+        using var client=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(client);Authorize(RegistrationApiFixture.Token(s.Actor));
+        var time=DateTimeOffset.Parse(timestamp,System.Globalization.CultureInfo.InvariantCulture);
+        var input=Input(s,client,scoped) with {EditedAt=time};var expected=DateTimeOffset.Parse(normalizedTimestamp,System.Globalization.CultureInfo.InvariantCulture);
+        using var response=await Send(Bytes(input),s.Access);Assert.Equal(HttpStatusCode.Created,response.StatusCode);
+        var result=(await response.Content.ReadFromJsonAsync<DataOutput<CreateProfileOutput>>())!.Data!;
+        Assert.Equal(expected,result.EditedAt);
+        await using var db=fixture.Context();var row=Assert.Single(await db.Profiles.Where(x=>x.AccountId==s.InternalId).ToListAsync());
+        Assert.Equal(expected,row.EditedAt);Assert.Equal(input.ProfileId,row.PublicId);
+    }
+
+    [FunctionalTheory]
     [InlineData("name")][InlineData("password")][InlineData("owner")][InlineData("private")][InlineData("duplicate")][InlineData("nestedDuplicate")]
     [InlineData("case")][InlineData("numeric")][InlineData("fraction")][InlineData("exponent")][InlineData("guid")][InlineData("missing")]
     [InlineData("null")][InlineData("unsupported")][InlineData("badPoint")][InlineData("noPassword")][InlineData("extraPassword")][InlineData("offset")]

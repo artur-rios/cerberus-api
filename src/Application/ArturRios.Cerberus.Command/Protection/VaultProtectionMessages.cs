@@ -4,6 +4,7 @@ public static class VaultProtectionMessages
 {
     public static readonly IReadOnlyDictionary<string, int> StatusCodes = new Dictionary<string, int>
     {
+        ["recovery_committed"] = 200, ["recovery_credential_consumed"] = 409,
         ["protection_changed"] = 200, ["vault_access_required"] = 401, ["vault_access_denied"] = 403,
         ["protection_initialized"] = 201, ["challenge_issued"] = 201, ["vault_unlocked"] = 200,
         ["validation_failed"] = 400, ["authentication_required"] = 401, ["fresh_authentication_required"] = 401,

@@ -69,7 +69,7 @@ public class VaultProtectionHandlerTests
     [InlineData("actor","authentication_required")][InlineData("operation","validation_failed")][InlineData("hash","validation_failed")]
     public async Task GivenInvalidChallengeRequest_WhenHandling_ThenRejectBeforeStore(string invalid,string error)
     {
-        var command = new IssueVaultChallengeCommand { Operation = invalid == "operation" ? "recover" : "unlock-account",RequestHash = invalid == "hash" ? "bad" : Hash };
+        var command = new IssueVaultChallengeCommand { Operation = invalid == "operation" ? "unsupported" : "unlock-account",RequestHash = invalid == "hash" ? "bad" : Hash };
         command.SetActor(invalid == "actor" ? Guid.Empty : Actor);
         var result = await new IssueVaultChallengeHandler(new IssueVaultChallengeValidator(),Strict()).HandleAsync(command);
         Assert.Contains(error,result.Errors); Assert.Null(result.Data);

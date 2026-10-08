@@ -13,6 +13,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
     public DbSet<VaultAccessSession> VaultAccessSessions => Set<VaultAccessSession>();
     public DbSet<VaultProtection> VaultProtections => Set<VaultProtection>();
     public DbSet<VaultUnlockChallenge> VaultUnlockChallenges => Set<VaultUnlockChallenge>();
+    public DbSet<VaultRecoveryOperation> VaultRecoveryOperations => Set<VaultRecoveryOperation>();
     public DbSet<RegistrationOperation> RegistrationOperations => Set<RegistrationOperation>();
     public DbSet<RetentionWorkItem> RetentionWorkItems => Set<RetentionWorkItem>();
     public DbSet<TerminalErasure> TerminalErasures => Set<TerminalErasure>();
@@ -46,6 +47,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
         challenge.HasIndex(x => new { x.AccountId, x.ExpiresAt });
         challenge.Property(x => x.Challenge).IsRequired();
         challenge.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Cascade);
+        var recovery = modelBuilder.Entity<VaultRecoveryOperation>();
+        recovery.ToTable("vault_recovery_operation");
+        recovery.HasIndex(x => new { x.AccountId, x.IdempotencyKey }).IsUnique();
+        recovery.Property(x => x.RequestHash).HasMaxLength(43).IsRequired();
+        recovery.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Cascade);
         var registration = modelBuilder.Entity<RegistrationOperation>();
         registration.ToTable("registration_operation");
         registration.HasIndex(x => x.OperationId).IsUnique();

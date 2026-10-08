@@ -36,6 +36,7 @@ public sealed class ProtectionFixture : IDisposable
         RecoveryWrapper = Material.RecoveryWrapper with { KeyEpoch = epoch, KeySalt = Encode(RandomNumberGenerator.GetBytes(32)),
             Nonce = Encode(RandomNumberGenerator.GetBytes(12)), Ciphertext = "CgsM" }
     };
+    public string SignRecovery(VaultProofChallenge challenge) => Encode(_recovery.SignData(VaultProof.SigningBytes(challenge), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
     public string Sign(VaultProofChallenge challenge) => Encode(Unlock.SignData(VaultProof.SigningBytes(challenge), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
     public void Dispose() { Unlock.Dispose(); _recovery.Dispose(); _recipient.Dispose(); _author.Dispose(); }
 }

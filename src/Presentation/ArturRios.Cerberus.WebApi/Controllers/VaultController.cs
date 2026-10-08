@@ -50,6 +50,26 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
         return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);
     }
 
+    [HttpPost("recovery")]
+    [VaultProofBody]
+    [ProducesResponseType(typeof(DataOutput<RecoverVaultOutput>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<DataOutput<RecoverVaultOutput?>>> Recover([FromBody] RecoverVaultCommand command,
+        [FromHeader(Name = "X-Cerberus-Challenge-Id")] string? challengeId,
+        [FromHeader(Name = "X-Cerberus-Proof")] string? proof, CancellationToken cancellationToken)
+    {
+        if (Request.Query.Count != 0) return Invalid();
+        if (!FreshIdentity.IsFresh(User, clock.GetUtcNow())) return Unauthorized(ProcessOutput.New.WithError("fresh_authentication_required"));
+        var ids = Request.Headers["X-Cerberus-Challenge-Id"]; var proofs = Request.Headers["X-Cerberus-Proof"];
+        if (ids.Count == 0 || proofs.Count == 0) return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
+        challengeId = ids.ToString(); proof = proofs.ToString();
+        if (ids.Count != 1 || proofs.Count != 1 || !Guid.TryParseExact(challengeId, "D", out var id) || id == Guid.Empty
+            || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw) return Invalid();
+        var issued = long.Parse(User.FindFirst("iat")!.Value, System.Globalization.CultureInfo.InvariantCulture);
+        command.SetContext(Actor(), issued, id, proof, raw);
+        var result = await commands.ExecuteCommandAsync<RecoverVaultCommand, RecoverVaultOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);
+    }
+
     [HttpGet("protection")]
     [ProducesResponseType(typeof(DataOutput<VaultProtectionOutput>), StatusCodes.Status200OK)]
     public async Task<ActionResult<DataOutput<VaultProtectionOutput?>>> Read(CancellationToken cancellationToken)

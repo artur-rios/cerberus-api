@@ -342,3 +342,14 @@ clients must re-unlock. The complete current inventory is the account envelope a
 zero recipient grants; future profile/content/sharing flows must extend its coverage.
 See [vault protection API](../security/vault-protection-api.md) for exact modes,
 original-body proof binding and ambiguous-response retry behavior.
+
+UC40 adds `VaultRecoveryOperations`, a unique own-account/idempotency-key table
+containing only the original body digest and committed protection/recovery/revocation
+counters. It contains no credentials, proofs, wrappers or access handles and cascades
+with account erasure. Apply the additive `VaultRecoveryOperations` migration before
+serving recovery. Recovery locks the account, rechecks current lifecycle/policy and
+signed-iat freshness against database statement time, then atomically consumes the
+old recovery proof and replaces wrappers/verifier/counters/outcome. Exact retries
+return the historical result after challenge expiry or cleanup; clients retrieve
+latest protection separately. Current fresh provider identity remains mandatory,
+and different body bytes with the same key conflict. Secrets remain client-held.

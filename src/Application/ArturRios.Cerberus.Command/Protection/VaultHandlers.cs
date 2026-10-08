@@ -39,7 +39,7 @@ public sealed class IssueVaultChallengeHandler(IValidator<IssueVaultChallengeCom
         var c = result.Data;
         if (c is null || c.IdentityId != command.Actor || c.AccountId == Guid.Empty || c.ScopeId != c.AccountId
             || c.Format != "cerberus-challenge-v1" || c.Operation != command.Operation || c.ScopeKind != "account"
-            || c.ChallengeId == Guid.Empty || c.Generation is not null || c.RequestHash != command.RequestHash
+            || c.ChallengeId == Guid.Empty || (command.Operation == "recover" ? c.Generation is null or <= 0 or > ProtocolBinary.MaxInteger : c.Generation is not null) || c.RequestHash != command.RequestHash
             || c.KeyEpoch is <= 0 or > ProtocolBinary.MaxInteger || c.ProtectionRevision is <= 0 or > ProtocolBinary.MaxInteger
             || c.IssuedAt is < 0 or > ProtocolBinary.MaxInteger - 60 || c.ExpiresAt != c.IssuedAt + 60
             || !ProtocolBinary.TryDecode(c.Nonce, 32, out _)) return output.WithError("persistence_unavailable");

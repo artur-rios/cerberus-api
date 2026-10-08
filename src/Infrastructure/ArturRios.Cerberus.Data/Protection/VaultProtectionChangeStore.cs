@@ -68,7 +68,8 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
             now = await Now(db, cancellationToken);
             if (!Permitted(now)) return new(Error: "vault_access_denied");
             var binding = new VaultProofBinding("change-protection", request.Actor, a.PublicId, "account", a.PublicId, metadata.KeyEpoch, metadata.Revision, null);
-            if (!VaultProof.Verify(challenge, binding, request.RawBody, current.UnlockVerifier, request.Proof, now.ToUnixTimeSeconds())) return new(Error: "vault_proof_rejected");
+            if (!VaultProof.Verify(challenge, binding, request.RawBody, current.UnlockVerifier, request.Proof, now.ToUnixTimeSeconds())
+                || !MatchesSignedBody(input, request.RawBody)) return new(Error: "vault_proof_rejected");
 
             // This is the permission/proof linearization point, using current statement
             // time after both locks rather than transaction-start time.
@@ -101,6 +102,19 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
             || exception is InvalidOperationException { InnerException: DbUpdateException or DbException or TimeoutException })
         { return new(Error: "persistence_unavailable"); }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
+    }
+    private static bool MatchesSignedBody(ProtectionChange input, byte[] raw)
+    {
+        try
+        {
+            var signed = JsonSerializer.Deserialize<ProtectionChange>(raw, Json);
+            return signed is not null && signed.AccountId == input.AccountId
+                && signed.ExpectedProtectionRevision == input.ExpectedProtectionRevision
+                && signed.ExpectedAccountRevision == input.ExpectedAccountRevision && signed.Mode == input.Mode
+                && signed.Material == input.Material && signed.ContentReplacements is not null
+                && signed.ContentReplacements.SequenceEqual(input.ContentReplacements);
+        }
+        catch (JsonException) { return false; }
     }
     private static Task<DateTimeOffset> Now(AppDbContext db, CancellationToken ct) =>
         db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);

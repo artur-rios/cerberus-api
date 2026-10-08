@@ -31,7 +31,7 @@ One explicit transaction locks the own account first, then the presented own ses
 | Main | Real native proof + current handle rewrap/complete rotation; new confirmation, old sessions invalid, preserved or atomically replaced content. |
 | AF01 | Strict input/material/headers/encoding/integer/salt/key/inventory rejection400, no writes/consumption. |
 | AF02 | Absent/foreign/closing/erased target or protection404, no hidden material. |
-| AF03 | Current identity failure401/provider503; missing/invalid/stale/profile/revoked/expired handle403; wrong/consumed/expired/purpose/body proof401. |
+| AF03 | Current identity failure401/provider503; missing handle401; malformed handle400; invalid/stale/profile/revoked/expired handle403; wrong/consumed/expired/purpose/body proof401. |
 | AF04 | Account/protection revisions or challenge policy/generation changed409; overflow409; concurrent changes one winner. |
 | AF05 | Real PostgreSQL outage/wrapped timeout503, cancellation, injected post-consumption save failure rolls back all, same valid request can retry. |
 | AF06 | Missing/duplicate/foreign/extra account content replacement or wrong content epoch rejects400 before any write; zero existing recipient grants, later grants must extend inventory. |

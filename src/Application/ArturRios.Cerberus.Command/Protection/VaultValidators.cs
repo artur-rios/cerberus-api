@@ -16,7 +16,7 @@ public sealed class IssueVaultChallengeValidator : AbstractValidator<IssueVaultC
 {
     public IssueVaultChallengeValidator()
     {
-        RuleFor(x => x.Operation).Equal("unlock-account");
+        RuleFor(x => x.Operation).Must(x => x is "unlock-account" or "change-protection");
         RuleFor(x => x.RequestHash).Must(x => ProtocolBinary.TryDecode(x, 32, out _));
     }
 }

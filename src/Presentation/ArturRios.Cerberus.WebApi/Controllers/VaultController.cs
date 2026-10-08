@@ -29,6 +29,27 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
         return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);
     }
 
+    [HttpPut("protection")]
+    [VaultProofBody]
+    [ProducesResponseType(typeof(DataOutput<ChangeVaultProtectionOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<DataOutput<ChangeVaultProtectionOutput?>>> Change([FromBody] ChangeVaultProtectionCommand command,
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess,
+        [FromHeader(Name = "X-Cerberus-Challenge-Id")] string? challengeId,
+        [FromHeader(Name = "X-Cerberus-Proof")] string? proof, CancellationToken cancellationToken)
+    {
+        var ids = Request.Headers["X-Cerberus-Challenge-Id"]; var proofs = Request.Headers["X-Cerberus-Proof"];
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1) return Invalid();
+        if (ids.Count == 0 || proofs.Count == 0) return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
+        challengeId = ids.ToString(); proof = proofs.ToString();
+        if (ids.Count != 1 || proofs.Count != 1 || !Guid.TryParseExact(challengeId, "D", out var id) || id == Guid.Empty
+            || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw) return Invalid();
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var access) ? access.ToString() : null;
+        command.SetContext(Actor(), vaultAccess, id, proof, raw);
+        var result = await commands.ExecuteCommandAsync<ChangeVaultProtectionCommand, ChangeVaultProtectionOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);
+    }
+
     [HttpGet("protection")]
     [ProducesResponseType(typeof(DataOutput<VaultProtectionOutput>), StatusCodes.Status200OK)]
     public async Task<ActionResult<DataOutput<VaultProtectionOutput?>>> Read(CancellationToken cancellationToken)

@@ -112,6 +112,15 @@ public class VaultProtectionChangeStoreTests(PostgresFixture fixture)
     }
 
     [FunctionalFact]
+    public async Task GivenValidProofForDifferentParsedReplacement_WhenChanging_ThenRejectWithoutMutation()
+    {
+        using var client=new ProtectionFixture();var s=await Setup(client);var request=await Request(s,client,Change(s,client));
+        request=request with { Change=request.Change with { Material=client.Rewrap() } };var before=await Snapshot(s);
+        Assert.Equal("vault_proof_rejected",(await Store().ChangeAsync(request,default)).Error);
+        Assert.Equal(before,await Snapshot(s));await Unconsumed(request.ChallengeId);
+    }
+
+    [FunctionalFact]
     public async Task GivenChangePurposeChallenge_WhenUnlocking_ThenNeverIssueSession()
     {
         using var client=new ProtectionFixture();var s=await Setup(client);var raw=Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1}");

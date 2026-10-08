@@ -16,7 +16,12 @@ final class Fixtures {
         return map(document("known-answers.json",Set.of("schemaVersion","classification","hkdf","gcm","ecdsa","thumbprint","argon2","hpke")).get(name));
     }
     static Map<String,Object> fixture(String role) {
-        return map(map(document("input.json",Set.of("schemaVersion","classification","keys")).get("keys")).get(role));
+        return map(map(input().get("keys")).get(role));
+    }
+    static Map<String,Object> input() { return document("input.json",Set.of("schemaVersion","classification","keys","bundles","membership")); }
+    static Map<String,Object> bundle(String scope) { return map(map(input().get("bundles")).get(scope)); }
+    static Set<String> allowed(String scope) {
+        Set<String> values=new HashSet<>(); for(Object value:(List<?>)map(input().get("membership")).get(scope)) values.add((String)value); return values;
     }
     static byte[] privateDer(String role) { return Base64.getUrlDecoder().decode((String)fixture(role).get("privateDer")); }
     static Map<String,Object> publicJwk(String role) { return map(fixture(role).get("publicJwk")); }

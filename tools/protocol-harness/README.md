@@ -8,11 +8,12 @@ directory; its tests do not count toward production coverage.
 
 ## Current implementation
 
-Strict encoding, primitives, P256 key/signature handling and context-bound content
-envelopes are implemented and tested independently (84 Java tests and 62 Python tests). Known-answer selections
+Strict encoding, primitives, P256 key/signature handling, context-bound content
+envelopes and scoped password/recovery bundles are implemented and tested
+independently (106 Java tests and 84 Python tests). Known-answer selections
 and source hashes/licenses are in [fixtures/sources.json](fixtures/sources.json).
-Password/recovery wrapping contracts, recovery,
-lease verification, cross-language evidence and benchmarks are subsequent tasks
+Recipient wrapping, challenge proofs, atomic recovery state, lease verification,
+cross-language evidence and benchmarks are subsequent tasks
 in [the approved plan](../../docs/superpowers/plans/2026-10-07-protocol-harness.md).
 There is no successful interoperability or benchmark claim at this stage.
 
@@ -128,3 +129,27 @@ are keyed by a nonlogged fingerprint of root and immutable deep-copied context;
 each domain permits at most 2^32 reservations. Its explicit `initialCount` test
 seed applies to the first observed domain only; new roots/epochs start at zero.
 This does not implement distributed accounting or production persistence.
+
+## Password and recovery bundles
+
+Password wrapping uses exact strict UTF-8 bytes, without normalization, trimming,
+case folding or truncation. KDF metadata is fixed to the qualified Argon2 profile.
+Unwrap rejects invalid parameters, epoch, field sets, base64 and aggregate bounds
+before invoking the KDF. Authenticated plaintext is then parsed strictly; sorted
+distinct roots must belong to caller-supplied scope membership, and the embedded
+unlock private key must match the independently registered scoped verifier.
+Wrapping checks a trusted local provisioning bundle's structural/scope rules;
+it cannot establish authorization from that bundle's own claims.
+
+Normal wrapping obtains fresh password salt, key salt and nonce. Explicit fixture
+APIs accept public test material only. A protection slot epoch is separate from
+the epochs of the roots it carries; changing a password preserves permitted roots
+and does not revoke copies already held elsewhere.
+
+Recovery uses a raw 32-byte random secret directly as the wrapping root, never
+Argon2 or a conversion to an ECDSA scalar. The encrypted bundle includes an
+independent generation-specific proof private key and account-scope protection
+bundle; unwrap verifies both against external public verifiers and membership.
+Public test fixtures model this provisioning, not a complete real-client key graph.
+These APIs are client-side reference code; no server route returns decrypted keys.
+Managed/native memory handling still needs independent security review.

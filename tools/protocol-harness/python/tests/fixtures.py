@@ -15,3 +15,11 @@ def fixture(role):
     value = copy.deepcopy(json.loads((ROOT / "input.json").read_text(encoding="utf-8"))["keys"][role])
     value["privateDer"] = base64.urlsafe_b64decode(value["privateDer"] + "=" * (-len(value["privateDer"]) % 4))
     return value
+
+
+def bundle(scope):
+    return json.loads((ROOT / "input.json").read_text(encoding="utf-8"))["bundles"][scope]
+
+
+def allowed(scope):
+    return set(json.loads((ROOT / "input.json").read_text(encoding="utf-8"))["membership"][scope])

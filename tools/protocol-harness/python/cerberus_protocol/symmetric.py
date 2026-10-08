@@ -112,6 +112,27 @@ def seal_fixture(root: bytes, expected: Context, format: str, plaintext: bytes, 
                  salt: bytes, nonce: bytes) -> dict:
     """Explicit public-test material only. Normal clients call seal, never this API."""
     _expected(expected, format)
+    return _seal_bound(root, expected, format, plaintext, guard, salt, nonce)
+
+
+def _bound_expected(expected, format):
+    if type(expected) is not Context:
+        raise ProtocolError()
+    if format == CONTENT:
+        _expected(expected, format)
+    elif format == "cerberus-password-wrap-v1":
+        if expected.resource_kind not in ("account-protection", "profile-protection") or len(expected.extra_context) != 5:
+            raise ProtocolError()
+    elif format == "cerberus-recovery-wrap-v1":
+        if expected.resource_kind != "recovery" or len(expected.extra_context) != 2:
+            raise ProtocolError()
+    else:
+        raise ProtocolError()
+
+
+def _seal_bound(root, expected, format, plaintext, guard, salt, nonce):
+    """Package-internal composition; public content APIs remain content-only."""
+    _bound_expected(expected, format)
     _material(root, 32)
     _material(salt, 32)
     _material(nonce, 12)
@@ -132,15 +153,29 @@ def seal_fixture(root: bytes, expected: Context, format: str, plaintext: bytes, 
 def open_envelope(root: bytes, expected: Context, format: str, envelope: dict) -> bytes:
     _expected(expected, format)
     _material(root, 32)
+    return _open_bound(root, expected, format, envelope)
+
+
+def _validate_bound(expected, format, envelope):
+    _bound_expected(expected, format)
     value = fields(envelope, _FIELDS)
     if value["format"] != format or integer(value["keyEpoch"]) != expected.key_epoch:
         raise ProtocolError()
     _bounded(value)
-    salt = unbase64(value["keySalt"], 32)
-    nonce = unbase64(value["nonce"], 12)
-    tag = unbase64(value["tag"], 16)
+    unbase64(value["keySalt"], 32)
+    unbase64(value["nonce"], 12)
+    unbase64(value["tag"], 16)
     encoded = value["ciphertext"]
     if not encoded:
         raise ProtocolError()
+    unbase64(encoded, len(encoded) * 3 // 4)
+    return value
+
+
+def _open_bound(root, expected, format, envelope):
+    _material(root, 32)
+    value = _validate_bound(expected, format, envelope)
+    salt, nonce, tag = unbase64(value["keySalt"], 32), unbase64(value["nonce"], 12), unbase64(value["tag"], 16)
+    encoded = value["ciphertext"]
     ciphertext = unbase64(encoded, len(encoded) * 3 // 4)
     return gcm_open(_key(root, expected, format, salt), nonce, _aad(expected, format, value["keySalt"]), ciphertext + tag)

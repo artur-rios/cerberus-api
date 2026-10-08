@@ -44,6 +44,23 @@ public final class Symmetric {
     }
     public static Map<String,Object> sealFixture(byte[] root,Context expected,String format,byte[] plaintext,NonceGuard guard,byte[] salt,byte[] nonce) {
         expected(expected,format);
+        return sealBound(root,expected,format,plaintext,guard,salt,nonce);
+    }
+    private static void boundExpected(Context expected,String format) {
+        if(expected==null || format==null) throw new ProtocolError();
+        switch(format) {
+            case CONTENT -> expected(expected,format);
+            case "cerberus-password-wrap-v1" -> {
+                if(!Set.of("account-protection","profile-protection").contains(expected.resourceKind()) || expected.extraContext().size()!=5) throw new ProtocolError();
+            }
+            case "cerberus-recovery-wrap-v1" -> {
+                if(!expected.resourceKind().equals("recovery") || expected.extraContext().size()!=2) throw new ProtocolError();
+            }
+            default -> throw new ProtocolError();
+        }
+    }
+    static Map<String,Object> sealBound(byte[] root,Context expected,String format,byte[] plaintext,NonceGuard guard,byte[] salt,byte[] nonce) {
+        boundExpected(expected,format);
         byte[] rootSnapshot=material(root,32),saltSnapshot=material(salt,32),nonceSnapshot=material(nonce,12);
         byte[] plainSnapshot=plaintext==null?null:plaintext.clone();
         if(guard==null) throw new ProtocolError();
@@ -56,7 +73,10 @@ public final class Symmetric {
         bounded(envelope); return envelope;
     }
     public static byte[] open(byte[] root,Context expected,String format,Map<String,Object> envelope) {
-        expected(expected,format); byte[] rootSnapshot=material(root,32);
+        expected(expected,format); return openBound(root,expected,format,envelope);
+    }
+    static Map<String,Object> validateBound(Context expected,String format,Map<String,Object> envelope) {
+        boundExpected(expected,format);
         Map<String,Object> value=ProtocolJson.fields(envelope,FIELDS,Set.of());
         long epoch=ProtocolJson.integer(value.get("keyEpoch"),1,ProtocolJson.MAX_INTEGER);
         if(!format.equals(value.get("format")) || epoch!=expected.keyEpoch()) throw new ProtocolError();
@@ -65,6 +85,13 @@ public final class Symmetric {
         String encoded=(String)snapshot.get("ciphertext");
         if(encoded.isEmpty()) throw new ProtocolError();
         byte[] ciphertext=ProtocolJson.unbase64(encoded,encoded.length()*3/4);
+        return snapshot;
+    }
+    static byte[] openBound(byte[] root,Context expected,String format,Map<String,Object> envelope) {
+        byte[] rootSnapshot=material(root,32);
+        Map<String,Object> snapshot=validateBound(expected,format,envelope);
+        byte[] salt=ProtocolJson.unbase64((String)snapshot.get("keySalt"),32),nonce=ProtocolJson.unbase64((String)snapshot.get("nonce"),12),tag=ProtocolJson.unbase64((String)snapshot.get("tag"),16);
+        String encoded=(String)snapshot.get("ciphertext"); byte[] ciphertext=ProtocolJson.unbase64(encoded,encoded.length()*3/4);
         byte[] combined=Arrays.copyOf(ciphertext,ciphertext.length+16); System.arraycopy(tag,0,combined,ciphertext.length,16);
         return Primitives.gcmOpen(key(rootSnapshot,expected,format,salt),nonce,aad(expected,format,(String)snapshot.get("keySalt")),combined);
     }

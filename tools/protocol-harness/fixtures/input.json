@@ -65,5 +65,64 @@
         "y": "mxQI9LYgwQGVKsOklD22NMfmji8261Zm6QhBlX7Mp6M"
       }
     }
+  },
+  "bundles": {
+    "account": {
+      "format": "cerberus-protection-bundle-v1",
+      "scopeKind": "account",
+      "scopeId": "00000000-0000-0000-0000-000000000001",
+      "roots": [
+        {
+          "resourceKind": "account",
+          "resourceId": "00000000-0000-0000-0000-000000000001",
+          "keyEpoch": 7,
+          "key": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
+        },
+        {
+          "resourceKind": "profile",
+          "resourceId": "00000000-0000-0000-0000-000000000002",
+          "keyEpoch": 5,
+          "key": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8"
+        },
+        {
+          "resourceKind": "record",
+          "resourceId": "00000000-0000-0000-0000-000000000003",
+          "keyEpoch": 3,
+          "key": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8"
+        }
+      ],
+      "unlockPrivateKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgIeXuothLBpzjf5IHDZDIR1zcMaZUvCVCSZtpbMuODQahRANCAASxQG7aHE63akQPWV70MeyZGFhT9nUuLV5-XQiQL4UnI8ILsr3Hf4Nc2apVLe_SocpEG-VdzH32eGzHWUNIoMn5"
+    },
+    "profile": {
+      "format": "cerberus-protection-bundle-v1",
+      "scopeKind": "profile",
+      "scopeId": "00000000-0000-0000-0000-000000000002",
+      "roots": [
+        {
+          "resourceKind": "profile",
+          "resourceId": "00000000-0000-0000-0000-000000000002",
+          "keyEpoch": 5,
+          "key": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8"
+        },
+        {
+          "resourceKind": "record",
+          "resourceId": "00000000-0000-0000-0000-000000000003",
+          "keyEpoch": 3,
+          "key": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8"
+        }
+      ],
+      "unlockPrivateKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgXlYFBuHLi76j6AysCf0BIdz7kDEjf_UGiTIA_iZc8OahRANCAARcl40ZcnYoehCuxa07rxApjeL3P3NbvZ-Pxi3DD_xWXPkiM0UccADy8Iq6UjIGXj0fFrj_CUkzXWevGg0JKQRi"
+    }
+  },
+  "membership": {
+    "account": [
+      "account:00000000-0000-0000-0000-000000000001",
+      "profile:00000000-0000-0000-0000-000000000002",
+      "record:00000000-0000-0000-0000-000000000003"
+    ],
+    "profile": [
+      "profile:00000000-0000-0000-0000-000000000002",
+      "record:00000000-0000-0000-0000-000000000003"
+    ]
   }
 }

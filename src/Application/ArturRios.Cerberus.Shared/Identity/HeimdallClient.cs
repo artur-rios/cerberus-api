@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace ArturRios.Cerberus.Shared.Identity;
 
-public sealed class HeimdallClient(HttpClient client, CerberusOptions options, HeimdallTokenValidator tokens) : IHeimdallClient
+public sealed partial class HeimdallClient(HttpClient client, CerberusOptions options, HeimdallTokenValidator tokens) : IHeimdallClient
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -200,7 +200,7 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
                 if (buffer.Length > options.MaxRequestBytes - read) return Unavailable;
                 await buffer.WriteAsync(block.AsMemory(0, read), dependencyToken);
             }
-            using var document = JsonDocument.Parse(buffer.ToArray());
+            using var document = JsonDocument.Parse(buffer.ToArray(), new JsonDocumentOptions { AllowDuplicateProperties = false });
             var root = document.RootElement;
             if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("success", out var success) || success.ValueKind != JsonValueKind.True
                 || !root.TryGetProperty("errors", out var errors) || errors.ValueKind != JsonValueKind.Array || errors.GetArrayLength() != 0

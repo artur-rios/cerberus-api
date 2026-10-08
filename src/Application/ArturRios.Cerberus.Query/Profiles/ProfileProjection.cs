@@ -15,7 +15,9 @@ internal static class ProfileProjection
         if (row is null || row.ProfileId == Guid.Empty || row.Revision is <= 0 or > ProtocolBinary.MaxInteger
             || row.ServerSequence is <= 0 or > ProtocolBinary.MaxInteger || row.EditedAt == default
             || row.EditedAt.Offset != TimeSpan.Zero || row.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond != 0
-            || row.Envelope is null || row.KeyWrappers is null) return false;
+            || row.Envelope is null || row.KeyWrappers is null
+            || !ProfileAssociationInput.ValidIds(row.RecordIds) || !ProfileAssociationInput.ValidIds(row.FolderIds)
+            || !ProfileAssociationInput.ValidIds(row.CollectionIds)) return false;
         EncryptedEnvelope? envelope; ProfileKeyWrappers? wrappers;
         try
         {
@@ -26,7 +28,8 @@ internal static class ProfileProjection
         if (envelope?.IsValid() != true || wrappers?.IsValid() != true || wrappers.MasterKeyWrapper.GrantId != row.ProfileId
             || wrappers.MasterKeyWrapper.RecipientIdentityId != actor || wrappers.MasterKeyWrapper.GrantRevision > row.Revision
             || wrappers.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch) return false;
-        item = new(row.ProfileId, row.Revision, row.ServerSequence, row.EditedAt, envelope, wrappers);
+        item = new(row.ProfileId, row.Revision, row.ServerSequence, row.EditedAt, envelope, wrappers)
+        {RecordIds=row.RecordIds,FolderIds=row.FolderIds,CollectionIds=row.CollectionIds};
         return true;
     }
 }

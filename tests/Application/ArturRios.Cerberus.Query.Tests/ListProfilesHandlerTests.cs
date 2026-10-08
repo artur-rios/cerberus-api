@@ -27,12 +27,12 @@ public class ListProfilesHandlerTests
     [UnitFact]
     public async Task GivenPermittedPage_WhenContinuing_ThenReturnExactOpaqueContractsAndBoundCursor()
     {
-        var row=Row(1);var store=new Mock<IProfileListStore>(MockBehavior.Strict);
+        var row=Row(1) with {RecordIds=[Guid.NewGuid()],FolderIds=[Guid.NewGuid()],CollectionIds=[Guid.NewGuid()]};var store=new Mock<IProfileListStore>(MockBehavior.Strict);
         store.Setup(x=>x.ListAsync(new(Actor,Verifier,1,0,null),It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<ProfileListPage>(new([row],3,true)));
         store.Setup(x=>x.ListAsync(new(Actor,Verifier,1,1,3),It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<ProfileListPage>(new([Row(3)],3,false)));
         var handler=Handler(store);var r=await handler.HandleAsync(new(Actor,Access,1,null));Assert.True(r.Success);var item=Assert.Single(r.Data!.Items);Assert.Equal(row.ProfileId,item.ProfileId);
         Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope,ProtectionFixture.Json),item.Envelope);Assert.Equal(JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers,ProtectionFixture.Json),item.KeyWrappers);
-        Assert.NotNull(r.Data.NextCursor);Assert.DoesNotContain(Actor.ToString(),r.Data.NextCursor);var next=await handler.HandleAsync(new(Actor,Access,1,r.Data.NextCursor));Assert.True(next.Success);Assert.Null(next.Data!.NextCursor);Assert.Equal(3,Assert.Single(next.Data.Items).ServerSequence);
+        Assert.Equal(row.RecordIds,item.RecordIds);Assert.Equal(row.FolderIds,item.FolderIds);Assert.Equal(row.CollectionIds,item.CollectionIds);Assert.NotNull(r.Data.NextCursor);Assert.DoesNotContain(Actor.ToString(),r.Data.NextCursor);var next=await handler.HandleAsync(new(Actor,Access,1,r.Data.NextCursor));Assert.True(next.Success);Assert.Null(next.Data!.NextCursor);Assert.Equal(3,Assert.Single(next.Data.Items).ServerSequence);
     }
     [UnitTheory][InlineData("actor")][InlineData("access")][InlineData("size")][InlineData("tamper")][InlineData("key")]
     public async Task GivenCursorSubstitution_WhenContinuing_ThenRejectBeforePersistence(string kind)
@@ -52,10 +52,13 @@ public class ListProfilesHandlerTests
     [UnitTheory][InlineData("missing")][InlineData("nullItems")][InlineData("envelope")][InlineData("wrappers")][InlineData("nullEnvelope")][InlineData("nullWrapper")]
     [InlineData("invalidEnvelope")][InlineData("invalidWrapper")][InlineData("extraJson")][InlineData("id")][InlineData("revision")][InlineData("sequence")]
     [InlineData("time")][InlineData("offset")][InlineData("precision")][InlineData("order")][InlineData("duplicate")][InlineData("count")][InlineData("boundary")][InlineData("emptyMore")][InlineData("grant")][InlineData("epoch")][InlineData("recipient")]
+    [InlineData("nullRecords")][InlineData("nullFolders")][InlineData("nullCollections")][InlineData("zeroRecord")][InlineData("duplicateFolder")][InlineData("duplicateCollection")]
     public async Task GivenCorruptStoredPage_WhenListing_ThenFailWholePageClosed(string kind)
     {
         var row=Row(1);var wrapper=JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers,ProtectionFixture.Json)!;
         row=kind switch {
+            "nullRecords"=>row with {RecordIds=null!},"nullFolders"=>row with {FolderIds=null!},"nullCollections"=>row with {CollectionIds=null!},
+            "zeroRecord"=>row with {RecordIds=[Guid.Empty]},"duplicateFolder"=>row with {FolderIds=[Actor,Actor]},"duplicateCollection"=>row with {CollectionIds=[Actor,Actor]},
             "envelope"=>row with {Envelope=Encoding.UTF8.GetBytes("bad")},"wrappers"=>row with {KeyWrappers=Encoding.UTF8.GetBytes("bad")},
             "nullEnvelope"=>row with {Envelope="null"u8.ToArray()},"nullWrapper"=>row with {KeyWrappers="null"u8.ToArray()},
             "invalidEnvelope"=>row with {Envelope=JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("bad",1,"a","b","c","d"),ProtectionFixture.Json)},

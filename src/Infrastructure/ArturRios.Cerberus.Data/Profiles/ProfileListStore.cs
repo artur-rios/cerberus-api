@@ -33,6 +33,7 @@ public sealed class ProfileListStore(IDbContextFactory<AppDbContext> factory) : 
             var page = visible.Where(p => p.ServerSequence > request.After
                     && p.ServerSequence <= (request.Boundary ?? visible.Max(x => (long?)x.ServerSequence) ?? 0))
                 .OrderBy(p => p.ServerSequence);
+            var rows = ProfileProjectionQuery.Select(db,page.Take(request.PageSize));
             var result = await db.Accounts.AsNoTracking().Where(a => a.HeimdallPublicId == request.Actor)
                 .Select(a => new
                 {
@@ -44,8 +45,7 @@ public sealed class ProfileListStore(IDbContextFactory<AppDbContext> factory) : 
                         || visible.Any(other => other.Id != p.Id && other.ServerSequence == p.ServerSequence)),
                     Boundary = request.Boundary ?? visible.Max(p => (long?)p.ServerSequence) ?? 0,
                     HasMore = page.Skip(request.PageSize).Any(),
-                    Items = page.Take(request.PageSize).Select(p => new ProfileListRow(p.PublicId, p.Revision,
-                        p.ServerSequence, p.EditedAt, p.Envelope, p.KeyWrappers)).ToList()
+                    Items = rows.ToList()
                 }).AsSingleQuery().SingleOrDefaultAsync(cancellationToken);
             if (result is null || result.State != AccountState.Active || result.Erased) return new(Error: "not_found");
             if (!result.Allowed) return new(Error: "vault_access_denied");

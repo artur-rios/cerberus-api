@@ -63,9 +63,18 @@ public sealed class ProfileTrashStore(IDbContextFactory<AppDbContext> factory) :
             var operation=new TrashOperation{AccountId=account.Id,RootResourceKind="profile",RootResourceId=profile.PublicId,DeletedAt=row.DeletedAt.Value,PurgeAt=row.PurgeAt!.Value};
             db.TrashOperations.Add(operation);
             await db.SaveChangesAsync(cancellationToken);
-            // No record/folder/collection entities exist yet; this is the complete current association set.
+            // Capture stored memberships, including links currently hidden by a revoked grant.
+            var records=await (from link in db.ProfileRecords join r in db.Records on link.RecordId equals r.Id
+                where link.ProfileId==profile.Id orderby r.PublicId select r.PublicId).ToArrayAsync(cancellationToken);
+            var folders=await (from link in db.ProfileFolders join f in db.Folders on link.FolderId equals f.Id
+                where link.ProfileId==profile.Id orderby f.PublicId select f.PublicId).ToArrayAsync(cancellationToken);
+            var collections=await (from link in db.ProfileCollections join c in db.Collections on link.CollectionId equals c.Id
+                where link.ProfileId==profile.Id orderby c.PublicId select c.PublicId).ToArrayAsync(cancellationToken);
+            await db.ProfileRecords.Where(x=>x.ProfileId==profile.Id).ExecuteDeleteAsync(cancellationToken);
+            await db.ProfileFolders.Where(x=>x.ProfileId==profile.Id).ExecuteDeleteAsync(cancellationToken);
+            await db.ProfileCollections.Where(x=>x.ProfileId==profile.Id).ExecuteDeleteAsync(cancellationToken);
             db.TrashEntries.Add(new(){OperationId=operation.Id,ResourceKind="profile",ResourceId=profile.PublicId,
-                AssociationSnapshot=JsonSerializer.SerializeToUtf8Bytes(new ProfileAssociationSnapshot([],[],[]),new JsonSerializerOptions(JsonSerializerDefaults.Web))});
+                AssociationSnapshot=JsonSerializer.SerializeToUtf8Bytes(new ProfileAssociationSnapshot(records,folders,collections),new JsonSerializerOptions(JsonSerializerDefaults.Web))});
             db.RetentionWorkItems.Add(new RetentionWorkItem{OperationKey="trash/"+operation.PublicId,DueAt=operation.PurgeAt});
             await db.VaultAccessSessions.Where(x=>x.AccountId==account.Id && x.ProfileId==profile.Id && !x.Revoked)
                 .ExecuteUpdateAsync(x=>x.SetProperty(s=>s.Revoked,true),cancellationToken);

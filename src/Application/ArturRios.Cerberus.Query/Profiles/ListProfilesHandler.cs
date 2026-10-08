@@ -1,7 +1,4 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using ArturRios.Cerberus.Domain.Access;
-using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Shared.Configuration;
@@ -12,8 +9,6 @@ namespace ArturRios.Cerberus.Query.Profiles;
 public sealed class ListProfilesHandler(IProfileListStore store, CerberusOptions options, ProfileListCursor cursors)
     : IQueryHandlerAsync<ListProfilesQuery, ProfileListOutput>
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
-    { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
     public async Task<DataOutput<ProfileListOutput?>> HandleAsync(ListProfilesQuery query, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -39,22 +34,10 @@ public sealed class ListProfilesHandler(IProfileListStore store, CerberusOptions
         var items = new List<ProfileListItem>(); var ids = new HashSet<Guid>(); var previous = after;
         foreach (var row in page.Items)
         {
-            if (row is null || row.ProfileId == Guid.Empty || !ids.Add(row.ProfileId) || row.Revision is <= 0 or > ProtocolBinary.MaxInteger
-                || row.ServerSequence <= previous || row.ServerSequence > page.Boundary || row.EditedAt == default
-                || row.EditedAt.Offset != TimeSpan.Zero || row.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond != 0
-                || row.Envelope is null || row.KeyWrappers is null) return output.WithError("persistence_unavailable");
-            EncryptedEnvelope? envelope; ProfileKeyWrappers? wrappers;
-            try
-            {
-                envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json);
-                wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, Json);
-            }
-            catch (JsonException) { return output.WithError("persistence_unavailable"); }
-            if (envelope?.IsValid() != true || wrappers?.IsValid() != true || wrappers.MasterKeyWrapper.GrantId != row.ProfileId
-                || wrappers.MasterKeyWrapper.RecipientIdentityId != query.Actor
-                || wrappers.MasterKeyWrapper.GrantRevision > row.Revision || wrappers.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch)
+            if (!ProfileProjection.TryRead(row, query.Actor, out var item) || !ids.Add(item!.ProfileId)
+                || item.ServerSequence <= previous || item.ServerSequence > page.Boundary)
                 return output.WithError("persistence_unavailable");
-            items.Add(new(row.ProfileId, row.Revision, row.ServerSequence, row.EditedAt, envelope, wrappers)); previous = row.ServerSequence;
+            items.Add(item); previous = item.ServerSequence;
         }
         if (page.HasMore && previous >= page.Boundary) return output.WithError("persistence_unavailable");
         var next = page.HasMore ? cursors.Encode(new(query.Actor, verifier, size, previous, page.Boundary)) : null;

@@ -8,10 +8,10 @@ directory; its tests do not count toward production coverage.
 
 ## Current implementation
 
-Strict encoding, primitives and P256 key/signature handling are implemented and
-tested independently (67 Java tests and 44 Python tests). Known-answer selections
+Strict encoding, primitives, P256 key/signature handling and context-bound content
+envelopes are implemented and tested independently (84 Java tests and 62 Python tests). Known-answer selections
 and source hashes/licenses are in [fixtures/sources.json](fixtures/sources.json).
-Encryption contracts, recovery,
+Password/recovery wrapping contracts, recovery,
 lease verification, cross-language evidence and benchmarks are subsequent tasks
 in [the approved plan](../../docs/superpowers/plans/2026-10-07-protocol-harness.md).
 There is no successful interoperability or benchmark claim at this stage.
@@ -112,3 +112,19 @@ and unpadded with an exact expected decoded length.
 
 Tests use Given–When–Then names and literal expected bytes, not one implementation
 as the other's validator. Failure messages are stable codes, never raw input.
+
+## Content envelopes
+
+Normal `seal` APIs obtain fresh secure 32-byte key salts and 12-byte nonces.
+Only explicit `sealFixture` / `seal_fixture` test APIs accept fixed materials.
+Receivers supply the expected owner, content kind, immutable resource ID and
+epoch; the ciphertext's own claims never establish those trusted bindings.
+Public content APIs accept only `cerberus-content-v1` and empty extra context;
+the following wrapper tasks own their named extensions.
+
+`NonceGuard` is an atomic local reference model. A valid salt reservation remains
+consumed after a failed or unsent encryption. Retries reuse saved bytes. Budgets
+are keyed by a nonlogged fingerprint of root and immutable deep-copied context;
+each domain permits at most 2^32 reservations. Its explicit `initialCount` test
+seed applies to the first observed domain only; new roots/epochs start at zero.
+This does not implement distributed accounting or production persistence.

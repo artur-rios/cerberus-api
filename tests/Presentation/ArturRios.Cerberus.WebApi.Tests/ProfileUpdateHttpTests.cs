@@ -71,6 +71,17 @@ public class ProfileUpdateHttpTests(RegistrationApiFixture fixture):WebApiTest<P
     [FunctionalFact]
     public async Task GivenUnavailableProfileTable_WhenUpdating_Then503Unchanged()
     {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var p=await Add(s,f,scoped);Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(s);await using var db=fixture.Context();await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.profile RENAME TO fixture_unavailable_profile");try{using var response=await Send(p.ProfileId.ToString(),s.Access);await Failure(response,503);}finally{await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.fixture_unavailable_profile RENAME TO profile");}Assert.Equal(before,await Snapshot(s));}
+    [FunctionalTheory][InlineData(1,400)][InlineData(9,400)][InlineData(10,200)]
+    public async Task GivenTimestampAtMinimumStorageBoundary_WhenUpdating_ThenRejectUnrepresentableWithoutBreakingReads(long ticks,int expectedStatus)
+    {
+        using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var p=await Add(s,f,scoped);Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(s);
+        using var response=await Send(p.ProfileId.ToString(),s.Access,Input() with {EditedAt=DateTimeOffset.MinValue.AddTicks(ticks)});
+        using var getRequest=new HttpRequestMessage(HttpMethod.Get,"/api/profiles/"+p.ProfileId);getRequest.Headers.Add("X-Cerberus-Vault-Access",s.Access);using var get=await Gateway.Client.SendAsync(getRequest);
+        using var listRequest=new HttpRequestMessage(HttpMethod.Get,"/api/profiles");listRequest.Headers.Add("X-Cerberus-Vault-Access",s.Access);using var list=await Gateway.Client.SendAsync(listRequest);
+        Assert.Equal((expectedStatus,200,200),((int)response.StatusCode,(int)get.StatusCode,(int)list.StatusCode));
+        if(expectedStatus==400){await Failure(response,400,"validation_failed");Assert.Equal(before,await Snapshot(s));}
+        else {Assert.Equal(DateTimeOffset.Parse("0001-01-01T00:00:00.0000010Z"),(await Profile(response)).EditedAt);await using var db=fixture.Context();Assert.Equal(DateTimeOffset.Parse("0001-01-01T00:00:00.0000010Z"),(await db.Profiles.SingleAsync(x=>x.PublicId==p.ProfileId)).EditedAt);}
+    }
     private sealed record State(Guid Actor,Guid AccountId,long InternalId,string Access);
     private async Task<State> Setup(ProtectionFixture f)
     {var actor=Guid.NewGuid();fixture.Users[actor+"@example.test"]=new(actor,"fixture-password");await using var db=fixture.Context();var a=new Account{PublicId=Guid.NewGuid(),HeimdallPublicId=actor,DetailsEnvelope=JsonSerializer.SerializeToUtf8Bytes(Envelope(),ProtectionFixture.Json)};db.Accounts.Add(a);await db.SaveChangesAsync();var access=ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(32));OpaqueAccessHandle.TryHash(access,out var verifier);db.VaultProtections.Add(new(){AccountId=a.Id,Material=JsonSerializer.SerializeToUtf8Bytes(f.Material,ProtectionFixture.Json)});db.VaultAccessSessions.Add(new(){AccountId=a.Id,HandleVerifier=verifier,IssuedAt=DateTimeOffset.UtcNow.AddMinutes(-1),ExpiresAt=DateTimeOffset.UtcNow.AddHours(1),PolicyRevision=1,RevocationGeneration=1});await db.SaveChangesAsync();return new(actor,a.PublicId,a.Id,access);}

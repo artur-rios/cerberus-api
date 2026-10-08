@@ -48,8 +48,9 @@ Start with the initial context, then the normative formal requirements.
 
 ## Installation
 
-The foundation branch contains the .NET 10 solution. Use an SDK accepted by `global.json`
-and a Docker-compatible runtime for functional tests. Starting the development host requires
+The `develop` branch contains the .NET 10 solution; `main` holds only the specifications until the
+first release. Use an SDK accepted by `global.json` and a Docker-compatible runtime for functional
+tests. Starting the development host requires
 explicit database, Heimdall and operational configuration; no production defaults are supplied.
 The container is a development artifact, not a release-ready vault API.
 See [operational settings](docs/operations/proposed-beta-settings.md), the nonsecret
@@ -73,40 +74,12 @@ dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi
 
 Clone the repository with `git clone https://github.com/artur-rios/cerberus-api.git`.
 
-## Testing
-
-Follow [Testing Specification](docs/requirements/Testing%20Specification%20Document.md).
-From the repository root:
-
-```bash
-dotnet test src/ArturRios.Cerberus.sln --filter "Category=Unit"
-dotnet test src/ArturRios.Cerberus.sln --filter "Category=Functional"
-dotnet test src/ArturRios.Cerberus.sln --collect:"XPlat Code Coverage"
-python3 -m unittest discover -s scripts -p 'test_*.py'
-python3 scripts/verify_specs.py
-python3 scripts/openapi.py
-dotnet tool install --global dotnet-reportgenerator-globaltool
-python3 scripts/coverage.py
-python3 scripts/vulnerabilities.py
-docker build -t cerberus-api:local .
-```
-
-Current functional tests use disposable PostgreSQL containers and an in-memory HTTP host.
-Every implemented use case must ship with main/alternative-flow tests. The required merged
-line-coverage floor is 90%; branch coverage must be reported before foundation approval.
-`python3 scripts/verify_protocol.py` intentionally fails while the review record is pending.
-CI requires it for promotion to `main` and version-tag releases. The owner explicitly
-deferred independent review for development into `develop`; actual approval remains pending.
-After reviewing a deliberate API contract change, run `python3 scripts/openapi.py --write`
-and commit its result. OpenAPI includes each implemented business route. Generation starts
-no server and requires no deployment credentials.
-
 ## Roadmap
 
 Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
 Each use case has one issue; the foundation issue comes first. Every milestone depends on
-Foundation, with dependencies only on earlier milestones. Counts below are the snapshot at
-creation; GitHub milestone pages show live progress. No due dates or labels were assigned.
+Foundation, with dependencies only on earlier milestones. Counts below are updated as issues close;
+GitHub milestone pages show live progress. No due dates or labels were assigned.
 
 | Milestone | Delivers | Depends on | Issues | Status |
 | --- | --- | --- | --- | --- |
@@ -205,14 +178,11 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
 | [#55](https://github.com/artur-rios/cerberus-api/issues/55) | UC-54 — Export account data | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-54-export-account-data) | Todo |
 | [#56](https://github.com/artur-rios/cerberus-api/issues/56) | UC-55 — Check API health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-55-check-api-health) | Todo |
 
+## Changelog
+
+Notable changes in each release are recorded in [CHANGELOG.md](./CHANGELOG.md).
+
 ## Contributing
 
-One use case = one issue = one branch = one pull request. Use
-`feature/uc-##-use-case-name` from `develop`, with human approval at the documented stage
-boundaries by default. Unattended transitions require explicit scoped authorization.
-Read [Development Workflow](docs/requirements/Development%20Workflow%20Document.md).
-
-Before implementing encrypted contracts, complete the security/interoperability protocol
-review. Before deploying the beta, select/pin stable dependencies, configure explicit retention
-and limits, verify erasure-preserving restore and complete the documented privacy controls.
-These are recorded decisions/gates, not assertions that implementation or compliance is complete.
+Building from source, running the tests, the delivery workflow and its review gates, the branching
+model and the release process are described in [CONTRIBUTING.md](./CONTRIBUTING.md).

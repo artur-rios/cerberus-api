@@ -287,6 +287,37 @@ boundary; no distributed transaction is claimed.
 
 ---
 
+## Vault protection and account unlock
+
+Apply the additive `VaultProtectionAndChallenges` migration before enabling the
+protection routes. It adds one opaque protection bundle per account and indexed,
+expiring proof challenges; both cascade with account erasure. Account ciphertext,
+revision and offline policy remain unchanged. Login, initialization, material reads
+and challenge issuance create no vault session.
+
+`POST /api/vault/protection` binds client-created public verifiers and wrapped bundles
+to the current owner's active account and expected account revision. Bootstrap does
+not require an already-existing vault session. Concurrent initialization permits one
+winner; retry returns409 without replacing it. `GET /api/vault/protection` returns
+only own encrypted bundles/public verifiers for local unlocking, never account details.
+
+`POST /api/vault/challenges` requires a currently valid scoped identity with signed
+`iat` within the exclusive60-second freshness window; reauthenticate if older. Its
+account-unlock challenge expires exclusively after60 seconds and binds identity,
+account/scope, protection/key state and original request digest. `POST /api/vault/unlock`
+verifies a separate native P256 signature over those bindings and original UTF8 body
+bytes. It atomically consumes the challenge and stores only a SHA256 handle verifier,
+with current policy/generation and initial24-hour expiry (no expiry when explicitly
+disabled). Account locking and statement time recheck queued lifecycle/policy/expiry
+changes; no raw key/password, server decryption, offline lease or profile access is added.
+
+See [vault protection API](../security/vault-protection-api.md) for exact requests,
+proof bytes, retry behavior and client encrypted-contract responsibilities. The owner
+review deferral permits development only; actual protocol/client approval remains
+pending and the main/tag release gate stays enforced.
+
+---
+
 ## 8. Traceability
 
 | Platform capability | Requirements |

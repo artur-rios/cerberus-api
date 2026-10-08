@@ -11,6 +11,20 @@ internal static class ResourceModel
         ConfigureResource(model,typeof(VaultRecord),"record");
         ConfigureResource(model,typeof(VaultFolder),"folder");
         ConfigureResource(model,typeof(VaultCollection),"collection");
+        var memberRecord = model.Entity<CollectionRecord>();
+        memberRecord.ToTable("collection_record");
+        memberRecord.HasKey(x => new { x.CollectionId, x.RecordId });
+        memberRecord.HasOne<VaultCollection>().WithMany().HasForeignKey(x => new { x.AccountId, x.CollectionId })
+            .HasPrincipalKey(x => new { x.AccountId, x.Id }).OnDelete(DeleteBehavior.Cascade);
+        memberRecord.HasOne<VaultRecord>().WithMany().HasForeignKey(x => new { x.AccountId, x.RecordId })
+            .HasPrincipalKey(x => new { x.AccountId, x.Id }).OnDelete(DeleteBehavior.Cascade);
+        var memberFolder = model.Entity<CollectionFolder>();
+        memberFolder.ToTable("collection_folder");
+        memberFolder.HasKey(x => new { x.CollectionId, x.FolderId });
+        memberFolder.HasOne<VaultCollection>().WithMany().HasForeignKey(x => new { x.AccountId, x.CollectionId })
+            .HasPrincipalKey(x => new { x.AccountId, x.Id }).OnDelete(DeleteBehavior.Cascade);
+        memberFolder.HasOne<VaultFolder>().WithMany().HasForeignKey(x => new { x.AccountId, x.FolderId })
+            .HasPrincipalKey(x => new { x.AccountId, x.Id }).OnDelete(DeleteBehavior.Cascade);
         model.Entity<Profile>().HasAlternateKey(x=>new{x.AccountId,x.Id});
         model.Entity<VaultRecord>().HasOne<VaultFolder>().WithMany().HasForeignKey(x=>new{x.AccountId,x.FolderId})
             .HasPrincipalKey(x=>new{x.AccountId,x.Id}).OnDelete(DeleteBehavior.NoAction);

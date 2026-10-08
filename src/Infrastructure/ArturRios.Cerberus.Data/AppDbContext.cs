@@ -17,6 +17,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
     public DbSet<VaultFolder> Folders => Set<VaultFolder>();
     public DbSet<VaultCollection> Collections => Set<VaultCollection>();
     public DbSet<CollectionGrant> CollectionGrants => Set<CollectionGrant>();
+    public DbSet<CollectionRecord> CollectionRecords => Set<CollectionRecord>();
+    public DbSet<CollectionFolder> CollectionFolders => Set<CollectionFolder>();
     public DbSet<ProfileRecord> ProfileRecords => Set<ProfileRecord>();
     public DbSet<ProfileFolder> ProfileFolders => Set<ProfileFolder>();
     public DbSet<ProfileCollection> ProfileCollections => Set<ProfileCollection>();

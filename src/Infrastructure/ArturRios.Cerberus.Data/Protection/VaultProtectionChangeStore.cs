@@ -72,7 +72,9 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                     if (profile.Revision != item.ExpectedRevision || profile.Revision >= ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
                     var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(profile.Envelope, Json);
                     var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(profile.KeyWrappers, Json);
-                    if (envelope?.IsValid() != true || wrappers?.IsBound(a.PublicId,profile.PublicId,envelope.KeyEpoch,profile.Revision,request.Actor,current) != true)
+                    if (envelope?.IsValid() != true || wrappers?.IsValid() != true
+                        || wrappers.MasterKeyWrapper.GrantRevision > profile.Revision
+                        || !wrappers.IsBound(a.PublicId,profile.PublicId,envelope.KeyEpoch,wrappers.MasterKeyWrapper.GrantRevision,request.Actor,current))
                         return new(Error: "persistence_unavailable");
                     if (envelope.KeyEpoch >= ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
                     if (item.Envelope.KeyEpoch != envelope.KeyEpoch + 1 || item.Envelope.KeySalt == envelope.KeySalt || item.Envelope.Nonce == envelope.Nonce

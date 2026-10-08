@@ -82,6 +82,16 @@ public class ProfileRotationTests(PostgresFixture fixture)
         await using(var db=fixture.CreateContext())Assert.False((await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==request.ChallengeId)).Consumed);
         Assert.Null((await new VaultProtectionChangeStore(fixture).ChangeAsync(request,default)).Error);
     }
+    [FunctionalTheory][InlineData("Master")][InlineData("PerProfile")]
+    public async Task GivenProfileContentEditedSinceWrapper_WhenRotating_ThenAcceptSignedOlderWrapperAndAdvanceCompleteInventory(string mode)
+    {
+        using var client=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,client);var i=await Create(s,client,scoped,mode);
+        // A real content-only edit keeps its existing key wrapper signed at revision1.
+        Assert.Null((await new ProfileUpdateStore(fixture).UpdateAsync(new(s.Actor,s.Verifier,i.ProfileId,new(1,ProfileSetup.Envelope(),DateTimeOffset.UtcNow)),default)).Error);
+        var c=Change(s,client,scoped,i);var replacement=c.ContentReplacements[1];c=c with {ContentReplacements=[c.ContentReplacements[0],replacement with {ExpectedRevision=2,KeyWrappers=replacement.KeyWrappers! with {MasterKeyWrapper=client.Wrap(s.AccountId,"profile",i.ProfileId,s.Actor,2,3)}}]};
+        var request=await Request(s,client,c);Assert.Null((await new VaultProtectionChangeStore(fixture).ChangeAsync(request,default)).Error);
+        await using var check=fixture.CreateContext();var p=await check.Profiles.SingleAsync(x=>x.PublicId==i.ProfileId);Assert.Equal(3,p.Revision);Assert.Equal(c.ContentReplacements[1].Envelope,JsonSerializer.Deserialize<Domain.Accounts.EncryptedEnvelope>(p.Envelope,ProtectionFixture.Json));Assert.Equal(3,JsonSerializer.Deserialize<ProfileKeyWrappers>(p.KeyWrappers,ProtectionFixture.Json)!.MasterKeyWrapper.GrantRevision);
+    }
     private async Task<ProfileCreateInput> Create(ProfileSetup.State s,ProtectionFixture client,ProtectionFixture scoped,string mode)
     {var i=ProfileSetup.Input(s,client,scoped,mode);Assert.Null((await new ProfileCreateStore(fixture).CreateAsync(new(s.Actor,s.Verifier,i),default)).Error);return i;}
     private static ProtectionChange Change(ProfileSetup.State s,ProtectionFixture client,ProtectionFixture scoped,ProfileCreateInput i)

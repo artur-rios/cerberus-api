@@ -37,13 +37,19 @@ public sealed class ProfileListStore(IDbContextFactory<AppDbContext> factory) : 
                 .Select(a => new
                 {
                     a.State, Erased = db.TerminalErasures.Any(e => e.ResourceId == a.PublicId),
-                    Allowed = sessions.Any(), Boundary = request.Boundary ?? visible.Max(p => (long?)p.ServerSequence) ?? 0,
+                    Allowed = sessions.Any(),
+                    // Validate the permitted inventory before keyset filtering: zero
+                    // values disappear at After=0, and equal values can straddle pages.
+                    CorruptOrdering = visible.Any(p => p.ServerSequence <= 0 || p.ServerSequence > ProtocolBinary.MaxInteger
+                        || visible.Any(other => other.Id != p.Id && other.ServerSequence == p.ServerSequence)),
+                    Boundary = request.Boundary ?? visible.Max(p => (long?)p.ServerSequence) ?? 0,
                     HasMore = page.Skip(request.PageSize).Any(),
                     Items = page.Take(request.PageSize).Select(p => new ProfileListRow(p.PublicId, p.Revision,
                         p.ServerSequence, p.EditedAt, p.Envelope, p.KeyWrappers)).ToList()
                 }).AsSingleQuery().SingleOrDefaultAsync(cancellationToken);
             if (result is null || result.State != AccountState.Active || result.Erased) return new(Error: "not_found");
             if (!result.Allowed) return new(Error: "vault_access_denied");
+            if (result.CorruptOrdering) return new(Error: "persistence_unavailable");
             return new(new(result.Items, result.Boundary, result.HasMore));
         }
         catch (Exception exception) when (exception is DbException or TimeoutException

@@ -51,7 +51,7 @@ public class ListProfilesHandlerTests
     {var store=MockStore(new(Error:error));var r=await Handler(store).HandleAsync(new(Actor,Access,null,null));Assert.Contains(error,r.Errors);Assert.Null(r.Data);}
     [UnitTheory][InlineData("missing")][InlineData("nullItems")][InlineData("envelope")][InlineData("wrappers")][InlineData("nullEnvelope")][InlineData("nullWrapper")]
     [InlineData("invalidEnvelope")][InlineData("invalidWrapper")][InlineData("extraJson")][InlineData("id")][InlineData("revision")][InlineData("sequence")]
-    [InlineData("time")][InlineData("offset")][InlineData("precision")][InlineData("order")][InlineData("duplicate")][InlineData("count")][InlineData("boundary")][InlineData("emptyMore")][InlineData("grant")][InlineData("epoch")]
+    [InlineData("time")][InlineData("offset")][InlineData("precision")][InlineData("order")][InlineData("duplicate")][InlineData("count")][InlineData("boundary")][InlineData("emptyMore")][InlineData("grant")][InlineData("epoch")][InlineData("recipient")]
     public async Task GivenCorruptStoredPage_WhenListing_ThenFailWholePageClosed(string kind)
     {
         var row=Row(1);var wrapper=JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers,ProtectionFixture.Json)!;
@@ -64,8 +64,9 @@ public class ListProfilesHandlerTests
             "id"=>row with {ProfileId=Guid.Empty},"revision"=>row with {Revision=0},"sequence"=>row with {ServerSequence=0},
             "time"=>row with {EditedAt=default},"offset"=>row with {EditedAt=row.EditedAt.ToOffset(TimeSpan.FromHours(1))},"precision"=>row with {EditedAt=row.EditedAt.AddTicks(1)},
             "grant"=>row with {KeyWrappers=JsonSerializer.SerializeToUtf8Bytes(wrapper with {MasterKeyWrapper=wrapper.MasterKeyWrapper with {GrantId=Guid.NewGuid()}},ProtectionFixture.Json)},
+            "recipient"=>row with {KeyWrappers=JsonSerializer.SerializeToUtf8Bytes(wrapper with {MasterKeyWrapper=wrapper.MasterKeyWrapper with {RecipientIdentityId=Guid.NewGuid()}},ProtectionFixture.Json)},
             "epoch"=>row with {Envelope=JsonSerializer.SerializeToUtf8Bytes(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope,ProtectionFixture.Json)! with {KeyEpoch=2},ProtectionFixture.Json)},_=>row};
-        IReadOnlyList<ProfileListRow> rows=kind switch {"nullItems"=>null!,"order"=>[Row(2),row],"duplicate"=>[row,row with {ServerSequence=2}],"count"=>Enumerable.Range(1,51).Select(x=>Row(x)).ToArray(),"emptyMore"=>[],_=>[row]};
+        IReadOnlyList<ProfileListRow> rows=kind switch {"recipient"=>[Row(1),row with {ServerSequence=2}],"nullItems"=>null!,"order"=>[Row(2),row],"duplicate"=>[row,row with {ServerSequence=2}],"count"=>Enumerable.Range(1,51).Select(x=>Row(x)).ToArray(),"emptyMore"=>[],_=>[row]};
         var store=MockStore(kind=="missing"?new():new(new(rows,kind=="boundary"?-1:100,kind=="emptyMore")));
         var r=await Handler(store).HandleAsync(new(Actor,Access,null,null));Assert.Contains("persistence_unavailable",r.Errors);Assert.Null(r.Data);
     }

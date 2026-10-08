@@ -19,7 +19,10 @@ Ownership, current selected-profile scope, trash and terminal erasure are checke
 before ordering and pagination on every page, in one database statement. Collection
 grants do not grant access to somebody else's profiles. A selected session sees
 only its owned active selected profile. Current expiry, policy and revocation apply
-even when a cursor was issued earlier. Profile access issuance belongs to UC15.
+even when a cursor was issued earlier. Invalid or duplicate sequences in permitted
+profiles fail the whole page closed; hidden rows cannot trigger that diagnostic.
+A returned owner wrapper must name the authenticated identity as recipient.
+Profile access issuance belongs to UC15.
 
 Ordering uses increasing server sequence. The initial permitted high watermark
 excludes later inserts/edits; sequence gaps and filtered profiles do not consume

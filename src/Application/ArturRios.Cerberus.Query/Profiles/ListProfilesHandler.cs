@@ -51,6 +51,7 @@ public sealed class ListProfilesHandler(IProfileListStore store, CerberusOptions
             }
             catch (JsonException) { return output.WithError("persistence_unavailable"); }
             if (envelope?.IsValid() != true || wrappers?.IsValid() != true || wrappers.MasterKeyWrapper.GrantId != row.ProfileId
+                || wrappers.MasterKeyWrapper.RecipientIdentityId != query.Actor
                 || wrappers.MasterKeyWrapper.GrantRevision > row.Revision || wrappers.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch)
                 return output.WithError("persistence_unavailable");
             items.Add(new(row.ProfileId, row.Revision, row.ServerSequence, row.EditedAt, envelope, wrappers)); previous = row.ServerSequence;

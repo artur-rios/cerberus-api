@@ -72,6 +72,21 @@ public class ProfileListStoreTests(PostgresFixture fixture)
     [FunctionalFact]
     public async Task GivenCancellation_WhenListing_ThenPropagate()
     {using var ct=new CancellationTokenSource();ct.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>Store().ListAsync(new(Guid.NewGuid(),"a",1,0,null),ct.Token));}
+    [FunctionalTheory][InlineData("zero")][InlineData("negative")][InlineData("excessive")][InlineData("duplicate")]
+    public async Task GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(string kind)
+    {
+        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var first=await Add(s,owner,scoped);var second=await Add(s,owner,scoped);
+        await using(var db=fixture.CreateContext())await db.Profiles.Where(x=>x.PublicId==second.ProfileId).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.ServerSequence,kind=="zero"?0:kind=="negative"?-1:kind=="excessive"?long.MaxValue:first.ServerSequence));
+        var result=await Store().ListAsync(new(s.Actor,s.Verifier,1,0,null),default);Assert.Equal("persistence_unavailable",result.Error);Assert.Null(result.Data);
+        await using var check=fixture.CreateContext();Assert.Equal(2,await check.Profiles.CountAsync(x=>x.AccountId==s.InternalId));
+    }
+    [FunctionalFact]
+    public async Task GivenCorruptInaccessibleSequences_WhenListing_ThenDoNotDiscloseOrDenyUnrelatedOwner()
+    {
+        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var foreign=await ProfileSetup.Create(fixture,owner);var hidden=await Add(s,owner,scoped);var other=await Add(foreign,owner,scoped);var visible=await Add(s,owner,scoped);
+        await using(var db=fixture.CreateContext()){await db.Profiles.Where(x=>x.PublicId==hidden.ProfileId).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.DeletedAt,DateTimeOffset.UtcNow).SetProperty(p=>p.ServerSequence,0));await db.Profiles.Where(x=>x.PublicId==other.ProfileId).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.ServerSequence,0));}
+        var result=await Store().ListAsync(new(s.Actor,s.Verifier,1,0,null),default);Assert.Null(result.Error);Assert.Equal(visible.ProfileId,Assert.Single(result.Data!.Items).ProfileId);
+    }
     private ProfileListStore Store()=>new(fixture);
     private async Task<ProfileCreateDetails> Add(ProfileSetup.State s,ProtectionFixture owner,ProtectionFixture scoped)
     {var r=await new ProfileCreateStore(fixture).CreateAsync(new(s.Actor,s.Verifier,ProfileSetup.Input(s,owner,scoped)),default);Assert.Null(r.Error);return r.Data!;}

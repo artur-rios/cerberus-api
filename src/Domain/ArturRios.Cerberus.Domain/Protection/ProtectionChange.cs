@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Profiles;
+using ArturRios.Cerberus.Domain.Resources;
 
 namespace ArturRios.Cerberus.Domain.Protection;
 
@@ -13,16 +14,20 @@ public sealed record ContentReplacement(string ResourceKind, Guid ResourceId, lo
 public sealed record ProtectionChange(Guid AccountId, long ExpectedProtectionRevision, long ExpectedAccountRevision,
     string Mode, ProtectionMaterial Material, ContentReplacement[] ContentReplacements)
 {
+    public CollectionGrantReplacement[] GrantReplacements { get; init; } = [];
     public bool IsValid() => AccountId != Guid.Empty
         && ExpectedProtectionRevision is > 0 and <= ProtocolBinary.MaxInteger
         && ExpectedAccountRevision is > 0 and <= ProtocolBinary.MaxInteger
-        && Material?.IsValid() == true && ContentReplacements is not null
-        && (Mode == "rewrap" ? ContentReplacements.Length == 0
+        && Material?.IsValid() == true && ContentReplacements is not null && GrantReplacements is not null
+        && GrantReplacements.All(g=>g is not null && g.GrantId!=Guid.Empty && g.ExpectedRevision is >0 and <=ProtocolBinary.MaxInteger && g.KeyEnvelope?.IsValid()==true)
+        && GrantReplacements.Select(g=>g.GrantId).Distinct().Count()==GrantReplacements.Length
+        && (Mode == "rewrap" ? ContentReplacements.Length == 0 && GrantReplacements.Length == 0
             : Mode == "rotate-content" && ContentReplacements.Length > 0
                 && ContentReplacements.All(item => item is not null && item.ResourceId != Guid.Empty
                     && item.ExpectedRevision is > 0 and <= ProtocolBinary.MaxInteger && item.Envelope?.IsValid() == true
                     && (item.ResourceKind == "account" ? item.ResourceId == AccountId && item.ExpectedRevision == ExpectedAccountRevision && item.KeyWrappers is null
-                        : item.ResourceKind == "profile" && item.KeyWrappers?.IsValid() == true))
+                        : item.ResourceKind == "profile" ? item.KeyWrappers?.IsValid() == true
+                        : item.ResourceKind is "record" or "folder" or "collection" && item.KeyWrappers is null))
                 && ContentReplacements.Count(item => item.ResourceKind == "account") == 1
                 && ContentReplacements.Select(item => (item.ResourceKind,item.ResourceId)).Distinct().Count() == ContentReplacements.Length);
 

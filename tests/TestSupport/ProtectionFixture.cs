@@ -50,6 +50,8 @@ public sealed class ProtectionFixture : IDisposable
         var wrapper=Wrap(owner,"collection",collection,identity,epoch,revision) with {GrantId=grant,RecipientKeyFingerprint=recipient.Fingerprint()};
         return wrapper with {Signature=Encode(_author.SignData(wrapper.SigningBytes(owner,"collection",collection),HashAlgorithmName.SHA256,DSASignatureFormat.IeeeP1363FixedFieldConcatenation))};
     }
+    public RecipientEnvelope SignGrant(RecipientEnvelope wrapper,Guid owner,Guid collection)=>wrapper with
+    {Signature=Encode(_author.SignData(wrapper.SigningBytes(owner,"collection",collection),HashAlgorithmName.SHA256,DSASignatureFormat.IeeeP1363FixedFieldConcatenation))};
     public string SignRecovery(VaultProofChallenge challenge) => Encode(_recovery.SignData(VaultProof.SigningBytes(challenge), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
     public string Sign(VaultProofChallenge challenge) => Encode(Unlock.SignData(VaultProof.SigningBytes(challenge), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
     public void Dispose() { Unlock.Dispose(); _recovery.Dispose(); _recipient.Dispose(); _author.Dispose(); }

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Protection;
+using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.TestSupport;
 
 namespace ArturRios.Cerberus.Domain.Tests;
@@ -74,6 +75,24 @@ public class ProtectionChangeTests
             _=>raw.Replace("\"crv\":","\"d\":\"private\",\"crv\":")
         };
         Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<ProtectionChange>(raw,ProtectionFixture.Json));
+    }
+
+    [UnitTheory][InlineData("record")][InlineData("folder")][InlineData("collection")]
+    public void GivenTypedResourceAndNativeGrantManifest_WhenValidating_ThenAcceptCompleteShape(string kind)
+    {
+        using var client=new ProtectionFixture();var c=Valid(client,"rotate-content");var id=Guid.NewGuid();var grant=Guid.NewGuid();
+        c=c with {ContentReplacements=[..c.ContentReplacements,new(kind,id,1,c.ContentReplacements[0].Envelope)],
+            GrantReplacements=[new(grant,1,client.WrapGrant(c.AccountId,id,grant,Guid.NewGuid(),client.Material.RecipientKey,2,2))]};
+        Assert.True(c.IsValid());
+    }
+    [UnitTheory][InlineData("null")][InlineData("nullItem")][InlineData("emptyId")][InlineData("zeroRevision")][InlineData("unsafeRevision")][InlineData("nullKey")][InlineData("invalidKey")][InlineData("duplicate")][InlineData("rewrapGrant")][InlineData("resourceWrappers")]
+    public void GivenMalformedGrantManifestOrResourceWrapper_WhenValidating_ThenReject(string kind)
+    {
+        using var client=new ProtectionFixture();var c=Valid(client,"rotate-content");var id=Guid.NewGuid();var grant=Guid.NewGuid();var g=new CollectionGrantReplacement(grant,1,client.WrapGrant(c.AccountId,id,grant,Guid.NewGuid(),client.Material.RecipientKey,2,2));
+        c=c with {GrantReplacements=kind switch {"null"=>null!,"nullItem"=>[null!],"emptyId"=>[g with {GrantId=Guid.Empty}],"zeroRevision"=>[g with {ExpectedRevision=0}],"unsafeRevision"=>[g with {ExpectedRevision=ProtocolBinary.MaxInteger+1}],"nullKey"=>[g with {KeyEnvelope=null!}],"invalidKey"=>[g with {KeyEnvelope=g.KeyEnvelope with {Format="bad"}}],"duplicate"=>[g,g],_=>[g]}};
+        if(kind=="rewrapGrant")c=c with {Mode="rewrap",ContentReplacements=[]};
+        if(kind=="resourceWrappers")c=c with {ContentReplacements=[..c.ContentReplacements,new("record",id,1,c.ContentReplacements[0].Envelope,new("Master",client.Material.UnlockVerifier,client.Wrap(c.AccountId,"record",id,Guid.NewGuid()),null))]};
+        Assert.False(c.IsValid());
     }
 
     private static ProtectionChange Valid(ProtectionFixture client,string mode)

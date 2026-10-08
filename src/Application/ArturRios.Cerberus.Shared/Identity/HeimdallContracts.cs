@@ -8,6 +8,8 @@ public sealed record HeimdallRegistration(string Name, string Email, string Pass
 
 public interface IHeimdallClient
 {
+    Task<ArturRios.Cerberus.Domain.Accounts.RegistrationIdentity> EstablishRegistrationIdentityAsync(
+        HeimdallRegistration registration, string? proofToken, CancellationToken cancellationToken);
     Task<HeimdallLogin?> LoginAsync(string email, string password, CancellationToken cancellationToken);
     Task<HeimdallLogin?> CompleteChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken);
     Task<HeimdallPerson?> RegisterAsync(HeimdallRegistration registration, CancellationToken cancellationToken);

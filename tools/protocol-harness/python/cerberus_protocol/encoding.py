@@ -84,13 +84,20 @@ def _unicode_tree(value):
 
 
 def parse(raw: bytes, required: set[str], optional: set[str], max_bytes: int = MAX_REQUEST) -> dict:
+    return fields(parse_object(raw, max_bytes), required, optional)
+
+
+def parse_object(raw: bytes, max_bytes: int = MAX_REQUEST) -> dict:
+    """Strict syntax only. Owning contracts must still validate exact field sets."""
     if type(raw) is not bytes or type(max_bytes) is not int or max_bytes < 1 or len(raw) > max_bytes or raw.startswith(b'\xef\xbb\xbf'):
         raise ProtocolError()
     try:
         result = json.loads(raw.decode("utf-8", errors="strict"), object_pairs_hook=_pairs,
                             parse_int=_parsed_integer, parse_float=_invalid_number, parse_constant=_invalid_number)
         _unicode_tree(result)
-        return fields(result, required, optional)
+        if type(result) is not dict:
+            raise ProtocolError()
+        return result
     except (ValueError, UnicodeError, RecursionError, TypeError):
         raise ProtocolError() from None
 

@@ -9,10 +9,11 @@ directory; its tests do not count toward production coverage.
 ## Current implementation
 
 Strict encoding, primitives, P256 key/signature handling, context-bound content
-envelopes, scoped password/recovery bundles and signed recipient wrapping are
-implemented and tested independently (119 Java tests and 97 Python tests). Known-answer selections
+envelopes, scoped password/recovery bundles, signed recipient wrapping and
+exact-body challenge proofs are implemented and tested independently
+(131 Java tests and 109 Python tests). Known-answer selections
 and source hashes/licenses are in [fixtures/sources.json](fixtures/sources.json).
-Challenge proofs, atomic recovery state, lease verification,
+Atomic recovery state, lease verification,
 cross-language evidence and benchmarks are subsequent tasks
 in [the approved plan](../../docs/superpowers/plans/2026-10-07-protocol-harness.md).
 There is no successful interoperability or benchmark claim at this stage.
@@ -171,3 +172,19 @@ An increasing directory revision and the previously pinned author's signature
 authorize each role-specific transition. New-key self-signatures, role reuse and
 cross-account transitions fail without changing pins. Revocation excludes future
 wrappers; it cannot erase roots already copied by an earlier recipient.
+
+## Challenge proofs
+
+Challenge signatures bind the exact original bounded UTF-8 JSON body hash, not a
+parsed/reserialized body. Property-order or whitespace changes need a new proof.
+The strict parser rejects duplicate fields recursively, malformed Unicode/BOM,
+noninteger number tokens and compressed/non-JSON bytes; each owning operation
+still validates its own exact body field set. Challenge/signature inputs are
+separate from the operation body, where the idempotency key belongs.
+
+The explicit operation, authenticated identity, account/scope, epoch, revision,
+nullable recovery generation and exclusive 60-second window all bind the proof.
+Only the caller's externally registered scoped/purpose verifier is accepted.
+Issuing a challenge creates neither vault access nor a session. These stateless
+helpers do not establish registry membership or consume challenges; the following
+atomic recovery reference model owns those state checks.

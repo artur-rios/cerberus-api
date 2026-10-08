@@ -60,6 +60,10 @@ public final class ProtocolJson {
         return (Map<String,Object>)map;
     }
     public static Map<String,Object> parse(byte[] raw,Set<String> required,Set<String> optional,int maxBytes) {
+        return fields(object(raw,maxBytes),required,optional);
+    }
+    /** Strict syntax only; owning contracts still validate exact field sets. */
+    public static Map<String,Object> object(byte[] raw,int maxBytes) {
         if (raw==null || maxBytes<1 || raw.length>maxBytes) throw new ProtocolError();
         try {
             String decoded=StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
@@ -69,7 +73,8 @@ public final class ProtocolJson {
                 if (parser.nextToken()==null) throw new ProtocolError();
                 Object result=read(parser);
                 if (parser.nextToken()!=null) throw new ProtocolError();
-                return fields(result,required,optional);
+                if(!(result instanceof Map<?,?> map)) throw new ProtocolError();
+                return fields(map,map.keySet().stream().map(key->text(key,false)).collect(java.util.stream.Collectors.toSet()),Set.of());
             }
         } catch (Exception | StackOverflowError ex) { throw new ProtocolError(); }
     }

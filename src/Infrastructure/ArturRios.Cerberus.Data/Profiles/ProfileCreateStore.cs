@@ -46,6 +46,7 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
             if(resolved.Error is not null)return new(Error:resolved.Error);
             if(await db.Profiles.AnyAsync(x=>x.PublicId==input.ProfileId,cancellationToken)
                 || await db.TerminalErasures.AnyAsync(x=>x.ResourceId==input.ProfileId,cancellationToken))return new(Error:"revision_conflict");
+            if(!await ProfileVerifierIsolation.IsUniqueAsync(db,account.Id,input.KeyWrappers.UnlockVerifier,null,cancellationToken))return new(Error:"validation_failed");
             var envelope=JsonSerializer.SerializeToUtf8Bytes(input.Envelope,Json);var wrappers=JsonSerializer.SerializeToUtf8Bytes(input.KeyWrappers,Json);
             // Normalize before binding: provider truncation is relative to its 2000 epoch.
             var editedAt=input.EditedAt.AddTicks(-(input.EditedAt.Ticks%TimeSpan.TicksPerMicrosecond));

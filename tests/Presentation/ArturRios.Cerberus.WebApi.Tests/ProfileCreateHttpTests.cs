@@ -136,7 +136,7 @@ public class ProfileCreateHttpTests(RegistrationApiFixture fixture):WebApiTest<P
         using(var denied=await Rotate(raw,challenge,client,s.Access))await Failure(denied,400);Assert.Equal(before,await Snapshot(s));
         raw=Bytes(c);challenge=await Challenge(raw,"change-protection");using(var rotated=await Rotate(raw,challenge,client,s.Access))Assert.Equal(HttpStatusCode.OK,rotated.StatusCode);
         await using var db=fixture.Context();var p=await db.Profiles.SingleAsync(x=>x.PublicId==input.ProfileId);Assert.Equal(2,p.Revision);Assert.Equal(c.ContentReplacements[1].KeyWrappers,JsonSerializer.Deserialize<ProfileKeyWrappers>(p.KeyWrappers,ProtectionFixture.Json));
-        s=s with {Access=await Unlock(client,2)};using var next=await Send(Bytes(Input(s,client,scoped)),s.Access);Assert.Equal(HttpStatusCode.Created,next.StatusCode);
+        s=s with {Access=await Unlock(client,2)};using var nextScoped=new ProtectionFixture();using var next=await Send(Bytes(Input(s,client,nextScoped)),s.Access);Assert.Equal(HttpStatusCode.Created,next.StatusCode);
     }
     [FunctionalTheory][InlineData(1,400)][InlineData(9,400)][InlineData(10,201)]
     public async Task GivenTimestampAtMinimumStorageBoundary_WhenCreating_ThenRejectUnrepresentableWithoutBreakingReads(long ticks,int expectedStatus)

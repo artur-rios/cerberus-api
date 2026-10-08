@@ -33,7 +33,8 @@ public class ProfileReadHttpTests(RegistrationApiFixture fixture):WebApiTest<Pro
         Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(owner);using var response=await Send((kind=="missing"?Guid.NewGuid():input.ProfileId).ToString(),s.Access);await Failure(response,404,"not_found");Assert.Equal(before,await Snapshot(owner));}
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenValidSelectedSession_WhenGetting_ThenSelectionSucceedsAndOtherOwnProfile404(bool otherTarget)
-    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var one=await Add(s,f,scoped);var two=await Add(s,f,scoped);await using(var db=fixture.Context()){var p=await db.Profiles.SingleAsync(x=>x.PublicId==one.ProfileId);await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ProfileId,p.Id));}
+    {
+        using var additionalScoped1=new ProtectionFixture();using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var one=await Add(s,f,scoped);var two=await Add(s,f,additionalScoped1);await using(var db=fixture.Context()){var p=await db.Profiles.SingleAsync(x=>x.PublicId==one.ProfileId);await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ProfileId,p.Id));}
         Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(s);using var response=await Send((otherTarget?two.ProfileId:one.ProfileId).ToString(),s.Access);if(otherTarget)await Failure(response,404,"not_found");else Assert.Equal(one.ProfileId,(await Profile(response)).ProfileId);Assert.Equal(before,await Snapshot(s));}
     [FunctionalTheory][InlineData("bad")][InlineData("00000000-0000-0000-0000-000000000000")]
     [InlineData("ABCDEFAB-1234-4321-ABCD-123456789ABC")][InlineData("abcdefab12344321abcd123456789abc")]

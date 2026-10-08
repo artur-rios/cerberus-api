@@ -26,7 +26,8 @@ public class ProfileCreateStoreTests(PostgresFixture fixture)
         Assert.Equal(s.InternalId,row.AccountId);Assert.Equal(input.EditedAt.ToUnixTimeMilliseconds(),row.EditedAt.ToUnixTimeMilliseconds());
         Assert.Equal(input.Envelope,JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope,ProtectionFixture.Json));
         Assert.Equal(input.KeyWrappers,JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers,ProtectionFixture.Json));Assert.Null(row.DeletedAt);Assert.Null(row.PurgeAt);
-        var second=await Store().CreateAsync(new(s.Actor,s.Verifier,ProfileSetup.Input(s,client,scoped,mode)),default);
+        using var secondScoped=new ProtectionFixture();
+        var second=await Store().CreateAsync(new(s.Actor,s.Verifier,ProfileSetup.Input(s,client,secondScoped,mode)),default);
         Assert.Null(second.Error);Assert.True(second.Data!.ServerSequence>result.Data.ServerSequence);
         Assert.Equal(s.AccountEnvelope,(await db.Accounts.SingleAsync(x=>x.Id==s.InternalId)).DetailsEnvelope);
         Assert.Equal(1,(await db.VaultProtections.SingleAsync(x=>x.AccountId==s.InternalId)).Revision);

@@ -3,6 +3,7 @@ namespace ArturRios.Cerberus.Shared.Identity;
 public sealed record HeimdallLogin(string? Token, DateTimeOffset? ExpiresAt, bool? EmailVerified,
     bool RequiresTwoFactor, string? ChallengeToken, IReadOnlyList<string>? AvailableMethods);
 public sealed record HeimdallPerson(Guid Id, Guid? ScopeId, int Role, bool IsDeleted, IReadOnlyList<Guid>? OwnedScopeIds);
+[System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
 public sealed record HeimdallRegistration(string Name, string Email, string Password);
 
 public interface IHeimdallClient

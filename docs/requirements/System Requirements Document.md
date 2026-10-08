@@ -544,12 +544,12 @@ new access from an unchecked local cache.
 | NFR-09 | Quality | The system shall meet the approved merged line-coverage floor of 90% and report branch coverage. |
 | NFR-10 | Privacy | The system shall document purposes, metadata exposure, data-subject procedures, retention and recipient/backup deletion behavior before beta release. |
 | NFR-11 | Protocol | The system shall block encryption/recovery implementation until the versioned protocol passes the approved security and client-interoperability review. |
+| NFR-12 | Operability | The system shall provide redacted health/diagnostic results without revealing connection credentials or vault contents. |
 
 Development exception authorized by the owner on 2026-10-08: defer NFR-11's independent
 review prerequisite while implementing the open backlog into `develop`. The approval
 manifest remains pending and release validation still requires actual review. The exact
 scope and instruction are recorded in [development review deferral](../security/development-review-deferral.json).
-| NFR-12 | Operability | The system shall provide redacted health/diagnostic results without revealing connection credentials or vault contents. |
 
 No numerical latency, throughput or availability thresholds are defined for the beta by the
 approved decision. Measure them without treating invented numbers as acceptance criteria.

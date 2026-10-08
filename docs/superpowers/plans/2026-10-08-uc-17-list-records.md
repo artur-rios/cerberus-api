@@ -99,8 +99,8 @@ Expected RED: missing Query. GREEN whole Query; commit.
 Interfaces: consumes Task1/2; produces Task4 controller/DI/public contract. No grant
 key blobs, owner profiles or potentially out-of-scope folder IDs in list output.
 
-- [ ] Write specified failing tests, run and read expected RED before product code.
-- [ ] Implement this task, run named whole-family verification, read zero failures/skips and commit.
+- [x] Write specified failing tests, run and read expected RED before product code.
+- [x] Implement this task, run named whole-family verification, read zero failures/skips and commit.
 
 ### Task 4: HTTP record listing and complete delivery
 

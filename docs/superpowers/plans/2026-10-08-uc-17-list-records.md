@@ -75,8 +75,8 @@ Expected RED: missing RecordListStore; GREEN whole Data. Commit.
 Interfaces: consumes Task1 schema/contracts, returns RecordListPage with strictly
 current SQL visibility/native-grant validation; Task3 handles public projection/cursor.
 
-- [ ] Write specified failing tests, run and read expected RED before product code.
-- [ ] Implement this task, run named whole-family verification, read zero failures/skips and commit.
+- [x] Write specified failing tests, run and read expected RED before product code.
+- [x] Implement this task, run named whole-family verification, read zero failures/skips and commit.
 
 ### Task 3: Record cursor, strict projection and Query
 

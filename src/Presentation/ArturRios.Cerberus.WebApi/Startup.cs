@@ -53,6 +53,9 @@ public static class Startup
         builder.Services.AddScoped<QueryMediator>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
+        builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
+        builder.Services.AddScoped<IValidator<UpdateAccountCommand>, UpdateAccountValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<UpdateAccountCommand, UpdateAccountOutput>, UpdateAccountHandler>();
         builder.Services.AddScoped<IValidator<RegisterAccountCommand>, RegisterAccountValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<RegisterAccountCommand, RegisterAccountOutput>, RegisterAccountHandler>();
         builder.Services.AddScoped<IRegistrationStore, RegistrationStore>();

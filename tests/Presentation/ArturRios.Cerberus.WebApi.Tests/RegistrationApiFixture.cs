@@ -25,7 +25,8 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
     private int _identityCalls;
     public int IdentityCalls => Volatile.Read(ref _identityCalls);
     public ConcurrentDictionary<string, User> Users { get; } = new(StringComparer.OrdinalIgnoreCase);
-    public sealed record User(Guid Id, string Password, bool Mfa = false);
+    private ConcurrentDictionary<string, Guid> Challenges { get; } = new();
+    public sealed record User(Guid Id, string Password, bool Mfa = false, bool Deleted = false, bool IdentityUnavailable = false);
 
     public async Task InitializeAsync()
     {
@@ -43,11 +44,23 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
         _identity.MapPost("/api/auth/login", (LoginInput input) =>
         {
             if (input.Email.StartsWith("unavailable-", StringComparison.Ordinal)) return Results.StatusCode(503);
+            if (input.Email.StartsWith("forbidden-login-", StringComparison.Ordinal)) return Results.StatusCode(403);
+            if (input.Email.StartsWith("malformed-", StringComparison.Ordinal)) return Envelope(new { token = "invalid" });
             if (input.ScopeId != Scope || !Users.TryGetValue(input.Email, out var user) || input.Password != user.Password)
                 return Results.StatusCode(401);
-            return user.Mfa
-                ? Envelope(new { requiresTwoFactor = true, challengeToken = "fixture-challenge", availableMethods = new[] { "App" } })
-                : Envelope(new { requiresTwoFactor = false, token = Token(user.Id), expiresAt = DateTimeOffset.UtcNow.AddMinutes(5), emailVerified = true });
+            if (user.Mfa)
+            {
+                var challenge = Guid.NewGuid().ToString("N");
+                Challenges[challenge] = user.Id;
+                return Envelope(new { requiresTwoFactor = true, challengeToken = challenge, availableMethods = new[] { "App" } });
+            }
+            return Envelope(new { requiresTwoFactor = false, token = Token(user.Id, input.Email.StartsWith("foreign-", StringComparison.Ordinal) ? Guid.NewGuid() : Scope), expiresAt = DateTimeOffset.UtcNow.AddMinutes(5), emailVerified = true });
+        });
+        _identity.MapPost("/api/auth/2fa/verify", (ChallengeInput input) =>
+        {
+            if ((input.Code != "123456" && input.RecoveryCode != "fixture-recovery-code") || !Challenges.TryRemove(input.ChallengeToken, out var id))
+                return Results.StatusCode(401);
+            return Envelope(new { token = Token(id), expiresAt = DateTimeOffset.UtcNow.AddMinutes(5), emailVerified = true });
         });
         _identity.MapPost("/api/scopes/{scope:guid}/persons", (Guid scope, HeimdallRegistration input, HttpContext request) =>
         {
@@ -60,7 +73,7 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
         _identity.MapGet("/api/persons/{id:guid}", (Guid id) =>
         {
             var user = Users.Values.SingleOrDefault(x => x.Id == id);
-            return user is null ? Results.StatusCode(404) : Person(user);
+            return user is null ? Results.StatusCode(404) : user.IdentityUnavailable ? Results.StatusCode(503) : Person(user);
         });
         await _identity.StartAsync();
         var address = _identity.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.Single();
@@ -110,13 +123,14 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
         foreach (var (key, value) in _previous) Environment.SetEnvironmentVariable(key, value);
         Directory.Delete(_ledger, recursive: true);
     }
-    public static string Token(Guid id) => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,
-        new Dictionary<string, string> { ["id"] = id.ToString(), ["roleId"] = "3", ["scopeId"] = Scope.ToString() }));
+    public static string Token(Guid id, Guid? scope = null) => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,
+        new Dictionary<string, string> { ["id"] = id.ToString(), ["roleId"] = "3", ["scopeId"] = (scope ?? Scope).ToString() }));
     private static string ServiceToken() => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,
         new Dictionary<string, string> { ["id"] = Guid.Parse("527a1001-8ef5-4c9b-a565-333333333333").ToString(), ["roleId"] = "2", ["ownedScopeIds"] = Scope.ToString() }));
-    private static IResult Person(User user) => Envelope(new { id = user.Id, name = "Fixture Owner", email = "fixture@example.test", role = 3, scopeId = Scope, isDeleted = false, emailVerified = true, twoFactorEnabled = user.Mfa, ownedScopeIds = Array.Empty<Guid>() });
+    private static IResult Person(User user) => Envelope(new { id = user.Id, name = "Fixture Owner", email = "fixture@example.test", role = 3, scopeId = Scope, isDeleted = user.Deleted, emailVerified = true, twoFactorEnabled = user.Mfa, ownedScopeIds = Array.Empty<Guid>() });
     private static IResult Envelope(object data) => Results.Json(new { success = true, errors = Array.Empty<string>(), messages = Array.Empty<string>(), data });
     private sealed record LoginInput(string Email, string Password, Guid ScopeId);
+    private sealed record ChallengeInput(string ChallengeToken, string? Code, string? RecoveryCode);
 }
 
 [CollectionDefinition("Registration host", DisableParallelization = true)]

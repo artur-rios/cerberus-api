@@ -1,6 +1,7 @@
 using ArturRios.Cerberus.Data;
 using ArturRios.Cerberus.Data.Accounts;
 using ArturRios.Cerberus.Command.Accounts;
+using ArturRios.Cerberus.Command.Authentication;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Mediator.Command;
 using ArturRios.Mediator.Command.Interfaces;
@@ -49,6 +50,11 @@ public static class Startup
         builder.Services.AddScoped<IValidator<RegisterAccountCommand>, RegisterAccountValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<RegisterAccountCommand, RegisterAccountOutput>, RegisterAccountHandler>();
         builder.Services.AddScoped<IRegistrationStore, RegistrationStore>();
+        builder.Services.AddScoped<IValidator<LoginCommand>, LoginValidator>();
+        builder.Services.AddScoped<IValidator<VerifyChallengeCommand>, VerifyChallengeValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<LoginCommand, AuthenticationOutput>, AuthenticationHandler>();
+        builder.Services.AddScoped<ICommandHandlerAsync<VerifyChallengeCommand, AuthenticationOutput>, AuthenticationHandler>();
+        builder.Services.AddScoped<IAccountAuthenticationStore, AccountAuthenticationStore>();
         builder.Services.AddDbContextFactory<AppDbContext>(configuration => configuration.UseNpgsql(options.ConnectionString));
         builder.Services.AddHttpClient<IHeimdallClient, HeimdallClient>(client =>
             {

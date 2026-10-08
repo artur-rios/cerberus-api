@@ -10,7 +10,7 @@
 
 **Spec:** [System Requirements](../../requirements/System%20Requirements%20Document.md), [Operations & Infrastructure](../../requirements/Operations%20%26%20Infrastructure%20Document.md), [Use Case Specification](../../requirements/Use%20Case%20Specification%20Document.md), [Technology Stack](../../requirements/Technology%20Stack%20Document.md) and [Testing Specification](../../requirements/Testing%20Specification%20Document.md).
 
-**Status:** Batch authorized by the user's “Yes, go ahead”. Foundation tasks are implemented, tested and reviewed in PR #57; required CI gates its merge. All 55 business use cases remain Todo. Beta setting design inputs are approved; independent protocol review is still pending and blocks dependent implementation.
+**Status:** Batch authorized by the user's “Yes, go ahead”. Foundation PR #57 and protocol harness PR #58 are merged. All 55 business use cases remain Todo. On 2026-10-08 the owner explicitly deferred independent security/client review for development and instructed implementation to continue. See `docs/security/development-review-deferral.json`. Actual review remains pending and required before release.
 
 ## Global Constraints
 
@@ -24,7 +24,7 @@
 - Required merged line coverage is at least 90%; report branch coverage.
 - Run the complete application suite for each issue, plus applicable contract, formatting and infrastructure checks.
 - Require successful `branch-policy`, `test` and `docker` CI before merging; never bypass rulesets.
-- Encryption/recovery implementation requires the approved security and client-interoperability protocol review under NFR-11.
+- NFR-11 review is explicitly deferred for development by the owner on 2026-10-08; actual approval remains required for release. Do not fabricate reviewer identities or approval evidence.
 - Production configuration requires explicit operator retention values, limits and protected ledger storage.
 - Production deployment is a separately authorized action.
 
@@ -139,4 +139,4 @@ Follow the documented milestone dependencies, then specification order within ea
 - [ ] Wait for successful CI, merge without bypass, delete the merged feature branch, close the issue and set project status Done under explicit authorization.
 - [ ] Check the complete Definition of Done, sync `develop`, confirm no leftover changes and report the PR/issue/test evidence before beginning the next issue.
 
-Stop the batch on a required test failure after three fix attempts, failed CI, an unresolved merge conflict, missing/dangling requirements, ambiguous specifications, unavailable mandatory review or an unsatisfied repository rule. Preserve already-merged work and the failing branch/PR. Routine successful issue transitions do not need repeated approval once explicitly authorized for the whole batch.
+Stop the batch on a required test failure after three fix attempts, failed CI, an unresolved merge conflict, missing/dangling requirements, ambiguous specifications, unavailable mandatory review outside the owner's recorded development deferral, or an unsatisfied repository rule. Preserve already-merged work and the failing branch/PR. Routine successful issue transitions do not need repeated approval once explicitly authorized for the whole batch.

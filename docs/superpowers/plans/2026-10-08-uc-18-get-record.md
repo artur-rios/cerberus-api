@@ -58,7 +58,7 @@ Interfaces produces IRecordReadStore.ReadAsync(RecordReadRequest,ct), Details(Ro
 ProfileIds,FolderId,CollectionIds) to Task2; Task3 HTTP uses samecontract.
 
 - [x] Write specified failing tests, run and read expected RED before product code.
-- [ ] Implement this task, run named whole-family verification, read zero failures/skips and commit.
+- [x] Implement this task, run named whole-family verification, read zero failures/skips and commit.
 
 ### Task 2: Strict get-record query and output
 
@@ -78,7 +78,7 @@ RED missingGetRecordQuery/Handler, then wholeQueryGREEN. Commit.
 Interfaces consumes Task1, exposes QueryMediator handler/output to Task3. No cursor
 or new public owner/protection/native grant fields.
 
-- [ ] Write specified failing tests, run and read expected RED before product code.
+- [x] Write specified failing tests, run and read expected RED before product code.
 - [ ] Implement this task, run named whole-family verification, read zero failures/skips and commit.
 
 ### Task 3: HTTP record get and complete delivery

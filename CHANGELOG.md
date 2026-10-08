@@ -28,6 +28,7 @@ development into `develop` only; it is still required before any release.
   updating Heimdall identity details (UC-05).
 - Vault protection: initializing and changing it, recovering vault access and refreshing the recovery key
   (UC-38 to UC-41).
-- Creating profiles and listing the permitted ones with opaque pagination (UC-09, UC-10).
+- Creating profiles, listing the permitted ones with opaque pagination, and retrieving one within the current vault
+  scope (UC-09 to UC-11).
 
 [Unreleased]: https://github.com/artur-rios/cerberus-api/commits/develop

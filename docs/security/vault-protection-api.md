@@ -1,6 +1,6 @@
 # Vault protection and account unlock API
 
-Development contract for UC38. The independent protocol/client review is deferred
+Development contract for UC38–40. The independent protocol/client review is deferred
 by the owner; the actual approval record remains pending and release is gated.
 Use TLS at the deployed API boundary and to Heimdall. All responses are no-store.
 
@@ -143,3 +143,43 @@ invalid current handle403, unbound/expired/consumed proof401, hidden target404 a
 required dependency503 all preserve protection. After a lost response, retrieve
 current opaque protection and compare the intended revision/wrappers before retrying;
 an old expected revision cannot replace the winner or recover a plaintext key.
+
+## Recover vault access (UC40)
+
+Generate the replacement password/recovery wrappers and new independent recovery
+key locally. POST `/api/vault/recovery` accepts exactly `operation:"recover"`,
+`idempotencyKey` (canonical nonzero GUID), `expectedRevision` (current protection
+revision), `passwordWrapper`, `recoveryWrapper`, and `newRecoveryVerifier`.
+Both complete wrappers use slot epoch+1 and fresh keySalt/nonce/password KDF salt;
+the recovery wrapper uses generation+1 and the new verifier fingerprint. The new
+recovery key must differ from every current key role. Unlock, recipient and author
+pins and all existing content bytes/revisions stay unchanged.
+
+Obtain a `recover` challenge for the exact body's digest. Its generation is the
+current recovery generation. Sign it locally with the **old registered recovery
+private key**, then submit the original bytes with the canonical challenge/proof
+headers. No existing vault-access session is required. The signed bearer `iat`
+must be fresh on submission and after the account lock; current Heimdall identity
+is revalidated on each request. This is signed-token freshness, not a stronger
+provider authentication-event claim. Never transmit passwords, recovery secrets,
+private keys or usable encryption roots. The API returns no secret or access handle.
+
+Success200 returns exactly `status:"committed"`, `protectionRevision`, `generation`
+and `revocationGeneration`. One transaction consumes the challenge, replaces both
+wrappers and recovery verifier, increments slot/protection/recovery/revocation
+counters and stores the nonsecret idempotent outcome. Old access sessions and
+challenges become stale; the client unlocks again with the retained unlock key.
+Only one competing distinct-key request can consume the current recovery credential;
+the loser receives409 `recovery_credential_consumed`. A failed database write rolls
+back everything, allowing the identical proof to retry.
+
+After a lost response, retry the exact original bytes and idempotency key with
+current fresh identity. The durable own-account/key/body-digest result is returned
+before consumed, expired, cleaned-up challenge or current generation checks, even
+if the signature has an equivalent valid representation. This is the **original
+historical outcome**; GET latest protection before deciding what state is current.
+Reuse of the key with different original bytes returns409. Identity freshness and
+current account/provider authorization still apply to retries. Missing/invalid proof
+401, malformed input400, hidden/inactive account404 and required dependency503
+preserve state. The replacement recovery secret is displayed/stored only by the
+client; neither the stored outcome nor a replay can recover it.

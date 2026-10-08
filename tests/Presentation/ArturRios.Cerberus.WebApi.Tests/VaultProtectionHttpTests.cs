@@ -198,7 +198,7 @@ public class VaultProtectionHttpTests(RegistrationApiFixture fixture) : WebApiTe
         }
         else
         {
-            var body = JsonSerializer.Serialize(new { operation = invalid == "unknownOperation" ? "recover" : "unlock-account",
+            var body = JsonSerializer.Serialize(new { operation = invalid == "unknownOperation" ? "unsupported" : "unlock-account",
                 requestHash = invalid == "invalidHash" ? "bad" : ProtocolBinary.Encode(SHA256.HashData(UnlockBody)) });
             if (invalid == "unknownField") body = body.Insert(1,"\"owner\":\"untrusted\",");
             response = await Gateway.Client.PostAsync("/api/vault/challenges"+(invalid == "challengeQuery" ? "?owner=untrusted" : ""),new StringContent(body,Encoding.UTF8,"application/json"));

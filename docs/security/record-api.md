@@ -1,4 +1,4 @@
-# Create encrypted records (UC16)
+# Encrypted record API (UC16–17)
 
 `POST /api/records` requires a current Heimdall bearer identity and one canonical
 `X-Cerberus-Vault-Access` opaque handle. The server derives ownership from that
@@ -62,3 +62,72 @@ resource kinds until the separately required typed-erasure repair before physica
 purge. This endpoint does not perform physical purge or repair that reservation.
 Independent protocol-security and real-client approvals remain pending and required
 before release; development tests do not constitute those approvals.
+
+
+## List encrypted records (UC17)
+
+`GET /api/records` requires a current Heimdall identity and exactly one canonical
+`X-Cerberus-Vault-Access` handle. It accepts only optional, single `pageSize` and
+`cursor` query parameters and no request body or transfer encoding. `pageSize` is a
+positive canonical decimal within `MaxPageSize`; the default is the smaller of 50
+and that configured maximum. Search text and profile overrides are not accepted.
+Every response uses `Cache-Control: no-store`.
+
+Success is `200` with `records_found`. Data contains exactly `items` and nullable
+`nextCursor`; each item contains exactly `recordId`, `revision`, `serverSequence`,
+`editedAt` and the native encrypted `envelope`. An empty visible inventory returns
+an empty array and no cursor. Names and custom/template fields remain encrypted;
+clients decrypt for display. The response contains no owner IDs, internal IDs,
+profile/folder/collection links, grant wrappers or total counts.
+
+Account-wide access lists active owned records, including unlinked records, and
+active content included in collections shared with the actor under current native
+read-only or read/write grants. Selected-profile access lists its direct owned
+records, records beneath its directly linked owned folder roots, and included
+content in owned or shared collections actually linked to that selection. Collection
+memberships are typed record/folder links; folder inclusion dynamically includes
+records in active descendants. Overlapping routes produce one item. A record's
+complete folder ancestry must be active and nonterminal, even for a direct record
+link. Trashed/terminal resources, hidden ancestors, closing owners and revoked or
+irrelevant grants are omitted before pagination. A fully active relevant cycle
+fails `503`; a hidden ancestor takes precedence and omits that content.
+
+One PostgreSQL statement captures current account/session/selection authority,
+folder ancestry, permitted inventory, native grant evidence, boundary and page.
+Traversal starts from current permitted routes and then validates complete ancestry
+for the candidate records.
+Relevant foreign grants must bind the current collection envelope and epoch, grant
+ID/revision, owner author pin and recipient identity/key pin. Corrupt relevant native
+evidence fails the whole response `503`, including any otherwise valid owned items;
+revoked, hidden or unselected unrelated grants are not parsed. Listing performs no
+writes and does not expand a selection or grant.
+
+Pages are ordered by unique positive safe-integer server sequence, with permitted
+ordering integrity checked before keyset filtering. The first page fixes the current
+maximum visible sequence as its highwater; later inserts beyond it are excluded.
+Each continuation rechecks current permissions, so revocations can shorten or empty
+later pages. Ordinary listing is not a durable synchronization snapshot: concurrent
+edits may move content beyond the initial highwater; refresh to observe them. UC48
+provides the separate synchronization contract.
+
+Cursors are authenticated and encrypted, purpose-separated from profile-list
+cursors, and bound to actor, hashed access handle, effective page size, last sequence
+and highwater. Keep the same handle and page size when continuing. All replicas use
+the same dedicated `RegistrationFingerprintKey`; rotating it invalidates outstanding
+cursors with `400`, after which clients restart listing. The handle itself is never
+inside a cursor. No authentication-signing key is reused.
+
+Invalid query/header/body/cursor yields `400`; missing identity/handle yields `401`;
+expired, revoked, stale or invalid selected access yields `403`; a missing, closing
+or terminal actor account yields `404`; identity/persistence failure or corrupt
+visible/native authority data yields `503`. The common oversized-body guard can
+return `413` with an empty body before the GET body rejection. Errors carry no record
+payload. Stored record envelopes and safe revision/sequence/UTC microsecond metadata
+are validated before any successful response.
+
+Apply the additive `20261008224646_CollectionMembership` migration before deploying
+listing. It creates only typed collection-record and collection-folder membership
+tables and indexes, with same-owner composite foreign keys; existing encrypted rows
+and metadata remain intact. It does not introduce a collection mutation endpoint.
+The pending independent protocol/client approvals and typed-erasure obligation
+before physical purge still apply.

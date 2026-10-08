@@ -12,6 +12,13 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Encrypted record listing (UC-17) with current account-wide/selected-profile scope,
+  native recipient collection grants, direct and descendant membership, deduplicated
+  keyset pages and opaque bound cursors. One database snapshot enforces permission
+  and ancestry before pagination; responses expose only encrypted record metadata.
+  Apply the additive `CollectionMembership` migration before deployment. See the
+  [record API](docs/security/record-api.md) for cursor, visibility and error rules.
+
 - Encrypted record creation with owned profile/folder links (UC-16), including new
   content inside native selected-profile access, atomic parent metadata updates and
   rollback on failure. See [record API](docs/security/record-api.md) for the request,

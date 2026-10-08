@@ -382,6 +382,25 @@ New records enter the complete protection-rotation inventory. The separate typed
 terminal-erasure repair remains required before physical purge. See the
 [record API](../security/record-api.md) for exact scope, fields, errors and retries.
 
+### Encrypted record listing (UC17)
+
+Apply additive `20261008224646_CollectionMembership` before serving `GET /api/records`.
+The two typed link tables enforce same-owner record/folder inclusion with composite
+foreign keys; the migration preserves existing ciphertext and metadata. Public
+collection mutation remains its separate use case. Listing uses one read-only SQL
+snapshot for current session and selected scope, full folder ancestry, native
+recipient grant evidence, permitted sequence integrity, highwater and bounded page.
+Current permitted direct/member/descendant routes bound record admission before
+complete ancestry is traversed.
+Grant/public-pin evidence stays internal; output contains only five encrypted record
+fields and an opaque continuation. Hidden ancestry omits content before corruption
+checks; fully active relevant cycles or invalid relevant native grants fail `503`.
+Set `MaxPageSize` appropriately and share the dedicated `RegistrationFingerprintKey`
+among replicas. Its rotation invalidates list cursors with `400`; clients restart.
+Current permissions are re-evaluated per page; ordinary listing is not durable sync.
+No release approval or typed terminal-erasure repair is implied. See the
+[record API](../security/record-api.md) for the complete visibility/cursor contract.
+
 ### Profile creation and protection inventory (UC09)
 
 `POST /api/profiles` requires current Heimdall identity and a current account-wide

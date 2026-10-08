@@ -12,7 +12,7 @@ namespace ArturRios.Cerberus.Data.Tests;
 [Collection("PostgreSQL")]
 public class AccountUpdateStoreTests(PostgresFixture fixture)
 {
-    private static readonly DateTimeOffset Now = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset Now = new(DateTimeOffset.UtcNow.Ticks / 10 * 10, TimeSpan.Zero);
 
     [FunctionalTheory]
     [InlineData("active", null)]
@@ -112,6 +112,40 @@ public class AccountUpdateStoreTests(PostgresFixture fixture)
         Assert.Equal(input.Identity, preserved.HeimdallPublicId);
         Assert.Equal(change == "revocation", (await after.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == input.Request.Verifier)).Revoked);
         Assert.Equal(change == "erasure", await after.TerminalErasures.AnyAsync(x => x.ResourceId == input.AccountId));
+    }
+
+    [FunctionalFact]
+    public async Task GivenSessionExpiresAfterPreflight_WhenUpdating_ThenRejectAtStatementTime()
+    {
+        var input = await Setup();
+        // The preflight uses a valid captured instant. Pause only the final
+        // statement until the unchanged session expires, then execute the UPDATE.
+        var captured = DateTimeOffset.UtcNow;
+        var expires = new DateTimeOffset(captured.AddSeconds(1).Ticks / 10 * 10, TimeSpan.Zero);
+        await using (var setup = fixture.CreateContext())
+        {
+            var session = await setup.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == input.Request.Verifier);
+            session.IssuedAt = captured.AddMinutes(-10);
+            session.ExpiresAt = expires;
+            await setup.SaveChangesAsync();
+        }
+        var paused = false;
+        var before = new BeforeUpdate(async () =>
+        {
+            paused = true;
+            for (var remaining = expires - DateTimeOffset.UtcNow; remaining > TimeSpan.Zero; remaining = expires - DateTimeOffset.UtcNow)
+                await Task.Delay(remaining + TimeSpan.FromMilliseconds(20));
+        });
+        var result = await new AccountUpdateStore(new InterceptingFactory(fixture, before))
+            .UpdateAsync(input.Request with { Now = captured }, default);
+        Assert.True(paused);
+        Assert.Equal("revision_conflict", result.Error);
+        Assert.Null(result.Id);
+        await using var after = fixture.CreateContext();
+        var account = await after.Accounts.SingleAsync(x => x.PublicId == input.AccountId);
+        Assert.Equal(3, account.Revision);
+        Assert.Equal(new byte[] { 1, 2, 3 }, account.DetailsEnvelope);
+        Assert.Equal(expires, (await after.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == input.Request.Verifier)).ExpiresAt);
     }
 
     [FunctionalFact]

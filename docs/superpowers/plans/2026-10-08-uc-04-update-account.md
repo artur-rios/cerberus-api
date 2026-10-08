@@ -27,6 +27,7 @@
 - Invalid/unknown/duplicate JSON and raw empty header values must not become a valid update.
 - Dependency failure and cancellation must not return a fabricated success or alter identity linkage.
 - Revision exhaustion must fail without wraparound.
+- Access time can pass after request capture/preflight; conditional writes must use database-evaluated current statement time for issuance/expiry.
 
 ### Task 1: Atomically replace authorized account details
 
@@ -46,4 +47,4 @@
 - [x] Add unit tests for invalid metadata/revision/identity/access, exact hashed verifier and serialized envelope, success/error mapping; observe RED, implement validator/handler using TimeProvider, run Command suite GREEN.
 - [x] Add real-host HTTP tests covering main plus every AF, strict JSON/header/query input, cross-account/profile/expired/revoked access, missing/inactive/erased accounts, competing/stale revisions, identity outage and actual database failure; observe absent route RED. Implement protected PUT/trusted actor/header injection/DI/statuses; run WebApi suite GREEN.
 - [x] Generate/inspect OpenAPI; mark only UC04 done and milestone4/9. Run unfiltered coverage.py, helper/spec/contract/diff checks with >=90% line coverage, report branch. Commit verified changes and ledger.
-- [ ] One fresh final code review; one correction pass with reproduced RED→GREEN if needed. Push/open PR closing #5, wait all required CI green, merge/close/projectDone/verify remote branch deletion/sync/archive ledger under existing authorization.
+- [x] One fresh final code review; one correction pass with reproduced RED→GREEN if needed. Push/open PR closing #5, wait all required CI green, merge/close/projectDone/verify remote branch deletion/sync/archive ledger under existing authorization.

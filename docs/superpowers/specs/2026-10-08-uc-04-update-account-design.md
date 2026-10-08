@@ -19,7 +19,10 @@ current envelope bytes are never needed. Reuse the same session predicates as UC
 For an active authorized account, reject mismatched expected revision with 409.
 Perform one conditional UPDATE whose predicates recheck owner, active state, revision,
 tombstones and the valid account-wide session, changing only details and revision.
-This statement is the mutation's linearization point: concurrent writers with the
+The temporal predicates in this standalone UPDATE use PostgreSQL's current
+statement/transaction time, never the earlier captured request time. That prevents
+an access session which expires during preflight or command queuing from authorizing
+a statement that starts after expiry. This statement is the mutation's linearization point: concurrent writers with the
 same expected revision permit exactly one increment. Zero affected rows after the
 initial authorization returns 409 and preserves the winning state. A closure,
 revocation or erasure that wins before the update's snapshot prevents mutation.

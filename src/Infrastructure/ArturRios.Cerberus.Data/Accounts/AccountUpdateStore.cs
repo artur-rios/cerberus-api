@@ -13,13 +13,16 @@ public sealed class AccountUpdateStore(IDbContextFactory<AppDbContext> factory) 
         {
             await using var context = await factory.CreateDbContextAsync(cancellationToken);
             var owned = context.Accounts.AsNoTracking().Where(a => a.HeimdallPublicId == request.IdentityId);
-            var permitted = owned.Where(a => a.State == AccountState.Active
+            // Null selects PostgreSQL's current statement/transaction time. The
+            // standalone UPDATE must not reuse an older request-time timestamp.
+            IQueryable<Account> AuthorizedAt(DateTimeOffset? at) => owned.Where(a => a.State == AccountState.Active
                 && !context.TerminalErasures.Any(e => e.ResourceId == a.PublicId)
                 && context.VaultAccessSessions.Any(s => s.AccountId == a.Id && s.HandleVerifier == request.Verifier
-                    && s.ProfileId == null && !s.Revoked && s.IssuedAt <= request.Now
+                    && s.ProfileId == null && !s.Revoked && s.IssuedAt <= (at ?? DateTimeOffset.UtcNow)
                     && s.PolicyRevision > 0 && s.RevocationGeneration > 0
                     && s.PolicyRevision == a.PolicyRevision && s.RevocationGeneration == a.RevocationGeneration
-                    && (a.RenewalEnabled ? s.ExpiresAt > request.Now : s.ExpiresAt == null)));
+                    && (a.RenewalEnabled ? s.ExpiresAt > (at ?? DateTimeOffset.UtcNow) : s.ExpiresAt == null)));
+            var permitted = AuthorizedAt(request.Now);
             // Read only authorization metadata; the current envelope is never retrieved.
             var snapshot = await owned.Select(a => new
             {
@@ -33,7 +36,7 @@ public sealed class AccountUpdateStore(IDbContextFactory<AppDbContext> factory) 
 
             // The UPDATE is the linearization point. All authorization predicates and
             // the expected revision are rechecked atomically, including competing edits.
-            var changed = await permitted.Where(a => a.PublicId == snapshot.PublicId && a.Revision == request.ExpectedRevision)
+            var changed = await AuthorizedAt(null).Where(a => a.PublicId == snapshot.PublicId && a.Revision == request.ExpectedRevision)
                 .ExecuteUpdateAsync(set => set.SetProperty(a => a.DetailsEnvelope, request.DetailsEnvelope)
                     .SetProperty(a => a.Revision, a => a.Revision + 1), cancellationToken);
             return changed == 1 ? new(snapshot.PublicId, request.ExpectedRevision + 1) : new(Error: "revision_conflict");

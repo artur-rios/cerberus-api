@@ -97,7 +97,7 @@ not constitute the deferred independent security or real-client approval.
 
 Prepare strict JSON for PUT `/api/vault/protection` with exactly `accountId`,
 `expectedProtectionRevision`, `expectedAccountRevision`, `mode`, `material`,
-`contentReplacements`. Derive the actor from the bearer, never a JSON identity.
+`contentReplacements`, and optional `grantReplacements` (defaults to `[]`). Derive the actor from the bearer, never a JSON identity.
 Use the current own account-wide `X-Cerberus-Vault-Access` handle. Obtain a fresh
 `change-protection` challenge for the SHA256 of the exact prepared body and sign
 with the **current old registered unlock key**. Submit its single-valued challenge
@@ -112,21 +112,37 @@ specified authenticated transition. The server cannot inspect the encrypted bund
 clients must validate that its inner roots and private/public correspondence remain
 correct. Password change cannot destroy a recipient's already copied keys or data.
 
-`mode:"rewrap"` requires `contentReplacements:[]`. It advances the protection revision
+`mode:"rewrap"` requires `contentReplacements:[]` and an empty grant manifest. It advances the protection revision
 and slot epoch while preserving every existing account ciphertext byte and its
 revision/content epoch. The slot epoch in wrapper context is distinct from an inner
 content root's epoch, as demonstrated by the native harness rewrap vectors.
 
-`mode:"rotate-content"` replaces the complete current authoritative content set
-in the same transaction. Each replacement has `resourceKind`, `resourceId`,
-`expectedRevision`, `envelope`. The current set is exactly the own account envelope;
-use `resourceKind:"account"`, own `accountId`, the expected account revision and
-content epoch equal to the current account envelope epoch+1. Missing, duplicate,
-foreign or extra replacements fail400 before challenge consumption. The complete
-pair of protection wrappers must wrap the locally rotated inner roots. Current
-recipient-grant inventory is empty. Profile/content/grant creation flows must extend
-this completeness invariant when those entities become available; this route does
-not claim support for nonexistent selected profiles or grants.
+`mode:"rotate-content"` replaces the complete retained owned content set in the same
+transaction: the account, every profile, record, folder and collection, including trash.
+Each replacement has `resourceKind`, `resourceId`, `expectedRevision`, `envelope`;
+profiles additionally require replacement `keyWrappers`, while other kinds reject them.
+Use content epoch=current+1 with both a fresh keySalt and nonce. Profiles preserve
+unlock mode and scoped verifier, require native owner wrappers bound to the new epoch
+and revision, and refresh a per-profile password wrapper when present. Missing,
+duplicate, foreign or extra entries fail400 before proof consumption. Stale revisions
+return409; corrupt required stored native material returns503.
+
+`grantReplacements` must name exactly the active grants on owned collections,
+including retained collections. Each item contains `grantId`, `expectedRevision`,
+`keyEnvelope`. Native wrappers bind the owner's author pin, recipient's current public
+KEM pin and identity, collection/new epoch and grant/new revision, using fresh Enc and
+ciphertext. Received and revoked grants are excluded and remain byte-for-byte unchanged;
+rotation must never newly wrap a root for a revoked recipient. The complete pair of
+protection wrappers must wrap the locally rotated inner roots. No server decryption
+or real-client decryptability assertion is made.
+
+Owned resource/profile revisions and server sequences advance; collection KeyEpoch
+tracks its new envelope. Ownership, client editedAt, trash deadlines and memberships
+remain unchanged. Any invalid allocation or write failure rolls back all content,
+protection, grants and proof consumption. Future resource/grant writers must preserve
+the inventory locks: own account/session first, then owned collection rows in public-ID
+order, then grant rows in public-ID order. Never acquire a recipient account/profile
+lock after collection/grant locks; association admission uses SHARE locks in that order.
 
 Success200 returns only accountId, protectionRevision, keyEpoch (slot epoch),
 recoveryGeneration and accountRevision. Content rotation increments the account

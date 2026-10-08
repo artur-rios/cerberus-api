@@ -4,6 +4,8 @@ using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Profiles;
+using ArturRios.Cerberus.Domain.Resources;
+using ArturRios.Cerberus.Data.Resources;
 using Npgsql;
 using Microsoft.EntityFrameworkCore;
 
@@ -53,6 +55,8 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
             if (!input.IsValidTransition(current)) return new(Error: "validation_failed");
             byte[]? replacement = null;
             var profileWrites = new List<(Profile Row, ContentReplacement Replacement)>();
+            var resourceWrites = new List<(ContentReplacement Item,long PreviousSequence,Action<byte[],long> Apply)>();
+            var grantWrites = new List<(CollectionGrant Row,CollectionGrantReplacement Item)>();
             if (input.Mode == "rotate-content")
             {
                 var existing = await db.Accounts.Where(x => x.Id == a.Id).Select(x => x.DetailsEnvelope).SingleAsync(cancellationToken);
@@ -60,15 +64,22 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 if (content?.IsValid() != true) return new(Error: "persistence_unavailable");
                 if (content.KeyEpoch >= ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
                 var accountReplacement = input.ContentReplacements.Single(x => x.ResourceKind == "account");
-                if (accountReplacement.Envelope.KeyEpoch != content.KeyEpoch + 1) return new(Error: "validation_failed");
+                if (accountReplacement.Envelope.KeyEpoch != content.KeyEpoch + 1
+                    || accountReplacement.Envelope.KeySalt == content.KeySalt || accountReplacement.Envelope.Nonce == content.Nonce) return new(Error: "validation_failed");
                 replacement = JsonSerializer.SerializeToUtf8Bytes(accountReplacement.Envelope, Json);
                 // Include trash: retained ciphertext must not escape a complete rotation.
                 var profiles = await db.Profiles.Where(x => x.AccountId == a.Id).ToListAsync(cancellationToken);
-                if (input.ContentReplacements.Length != profiles.Count + 1) return new(Error: "validation_failed");
+                // Collections precede grants in the shared cross-owner lock order. The
+                // account lock serializes creation/edits of the owned inventory.
+                var records=await db.Records.Where(x=>x.AccountId==a.Id).ToListAsync(cancellationToken);
+                var folders=await db.Folders.Where(x=>x.AccountId==a.Id).ToListAsync(cancellationToken);
+                var collections=await db.Collections.FromSqlInterpolated($"SELECT c.* FROM cerberus.collection c WHERE c.account_id={a.Id} ORDER BY c.public_id FOR UPDATE").ToListAsync(cancellationToken);
+                if (input.ContentReplacements.Length != profiles.Count + records.Count + folders.Count + collections.Count + 1) return new(Error: "validation_failed");
                 var replacements = input.ContentReplacements.Where(x => x.ResourceKind == "profile").ToDictionary(x => x.ResourceId);
                 foreach (var profile in profiles)
                 {
                     if (!replacements.TryGetValue(profile.PublicId, out var item)) return new(Error: "validation_failed");
+                    if (profile.Revision is <=0 or >ProtocolBinary.MaxInteger || profile.ServerSequence is <=0 or >ProtocolBinary.MaxInteger)return new(Error:"persistence_unavailable");
                     if (profile.Revision != item.ExpectedRevision || profile.Revision >= ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
                     var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(profile.Envelope, Json);
                     var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(profile.KeyWrappers, Json);
@@ -83,6 +94,60 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                         return new(Error: "validation_failed");
                     profileWrites.Add((profile,item));
                 }
+                string? ValidateResource(string kind,Guid id,long revision,long sequence,byte[] raw,Action<byte[],long> apply,long? epoch=null)
+                {
+                    var item=input.ContentReplacements.SingleOrDefault(x=>x.ResourceKind==kind && x.ResourceId==id);
+                    if(item is null)return "validation_failed";
+                    if(revision is <=0 or >ProtocolBinary.MaxInteger || sequence is <=0 or >ProtocolBinary.MaxInteger)return "persistence_unavailable";
+                    if(revision!=item.ExpectedRevision || revision==ProtocolBinary.MaxInteger)return "revision_conflict";
+                    var envelope=JsonSerializer.Deserialize<EncryptedEnvelope>(raw,Json);
+                    if(envelope?.IsValid()!=true || epoch is not null && epoch!=envelope.KeyEpoch)return "persistence_unavailable";
+                    if(envelope.KeyEpoch==ProtocolBinary.MaxInteger)return "revision_conflict";
+                    if(item.Envelope.KeyEpoch!=envelope.KeyEpoch+1 || item.Envelope.KeySalt==envelope.KeySalt || item.Envelope.Nonce==envelope.Nonce)return "validation_failed";
+                    resourceWrites.Add((item,sequence,apply));return null;
+                }
+                foreach(var record in records)
+                {
+                    var error=ValidateResource("record",record.PublicId,record.Revision,record.ServerSequence,record.Envelope,
+                        (bytes,sequence)=>{record.Envelope=bytes;record.Revision++;record.ServerSequence=sequence;});
+                    if(error is not null)return new(Error:error);
+                }
+                foreach(var folder in folders)
+                {
+                    var error=ValidateResource("folder",folder.PublicId,folder.Revision,folder.ServerSequence,folder.Envelope,
+                        (bytes,sequence)=>{folder.Envelope=bytes;folder.Revision++;folder.ServerSequence=sequence;});
+                    if(error is not null)return new(Error:error);
+                }
+                foreach(var collection in collections)
+                {
+                    var error=ValidateResource("collection",collection.PublicId,collection.Revision,collection.ServerSequence,collection.Envelope,
+                        (bytes,sequence)=>{collection.Envelope=bytes;collection.Revision++;collection.ServerSequence=sequence;collection.KeyEpoch++;},collection.KeyEpoch);
+                    if(error is not null)return new(Error:error);
+                }
+                var collectionIds=collections.Select(x=>x.Id).ToArray();
+                var grants=await db.CollectionGrants.FromSqlInterpolated($"SELECT g.* FROM cerberus.collection_grant g WHERE g.collection_id=ANY({collectionIds}) AND g.state={CollectionGrantState.Active} ORDER BY g.public_id FOR UPDATE").ToListAsync(cancellationToken);
+                if(grants.Count!=input.GrantReplacements.Length)return new(Error:"validation_failed");
+                var recipients=grants.Select(x=>x.RecipientAccountId).Distinct().ToArray();
+                // Public pins are read without foreign account/profile locks.
+                var identities=await db.Accounts.AsNoTracking().Where(x=>recipients.Contains(x.Id)).ToDictionaryAsync(x=>x.Id,cancellationToken);
+                var pins=await db.VaultProtections.AsNoTracking().Where(x=>recipients.Contains(x.AccountId)).ToDictionaryAsync(x=>x.AccountId,cancellationToken);
+                foreach(var grant in grants)
+                {
+                    var item=input.GrantReplacements.SingleOrDefault(x=>x.GrantId==grant.PublicId);
+                    if(item is null)return new(Error:"validation_failed");
+                    if(grant.Revision is <=0 or >ProtocolBinary.MaxInteger || grant.Access is not (CollectionGrantAccess.ReadOnly or CollectionGrantAccess.ReadWrite))return new(Error:"persistence_unavailable");
+                    if(grant.Revision!=item.ExpectedRevision || grant.Revision==ProtocolBinary.MaxInteger)return new(Error:"revision_conflict");
+                    var collection=collections.Single(x=>x.Id==grant.CollectionId);
+                    if(!identities.TryGetValue(grant.RecipientAccountId,out var identity)
+                        || !CollectionGrantBinding.TryReadPins(pins.GetValueOrDefault(grant.RecipientAccountId),out var recipient)
+                        || !CollectionGrantBinding.IsBound(grant,collection,a.PublicId,identity.HeimdallPublicId,current,recipient!))return new(Error:"persistence_unavailable");
+                    var old=JsonSerializer.Deserialize<RecipientEnvelope>(grant.RecipientKeyEnvelope,Json)!;
+                    if(!item.KeyEnvelope.Verify(a.PublicId,"collection",collection.PublicId,collection.KeyEpoch+1,grant.PublicId,grant.Revision+1,
+                            identity.HeimdallPublicId,recipient!.RecipientKey,current.AuthorKey)
+                        || item.KeyEnvelope.Enc==old.Enc || item.KeyEnvelope.Ciphertext==old.Ciphertext)return new(Error:"validation_failed");
+                    grantWrites.Add((grant,item));
+                }
+
             }
             var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.PublicId == request.ChallengeId, cancellationToken);
             if (row is null || row.Consumed) return new(Error: "vault_proof_rejected");
@@ -123,7 +188,19 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 profile.Envelope = JsonSerializer.SerializeToUtf8Bytes(item.Envelope,Json);
                 profile.KeyWrappers = JsonSerializer.SerializeToUtf8Bytes(item.KeyWrappers,Json);
                 profile.Revision++;
-                profile.ServerSequence = await db.Database.SqlQuery<long>($"SELECT nextval('cerberus.server_sequence') AS \"Value\"").SingleAsync(cancellationToken);
+                var sequence=await db.Database.SqlQuery<long>($"SELECT nextval('cerberus.server_sequence') AS \"Value\"").SingleAsync(cancellationToken);
+                if(sequence<=profile.ServerSequence || sequence>ProtocolBinary.MaxInteger)return new(Error:"persistence_unavailable");
+                profile.ServerSequence=sequence;
+            }
+            foreach(var (item,previousSequence,apply) in resourceWrites)
+            {
+                var sequence=await db.Database.SqlQuery<long>($"SELECT nextval('cerberus.server_sequence') AS \"Value\"").SingleAsync(cancellationToken);
+                if(sequence<=previousSequence || sequence>ProtocolBinary.MaxInteger)return new(Error:"persistence_unavailable");
+                apply(JsonSerializer.SerializeToUtf8Bytes(item.Envelope,Json),sequence);
+            }
+            foreach(var (grant,item) in grantWrites)
+            {
+                grant.RecipientKeyEnvelope=JsonSerializer.SerializeToUtf8Bytes(item.KeyEnvelope,Json);grant.Revision++;
             }
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
@@ -145,7 +222,8 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 && signed.ExpectedProtectionRevision == input.ExpectedProtectionRevision
                 && signed.ExpectedAccountRevision == input.ExpectedAccountRevision && signed.Mode == input.Mode
                 && signed.Material == input.Material && signed.ContentReplacements is not null
-                && signed.ContentReplacements.SequenceEqual(input.ContentReplacements);
+                && signed.ContentReplacements.SequenceEqual(input.ContentReplacements)
+                && signed.GrantReplacements is not null && signed.GrantReplacements.SequenceEqual(input.GrantReplacements);
         }
         catch (JsonException) { return false; }
     }

@@ -31,7 +31,7 @@ public class ProfileListHttpTests(RegistrationApiFixture fixture):WebApiTest<Pro
         Assert.Equal(one,Assert.Single(first.Items).ProfileId);Assert.NotNull(first.NextCursor);var later=await Add(s,f,scoped);
         using var nextResponse=await Send("?pageSize=1&cursor="+first.NextCursor,s.Access);var second=await Page(nextResponse);Assert.Equal(two,Assert.Single(second.Items).ProfileId);Assert.Null(second.NextCursor);Assert.DoesNotContain(second.Items,x=>x.ProfileId==later);
         using var doc=JsonDocument.Parse(await response.Content.ReadAsStringAsync());Assert.Equal(new[]{"items","nextCursor"},doc.RootElement.GetProperty("data").EnumerateObject().Select(x=>x.Name).Order().ToArray());
-        Assert.Equal(new[]{"editedAt","envelope","keyWrappers","profileId","revision","serverSequence"},doc.RootElement.GetProperty("data").GetProperty("items")[0].EnumerateObject().Select(x=>x.Name).Order().ToArray());
+        Assert.Equal(new[]{"collectionIds","editedAt","envelope","folderIds","keyWrappers","profileId","recordIds","revision","serverSequence"},doc.RootElement.GetProperty("data").GetProperty("items")[0].EnumerateObject().Select(x=>x.Name).Order().ToArray());
         await using var check=fixture.Context();Assert.Equal(5,await check.Profiles.CountAsync(x=>x.AccountId==s.InternalId));
     }
     [FunctionalFact]

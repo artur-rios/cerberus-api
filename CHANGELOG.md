@@ -35,11 +35,21 @@ development into `develop` only; it is still required before any release.
 - Recoverable profile deletion with durable trash membership, a 30-day deadline, queued retention work and
   revocation of selected profile handles while retaining encrypted content (UC-13).
 
+- Replacing profile associations to owned records/folders and owned or explicitly shared collections, with current
+  grant checks and selected-handle scope limits (UC-14).
+- Real association IDs in profile creation, retrieval and list items; profile trash snapshots and removes its links
+  while retaining underlying resources and other profiles' memberships.
+- Complete vault content rotation covering retained owned records, folders, collections and active owned grants,
+  including trash; received and revoked grants remain unchanged.
+
 ### Fixed
 
 - Profile create/update reject client timestamps that round down to the default storage value. Accepted UTC
   timestamps are normalized down to microseconds before database binding, including dates before 2000.
 - Vault protection rotation accepts the original signed wrapper revision after profile content/metadata revisions
   advance, while binding replacement wrappers to the new revision.
+
+- Vault content rotation rejects reused account envelope salt/nonce and rolls back profile/resource sequence
+  regressions with the rest of the transaction.
 
 [Unreleased]: https://github.com/artur-rios/cerberus-api/commits/develop

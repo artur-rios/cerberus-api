@@ -1,4 +1,6 @@
 using ArturRios.Cerberus.Domain.Operations;
+using ArturRios.Cerberus.Domain.Resources;
+using ArturRios.Cerberus.Data.Configuration;
 using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Accounts;
@@ -11,6 +13,13 @@ namespace ArturRios.Cerberus.Data;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseDbContext(options)
 {
+    public DbSet<VaultRecord> Records => Set<VaultRecord>();
+    public DbSet<VaultFolder> Folders => Set<VaultFolder>();
+    public DbSet<VaultCollection> Collections => Set<VaultCollection>();
+    public DbSet<CollectionGrant> CollectionGrants => Set<CollectionGrant>();
+    public DbSet<ProfileRecord> ProfileRecords => Set<ProfileRecord>();
+    public DbSet<ProfileFolder> ProfileFolders => Set<ProfileFolder>();
+    public DbSet<ProfileCollection> ProfileCollections => Set<ProfileCollection>();
     public DbSet<TrashOperation> TrashOperations => Set<TrashOperation>();
     public DbSet<TrashEntry> TrashEntries => Set<TrashEntry>();
     public DbSet<Profile> Profiles => Set<Profile>();
@@ -29,6 +38,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("cerberus");
+        ResourceModel.Configure(modelBuilder);
         modelBuilder.HasSequence<long>("server_sequence", "cerberus").StartsAt(1).IncrementsBy(1).HasMax(ProtocolBinary.MaxInteger);
         var profile=modelBuilder.Entity<Profile>();
         profile.ToTable("profile");

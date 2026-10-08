@@ -36,6 +36,28 @@ public sealed class ProfilesController(CommandMediator commands, QueryMediator q
         return result.ToActionResult(statusMap:DeleteProfileMessages.StatusCodes);
     }
 
+    [HttpPut("{id}/associations")]
+    [VaultProofBody]
+    [ProducesResponseType(typeof(DataOutput<SetProfileAssociationsOutput>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<SetProfileAssociationsOutput?>>> SetAssociations([FromRoute]string id,[FromBody]SetProfileAssociationsCommand command,
+        [FromHeader(Name="X-Cerberus-Vault-Access")]string? vaultAccess,CancellationToken cancellationToken)
+    {
+        if(Request.Query.Count!=0 || Request.Headers["X-Cerberus-Vault-Access"].Count>1
+            || !Guid.TryParseExact(id,"D",out var profileId) || profileId==Guid.Empty || id!=profileId.ToString("D"))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if(!Guid.TryParse(User.FindFirst("id")?.Value,out var actor))return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess=Request.Headers.TryGetValue("X-Cerberus-Vault-Access",out var raw)?raw.ToString():null;
+        command.SetContext(actor,vaultAccess,profileId);
+        var result=await commands.ExecuteCommandAsync<SetProfileAssociationsCommand,SetProfileAssociationsOutput>(command,cancellationToken);
+        return result.ToActionResult(statusMap:SetProfileAssociationsMessages.StatusCodes);
+    }
+
     [HttpPut("{id}")]
     [VaultProofBody]
     [ProducesResponseType(typeof(DataOutput<UpdateProfileOutput>),StatusCodes.Status200OK)]

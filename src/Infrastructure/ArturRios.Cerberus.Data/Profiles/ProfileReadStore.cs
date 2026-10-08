@@ -29,20 +29,18 @@ public sealed class ProfileReadStore(IDbContextFactory<AppDbContext> factory) : 
             var visible = db.Profiles.AsNoTracking().Where(p => p.PublicId == request.ProfileId && p.DeletedAt == null
                 && !db.TerminalErasures.Any(e => e.ResourceId == p.PublicId)
                 && sessions.Any(s => s.AccountId == p.AccountId && (s.ProfileId == null || s.ProfileId == p.Id)));
+            var rows = ProfileProjectionQuery.Select(db,visible);
             var result = await db.Accounts.AsNoTracking().Where(a => a.HeimdallPublicId == request.Actor)
                 .Select(a => new
                 {
                     a.State, Erased = db.TerminalErasures.Any(e => e.ResourceId == a.PublicId), Allowed = sessions.Any(),
-                    Items = visible.Select(p => new ProfileListRow(p.PublicId, p.Revision, p.ServerSequence,
-                        p.EditedAt, p.Envelope, p.KeyWrappers)).ToList()
+                    Items = rows.ToList()
                 }).AsSingleQuery().SingleOrDefaultAsync(cancellationToken);
             if (result is null || result.State != AccountState.Active || result.Erased) return new(Error: "not_found");
             if (!result.Allowed) return new(Error: "vault_access_denied");
             if (result.Items.Count == 0) return new(Error: "not_found");
-            // PublicId is unique. Relationships do not exist yet; UC09 rejects
-            // unresolved nonempty links. Extend this projection with visible joins
-            // when resource/membership entities arrive, before those flows release.
-            return new(new(result.Items[0], [], [], []));
+            var row=result.Items[0];
+            return new(new(row,row.RecordIds,row.FolderIds,row.CollectionIds));
         }
         catch (Exception exception) when (exception is DbException or TimeoutException
             || exception is InvalidOperationException { InnerException: DbException or TimeoutException })

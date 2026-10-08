@@ -3,8 +3,9 @@
 `GET /api/profiles` requires a current Heimdall identity and one
 `X-Cerberus-Vault-Access` header. It returns `data.items` and `data.nextCursor`.
 Each item has `profileId`, `revision`, `serverSequence`, UTC microsecond `editedAt`,
-opaque `envelope` and `keyWrappers`. Names stay encrypted. There are no totals,
-account details, internal identifiers or relationship contents. Responses use no-store.
+opaque `envelope`, `keyWrappers`, and visible `recordIds`, `folderIds`, `collectionIds`.
+Names stay encrypted. There are no totals, account details, internal identifiers or
+linked ciphertexts. Responses use no-store.
 
 Use `pageSize` once, as a canonical positive decimal no greater than deployment
 `CERBERUS_MAX_PAGE_SIZE` (required and startup validated). Default is the smaller of
@@ -22,7 +23,10 @@ only its owned active selected profile. Current expiry, policy and revocation ap
 even when a cursor was issued earlier. Invalid or duplicate sequences in permitted
 profiles fail the whole page closed; hidden rows cannot trigger that diagnostic.
 A returned owner wrapper must name the authenticated identity as recipient.
-Profile access issuance belongs to UC15.
+Profile access issuance belongs to UC15. The three association arrays are evaluated
+in that same statement: own active direct items, and active collections whose owner
+is active and whose recipient grant remains valid. Hidden links are omitted.
+See [association rules](profile-associations.md).
 
 Ordering uses increasing server sequence. The initial permitted high watermark
 excludes later inserts/edits; sequence gaps and filtered profiles do not consume

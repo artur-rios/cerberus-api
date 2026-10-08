@@ -32,11 +32,13 @@ public sealed class IssueVaultChallengeHandler(IValidator<IssueVaultChallengeCom
         cancellationToken.ThrowIfCancellationRequested(); var output = DataOutput<VaultChallengeOutput?>.New;
         if (command.Actor == Guid.Empty) return output.WithError("authentication_required");
         if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
-        var result = await store.ChallengeAsync(command.Actor, command.RequestHash, cancellationToken);
+        var result = command.Operation == "unlock-account"
+            ? await store.ChallengeAsync(command.Actor, command.RequestHash, cancellationToken)
+            : await store.ChallengeAsync(command.Actor, command.Operation, command.RequestHash, cancellationToken);
         if (result.Error is not null) return output.WithError(result.Error);
         var c = result.Data;
         if (c is null || c.IdentityId != command.Actor || c.AccountId == Guid.Empty || c.ScopeId != c.AccountId
-            || c.Format != "cerberus-challenge-v1" || c.Operation != "unlock-account" || c.ScopeKind != "account"
+            || c.Format != "cerberus-challenge-v1" || c.Operation != command.Operation || c.ScopeKind != "account"
             || c.ChallengeId == Guid.Empty || c.Generation is not null || c.RequestHash != command.RequestHash
             || c.KeyEpoch is <= 0 or > ProtocolBinary.MaxInteger || c.ProtectionRevision is <= 0 or > ProtocolBinary.MaxInteger
             || c.IssuedAt is < 0 or > ProtocolBinary.MaxInteger - 60 || c.ExpiresAt != c.IssuedAt + 60

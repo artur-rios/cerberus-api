@@ -63,6 +63,9 @@ public static class Startup
         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
         builder.Services.AddScoped<IIdentityUpdateStore, IdentityUpdateStore>();
         builder.Services.AddScoped<IVaultProtectionStore, VaultProtectionStore>();
+        builder.Services.AddScoped<IVaultProtectionChangeStore, VaultProtectionChangeStore>();
+        builder.Services.AddScoped<IValidator<ChangeVaultProtectionCommand>, ChangeVaultProtectionValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<ChangeVaultProtectionCommand, ChangeVaultProtectionOutput>, ChangeVaultProtectionHandler>();
         builder.Services.AddScoped<IValidator<InitializeVaultCommand>, InitializeVaultValidator>();
         builder.Services.AddScoped<IValidator<IssueVaultChallengeCommand>, IssueVaultChallengeValidator>();
         builder.Services.AddScoped<IValidator<UnlockVaultCommand>, UnlockVaultValidator>();

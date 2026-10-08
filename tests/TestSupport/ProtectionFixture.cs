@@ -29,6 +29,13 @@ public sealed class ProtectionFixture : IDisposable
             new("cerberus-recovery-wrap-v1", 1, Encode(new byte[32]), Encode(new byte[12]), "BAUG", Encode(new byte[16]), 1, recovery.Fingerprint()),
             Public(Unlock), recovery, Public(_recipient), Public(_author));
     }
+    public ProtectionMaterial Rewrap(long epoch = 2) => Material with
+    {
+        PasswordWrapper = Material.PasswordWrapper with { KeyEpoch = epoch, KeySalt = Encode(RandomNumberGenerator.GetBytes(32)),
+            Nonce = Encode(RandomNumberGenerator.GetBytes(12)), Ciphertext = "BwgJ", Kdf = Material.PasswordWrapper.Kdf with { Salt = Encode(RandomNumberGenerator.GetBytes(16)) } },
+        RecoveryWrapper = Material.RecoveryWrapper with { KeyEpoch = epoch, KeySalt = Encode(RandomNumberGenerator.GetBytes(32)),
+            Nonce = Encode(RandomNumberGenerator.GetBytes(12)), Ciphertext = "CgsM" }
+    };
     public string Sign(VaultProofChallenge challenge) => Encode(Unlock.SignData(VaultProof.SigningBytes(challenge), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
     public void Dispose() { Unlock.Dispose(); _recovery.Dispose(); _recipient.Dispose(); _author.Dispose(); }
 }

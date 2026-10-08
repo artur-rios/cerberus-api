@@ -92,3 +92,54 @@ required fields must be checked locally before encryption. The API accepts no
 plaintext record/key material and cannot enforce those obligations by decryption.
 Native harness vectors validate the shared cryptographic wire contract; they do
 not constitute the deferred independent security or real-client approval.
+
+## Change the master vault protection (UC39)
+
+Prepare strict JSON for PUT `/api/vault/protection` with exactly `accountId`,
+`expectedProtectionRevision`, `expectedAccountRevision`, `mode`, `material`,
+`contentReplacements`. Derive the actor from the bearer, never a JSON identity.
+Use the current own account-wide `X-Cerberus-Vault-Access` handle. Obtain a fresh
+`change-protection` challenge for the SHA256 of the exact prepared body and sign
+with the **current old registered unlock key**. Submit its single-valued challenge
+and proof headers with those original bytes. An unlock-purpose proof cannot change
+protection, and a change-purpose proof cannot unlock.
+
+Replace both complete password/recovery wrappers, each at protection-slot epoch+1,
+using fresh keySalt/nonce and a fresh password KDF salt. Keep all four public key
+pins and the recovery generation unchanged. Recovery identity changes belong to
+recovery/refresh, and recipient/author identity transitions require their separately
+specified authenticated transition. The server cannot inspect the encrypted bundle;
+clients must validate that its inner roots and private/public correspondence remain
+correct. Password change cannot destroy a recipient's already copied keys or data.
+
+`mode:"rewrap"` requires `contentReplacements:[]`. It advances the protection revision
+and slot epoch while preserving every existing account ciphertext byte and its
+revision/content epoch. The slot epoch in wrapper context is distinct from an inner
+content root's epoch, as demonstrated by the native harness rewrap vectors.
+
+`mode:"rotate-content"` replaces the complete current authoritative content set
+in the same transaction. Each replacement has `resourceKind`, `resourceId`,
+`expectedRevision`, `envelope`. The current set is exactly the own account envelope;
+use `resourceKind:"account"`, own `accountId`, the expected account revision and
+content epoch equal to the current account envelope epoch+1. Missing, duplicate,
+foreign or extra replacements fail400 before challenge consumption. The complete
+pair of protection wrappers must wrap the locally rotated inner roots. Current
+recipient-grant inventory is empty. Profile/content/grant creation flows must extend
+this completeness invariant when those entities become available; this route does
+not claim support for nonexistent selected profiles or grants.
+
+Success200 returns only accountId, protectionRevision, keyEpoch (slot epoch),
+recoveryGeneration and accountRevision. Content rotation increments the account
+revision; rewrap preserves it. Both increment account revocation generation,
+invalidating old handles/challenges. Request a new unlock challenge and prove again
+to obtain new access. No handle or raw password/key is returned by a change.
+
+Locks serialize the current account and presented own session; session/challenge
+expiry is rechecked using fresh database statement time at proof consumption.
+All wrapper, optional content, revision and revocation writes commit atomically.
+Concurrent changes allow one winner; stale expected revisions return409. A failed
+write rolls back consumption and all state. Missing handle401, malformed input400,
+invalid current handle403, unbound/expired/consumed proof401, hidden target404 and
+required dependency503 all preserve protection. After a lost response, retrieve
+current opaque protection and compare the intended revision/wrappers before retrying;
+an old expected revision cannot replace the winner or recover a plaintext key.

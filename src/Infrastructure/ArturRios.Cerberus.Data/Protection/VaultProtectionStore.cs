@@ -38,9 +38,12 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
         });
 
     public Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string requestHash, CancellationToken cancellationToken)
+        => ChallengeAsync(actor, "unlock-account", requestHash, cancellationToken);
+
+    public Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string operation, string requestHash, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (!ProtocolBinary.TryDecode(requestHash, 32, out _)) return Task.FromResult(new VaultResult<VaultProofChallenge>(Error: "validation_failed"));
+        if (operation is not ("unlock-account" or "change-protection") || !ProtocolBinary.TryDecode(requestHash, 32, out _)) return Task.FromResult(new VaultResult<VaultProofChallenge>(Error: "validation_failed"));
         return Run<VaultProofChallenge>(actor, cancellationToken, async (db, account, ct) =>
         {
             var row = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, ct);
@@ -51,7 +54,7 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
             await db.VaultUnlockChallenges.Where(x => x.AccountId == account.Id && (x.Consumed || x.ExpiresAt <= now)).ExecuteDeleteAsync(ct);
             var issued = now.ToUnixTimeSeconds();
             var challenge = new VaultProofChallenge("cerberus-challenge-v1", Guid.NewGuid(), ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32)),
-                "unlock-account", actor, account.PublicId, "account", account.PublicId, row.KeyEpoch, row.Revision, null, requestHash, issued, issued + 60);
+                operation, actor, account.PublicId, "account", account.PublicId, row.KeyEpoch, row.Revision, null, requestHash, issued, issued + 60);
             db.VaultUnlockChallenges.Add(new VaultUnlockChallenge { AccountId = account.Id, PublicId = challenge.ChallengeId,
                 Challenge = JsonSerializer.SerializeToUtf8Bytes(challenge, Json), PolicyRevision = account.PolicyRevision,
                 RevocationGeneration = account.RevocationGeneration, ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt) });

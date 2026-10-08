@@ -11,6 +11,7 @@ public interface IVaultProtectionStore
     Task<VaultResult<VaultProtectionDetails>> InitializeAsync(Guid actor, Guid accountId, long expectedAccountRevision, ProtectionMaterial material, CancellationToken cancellationToken);
     Task<VaultResult<VaultProtectionDetails>> ReadAsync(Guid actor, CancellationToken cancellationToken);
     Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string requestHash, CancellationToken cancellationToken);
+    Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string operation, string requestHash, CancellationToken cancellationToken);
     Task<VaultResult<VaultAccessDetails>> UnlockAsync(Guid actor, long expectedProtectionRevision, Guid challengeId, string proof, byte[] rawBody, CancellationToken cancellationToken);
 }
 

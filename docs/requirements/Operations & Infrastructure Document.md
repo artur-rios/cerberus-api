@@ -333,3 +333,12 @@ The single foundation issue owns all IR requirements; do not create an issue per
 issues own functional health, retention, recovery, synchronization and privacy behavior.
 Foundational infrastructure provides those modules with tested primitives, not a claim that
 every future use case is already delivered.
+
+UC39 protection replacement requires both account-wide vault access and the current
+registered unlock-key proof. Rewrap preserves account ciphertext; complete current
+content rotation and both wrappers commit with protection/account revisions and
+revocation generation in one transaction. Previous sessions/challenges become stale;
+clients must re-unlock. The complete current inventory is the account envelope and
+zero recipient grants; future profile/content/sharing flows must extend its coverage.
+See [vault protection API](../security/vault-protection-api.md) for exact modes,
+original-body proof binding and ambiguous-response retry behavior.

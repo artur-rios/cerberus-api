@@ -265,6 +265,26 @@ returns `409/revision_conflict` and requires reloading the current account befor
 retrying. Success returns only the public account ID and new revision. No additional
 migration is required for UC-04.
 
+`PUT /api/identity/me` requires the same current identity and account-wide access
+header. Its strict JSON body contains only required `name` (at most 200 characters)
+and a valid `email`. It forwards the original actor bearer to Heimdall's own public
+person route, omitting role, scope, password and other provider controls. Success
+returns only public identity ID, name, email and email verification state. Heimdall
+clears verification when email changes; its uniqueness/concurrency conflicts map
+to `409/identity_conflict`. Missing input/access, hidden account, denied access and
+unavailable dependencies use the same stable, non-cacheable 400/401/404/403/503
+contracts. No identity revision is invented: the inspected provider accepts none.
+
+The identity update locks the account and matching session in that order, then
+checks permission with fresh database statement time after waiting for locks.
+Those locks remain held across the bounded provider call to serialize local
+lifecycle/revocation changes. Cerberus retrieves no encrypted payload and changes
+no account, profile, revision, policy or session data. No migration is required.
+A timeout or malformed/lost response can follow a committed Heimdall update:
+503 does not imply remote rollback. Retry the same name/email replacement or verify
+identity state. Cross-service identity changes retain the existing current-request
+boundary; no distributed transaction is claimed.
+
 ---
 
 ## 8. Traceability

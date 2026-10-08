@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
+using System.Text.Json;
 using ArturRios.Cerberus.Data;
 using ArturRios.Cerberus.Shared.Identity;
+using ArturRios.Cerberus.Shared.Configuration;
 using ArturRios.Jwt;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -18,15 +20,21 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
     public static readonly Guid Scope = Guid.Parse("527a1001-8ef5-4c9b-a565-111111111111");
     private const string Secret = "fixture-only-signing-key-32-characters";
     private readonly string _serviceToken = ServiceToken();
+    private readonly HeimdallTokenValidator _tokens = new(new CerberusOptions
+    { HeimdallScopeId = Scope, AuthIssuer = "fixture-issuer", AuthAudience = "fixture-audience", AuthValidationSecret = Secret });
     private readonly PostgreSqlContainer _database = new PostgreSqlBuilder("postgres:18.6-alpine").Build();
     private readonly Dictionary<string, string?> _previous = new();
     private WebApplication _identity = null!;
     private string _ledger = null!;
     private int _identityCalls;
+    private int _identityUpdateCalls;
     public int IdentityCalls => Volatile.Read(ref _identityCalls);
+    public int IdentityUpdateCalls => Volatile.Read(ref _identityUpdateCalls);
+    public ConcurrentDictionary<Guid, (string Bearer, string Body)> IdentityUpdates { get; } = new();
     public ConcurrentDictionary<string, User> Users { get; } = new(StringComparer.OrdinalIgnoreCase);
     private ConcurrentDictionary<string, Guid> Challenges { get; } = new();
-    public sealed record User(Guid Id, string Password, bool Mfa = false, bool Deleted = false, bool IdentityUnavailable = false);
+    public sealed record User(Guid Id, string Password, bool Mfa = false, bool Deleted = false, bool IdentityUnavailable = false,
+        string Name = "Fixture Owner", string Email = "fixture@example.test", bool EmailVerified = true);
 
     public async Task InitializeAsync()
     {
@@ -72,8 +80,36 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
         });
         _identity.MapGet("/api/persons/{id:guid}", (Guid id) =>
         {
-            var user = Users.Values.SingleOrDefault(x => x.Id == id);
-            return user is null ? Results.StatusCode(404) : user.IdentityUnavailable ? Results.StatusCode(503) : Person(user);
+            lock (Users)
+            {
+                var user = Users.Values.SingleOrDefault(x => x.Id == id);
+                return user is null ? Results.StatusCode(404) : user.IdentityUnavailable ? Results.StatusCode(503) : Person(user);
+            }
+        });
+        _identity.MapPut("/api/persons/{id:guid}", async Task<IResult> (Guid id, JsonElement input, HttpContext request) =>
+        {
+            Interlocked.Increment(ref _identityUpdateCalls);
+            IdentityUpdates[id] = (request.Request.Headers.Authorization.ToString(), input.GetRawText());
+            var bearer = request.Request.Headers.Authorization.ToString();
+            var principal = bearer.StartsWith("Bearer ", StringComparison.Ordinal) ? await _tokens.ValidateAsync(bearer[7..]) : null;
+            if (principal?.FindFirst("id")?.Value != id.ToString() || principal.FindFirst("roleId")?.Value != "3") return Results.StatusCode(403);
+            if (input.EnumerateObject().Count() != 2 || !input.TryGetProperty("name", out var nameValue)
+                || !input.TryGetProperty("email", out var emailValue)) return Results.StatusCode(400);
+            var name = nameValue.GetString()!;
+            var email = emailValue.GetString()!;
+            if (name.StartsWith("provider-", StringComparison.Ordinal) && int.TryParse(name[9..], out var failure))
+                return Results.Json(new { secret = "private-provider-error" }, statusCode: failure);
+            lock (Users)
+            {
+                var pair = Users.SingleOrDefault(x => x.Value.Id == id);
+                if (pair.Value is null || pair.Value.Deleted) return Results.StatusCode(404);
+                if (Users.TryGetValue(email, out var existing) && existing.Id != id) return Results.StatusCode(409);
+                var updated = pair.Value with { Name = name, Email = email,
+                    EmailVerified = pair.Value.EmailVerified && string.Equals(pair.Key, email, StringComparison.OrdinalIgnoreCase) };
+                Users.TryRemove(pair.Key, out _);
+                Users[email] = updated;
+                return name == "response-loss" ? Results.Text("invalid provider response", "application/json") : Person(updated);
+            }
         });
         await _identity.StartAsync();
         var address = _identity.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.Single();
@@ -127,7 +163,7 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
         new Dictionary<string, string> { ["id"] = id.ToString(), ["roleId"] = "3", ["scopeId"] = (scope ?? Scope).ToString() }));
     private static string ServiceToken() => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,
         new Dictionary<string, string> { ["id"] = Guid.Parse("527a1001-8ef5-4c9b-a565-333333333333").ToString(), ["roleId"] = "2", ["ownedScopeIds"] = Scope.ToString() }));
-    private static IResult Person(User user) => Envelope(new { id = user.Id, name = "Fixture Owner", email = "fixture@example.test", role = 3, scopeId = Scope, isDeleted = user.Deleted, emailVerified = true, twoFactorEnabled = user.Mfa, ownedScopeIds = Array.Empty<Guid>() });
+    private static IResult Person(User user) => Envelope(new { id = user.Id, name = user.Name, email = user.Email, role = 3, scopeId = Scope, isDeleted = user.Deleted, emailVerified = user.EmailVerified, twoFactorEnabled = user.Mfa, ownedScopeIds = Array.Empty<Guid>() });
     private static IResult Envelope(object data) => Results.Json(new { success = true, errors = Array.Empty<string>(), messages = Array.Empty<string>(), data });
     private sealed record LoginInput(string Email, string Password, Guid ScopeId);
     private sealed record ChallengeInput(string ChallengeToken, string? Code, string? RecoveryCode);

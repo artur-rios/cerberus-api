@@ -14,12 +14,13 @@ public sealed class RecoverVaultCommand : BaseCommand
     public PasswordWrapper PasswordWrapper { get; set; } = null!;
     public RecoveryWrapper RecoveryWrapper { get; set; } = null!;
     public PublicJwk NewRecoveryVerifier { get; set; } = null!;
+    internal string? Access { get; private set; }
     internal Guid Actor { get; private set; }
     internal long IdentityIssuedAt { get; private set; } = -1;
     internal Guid ChallengeId { get; private set; }
     internal string Proof { get; private set; } = null!;
     internal byte[] RawBody { get; private set; } = [];
     public RecoveryReplacement ToReplacement() => new(Operation, IdempotencyKey, ExpectedRevision, PasswordWrapper, RecoveryWrapper, NewRecoveryVerifier);
-    public void SetContext(Guid actor, long identityIssuedAt, Guid challengeId, string proof, byte[] rawBody)
-    { Actor = actor; IdentityIssuedAt = identityIssuedAt; ChallengeId = challengeId; Proof = proof; RawBody = rawBody; }
+    public void SetContext(Guid actor, long identityIssuedAt, Guid challengeId, string proof, byte[] rawBody, string? access = null)
+    { Actor = actor; IdentityIssuedAt = identityIssuedAt; ChallengeId = challengeId; Proof = proof; RawBody = rawBody; Access = access; }
 }

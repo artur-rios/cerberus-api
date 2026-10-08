@@ -1,6 +1,6 @@
 # Vault protection and account unlock API
 
-Development contract for UC38–40. The independent protocol/client review is deferred
+Development contract for UC38–41. The independent protocol/client review is deferred
 by the owner; the actual approval record remains pending and release is gated.
 Use TLS at the deployed API boundary and to Heimdall. All responses are no-store.
 
@@ -183,3 +183,46 @@ current account/provider authorization still apply to retries. Missing/invalid p
 401, malformed input400, hidden/inactive account404 and required dependency503
 preserve state. The replacement recovery secret is displayed/stored only by the
 client; neither the stored outcome nor a replay can recover it.
+
+## Refresh the recovery credential (UC41)
+
+PUT `/api/vault/recovery` accepts the same six fields as recovery, with exactly
+`operation:"refresh-recovery"`. POST remains recover-only and PUT refresh-only.
+Generate a new secret and independent recovery key locally; replace both complete
+wrappers using slot epoch+1, recovery generation+1 and fresh visible contexts.
+The native full-wrapper transition requires a fresh password wrapper too. A flow
+preserving that wrapper needs a separately reviewed protocol. All content and
+unlock/recipient/author pins stay unchanged.
+
+For a new refresh, present current own account-wide `X-Cerberus-Vault-Access`, obtain
+a `refresh-recovery` challenge (generation:null), and sign its original-byte binding
+with the **old registered unlock key**. The old recovery key cannot refresh; the
+unlock key cannot recover. Current provider identity and signed-iat freshness apply
+at submission and after account/session locks. Session policy/revocation/scope and
+exclusive identity/challenge/session expiry are checked again at the consumption
+statement. Missing handle401, malformed400, denied current session403, invalid
+proof401, hidden account404, stale revision/challenge409 and dependency503 preserve
+all state. A changed policy makes a session bound to the old policy invalid403.
+
+The complete wrappers/new recovery verifier, protection/slot/recovery/revocation
+increments, challenge consumption and durable outcome commit together. Superseded
+recovery fails for future new operations; new recovery works after refresh. Old
+sessions are stale; prove a new unlock before another operation. No secret/access
+handle is returned. Response fields match the four recovery outcome fields.
+
+An exact completed refresh retry with fresh current owner identity and the original
+canonical handle/body/key can return its historical outcome after the original
+handle or challenge expires or is superseded. This native idempotency path performs
+no new transition and does not authorize a new operation. Different body bytes or
+purpose under the same key conflict409. GET current protection before acting on a
+historical result. Current identity/provider/lifecycle and freshness always apply.
+
+## Fresh recovery material read
+
+GET `/api/vault/recovery-material` returns the same own public counters and opaque
+protection material as GET protection, with fresh signed-iat/current provider
+identity required. It needs no existing vault session, accepts no query/body,
+creates no session and consumes no challenge or recovery credential. Responses
+are no-store. Missing/hidden/closing/erased protection404, unfresh/invalid identity401,
+malformed request400 and required dependency503. Local decryption, key verification
+and replacement-secret presentation remain the client's responsibility.

@@ -353,3 +353,13 @@ old recovery proof and replaces wrappers/verifier/counters/outcome. Exact retrie
 return the historical result after challenge expiry or cleanup; clients retrieve
 latest protection separately. Current fresh provider identity remains mandatory,
 and different body bytes with the same key conflict. Secrets remain client-held.
+
+UC41 reuses the recovery-outcome table and atomic transition with current account-wide
+session authorization and the old unlock key. No additional migration is needed.
+New refresh requests lock account then session and recheck identity/challenge/session
+expiry at statement time; failure rolls back consumption/wrappers/counters/outcome.
+Exact completed retries under fresh current identity return historical counters even
+when the original handle is now stale; they perform no new operation. A changed
+purpose/body conflicts under the same account/idempotency key. The named fresh
+recovery-material read creates no session and consumes no credential. Secrets remain
+client-held; independent protocol/client approvals and strict release gate persist.

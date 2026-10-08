@@ -8,15 +8,23 @@ directory; its tests do not count toward production coverage.
 
 ## Current implementation
 
-Strict encoding, primitives, P256 key/signature handling, context-bound content
-envelopes, scoped password/recovery bundles, signed recipient wrapping and
-exact-body challenge proofs are implemented and tested independently
-(131 Java tests and 109 Python tests). Known-answer selections
+Strict encoding, qualified primitives, scoped encrypted bundles, signed recipient
+wrapping, exact-body proofs, atomic local recovery/refresh/retry models and strict
+offline lease, clock and signing-key trust models are implemented independently.
+The native suites include 160 Java tests and 140 Python tests. Known-answer selections
 and source hashes/licenses are in [fixtures/sources.json](fixtures/sources.json).
-Atomic recovery state, lease verification,
-cross-language evidence and benchmarks are subsequent tasks
-in [the approved plan](../../docs/superpowers/plans/2026-10-07-protocol-harness.md).
-There is no successful interoperability or benchmark claim at this stage.
+The process interface exchanges 309 manifest cases, including each envelope field,
+trusted binding changes, raw-body ordering, malformed encodings, policy/header
+rejections and local model scenarios. These remain reference tests; production
+transactions, identity/permission checks and mobile time anchors are separate obligations.
+
+The orchestrator runs both complete native suites and all six published primitive
+families, then checks each producer with both consumers. It writes evidence only after
+all checks pass, and preserves previous evidence on failure. Corpus replay verifies
+the original randomized ciphertexts instead of demanding fresh random bytes match.
+Input, manifest, dependency and source hashes bind the evidence to the checked code.
+Benchmarks remain a subsequent task in
+[the approved plan](../../docs/superpowers/plans/2026-10-07-protocol-harness.md).
 
 The fail-closed dependency audit is implemented (14 tests). The initial OSV scan
 on 2026-10-08 queried 154 distinct coordinates, including Maven's bundled build
@@ -188,3 +196,40 @@ Only the caller's externally registered scoped/purpose verifier is accepted.
 Issuing a challenge creates neither vault access nor a session. These stateless
 helpers do not establish registry membership or consume challenges; the following
 atomic recovery reference model owns those state checks.
+
+## Executed interoperability and local state models
+
+From the repository root, export the cache used by the locked build and run with
+its isolated Python environment:
+
+```bash
+export HARNESS_MAVEN_CACHE="$HARNESS_TMP/m2"
+export MAVEN_USER_HOME="$HARNESS_TMP/maven-user"
+"$HARNESS_TMP/venv/bin/python" tools/protocol-harness/verify.py --check docs/security/interoperability-vectors.json
+```
+
+After deliberate reference-code changes, generate new evidence with
+`--output docs/security/interoperability-vectors.json`, then replay it with `--check`.
+CI replays committed evidence; it never regenerates evidence to hide drift.
+The explicit `produce`, `consume` and `self-test` child commands accept public
+fixtures only. Success diagnostics contain case counts/digests; failure diagnostics
+contain only `invalid_protocol` or `unsupported_dependency`. Public passwords,
+roots and private keys belong only in labeled fixture files.
+
+The recovery model retains public verifiers and opaque wrapper bytes, and commits
+replacement sets, revisions, challenge consumption and a nonsecret outcome under
+one local lock. Fresh authentication precedes retry lookup; authenticated identity,
+idempotency key and exact original-body hash determine retry identity. Signature
+malleability cannot create a new operation. Refresh additionally requires current
+vault access and invalidates the old recovery generation. Neither this model nor
+its 100 repeated two-thread races proves PostgreSQL transaction correctness.
+
+The lease verifier requires externally expected issuer, audience, identity, account,
+scope, epochs, revisions, grant membership and renewal policy. Enabled expiration
+is exclusive; explicitly disabled renewal forbids `exp`. Verification never renews
+the clock. Only an explicit trusted authenticated online renewal event anchors an
+enabled-expiry clock; regression or restart blocks use until renewed, while the
+modeled high-water time remains retained. Disabled-expiry policy does not manufacture
+periodic expiration. Lease-key rotations use a separate signed domain and retain
+old verification pins for outstanding leases; they cannot instantly revoke offline
+copies. A real client still needs reviewed platform time and key-storage behavior.

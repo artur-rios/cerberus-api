@@ -1,0 +1,1551 @@
+{
+  "schemaVersion": 1,
+  "classification": "public-test-fixtures",
+  "cases": [
+    {
+      "id": "content.account",
+      "kind": "content",
+      "expect": "success"
+    },
+    {
+      "id": "content.account.mutate.format",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.account.mutate.keyEpoch",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.account.mutate.keySalt",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.account.mutate.nonce",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.account.mutate.ciphertext",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.account.mutate.tag",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.account.mutate.extra",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.account.mutate.missing",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.account.binding.owner",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.account.binding.resource",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.account.binding.epoch",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile",
+      "kind": "content",
+      "expect": "success"
+    },
+    {
+      "id": "content.profile.mutate.format",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile.mutate.keyEpoch",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile.mutate.keySalt",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile.mutate.nonce",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile.mutate.ciphertext",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile.mutate.tag",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile.mutate.extra",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile.mutate.missing",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile.binding.owner",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile.binding.resource",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.profile.binding.epoch",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record",
+      "kind": "content",
+      "expect": "success"
+    },
+    {
+      "id": "content.record.mutate.format",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record.mutate.keyEpoch",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record.mutate.keySalt",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record.mutate.nonce",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record.mutate.ciphertext",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record.mutate.tag",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record.mutate.extra",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record.mutate.missing",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record.binding.owner",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record.binding.resource",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.record.binding.epoch",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder",
+      "kind": "content",
+      "expect": "success"
+    },
+    {
+      "id": "content.folder.mutate.format",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder.mutate.keyEpoch",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder.mutate.keySalt",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder.mutate.nonce",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder.mutate.ciphertext",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder.mutate.tag",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder.mutate.extra",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder.mutate.missing",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder.binding.owner",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder.binding.resource",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.folder.binding.epoch",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection",
+      "kind": "content",
+      "expect": "success"
+    },
+    {
+      "id": "content.collection.mutate.format",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection.mutate.keyEpoch",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection.mutate.keySalt",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection.mutate.nonce",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection.mutate.ciphertext",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection.mutate.tag",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection.mutate.extra",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection.mutate.missing",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection.binding.owner",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection.binding.resource",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "content.collection.binding.epoch",
+      "kind": "content",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account",
+      "kind": "password",
+      "expect": "success"
+    },
+    {
+      "id": "password.account.mutate.format",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.mutate.keyEpoch",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.mutate.keySalt",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.mutate.nonce",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.mutate.ciphertext",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.mutate.tag",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.mutate.kdf",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.mutate.extra",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.mutate.missing",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.binding.owner",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.binding.resource",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.binding.epoch",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.kdf.algorithm",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.kdf.memoryKiB",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.kdf.iterations",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.kdf.parallelism",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.kdf.salt",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.account.kdf.extra",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile",
+      "kind": "password",
+      "expect": "success"
+    },
+    {
+      "id": "password.profile.mutate.format",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.mutate.keyEpoch",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.mutate.keySalt",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.mutate.nonce",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.mutate.ciphertext",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.mutate.tag",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.mutate.kdf",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.mutate.extra",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.mutate.missing",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.binding.owner",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.binding.resource",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.binding.epoch",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.kdf.algorithm",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.kdf.memoryKiB",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.kdf.iterations",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.kdf.parallelism",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.kdf.salt",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "password.profile.kdf.extra",
+      "kind": "password",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account",
+      "kind": "recovery",
+      "expect": "success"
+    },
+    {
+      "id": "recovery.account.mutate.format",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.mutate.keyEpoch",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.mutate.keySalt",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.mutate.nonce",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.mutate.ciphertext",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.mutate.tag",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.mutate.generation",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.mutate.proofKeyFingerprint",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.mutate.extra",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.mutate.missing",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.binding.owner",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.binding.resource",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recovery.account.binding.epoch",
+      "kind": "recovery",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record",
+      "kind": "recipient",
+      "expect": "success"
+    },
+    {
+      "id": "recipient.record.mutate.format",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.keyEpoch",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.grantId",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.grantRevision",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.recipientIdentityId",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.recipientKeyFingerprint",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.authorKeyFingerprint",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.enc",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.ciphertext",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.signature",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.extra",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.mutate.missing",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.binding.owner",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.binding.resource",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "recipient.record.binding.epoch",
+      "kind": "recipient",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account",
+      "kind": "challenge",
+      "expect": "success"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.format",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.challengeId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.nonce",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.operation",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.identityId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.accountId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.scopeKind",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.scopeId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.keyEpoch",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.protectionRevision",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.generation",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.requestHash",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.issuedAt",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.expiresAt",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.extra",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.mutate.missing",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.scenario.reordered-body",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.scenario.expiry",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.scenario.future",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-account.scenario.wrong-key",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile",
+      "kind": "challenge",
+      "expect": "success"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.format",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.challengeId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.nonce",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.operation",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.identityId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.accountId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.scopeKind",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.scopeId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.keyEpoch",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.protectionRevision",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.generation",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.requestHash",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.issuedAt",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.expiresAt",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.extra",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.mutate.missing",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.scenario.reordered-body",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.scenario.expiry",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.scenario.future",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.unlock-profile.scenario.wrong-key",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection",
+      "kind": "challenge",
+      "expect": "success"
+    },
+    {
+      "id": "challenge.change-protection.mutate.format",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.challengeId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.nonce",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.operation",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.identityId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.accountId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.scopeKind",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.scopeId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.keyEpoch",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.protectionRevision",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.generation",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.requestHash",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.issuedAt",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.expiresAt",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.extra",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.mutate.missing",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.scenario.reordered-body",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.scenario.expiry",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.scenario.future",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.change-protection.scenario.wrong-key",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover",
+      "kind": "challenge",
+      "expect": "success"
+    },
+    {
+      "id": "challenge.recover.mutate.format",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.challengeId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.nonce",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.operation",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.identityId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.accountId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.scopeKind",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.scopeId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.keyEpoch",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.protectionRevision",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.generation",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.requestHash",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.issuedAt",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.expiresAt",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.extra",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.mutate.missing",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.scenario.reordered-body",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.scenario.expiry",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.scenario.future",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.recover.scenario.wrong-key",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery",
+      "kind": "challenge",
+      "expect": "success"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.format",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.challengeId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.nonce",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.operation",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.identityId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.accountId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.scopeKind",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.scopeId",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.keyEpoch",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.protectionRevision",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.generation",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.requestHash",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.issuedAt",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.expiresAt",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.extra",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.mutate.missing",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.scenario.reordered-body",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.scenario.expiry",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.scenario.future",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "challenge.refresh-recovery.scenario.wrong-key",
+      "kind": "challenge",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled",
+      "kind": "lease",
+      "expect": "success"
+    },
+    {
+      "id": "lease.enabled.mutate.iss",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.aud",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.sub",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.accountId",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.scopeKind",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.scopeId",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.keyEpoch",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.protectionRevision",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.policyRevision",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.revocationGeneration",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.grantRevisions",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.renewalEnabled",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.iat",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.nbf",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.jti",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.exp",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.extra",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.mutate.missing",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.header.alg-none",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.header.alg-hs256",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.header.typ",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.header.kid",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.header.jku",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.header.jwk",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.header.crit",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.header.duplicate",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.enabled.header.expiry-policy",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled",
+      "kind": "lease",
+      "expect": "success"
+    },
+    {
+      "id": "lease.disabled.mutate.iss",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.aud",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.sub",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.accountId",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.scopeKind",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.scopeId",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.keyEpoch",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.protectionRevision",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.policyRevision",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.revocationGeneration",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.grantRevisions",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.renewalEnabled",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.iat",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.nbf",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.jti",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.extra",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.mutate.missing",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.header.alg-none",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.header.alg-hs256",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.header.typ",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.header.kid",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.header.jku",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.header.jwk",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.header.crit",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.header.duplicate",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "lease.disabled.header.expiry-policy",
+      "kind": "lease",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.fixed",
+      "kind": "encoding",
+      "expect": "success"
+    },
+    {
+      "id": "kdf.fixed",
+      "kind": "kdf",
+      "expect": "success"
+    },
+    {
+      "id": "hkdf.fixed",
+      "kind": "hkdf",
+      "expect": "success"
+    },
+    {
+      "id": "signature.fixed",
+      "kind": "signature",
+      "expect": "success"
+    },
+    {
+      "id": "encoding.invalid.duplicate",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.invalid.nested-duplicate",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.invalid.bom",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.invalid.unicode",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.invalid.decimal",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.invalid.exponent",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.invalid.overflow",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "encoding.invalid.over-limit",
+      "kind": "encoding",
+      "expect": "invalid_protocol"
+    },
+    {
+      "id": "model.recovery",
+      "kind": "model",
+      "expect": "success"
+    },
+    {
+      "id": "model.refresh",
+      "kind": "model",
+      "expect": "success"
+    },
+    {
+      "id": "model.rollback",
+      "kind": "model",
+      "expect": "success"
+    },
+    {
+      "id": "model.retry",
+      "kind": "model",
+      "expect": "success"
+    },
+    {
+      "id": "clock.elapsed",
+      "kind": "clock",
+      "expect": "success"
+    },
+    {
+      "id": "clock.wall-rollback",
+      "kind": "clock",
+      "expect": "success"
+    },
+    {
+      "id": "clock.monotonic-rollback",
+      "kind": "clock",
+      "expect": "success"
+    },
+    {
+      "id": "clock.restart",
+      "kind": "clock",
+      "expect": "success"
+    },
+    {
+      "id": "clock.import",
+      "kind": "clock",
+      "expect": "success"
+    }
+  ]
+}

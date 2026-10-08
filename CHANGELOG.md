@@ -31,4 +31,15 @@ development into `develop` only; it is still required before any release.
 - Creating profiles, listing the permitted ones with opaque pagination, and retrieving one within the current vault
   scope (UC-09 to UC-11).
 
+- Updating opaque profile content with optimistic concurrency and immutable key protection (UC-12).
+- Recoverable profile deletion with durable trash membership, a 30-day deadline, queued retention work and
+  revocation of selected profile handles while retaining encrypted content (UC-13).
+
+### Fixed
+
+- Profile create/update reject client timestamps that round down to the default storage value. Accepted UTC
+  timestamps are normalized down to microseconds before database binding, including dates before 2000.
+- Vault protection rotation accepts the original signed wrapper revision after profile content/metadata revisions
+  advance, while binding replacement wrappers to the new revision.
+
 [Unreleased]: https://github.com/artur-rios/cerberus-api/commits/develop

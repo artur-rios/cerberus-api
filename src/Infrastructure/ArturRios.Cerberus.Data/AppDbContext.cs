@@ -1,4 +1,5 @@
 using ArturRios.Cerberus.Domain.Operations;
+using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Protection;
@@ -9,6 +10,7 @@ namespace ArturRios.Cerberus.Data;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseDbContext(options)
 {
+    public DbSet<Profile> Profiles => Set<Profile>();
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<VaultAccessSession> VaultAccessSessions => Set<VaultAccessSession>();
     public DbSet<VaultProtection> VaultProtections => Set<VaultProtection>();
@@ -24,6 +26,16 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("cerberus");
+        modelBuilder.HasSequence<long>("server_sequence", "cerberus").StartsAt(1).IncrementsBy(1).HasMax(ProtocolBinary.MaxInteger);
+        var profile=modelBuilder.Entity<Profile>();
+        profile.ToTable("profile");
+        profile.HasIndex(x=>x.PublicId).IsUnique();
+        profile.HasIndex(x=>new{x.AccountId,x.ServerSequence});
+        profile.Property(x=>x.Envelope).IsRequired();
+        profile.Property(x=>x.KeyWrappers).IsRequired();
+        profile.Property(x=>x.Revision).IsConcurrencyToken();
+        profile.Property(x=>x.ServerSequence).HasDefaultValueSql("nextval('cerberus.server_sequence')");
+        profile.HasOne<Account>().WithMany().HasForeignKey(x=>x.AccountId).OnDelete(DeleteBehavior.Cascade);
         var account = modelBuilder.Entity<Account>();
         account.ToTable("account");
         account.HasIndex(x => x.PublicId).IsUnique();

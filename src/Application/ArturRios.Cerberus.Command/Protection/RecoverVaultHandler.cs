@@ -1,4 +1,5 @@
 using ArturRios.Cerberus.Domain.Protection;
+using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Mediator.Command.Interfaces;
 using ArturRios.Output;
 using FluentValidation;
@@ -13,8 +14,14 @@ public sealed class RecoverVaultHandler(IValidator<RecoverVaultCommand> validato
         cancellationToken.ThrowIfCancellationRequested();
         var output = DataOutput<RecoverVaultOutput?>.New;
         if (command.Actor == Guid.Empty) return output.WithError("authentication_required");
+        string? verifier = null;
+        if (command.Operation == "refresh-recovery")
+        {
+            if (command.Access is null) return output.WithError("vault_access_required");
+            if (!OpaqueAccessHandle.TryHash(command.Access, out verifier)) return output.WithError("validation_failed");
+        }
         if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
-        var result = await store.RecoverAsync(new(command.Actor, command.IdentityIssuedAt, command.ChallengeId, command.Proof, command.RawBody, command.ToReplacement()), cancellationToken);
+        var result = await store.RecoverAsync(new(command.Actor, command.IdentityIssuedAt, command.ChallengeId, command.Proof, command.RawBody, command.ToReplacement(), verifier), cancellationToken);
         if (result.Error is not null) return output.WithError(result.Error);
         var data = result.Data;
         if (data is null || data.Status != "committed" || data.ProtectionRevision != command.ExpectedRevision + 1

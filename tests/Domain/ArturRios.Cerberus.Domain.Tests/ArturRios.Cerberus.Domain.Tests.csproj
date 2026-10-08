@@ -2,6 +2,7 @@
   <PropertyGroup><IsTestProject>true</IsTestProject><IsPackable>false</IsPackable></PropertyGroup>
   <ItemGroup>
     <Compile Include="../../TestSupport/ProtectionFixture.cs" Link="ProtectionFixture.cs" />
+    <None Include="recipient-vectors.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="vault-proof-vector.json" CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="ArturRios.Util.Test" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

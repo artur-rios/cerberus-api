@@ -36,6 +36,15 @@ public sealed class ProtectionFixture : IDisposable
         RecoveryWrapper = Material.RecoveryWrapper with { KeyEpoch = epoch, KeySalt = Encode(RandomNumberGenerator.GetBytes(32)),
             Nonce = Encode(RandomNumberGenerator.GetBytes(12)), Ciphertext = "CgsM" }
     };
+    public RecipientEnvelope Wrap(Guid owner, string kind, Guid resource, Guid identity, long epoch=1, long revision=1)
+    {
+        using var ephemeral=ECDsa.Create(ECCurve.NamedCurves.nistP256);var point=ephemeral.ExportParameters(false).Q;
+        var wrapper=new RecipientEnvelope("cerberus-recipient-wrap-v1",epoch,resource,revision,identity,
+            Material.RecipientKey.Fingerprint(),Material.AuthorKey.Fingerprint(),Encode([4,..point.X!,..point.Y!]),
+            Encode(RandomNumberGenerator.GetBytes(48)),Encode(new byte[64]));
+        // Opaque HPKE structural fixture; real native author signature, never a decryptability assertion.
+        return wrapper with { Signature=Encode(_author.SignData(wrapper.SigningBytes(owner,kind,resource),HashAlgorithmName.SHA256,DSASignatureFormat.IeeeP1363FixedFieldConcatenation)) };
+    }
     public string SignRecovery(VaultProofChallenge challenge) => Encode(_recovery.SignData(VaultProof.SigningBytes(challenge), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
     public string Sign(VaultProofChallenge challenge) => Encode(Unlock.SignData(VaultProof.SigningBytes(challenge), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
     public void Dispose() { Unlock.Dispose(); _recovery.Dispose(); _recipient.Dispose(); _author.Dispose(); }

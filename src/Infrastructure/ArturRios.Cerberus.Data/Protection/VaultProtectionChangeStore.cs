@@ -3,6 +3,8 @@ using System.Text.Json;
 using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Protection;
+using ArturRios.Cerberus.Domain.Profiles;
+using Npgsql;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Protection;
@@ -50,14 +52,35 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 || current.RecoveryWrapper.Generation != metadata.RecoveryGeneration) return new(Error: "persistence_unavailable");
             if (!input.IsValidTransition(current)) return new(Error: "validation_failed");
             byte[]? replacement = null;
+            var profileWrites = new List<(Profile Row, ContentReplacement Replacement)>();
             if (input.Mode == "rotate-content")
             {
                 var existing = await db.Accounts.Where(x => x.Id == a.Id).Select(x => x.DetailsEnvelope).SingleAsync(cancellationToken);
                 var content = JsonSerializer.Deserialize<EncryptedEnvelope>(existing, Json);
                 if (content?.IsValid() != true) return new(Error: "persistence_unavailable");
                 if (content.KeyEpoch >= ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
-                if (input.ContentReplacements[0].Envelope.KeyEpoch != content.KeyEpoch + 1) return new(Error: "validation_failed");
-                replacement = JsonSerializer.SerializeToUtf8Bytes(input.ContentReplacements[0].Envelope, Json);
+                var accountReplacement = input.ContentReplacements.Single(x => x.ResourceKind == "account");
+                if (accountReplacement.Envelope.KeyEpoch != content.KeyEpoch + 1) return new(Error: "validation_failed");
+                replacement = JsonSerializer.SerializeToUtf8Bytes(accountReplacement.Envelope, Json);
+                // Include trash: retained ciphertext must not escape a complete rotation.
+                var profiles = await db.Profiles.Where(x => x.AccountId == a.Id).ToListAsync(cancellationToken);
+                if (input.ContentReplacements.Length != profiles.Count + 1) return new(Error: "validation_failed");
+                var replacements = input.ContentReplacements.Where(x => x.ResourceKind == "profile").ToDictionary(x => x.ResourceId);
+                foreach (var profile in profiles)
+                {
+                    if (!replacements.TryGetValue(profile.PublicId, out var item)) return new(Error: "validation_failed");
+                    if (profile.Revision != item.ExpectedRevision || profile.Revision >= ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
+                    var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(profile.Envelope, Json);
+                    var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(profile.KeyWrappers, Json);
+                    if (envelope?.IsValid() != true || wrappers?.IsBound(a.PublicId,profile.PublicId,envelope.KeyEpoch,profile.Revision,request.Actor,current) != true)
+                        return new(Error: "persistence_unavailable");
+                    if (envelope.KeyEpoch >= ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
+                    if (item.Envelope.KeyEpoch != envelope.KeyEpoch + 1 || item.Envelope.KeySalt == envelope.KeySalt || item.Envelope.Nonce == envelope.Nonce
+                        || item.KeyWrappers?.IsValidRotation(wrappers) != true
+                        || !item.KeyWrappers.IsBound(a.PublicId,profile.PublicId,item.Envelope.KeyEpoch,profile.Revision+1,request.Actor,current))
+                        return new(Error: "validation_failed");
+                    profileWrites.Add((profile,item));
+                }
             }
             var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.PublicId == request.ChallengeId, cancellationToken);
             if (row is null || row.Consumed) return new(Error: "vault_proof_rejected");
@@ -93,10 +116,18 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 : await account.ExecuteUpdateAsync(set => set.SetProperty(x => x.RevocationGeneration, x => x.RevocationGeneration + 1)
                     .SetProperty(x => x.DetailsEnvelope, replacement).SetProperty(x => x.Revision, x => x.Revision + 1), cancellationToken);
             if (changed != 1) return new(Error: "revision_conflict");
+            foreach (var (profile,item) in profileWrites)
+            {
+                profile.Envelope = JsonSerializer.SerializeToUtf8Bytes(item.Envelope,Json);
+                profile.KeyWrappers = JsonSerializer.SerializeToUtf8Bytes(item.KeyWrappers,Json);
+                profile.Revision++;
+                profile.ServerSequence = await db.Database.SqlQuery<long>($"SELECT nextval('cerberus.server_sequence') AS \"Value\"").SingleAsync(cancellationToken);
+            }
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return new(new(a.PublicId, protection.Revision, protection.KeyEpoch, protection.RecoveryGeneration, a.Revision + (replacement is null ? 0 : 1)));
         }
+        catch (PostgresException exception) when (exception.SqlState == "2200H") { return new(Error: "revision_conflict"); }
         catch (DbUpdateConcurrencyException) { return new(Error: "revision_conflict"); }
         catch (Exception exception) when (exception is DbException or DbUpdateException or TimeoutException or JsonException or ArgumentOutOfRangeException
             || exception is InvalidOperationException { InnerException: DbUpdateException or DbException or TimeoutException })

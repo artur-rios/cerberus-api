@@ -1,3 +1,6 @@
+using ArturRios.Cerberus.Command.Profiles;
+using ArturRios.Cerberus.Domain.Profiles;
+using ArturRios.Cerberus.Data.Profiles;
 using ArturRios.Cerberus.Data;
 using ArturRios.Cerberus.Data.Accounts;
 using ArturRios.Cerberus.Command.Accounts;
@@ -61,6 +64,9 @@ public static class Startup
         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
+        builder.Services.AddScoped<IProfileCreateStore, ProfileCreateStore>();
+        builder.Services.AddScoped<IValidator<CreateProfileCommand>, CreateProfileValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<CreateProfileCommand, CreateProfileOutput>, CreateProfileHandler>();
         builder.Services.AddScoped<IIdentityUpdateStore, IdentityUpdateStore>();
         builder.Services.AddScoped<IVaultProtectionStore, VaultProtectionStore>();
         builder.Services.AddScoped<IVaultProtectionChangeStore, VaultProtectionChangeStore>();

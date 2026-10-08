@@ -363,3 +363,41 @@ when the original handle is now stale; they perform no new operation. A changed
 purpose/body conflicts under the same account/idempotency key. The named fresh
 recovery-material read creates no session and consumes no credential. Secrets remain
 client-held; independent protocol/client approvals and strict release gate persist.
+
+
+### Profile creation and protection inventory (UC09)
+
+`POST /api/profiles` requires current Heimdall identity and a current account-wide
+`X-Cerberus-Vault-Access` handle. Ownership comes from the identity binding. Client
+public IDs are chosen before encryption; duplicate or permanently reserved IDs
+conflict. Required relationships are explicit arrays; nonempty IDs currently resolve
+to nonrevealing404 until their resource use cases introduce actual targets.
+
+Input fields are `profileId`, `envelope`, `keyWrappers`, `editedAt`, `recordIds`,
+`folderIds`, `collectionIds`. Output contains only profile ID, initial revision1,
+monotonic server sequence and stored UTC edit time (PostgreSQL microsecond precision).
+Sequence gaps are valid. This operation leaves account ciphertext/protection/revision
+unchanged. Strict UTF-8/no compression/no BOM, exact schema and native formats apply;
+name remains a client-required encrypted payload member with no uniqueness rule.
+
+Profile `keyWrappers` has Master/PerProfile mode, distinct scoped unlock public
+verifier, a native owner recipient wrapper and a password wrapper only in PerProfile
+mode. Owner wrapper bindings are account/profile/public-ID/content-epoch,
+grant-ID=profile-ID, grant-revision=profile-revision, recipient identity=owner identity,
+and the existing pinned account recipient/author fingerprints. The server verifies
+the pinned author's native signature, valid SEC1 public point and visible structure;
+it cannot validate HPKE plaintext/decryptability. This owner wrapper grants no sharing
+permission. Clients must retain the account recipient/author private keys inside
+client-encrypted account material reachable through recovery, and the independent
+profile root/scoped unlock private key inside the appropriate encrypted profile
+material. Bundle membership, key correspondence and name are client checks; independent
+client/protocol approval remains pending. Profile creation requires no recovery secret.
+
+Content rotation now requires the account plus every owned profile, including trash,
+with expected revisions, new content epochs and complete replacement profile wrappers.
+PerProfile password wrappers also advance slot epoch and use fresh contexts. Missing,
+extra, foreign or stale profiles reject before consuming the native proof. Account,
+profile, wrapper, revision and revocation writes commit or roll back together. Master
+password rewrap preserves profile bytes/revisions/sequences. Each later resource or
+sharing UC must extend this authoritative inventory before release. Selected-profile
+unlock/password handling remains its own upcoming use-case path.

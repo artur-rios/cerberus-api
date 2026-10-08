@@ -1,11 +1,12 @@
 using System.Text.Json.Serialization;
 using ArturRios.Cerberus.Domain.Accounts;
+using ArturRios.Cerberus.Domain.Profiles;
 
 namespace ArturRios.Cerberus.Domain.Protection;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 [JsonNumberHandling(JsonNumberHandling.Strict)]
-public sealed record ContentReplacement(string ResourceKind, Guid ResourceId, long ExpectedRevision, EncryptedEnvelope Envelope);
+public sealed record ContentReplacement(string ResourceKind, Guid ResourceId, long ExpectedRevision, EncryptedEnvelope Envelope, ProfileKeyWrappers? KeyWrappers = null);
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 [JsonNumberHandling(JsonNumberHandling.Strict)]
@@ -17,9 +18,14 @@ public sealed record ProtectionChange(Guid AccountId, long ExpectedProtectionRev
         && ExpectedAccountRevision is > 0 and <= ProtocolBinary.MaxInteger
         && Material?.IsValid() == true && ContentReplacements is not null
         && (Mode == "rewrap" ? ContentReplacements.Length == 0
-            : Mode == "rotate-content" && ContentReplacements.Length == 1 && ContentReplacements[0] is { } item
-                && item.ResourceKind == "account" && item.ResourceId == AccountId && item.ExpectedRevision == ExpectedAccountRevision
-                && item.Envelope?.IsValid() == true);
+            : Mode == "rotate-content" && ContentReplacements.Length > 0
+                && ContentReplacements.All(item => item is not null && item.ResourceId != Guid.Empty
+                    && item.ExpectedRevision is > 0 and <= ProtocolBinary.MaxInteger && item.Envelope?.IsValid() == true
+                    && (item.ResourceKind == "account" ? item.ResourceId == AccountId && item.ExpectedRevision == ExpectedAccountRevision && item.KeyWrappers is null
+                        : item.ResourceKind == "profile" && item.KeyWrappers?.IsValid() == true))
+                && ContentReplacements.Count(item => item.ResourceKind == "account") == 1
+                && ContentReplacements.Select(item => (item.ResourceKind,item.ResourceId)).Distinct().Count() == ContentReplacements.Length);
+
 
     public bool IsValidTransition(ProtectionMaterial current) => IsValid() && current?.IsValid() == true
         && current.PasswordWrapper.KeyEpoch < ProtocolBinary.MaxInteger

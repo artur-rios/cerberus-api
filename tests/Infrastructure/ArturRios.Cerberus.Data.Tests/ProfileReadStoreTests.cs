@@ -32,7 +32,7 @@ public class ProfileReadStoreTests(PostgresFixture fixture)
     [InlineData("foreign","vault_access_denied")][InlineData("trash","vault_access_denied")][InlineData("erased","vault_access_denied")]
     public async Task GivenSelectedSession_WhenReading_ThenRestrictToCurrentOwnedActiveSelection(string kind,string? error)
     {
-        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var one=ProfileSetup.Input(s,owner,scoped);var two=ProfileSetup.Input(s,owner,scoped);await Add(s,one);await Add(s,two);
+        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var one=ProfileSetup.Input(s,owner,scoped);using var secondScoped=new ProtectionFixture();var two=ProfileSetup.Input(s,owner,secondScoped);await Add(s,one);await Add(s,two);
         var foreign=await ProfileSetup.Create(fixture,owner);var other=ProfileSetup.Input(foreign,owner,scoped);await Add(foreign,other);
         await using(var db=fixture.CreateContext()){
             var p=await db.Profiles.SingleAsync(x=>x.PublicId==(kind=="foreign"?other.ProfileId:one.ProfileId));

@@ -252,8 +252,8 @@ The account-wide session must belong to the current active, non-erased account,
 match its current policy and revocation generations, and remain unrevoked and
 unexpired. Profile-only access cannot read account details. With renewal disabled,
 a session must explicitly have no expiry. UC-03 provides verification and storage;
-trusted session issuance and vault initialization remain UC-38, and profile access
-issuance remains UC-15. Authentication and account reads never create access sessions.
+trusted account session issuance and vault initialization are UC-38, and selected
+profile issuance is UC-15. Authentication and account reads never create access sessions.
 Apply the additive `VaultAccessSessions` migration before enabling this route.
 
 `PUT /api/accounts/me` uses the same current identity and account-wide access header.
@@ -339,8 +339,9 @@ UC39 protection replacement requires both account-wide vault access and the curr
 registered unlock-key proof. Rewrap preserves account ciphertext; complete current
 content rotation and both wrappers commit with protection/account revisions and
 revocation generation in one transaction. Previous sessions/challenges become stale;
-clients must re-unlock. The complete current inventory is the account envelope and
-zero recipient grants; future profile/content/sharing flows must extend its coverage.
+clients must re-unlock. The complete current inventory is the account envelope, all retained owned profiles,
+records, folders and collections, plus every active owned collection grant. Received
+and revoked grants remain unchanged; future content/sharing flows must preserve coverage.
 See [vault protection API](../security/vault-protection-api.md) for exact modes,
 original-body proof binding and ambiguous-response retry behavior.
 
@@ -371,8 +372,8 @@ client-held; independent protocol/client approvals and strict release gate persi
 `POST /api/profiles` requires current Heimdall identity and a current account-wide
 `X-Cerberus-Vault-Access` handle. Ownership comes from the identity binding. Client
 public IDs are chosen before encryption; duplicate or permanently reserved IDs
-conflict. Required relationships are explicit arrays; nonempty IDs currently resolve
-to nonrevealing404 until their resource use cases introduce actual targets.
+conflict. Required relationships are explicit arrays; nonempty IDs resolve to owned records/folders
+and owned or currently granted collections with nonrevealing404 for hidden targets.
 
 Input fields are `profileId`, `envelope`, `keyWrappers`, `editedAt`, `recordIds`,
 `folderIds`, `collectionIds`. Output contains only profile ID, initial revision1,
@@ -395,11 +396,37 @@ profile root/scoped unlock private key inside the appropriate encrypted profile
 material. Bundle membership, key correspondence and name are client checks; independent
 client/protocol approval remains pending. Profile creation requires no recovery secret.
 
-Content rotation now requires the account plus every owned profile, including trash,
-with expected revisions, new content epochs and complete replacement profile wrappers.
+Content rotation requires the account plus every retained owned profile, record,
+folder and collection, including trash, with expected revisions, new content epochs
+and complete replacement profile wrappers and active owned grant wrappers.
 PerProfile password wrappers also advance slot epoch and use fresh contexts. Missing,
 extra, foreign or stale profiles reject before consuming the native proof. Account,
 profile, wrapper, revision and revocation writes commit or roll back together. Master
 password rewrap preserves profile bytes/revisions/sequences. Each later resource or
 sharing UC must extend this authoritative inventory before release. Selected-profile
-unlock/password handling remains its own upcoming use-case path.
+unlocking is UC15; changing a per-profile password remains a future protection path.
+
+
+### Selected profile access (UC15)
+
+`POST /api/profiles/{id}/access/challenges` accepts a fresh signed Heimdall identity
+and required `expectedRevision`/`requestHash`, without an existing vault handle. It
+returns only the native 60-second profile challenge and selected encrypted bootstrap.
+`POST /api/profiles/{id}/access` accepts required `expectedRevision` plus the exact
+original-body native challenge/proof headers. It atomically consumes the proof and
+inserts a hashed selected-session handle, returning current permitted encrypted
+profile context. Native scope, current policy/generation, revision/epoch, expiry,
+owned active lifecycle and verifier isolation are checked under account→profile
+locks. No profile/account content changes. All failures are no-store and contain
+no handle; dependency/session failure rolls back consumption. A lost successful
+response requires a new challenge. See [profile access API](../security/profile-access-api.md).
+
+No new migration or runtime dependency is needed. Scoped verifiers must differ
+from all account role pins and retained owned profiles including trash. New duplicate
+creation returns 400; legacy duplicates/corrupt retained metadata fail closed with 503 at
+challenge/open. Replace legacy profiles using account-wide access, fresh IDs and
+independent keys; never silently regenerate secrets. No profile-password-change
+endpoint is added. Future profile protection changes/restore must preserve isolation
+and revoke affected handles. Physical purge MUST revoke/delete selected sessions
+or retain nonnull stale ProfileId metadata; NEVER clear it to null (account-wide scope).
+Independent protocol/client review remains a release prerequisite.

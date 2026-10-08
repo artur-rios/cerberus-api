@@ -12,6 +12,10 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Opening profile access with native scoped proofs in Master and PerProfile modes (UC-15): fresh-identity
+  challenge bootstrap, one-use proof consumption and opaque handles restricted to the selected profile.
+  See [profile access API](docs/security/profile-access-api.md) for exact bodies, expiry and retry behavior.
+
 - The specifications: initial notes, business rules, the formal requirements and the use case specification.
 - The .NET 10 solution scaffold, with typed configuration validation, request byte limits and no-store responses.
 - PostgreSQL persistence with its initial migration, and durable erasure files and retention leases.
@@ -43,6 +47,9 @@ development into `develop` only; it is still required before any release.
   including trash; received and revoked grants remain unchanged.
 
 ### Fixed
+
+- Profile creation rejects scoped verifier reuse across retained owned profiles, including trash. Challenge/open
+  fail closed on legacy duplicate or corrupt retained keys; use independent keys and fresh replacement profile IDs.
 
 - Profile create/update reject client timestamps that round down to the default storage value. Accepted UTC
   timestamps are normalized down to microseconds before database binding, including dates before 2000.

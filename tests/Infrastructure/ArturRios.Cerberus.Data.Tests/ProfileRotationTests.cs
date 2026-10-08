@@ -61,7 +61,7 @@ public class ProfileRotationTests(PostgresFixture fixture)
     public async Task GivenMultipleProfiles_WhenRotating_ThenRequireEveryCurrentProfile()
     {
         using var client=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,client);var first=await Create(s,client,scoped,"Master");
-        await Create(s,client,scoped,"PerProfile");var req=await Request(s,client,Change(s,client,scoped,first));
+        using var secondScoped=new ProtectionFixture();await Create(s,client,secondScoped,"PerProfile");var req=await Request(s,client,Change(s,client,scoped,first));
         Assert.Equal("validation_failed",(await new VaultProtectionChangeStore(fixture).ChangeAsync(req,default)).Error);
         await using var db=fixture.CreateContext();Assert.All(await db.Profiles.Where(x=>x.AccountId==s.InternalId).ToListAsync(),p=>Assert.Equal(1,p.Revision));
     }

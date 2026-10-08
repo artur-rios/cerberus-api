@@ -22,13 +22,14 @@ public class ProfileListHttpTests(RegistrationApiFixture fixture):WebApiTest<Pro
     [FunctionalFact]
     public async Task GivenOtherOwnersTrashAndErasure_WhenPaging_ThenOnlyOwnedVisibleOpaqueItemsAndNoTotals()
     {
+        using var additionalScoped1=new ProtectionFixture();using var additionalScoped2=new ProtectionFixture();using var additionalScoped3=new ProtectionFixture();using var additionalScoped4=new ProtectionFixture();
         using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var other=await Setup(f);
-        var hidden=await Add(s,f,scoped);var erased=await Add(s,f,scoped);await Add(other,f,scoped);var one=await Add(s,f,scoped);var two=await Add(s,f,scoped);
+        var hidden=await Add(s,f,scoped);var erased=await Add(s,f,additionalScoped1);await Add(other,f,scoped);var one=await Add(s,f,additionalScoped2);var two=await Add(s,f,additionalScoped3);
         await using(var db=fixture.Context()){
             await db.Profiles.Where(x=>x.PublicId==hidden).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.DeletedAt,DateTimeOffset.UtcNow));
             db.TerminalErasures.Add(new(){ResourceId=erased,ResourceKind="profile",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}
         Authorize(RegistrationApiFixture.Token(s.Actor));using var response=await Send("?pageSize=1",s.Access);var first=await Page(response);
-        Assert.Equal(one,Assert.Single(first.Items).ProfileId);Assert.NotNull(first.NextCursor);var later=await Add(s,f,scoped);
+        Assert.Equal(one,Assert.Single(first.Items).ProfileId);Assert.NotNull(first.NextCursor);var later=await Add(s,f,additionalScoped4);
         using var nextResponse=await Send("?pageSize=1&cursor="+first.NextCursor,s.Access);var second=await Page(nextResponse);Assert.Equal(two,Assert.Single(second.Items).ProfileId);Assert.Null(second.NextCursor);Assert.DoesNotContain(second.Items,x=>x.ProfileId==later);
         using var doc=JsonDocument.Parse(await response.Content.ReadAsStringAsync());Assert.Equal(new[]{"items","nextCursor"},doc.RootElement.GetProperty("data").EnumerateObject().Select(x=>x.Name).Order().ToArray());
         Assert.Equal(new[]{"collectionIds","editedAt","envelope","folderIds","keyWrappers","profileId","recordIds","revision","serverSequence"},doc.RootElement.GetProperty("data").GetProperty("items")[0].EnumerateObject().Select(x=>x.Name).Order().ToArray());
@@ -39,7 +40,8 @@ public class ProfileListHttpTests(RegistrationApiFixture fixture):WebApiTest<Pro
     {using var f=new ProtectionFixture();var s=await Setup(f);Authorize(RegistrationApiFixture.Token(s.Actor));using var response=await Send("",s.Access);var p=await Page(response);Assert.Empty(p.Items);Assert.Null(p.NextCursor);}
     [FunctionalFact]
     public async Task GivenSelectedAccess_WhenListing_ThenOnlyThatProfile()
-    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var id=await Add(s,f,scoped);await Add(s,f,scoped);
+    {
+        using var additionalScoped1=new ProtectionFixture();using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var id=await Add(s,f,scoped);await Add(s,f,additionalScoped1);
         await using(var db=fixture.Context()){var p=await db.Profiles.SingleAsync(x=>x.PublicId==id);await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ProfileId,p.Id));}
         Authorize(RegistrationApiFixture.Token(s.Actor));using var response=await Send("",s.Access);Assert.Equal(id,Assert.Single((await Page(response)).Items).ProfileId);}
     [FunctionalTheory]
@@ -73,13 +75,15 @@ public class ProfileListHttpTests(RegistrationApiFixture fixture):WebApiTest<Pro
         Authorize(RegistrationApiFixture.Token(actor));using var response=await Send("",s.Access);await Failure(response,status);await AssertNoMutation(s);}
     [FunctionalTheory][InlineData("revoked",403)][InlineData("trashed",200)][InlineData("foreignCursor",400)]
     public async Task GivenPermissionChangesOrCursorSubstitution_WhenContinuing_ThenApplyCurrentVisibility(string kind,int status)
-    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);await Add(s,f,scoped);var second=await Add(s,f,scoped);Authorize(RegistrationApiFixture.Token(s.Actor));using var first=await Send("?pageSize=1",s.Access);var cursor=(await Page(first)).NextCursor!;
+    {
+        using var additionalScoped1=new ProtectionFixture();using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);await Add(s,f,scoped);var second=await Add(s,f,additionalScoped1);Authorize(RegistrationApiFixture.Token(s.Actor));using var first=await Send("?pageSize=1",s.Access);var cursor=(await Page(first)).NextCursor!;
         await using(var db=fixture.Context()){if(kind=="revoked")await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.Revoked,true));if(kind=="trashed")await db.Profiles.Where(x=>x.PublicId==second).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.DeletedAt,DateTimeOffset.UtcNow));}
         if(kind=="foreignCursor"){s=await Setup(f);Authorize(RegistrationApiFixture.Token(s.Actor));}
         using var response=await Send("?pageSize=1&cursor="+cursor,s.Access);if(status==200)Assert.Empty((await Page(response)).Items);else await Failure(response,status);}
     [FunctionalTheory][InlineData("unavailable")][InlineData("envelope")][InlineData("recipient")][InlineData("zero")][InlineData("duplicate")]
     public async Task GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(string corrupt)
-    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);await Add(s,f,scoped);var second=await Add(s,f,scoped);if(corrupt=="duplicate")await Add(s,f,scoped);Authorize(RegistrationApiFixture.Token(s.Actor));await using var db=fixture.Context();
+    {
+        using var additionalScoped1=new ProtectionFixture();using var additionalScoped2=new ProtectionFixture();using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);await Add(s,f,scoped);var second=await Add(s,f,additionalScoped1);if(corrupt=="duplicate")await Add(s,f,additionalScoped2);Authorize(RegistrationApiFixture.Token(s.Actor));await using var db=fixture.Context();
         if(corrupt=="envelope")await db.Profiles.Where(x=>x.PublicId==second).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.Envelope,new byte[]{1}));else if(corrupt=="recipient"){var row=await db.Profiles.SingleAsync(x=>x.PublicId==second);var wrappers=JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers,ProtectionFixture.Json)!;row.KeyWrappers=JsonSerializer.SerializeToUtf8Bytes(wrappers with {MasterKeyWrapper=wrappers.MasterKeyWrapper with {RecipientIdentityId=Guid.NewGuid()}},ProtectionFixture.Json);await db.SaveChangesAsync();}
         else if(corrupt is "zero" or "duplicate"){var first=await db.Profiles.Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.ServerSequence).FirstAsync();await db.Profiles.Where(x=>x.PublicId==second).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.ServerSequence,corrupt=="zero"?0:first.ServerSequence));}
         else await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.profile RENAME TO fixture_unavailable_profile");

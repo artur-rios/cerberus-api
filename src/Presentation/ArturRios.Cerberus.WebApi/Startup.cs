@@ -65,6 +65,9 @@ public static class Startup
         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
+        builder.Services.AddScoped<IProfileTrashStore, ProfileTrashStore>();
+        builder.Services.AddScoped<IValidator<DeleteProfileCommand>, DeleteProfileValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<DeleteProfileCommand, DeleteProfileOutput>, DeleteProfileHandler>();
         builder.Services.AddScoped<IProfileUpdateStore, ProfileUpdateStore>();
         builder.Services.AddScoped<IValidator<UpdateProfileCommand>, UpdateProfileValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<UpdateProfileCommand, UpdateProfileOutput>, UpdateProfileHandler>();

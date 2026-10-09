@@ -114,3 +114,14 @@ listing/restore/empty/physical expiry remain release obligations; missing trash
 handlers currently retry. Before UC35, audit implicit recipient-account FK locks
 against strong owner account writers. Shared metadata and independent formal
 security/protocol/client qualifications remain development-only deferred.
+
+UC28 adds [owned folder parent moves](../security/folder-api.md#move-a-folder-uc28).
+Every active affected folder/record retains its direct associations and opaque
+content while selected access rejects new effective profile/collection scope.
+Current result-native grants, including contained direct records, require exact
+fresh bindings; the server does not fabricate keys or certify client decryption.
+Only root and distinct changed immediate parents advance metadata. Independent
+trash/deadlines stay unchanged. Current GET/list inheritance recalculates, while
+UC48 durable inherited visibility and independent client qualification remain
+release obligations. Collection-before-content locking aligns existing recipient
+editors; the implicit recipient-account FK audit remains mandatory before UC35.

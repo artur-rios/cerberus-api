@@ -649,3 +649,37 @@ re-trash and must not revive revoked grants. Strong account locking requires the
 separate implicit recipient-FK audit before UC35. Independent qualification and
 shared OpenAPI metadata remain release gates. See the
 [folder deletion API](../security/folder-api.md#recoverably-delete-a-folder-uc27).
+
+### Owned folder parent moves (UC28)
+
+PUT `/api/folders/{id}/parent` requires `expectedRevision` and explicitly nullable
+`parentFolderId`. Current owned source and destination folder authority is checked
+without broadening selection; native RO/RW foreign sources return403 after current
+binding validation, and record-only grants do not admit a container. Visible
+self/descendant destinations400, hidden targets404 and relevant stored cycles503.
+
+Capture active owned subtree folders/records, typed direct links, each member's
+before/result effective profile/collection sets and current native result evidence.
+Selected access requires both result sets to be subsets for each member; account-wide
+access can expand intentionally. Every active resulting recipient envelope binds
+current owner/recipient pins, identity, collection epoch and grant revision. Missing
+persisted evidence503; changed or uncaptured valid evidence409. No usable server key
+or client decryption claim is introduced.
+
+Own account UPDATE/session UPDATE, selection NO KEY UPDATE, ordered own collections
+NO KEY UPDATE and result grants SHARE precede captured folders/records/links UPDATE.
+Current authority is checked after each wait. Complete inventory/native evidence is
+recomputed inside the guarded root statement, the authorization linearization point.
+Root parent/revision/sequence/stamp and distinct changed immediate parents commit
+atomically or roll back completely. Descendant metadata, ciphertext/client times,
+keys, direct associations, recipient metadata and independent trash operations and
+deadlines remain unchanged. Same-parent moves change only root; lost-success retry409.
+Global sequence gaps are allowed. No foreign account/profile or upward-chain lock.
+Current create/move/trash/association/rotation and native recipient edit races are
+covered; before UC35 audit implicit recipient-account FK locks separately.
+
+Current GET/list inheritance updates immediately. UC48 must add durable inherited
+visibility and recipient offline removal delivery; recipients can retain prior copies.
+External key provisioning/decryption, shared OpenAPI metadata and independent
+security/protocol/client approval remain release gates. See the
+[folder move API](../security/folder-api.md#move-a-folder-uc28).

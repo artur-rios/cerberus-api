@@ -1,8 +1,9 @@
 # Foundation implementation status
 
 Foundation issue #1 is implemented and reviewed through [PR #57](https://github.com/artur-rios/cerberus-api/pull/57).
-All 55 business use cases remain unimplemented. This is not a usable
-vault application and must not be deployed for production traffic.
+The implementation and verification below describe the foundation snapshot of
+2026-10-07. Current business delivery is tracked in the [README backlog](../../README.md);
+UC-01 now exposes account registration. The API remains a development artifact.
 
 ## Implemented and tested
 
@@ -25,7 +26,7 @@ vault application and must not be deployed for production traffic.
 - A protocol-review record validator. The actual record remains pending; synthetic approval
   fixtures used by tests are not real approvals.
 
-The development host validates configuration and ledger storage before starting, registers
+At that foundation snapshot, the development host validates configuration and ledger storage before starting, registers
 the database without implicitly migrating it, and exposes no business endpoints. Its single
 JSON console logging pipeline admits only deliberately redacted application events and
 excludes framework/HTTP/EF payload logging. Restored startup reconciles before HTTP/worker
@@ -49,16 +50,16 @@ settings without connecting or exposing their values. The complete suite then pa
 
 ## Required decisions
 
-1. Complete the independent security and client-interoperability review required by NFR-11.
-   [Protocol proposal](../security/protocol-review.md) lists unresolved questions; no client
-   compatibility vectors or review approval currently exist.
+1. Complete the independent security and client-operability review before release.
+   [Protocol proposal](../security/protocol-review.md) lists unresolved questions. The
+   executable reference harness and compatibility vectors exist; actual approval remains pending.
 2. Actual deployment provisioning and ownership/load checks remain before production traffic.
    [Beta settings](proposed-beta-settings.md) were approved as design inputs by the user's
    latest “Go ahead”; they are not secretly installed defaults or deployed values.
 
-Dependent encryption/recovery implementation must stop at the review gate. IR-09 permits
-the foundation to establish that gate while the review is pending. A general instruction to
-implement the backlog is not evidence that an independent security/client review occurred.
+The owner's [explicit development deferral](../security/development-review-deferral.json)
+allows backlog implementation while review is pending. The strict main/tag release gate
+remains; this deferral is not evidence that an independent review occurred.
 
 ## Foundation requirement evidence
 
@@ -78,3 +79,59 @@ claimed. Real client payload/device measurements belong to protocol review and l
 
 No dependent use case can start until the foundation Definition of Done is met. The per-issue
 plan is [the backlog implementation plan](../superpowers/plans/2026-10-07-cerberus-backlog.md).
+
+UC23 adds [encrypted owned folder creation](../security/folder-api.md) using the
+existing folder schema and complete protection inventory. Parent ancestry and
+current selected authority are checked again at the guarded insert; partial
+folder/link/parent writes roll back together. Independent protocol/security and
+real-client qualification remain deferred for development only.
+
+UC24 adds [encrypted folder listing](../security/folder-api.md#list-encrypted-folders-uc24)
+with native RO/RW member-folder descendants and current selected-profile scope.
+One SQL snapshot admits permitted folders before ancestry, native evidence and
+pagination; record-only authority cannot expose a containing folder. Reads are
+no-store and make no mutations. Independent security/client and production
+qualification remain outstanding release gates.
+
+UC25 adds [encrypted folder detail](../security/folder-api.md#get-an-encrypted-folder-uc25)
+with current owned/native recipient scope and only permitted profile/collection/parent
+references. A target-first database snapshot checks complete ancestry and all native
+contributors, with no locks or mutations. Record-only access cannot expose its container.
+Formal security/client and production release qualification remain outstanding.
+
+UC26 adds [encrypted folder content replacement](../security/folder-api.md#update-encrypted-folder-content-uc26)
+for current owner/native read-write scope. Expected revision and a final current
+permission guard preserve winning edits; read-only recipients cannot write.
+Only target ciphertext/metadata advance, with no parent/child/association changes.
+Formal security/client and durable offline release qualification remain outstanding.
+
+UC27 adds [recoverable owned folder cascades](../security/folder-api.md#recoverably-delete-a-folder-uc27)
+with retained opaque folders/records, typed association snapshots and one720hour
+operation/queue. Independent trash keeps its deadline; active recipient reads
+hide deleted content while grants remain active. Complete protection rotation
+includes retained members. UC48 durable inherited visibility and UC50–53 trash
+listing/restore/empty/physical expiry remain release obligations; missing trash
+handlers currently retry. Before UC35, audit implicit recipient-account FK locks
+against strong owner account writers. Shared metadata and independent formal
+security/protocol/client qualifications remain development-only deferred.
+
+UC28 adds [owned folder parent moves](../security/folder-api.md#move-a-folder-uc28).
+Every active affected folder/record retains its direct associations and opaque
+content while selected access rejects new effective profile/collection scope.
+Current result-native grants, including contained direct records, require exact
+fresh bindings; the server does not fabricate keys or certify client decryption.
+Only root and distinct changed immediate parents advance metadata. Independent
+trash/deadlines stay unchanged. Current GET/list inheritance recalculates, while
+UC48 durable inherited visibility and independent client qualification remain
+release obligations. Collection-before-content locking aligns existing recipient
+editors; the implicit recipient-account FK audit remains mandatory before UC35.
+
+UC29 adds [owned encrypted collection creation](../security/collection-api.md).
+Current selected access permits only already-visible owned members; foreign native
+RO/RW content cannot become an owned collection member. Collection, typed initial
+links and each distinct directly affected profile/folder/record counter commit
+atomically. Existing opaque content, keys, grants, recipient metadata and prior
+trash remain exact. New collections enter complete native protection rotation.
+UC48 durable inherited visibility, external key provisioning/decryption, shared
+OpenAPI metadata and independent security/protocol/client release qualification
+remain obligations. The separate recipient-account FK audit remains before UC35.

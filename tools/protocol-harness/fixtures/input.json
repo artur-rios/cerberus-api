@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "classification": "public-test-fixtures-never-production",
+  "keys": {
+    "author": {
+      "privateDer": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgya-p2EW6dRZrXCFXZ7HWk05Qw9s26JsSe4piKxIPZyGhRANCAARg_tS6JVqdMclh63TGNW1owEm4kjth-mzmaWIuYPKftnkD_hAIuLyZpBrp6VYovGTy8bIMLX6fUXejwpTURiKZ",
+      "publicJwk": {
+        "crv": "P-256",
+        "kty": "EC",
+        "x": "YP7UuiVanTHJYet0xjVtaMBJuJI7Yfps5mliLmDyn7Y",
+        "y": "eQP-EAi4vJmkGunpVii8ZPLxsgwtfp9Rd6PClNRGIpk"
+      }
+    },
+    "recipient": {
+      "privateDer": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgOiswueaYb7UV3HwPurSbCfd1E_OkreOv29WoFQ2xupKhRANCAAS37xT5FzCv-ZTaoOnbEx4Agp5nr-uwWd1b4tZxok8IkaT_L_E0JGt8ZH4yPl2V-jILOsDQunjor9oWBtZ-u0pE",
+      "publicJwk": {
+        "crv": "P-256",
+        "kty": "EC",
+        "x": "t-8U-Rcwr_mU2qDp2xMeAIKeZ6_rsFndW-LWcaJPCJE",
+        "y": "pP8v8TQka3xkfjI-XZX6Mgs6wNC6eOiv2hYG1n67SkQ"
+      }
+    },
+    "unlock-account": {
+      "privateDer": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgIeXuothLBpzjf5IHDZDIR1zcMaZUvCVCSZtpbMuODQahRANCAASxQG7aHE63akQPWV70MeyZGFhT9nUuLV5-XQiQL4UnI8ILsr3Hf4Nc2apVLe_SocpEG-VdzH32eGzHWUNIoMn5",
+      "publicJwk": {
+        "crv": "P-256",
+        "kty": "EC",
+        "x": "sUBu2hxOt2pED1le9DHsmRhYU_Z1Li1efl0IkC-FJyM",
+        "y": "wguyvcd_g1zZqlUt79KhykQb5V3MffZ4bMdZQ0igyfk"
+      }
+    },
+    "unlock-profile": {
+      "privateDer": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgXlYFBuHLi76j6AysCf0BIdz7kDEjf_UGiTIA_iZc8OahRANCAARcl40ZcnYoehCuxa07rxApjeL3P3NbvZ-Pxi3DD_xWXPkiM0UccADy8Iq6UjIGXj0fFrj_CUkzXWevGg0JKQRi",
+      "publicJwk": {
+        "crv": "P-256",
+        "kty": "EC",
+        "x": "XJeNGXJ2KHoQrsWtO68QKY3i9z9zW72fj8Ytww_8Vlw",
+        "y": "-SIzRRxwAPLwirpSMgZePR8WuP8JSTNdZ68aDQkpBGI"
+      }
+    },
+    "recovery-1": {
+      "privateDer": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg6eykXfXwAXzxHNuuAAPZOS7S66mV91fOE-Ul8BkSJKWhRANCAASfPXXFihO13BeiNUx7aNhcLY1rHnFVKy1flZratZ-JMn--Q9pmDshTERnAx1qevqm0TZl6Z8p9Z164cNife3Cj",
+      "publicJwk": {
+        "crv": "P-256",
+        "kty": "EC",
+        "x": "nz11xYoTtdwXojVMe2jYXC2Nax5xVSstX5Wa2rWfiTI",
+        "y": "f75D2mYOyFMRGcDHWp6-qbRNmXpnyn1nXrhw2J97cKM"
+      }
+    },
+    "recovery-2": {
+      "privateDer": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgIMOfcA8wrvfvmHGz8yPBMi_USsFX4uv_3OtLU_ML1umhRANCAAQ5Ad9FiALdMSsS9fKDfoyWQyIMMNf9YFH8BtasLqzfF6fqH4LVzqWLd_LNwY3TFgZuBbtP04vNyYY5awoyxOVC",
+      "publicJwk": {
+        "crv": "P-256",
+        "kty": "EC",
+        "x": "OQHfRYgC3TErEvXyg36MlkMiDDDX_WBR_AbWrC6s3xc",
+        "y": "p-ofgtXOpYt38s3BjdMWBm4Fu0_Ti83JhjlrCjLE5UI"
+      }
+    },
+    "lease": {
+      "privateDer": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg2Oq3esbOtp_gn-6UXNXFBRkiFKZGsRRgM4wsG9cLRhmhRANCAAQRLt3QLymHysmBZAkAFMwrikPOcjtSU1LZNh6Mo556tZsUCPS2IMEBlSrDpJQ9tjTH5o4vNutWZukIQZV-zKej",
+      "publicJwk": {
+        "crv": "P-256",
+        "kty": "EC",
+        "x": "ES7d0C8ph8rJgWQJABTMK4pDznI7UlNS2TYejKOeerU",
+        "y": "mxQI9LYgwQGVKsOklD22NMfmji8261Zm6QhBlX7Mp6M"
+      }
+    }
+  },
+  "bundles": {
+    "account": {
+      "format": "cerberus-protection-bundle-v1",
+      "scopeKind": "account",
+      "scopeId": "00000000-0000-0000-0000-000000000001",
+      "roots": [
+        {
+          "resourceKind": "account",
+          "resourceId": "00000000-0000-0000-0000-000000000001",
+          "keyEpoch": 7,
+          "key": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
+        },
+        {
+          "resourceKind": "profile",
+          "resourceId": "00000000-0000-0000-0000-000000000002",
+          "keyEpoch": 5,
+          "key": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8"
+        },
+        {
+          "resourceKind": "record",
+          "resourceId": "00000000-0000-0000-0000-000000000003",
+          "keyEpoch": 3,
+          "key": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8"
+        }
+      ],
+      "unlockPrivateKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgIeXuothLBpzjf5IHDZDIR1zcMaZUvCVCSZtpbMuODQahRANCAASxQG7aHE63akQPWV70MeyZGFhT9nUuLV5-XQiQL4UnI8ILsr3Hf4Nc2apVLe_SocpEG-VdzH32eGzHWUNIoMn5"
+    },
+    "profile": {
+      "format": "cerberus-protection-bundle-v1",
+      "scopeKind": "profile",
+      "scopeId": "00000000-0000-0000-0000-000000000002",
+      "roots": [
+        {
+          "resourceKind": "profile",
+          "resourceId": "00000000-0000-0000-0000-000000000002",
+          "keyEpoch": 5,
+          "key": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8"
+        },
+        {
+          "resourceKind": "record",
+          "resourceId": "00000000-0000-0000-0000-000000000003",
+          "keyEpoch": 3,
+          "key": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8"
+        }
+      ],
+      "unlockPrivateKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgXlYFBuHLi76j6AysCf0BIdz7kDEjf_UGiTIA_iZc8OahRANCAARcl40ZcnYoehCuxa07rxApjeL3P3NbvZ-Pxi3DD_xWXPkiM0UccADy8Iq6UjIGXj0fFrj_CUkzXWevGg0JKQRi"
+    }
+  },
+  "membership": {
+    "account": [
+      "account:00000000-0000-0000-0000-000000000001",
+      "profile:00000000-0000-0000-0000-000000000002",
+      "record:00000000-0000-0000-0000-000000000003"
+    ],
+    "profile": [
+      "profile:00000000-0000-0000-0000-000000000002",
+      "record:00000000-0000-0000-0000-000000000003"
+    ]
+  }
+}

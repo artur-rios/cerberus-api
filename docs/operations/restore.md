@@ -62,3 +62,45 @@ marker before opening the gate. Other tests cover revoked current authority, cor
 cancellation, duplicate replay and queued-reconciliation races. The migration CLI is tested
 against a separate blank PostgreSQL container. These fixtures establish infrastructure
 behavior, not actual domain deletion, client interoperability or a production restore drill.
+
+
+## Typed permanent record erasure (UC22)
+
+Apply `20261009035540_TypedTerminalErasure` with ingress disabled before serving
+permanent-delete requests. The unique terminal identity is `(resource_kind,
+resource_id)`, with account, profile, record, folder, collection and grant kinds.
+Legitimate existing markers retain their kinds and times; invalid existing kinds
+fail migration closed and require operator repair. Do not merge distinct kinds
+sharing a UUID. Reverting to the old global UUID uniqueness can fail once typed
+collisions exist; use a reviewed forward migration rather than deleting markers.
+
+Preserve both new `kind-GUIDN.json` files and legacy `GUIDN.json` files in the
+external ledger. Legacy contents determine their resource kind. Reads validate
+kind/ID/filename, privacy, symlinks and corruption; do not rename files, replace
+this ledger with a database backup or remove it to recover traffic. Repeated same
+kind/ID events retain the original terminal time, and replay preserves the earliest
+known time. The ledger contains minimal identity/kind/time, no content or keys.
+
+Permanent deletion commits a typed terminal intent and `record-purge/{UUID}` work
+before external ledger I/O. A pending record is already inaccessible and its ID
+reserved even if the public request returns `503` or is cancelled. After the
+configured lease expires, a fresh worker claim retries the same intent, flushes
+the ledger, physically removes only that record and completes under database-time
+claim fencing. Monitor existing retention failure signals. Correct the ledger or
+database outage and restore the worker; do not clear terminal intent or reuse the
+record ID. Recoverable trash remains in key rotation; terminal pending records do
+not. Short worker intervals can expire during filesystem I/O and cause safe retries.
+
+Record ledger replay upserts the typed marker and removes restored record
+ciphertext, direct links and typed record trash membership in one transaction
+before the traffic gate opens. Empty root-record trash operations and their trash
+work are removed; nonempty cascades, other kinds, profiles, folders, collections
+and grants survive. Other resource kinds retain fail-closed typed tombstones until
+their physical replay handlers ship. Selected profile IDs are never cleared.
+
+`RecordPurgeHandlerTests.GivenBackupBeforePermanentDeletion_WhenRestoringAndReplayingLedger_ThenRemoveCiphertextBeforeTrafficAndKeepOtherKinds`
+uses an actual PostgreSQL dump taken before erasure, restores its ciphertext,
+replays the preserved external ledger and checks physical record absence before
+opening traffic while a same-UUID folder survives. Claim-expiry/theft, rollback,
+ledger outage and corrupt-reconciliation tests cover failed recovery. These server
+fixtures do not certify a production restore drill or external client behavior.

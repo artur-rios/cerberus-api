@@ -1,4 +1,6 @@
 using ArturRios.Cerberus.Shared.Configuration;
+using ArturRios.Cerberus.Domain.Accounts;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -6,9 +8,84 @@ using System.Text.Json.Serialization;
 
 namespace ArturRios.Cerberus.Shared.Identity;
 
-public sealed class HeimdallClient(HttpClient client, CerberusOptions options, HeimdallTokenValidator tokens) : IHeimdallClient
+public sealed partial class HeimdallClient(HttpClient client, CerberusOptions options, HeimdallTokenValidator tokens) : IHeimdallClient
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+
+    public async Task<HeimdallAuthentication> AuthenticateAsync(string email, string password, CancellationToken cancellationToken) =>
+        await AuthenticateResponseAsync(await SendAsync(HttpMethod.Post, "/api/auth/login",
+            new { email, password, scopeId = options.HeimdallScopeId }, null, cancellationToken), false, cancellationToken);
+
+    public async Task<HeimdallAuthentication> VerifyChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken) =>
+        await AuthenticateResponseAsync(await SendAsync(HttpMethod.Post, "/api/auth/2fa/verify",
+            new { challengeToken = challenge, code, recoveryCode }, null, cancellationToken), true, cancellationToken);
+
+    private async Task<HeimdallAuthentication> AuthenticateResponseAsync(DependencyResponse response, bool challengeCompletion, CancellationToken cancellationToken)
+    {
+        if (response.Data is null) return new(Error: response.HttpStatus switch
+        {
+            HttpStatusCode.Forbidden => "authentication_forbidden",
+            HttpStatusCode.Unauthorized or HttpStatusCode.NotFound => "authentication_required",
+            _ => "identity_unavailable"
+        });
+        var login = await ParseLoginAsync(response.Data, challengeCompletion, validateToken: false);
+        if (login is null) return new(Error: "identity_unavailable");
+        if (login.RequiresTwoFactor) return new(Login: login);
+        var principal = await tokens.ValidateAsync(login.Token!);
+        if (principal is null) return new(Error: "authentication_required");
+        return await RevalidateAsync(login.Token!, cancellationToken) switch
+        {
+            HeimdallAuthorization.Authorized => new(Login: login, IdentityId: Guid.Parse(principal.FindFirst("id")!.Value)),
+            HeimdallAuthorization.Denied => new(Error: "authentication_required"),
+            _ => new(Error: "identity_unavailable")
+        };
+    }
+
+    public async Task<RegistrationIdentity> EstablishRegistrationIdentityAsync(
+        HeimdallRegistration registration, string? proofToken, CancellationToken cancellationToken)
+    {
+        if (await tokens.ValidateServiceAsync(options.HeimdallServiceCredential ?? string.Empty) is null)
+            return new(RegistrationIdentityStatus.Forbidden);
+        if (proofToken is null)
+        {
+            var loginResponse = await SendAsync(HttpMethod.Post, "/api/auth/login",
+                new { registration.Email, registration.Password, scopeId = options.HeimdallScopeId }, null, cancellationToken);
+            if (loginResponse.Data is not null)
+            {
+                var login = await ParseLoginAsync(loginResponse.Data, challengeCompletion: false);
+                if (login is null) return new(RegistrationIdentityStatus.Unavailable);
+                if (login.RequiresTwoFactor) return new(RegistrationIdentityStatus.Denied);
+                proofToken = login.Token;
+            }
+            else if (loginResponse.HttpStatus == HttpStatusCode.Unauthorized)
+            {
+                var creation = await SendAsync(HttpMethod.Post, $"/api/scopes/{options.HeimdallScopeId:D}/persons",
+                    registration, options.HeimdallServiceCredential, cancellationToken);
+                var person = ParsePerson(creation.Data, requireDeletionState: false);
+                if (person is { Role: 3, IsDeleted: false } && person.ScopeId == options.HeimdallScopeId)
+                    return new(RegistrationIdentityStatus.Verified, person.Id);
+                return new(creation.HttpStatus switch
+                {
+                    HttpStatusCode.Conflict => RegistrationIdentityStatus.Denied,
+                    HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => RegistrationIdentityStatus.Forbidden,
+                    HttpStatusCode.NotFound => RegistrationIdentityStatus.NotFound,
+                    _ => RegistrationIdentityStatus.Unavailable
+                });
+            }
+            else return new(loginResponse.HttpStatus == HttpStatusCode.Forbidden
+                ? RegistrationIdentityStatus.Forbidden : RegistrationIdentityStatus.Unavailable);
+        }
+
+        var principal = await tokens.ValidateAsync(proofToken ?? string.Empty);
+        if (principal is null) return new(RegistrationIdentityStatus.Denied);
+        var current = await RevalidateAsync(proofToken!, cancellationToken);
+        return current switch
+        {
+            HeimdallAuthorization.Authorized => new(RegistrationIdentityStatus.Verified, Guid.Parse(principal.FindFirst("id")!.Value)),
+            HeimdallAuthorization.Denied => new(RegistrationIdentityStatus.Denied),
+            _ => new(RegistrationIdentityStatus.Unavailable)
+        };
+    }
     public async Task<bool> VerifyScopeAsync(CancellationToken cancellationToken)
     {
         var credential = options.HeimdallServiceCredential!;
@@ -63,7 +140,7 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
             ? HeimdallAuthorization.Authorized : HeimdallAuthorization.Denied;
     }
 
-    private async Task<HeimdallLogin?> ParseLoginAsync(JsonElement? data, bool challengeCompletion)
+    private async Task<HeimdallLogin?> ParseLoginAsync(JsonElement? data, bool challengeCompletion, bool validateToken = true)
     {
         if (data is null) return null;
         HeimdallLogin? result;
@@ -76,7 +153,8 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
                 && result.AvailableMethods.All(x => x is "App" or "Email") ? result : null;
         if ((!challengeCompletion && !data.Value.TryGetProperty("requiresTwoFactor", out _))
             || result.ExpiresAt is null || result.ExpiresAt <= DateTimeOffset.UtcNow || result.EmailVerified is null
-            || result.ChallengeToken is not null || await tokens.ValidateAsync(result.Token ?? string.Empty) is null)
+            || result.ChallengeToken is not null || result.Token is null
+            || (validateToken && await tokens.ValidateAsync(result.Token) is null))
             return null;
         return result;
     }
@@ -92,7 +170,7 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
         catch (JsonException) { return null; }
     }
 
-    private sealed record DependencyResponse(JsonElement? Data, HeimdallAuthorization Status);
+    private sealed record DependencyResponse(JsonElement? Data, HeimdallAuthorization Status, HttpStatusCode? HttpStatus = null);
     private static readonly DependencyResponse Unavailable = new(null, HeimdallAuthorization.Unavailable);
     private static readonly DependencyResponse Denied = new(null, HeimdallAuthorization.Denied);
 
@@ -110,9 +188,9 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
         {
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, dependencyToken);
             if (response.StatusCode is System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.NotFound)
-                return Denied;
+                return Denied with { HttpStatus = response.StatusCode };
             if (!response.IsSuccessStatusCode || response.Content.Headers.ContentType?.MediaType != "application/json"
-                || response.Content.Headers.ContentLength > options.MaxRequestBytes) return Unavailable;
+                || response.Content.Headers.ContentLength > options.MaxRequestBytes) return Unavailable with { HttpStatus = response.StatusCode };
             await using var stream = await response.Content.ReadAsStreamAsync(dependencyToken);
             using var buffer = new MemoryStream();
             var block = new byte[4096];
@@ -122,7 +200,7 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
                 if (buffer.Length > options.MaxRequestBytes - read) return Unavailable;
                 await buffer.WriteAsync(block.AsMemory(0, read), dependencyToken);
             }
-            using var document = JsonDocument.Parse(buffer.ToArray());
+            using var document = JsonDocument.Parse(buffer.ToArray(), new JsonDocumentOptions { AllowDuplicateProperties = false });
             var root = document.RootElement;
             if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("success", out var success) || success.ValueKind != JsonValueKind.True
                 || !root.TryGetProperty("errors", out var errors) || errors.ValueKind != JsonValueKind.Array || errors.GetArrayLength() != 0

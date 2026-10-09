@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "classification": "public-test-fixtures",
+  "description": "Public author key and deliberately malformed embedded ECPrivateKey structures; never production keys.",
+  "cases": [
+    {
+      "id": "inner-version-zero",
+      "expect": "invalid_protocol",
+      "der": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAAQgya-p2EW6dRZrXCFXZ7HWk05Qw9s26JsSe4piKxIPZyGhRANCAARg_tS6JVqdMclh63TGNW1owEm4kjth-mzmaWIuYPKftnkD_hAIuLyZpBrp6VYovGTy8bIMLX6fUXejwpTURiKZ"
+    },
+    {
+      "id": "inner-version-two",
+      "expect": "invalid_protocol",
+      "der": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAgQgya-p2EW6dRZrXCFXZ7HWk05Qw9s26JsSe4piKxIPZyGhRANCAARg_tS6JVqdMclh63TGNW1owEm4kjth-mzmaWIuYPKftnkD_hAIuLyZpBrp6VYovGTy8bIMLX6fUXejwpTURiKZ"
+    },
+    {
+      "id": "inner-nonminimal-length",
+      "expect": "invalid_protocol",
+      "der": "MIGIAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG4wbAKBAQEEIMmvqdhFunUWa1whV2ex1pNOUMPbNuibEnuKYisSD2choUQDQgAEYP7UuiVanTHJYet0xjVtaMBJuJI7Yfps5mliLmDyn7Z5A_4QCLi8maQa6elWKLxk8vGyDC1-n1F3o8KU1EYimQ"
+    },
+    {
+      "id": "inner-trailing-null",
+      "expect": "invalid_protocol",
+      "der": "MIGJAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG8wbQIBAQQgya-p2EW6dRZrXCFXZ7HWk05Qw9s26JsSe4piKxIPZyGhRANCAARg_tS6JVqdMclh63TGNW1owEm4kjth-mzmaWIuYPKftnkD_hAIuLyZpBrp6VYovGTy8bIMLX6fUXejwpTURiKZBQA"
+    },
+    {
+      "id": "inner-unknown-tag",
+      "expect": "invalid_protocol",
+      "der": "MIGLAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHEwbwIBAQQgya-p2EW6dRZrXCFXZ7HWk05Qw9s26JsSe4piKxIPZyGiAgUAoUQDQgAEYP7UuiVanTHJYet0xjVtaMBJuJI7Yfps5mliLmDyn7Z5A_4QCLi8maQa6elWKLxk8vGyDC1-n1F3o8KU1EYimQ"
+    },
+    {
+      "id": "inner-curve-p384",
+      "expect": "invalid_protocol",
+      "der": "MIGQAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHYwdAIBAQQgya-p2EW6dRZrXCFXZ7HWk05Qw9s26JsSe4piKxIPZyGgBwYFK4EEACKhRANCAARg_tS6JVqdMclh63TGNW1owEm4kjth-mzmaWIuYPKftnkD_hAIuLyZpBrp6VYovGTy8bIMLX6fUXejwpTURiKZ"
+    },
+    {
+      "id": "inner-duplicate-public",
+      "expect": "invalid_protocol",
+      "der": "MIHPAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBIG0MIGxAgEBBCDJr6nYRbp1FmtcIVdnsdaTTlDD2zbomxJ7imIrEg9nIaFEA0IABGD-1LolWp0xyWHrdMY1bWjASbiSO2H6bOZpYi5g8p-2eQP-EAi4vJmkGunpVii8ZPLxsgwtfp9Rd6PClNRGIpmhRANCAARg_tS6JVqdMclh63TGNW1owEm4kjth-mzmaWIuYPKftnkD_hAIuLyZpBrp6VYovGTy8bIMLX6fUXejwpTURiKZ"
+    },
+    {
+      "id": "inner-duplicate-parameters",
+      "expect": "invalid_protocol",
+      "der": "MIGhAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBIGGMIGDAgEBBCDJr6nYRbp1FmtcIVdnsdaTTlDD2zbomxJ7imIrEg9nIaAKBggqhkjOPQMBB6AKBggqhkjOPQMBB6FEA0IABGD-1LolWp0xyWHrdMY1bWjASbiSO2H6bOZpYi5g8p-2eQP-EAi4vJmkGunpVii8ZPLxsgwtfp9Rd6PClNRGIpk"
+    },
+    {
+      "id": "inner-reordered-optionals",
+      "expect": "invalid_protocol",
+      "der": "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgya-p2EW6dRZrXCFXZ7HWk05Qw9s26JsSe4piKxIPZyGhRANCAARg_tS6JVqdMclh63TGNW1owEm4kjth-mzmaWIuYPKftnkD_hAIuLyZpBrp6VYovGTy8bIMLX6fUXejwpTURiKZoAoGCCqGSM49AwEH"
+    },
+    {
+      "id": "inner-scalar-31",
+      "expect": "invalid_protocol",
+      "der": "MEACAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJjAkAgEBBB-vqdhFunUWa1whV2ex1pNOUMPbNuibEnuKYisSD2ch"
+    },
+    {
+      "id": "inner-scalar-33",
+      "expect": "invalid_protocol",
+      "der": "MIGIAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG4wbAIBAQQhAMmvqdhFunUWa1whV2ex1pNOUMPbNuibEnuKYisSD2choUQDQgAEYP7UuiVanTHJYet0xjVtaMBJuJI7Yfps5mliLmDyn7Z5A_4QCLi8maQa6elWKLxk8vGyDC1-n1F3o8KU1EYimQ"
+    },
+    {
+      "id": "original",
+      "expect": "success",
+      "der": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgya-p2EW6dRZrXCFXZ7HWk05Qw9s26JsSe4piKxIPZyGhRANCAARg_tS6JVqdMclh63TGNW1owEm4kjth-mzmaWIuYPKftnkD_hAIuLyZpBrp6VYovGTy8bIMLX6fUXejwpTURiKZ"
+    },
+    {
+      "id": "inner-curve-p256",
+      "expect": "success",
+      "der": "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgya-p2EW6dRZrXCFXZ7HWk05Qw9s26JsSe4piKxIPZyGgCgYIKoZIzj0DAQehRANCAARg_tS6JVqdMclh63TGNW1owEm4kjth-mzmaWIuYPKftnkD_hAIuLyZpBrp6VYovGTy8bIMLX6fUXejwpTURiKZ"
+    }
+  ]
+}

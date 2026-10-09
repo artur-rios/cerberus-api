@@ -19,14 +19,14 @@ public sealed class RestoreReconcilerTests(PostgresFixture fixture) : IDisposabl
         var erasures = new TerminalErasureStore(fixture);
         await ledger.RecordAsync(entry, default);
         await erasures.ReapplyAsync(entry, default);
-        Assert.True(await erasures.IsErasedAsync(entry.ResourceId, default));
+        Assert.True(await erasures.IsErasedAsync(entry.ResourceKind, entry.ResourceId, default));
         await fixture.RestoreAsync(backup);
-        Assert.False(await erasures.IsErasedAsync(entry.ResourceId, default));
+        Assert.False(await erasures.IsErasedAsync(entry.ResourceKind, entry.ResourceId, default));
         var gate = new RestoreTrafficGate();
         var reconciler = new RestoreReconciler(ledger, erasures, new AuthorizationFixture(true), gate);
         Assert.False(gate.IsReady);
         Assert.True(await reconciler.ReconcileAsync(default));
-        Assert.True(await erasures.IsErasedAsync(entry.ResourceId, default));
+        Assert.True(await erasures.IsErasedAsync(entry.ResourceKind, entry.ResourceId, default));
         Assert.True(gate.IsReady);
     }
 
@@ -44,12 +44,12 @@ public sealed class RestoreReconcilerTests(PostgresFixture fixture) : IDisposabl
             await transaction.RollbackAsync();
         }
         var erasures = new TerminalErasureStore(fixture);
-        Assert.False(await erasures.IsErasedAsync(entry.ResourceId, default));
+        Assert.False(await erasures.IsErasedAsync(entry.ResourceKind, entry.ResourceId, default));
         var gate = new RestoreTrafficGate();
         Assert.False(gate.IsReady);
         var reconciler = new RestoreReconciler(ledger, erasures, new AuthorizationFixture(true), gate);
         Assert.True(await reconciler.ReconcileAsync(default));
-        Assert.True(await erasures.IsErasedAsync(entry.ResourceId, default));
+        Assert.True(await erasures.IsErasedAsync(entry.ResourceKind, entry.ResourceId, default));
         Assert.True(gate.IsReady);
         Assert.True(await reconciler.ReconcileAsync(default));
         await using var verification = fixture.CreateContext();

@@ -4,6 +4,19 @@ namespace ArturRios.Cerberus.Shared.Tests;
 
 public class CerberusOptionsValidatorTests
 {
+    [UnitTheory]
+    [InlineData(null)]
+    [InlineData("short")]
+    [InlineData("test-only-ASCII-secret-at-least-32-bytes")]
+    public void GivenMissingWeakOrIdentityKeyReusedForRegistration_WhenValidating_ThenReject(string? key)
+    {
+        var options = ValidOptions();
+        options.RegistrationFingerprintKey = key;
+        var result = new CerberusOptionsValidator().Validate(null, options);
+        Assert.True(result.Failed);
+        Assert.Contains("Invalid or missing CERBERUS_REGISTRATION_FINGERPRINT_KEY.", result.Failures!);
+    }
+
     [UnitFact]
     public void GivenMissingRequiredSettings_WhenValidating_ThenRejectWithSettingNamesOnly()
     {
@@ -95,6 +108,7 @@ public class CerberusOptionsValidatorTests
         AuthIssuer = "https://identity.example.test",
         AuthAudience = "cerberus",
         AuthValidationSecret = "test-only-ASCII-secret-at-least-32-bytes",
+        RegistrationFingerprintKey = "independent-durable-fixture-key-32-bytes",
         BackupRetention = "7.00:00:00",
         LogRetention = "7.00:00:00",
         SyncRetention = "30.00:00:00",

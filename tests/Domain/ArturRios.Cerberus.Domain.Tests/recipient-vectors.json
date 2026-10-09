@@ -1,0 +1,41 @@
+{
+  "classification": "public-test-fixtures-never-production",
+  "recipient": {
+    "crv": "P-256",
+    "kty": "EC",
+    "x": "t-8U-Rcwr_mU2qDp2xMeAIKeZ6_rsFndW-LWcaJPCJE",
+    "y": "pP8v8TQka3xkfjI-XZX6Mgs6wNC6eOiv2hYG1n67SkQ"
+  },
+  "author": {
+    "crv": "P-256",
+    "kty": "EC",
+    "x": "YP7UuiVanTHJYet0xjVtaMBJuJI7Yfps5mliLmDyn7Y",
+    "y": "eQP-EAi4vJmkGunpVii8ZPLxsgwtfp9Rd6PClNRGIpk"
+  },
+  "wrappers": [
+    {
+      "authorKeyFingerprint": "DOvxvJiAdIqVWIkFt5hDtCunXLF0BV4-JGv4f-ALSm0",
+      "ciphertext": "DsQUqyDWdAPtqADPWg1SXof2ShxOS-DAuBHBe1kOlOe9GBwpMmTLHcYP2WHhpbm5",
+      "enc": "BGBHWGOjrk66CFFR8rPtlY08Qk-bbfZ1aE9J729MDtwx7rldjCHcZxEAX7ADD7yQvInWOFxfWjEEjqMgkwuD7XA",
+      "format": "cerberus-recipient-wrap-v1",
+      "grantId": "00000000-0000-0000-0000-000000000007",
+      "grantRevision": 1,
+      "keyEpoch": 1,
+      "recipientIdentityId": "00000000-0000-0000-0000-000000000002",
+      "recipientKeyFingerprint": "I9u4PCa1oVGAn9hQLByOnrLQPHJvXvsJrvRD1zhdoN4",
+      "signature": "PWymnnR-0BDRBM32hkRiS4u1SA3lkPDvkUYXTi2QiV-wLC1hwzhrgTCSdWbrR2sKJipWLBcRhOGYDqtoh3LI0w"
+    },
+    {
+      "authorKeyFingerprint": "DOvxvJiAdIqVWIkFt5hDtCunXLF0BV4-JGv4f-ALSm0",
+      "ciphertext": "E_Xum9YCxGMELNcx5o0RbaLw8eIUQMPUEM7gkkdEi10cxMkHR0BhHweQWFu6jgyG",
+      "enc": "BFCkmUQC2a3KoXuwdCa3E413a2r2pM7XdduGRR_bRq3b--Ck_QOLPaxQp_XlX6MRdKNSDwLXOL9INeKlmAdIYeU",
+      "format": "cerberus-recipient-wrap-v1",
+      "grantId": "00000000-0000-0000-0000-000000000007",
+      "grantRevision": 1,
+      "keyEpoch": 1,
+      "recipientIdentityId": "00000000-0000-0000-0000-000000000002",
+      "recipientKeyFingerprint": "I9u4PCa1oVGAn9hQLByOnrLQPHJvXvsJrvRD1zhdoN4",
+      "signature": "X_TJt4l-d3TUwwVGq-RXCg-23rHycf2F6dfGvaLEUNC-FOvQ4cEHEhXeY9__sUkItpwLJ7MMWL1uJxeFbk8JkA"
+    }
+  ]
+}

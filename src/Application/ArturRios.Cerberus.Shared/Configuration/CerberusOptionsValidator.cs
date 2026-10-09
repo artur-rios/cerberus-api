@@ -23,6 +23,9 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
         Require(!string.IsNullOrWhiteSpace(options.AuthIssuer), "CERBERUS_AUTH_ISSUER");
         Require(!string.IsNullOrWhiteSpace(options.AuthAudience), "CERBERUS_AUTH_AUDIENCE");
         Require(options.AuthValidationSecret is { Length: >= 32 } secret && secret.All(c => c is >= '!' and <= '~'), "CERBERUS_AUTH_VALIDATION_SECRET");
+        Require(options.RegistrationFingerprintKey is { Length: >= 32 } registrationKey
+                && registrationKey.All(c => c is >= '!' and <= '~') && registrationKey != options.AuthValidationSecret,
+            "CERBERUS_REGISTRATION_FINGERPRINT_KEY");
         foreach (var (value, key) in new[]
         {
             (options.BackupRetention, "CERBERUS_BACKUP_RETENTION"),

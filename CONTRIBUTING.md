@@ -6,8 +6,8 @@ Unattended transitions require explicit scoped authorization.
 
 ## Review gates
 
-Before implementing encrypted contracts, complete the security/interoperability protocol
-review. Before deploying the beta, select/pin stable dependencies, configure explicit retention
+Before releasing encrypted contracts, complete the security/interoperability protocol
+review; the owner deferred it for development into `develop` only (see [Testing](#testing)). Before deploying the beta, select/pin stable dependencies, configure explicit retention
 and limits, verify erasure-preserving restore and complete the documented privacy controls.
 These are recorded decisions/gates, not assertions that implementation or compliance is complete.
 
@@ -47,11 +47,13 @@ Current functional tests use disposable PostgreSQL containers and an in-memory H
 Every implemented use case must ship with main/alternative-flow tests. The required merged
 line-coverage floor is 90%; branch coverage is reported alongside it, without a numerical gate.
 `python3 scripts/verify_protocol.py` intentionally fails while the review record is pending.
-CI requires it for use-case branches, promotion to `main` and version-tag releases. Never
-begin dependent encryption/recovery work without actual security/client review evidence.
+CI requires it for promotion to `main` and version-tag releases. The owner explicitly
+deferred independent review for development into `develop`
+([deferral record](docs/security/development-review-deferral.json)); actual approval remains
+pending and is still required before any release.
 After reviewing a deliberate API contract change, run `python3 scripts/openapi.py --write`
-and commit its result. The foundation's empty contract is intentional: no business routes
-exist yet. OpenAPI generation starts no server and requires no deployment credentials.
+and commit its result. OpenAPI includes each implemented business route. Generation starts
+no server and requires no deployment credentials.
 
 `scripts/verify_specs.py` also checks `README.md`: every use case must appear exactly once in its
 backlog, the roadmap's milestone counts must add up, and its links and anchors must resolve. It
@@ -106,8 +108,8 @@ and deletion.
 The **Tests** workflow runs on every pull request into, and push to, `develop` and `main`, and on
 `v*` tags. It validates the specifications, runs the helper scripts' tests, restores and builds the
 solution, scans for vulnerable packages, checks the generated OpenAPI contract, runs the unit and
-functional tests, enforces 90% merged line coverage, and builds the container image. On pull
-requests into `main`, on `feature/uc-` branches and on tags it also runs `verify_protocol.py`.
+functional tests, enforces 90% merged line coverage, and builds the container image. On pushes to
+and pull requests into `main`, and on tags, it also runs `verify_protocol.py`.
 
 ## Releasing
 

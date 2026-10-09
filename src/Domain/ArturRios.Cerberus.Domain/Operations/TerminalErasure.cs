@@ -12,5 +12,11 @@ public sealed class TerminalErasure : Entity
 public interface ITerminalErasureStore
 {
     Task ReapplyAsync(ErasureEntry entry, CancellationToken cancellationToken);
-    Task<bool> IsErasedAsync(Guid resourceId, CancellationToken cancellationToken);
+    Task<bool> IsErasedAsync(string resourceKind, Guid resourceId, CancellationToken cancellationToken);
+}
+
+public static class TerminalResourceIdentity
+{
+    public static bool IsValid(string kind, Guid id) => id != Guid.Empty
+        && kind is "account" or "profile" or "record" or "folder" or "collection" or "grant";
 }

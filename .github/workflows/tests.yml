@@ -27,10 +27,12 @@ jobs:
       - name: Validate specifications
         run: python3 scripts/verify_specs.py
 
-      - name: Require reviewed protocol before dependent work or release
+      # Development review is explicitly deferred by the repository owner.
+      # See docs/security/development-review-deferral.json; releases remain gated.
+      - name: Require reviewed protocol before release
         if: >-
           github.ref == 'refs/heads/main' || github.base_ref == 'main' ||
-          startsWith(github.ref, 'refs/tags/') || startsWith(github.head_ref, 'feature/uc-')
+          startsWith(github.ref, 'refs/tags/')
         run: python3 scripts/verify_protocol.py
 
       - name: Detect foundation scaffold
@@ -54,6 +56,56 @@ jobs:
 
       - name: Run the Python helper tests
         run: python3 -m unittest discover -s scripts -p "test_*.py" --verbose
+
+      - name: Setup protocol Java
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Setup protocol Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.14'
+          architecture: x64
+
+      - name: Install locked protocol dependencies
+        run: |
+          HARNESS_TMP=$(mktemp -d "$RUNNER_TEMP/cerberus-protocol.XXXXXX")
+          export MAVEN_USER_HOME="$HARNESS_TMP/maven-user"
+          export HARNESS_MAVEN_CACHE="$HARNESS_TMP/m2"
+          export CERBERUS_PYTHON_WHEELS="$HARNESS_TMP/wheels"
+          export CERBERUS_MAVEN_DISTRIBUTION="$HARNESS_TMP/maven.zip"
+          python -m venv "$HARNESS_TMP/venv"
+          export HARNESS_PYTHON="$HARNESS_TMP/venv/bin/python"
+          "$HARNESS_PYTHON" -m pip download --only-binary=:all: --require-hashes -r tools/protocol-harness/python/requirements.lock --dest "$CERBERUS_PYTHON_WHEELS"
+          "$HARNESS_PYTHON" -m pip install --no-index --find-links "$CERBERUS_PYTHON_WHEELS" --only-binary=:all: --require-hashes -r tools/protocol-harness/python/requirements.lock
+          "$HARNESS_PYTHON" - <<'PY'
+          import hashlib, json, os, pathlib, urllib.request
+          lock = json.loads(pathlib.Path('tools/protocol-harness/dependencies.lock.json').read_text())['mavenDistribution']
+          target = pathlib.Path(os.environ['CERBERUS_MAVEN_DISTRIBUTION'])
+          with urllib.request.urlopen(lock['url'], timeout=60) as response:
+              data = response.read(32 * 1024 * 1024 + 1)
+          if len(data) > 32 * 1024 * 1024 or hashlib.sha256(data).hexdigest() != lock['sha256']:
+              raise SystemExit('unsupported_dependency')
+          target.write_bytes(data)
+          PY
+          tools/protocol-harness/java/mvnw -B -Dmaven.repo.local="$HARNESS_MAVEN_CACHE" -f tools/protocol-harness/java/pom.xml clean test dependency:tree
+          for name in MAVEN_USER_HOME HARNESS_MAVEN_CACHE CERBERUS_PYTHON_WHEELS CERBERUS_MAVEN_DISTRIBUTION HARNESS_PYTHON; do
+            echo "$name=${!name}" >> "$GITHUB_ENV"
+          done
+
+      - name: Audit locked protocol dependencies
+        run: >-
+          "$HARNESS_PYTHON" tools/protocol-harness/audit.py
+          --maven-cache "$HARNESS_MAVEN_CACHE"
+          --wheels "$CERBERUS_PYTHON_WHEELS"
+          --maven-distribution "$CERBERUS_MAVEN_DISTRIBUTION"
+
+      - name: Replay protocol corpus and complete native suites
+        run: |
+          "$HARNESS_PYTHON" tools/protocol-harness/verify.py --check docs/security/interoperability-vectors.json
+          python3 -m unittest discover -s tools/protocol-harness/tests -v
 
       - name: Restore dependencies
         if: steps.scaffold.outputs.ready == 'true'

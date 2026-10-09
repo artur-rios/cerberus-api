@@ -1939,10 +1939,23 @@
     "sha256Verified": true,
     "ownedSddRemoved": "/tmp/cerberus-uc29-worktree/.superpowers/sdd/2026-10-09-uc-29-create-collection"
   },
-  "lastSavedAt": "2026-10-09T14:38:26.668542+00:00",
+  "lastSavedAt": "2026-10-09T17:02:06.536115+00:00",
   "resumeNote": "/root/repositories/cerberus-api/.superpowers/checkpoints/RESUME.md",
-  "resumeNoteSha256": "23bb80e29b58ad43764ef82eb87bc5f5fbf59c33363ddb7fa2d9730f88b6a073",
+  "resumeNoteSha256": "002e868691a55bae9df72b81ab1d5dae0f38a0fc927fdd5733c5a2e7111da773",
   "stateSavedForLater": true,
   "checkpointCommitRequested": true,
-  "checkpointCommitBranch": "feature/changelog-and-contributing"
+  "checkpointCommitBranch": "feature/changelog-and-contributing",
+  "primaryWorkspaceAfterDocsIntegrationSha256": {
+    "CONTRIBUTING.md": "30a75ea95ac689f6aa8bbed5368bc2abe982dfc911083312213f6a66da672865",
+    "README.md": "cf4e908e53e08cf5e02a42c011f74163c31c406750dcfa3e24a16deff9184911",
+    "docs/requirements/Operations & Infrastructure Document.md": "b44c3dce3930ab8e262ee9917515ebe6e41b497331ecaa67141f26fc7c472934",
+    "CHANGELOG.md": "388fb815c02381c7e6d724f9e5cb27a36c98ca5ce0505c5724b9fa8e68b5c2d3"
+  },
+  "documentationIntegration": {
+    "originalCommit": "04db423538c3dcaea869ce8680a7d5295115c756",
+    "developBase": "2668b4a605e315307190da350016b9adf46efb9e",
+    "authorization": "User: Open a pull request for this branch and merge it after CI is green",
+    "batchRemainsPaused": true,
+    "resumeNextIssue": 31
+  }
 }

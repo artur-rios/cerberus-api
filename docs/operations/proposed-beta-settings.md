@@ -19,4 +19,13 @@ The erasure ledger directory must be durably preprovisioned, private to its oper
 
 The first four values use the invariant .NET constant TimeSpan format. These deployment retentions do not change the specified 30-day trash/account-closure period or the initial 24-hour account offline policy.
 
+Registration additionally requires `CERBERUS_REGISTRATION_FINGERPRINT_KEY` (or protected
+`Cerberus:RegistrationFingerprintKey` configuration). Generate an independent random secret
+with at least 32 printable ASCII characters; startup rejects missing, short or reused identity
+signing keys. Share this durable key across replicas and preserve it independently with protected
+backup/restore configuration. Routine Heimdall JWT-key rotation must leave it unchanged.
+Changing or losing this key invalidates historical operation fingerprints and their lock mapping;
+rotation requires a separately designed key-version migration, not a blind environment update.
+The key authenticates retry metadata and is never a client vault-decryption key.
+
 Record deployment-specific changes, storage/backup access ownership and successful load/restore evidence before accepting production traffic. Design approval does not claim deployment, benchmarks, storage provisioning or expiry enforcement by external log collection.

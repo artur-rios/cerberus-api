@@ -4,9 +4,10 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** foundation infrastructure implemented; all 55 business use cases remain unimplemented. The host
-> exposes no business endpoints. Independent protocol review and actual deployment provisioning remain
-> required decisions. See [foundation status](docs/operations/foundation-status.md).
+> **Status:** foundation infrastructure and 30 business use cases implemented; 25 business
+> use cases remain. Independent protocol review is explicitly deferred for development and
+> remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
+> and [foundation status](docs/operations/foundation-status.md).
 
 ## Planned capabilities
 
@@ -44,6 +45,7 @@ Start with the initial context, then the normative formal requirements.
 | [Testing Specification Document](docs/requirements/Testing%20Specification%20Document.md) | Unit/functional coverage and commands. |
 | [Technology Stack Document](docs/requirements/Technology%20Stack%20Document.md) | Single technology/version policy source. |
 | [Operations & Infrastructure Document](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | Scaffold, configuration, CI, health, retention and restore controls. |
+| [Folder creation API](docs/security/folder-api.md) | Current access, encrypted content, owned parent/profile scope and atomic metadata. |
 
 ## Installation
 
@@ -58,6 +60,8 @@ See [operational settings](docs/operations/proposed-beta-settings.md), the nonse
 Copy the reviewed nonsecret settings into the host's `appsettings.json` or supply named
 `CERBERUS_...` environment keys, which take precedence over `Cerberus:Property` values.
 Supply all credentials and identity scope separately through protected configuration.
+Registration requires an independent durable `CERBERUS_REGISTRATION_FINGERPRINT_KEY`;
+preserve it across replicas, restores and routine identity-signing-key rotation.
 
 From the repository root:
 
@@ -75,14 +79,14 @@ Clone the repository with `git clone https://github.com/artur-rios/cerberus-api.
 
 Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
 Each use case has one issue; the foundation issue comes first. Every milestone depends on
-Foundation, with dependencies only on earlier milestones. Counts below were last updated when the
-foundation merged; GitHub milestone pages show live progress. No due dates or labels were assigned.
+Foundation, with dependencies only on earlier milestones. Counts below are updated as issues close;
+GitHub milestone pages show live progress. No due dates or labels were assigned.
 
 | Milestone | Delivers | Depends on | Issues | Status |
 | --- | --- | --- | --- | --- |
 | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
-| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 0 / 9 closed |
-| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 0 / 26 closed |
+| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 9 / 9 closed |
+| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 21 / 26 closed |
 | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
 | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
 | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
@@ -99,41 +103,41 @@ foundation merged; GitHub milestone pages show live progress. No due dates or la
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Todo |
-| [#3](https://github.com/artur-rios/cerberus-api/issues/3) | UC-02 — Authenticate | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-02-authenticate) | Todo |
-| [#4](https://github.com/artur-rios/cerberus-api/issues/4) | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | Todo |
-| [#5](https://github.com/artur-rios/cerberus-api/issues/5) | UC-04 — Update account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-04-update-account) | Todo |
-| [#6](https://github.com/artur-rios/cerberus-api/issues/6) | UC-05 — Update identity details | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-05-update-identity-details) | Todo |
-| [#39](https://github.com/artur-rios/cerberus-api/issues/39) | UC-38 — Initialize vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-38-initialize-vault-protection) | Todo |
-| [#40](https://github.com/artur-rios/cerberus-api/issues/40) | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | Todo |
-| [#41](https://github.com/artur-rios/cerberus-api/issues/41) | UC-40 — Recover vault access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-40-recover-vault-access) | Todo |
-| [#42](https://github.com/artur-rios/cerberus-api/issues/42) | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | Todo |
+| [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Done |
+| [#3](https://github.com/artur-rios/cerberus-api/issues/3) | UC-02 — Authenticate | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-02-authenticate) | Done |
+| [#4](https://github.com/artur-rios/cerberus-api/issues/4) | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | Done |
+| [#5](https://github.com/artur-rios/cerberus-api/issues/5) | UC-04 — Update account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-04-update-account) | Done |
+| [#6](https://github.com/artur-rios/cerberus-api/issues/6) | UC-05 — Update identity details | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-05-update-identity-details) | Done |
+| [#39](https://github.com/artur-rios/cerberus-api/issues/39) | UC-38 — Initialize vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-38-initialize-vault-protection) | Done |
+| [#40](https://github.com/artur-rios/cerberus-api/issues/40) | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | Done |
+| [#41](https://github.com/artur-rios/cerberus-api/issues/41) | UC-40 — Recover vault access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-40-recover-vault-access) | Done |
+| [#42](https://github.com/artur-rios/cerberus-api/issues/42) | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | Done |
 
 ### M-03 — Organized vault
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| [#10](https://github.com/artur-rios/cerberus-api/issues/10) | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | Todo |
-| [#11](https://github.com/artur-rios/cerberus-api/issues/11) | UC-10 — List profiles | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-10-list-profiles) | Todo |
-| [#12](https://github.com/artur-rios/cerberus-api/issues/12) | UC-11 — Get profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-11-get-profile) | Todo |
-| [#13](https://github.com/artur-rios/cerberus-api/issues/13) | UC-12 — Update profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-12-update-profile) | Todo |
-| [#14](https://github.com/artur-rios/cerberus-api/issues/14) | UC-13 — Delete profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-13-delete-profile) | Todo |
-| [#15](https://github.com/artur-rios/cerberus-api/issues/15) | UC-14 — Set profile associations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-14-set-profile-associations) | Todo |
-| [#16](https://github.com/artur-rios/cerberus-api/issues/16) | UC-15 — Open profile access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-15-open-profile-access) | Todo |
-| [#17](https://github.com/artur-rios/cerberus-api/issues/17) | UC-16 — Create record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-16-create-record) | Todo |
-| [#18](https://github.com/artur-rios/cerberus-api/issues/18) | UC-17 — List records | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-17-list-records) | Todo |
-| [#19](https://github.com/artur-rios/cerberus-api/issues/19) | UC-18 — Get record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-18-get-record) | Todo |
-| [#20](https://github.com/artur-rios/cerberus-api/issues/20) | UC-19 — Update record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-19-update-record) | Todo |
-| [#21](https://github.com/artur-rios/cerberus-api/issues/21) | UC-20 — Delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-20-delete-record) | Todo |
-| [#22](https://github.com/artur-rios/cerberus-api/issues/22) | UC-21 — Move record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-21-move-record) | Todo |
-| [#23](https://github.com/artur-rios/cerberus-api/issues/23) | UC-22 — Permanently delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-22-permanently-delete-record) | Todo |
-| [#24](https://github.com/artur-rios/cerberus-api/issues/24) | UC-23 — Create folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-23-create-folder) | Todo |
-| [#25](https://github.com/artur-rios/cerberus-api/issues/25) | UC-24 — List folders | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-24-list-folders) | Todo |
-| [#26](https://github.com/artur-rios/cerberus-api/issues/26) | UC-25 — Get folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-25-get-folder) | Todo |
-| [#27](https://github.com/artur-rios/cerberus-api/issues/27) | UC-26 — Update folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-26-update-folder) | Todo |
-| [#28](https://github.com/artur-rios/cerberus-api/issues/28) | UC-27 — Delete folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-27-delete-folder) | Todo |
-| [#29](https://github.com/artur-rios/cerberus-api/issues/29) | UC-28 — Move folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-28-move-folder) | Todo |
-| [#30](https://github.com/artur-rios/cerberus-api/issues/30) | UC-29 — Create collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-29-create-collection) | Todo |
+| [#10](https://github.com/artur-rios/cerberus-api/issues/10) | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | Done |
+| [#11](https://github.com/artur-rios/cerberus-api/issues/11) | UC-10 — List profiles | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-10-list-profiles) | Done |
+| [#12](https://github.com/artur-rios/cerberus-api/issues/12) | UC-11 — Get profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-11-get-profile) | Done |
+| [#13](https://github.com/artur-rios/cerberus-api/issues/13) | UC-12 — Update profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-12-update-profile) | Done |
+| [#14](https://github.com/artur-rios/cerberus-api/issues/14) | UC-13 — Delete profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-13-delete-profile) | Done |
+| [#15](https://github.com/artur-rios/cerberus-api/issues/15) | UC-14 — Set profile associations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-14-set-profile-associations) | Done |
+| [#16](https://github.com/artur-rios/cerberus-api/issues/16) | UC-15 — Open profile access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-15-open-profile-access) | Done |
+| [#17](https://github.com/artur-rios/cerberus-api/issues/17) | UC-16 — Create record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-16-create-record) | Done |
+| [#18](https://github.com/artur-rios/cerberus-api/issues/18) | UC-17 — List records | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-17-list-records) | Done |
+| [#19](https://github.com/artur-rios/cerberus-api/issues/19) | UC-18 — Get record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-18-get-record) | Done |
+| [#20](https://github.com/artur-rios/cerberus-api/issues/20) | UC-19 — Update record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-19-update-record) | Done |
+| [#21](https://github.com/artur-rios/cerberus-api/issues/21) | UC-20 — Delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-20-delete-record) | Done |
+| [#22](https://github.com/artur-rios/cerberus-api/issues/22) | UC-21 — Move record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-21-move-record) | Done |
+| [#23](https://github.com/artur-rios/cerberus-api/issues/23) | UC-22 — Permanently delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-22-permanently-delete-record) | Done |
+| [#24](https://github.com/artur-rios/cerberus-api/issues/24) | UC-23 — Create folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-23-create-folder) | Done |
+| [#25](https://github.com/artur-rios/cerberus-api/issues/25) | UC-24 — List folders | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-24-list-folders) | Done |
+| [#26](https://github.com/artur-rios/cerberus-api/issues/26) | UC-25 — Get folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-25-get-folder) | Done |
+| [#27](https://github.com/artur-rios/cerberus-api/issues/27) | UC-26 — Update folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-26-update-folder) | Done |
+| [#28](https://github.com/artur-rios/cerberus-api/issues/28) | UC-27 — Delete folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-27-delete-folder) | Done |
+| [#29](https://github.com/artur-rios/cerberus-api/issues/29) | UC-28 — Move folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-28-move-folder) | Done |
+| [#30](https://github.com/artur-rios/cerberus-api/issues/30) | UC-29 — Create collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-29-create-collection) | Done |
 | [#31](https://github.com/artur-rios/cerberus-api/issues/31) | UC-30 — List collections | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-30-list-collections) | Todo |
 | [#32](https://github.com/artur-rios/cerberus-api/issues/32) | UC-31 — Get collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-31-get-collection) | Todo |
 | [#33](https://github.com/artur-rios/cerberus-api/issues/33) | UC-32 — Update collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-32-update-collection) | Todo |

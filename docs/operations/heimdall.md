@@ -25,4 +25,8 @@ upstream error text is never returned.
 Credentials are never returned or logged. Header/body transport is intentional; the API
 does not mint identities. Public endpoints require explicit anonymous metadata; unknown
 routes still return 404. Business ownership/profile/grant checks remain with the owning use
-case, and this bootstrap does not implement login or account-registration endpoints.
+case. UC-01 exposes `POST /api/accounts`; UC-02 exposes `POST /api/auth/login` and
+`POST /api/auth/2fa/verify`. Completed authentication revalidates current identity and
+returns permitted public account context; pending MFA returns challenge state only.
+An unbound identity receives no account rights; inactive/erased accounts are denied.
+Neither endpoint opens vault access or mints an independent identity token.

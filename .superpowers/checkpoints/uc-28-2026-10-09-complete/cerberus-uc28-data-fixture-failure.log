@@ -1,0 +1,52 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc28-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc28-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc28-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc28-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc28-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:26.23]     ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenUncapturedExistingSubtreeMemberOrDirectLink_WhenMoving_ThenReloadRatherThanUseUnheldInventory(kind: "record") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenUncapturedExistingSubtreeMemberOrDirectLink_WhenMoving_ThenReloadRatherThanUseUnheldInventory(kind: "record") [219 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "revision_conflict"
+Actual:   null
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenUncapturedExistingSubtreeMemberOrDirectLink_WhenMoving_ThenReloadRatherThanUseUnheldInventory(String kind) in /tmp/cerberus-uc28-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderMoveStoreTests.cs:line 276
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:37.93]     ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(access: ReadOnly, selected: True) [FAIL]
+[xUnit.net 00:00:38.50]     ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(access: ReadOnly, selected: False) [FAIL]
+[xUnit.net 00:00:38.91]     ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(access: ReadWrite, selected: False) [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(access: ReadOnly, selected: True) [464 ms]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: [FolderListRow { FolderId = 89c2ea9e-c7f5-4a59-8a82-93cbcb457679, Revision = 2, ServerSequence = 522, EditedAt = 10/09/2026 11:16:11 +00:00, Envelope = System.Byte[] }]
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc28-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderMoveStoreTests.cs:line 266
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(access: ReadOnly, selected: False) [565 ms]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: [FolderListRow { FolderId = 54e4132e-7514-404e-9e9f-ad1dc5206072, Revision = 2, ServerSequence = 538, EditedAt = 10/09/2026 11:16:11 +00:00, Envelope = System.Byte[] }]
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc28-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderMoveStoreTests.cs:line 266
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(access: ReadWrite, selected: False) [408 ms]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: [FolderListRow { FolderId = 59f0d33e-53b0-4081-a3fa-47803e37dca8, Revision = 2, ServerSequence = 554, EditedAt = 10/09/2026 11:16:12 +00:00, Envelope = System.Byte[] }]
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc28-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderMoveStoreTests.cs:line 266
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:39.26]     ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(access: ReadWrite, selected: True) [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(access: ReadWrite, selected: True) [353 ms]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: [FolderListRow { FolderId = 4bb017c7-d426-4521-8b67-939d62545954, Revision = 2, ServerSequence = 572, EditedAt = 10/09/2026 11:16:12 +00:00, Envelope = System.Byte[] }]
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.FolderMoveStoreTests.GivenNativeOldNewDirectSubtreeRoutes_WhenOwnerMoves_ThenGetAndListRecalculateForFoldersAndRecordsWithoutKeyChanges(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc28-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderMoveStoreTests.cs:line 266
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     5, Passed:   202, Skipped:     0, Total:   207, Duration: 1 m 3 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)

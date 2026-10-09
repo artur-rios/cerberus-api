@@ -1,0 +1,1 @@
+{"query": "query{repository(owner:\"artur-rios\",name:\"cerberus-api\"){issue(number:29){number state projectItems(first:20){nodes{id project{id} fieldValueByName(name:\"Status\"){...on ProjectV2ItemFieldSingleSelectValue{name}}}}}}}"}

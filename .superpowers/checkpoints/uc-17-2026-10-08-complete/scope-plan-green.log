@@ -1,0 +1,130 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc17-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v4.0.0+05679a7ab5 (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.11]   Discovering: ArturRios.Cerberus.Data.Tests
+[xUnit.net 00:00:00.40]   Discovered:  ArturRios.Cerberus.Data.Tests
+[xUnit.net 00:00:00.44]   Starting:    ArturRios.Cerberus.Data.Tests
+[testcontainers.org 00:00:00.12] Connected to Docker:
+  Host: unix:///var/run/docker.sock
+  Server Version: 29.8.2
+  Kernel Version: 7.0.0-34-generic
+  API Version: 1.56
+  Operating System: Ubuntu 26.04.1 LTS
+  Total Memory: 31.34 GB
+[testcontainers.org 00:00:00.43] Docker container 4e802b4bdb33 created
+[testcontainers.org 00:00:00.47] Start Docker container 4e802b4bdb33
+[testcontainers.org 00:00:00.63] Wait for Docker container 4e802b4bdb33 to complete readiness checks
+[testcontainers.org 00:00:01.67] Docker container 4e802b4bdb33 ready
+[testcontainers.org 00:00:01.86] Docker container 7d72033ea292 created
+[testcontainers.org 00:00:01.87] Start Docker container 7d72033ea292
+[testcontainers.org 00:00:02.00] Wait for Docker container 7d72033ea292 to complete readiness checks
+[testcontainers.org 00:00:02.01] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 7d72033ea292
+[testcontainers.org 00:00:03.08] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 7d72033ea292
+[testcontainers.org 00:00:04.16] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 7d72033ea292
+[testcontainers.org 00:00:04.26] Docker container 7d72033ea292 ready
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenEmptyInventoryOrMaximumPageSize_WhenListing_ThenReturnFiniteFinalPageWithoutOverflow [1 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenInvalidTrustedRequest_WhenListing_ThenRejectBeforeUnavailableDependency(kind: "after", error: "validation_failed") [5 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenInvalidTrustedRequest_WhenListing_ThenRejectBeforeUnavailableDependency(kind: "boundary", error: "validation_failed") [< 1 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenInvalidTrustedRequest_WhenListing_ThenRejectBeforeUnavailableDependency(kind: "actor", error: "authentication_required") [< 1 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenInvalidTrustedRequest_WhenListing_ThenRejectBeforeUnavailableDependency(kind: "size", error: "validation_failed") [< 1 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "negative") [375 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "duplicate") [61 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "unsafe") [41 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "zero") [48 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "missing", error: "not_found") [326 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "disabledExpiry", error: "vault_access_denied") [85 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "noExpiry", error: null) [60 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "zeroGeneration", error: "vault_access_denied") [73 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "closing", error: "not_found") [75 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "revoked", error: "vault_access_denied") [87 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "future", error: "vault_access_denied") [91 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "expired", error: "vault_access_denied") [83 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "policy", error: "vault_access_denied") [69 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "terminal", error: "not_found") [127 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "nullExpiry", error: "vault_access_denied") [96 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "access", error: "vault_access_denied") [94 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "zeroPolicy", error: "vault_access_denied") [98 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "generation", error: "vault_access_denied") [131 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "recipient") [312 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "recipientPins") [125 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "blob") [94 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "collection") [78 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "signature") [91 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "missingRecipientPins") [87 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "collectionEnvelope") [94 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "epoch") [91 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "grant") [73 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "ownerPins") [63 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "missingOwnerPins") [52 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "owner") [67 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "revision") [94 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedDirectAndFolderDescendantLinks_WhenListing_ThenIncludeOnlyCurrentOwnedSelectionWithoutDuplicates [316 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeSharedContent_WhenReading_ThenUseOneSqlSnapshotEvenIfGrantRevokesAfterStatement [62 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "unknownAccess") [32 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ownerClosing") [30 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "grantTerminal") [25 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ownerTerminal") [28 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "unsafeRevision") [31 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ancestorTerminal") [30 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "recordTrash") [38 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "collectionTerminal") [41 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "revoked") [29 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "zeroRevision") [32 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "recordTerminal") [39 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ancestorTrash") [46 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "wrongRecipient") [43 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "collectionTrash") [30 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnrelatedDeepFolderInventory_WhenListingOnePermittedRecord_ThenDoNotAdmitOrTraverseUnrelatedRows(selected: False, foreign: True, shared: False) [507 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnrelatedDeepFolderInventory_WhenListingOnePermittedRecord_ThenDoNotAdmitOrTraverseUnrelatedRows(selected: True, foreign: True, shared: True) [510 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnrelatedDeepFolderInventory_WhenListingOnePermittedRecord_ThenDoNotAdmitOrTraverseUnrelatedRows(selected: True, foreign: True, shared: False) [446 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnrelatedDeepFolderInventory_WhenListingOnePermittedRecord_ThenDoNotAdmitOrTraverseUnrelatedRows(selected: True, foreign: False, shared: False) [636 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: False, terminal: False) [80 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: True, terminal: False) [64 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: True, terminal: True) [49 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: False, terminal: True) [49 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "profileCollection") [92 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "member") [67 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "session") [94 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "grant") [88 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnselectedGrantedCollectionWithCorruptWrapper_WhenListing_ThenDoNotDiscloseOrDenySelectedOwnContent [84 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "both", selected: False) [161 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "folder", selected: False) [130 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "both", selected: True) [129 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "direct", selected: False) [194 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "both", selected: False) [140 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "both", selected: True) [247 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "direct", selected: False) [133 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "folder", selected: False) [108 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnavailableMembershipTable_WhenListing_Then503AndRestoreDependency [39 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRelevantCyclicAncestry_WhenListing_Then503WithoutHanging(selected: True) [50 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRelevantCyclicAncestry_WhenListing_Then503WithoutHanging(selected: False) [40 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptHiddenOrdering_WhenListing_ThenDoNotInspectOutOfScopeOrTrashedRows(selected: True) [49 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptHiddenOrdering_WhenListing_ThenDoNotInspectOutOfScopeOrTrashedRows(selected: False) [49 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "terminal", error: "vault_access_denied") [61 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "valid", error: null) [44 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "foreign", error: "vault_access_denied") [46 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "dangling", error: "vault_access_denied") [51 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "trash", error: "vault_access_denied") [78 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenOwnedAncestor_WhenListingDirectlyLinkedRecord_ThenOmitInconsistentActiveDescendant(kind: "trash") [81 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenOwnedAncestor_WhenListingDirectlyLinkedRecord_ThenOmitInconsistentActiveDescendant(kind: "terminal") [76 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnrelatedCyclicAncestry_WhenListingSelection_ThenOmitWithoutAvailabilityOracle [89 ms]
+[testcontainers.org 00:00:19.57] Delete Docker container 7d72033ea292
+[xUnit.net 00:00:20.35]   Finished:    ArturRios.Cerberus.Data.Tests
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenExpiryImmediatelyBeforeSql_WhenListing_ThenDatabaseTimeDeniesWithoutMutation [1 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCancelledCaller_WhenListing_ThenPropagateWithoutChangingState [55 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludedDescendantsAreVisibleWithoutDirectProfileLinks [47 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenForeignTrashAndTerminalRows_WhenPaging_ThenFilterBeforeTakeAndKeepInitialBoundary [60 ms]
+
+Test Run Successful.
+Total tests: 90
+     Passed: 90
+ Total time: 20.8656 Seconds

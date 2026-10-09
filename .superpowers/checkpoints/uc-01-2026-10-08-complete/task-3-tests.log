@@ -1,0 +1,22 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc01-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Release/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc01-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Release/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc01-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Release/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc01-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Release/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc01-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Release/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    37, Skipped:     0, Total:    37, Duration: 17 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc01-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Release/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc01-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Release/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc01-worktree/src/Application/ArturRios.Cerberus.Command/bin/Release/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Command.Tests -> /tmp/cerberus-uc01-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Release/net10.0/ArturRios.Cerberus.Command.Tests.dll
+Test run for /tmp/cerberus-uc01-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Release/net10.0/ArturRios.Cerberus.Command.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    21, Skipped:     0, Total:    21, Duration: 397 ms - ArturRios.Cerberus.Command.Tests.dll (net10.0)

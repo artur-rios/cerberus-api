@@ -1,0 +1,1027 @@
+# Review package: be431f2a376be2e7ba3d67ade50aadb4b02fcfcd..HEAD
+
+## Commits
+976cea4 feat: expose strict scoped profile retrieval
+01b6807 feat: query opaque profiles with shared validation
+3eeca52 feat: read profiles within current access scope
+
+## Files changed
+ README.md                                          |   4 +-
+ docs/contracts/openapi.json                        | 233 +++++++++++++++++++++
+ docs/operations/profile-retrieval.md               |  32 +++
+ .../plans/2026-10-08-uc-11-get-profile.md          |  50 +++++
+ .../specs/2026-10-08-uc-11-get-profile.md          |   9 +
+ .../Profiles/GetProfileHandler.cs                  |  29 +++
+ .../Profiles/GetProfileQuery.cs                    |   8 +
+ .../Profiles/ListProfilesHandler.cs                |  23 +-
+ .../Profiles/ProfileDetailsOutput.cs               |  16 ++
+ .../Profiles/ProfileProjection.cs                  |  32 +++
+ .../Profiles/ProfileReadMessages.cs                |  11 +
+ .../Profiles/ProfileReadContracts.cs               |   8 +
+ .../Profiles/ProfileReadStore.cs                   |  51 +++++
+ .../Controllers/ProfilesController.cs              |  22 ++
+ .../ArturRios.Cerberus.WebApi/Startup.cs           |   2 +
+ .../GetProfileHandlerTests.cs                      |  51 +++++
+ .../ProfileReadStoreTests.cs                       |  73 +++++++
+ .../ProfileReadHttpTests.cs                        |  80 +++++++
+ 18 files changed, 712 insertions(+), 22 deletions(-)
+
+## Diff
+diff --git a/README.md b/README.md
+index cd98c18..cb20da6 100644
+--- a/README.md
++++ b/README.md
+@@ -105,21 +105,21 @@ no server and requires no deployment credentials.
+ 
+ Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
+ Each use case has one issue; the foundation issue comes first. Every milestone depends on
+ Foundation, with dependencies only on earlier milestones. Counts below are the snapshot at
+ creation; GitHub milestone pages show live progress. No due dates or labels were assigned.
+ 
+ | Milestone | Delivers | Depends on | Issues | Status |
+ | --- | --- | --- | --- | --- |
+ | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
+ | [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 9 / 9 closed |
+-| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 2 / 26 closed |
++| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 3 / 26 closed |
+ | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
+ | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
+ | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
+ 
+ ## Backlog
+ 
+ ### M-01 — Foundation
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+@@ -138,21 +138,21 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
+ | [#40](https://github.com/artur-rios/cerberus-api/issues/40) | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | Done |
+ | [#41](https://github.com/artur-rios/cerberus-api/issues/41) | UC-40 — Recover vault access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-40-recover-vault-access) | Done |
+ | [#42](https://github.com/artur-rios/cerberus-api/issues/42) | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | Done |
+ 
+ ### M-03 — Organized vault
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#10](https://github.com/artur-rios/cerberus-api/issues/10) | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | Done |
+ | [#11](https://github.com/artur-rios/cerberus-api/issues/11) | UC-10 — List profiles | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-10-list-profiles) | Done |
+-| [#12](https://github.com/artur-rios/cerberus-api/issues/12) | UC-11 — Get profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-11-get-profile) | Todo |
++| [#12](https://github.com/artur-rios/cerberus-api/issues/12) | UC-11 — Get profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-11-get-profile) | Done |
+ | [#13](https://github.com/artur-rios/cerberus-api/issues/13) | UC-12 — Update profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-12-update-profile) | Todo |
+ | [#14](https://github.com/artur-rios/cerberus-api/issues/14) | UC-13 — Delete profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-13-delete-profile) | Todo |
+ | [#15](https://github.com/artur-rios/cerberus-api/issues/15) | UC-14 — Set profile associations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-14-set-profile-associations) | Todo |
+ | [#16](https://github.com/artur-rios/cerberus-api/issues/16) | UC-15 — Open profile access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-15-open-profile-access) | Todo |
+ | [#17](https://github.com/artur-rios/cerberus-api/issues/17) | UC-16 — Create record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-16-create-record) | Todo |
+ | [#18](https://github.com/artur-rios/cerberus-api/issues/18) | UC-17 — List records | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-17-list-records) | Todo |
+ | [#19](https://github.com/artur-rios/cerberus-api/issues/19) | UC-18 — Get record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-18-get-record) | Todo |
+ | [#20](https://github.com/artur-rios/cerberus-api/issues/20) | UC-19 — Update record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-19-update-record) | Todo |
+ | [#21](https://github.com/artur-rios/cerberus-api/issues/21) | UC-20 — Delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-20-delete-record) | Todo |
+ | [#22](https://github.com/artur-rios/cerberus-api/issues/22) | UC-21 — Move record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-21-move-record) | Todo |
+diff --git a/docs/contracts/openapi.json b/docs/contracts/openapi.json
+index 594c5c6..f5a7ab7 100644
+--- a/docs/contracts/openapi.json
++++ b/docs/contracts/openapi.json
+@@ -933,20 +933,166 @@
+               "text/json": {
+                 "schema": {
+                   "$ref": "#/components/schemas/ProcessOutput"
+                 }
+               }
+             }
+           }
+         }
+       }
+     },
++    "/api/profiles/{id}": {
++      "get": {
++        "tags": [
++          "Profiles"
++        ],
++        "parameters": [
++          {
++            "name": "id",
++            "in": "path",
++            "required": true,
++            "schema": {
++              "type": "string"
++            }
++          },
++          {
++            "name": "X-Cerberus-Vault-Access",
++            "in": "header",
++            "schema": {
++              "type": "string"
++            }
++          }
++        ],
++        "responses": {
++          "200": {
++            "description": "OK",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProfileDetailsOutputDataOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProfileDetailsOutputDataOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProfileDetailsOutputDataOutput"
++                }
++              }
++            }
++          },
++          "400": {
++            "description": "Bad Request",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "401": {
++            "description": "Unauthorized",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "403": {
++            "description": "Forbidden",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "404": {
++            "description": "Not Found",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "503": {
++            "description": "Service Unavailable",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          }
++        }
++      }
++    },
+     "/api/profiles": {
+       "get": {
+         "tags": [
+           "Profiles"
+         ],
+         "parameters": [
+           {
+             "name": "pageSize",
+             "in": "query",
+             "schema": {
+@@ -3059,20 +3205,107 @@
+             "type": "string",
+             "format": "date-time"
+           },
+           "success": {
+             "type": "boolean",
+             "readOnly": true
+           }
+         },
+         "additionalProperties": false
+       },
++      "ProfileDetailsOutput": {
++        "required": [
++          "envelope",
++          "keyWrappers"
++        ],
++        "type": "object",
++        "properties": {
++          "profileId": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "revision": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "serverSequence": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "editedAt": {
++            "type": "string",
++            "format": "date-time"
++          },
++          "envelope": {
++            "$ref": "#/components/schemas/EncryptedEnvelope"
++          },
++          "keyWrappers": {
++            "$ref": "#/components/schemas/ProfileKeyWrappers"
++          },
++          "recordIds": {
++            "type": "array",
++            "items": {
++              "type": "string",
++              "format": "uuid"
++            },
++            "nullable": true
++          },
++          "folderIds": {
++            "type": "array",
++            "items": {
++              "type": "string",
++              "format": "uuid"
++            },
++            "nullable": true
++          },
++          "collectionIds": {
++            "type": "array",
++            "items": {
++              "type": "string",
++              "format": "uuid"
++            },
++            "nullable": true
++          }
++        },
++        "additionalProperties": false
++      },
++      "ProfileDetailsOutputDataOutput": {
++        "type": "object",
++        "properties": {
++          "messages": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "errors": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "timestamp": {
++            "type": "string",
++            "format": "date-time"
++          },
++          "success": {
++            "type": "boolean",
++            "readOnly": true
++          },
++          "data": {
++            "$ref": "#/components/schemas/ProfileDetailsOutput"
++          }
++        },
++        "additionalProperties": false
++      },
+       "ProfileKeyWrappers": {
+         "type": "object",
+         "properties": {
+           "unlockMode": {
+             "type": "string",
+             "nullable": true
+           },
+           "unlockVerifier": {
+             "$ref": "#/components/schemas/PublicJwk"
+           },
+diff --git a/docs/operations/profile-retrieval.md b/docs/operations/profile-retrieval.md
+new file mode 100644
+index 0000000..bd3372d
+--- /dev/null
++++ b/docs/operations/profile-retrieval.md
+@@ -0,0 +1,32 @@
++# Profile retrieval
++
++`GET /api/profiles/{id}` requires a current Heimdall identity and one
++`X-Cerberus-Vault-Access` header. The ID must be a nonzero canonical lowercase
++D-format public GUID. No query parameters or body are accepted, including unknown
++length HTTP2 bodies. Duplicate or malformed access headers, malformed IDs and
++unsupported input return400; a missing identity or access handle returns401.
++
++A current account-wide session can read an owned active profile. A current selected
++session can read only its owned active selection: guessing another own profile or a
++foreign, trashed, erased or absent target returns the same404 with no data. Invalid,
++expired, revoked or policy-stale sessions return403; an absent/closing/erased account
++returns404. Required dependency outages or corrupt permitted stored data return503
++without partial payloads. Every request checks current state in one SQL snapshot.
++Reads do not change profiles, keys, account state or access sessions. Responses use
++no-store.
++
++The response data contains profileId, revision, serverSequence, UTC microsecond
++editedAt, opaque envelope/keyWrappers and visible recordIds/folderIds/collectionIds.
++It excludes internal IDs, account contents and plaintext names or keys. List and
++retrieval share strict stored metadata validation, including the authenticated
++identity as owner-wrapper recipient and matching profile/content-epoch context.
++The server cannot establish client-only encrypted-content decryptability.
++
++Collection grants expose included collection content through a recipient's own
++profiles; they do not expose somebody else's unrelated profile metadata. Currently
++there are no record/folder/collection/association/grant entities and profile creation
++rejects unresolved nonempty relationships, so these three arrays are accurately
++empty. Those resource use cases must extend creation and the same-snapshot visible
++relationship projection before releasing their links. Selected-session proof minting
++and cross-profile key isolation belong to UC15. Independent security/client
++approvals remain deferred for development; release gates remain pending.
+diff --git a/docs/superpowers/plans/2026-10-08-uc-11-get-profile.md b/docs/superpowers/plans/2026-10-08-uc-11-get-profile.md
+new file mode 100644
+index 0000000..7fe6b65
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-08-uc-11-get-profile.md
+@@ -0,0 +1,50 @@
++# UC11 Get Profile Implementation Plan
++
++> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
++
++**Goal:** Retrieve an owned active encrypted profile and only visible relationships by public ID.
++**Architecture:** Single-statement database authorization/target projection; shared query metadata validation; strict raw HTTP path/header/body boundary. Existing relationship inventory is empty until later resource entities integrate it.
++**Tech Stack:** .NET10, EF Core10, PostgreSQL18.6, first-party mediator/output.
++**Spec:** docs/superpowers/specs/2026-10-08-uc-11-get-profile.md
++
++## Global Constraints
++
++- Isolated UC11 branch/issue12/onePR into develop; preserve original user files.
++- No plaintext keys/content; no-store, no sensitive logs; foreign profiles never follow collection grants.
++- Full unfiltered zero failures/skips, >=90% production line coverage, report branches.
++- Independent approvals remain deferred development-only; release gates preserved.
++
++## Review Focus
++
++- Guessed foreign/trashed/erased public IDs must return the same nonrevealing404.
++- Valid selected scope cannot escape to another own profile; stale/dangling/foreign selection denies access.
++- Malformed/case-variant/zero GUID paths and GET bodies must reject400 rather than routing404 or normalize silently.
++- Corrupt recipient/profile/epoch/sequence metadata must fail503 without ciphertext or relationships.
++- Future relationship/grant entities must extend visible links before release; current truthful arrays are empty.
++
++### Task 1: Single-snapshot authorized profile read
++
++**Files:** Create Domain/Profiles/ProfileReadContracts.cs, Data/Profiles/ProfileReadStore.cs; tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileReadStoreTests.cs.
++**Interfaces:** Consumes existing ProfileListRow. Produces ProfileReadRequest(Actor,AccessVerifier,ProfileId), ProfileReadDetails(Profile,RecordIds,FolderIds,CollectionIds), IProfileReadStore.ReadAsync(request,ct)->VaultResult<ProfileReadDetails>.
++- [ ] Write PG tests for exact owned ciphertext and empty links, foreign/trash/erasure/notfound, valid selection/escape/dangling/foreign/trashed scope, all current account/session policy states, outage and cancellation. Run new tests; expected missing-store compilation failure.
++- [ ] Implement single LINQ SQL statement applying current account/session and visibility predicates before target projection. Propagate cancellation, map persistence failures503.
++- [ ] Run whole Data family; expected all pass zero skips; commit.
++**Completion:** Every visible/hidden/denied state proven through PostgreSQL with unchanged rows.
++
++### Task 2: Shared profile projection and get query
++
++**Files:** Create Query/Profiles/ProfileProjection.cs, GetProfileQuery.cs, GetProfileHandler.cs, ProfileDetailsOutput.cs, ProfileReadMessages.cs; modify ListProfilesHandler.cs to use shared validator; tests/Application/ArturRios.Cerberus.Query.Tests/GetProfileHandlerTests.cs.
++**Interfaces:** Consumes IProfileReadStore and ProfileListRow. Produces GetProfileQuery(actor,access,profileId), GetProfileHandler/DataOutput<ProfileDetailsOutput>; shared ProfileProjection.TryRead(row,actor,out item) preserves UC10 invariants.
++- [ ] Write query tests for trusted context, target substitution, complete opaque data/link shape, corrupt envelope/wrapper/recipient/counters/time/links, store failure and cancellation. Run; expected missing query compile failure.
++- [ ] Extract existing metadata validation under existing UC10 tests, implement get query/output and strict link IDs. Current concrete store has empty links.
++- [ ] Run whole Query family including UC10; expected all pass zero skips; commit.
++**Completion:** Current and new query paths share identical visible metadata guards, no partial output.
++
++### Task 3: Strict HTTP retrieval and evidence
++
++**Files:** Modify ProfilesController.cs, Startup.cs, docs/contracts/openapi.json, README.md; create ProfileReadHttpTests.cs and docs/operations/profile-retrieval.md.
++**Interfaces:** GET /api/profiles/{id} ->200/400/401/403/404/503 with one access header and no query/body; profile plus3 visible link arrays.
++- [ ] Write real HTTP/PG/Heimdall tests for successful owned/scoped reads, foreign/hidden same404, stale account/session, strict GUID/query/header/body, provider/table outage, corrupt stored metadata, no-store and no mutations. Run; expected GET404 for missing route.
++- [ ] Add endpoint/DI, raw canonical path validation and strict request guards. Run targeted HTTP tests; expected pass zero skips.
++- [ ] Update docs/backlog and generate/check OpenAPI; helper/spec/diff checks. Run full unfiltered coverage suite including whole Web family; audit zero failures/skips >=90%, branches reported. Commit.
++**Completion:** Main/AF01–04 complete, fresh evidence; one ordinary review and one correction pass if needed; requiredCI then authorized merge/issueDone, continueUC12.
+diff --git a/docs/superpowers/specs/2026-10-08-uc-11-get-profile.md b/docs/superpowers/specs/2026-10-08-uc-11-get-profile.md
+new file mode 100644
+index 0000000..73b7b2b
+--- /dev/null
++++ b/docs/superpowers/specs/2026-10-08-uc-11-get-profile.md
+@@ -0,0 +1,9 @@
++# UC11 get permitted profile
++
++Issue12 / FR-PR-03, BR03/04/28. GET /api/profiles/{id} returns the active encrypted profile by canonical lowercase nonzero D-format public ID, with only visible recordIds/folderIds/collectionIds. Validate current owner identity, active account, terminal erasure and current account-wide or selected-profile session. A valid selected session can read only its selected profile. Hidden/foreign/trashed/erased/missing target404; invalid current session403; missing identity/access401; malformed path/header/query/body400; dependency or corrupt permitted stored metadata503. No reads mutate or disclose partial data; no-store.
++
++BR03/28 and the permission matrix mean collection grants expose included content through a recipient's OWN profile, never a foreign profile's unrelated encrypted metadata. No records/folders/collections/association/grant entities exist yet: persisted profiles necessarily have no links (UC09 rejects unresolved nonempty association arrays). Return truthful empty relationship arrays now; when those entities arrive, extend this same-snapshot projection with active/visible relationships before those flows release. Do not invent shared grants or synthesize foreign profiles.
++
++Read in one PostgreSQL statement with ownership, current session, selected scope, trash and terminal erasure predicates before projecting ciphertext. Validate target identity, positive safe revision/sequence, UTC microsecond time, strict encrypted envelope/wrapper shapes, profile grant ID/current content epoch and recipient authenticated identity. Reuse a shared query projection validator for UC10 and UC11 so the UC10 review recipient invariant cannot diverge. Preserve existing list ordering-corruption guard. Client decryptability and independent approvals remain deferred development-only; no new cryptographic audit claim.
++
++Route accepts raw string to return400 for malformed GUID instead of routing404. Reject all query keys, duplicate/empty malformed access header and any GET body including HTTP2 unknown length. Response data fields: profileId, revision, serverSequence, editedAt, envelope, keyWrappers, recordIds, folderIds, collectionIds. AF01 strict syntax; AF02 filtered404; AF03 current identity/session; AF04 real provider/table outage and corrupt stored results. Full unfiltered suite >=90% line coverage, branches reported; ordinary review and requiredCI gate authorized develop merge.
+diff --git a/src/Application/ArturRios.Cerberus.Query/Profiles/GetProfileHandler.cs b/src/Application/ArturRios.Cerberus.Query/Profiles/GetProfileHandler.cs
+new file mode 100644
+index 0000000..b0a3787
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Query/Profiles/GetProfileHandler.cs
+@@ -0,0 +1,29 @@
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Mediator.Query.Interfaces;
++using ArturRios.Output;
++namespace ArturRios.Cerberus.Query.Profiles;
++public sealed class GetProfileHandler(IProfileReadStore store) : IQueryHandlerAsync<GetProfileQuery, ProfileDetailsOutput>
++{
++    public async Task<DataOutput<ProfileDetailsOutput?>> HandleAsync(GetProfileQuery query, CancellationToken cancellationToken = default)
++    {
++        cancellationToken.ThrowIfCancellationRequested();
++        var output = DataOutput<ProfileDetailsOutput?>.New;
++        if (query.Actor == Guid.Empty) return output.WithError("authentication_required");
++        if (query.Access is null) return output.WithError("vault_access_required");
++        if (query.ProfileId == Guid.Empty || !OpaqueAccessHandle.TryHash(query.Access, out var verifier)) return output.WithError("validation_failed");
++        var result = await store.ReadAsync(new(query.Actor, verifier, query.ProfileId), cancellationToken);
++        if (result.Error is not null) return output.WithError(result.Error);
++        var data = result.Data;
++        if (data?.Profile is null || data.Profile.ProfileId != query.ProfileId
++            || !ValidIds(data.RecordIds) || !ValidIds(data.FolderIds) || !ValidIds(data.CollectionIds)
++            || !ProfileProjection.TryRead(data.Profile, query.Actor, out var p)) return output.WithError("persistence_unavailable");
++        return output.WithData(new ProfileDetailsOutput
++        {
++            ProfileId = p!.ProfileId, Revision = p.Revision, ServerSequence = p.ServerSequence, EditedAt = p.EditedAt,
++            Envelope = p.Envelope, KeyWrappers = p.KeyWrappers,
++            RecordIds = data.RecordIds, FolderIds = data.FolderIds, CollectionIds = data.CollectionIds
++        }).WithMessage("profile_found");
++    }
++    private static bool ValidIds(Guid[]? ids) => ids is not null && ids.All(x => x != Guid.Empty) && ids.Distinct().Count() == ids.Length;
++}
+diff --git a/src/Application/ArturRios.Cerberus.Query/Profiles/GetProfileQuery.cs b/src/Application/ArturRios.Cerberus.Query/Profiles/GetProfileQuery.cs
+new file mode 100644
+index 0000000..d699f4b
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Query/Profiles/GetProfileQuery.cs
+@@ -0,0 +1,8 @@
++using ArturRios.Mediator.Query;
++namespace ArturRios.Cerberus.Query.Profiles;
++public sealed class GetProfileQuery(Guid actor, string? access, Guid profileId) : BaseQuery
++{
++    public Guid Actor { get; } = actor;
++    public string? Access { get; } = access;
++    public Guid ProfileId { get; } = profileId;
++}
+diff --git a/src/Application/ArturRios.Cerberus.Query/Profiles/ListProfilesHandler.cs b/src/Application/ArturRios.Cerberus.Query/Profiles/ListProfilesHandler.cs
+index 1110333..0324677 100644
+--- a/src/Application/ArturRios.Cerberus.Query/Profiles/ListProfilesHandler.cs
++++ b/src/Application/ArturRios.Cerberus.Query/Profiles/ListProfilesHandler.cs
+@@ -1,26 +1,21 @@
+-using System.Text.Json;
+-using System.Text.Json.Serialization;
+ using ArturRios.Cerberus.Domain.Access;
+-using ArturRios.Cerberus.Domain.Accounts;
+ using ArturRios.Cerberus.Domain.Profiles;
+ using ArturRios.Cerberus.Domain.Protection;
+ using ArturRios.Cerberus.Shared.Configuration;
+ using ArturRios.Mediator.Query.Interfaces;
+ using ArturRios.Output;
+ namespace ArturRios.Cerberus.Query.Profiles;
+ 
+ public sealed class ListProfilesHandler(IProfileListStore store, CerberusOptions options, ProfileListCursor cursors)
+     : IQueryHandlerAsync<ListProfilesQuery, ProfileListOutput>
+ {
+-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+-    { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
+     public async Task<DataOutput<ProfileListOutput?>> HandleAsync(ListProfilesQuery query, CancellationToken cancellationToken = default)
+     {
+         cancellationToken.ThrowIfCancellationRequested();
+         var output = DataOutput<ProfileListOutput?>.New;
+         if (query.Actor == Guid.Empty) return output.WithError("authentication_required");
+         if (query.Access is null) return output.WithError("vault_access_required");
+         if (!OpaqueAccessHandle.TryHash(query.Access, out var verifier)) return output.WithError("validation_failed");
+         var size = query.RequestedPageSize ?? Math.Min(50, options.MaxPageSize);
+         if (size <= 0 || size > options.MaxPageSize) return output.WithError("validation_failed");
+         long after = 0; long? boundary = null;
+@@ -32,32 +27,20 @@ public sealed class ListProfilesHandler(IProfileListStore store, CerberusOptions
+         }
+         var result = await store.ListAsync(new(query.Actor, verifier, size, after, boundary), cancellationToken);
+         if (result.Error is not null) return output.WithError(result.Error);
+         var page = result.Data;
+         if (page?.Items is null || page.Items.Count > size || page.Boundary < after || page.Boundary > ProtocolBinary.MaxInteger
+             || boundary is not null && page.Boundary != boundary || page.HasMore && page.Items.Count != size)
+             return output.WithError("persistence_unavailable");
+         var items = new List<ProfileListItem>(); var ids = new HashSet<Guid>(); var previous = after;
+         foreach (var row in page.Items)
+         {
+-            if (row is null || row.ProfileId == Guid.Empty || !ids.Add(row.ProfileId) || row.Revision is <= 0 or > ProtocolBinary.MaxInteger
+-                || row.ServerSequence <= previous || row.ServerSequence > page.Boundary || row.EditedAt == default
+-                || row.EditedAt.Offset != TimeSpan.Zero || row.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond != 0
+-                || row.Envelope is null || row.KeyWrappers is null) return output.WithError("persistence_unavailable");
+-            EncryptedEnvelope? envelope; ProfileKeyWrappers? wrappers;
+-            try
+-            {
+-                envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json);
+-                wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, Json);
+-            }
+-            catch (JsonException) { return output.WithError("persistence_unavailable"); }
+-            if (envelope?.IsValid() != true || wrappers?.IsValid() != true || wrappers.MasterKeyWrapper.GrantId != row.ProfileId
+-                || wrappers.MasterKeyWrapper.RecipientIdentityId != query.Actor
+-                || wrappers.MasterKeyWrapper.GrantRevision > row.Revision || wrappers.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch)
++            if (!ProfileProjection.TryRead(row, query.Actor, out var item) || !ids.Add(item!.ProfileId)
++                || item.ServerSequence <= previous || item.ServerSequence > page.Boundary)
+                 return output.WithError("persistence_unavailable");
+-            items.Add(new(row.ProfileId, row.Revision, row.ServerSequence, row.EditedAt, envelope, wrappers)); previous = row.ServerSequence;
++            items.Add(item); previous = item.ServerSequence;
+         }
+         if (page.HasMore && previous >= page.Boundary) return output.WithError("persistence_unavailable");
+         var next = page.HasMore ? cursors.Encode(new(query.Actor, verifier, size, previous, page.Boundary)) : null;
+         return output.WithData(new ProfileListOutput(items, next)).WithMessage("profiles_found");
+     }
+ }
+diff --git a/src/Application/ArturRios.Cerberus.Query/Profiles/ProfileDetailsOutput.cs b/src/Application/ArturRios.Cerberus.Query/Profiles/ProfileDetailsOutput.cs
+new file mode 100644
+index 0000000..c050689
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Query/Profiles/ProfileDetailsOutput.cs
+@@ -0,0 +1,16 @@
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Mediator.Query;
++namespace ArturRios.Cerberus.Query.Profiles;
++public sealed class ProfileDetailsOutput : QueryOutput
++{
++    public Guid ProfileId { get; init; }
++    public long Revision { get; init; }
++    public long ServerSequence { get; init; }
++    public DateTimeOffset EditedAt { get; init; }
++    public required EncryptedEnvelope Envelope { get; init; }
++    public required ProfileKeyWrappers KeyWrappers { get; init; }
++    public Guid[] RecordIds { get; init; } = [];
++    public Guid[] FolderIds { get; init; } = [];
++    public Guid[] CollectionIds { get; init; } = [];
++}
+diff --git a/src/Application/ArturRios.Cerberus.Query/Profiles/ProfileProjection.cs b/src/Application/ArturRios.Cerberus.Query/Profiles/ProfileProjection.cs
+new file mode 100644
+index 0000000..f3d57a5
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Query/Profiles/ProfileProjection.cs
+@@ -0,0 +1,32 @@
++using System.Text.Json;
++using System.Text.Json.Serialization;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Cerberus.Domain.Protection;
++namespace ArturRios.Cerberus.Query.Profiles;
++
++internal static class ProfileProjection
++{
++    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
++    { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
++    internal static bool TryRead(ProfileListRow? row, Guid actor, out ProfileListItem? item)
++    {
++        item = null;
++        if (row is null || row.ProfileId == Guid.Empty || row.Revision is <= 0 or > ProtocolBinary.MaxInteger
++            || row.ServerSequence is <= 0 or > ProtocolBinary.MaxInteger || row.EditedAt == default
++            || row.EditedAt.Offset != TimeSpan.Zero || row.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond != 0
++            || row.Envelope is null || row.KeyWrappers is null) return false;
++        EncryptedEnvelope? envelope; ProfileKeyWrappers? wrappers;
++        try
++        {
++            envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json);
++            wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, Json);
++        }
++        catch (JsonException) { return false; }
++        if (envelope?.IsValid() != true || wrappers?.IsValid() != true || wrappers.MasterKeyWrapper.GrantId != row.ProfileId
++            || wrappers.MasterKeyWrapper.RecipientIdentityId != actor || wrappers.MasterKeyWrapper.GrantRevision > row.Revision
++            || wrappers.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch) return false;
++        item = new(row.ProfileId, row.Revision, row.ServerSequence, row.EditedAt, envelope, wrappers);
++        return true;
++    }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Query/Profiles/ProfileReadMessages.cs b/src/Application/ArturRios.Cerberus.Query/Profiles/ProfileReadMessages.cs
+new file mode 100644
+index 0000000..986dd93
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Query/Profiles/ProfileReadMessages.cs
+@@ -0,0 +1,11 @@
++namespace ArturRios.Cerberus.Query.Profiles;
++public static class ProfileReadMessages
++{
++    public static readonly IReadOnlyDictionary<string, int> StatusCodes = new Dictionary<string, int>
++    {
++        ["profile_found"] = 200, ["validation_failed"] = 400,
++        ["authentication_required"] = 401, ["vault_access_required"] = 401,
++        ["vault_access_denied"] = 403, ["not_found"] = 404,
++        ["identity_unavailable"] = 503, ["persistence_unavailable"] = 503
++    };
++}
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Profiles/ProfileReadContracts.cs b/src/Domain/ArturRios.Cerberus.Domain/Profiles/ProfileReadContracts.cs
+new file mode 100644
+index 0000000..0968c2c
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Profiles/ProfileReadContracts.cs
+@@ -0,0 +1,8 @@
++using ArturRios.Cerberus.Domain.Protection;
++namespace ArturRios.Cerberus.Domain.Profiles;
++public sealed record ProfileReadRequest(Guid Actor, string AccessVerifier, Guid ProfileId);
++public sealed record ProfileReadDetails(ProfileListRow Profile, Guid[] RecordIds, Guid[] FolderIds, Guid[] CollectionIds);
++public interface IProfileReadStore
++{
++    Task<VaultResult<ProfileReadDetails>> ReadAsync(ProfileReadRequest request, CancellationToken cancellationToken);
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Profiles/ProfileReadStore.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Profiles/ProfileReadStore.cs
+new file mode 100644
+index 0000000..2afd3de
+--- /dev/null
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Profiles/ProfileReadStore.cs
+@@ -0,0 +1,51 @@
++using System.Data.Common;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Cerberus.Domain.Protection;
++using Microsoft.EntityFrameworkCore;
++namespace ArturRios.Cerberus.Data.Profiles;
++
++public sealed class ProfileReadStore(IDbContextFactory<AppDbContext> factory) : IProfileReadStore
++{
++    public async Task<VaultResult<ProfileReadDetails>> ReadAsync(ProfileReadRequest request, CancellationToken cancellationToken)
++    {
++        cancellationToken.ThrowIfCancellationRequested();
++        try
++        {
++            await using var db = await factory.CreateDbContextAsync(cancellationToken);
++            // One statement, no earlier transaction: UtcNow translates to PostgreSQL
++            // now() at this snapshot. A valid selection never authorizes another profile.
++            var sessions = from s in db.VaultAccessSessions
++                join a in db.Accounts on s.AccountId equals a.Id
++                where a.HeimdallPublicId == request.Actor && a.State == AccountState.Active
++                    && !db.TerminalErasures.Any(e => e.ResourceId == a.PublicId)
++                    && s.HandleVerifier == request.AccessVerifier && !s.Revoked
++                    && s.IssuedAt <= DateTimeOffset.UtcNow && s.PolicyRevision > 0 && s.RevocationGeneration > 0
++                    && s.PolicyRevision == a.PolicyRevision && s.RevocationGeneration == a.RevocationGeneration
++                    && (a.RenewalEnabled ? s.ExpiresAt > DateTimeOffset.UtcNow : s.ExpiresAt == null)
++                    && (s.ProfileId == null || db.Profiles.Any(p => p.Id == s.ProfileId && p.AccountId == a.Id
++                        && p.DeletedAt == null && !db.TerminalErasures.Any(e => e.ResourceId == p.PublicId)))
++                select s;
++            var visible = db.Profiles.AsNoTracking().Where(p => p.PublicId == request.ProfileId && p.DeletedAt == null
++                && !db.TerminalErasures.Any(e => e.ResourceId == p.PublicId)
++                && sessions.Any(s => s.AccountId == p.AccountId && (s.ProfileId == null || s.ProfileId == p.Id)));
++            var result = await db.Accounts.AsNoTracking().Where(a => a.HeimdallPublicId == request.Actor)
++                .Select(a => new
++                {
++                    a.State, Erased = db.TerminalErasures.Any(e => e.ResourceId == a.PublicId), Allowed = sessions.Any(),
++                    Items = visible.Select(p => new ProfileListRow(p.PublicId, p.Revision, p.ServerSequence,
++                        p.EditedAt, p.Envelope, p.KeyWrappers)).ToList()
++                }).AsSingleQuery().SingleOrDefaultAsync(cancellationToken);
++            if (result is null || result.State != AccountState.Active || result.Erased) return new(Error: "not_found");
++            if (!result.Allowed) return new(Error: "vault_access_denied");
++            if (result.Items.Count == 0) return new(Error: "not_found");
++            // PublicId is unique. Relationships do not exist yet; UC09 rejects
++            // unresolved nonempty links. Extend this projection with visible joins
++            // when resource/membership entities arrive, before those flows release.
++            return new(new(result.Items[0], [], [], []));
++        }
++        catch (Exception exception) when (exception is DbException or TimeoutException
++            || exception is InvalidOperationException { InnerException: DbException or TimeoutException })
++        { return new(Error: "persistence_unavailable"); }
++    }
++}
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/ProfilesController.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/ProfilesController.cs
+index 10621b1..2c025e0 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/ProfilesController.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/ProfilesController.cs
+@@ -7,20 +7,42 @@ using ArturRios.Cerberus.WebApi.Middleware;
+ using ArturRios.Mediator.Command;
+ using ArturRios.Output;
+ using ArturRios.Util.WebApi.AspNetCore;
+ using Microsoft.AspNetCore.Mvc;
+ namespace ArturRios.Cerberus.WebApi.Controllers;
+ 
+ [ApiController]
+ [Route("api/profiles")]
+ public sealed class ProfilesController(CommandMediator commands, QueryMediator queries):ControllerBase
+ {
++    [HttpGet("{id}")]
++    [ProducesResponseType(typeof(DataOutput<ProfileDetailsOutput>), StatusCodes.Status200OK)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
++    public async Task<ActionResult<DataOutput<ProfileDetailsOutput?>>> Get([FromRoute] string id,
++        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
++    {
++        if (Request.Query.Count != 0 || HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true
++            || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0
++            || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
++            || !Guid.TryParseExact(id, "D", out var profileId) || profileId == Guid.Empty || id != profileId.ToString("D"))
++            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
++        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var rawAccess) ? rawAccess.ToString() : null;
++        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
++            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
++        var result = await queries.ExecuteQueryAsync<GetProfileQuery, ProfileDetailsOutput>(new(actor, vaultAccess, profileId), cancellationToken);
++        return result.ToActionResult(statusMap: ProfileReadMessages.StatusCodes);
++    }
++
+     [HttpGet]
+     [ProducesResponseType(typeof(DataOutput<ProfileListOutput>), StatusCodes.Status200OK)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+     public async Task<ActionResult<DataOutput<ProfileListOutput?>>> List(
+         [FromQuery] string? pageSize, [FromQuery] string? cursor,
+         [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+index 5e0f6d4..d2b7d49 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+@@ -58,20 +58,22 @@ public static class Startup
+                 && source is ScalarValue { Value: string category } && category.StartsWith("ArturRios.Cerberus.", StringComparison.Ordinal))
+             .WriteTo.Console(new JsonFormatter()));
+         builder.Services.AddSingleton(options);
+         builder.Services.AddSingleton(TimeProvider.System);
+         builder.Services.AddSingleton<HeimdallTokenValidator>();
+         builder.Services.AddScoped<CommandMediator>();
+         builder.Services.AddScoped<QueryMediator>();
+         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
+         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
+         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
++        builder.Services.AddScoped<IProfileReadStore, ProfileReadStore>();
++        builder.Services.AddScoped<IQueryHandlerAsync<GetProfileQuery, ProfileDetailsOutput>, GetProfileHandler>();
+         builder.Services.AddScoped<IProfileListStore, ProfileListStore>();
+         builder.Services.AddSingleton<ProfileListCursor>();
+         builder.Services.AddScoped<IQueryHandlerAsync<ListProfilesQuery, ProfileListOutput>, ListProfilesHandler>();
+         builder.Services.AddScoped<IProfileCreateStore, ProfileCreateStore>();
+         builder.Services.AddScoped<IValidator<CreateProfileCommand>, CreateProfileValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<CreateProfileCommand, CreateProfileOutput>, CreateProfileHandler>();
+         builder.Services.AddScoped<IIdentityUpdateStore, IdentityUpdateStore>();
+         builder.Services.AddScoped<IVaultProtectionStore, VaultProtectionStore>();
+         builder.Services.AddScoped<IVaultProtectionChangeStore, VaultProtectionChangeStore>();
+         builder.Services.AddScoped<IVaultRecoveryStore, VaultRecoveryStore>();
+diff --git a/tests/Application/ArturRios.Cerberus.Query.Tests/GetProfileHandlerTests.cs b/tests/Application/ArturRios.Cerberus.Query.Tests/GetProfileHandlerTests.cs
+new file mode 100644
+index 0000000..d7cd042
+--- /dev/null
++++ b/tests/Application/ArturRios.Cerberus.Query.Tests/GetProfileHandlerTests.cs
+@@ -0,0 +1,51 @@
++using System.Text.Json;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.Query.Profiles;
++using ArturRios.Cerberus.TestSupport;
++using Moq;
++namespace ArturRios.Cerberus.Query.Tests;
++
++public class GetProfileHandlerTests
++{
++    private const string Access="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
++    private const string Verifier="66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
++    private static readonly Guid Actor=Guid.NewGuid(), Target=Guid.NewGuid();
++    [UnitTheory][InlineData("actor","authentication_required")][InlineData("missing","vault_access_required")]
++    [InlineData("access","validation_failed")][InlineData("target","validation_failed")]
++    public async Task GivenInvalidTrustedContext_WhenGettingProfile_ThenRejectBeforeStore(string kind,string error)
++    {var store=new Mock<IProfileReadStore>(MockBehavior.Strict);var r=await new GetProfileHandler(store.Object).HandleAsync(new(kind=="actor"?Guid.Empty:Actor,kind=="missing"?null:kind=="access"?"bad":Access,kind=="target"?Guid.Empty:Target));Assert.Contains(error,r.Errors);Assert.Null(r.Data);store.VerifyNoOtherCalls();}
++    [UnitFact]
++    public async Task GivenAuthorizedOpaqueProfileAndVisibleLinks_WhenGetting_ThenReturnExactPublicData()
++    {var data=Details();var r=await Handler(new(data)).HandleAsync(new(Actor,Access,Target));Assert.True(r.Success);Assert.Equal(Target,r.Data!.ProfileId);Assert.Equal(data.Profile.Revision,r.Data.Revision);Assert.Equal(data.Profile.ServerSequence,r.Data.ServerSequence);Assert.Equal(data.Profile.EditedAt,r.Data.EditedAt);Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(data.Profile.Envelope,ProtectionFixture.Json),r.Data.Envelope);Assert.Equal(JsonSerializer.Deserialize<ProfileKeyWrappers>(data.Profile.KeyWrappers,ProtectionFixture.Json),r.Data.KeyWrappers);Assert.Equal(data.RecordIds,r.Data.RecordIds);Assert.Equal(data.FolderIds,r.Data.FolderIds);Assert.Equal(data.CollectionIds,r.Data.CollectionIds);}
++    [UnitTheory][InlineData("not_found")][InlineData("vault_access_denied")][InlineData("persistence_unavailable")]
++    public async Task GivenStoreFailure_WhenGetting_ThenNoCiphertextOrLinks(string error)
++    {var r=await Handler(new(Error:error)).HandleAsync(new(Actor,Access,Target));Assert.Contains(error,r.Errors);Assert.Null(r.Data);}
++    [UnitTheory][InlineData("missing")][InlineData("nullProfile")][InlineData("target")][InlineData("revision")][InlineData("largeRevision")]
++    [InlineData("sequence")][InlineData("largeSequence")][InlineData("time")][InlineData("offset")][InlineData("precision")]
++    [InlineData("envelope")][InlineData("nullEnvelopeBytes")][InlineData("nullEnvelope")][InlineData("invalidEnvelope")][InlineData("duplicateJson")]
++    [InlineData("wrappers")][InlineData("nullWrapperBytes")][InlineData("nullWrapper")][InlineData("invalidWrapper")]
++    [InlineData("recipient")][InlineData("grant")][InlineData("epoch")][InlineData("grantRevision")]
++    [InlineData("nullRecords")][InlineData("nullFolders")][InlineData("nullCollections")][InlineData("emptyId")][InlineData("duplicateId")]
++    public async Task GivenCorruptStoredContract_WhenGetting_ThenUnavailableWithoutPartialData(string kind)
++    {
++        var d=Details();var p=d.Profile;var w=JsonSerializer.Deserialize<ProfileKeyWrappers>(p.KeyWrappers,ProtectionFixture.Json)!;var env=JsonSerializer.Deserialize<EncryptedEnvelope>(p.Envelope,ProtectionFixture.Json)!;
++        p=kind switch {
++            "nullProfile"=>null!,"target"=>p with {ProfileId=Guid.NewGuid()},"revision"=>p with {Revision=0},"largeRevision"=>p with {Revision=long.MaxValue},"sequence"=>p with {ServerSequence=0},"largeSequence"=>p with {ServerSequence=long.MaxValue},
++            "time"=>p with {EditedAt=default},"offset"=>p with {EditedAt=p.EditedAt.ToOffset(TimeSpan.FromHours(1))},"precision"=>p with {EditedAt=p.EditedAt.AddTicks(1)},
++            "envelope"=>p with {Envelope="bad"u8.ToArray()},"nullEnvelopeBytes"=>p with {Envelope=null!},"nullEnvelope"=>p with {Envelope="null"u8.ToArray()},"invalidEnvelope"=>p with {Envelope=Bytes(env with {Format="unknown"})},"duplicateJson"=>p with {Envelope=System.Text.Encoding.UTF8.GetBytes(System.Text.Encoding.UTF8.GetString(p.Envelope).Replace("{","{\"format\":\"bad\","))},
++            "wrappers"=>p with {KeyWrappers="bad"u8.ToArray()},"nullWrapperBytes"=>p with {KeyWrappers=null!},"nullWrapper"=>p with {KeyWrappers="null"u8.ToArray()},"invalidWrapper"=>p with {KeyWrappers=Bytes(w with {UnlockMode="unknown"})},
++            "recipient"=>p with {KeyWrappers=Bytes(w with {MasterKeyWrapper=w.MasterKeyWrapper with {RecipientIdentityId=Guid.NewGuid()}})},"grant"=>p with {KeyWrappers=Bytes(w with {MasterKeyWrapper=w.MasterKeyWrapper with {GrantId=Guid.NewGuid()}})},"epoch"=>p with {Envelope=Bytes(env with {KeyEpoch=2})},"grantRevision"=>p with {KeyWrappers=Bytes(w with {MasterKeyWrapper=w.MasterKeyWrapper with {GrantRevision=2}})},_=>p};
++        d=d with {Profile=p};d=kind switch {"nullRecords"=>d with {RecordIds=null!},"nullFolders"=>d with {FolderIds=null!},"nullCollections"=>d with {CollectionIds=null!},"emptyId"=>d with {RecordIds=[Guid.Empty]},"duplicateId"=>d with {CollectionIds=[Target,Target]},_=>d};
++        var r=await Handler(kind=="missing"?new():new(d)).HandleAsync(new(Actor,Access,Target));Assert.Contains("persistence_unavailable",r.Errors);Assert.Null(r.Data);
++    }
++    [UnitFact]
++    public async Task GivenCancellation_WhenGetting_ThenPropagate()
++    {using var c=new CancellationTokenSource();c.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>new GetProfileHandler(new Mock<IProfileReadStore>(MockBehavior.Strict).Object).HandleAsync(new(Actor,Access,Target),c.Token));}
++    private static GetProfileHandler Handler(VaultResult<ProfileReadDetails> result)
++    {var s=new Mock<IProfileReadStore>(MockBehavior.Strict);s.Setup(x=>x.ReadAsync(new(Actor,Verifier,Target),It.IsAny<CancellationToken>())).ReturnsAsync(result);return new(s.Object);}
++    private static ProfileReadDetails Details()
++    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var envelope=new EncryptedEnvelope("cerberus-content-v1",1,Access,"AAAAAAAAAAAAAAAA","AQID","AAAAAAAAAAAAAAAAAAAAAA");return new(new(Target,1,7,DateTimeOffset.FromUnixTimeSeconds(1780000000),Bytes(envelope),Bytes(new ProfileKeyWrappers("Master",scoped.Material.UnlockVerifier,f.Wrap(Guid.NewGuid(),"profile",Target,Actor),null))),[Guid.NewGuid()],[Guid.NewGuid()],[Guid.NewGuid()]);}
++    private static byte[] Bytes<T>(T value)=>JsonSerializer.SerializeToUtf8Bytes(value,ProtectionFixture.Json);
++}
+diff --git a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileReadStoreTests.cs b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileReadStoreTests.cs
+new file mode 100644
+index 0000000..b4a861d
+--- /dev/null
++++ b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileReadStoreTests.cs
+@@ -0,0 +1,73 @@
++using System.Text.Json;
++using ArturRios.Cerberus.Data.Profiles;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Cerberus.TestSupport;
++using Microsoft.EntityFrameworkCore;
++namespace ArturRios.Cerberus.Data.Tests;
++
++[Collection("PostgreSQL")]
++public class ProfileReadStoreTests(PostgresFixture fixture)
++{
++    [FunctionalTheory][InlineData("Master")][InlineData("PerProfile")]
++    public async Task GivenOwnedActiveProfile_WhenReading_ThenExactOpaqueSnapshotAndActualEmptyLinks(string mode)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var input=ProfileSetup.Input(s,owner,scoped,mode);await Add(s,input);
++        var r=await Store().ReadAsync(new(s.Actor,s.Verifier,input.ProfileId),default);Assert.Null(r.Error);var p=r.Data!.Profile;
++        Assert.Equal(input.ProfileId,p.ProfileId);Assert.Equal(input.Envelope,JsonSerializer.Deserialize<EncryptedEnvelope>(p.Envelope,ProtectionFixture.Json));Assert.Equal(input.KeyWrappers,JsonSerializer.Deserialize<ProfileKeyWrappers>(p.KeyWrappers,ProtectionFixture.Json));
++        Assert.Equal(1,p.Revision);Assert.True(p.ServerSequence>0);Assert.Empty(r.Data.RecordIds);Assert.Empty(r.Data.FolderIds);Assert.Empty(r.Data.CollectionIds);
++        await Unchanged(input.ProfileId,p.Envelope,p.KeyWrappers);
++    }
++    [FunctionalTheory][InlineData("foreign")][InlineData("trash")][InlineData("erased")][InlineData("missing")]
++    public async Task GivenHiddenOrAbsentTarget_WhenReading_ThenSameNotFoundAndNoPayload(string kind)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var target=kind=="foreign"?await ProfileSetup.Create(fixture,owner):s;var i=ProfileSetup.Input(target,owner,scoped);await Add(target,i);
++        await using(var db=fixture.CreateContext()){
++            if(kind=="trash")await db.Profiles.Where(x=>x.PublicId==i.ProfileId).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.DeletedAt,DateTimeOffset.UtcNow));
++            if(kind=="erased"){db.TerminalErasures.Add(new(){ResourceId=i.ProfileId,ResourceKind="profile",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}}
++        var r=await Store().ReadAsync(new(s.Actor,s.Verifier,kind=="missing"?Guid.NewGuid():i.ProfileId),default);Assert.Equal("not_found",r.Error);Assert.Null(r.Data);
++        await using var check=fixture.CreateContext();Assert.Equal(1,(await check.Profiles.SingleAsync(x=>x.PublicId==i.ProfileId)).Revision);
++    }
++    [FunctionalTheory][InlineData("valid",null)][InlineData("otherTarget","not_found")][InlineData("missing","vault_access_denied")]
++    [InlineData("foreign","vault_access_denied")][InlineData("trash","vault_access_denied")][InlineData("erased","vault_access_denied")]
++    public async Task GivenSelectedSession_WhenReading_ThenRestrictToCurrentOwnedActiveSelection(string kind,string? error)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var one=ProfileSetup.Input(s,owner,scoped);var two=ProfileSetup.Input(s,owner,scoped);await Add(s,one);await Add(s,two);
++        var foreign=await ProfileSetup.Create(fixture,owner);var other=ProfileSetup.Input(foreign,owner,scoped);await Add(foreign,other);
++        await using(var db=fixture.CreateContext()){
++            var p=await db.Profiles.SingleAsync(x=>x.PublicId==(kind=="foreign"?other.ProfileId:one.ProfileId));
++            await db.VaultAccessSessions.Where(x=>x.HandleVerifier==s.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ProfileId,kind=="missing"?long.MaxValue:p.Id));
++            if(kind=="trash"){p.DeletedAt=DateTimeOffset.UtcNow;await db.SaveChangesAsync();}
++            if(kind=="erased"){db.TerminalErasures.Add(new(){ResourceId=p.PublicId,ResourceKind="profile",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}}
++        var r=await Store().ReadAsync(new(s.Actor,s.Verifier,kind=="otherTarget"?two.ProfileId:one.ProfileId),default);Assert.Equal(error,r.Error);
++        if(error is null)Assert.Equal(one.ProfileId,r.Data!.Profile.ProfileId);else Assert.Null(r.Data);
++        await using var check=fixture.CreateContext();Assert.Equal(2,await check.Profiles.CountAsync(x=>x.AccountId==s.InternalId));
++    }
++    [FunctionalTheory][InlineData("missing","not_found")][InlineData("closing","not_found")][InlineData("erased","not_found")]
++    [InlineData("access","vault_access_denied")][InlineData("revoked","vault_access_denied")][InlineData("expired","vault_access_denied")]
++    [InlineData("future","vault_access_denied")][InlineData("policy","vault_access_denied")][InlineData("generation","vault_access_denied")]
++    [InlineData("zeroPolicy","vault_access_denied")][InlineData("zeroGeneration","vault_access_denied")]
++    [InlineData("nullExpiry","vault_access_denied")][InlineData("disabledExpiry","vault_access_denied")][InlineData("noExpiry",null)]
++    public async Task GivenInvalidCurrentAccountOrSession_WhenReading_ThenFailClosedUnchanged(string kind,string? error)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var input=ProfileSetup.Input(s,owner,scoped);await Add(s,input);
++        await using(var db=fixture.CreateContext()){
++            var a=await db.Accounts.SingleAsync(x=>x.Id==s.InternalId);var v=await db.VaultAccessSessions.SingleAsync(x=>x.HandleVerifier==s.Verifier);
++            if(kind=="closing")a.State=AccountState.ClosurePending;if(kind=="erased")db.TerminalErasures.Add(new(){ResourceId=s.AccountId,ResourceKind="account",DeletedAt=DateTimeOffset.UtcNow});
++            if(kind=="revoked")v.Revoked=true;if(kind=="expired")v.ExpiresAt=DateTimeOffset.UtcNow.AddMinutes(-1);if(kind=="future")v.IssuedAt=DateTimeOffset.UtcNow.AddMinutes(1);
++            if(kind=="policy")v.PolicyRevision++;if(kind=="generation")v.RevocationGeneration++;if(kind=="zeroPolicy")v.PolicyRevision=0;if(kind=="zeroGeneration")v.RevocationGeneration=0;
++            if(kind is "noExpiry" or "disabledExpiry")a.RenewalEnabled=false;if(kind is "nullExpiry" or "noExpiry")v.ExpiresAt=null;await db.SaveChangesAsync();}
++        var r=await Store().ReadAsync(new(kind=="missing"?Guid.NewGuid():s.Actor,kind=="access"?new string('a',64):s.Verifier,input.ProfileId),default);Assert.Equal(error,r.Error);if(error is not null)Assert.Null(r.Data);
++        await using var check=fixture.CreateContext();var p=await check.Profiles.SingleAsync(x=>x.PublicId==input.ProfileId);Assert.Equal(1,p.Revision);Assert.Equal(input.Envelope,JsonSerializer.Deserialize<EncryptedEnvelope>(p.Envelope,ProtectionFixture.Json));
++    }
++    [FunctionalFact]
++    public async Task GivenUnavailableProfileStorage_WhenReading_ThenUnavailable()
++    {await using var db=fixture.CreateContext();await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.profile RENAME TO fixture_unavailable_profile");try{var r=await Store().ReadAsync(new(Guid.NewGuid(),new string('a',64),Guid.NewGuid()),default);Assert.Equal("persistence_unavailable",r.Error);Assert.Null(r.Data);}finally{await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.fixture_unavailable_profile RENAME TO profile");}}
++    [FunctionalFact]
++    public async Task GivenCancellation_WhenReading_ThenPropagate()
++    {using var c=new CancellationTokenSource();c.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>Store().ReadAsync(new(Guid.NewGuid(),"a",Guid.NewGuid()),c.Token));}
++    private ProfileReadStore Store()=>new(fixture);
++    private async Task Add(ProfileSetup.State s,ProfileCreateInput input)=>Assert.Null((await new ProfileCreateStore(fixture).CreateAsync(new(s.Actor,s.Verifier,input),default)).Error);
++    private async Task Unchanged(Guid id,byte[] envelope,byte[] wrappers)
++    {await using var db=fixture.CreateContext();var p=await db.Profiles.SingleAsync(x=>x.PublicId==id);Assert.Equal(envelope,p.Envelope);Assert.Equal(wrappers,p.KeyWrappers);Assert.Equal(1,p.Revision);Assert.Null(p.DeletedAt);}
++}
+diff --git a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs
+new file mode 100644
+index 0000000..49b2c7d
+--- /dev/null
++++ b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs
+@@ -0,0 +1,80 @@
++using System.Net;
++using System.Net.Http.Json;
++using System.Security.Cryptography;
++using System.Text.Json;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Cerberus.Query.Profiles;
++using ArturRios.Cerberus.TestSupport;
++using ArturRios.Configuration.Enums;
++using ArturRios.Output;
++using ArturRios.Util.Test.Functional;
++using Microsoft.AspNetCore.Http;
++using Microsoft.AspNetCore.Http.Features;
++using Microsoft.AspNetCore.Mvc.Testing;
++using Microsoft.EntityFrameworkCore;
++namespace ArturRios.Cerberus.WebApi.Tests;
++
++[Collection("Registration host")]
++public class ProfileReadHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
++{
++    [FunctionalTheory][InlineData("Master")][InlineData("PerProfile")]
++    public async Task GivenOwnedEncryptedProfile_WhenGetting_ThenExactPublicOpaqueDataAndEmptyLinks(string mode)
++    {
++        using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var input=await Add(s,f,scoped,mode);Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(s);
++        using var response=await Send(input.ProfileId.ToString(),s.Access);var p=await Profile(response);Assert.Equal(input.ProfileId,p.ProfileId);Assert.Equal(input.Envelope,p.Envelope);Assert.Equal(input.KeyWrappers,p.KeyWrappers);Assert.Equal(1,p.Revision);Assert.True(p.ServerSequence>0);Assert.Empty(p.RecordIds);Assert.Empty(p.FolderIds);Assert.Empty(p.CollectionIds);Assert.Equal(before,await Snapshot(s));
++        using var doc=JsonDocument.Parse(await response.Content.ReadAsStringAsync());Assert.Equal(new[]{"collectionIds","editedAt","envelope","folderIds","keyWrappers","profileId","recordIds","revision","serverSequence"},doc.RootElement.GetProperty("data").EnumerateObject().Select(x=>x.Name).Order().ToArray());
++    }
++    [FunctionalTheory][InlineData("foreign")][InlineData("trash")][InlineData("erased")][InlineData("missing")]
++    public async Task GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(string kind)
++    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var owner=kind=="foreign"?await Setup(f):s;var input=await Add(owner,f,scoped);
++        await using(var db=fixture.Context()){if(kind=="trash")await db.Profiles.Where(x=>x.PublicId==input.ProfileId).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.DeletedAt,DateTimeOffset.UtcNow));if(kind=="erased"){db.TerminalErasures.Add(new(){ResourceId=input.ProfileId,ResourceKind="profile",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}}
++        Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(owner);using var response=await Send((kind=="missing"?Guid.NewGuid():input.ProfileId).ToString(),s.Access);await Failure(response,404,"not_found");Assert.Equal(before,await Snapshot(owner));}
++    [FunctionalTheory][InlineData(false)][InlineData(true)]
++    public async Task GivenValidSelectedSession_WhenGetting_ThenSelectionSucceedsAndOtherOwnProfile404(bool otherTarget)
++    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var one=await Add(s,f,scoped);var two=await Add(s,f,scoped);await using(var db=fixture.Context()){var p=await db.Profiles.SingleAsync(x=>x.PublicId==one.ProfileId);await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ProfileId,p.Id));}
++        Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(s);using var response=await Send((otherTarget?two.ProfileId:one.ProfileId).ToString(),s.Access);if(otherTarget)await Failure(response,404,"not_found");else Assert.Equal(one.ProfileId,(await Profile(response)).ProfileId);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("bad")][InlineData("00000000-0000-0000-0000-000000000000")]
++    [InlineData("ABCDEFAB-1234-4321-ABCD-123456789ABC")][InlineData("abcdefab12344321abcd123456789abc")]
++    [InlineData("{abcdefab-1234-4321-abcd-123456789abc}")][InlineData("%20abcdefab-1234-4321-abcd-123456789abc")]
++    public async Task GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(string id)
++    {using var f=new ProtectionFixture();var s=await Setup(f);Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(s);using var response=await Send(id,s.Access);await Failure(response,400);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("query",400)][InlineData("body",400)][InlineData("duplicate",400)][InlineData("malformed",400)][InlineData("missing",401)]
++    public async Task GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(string kind,int status)
++    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var p=await Add(s,f,scoped);Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(s);
++        using var request=new HttpRequestMessage(HttpMethod.Get,"/api/profiles/"+p.ProfileId+(kind=="query"?"?pageSize=1":""));if(kind!="missing")request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access",kind=="malformed"?"bad":s.Access);if(kind=="duplicate")request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access",s.Access);if(kind=="body")request.Content=new StringContent("{}");using var response=await Gateway.Client.SendAsync(request);await Failure(response,status);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("empty")][InlineData("http2")]
++    public async Task GivenRawEmptyAccessOrUnknownLengthBody_WhenGetting_Then400(string kind)
++    {using var f=new ProtectionFixture();var s=await Setup(f);using var host=new WebApplicationFactory<Program>();var context=await host.Server.SendAsync(c=>{c.Request.Method="GET";c.Request.Path="/api/profiles/"+Guid.NewGuid();c.Request.Headers.Authorization="Bearer "+RegistrationApiFixture.Token(s.Actor);c.Request.Headers["X-Cerberus-Vault-Access"]=kind=="empty"?"":s.Access;if(kind=="http2")c.Features.Set<IHttpRequestBodyDetectionFeature>(new BodyFeature());});Assert.Equal(400,context.Response.StatusCode);Assert.Contains("no-store",context.Response.Headers.CacheControl.ToString());}
++    [FunctionalTheory][InlineData("missing",401)][InlineData("wrongscope",401)][InlineData("deleted",401)][InlineData("unavailable",503)]
++    public async Task GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(string kind,int status)
++    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var p=await Add(s,f,scoped);if(kind!="missing")Authorize(RegistrationApiFixture.Token(s.Actor,kind=="wrongscope"?Guid.NewGuid():null));if(kind is "deleted" or "unavailable"){var pair=fixture.Users.Single(x=>x.Value.Id==s.Actor);fixture.Users[pair.Key]=pair.Value with {Deleted=kind=="deleted",IdentityUnavailable=kind=="unavailable"};}var before=await Snapshot(s);using var response=await Send(p.ProfileId.ToString(),s.Access);await Failure(response,status);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("missing",404)][InlineData("closing",404)][InlineData("erased",404)]
++    [InlineData("revoked",403)][InlineData("expired",403)][InlineData("policy",403)][InlineData("generation",403)][InlineData("selection",403)]
++    public async Task GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(string kind,int status)
++    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var p=await Add(s,f,scoped);var actor=s.Actor;
++        await using(var db=fixture.Context()){if(kind=="missing"){actor=Guid.NewGuid();fixture.Users[actor+"@example.test"]=new(actor,"fixture-password");}if(kind=="closing")await db.Accounts.Where(x=>x.Id==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(a=>a.State,AccountState.ClosurePending));if(kind=="erased"){db.TerminalErasures.Add(new(){ResourceId=s.AccountId,ResourceKind="account",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}var v=await db.VaultAccessSessions.SingleAsync(x=>x.AccountId==s.InternalId);if(kind=="revoked")v.Revoked=true;if(kind=="expired")v.ExpiresAt=DateTimeOffset.UtcNow.AddMinutes(-1);if(kind=="policy")v.PolicyRevision++;if(kind=="generation")v.RevocationGeneration++;if(kind=="selection")v.ProfileId=long.MaxValue;await db.SaveChangesAsync();}
++        Authorize(RegistrationApiFixture.Token(actor));var before=await Snapshot(s);using var response=await Send(p.ProfileId.ToString(),s.Access);await Failure(response,status);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("envelope")][InlineData("recipient")][InlineData("sequence")][InlineData("revision")]
++    public async Task GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(string kind)
++    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var input=await Add(s,f,scoped);await using(var db=fixture.Context()){var p=await db.Profiles.SingleAsync(x=>x.PublicId==input.ProfileId);if(kind=="envelope")p.Envelope="bad"u8.ToArray();if(kind=="recipient")p.KeyWrappers=JsonSerializer.SerializeToUtf8Bytes(input.KeyWrappers with {MasterKeyWrapper=input.KeyWrappers.MasterKeyWrapper with {RecipientIdentityId=Guid.NewGuid()}},ProtectionFixture.Json);if(kind=="sequence")p.ServerSequence=0;if(kind=="revision")p.Revision=0;await db.SaveChangesAsync();}Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(s);using var response=await Send(input.ProfileId.ToString(),s.Access);await Failure(response,503);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalFact]
++    public async Task GivenUnavailableProfileTable_WhenGetting_Then503Unchanged()
++    {using var f=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(f);var p=await Add(s,f,scoped);Authorize(RegistrationApiFixture.Token(s.Actor));var before=await Snapshot(s);await using var db=fixture.Context();await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.profile RENAME TO fixture_unavailable_profile");try{using var response=await Send(p.ProfileId.ToString(),s.Access);await Failure(response,503);}finally{await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.fixture_unavailable_profile RENAME TO profile");}Assert.Equal(before,await Snapshot(s));}
++    private sealed record State(Guid Actor,Guid AccountId,long InternalId,string Access);
++    private async Task<State> Setup(ProtectionFixture f)
++    {var actor=Guid.NewGuid();fixture.Users[actor+"@example.test"]=new(actor,"fixture-password");await using var db=fixture.Context();var a=new Account{PublicId=Guid.NewGuid(),HeimdallPublicId=actor,DetailsEnvelope=JsonSerializer.SerializeToUtf8Bytes(Envelope(),ProtectionFixture.Json)};db.Accounts.Add(a);await db.SaveChangesAsync();var access=ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(32));OpaqueAccessHandle.TryHash(access,out var verifier);db.VaultProtections.Add(new(){AccountId=a.Id,Material=JsonSerializer.SerializeToUtf8Bytes(f.Material,ProtectionFixture.Json)});db.VaultAccessSessions.Add(new(){AccountId=a.Id,HandleVerifier=verifier,IssuedAt=DateTimeOffset.UtcNow.AddMinutes(-1),ExpiresAt=DateTimeOffset.UtcNow.AddHours(1),PolicyRevision=1,RevocationGeneration=1});await db.SaveChangesAsync();return new(actor,a.PublicId,a.Id,access);}
++    private async Task<ProfileCreateInput> Add(State s,ProtectionFixture f,ProtectionFixture scoped,string mode="Master")
++    {var id=Guid.NewGuid();var input=new ProfileCreateInput(id,Envelope(),new(mode,scoped.Material.UnlockVerifier,f.Wrap(s.AccountId,"profile",id,s.Actor),mode=="PerProfile"?scoped.Material.PasswordWrapper:null),DateTimeOffset.UtcNow,[],[],[]);using var request=new HttpRequestMessage(HttpMethod.Post,"/api/profiles"){Content=JsonContent.Create(input)};request.Headers.Authorization=new("Bearer",RegistrationApiFixture.Token(s.Actor));request.Headers.Add("X-Cerberus-Vault-Access",s.Access);using var response=await Gateway.Client.SendAsync(request);Assert.Equal(HttpStatusCode.Created,response.StatusCode);return input;}
++    private static EncryptedEnvelope Envelope()=>new("cerberus-content-v1",1,ProtectionFixture.Encode(new byte[32]),ProtectionFixture.Encode(new byte[12]),"AQID",ProtectionFixture.Encode(new byte[16]));
++    private Task<HttpResponseMessage> Send(string id,string? access)
++    {var request=new HttpRequestMessage(HttpMethod.Get,"/api/profiles/"+id);if(access is not null)request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access",access);return Gateway.Client.SendAsync(request);}
++    private async Task<string> Snapshot(State s)
++    {await using var db=fixture.Context();return JsonSerializer.Serialize(new{Account=await db.Accounts.AsNoTracking().SingleAsync(x=>x.Id==s.InternalId),Profiles=await db.Profiles.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync(),Sessions=await db.VaultAccessSessions.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync()});}
++    private static async Task<ProfileDetailsOutput> Profile(HttpResponseMessage response)
++    {Assert.Equal(HttpStatusCode.OK,response.StatusCode);Assert.True(response.Headers.CacheControl?.NoStore);var r=await response.Content.ReadFromJsonAsync<DataOutput<ProfileDetailsOutput>>();Assert.True(r!.Success);return r.Data!;}
++    private static async Task Failure(HttpResponseMessage response,int status,string? error=null)
++    {Assert.Equal((HttpStatusCode)status,response.StatusCode);Assert.True(response.Headers.CacheControl?.NoStore);var r=await response.Content.ReadFromJsonAsync<DataOutput<ProfileDetailsOutput>>();Assert.False(r!.Success);Assert.Null(r.Data);if(error is not null)Assert.Contains(error,r.Errors);}
++    private sealed class BodyFeature:IHttpRequestBodyDetectionFeature{public bool CanHaveBody=>true;}
++}

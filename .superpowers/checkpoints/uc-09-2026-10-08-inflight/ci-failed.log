@@ -1,0 +1,101 @@
+test	Replay protocol corpus and complete native suites	﻿2026-10-08T17:08:51.8816952Z ##[group]Run "$HARNESS_PYTHON" tools/protocol-harness/verify.py --check docs/security/interoperability-vectors.json
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8817830Z [36;1m"$HARNESS_PYTHON" tools/protocol-harness/verify.py --check docs/security/interoperability-vectors.json[0m
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8818453Z [36;1mpython3 -m unittest discover -s tools/protocol-harness/tests -v[0m
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8880110Z shell: /usr/bin/bash -e {0}
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8880364Z env:
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8880564Z   DOTNET_ROOT: /usr/share/dotnet
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8880940Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8881451Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8881851Z   MAVEN_ARGS: -ntp
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8882124Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8882530Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8882935Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8883339Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8883709Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8884076Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8884524Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.2IzpXU/maven-user
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8885017Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.2IzpXU/m2
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8885525Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.2IzpXU/wheels
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8886076Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.2IzpXU/maven.zip
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8886778Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.2IzpXU/venv/bin/python
+test	Replay protocol corpus and complete native suites	2026-10-08T17:08:51.8887171Z ##[endgroup]
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.0477011Z {"status": "pass", "cases": 322, "directions": 4}
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.1803046Z test_GivenChangedMavenDistribution_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenChangedMavenDistribution_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.1824781Z test_GivenChangedOrMissingArtifact_WhenAudited_ThenNoFeedQuery (test_audit.AuditTest.test_GivenChangedOrMissingArtifact_WhenAudited_ThenNoFeedQuery) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.1844535Z test_GivenChangedWheel_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenChangedWheel_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.1873005Z test_GivenCompleteCleanFeed_WhenAudited_ThenEveryBuildAndRuntimeCoordinateIsQueried (test_audit.AuditTest.test_GivenCompleteCleanFeed_WhenAudited_ThenEveryBuildAndRuntimeCoordinateIsQueried) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.1894010Z test_GivenDuplicateLockedCoordinate_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenDuplicateLockedCoordinate_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.1917452Z test_GivenEmptyVulnerabilityArrays_WhenAudited_ThenPass (test_audit.AuditTest.test_GivenEmptyVulnerabilityArrays_WhenAudited_ThenPass) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.1937614Z test_GivenExtraResolvedJar_WhenAudited_ThenNoFeedQuery (test_audit.AuditTest.test_GivenExtraResolvedJar_WhenAudited_ThenNoFeedQuery) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.1960009Z test_GivenFeedOutage_WhenAudited_ThenRedactedFailure (test_audit.AuditTest.test_GivenFeedOutage_WhenAudited_ThenRedactedFailure) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.1981392Z test_GivenInstalledVersionDrift_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenInstalledVersionDrift_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.2073370Z test_GivenMalformedOrIncompleteFeed_WhenAudited_ThenFailClosed (test_audit.AuditTest.test_GivenMalformedOrIncompleteFeed_WhenAudited_ThenFailClosed) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.2112246Z test_GivenPinnedEmbeddedJarWithoutMetadata_WhenAudited_ThenItsCoordinateIsQueried (test_audit.AuditTest.test_GivenPinnedEmbeddedJarWithoutMetadata_WhenAudited_ThenItsCoordinateIsQueried) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.2137637Z test_GivenUnknownEmbeddedBuildDependency_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenUnknownEmbeddedBuildDependency_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.2168891Z test_GivenUnsafeOrUnresolvedLock_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenUnsafeOrUnresolvedLock_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.2191855Z test_GivenVulnerability_WhenAudited_ThenFailClosedWithPublicFinding (test_audit.AuditTest.test_GivenVulnerability_WhenAudited_ThenFailClosedWithPublicFinding) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.2815423Z test_GivenChildFailure_WhenMeasured_ThenPreviousEvidencePreserved (test_benchmark.BenchmarkTests.test_GivenChildFailure_WhenMeasured_ThenPreviousEvidencePreserved) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.2837250Z test_GivenCompleteSamples_WhenMeasured_ThenProfileAndStatisticsRecorded (test_benchmark.BenchmarkTests.test_GivenCompleteSamples_WhenMeasured_ThenProfileAndStatisticsRecorded) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.2860260Z test_GivenIncompleteDuplicateBogusOrSecretBearingMetrics_WhenMeasured_ThenNoArtifact (test_benchmark.BenchmarkTests.test_GivenIncompleteDuplicateBogusOrSecretBearingMetrics_WhenMeasured_ThenNoArtifact) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.2877594Z test_GivenInvalidSamples_WhenMeasured_ThenRejected (test_benchmark.BenchmarkTests.test_GivenInvalidSamples_WhenMeasured_ThenRejected) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.3425425Z test_GivenGreenHarnessAndPendingReview_WhenReleaseGateRuns_ThenReleaseBlocked (test_delivery.DeliveryTests.test_GivenGreenHarnessAndPendingReview_WhenReleaseGateRuns_ThenReleaseBlocked) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.3428473Z test_GivenHarnessCI_WhenParsed_ThenLockedAuditPrecedesFullReplay (test_delivery.DeliveryTests.test_GivenHarnessCI_WhenParsed_ThenLockedAuditPrecedesFullReplay) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.3434220Z test_GivenHarnessCI_WhenParsed_ThenProductionChecksRetained (test_delivery.DeliveryTests.test_GivenHarnessCI_WhenParsed_ThenProductionChecksRetained) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.4537039Z test_GivenMissingOrStaleReview_WhenGateRuns_ThenBlocked (test_delivery.DeliveryTests.test_GivenMissingOrStaleReview_WhenGateRuns_ThenBlocked) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.4572235Z test_GivenProductionGraphAndDocker_WhenInspected_ThenHarnessExcluded (test_delivery.DeliveryTests.test_GivenProductionGraphAndDocker_WhenInspected_ThenHarnessExcluded) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.5502154Z test_GivenBenchmarkOutputOrResultGrowth_WhenMeasured_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenBenchmarkOutputOrResultGrowth_WhenMeasured_ThenStoppedBeforeFurtherWork) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.5964904Z test_GivenExcessChildOutput_WhenRunning_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenExcessChildOutput_WhenRunning_ThenStoppedBeforeFurtherWork) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.6487732Z test_GivenGrowingResultFile_WhenInvoked_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenGrowingResultFile_WhenInvoked_ThenStoppedBeforeFurtherWork) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.9683381Z test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped (test_process_limits.ProcessLimitTests.test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped) ... ERROR
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.9820624Z test_GivenCompleteBidirectionalResults_WhenVerified_ThenEvidenceAtomicallyWritten (test_verify.VerifyTests.test_GivenCompleteBidirectionalResults_WhenVerified_ThenEvidenceAtomicallyWritten) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.9964653Z test_GivenCorruptCorpus_WhenReplayed_ThenRejectedWithoutOverwrite (test_verify.VerifyTests.test_GivenCorruptCorpus_WhenReplayed_ThenRejectedWithoutOverwrite) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:18.9984343Z test_GivenEmptySkippedOrFailingNativeSuite_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenEmptySkippedOrFailingNativeSuite_WhenVerified_ThenNoEvidenceWritten) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0413441Z test_GivenMissingDuplicateExtraOrWrongResultIds_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenMissingDuplicateExtraOrWrongResultIds_WhenVerified_ThenNoEvidenceWritten) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0460599Z test_GivenMissingKnownAnswersOrProducerCases_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenMissingKnownAnswersOrProducerCases_WhenVerified_ThenNoEvidenceWritten) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0478515Z test_GivenMissingTimeoutNonzeroOrMalformedChild_WhenVerified_ThenPreviousEvidencePreserved (test_verify.VerifyTests.test_GivenMissingTimeoutNonzeroOrMalformedChild_WhenVerified_ThenPreviousEvidencePreserved) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0561944Z test_GivenWrongProducerIdentityOrDeterministicFlag_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenWrongProducerIdentityOrDeterministicFlag_WhenVerified_ThenNoEvidenceWritten) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0563498Z 
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0563808Z ======================================================================
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0565556Z ERROR: test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped (test_process_limits.ProcessLimitTests.test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped)
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0567381Z ----------------------------------------------------------------------
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0567826Z Traceback (most recent call last):
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0573577Z   File "/home/runner/work/cerberus-api/cerberus-api/tools/protocol-harness/tests/test_process_limits.py", line 50, in test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0574680Z     while status.exists() and status.read_text().split()[2]!='Z' and time.monotonic()<deadline:
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0575188Z                               ~~~~~~~~~~~~~~~~^^
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0575815Z   File "/opt/hostedtoolcache/Python/3.14.8/x64/lib/python3.14/pathlib/__init__.py", line 788, in read_text
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0576647Z     return f.read()
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0576885Z            ~~~~~~^^
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0577159Z ProcessLookupError: [Errno 3] No such process
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0577376Z 
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0577570Z ----------------------------------------------------------------------
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0577927Z Ran 34 tests in 0.898s
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0578075Z 
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0578174Z FAILED (errors=1)
+test	Replay protocol corpus and complete native suites	2026-10-08T17:09:19.0772896Z ##[error]Process completed with exit code 1.
+test	Upload coverage report	﻿2026-10-08T17:09:19.0935489Z ##[group]Run actions/upload-artifact@v7
+test	Upload coverage report	2026-10-08T17:09:19.0935786Z with:
+test	Upload coverage report	2026-10-08T17:09:19.0935982Z   name: coverage-report
+test	Upload coverage report	2026-10-08T17:09:19.0936499Z   path: docs/coverage-report
+test	Upload coverage report	2026-10-08T17:09:19.0936810Z   if-no-files-found: error
+test	Upload coverage report	2026-10-08T17:09:19.0937039Z   compression-level: 6
+test	Upload coverage report	2026-10-08T17:09:19.0937518Z   overwrite: false
+test	Upload coverage report	2026-10-08T17:09:19.0937731Z   include-hidden-files: false
+test	Upload coverage report	2026-10-08T17:09:19.0937960Z   archive: true
+test	Upload coverage report	2026-10-08T17:09:19.0938155Z env:
+test	Upload coverage report	2026-10-08T17:09:19.0938344Z   DOTNET_ROOT: /usr/share/dotnet
+test	Upload coverage report	2026-10-08T17:09:19.0938692Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Upload coverage report	2026-10-08T17:09:19.0939169Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Upload coverage report	2026-10-08T17:09:19.0939553Z   MAVEN_ARGS: -ntp
+test	Upload coverage report	2026-10-08T17:09:19.0939819Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload coverage report	2026-10-08T17:09:19.0940240Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Upload coverage report	2026-10-08T17:09:19.0940651Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload coverage report	2026-10-08T17:09:19.0941068Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload coverage report	2026-10-08T17:09:19.0941437Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload coverage report	2026-10-08T17:09:19.0941814Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Upload coverage report	2026-10-08T17:09:19.0942271Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.2IzpXU/maven-user
+test	Upload coverage report	2026-10-08T17:09:19.0942768Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.2IzpXU/m2
+test	Upload coverage report	2026-10-08T17:09:19.0943274Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.2IzpXU/wheels
+test	Upload coverage report	2026-10-08T17:09:19.0943829Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.2IzpXU/maven.zip
+test	Upload coverage report	2026-10-08T17:09:19.0944388Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.2IzpXU/venv/bin/python
+test	Upload coverage report	2026-10-08T17:09:19.0944779Z ##[endgroup]
+test	Upload coverage report	2026-10-08T17:09:19.2307420Z ##[error]No files were found with the provided path: docs/coverage-report. No artifacts will be uploaded.

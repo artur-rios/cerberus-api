@@ -1,0 +1,836 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc19-worktree/src/Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj (in 329 ms).
+  Restored /tmp/cerberus-uc19-worktree/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 329 ms).
+  Restored /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj (in 331 ms).
+  4 of 7 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc19-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc19-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc19-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc19-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc19-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc19-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:09.33]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(mode: "Master", folderRoute: False) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(mode: "Master", folderRoute: False) [2 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(String mode, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:09.69]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(mode: "PerProfile", folderRoute: False) [FAIL]
+[xUnit.net 00:00:09.84]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(mode: "wide", folderRoute: False) [FAIL]
+[xUnit.net 00:00:10.06]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(mode: "Master", folderRoute: True) [FAIL]
+[xUnit.net 00:00:10.32]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(mode: "PerProfile", folderRoute: True) [FAIL]
+[xUnit.net 00:00:10.43]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "case") [FAIL]
+[xUnit.net 00:00:10.50]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingTime") [FAIL]
+[xUnit.net 00:00:10.59]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "owner") [FAIL]
+[xUnit.net 00:00:10.70]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "revision") [FAIL]
+[xUnit.net 00:00:10.77]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "unknown") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(mode: "PerProfile", folderRoute: False) [357 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(String mode, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(mode: "wide", folderRoute: False) [145 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(String mode, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(mode: "Master", folderRoute: True) [214 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(String mode, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(mode: "PerProfile", folderRoute: True) [260 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(String mode, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "case") [110 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingTime") [64 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "owner") [93 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "revision") [102 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "unknown") [70 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:10.87]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "collection") [FAIL]
+[xUnit.net 00:00:10.97]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingEnvelope") [FAIL]
+[xUnit.net 00:00:11.04]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "time") [FAIL]
+[xUnit.net 00:00:11.11]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "record") [FAIL]
+[xUnit.net 00:00:11.18]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "empty") [FAIL]
+[xUnit.net 00:00:11.25]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "numericEpoch") [FAIL]
+[xUnit.net 00:00:11.32]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "name") [FAIL]
+[xUnit.net 00:00:11.42]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "duplicate") [FAIL]
+[xUnit.net 00:00:11.51]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "unsafeRevision") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "collection") [97 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingEnvelope") [101 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "time") [74 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "record") [66 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "empty") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "numericEpoch") [64 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "name") [72 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "duplicate") [104 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "unsafeRevision") [82 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.58]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "offset") [FAIL]
+[xUnit.net 00:00:11.67]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "numericRevision") [FAIL]
+[xUnit.net 00:00:11.75]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "epoch") [FAIL]
+[xUnit.net 00:00:11.82]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingRevision") [FAIL]
+[xUnit.net 00:00:11.94]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "profile") [FAIL]
+[xUnit.net 00:00:12.07]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "null") [FAIL]
+[xUnit.net 00:00:12.16]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "saltReuse") [FAIL]
+[xUnit.net 00:00:12.24]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "folder") [FAIL]
+[xUnit.net 00:00:12.33]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "format") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "offset") [72 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "numericRevision") [81 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "epoch") [78 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingRevision") [73 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "profile") [115 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "null") [126 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "saltReuse") [82 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "folder") [78 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "format") [90 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.38]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "nonceReuse") [FAIL]
+[xUnit.net 00:00:12.76]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "uppercase") [FAIL]
+[xUnit.net 00:00:12.80]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "bad") [FAIL]
+[xUnit.net 00:00:12.84]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "zero") [FAIL]
+[xUnit.net 00:00:12.92]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "compact") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "nonceReuse") [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "uppercase") [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "bad") [41 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "zero") [40 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "compact") [76 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.96]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "braced") [FAIL]
+[xUnit.net 00:00:12.99]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "urn") [FAIL]
+[xUnit.net 00:00:13.43]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: True, folderRoute: False) [FAIL]
+[xUnit.net 00:00:13.67]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadOnly, selected: True, folderRoute: True) [FAIL]
+[xUnit.net 00:00:13.89]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadOnly, selected: False, folderRoute: False) [FAIL]
+[xUnit.net 00:00:14.17]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: True, folderRoute: True) [FAIL]
+[xUnit.net 00:00:14.35]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: False, folderRoute: False) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "braced") [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "urn") [35 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: True, folderRoute: False) [432 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadOnly, selected: True, folderRoute: True) [237 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadOnly, selected: False, folderRoute: False) [216 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: True, folderRoute: True) [282 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: False, folderRoute: False) [177 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.56]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: False, folderRoute: True) [FAIL]
+[xUnit.net 00:00:14.75]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "missing") [FAIL]
+[xUnit.net 00:00:14.83]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "ownerClosing") [FAIL]
+[xUnit.net 00:00:14.92]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "revoked") [FAIL]
+[xUnit.net 00:00:15.02]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "recordTrash") [FAIL]
+[xUnit.net 00:00:15.21]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "unselected") [FAIL]
+[xUnit.net 00:00:15.30]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "foreign") [FAIL]
+[xUnit.net 00:00:15.42]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "recordTerminal") [FAIL]
+[xUnit.net 00:00:15.53]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "ancestorTrash") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: False, folderRoute: True) [211 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "missing") [188 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "ownerClosing") [76 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "revoked") [88 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "recordTrash") [100 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "unselected") [185 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "foreign") [96 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "recordTerminal") [112 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "ancestorTrash") [108 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:15.60]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "compression", status: 400) [FAIL]
+[xUnit.net 00:00:15.66]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "utf8", status: 400) [FAIL]
+[xUnit.net 00:00:15.73]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [FAIL]
+[xUnit.net 00:00:15.92]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "charset", status: 400) [FAIL]
+[xUnit.net 00:00:16.06]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:16.19]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "bad", status: 400) [FAIL]
+[xUnit.net 00:00:16.30]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "bom", status: 400) [FAIL]
+[xUnit.net 00:00:16.37]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "query", status: 400) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "compression", status: 400) [74 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "utf8", status: 400) [61 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "charset", status: 400) [82 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "missing", status: 401) [128 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "bad", status: 400) [127 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "bom", status: 400) [109 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "query", status: 400) [62 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:16.47]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "policy", status: 403) [FAIL]
+[xUnit.net 00:00:16.55]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "dangling", status: 403) [FAIL]
+[xUnit.net 00:00:16.61]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "revoked", status: 403) [FAIL]
+[xUnit.net 00:00:16.71]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "terminal", status: 404) [FAIL]
+[xUnit.net 00:00:16.81]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "generation", status: 403) [FAIL]
+[xUnit.net 00:00:16.92]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "future", status: 403) [FAIL]
+[xUnit.net 00:00:17.00]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "expired", status: 403) [FAIL]
+[xUnit.net 00:00:17.11]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "closing", status: 404) [FAIL]
+[xUnit.net 00:00:17.24]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "envelope") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "policy", status: 403) [99 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "dangling", status: 403) [82 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "revoked", status: 403) [56 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "terminal", status: 404) [99 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "generation", status: 403) [100 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "future", status: 403) [104 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "expired", status: 403) [80 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "closing", status: 404) [104 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "envelope") [130 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:17.33]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "sequence") [FAIL]
+[xUnit.net 00:00:17.43]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "outage") [FAIL]
+[xUnit.net 00:00:17.50]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "revision") [FAIL]
+[xUnit.net 00:00:17.60]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "numericString") [FAIL]
+[xUnit.net 00:00:17.69]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "signature") [FAIL]
+[xUnit.net 00:00:17.80]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "pins") [FAIL]
+[xUnit.net 00:00:18.01]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "downgrade", status: 403) [FAIL]
+[xUnit.net 00:00:18.12]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "grant", status: 404) [FAIL]
+[xUnit.net 00:00:18.26]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "member", status: 404) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "sequence") [89 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "outage") [98 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "revision") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "numericString") [95 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 79
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "signature") [87 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 79
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "pins") [108 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(String kind) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 79
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "downgrade", status: 403) [207 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 76
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "grant", status: 404) [110 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 76
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "member", status: 404) [133 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 76
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:18.42]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "move", status: 404) [FAIL]
+[xUnit.net 00:00:18.47]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenLostSuccessRetryAndStaleRevision_WhenReplacing_Then409PreservesWinner [FAIL]
+[xUnit.net 00:00:18.55]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 1, status: 400) [FAIL]
+[xUnit.net 00:00:18.67]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 10, status: 200) [FAIL]
+[xUnit.net 00:00:18.76]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 9, status: 400) [FAIL]
+[xUnit.net 00:00:18.84]     ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRawEmptyAccessHeader_WhenReplacing_Then400 [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "move", status: 404) [157 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 76
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenLostSuccessRetryAndStaleRevision_WhenReplacing_Then409PreservesWinner [52 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenLostSuccessRetryAndStaleRevision_WhenReplacing_Then409PreservesWinner() in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 85
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 1, status: 400) [73 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(Int64 ticks, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 88
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 10, status: 200) [115 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 115
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(Int64 ticks, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 88
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 9, status: 400) [95 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 117
+   at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(Int64 ticks, Int32 status) in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 88
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRawEmptyAccessHeader_WhenReplacing_Then400 [72 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   405
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordUpdateHttpTests.GivenRawEmptyAccessHeader_WhenReplacing_Then400() in /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordUpdateHttpTests.cs:line 67
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    81, Passed:     5, Skipped:     0, Total:    86, Duration: 12 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

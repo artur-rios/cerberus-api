@@ -1,0 +1,1725 @@
+# Review package: b6196f07a48dc172b96f5d4bfc3e02c5790da92d..HEAD
+
+## Commits
+76d4a27 feat: deliver protected account query
+b3fb19c feat: guard account reads with vault access
+a550947 docs: plan protected current account reads
+
+## Files changed
+ README.md                                          |   4 +-
+ docs/contracts/openapi.json                        | 193 +++++++++++++
+ .../Operations & Infrastructure Document.md        |  18 ++
+ .../plans/2026-10-08-uc-03-get-account.md          |  49 ++++
+ .../specs/2026-10-08-uc-03-get-account-design.md   |  52 ++++
+ .../Accounts/AccountOutput.cs                      |  12 +
+ .../Accounts/AccountQueryMessages.cs               |  12 +
+ .../Accounts/GetAccountHandler.cs                  |  35 +++
+ .../Accounts/GetAccountQuery.cs                    |   9 +
+ .../Access/OpaqueAccessHandle.cs                   |  21 ++
+ .../Access/VaultAccessSession.cs                   |  15 +
+ .../Accounts/AccountReadContracts.cs               |   9 +
+ .../Accounts/AccountReadStore.cs                   |  38 +++
+ .../ArturRios.Cerberus.Data/AppDbContext.cs        |   7 +
+ .../20261008123730_VaultAccessSessions.Designer.cs | 304 +++++++++++++++++++++
+ .../20261008123730_VaultAccessSessions.cs          |  65 +++++
+ .../Migrations/AppDbContextModelSnapshot.cs        |  67 +++++
+ .../Controllers/AccountController.cs               |  23 +-
+ .../ArturRios.Cerberus.WebApi/Startup.cs           |   6 +
+ .../GetAccountHandlerTests.cs                      |  78 ++++++
+ .../OpaqueAccessHandleTests.cs                     |  28 ++
+ .../AccountReadStoreTests.cs                       |  98 +++++++
+ .../AccountReadHttpTests.cs                        | 191 +++++++++++++
+ 23 files changed, 1331 insertions(+), 3 deletions(-)
+
+## Diff
+diff --git a/README.md b/README.md
+index 33e583a..bae302b 100644
+--- a/README.md
++++ b/README.md
+@@ -104,41 +104,41 @@ no server and requires no deployment credentials.
+ ## Roadmap
+ 
+ Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
+ Each use case has one issue; the foundation issue comes first. Every milestone depends on
+ Foundation, with dependencies only on earlier milestones. Counts below are the snapshot at
+ creation; GitHub milestone pages show live progress. No due dates or labels were assigned.
+ 
+ | Milestone | Delivers | Depends on | Issues | Status |
+ | --- | --- | --- | --- | --- |
+ | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
+-| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 2 / 9 closed |
++| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 3 / 9 closed |
+ | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 0 / 26 closed |
+ | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
+ | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
+ | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
+ 
+ ## Backlog
+ 
+ ### M-01 — Foundation
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#1](https://github.com/artur-rios/cerberus-api/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | Done |
+ 
+ ### M-02 — Account identity and vault protection
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Done |
+ | [#3](https://github.com/artur-rios/cerberus-api/issues/3) | UC-02 — Authenticate | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-02-authenticate) | Done |
+-| [#4](https://github.com/artur-rios/cerberus-api/issues/4) | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | Todo |
++| [#4](https://github.com/artur-rios/cerberus-api/issues/4) | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | Done |
+ | [#5](https://github.com/artur-rios/cerberus-api/issues/5) | UC-04 — Update account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-04-update-account) | Todo |
+ | [#6](https://github.com/artur-rios/cerberus-api/issues/6) | UC-05 — Update identity details | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-05-update-identity-details) | Todo |
+ | [#39](https://github.com/artur-rios/cerberus-api/issues/39) | UC-38 — Initialize vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-38-initialize-vault-protection) | Todo |
+ | [#40](https://github.com/artur-rios/cerberus-api/issues/40) | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | Todo |
+ | [#41](https://github.com/artur-rios/cerberus-api/issues/41) | UC-40 — Recover vault access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-40-recover-vault-access) | Todo |
+ | [#42](https://github.com/artur-rios/cerberus-api/issues/42) | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | Todo |
+ 
+ ### M-03 — Organized vault
+ 
+ | Issue | Work | Spec | Status |
+diff --git a/docs/contracts/openapi.json b/docs/contracts/openapi.json
+index a85869c..84d534b 100644
+--- a/docs/contracts/openapi.json
++++ b/docs/contracts/openapi.json
+@@ -1,18 +1,156 @@
+ {
+   "openapi": "3.0.4",
+   "info": {
+     "title": "Cerberus API",
+     "description": "Cerberus encrypted vault API. Identity authentication and vault access are separate.",
+     "version": "v1"
+   },
+   "paths": {
++    "/api/accounts/me": {
++      "get": {
++        "tags": [
++          "Account"
++        ],
++        "parameters": [
++          {
++            "name": "X-Cerberus-Vault-Access",
++            "in": "header",
++            "schema": {
++              "type": "string"
++            }
++          }
++        ],
++        "responses": {
++          "200": {
++            "description": "OK",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/AccountOutputDataOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/AccountOutputDataOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/AccountOutputDataOutput"
++                }
++              }
++            }
++          },
++          "400": {
++            "description": "Bad Request",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "401": {
++            "description": "Unauthorized",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "403": {
++            "description": "Forbidden",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "404": {
++            "description": "Not Found",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "503": {
++            "description": "Service Unavailable",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          }
++        }
++      }
++    },
+     "/api/accounts": {
+       "post": {
+         "tags": [
+           "Account"
+         ],
+         "requestBody": {
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/RegisterAccountCommand"
+@@ -446,20 +584,75 @@
+                 }
+               }
+             }
+           }
+         }
+       }
+     }
+   },
+   "components": {
+     "schemas": {
++      "AccountOutput": {
++        "required": [
++          "details"
++        ],
++        "type": "object",
++        "properties": {
++          "id": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "revision": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "state": {
++            "type": "string",
++            "nullable": true
++          },
++          "details": {
++            "$ref": "#/components/schemas/EncryptedEnvelope"
++          }
++        },
++        "additionalProperties": false
++      },
++      "AccountOutputDataOutput": {
++        "type": "object",
++        "properties": {
++          "messages": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "errors": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "timestamp": {
++            "type": "string",
++            "format": "date-time"
++          },
++          "success": {
++            "type": "boolean",
++            "readOnly": true
++          },
++          "data": {
++            "$ref": "#/components/schemas/AccountOutput"
++          }
++        },
++        "additionalProperties": false
++      },
+       "AuthenticationAccount": {
+         "type": "object",
+         "properties": {
+           "id": {
+             "type": "string",
+             "format": "uuid"
+           },
+           "revision": {
+             "type": "integer",
+             "format": "int64"
+diff --git a/docs/requirements/Operations & Infrastructure Document.md b/docs/requirements/Operations & Infrastructure Document.md
+index b97aacc..1860d50 100644
+--- a/docs/requirements/Operations & Infrastructure Document.md	
++++ b/docs/requirements/Operations & Infrastructure Document.md	
+@@ -232,20 +232,38 @@ roll back. A restore remains isolated: restore the database, replay all complete
+ reconcile pending deadlines and current authorization, verify purged identifiers remain
+ unavailable, and only then reopen traffic. Preserve the ledger as well as its tested replay
+ procedure. Do not treat keys cached in client copies as remotely erasable.
+ 
+ The retention worker claims expired operations idempotently and retries failures. Request-time
+ deadline checks prevent worker outages from extending restore windows. Registration and
+ erasure recovery procedures must also cover interrupted cross-system/ledger operations.
+ 
+ ---
+ 
++## Account read access
++
++`GET /api/accounts/me` requires a current scoped Heimdall identity and a single
++`X-Cerberus-Vault-Access` header containing a canonical unpadded base64url 32-byte
++opaque handle. Only its SHA-256 verifier is stored. Account reads accept no query
++parameters or request body and return public account metadata with the original
++opaque encrypted details envelope; responses are not cacheable.
++
++The account-wide session must belong to the current active, non-erased account,
++match its current policy and revocation generations, and remain unrevoked and
++unexpired. Profile-only access cannot read account details. With renewal disabled,
++a session must explicitly have no expiry. UC-03 provides verification and storage;
++trusted session issuance and vault initialization remain UC-38, and profile access
++issuance remains UC-15. Authentication and account reads never create access sessions.
++Apply the additive `VaultAccessSessions` migration before enabling this route.
++
++---
++
+ ## 8. Traceability
+ 
+ | Platform capability | Requirements |
+ | --- | --- |
+ | Scaffolding and data | IR-01 through IR-04 |
+ | Identity/configuration | IR-03, IR-05 |
+ | Logging and tests | IR-06 through IR-08 |
+ | Protocol release gate | IR-09 |
+ | Delivery, retention and restore | IR-10 through IR-14 |
+ | Health | FR-OP-01, FR-OP-02, FR-OP-03; UC-55 |
+diff --git a/docs/superpowers/plans/2026-10-08-uc-03-get-account.md b/docs/superpowers/plans/2026-10-08-uc-03-get-account.md
+new file mode 100644
+index 0000000..0f74ccf
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-08-uc-03-get-account.md
+@@ -0,0 +1,49 @@
++# UC-03 Get Account Implementation Plan
++
++> **For agentic workers:** Use superpowers:executing-plans inline under existing batch authorization, test-driven-development, and one fresh final whole-branch review.
++
++**Goal:** Deliver issue #4, owner-only encrypted account read with current vault access.
++
++**Architecture:** Domain owns canonical opaque-handle validation and session/store contracts. Data stores verifier metadata and projects only currently authorized ciphertext. Query validates/returns public envelope metadata; WebApi injects trusted actor and dispatches QueryMediator.
++
++**Tech Stack:** Pinned .NET 10, first-party mediator/output, EF Core/PostgreSQL, SHA-256 opaque-handle verifier, xUnit/Moq/Testcontainers.
++
++**Spec:** `docs/superpowers/specs/2026-10-08-uc-03-get-account-design.md`; UC-03 and FR-AC-08.
++
++## Global Constraints
++
++- Current scoped Heimdall identity and active non-erased owner account are required.
++- Account-wide vault access required; no session issuance or unlock in this route.
++- Opaque content only; no internal IDs, identity profile, credentials or client keys in outputs/logs.
++- Canonical 32-byte base64url access header; persist verifier only; exclusive expiry and current policy/generation.
++- No-store success/failure; no writes on reads/denials.
++- One branch/issue/PR to develop; green required CI; fresh full suite zero relevant skips and >=90% production line coverage, report branch coverage.
++- Actual independent protocol approval remains pending under development deferral.
++
++## Review Focus
++
++- Another account's handle must not authorize the current identity's account.
++- Profile-only access must not become account-wide access.
++- Expiry equality, future issuance, null-expiry policy and stale revisions must fail closed.
++- Concurrent account closure/erasure must prevent ciphertext disclosure in the read's current database snapshot.
++- Corrupt stored metadata and dependency faults must return no ciphertext or keys.
++
++### Task 1: Persist and verify account-wide access
++
++**Files:** Domain `Access/OpaqueAccessHandle.cs`, `Access/VaultAccessSession.cs`, `Accounts/AccountReadContracts.cs`; Data `Accounts/AccountReadStore.cs`, `AppDbContext.cs`, generated migration; Domain handle tests and Data account-read tests.
++
++**Interfaces:** `OpaqueAccessHandle.TryHash(string? token, out string verifier)`; `AccountSnapshot(Guid Id,long Revision,AccountState State,byte[] DetailsEnvelope)`; `AccountReadResult(AccountSnapshot? Account=null,string? Error=null)`; `IAccountReadStore.ReadAsync(Guid identityId,string verifier,DateTimeOffset now,CancellationToken)`.
++
++- [x] Add canonical handle and real PostgreSQL tests for valid/no-expiry sessions, expiry equality/future issuance, profile scope, stale policy/generation, revocation, cross-account use, hidden account, corruption boundary and provider failure/cancellation. Run: expected missing types/behavior fails.
++- [x] Implement verifier-only session schema with account FK/cascade and unique verifier, current authorization predicates and conditional ciphertext projection. Generate migration. Run Domain/Data tests: expected green. Commit.
++
++### Task 2: Deliver protected account query
++
++**Files:** Query `Accounts/GetAccountQuery.cs`, `GetAccountHandler.cs`, output/status map; WebApi `AccountController.cs`, `Startup.cs`; Query tests and WebApi account-read HTTP tests; OpenAPI/README/operational docs.
++
++**Interfaces:** server-created `GetAccountQuery(Guid identityId,string? vaultAccess):BaseQuery`; `IQueryHandlerAsync<GetAccountQuery,AccountOutput>`; public output ID/revision/state/EncryptedEnvelope details.
++
++- [x] Add unit tests for missing/invalid handles/actor, store outcomes, public projection and corrupt metadata; observe RED, implement using TimeProvider and Domain store, run Query suite GREEN.
++- [x] Add real-host tests for main/every AF, missing/current denied identity, header/query/body validation, isolation, expired/revoked/profile session and actual database outage; observe absent route RED. Implement trusted-actor/header extraction, QueryMediator/DI/status mapping; run WebApi suite GREEN.
++- [x] Generate/inspect OpenAPI, mark only UC-03 done and update milestone progress. Run fresh unfiltered coverage.py/helper/spec/contract/format checks: expect zero failures/skips and >=90% line coverage.
++- [ ] One fresh final review; reproduce/fix Important findings once, ledger rulings/minors/declines. Open own PR closing #4; required CI green, merge/close/projectDone/delete feature branch/sync under existing authorization.
+diff --git a/docs/superpowers/specs/2026-10-08-uc-03-get-account-design.md b/docs/superpowers/specs/2026-10-08-uc-03-get-account-design.md
+new file mode 100644
+index 0000000..5756a59
+--- /dev/null
++++ b/docs/superpowers/specs/2026-10-08-uc-03-get-account-design.md
+@@ -0,0 +1,52 @@
++# UC-03 current account read design
++
++Implement issue #4, FR-AC-08 and every UC-03 alternative flow through protected
++`GET /api/accounts/me`. Existing batch authorization supplies automated stage gates;
++independent protocol/client approval remains deferred for development only.
++
++Resolve the actor from the existing signed/current Heimdall authorization middleware,
++never from request identifiers. Return only that identity's active, non-erased account,
++with public GUID, revision, state and opaque six-field encrypted details. Do not return
++identity profile data, internal IDs, credentials, key material or another owner's account.
++
++Enforce the use case's vault-access precondition with a single-valued
++`X-Cerberus-Vault-Access` header, containing a canonical unpadded base64url encoding of
++32 random bytes. Store only its SHA-256 verifier. The online session is separately
++bound to the account, optional internal profile scope, policy revision and revocation
++generation, issuance time, nullable expiry and revocation state. Account details need
++an account-wide session; a profile-selected session cannot authorize this account scope.
++Reject future issuance and expiry at the exact deadline. Enabled renewal requires an
++expiry; disabled renewal requires explicit no-periodic-expiry. Current policy/generation
++must match, and both account state and terminal tombstones are checked in the same query.
++
++Ruling: add the read-side session persistence/verification primitives now because UC-03
++requires valid selected access. Issuance/unlock remains UC-38 (and profile issuance UC-15);
++neither identity login nor this read route creates a session. Functional tests provision
++trusted persisted sessions directly as the specified precondition, using actual hashing,
++current identity and PostgreSQL. Cost if wrong: later issuance may need to extend the
++session schema; this route stays closed until a valid trusted session exists. This is
++not an independent cryptographic or client-operability approval.
++
++The GET contract accepts no query parameters or body. Missing vault access returns401;
++malformed/duplicate access header or unexpected visible input returns400; invalid, expired,
++revoked, stale-policy/generation, wrong-account or profile-only access returns403.
++Absent/inactive/erased accounts return nonrevealing404. Required current identity/persistence
++outages return stable redacted503. No denial writes state or returns encrypted content.
++
++Domain owns handle validation/session and store result contracts. Data performs a single
++no-tracking query whose conditional projection retrieves details only when current account
++and session predicates permit it. Query handler validates input, uses injected TimeProvider,
++parses only envelope metadata and returns a public output through QueryMediator. Corrupt
++stored envelope metadata fails closed with503; no content decryption occurs.
++
++| Flow | Evidence |
++| --- | --- |
++| Main | Real HTTP + PostgreSQL valid account-wide session returns exact encrypted details and public state; no internal identity or usable keys. |
++| AF-01 | Canonical handle/parser unit boundaries and HTTP unknown query/body, duplicate/malformed header reject400 without content or writes. |
++| AF-02 | Missing account, inactive state, tombstone and actor isolation tests return404 without another owner's data. |
++| AF-03 | Missing/invalid identity returns401; missing access401; wrong scope/owner, profile-only, revoked, stale or expired session403; current identity revalidation still required. |
++| AF-04 | Actual PostgreSQL fault and controlled identity outage return503 without details; caller cancellation propagates. |
++
++Alternative: authorizing solely by identity would bypass the stated vault-access precondition.
++Keeping sessions in memory would lose revocation/restart behavior. Persisted opaque verifiers
++and current account checks preserve the boundary without storing client decryption keys.
+diff --git a/src/Application/ArturRios.Cerberus.Query/Accounts/AccountOutput.cs b/src/Application/ArturRios.Cerberus.Query/Accounts/AccountOutput.cs
+new file mode 100644
+index 0000000..bad5637
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Query/Accounts/AccountOutput.cs
+@@ -0,0 +1,12 @@
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Mediator.Query;
++
++namespace ArturRios.Cerberus.Query.Accounts;
++
++public sealed class AccountOutput : QueryOutput
++{
++    public Guid Id { get; init; }
++    public long Revision { get; init; }
++    public string State { get; init; } = string.Empty;
++    public required EncryptedEnvelope Details { get; init; }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Query/Accounts/AccountQueryMessages.cs b/src/Application/ArturRios.Cerberus.Query/Accounts/AccountQueryMessages.cs
+new file mode 100644
+index 0000000..7c78dc6
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Query/Accounts/AccountQueryMessages.cs
+@@ -0,0 +1,12 @@
++namespace ArturRios.Cerberus.Query.Accounts;
++
++public static class AccountQueryMessages
++{
++    public static readonly IReadOnlyDictionary<string, int> StatusCodes = new Dictionary<string, int>
++    {
++        ["account_found"] = 200, ["validation_failed"] = 400,
++        ["authentication_required"] = 401, ["vault_access_required"] = 401,
++        ["vault_access_denied"] = 403, ["not_found"] = 404,
++        ["identity_unavailable"] = 503, ["persistence_unavailable"] = 503
++    };
++}
+diff --git a/src/Application/ArturRios.Cerberus.Query/Accounts/GetAccountHandler.cs b/src/Application/ArturRios.Cerberus.Query/Accounts/GetAccountHandler.cs
+new file mode 100644
+index 0000000..c6264ab
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Query/Accounts/GetAccountHandler.cs
+@@ -0,0 +1,35 @@
++using System.Text.Json;
++using System.Text.Json.Serialization;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Mediator.Query.Interfaces;
++using ArturRios.Output;
++
++namespace ArturRios.Cerberus.Query.Accounts;
++
++public sealed class GetAccountHandler(IAccountReadStore accounts, TimeProvider clock) : IQueryHandlerAsync<GetAccountQuery, AccountOutput>
++{
++    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
++    { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
++
++    public async Task<DataOutput<AccountOutput?>> HandleAsync(GetAccountQuery query, CancellationToken cancellationToken = default)
++    {
++        cancellationToken.ThrowIfCancellationRequested();
++        var output = DataOutput<AccountOutput?>.New;
++        if (query.IdentityId == Guid.Empty) return output.WithError("authentication_required");
++        if (query.VaultAccess is null) return output.WithError("vault_access_required");
++        if (!OpaqueAccessHandle.TryHash(query.VaultAccess, out var verifier)) return output.WithError("validation_failed");
++        var result = await accounts.ReadAsync(query.IdentityId, verifier, clock.GetUtcNow(), cancellationToken);
++        if (result.Error is not null) return output.WithError(result.Error);
++        if (result.Account is null) return output.WithError("persistence_unavailable");
++        EncryptedEnvelope? details;
++        try { details = JsonSerializer.Deserialize<EncryptedEnvelope>(result.Account.DetailsEnvelope, Json); }
++        catch (JsonException) { return output.WithError("persistence_unavailable"); }
++        if (details?.IsValid() != true) return output.WithError("persistence_unavailable");
++        return output.WithData(new AccountOutput
++        {
++            Id = result.Account.Id, Revision = result.Account.Revision,
++            State = result.Account.State.ToString().ToLowerInvariant(), Details = details
++        }).WithMessage("account_found");
++    }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Query/Accounts/GetAccountQuery.cs b/src/Application/ArturRios.Cerberus.Query/Accounts/GetAccountQuery.cs
+new file mode 100644
+index 0000000..e755b23
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Query/Accounts/GetAccountQuery.cs
+@@ -0,0 +1,9 @@
++using ArturRios.Mediator.Query;
++
++namespace ArturRios.Cerberus.Query.Accounts;
++
++public sealed class GetAccountQuery(Guid identityId, string? vaultAccess) : BaseQuery
++{
++    public Guid IdentityId { get; } = identityId;
++    public string? VaultAccess { get; } = vaultAccess;
++}
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Access/OpaqueAccessHandle.cs b/src/Domain/ArturRios.Cerberus.Domain/Access/OpaqueAccessHandle.cs
+new file mode 100644
+index 0000000..0f081f0
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Access/OpaqueAccessHandle.cs
+@@ -0,0 +1,21 @@
++using System.Security.Cryptography;
++
++namespace ArturRios.Cerberus.Domain.Access;
++
++public static class OpaqueAccessHandle
++{
++    public static bool TryHash(string? token, out string verifier)
++    {
++        verifier = string.Empty;
++        if (token is not { Length: 43 } || token.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not '-' and not '_')) return false;
++        Span<byte> bytes = stackalloc byte[32];
++        try
++        {
++            if (!Convert.TryFromBase64String(token.Replace('-', '+').Replace('_', '/') + "=", bytes, out var size) || size != 32
++                || Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_') != token) return false;
++            verifier = Convert.ToHexStringLower(SHA256.HashData(bytes));
++            return true;
++        }
++        finally { CryptographicOperations.ZeroMemory(bytes); }
++    }
++}
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Access/VaultAccessSession.cs b/src/Domain/ArturRios.Cerberus.Domain/Access/VaultAccessSession.cs
+new file mode 100644
+index 0000000..7660bb5
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Access/VaultAccessSession.cs
+@@ -0,0 +1,15 @@
++using ArturRios.Data.Relational.Core.Entities;
++
++namespace ArturRios.Cerberus.Domain.Access;
++
++public sealed class VaultAccessSession : Entity
++{
++    public string HandleVerifier { get; set; } = string.Empty;
++    public long AccountId { get; set; }
++    public long? ProfileId { get; set; }
++    public DateTimeOffset IssuedAt { get; set; }
++    public DateTimeOffset? ExpiresAt { get; set; }
++    public long PolicyRevision { get; set; }
++    public long RevocationGeneration { get; set; }
++    public bool Revoked { get; set; }
++}
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Accounts/AccountReadContracts.cs b/src/Domain/ArturRios.Cerberus.Domain/Accounts/AccountReadContracts.cs
+new file mode 100644
+index 0000000..d4c0938
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Accounts/AccountReadContracts.cs
+@@ -0,0 +1,9 @@
++namespace ArturRios.Cerberus.Domain.Accounts;
++
++public sealed record AccountSnapshot(Guid Id, long Revision, AccountState State, byte[] DetailsEnvelope);
++public sealed record AccountReadResult(AccountSnapshot? Account = null, string? Error = null);
++
++public interface IAccountReadStore
++{
++    Task<AccountReadResult> ReadAsync(Guid identityId, string verifier, DateTimeOffset now, CancellationToken cancellationToken);
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Accounts/AccountReadStore.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Accounts/AccountReadStore.cs
+new file mode 100644
+index 0000000..bc0d534
+--- /dev/null
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Accounts/AccountReadStore.cs
+@@ -0,0 +1,38 @@
++using System.Data.Common;
++using ArturRios.Cerberus.Domain.Accounts;
++using Microsoft.EntityFrameworkCore;
++
++namespace ArturRios.Cerberus.Data.Accounts;
++
++public sealed class AccountReadStore(IDbContextFactory<AppDbContext> factory) : IAccountReadStore
++{
++    public async Task<AccountReadResult> ReadAsync(Guid identityId, string verifier, DateTimeOffset now, CancellationToken cancellationToken)
++    {
++        cancellationToken.ThrowIfCancellationRequested();
++        try
++        {
++            await using var context = await factory.CreateDbContextAsync(cancellationToken);
++            // One database snapshot; the CASE projection withholds ciphertext unless the
++            // current account, tombstone and account-wide session predicates all permit it.
++            var snapshot = await (from account in context.Accounts.AsNoTracking()
++                where account.HeimdallPublicId == identityId
++                let erased = context.TerminalErasures.Any(e => e.ResourceId == account.PublicId)
++                let allowed = context.VaultAccessSessions.Any(s => s.AccountId == account.Id && s.HandleVerifier == verifier
++                    && s.ProfileId == null && !s.Revoked && s.IssuedAt <= now
++                    && s.PolicyRevision > 0 && s.RevocationGeneration > 0
++                    && s.PolicyRevision == account.PolicyRevision && s.RevocationGeneration == account.RevocationGeneration
++                    && (account.RenewalEnabled ? s.ExpiresAt > now : s.ExpiresAt == null))
++                select new { account.PublicId, account.Revision, account.State, Erased = erased,
++                    Details = account.State == AccountState.Active && !erased && allowed ? account.DetailsEnvelope : null })
++                .SingleOrDefaultAsync(cancellationToken);
++            if (snapshot is null || snapshot.State != AccountState.Active || snapshot.Erased) return new(Error: "not_found");
++            if (snapshot.Details is null) return new(Error: "vault_access_denied");
++            return new(new AccountSnapshot(snapshot.PublicId, snapshot.Revision, snapshot.State, snapshot.Details));
++        }
++        catch (Exception exception) when (exception is DbException or TimeoutException
++            || exception is InvalidOperationException { InnerException: DbException or TimeoutException })
++        {
++            return new(Error: "persistence_unavailable");
++        }
++    }
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/AppDbContext.cs b/src/Infrastructure/ArturRios.Cerberus.Data/AppDbContext.cs
+index 7372ac4..714c8fe 100644
+--- a/src/Infrastructure/ArturRios.Cerberus.Data/AppDbContext.cs
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/AppDbContext.cs
+@@ -1,36 +1,43 @@
+ using ArturRios.Cerberus.Domain.Operations;
+ using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Access;
+ using ArturRios.Data.Relational.Core.Configuration;
+ using Microsoft.EntityFrameworkCore;
+ 
+ namespace ArturRios.Cerberus.Data;
+ 
+ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseDbContext(options)
+ {
+     public DbSet<Account> Accounts => Set<Account>();
++    public DbSet<VaultAccessSession> VaultAccessSessions => Set<VaultAccessSession>();
+     public DbSet<RegistrationOperation> RegistrationOperations => Set<RegistrationOperation>();
+     public DbSet<RetentionWorkItem> RetentionWorkItems => Set<RetentionWorkItem>();
+     public DbSet<TerminalErasure> TerminalErasures => Set<TerminalErasure>();
+ 
+     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
+         optionsBuilder.UseSnakeCaseNamingConvention().EnableDetailedErrors(false).EnableSensitiveDataLogging(false);
+ 
+     protected override void OnModelCreating(ModelBuilder modelBuilder)
+     {
+         modelBuilder.HasDefaultSchema("cerberus");
+         var account = modelBuilder.Entity<Account>();
+         account.ToTable("account");
+         account.HasIndex(x => x.PublicId).IsUnique();
+         account.HasIndex(x => x.HeimdallPublicId).IsUnique();
+         account.Property(x => x.DetailsEnvelope).IsRequired();
+         account.Property(x => x.Revision).IsConcurrencyToken();
++        var access = modelBuilder.Entity<VaultAccessSession>();
++        access.ToTable("vault_access_session");
++        access.HasIndex(x => x.HandleVerifier).IsUnique();
++        access.Property(x => x.HandleVerifier).HasMaxLength(64).IsRequired();
++        access.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Cascade);
+         var registration = modelBuilder.Entity<RegistrationOperation>();
+         registration.ToTable("registration_operation");
+         registration.HasIndex(x => x.OperationId).IsUnique();
+         registration.Property(x => x.RequestFingerprint).HasMaxLength(64).IsRequired();
+         var work = modelBuilder.Entity<RetentionWorkItem>();
+         work.ToTable("retention_work_item");
+         work.HasIndex(x => x.PublicId).IsUnique();
+         work.HasIndex(x => x.OperationKey).IsUnique();
+         work.Property(x => x.OperationKey).HasMaxLength(128).IsRequired();
+         var erasure = modelBuilder.Entity<TerminalErasure>();
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008123730_VaultAccessSessions.Designer.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008123730_VaultAccessSessions.Designer.cs
+new file mode 100644
+index 0000000..ba7dd56
+--- /dev/null
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008123730_VaultAccessSessions.Designer.cs
+@@ -0,0 +1,304 @@
++﻿// <auto-generated />
++using System;
++using ArturRios.Cerberus.Data;
++using Microsoft.EntityFrameworkCore;
++using Microsoft.EntityFrameworkCore.Infrastructure;
++using Microsoft.EntityFrameworkCore.Migrations;
++using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
++using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
++
++#nullable disable
++
++namespace ArturRios.Cerberus.Data.Migrations
++{
++    [DbContext(typeof(AppDbContext))]
++    [Migration("20261008123730_VaultAccessSessions")]
++    partial class VaultAccessSessions
++    {
++        /// <inheritdoc />
++        protected override void BuildTargetModel(ModelBuilder modelBuilder)
++        {
++#pragma warning disable 612, 618
++            modelBuilder
++                .HasDefaultSchema("cerberus")
++                .HasAnnotation("ProductVersion", "10.0.12")
++                .HasAnnotation("Relational:MaxIdentifierLength", 63);
++
++            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Access.VaultAccessSession", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<long>("AccountId")
++                        .HasColumnType("bigint")
++                        .HasColumnName("account_id");
++
++                    b.Property<DateTimeOffset?>("ExpiresAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("expires_at");
++
++                    b.Property<string>("HandleVerifier")
++                        .IsRequired()
++                        .HasMaxLength(64)
++                        .HasColumnType("character varying(64)")
++                        .HasColumnName("handle_verifier");
++
++                    b.Property<DateTimeOffset>("IssuedAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("issued_at");
++
++                    b.Property<long>("PolicyRevision")
++                        .HasColumnType("bigint")
++                        .HasColumnName("policy_revision");
++
++                    b.Property<long?>("ProfileId")
++                        .HasColumnType("bigint")
++                        .HasColumnName("profile_id");
++
++                    b.Property<long>("RevocationGeneration")
++                        .HasColumnType("bigint")
++                        .HasColumnName("revocation_generation");
++
++                    b.Property<bool>("Revoked")
++                        .HasColumnType("boolean")
++                        .HasColumnName("revoked");
++
++                    b.HasKey("Id")
++                        .HasName("pk_vault_access_session");
++
++                    b.HasIndex("AccountId")
++                        .HasDatabaseName("ix_vault_access_session_account_id");
++
++                    b.HasIndex("HandleVerifier")
++                        .IsUnique()
++                        .HasDatabaseName("ix_vault_access_session_handle_verifier");
++
++                    b.ToTable("vault_access_session", "cerberus");
++                });
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Accounts.Account", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<DateTimeOffset?>("ClosurePurgeAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("closure_purge_at");
++
++                    b.Property<DateTimeOffset?>("ClosureRequestedAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("closure_requested_at");
++
++                    b.Property<Guid>("ConcurrencyStamp")
++                        .IsConcurrencyToken()
++                        .HasColumnType("uuid")
++                        .HasColumnName("concurrency_stamp");
++
++                    b.Property<byte[]>("DetailsEnvelope")
++                        .IsRequired()
++                        .HasColumnType("bytea")
++                        .HasColumnName("details_envelope");
++
++                    b.Property<Guid>("HeimdallPublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("heimdall_public_id");
++
++                    b.Property<long>("PolicyRevision")
++                        .HasColumnType("bigint")
++                        .HasColumnName("policy_revision");
++
++                    b.Property<Guid>("PublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("public_id");
++
++                    b.Property<bool>("RenewalEnabled")
++                        .HasColumnType("boolean")
++                        .HasColumnName("renewal_enabled");
++
++                    b.Property<TimeSpan?>("RenewalInterval")
++                        .HasColumnType("interval")
++                        .HasColumnName("renewal_interval");
++
++                    b.Property<long>("Revision")
++                        .IsConcurrencyToken()
++                        .HasColumnType("bigint")
++                        .HasColumnName("revision");
++
++                    b.Property<long>("RevocationGeneration")
++                        .HasColumnType("bigint")
++                        .HasColumnName("revocation_generation");
++
++                    b.Property<int>("State")
++                        .HasColumnType("integer")
++                        .HasColumnName("state");
++
++                    b.HasKey("Id")
++                        .HasName("pk_account");
++
++                    b.HasIndex("HeimdallPublicId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_account_heimdall_public_id");
++
++                    b.HasIndex("PublicId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_account_public_id");
++
++                    b.ToTable("account", "cerberus");
++                });
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Accounts.RegistrationOperation", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<Guid>("AccountPublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("account_public_id");
++
++                    b.Property<Guid?>("CompletedIdentityId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("completed_identity_id");
++
++                    b.Property<Guid>("OperationId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("operation_id");
++
++                    b.Property<string>("RequestFingerprint")
++                        .IsRequired()
++                        .HasMaxLength(64)
++                        .HasColumnType("character varying(64)")
++                        .HasColumnName("request_fingerprint");
++
++                    b.HasKey("Id")
++                        .HasName("pk_registration_operation");
++
++                    b.HasIndex("OperationId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_registration_operation_operation_id");
++
++                    b.ToTable("registration_operation", "cerberus");
++                });
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Operations.RetentionWorkItem", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<int>("Attempts")
++                        .HasColumnType("integer")
++                        .HasColumnName("attempts");
++
++                    b.Property<DateTimeOffset?>("ClaimExpiresAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("claim_expires_at");
++
++                    b.Property<Guid?>("ClaimToken")
++                        .HasColumnType("uuid")
++                        .HasColumnName("claim_token");
++
++                    b.Property<DateTimeOffset?>("CompletedAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("completed_at");
++
++                    b.Property<Guid>("ConcurrencyStamp")
++                        .IsConcurrencyToken()
++                        .HasColumnType("uuid")
++                        .HasColumnName("concurrency_stamp");
++
++                    b.Property<DateTimeOffset>("DueAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("due_at");
++
++                    b.Property<string>("OperationKey")
++                        .IsRequired()
++                        .HasMaxLength(128)
++                        .HasColumnType("character varying(128)")
++                        .HasColumnName("operation_key");
++
++                    b.Property<Guid>("PublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("public_id");
++
++                    b.HasKey("Id")
++                        .HasName("pk_retention_work_item");
++
++                    b.HasIndex("OperationKey")
++                        .IsUnique()
++                        .HasDatabaseName("ix_retention_work_item_operation_key");
++
++                    b.HasIndex("PublicId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_retention_work_item_public_id");
++
++                    b.ToTable("retention_work_item", "cerberus");
++                });
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Operations.TerminalErasure", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<DateTimeOffset>("DeletedAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("deleted_at");
++
++                    b.Property<Guid>("ResourceId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("resource_id");
++
++                    b.Property<string>("ResourceKind")
++                        .IsRequired()
++                        .HasMaxLength(16)
++                        .HasColumnType("character varying(16)")
++                        .HasColumnName("resource_kind");
++
++                    b.HasKey("Id")
++                        .HasName("pk_terminal_erasure");
++
++                    b.HasIndex("ResourceId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_terminal_erasure_resource_id");
++
++                    b.ToTable("terminal_erasure", "cerberus");
++                });
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Access.VaultAccessSession", b =>
++                {
++                    b.HasOne("ArturRios.Cerberus.Domain.Accounts.Account", null)
++                        .WithMany()
++                        .HasForeignKey("AccountId")
++                        .OnDelete(DeleteBehavior.Cascade)
++                        .IsRequired()
++                        .HasConstraintName("fk_vault_access_session_account_account_id");
++                });
++#pragma warning restore 612, 618
++        }
++    }
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008123730_VaultAccessSessions.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008123730_VaultAccessSessions.cs
+new file mode 100644
+index 0000000..c315263
+--- /dev/null
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008123730_VaultAccessSessions.cs
+@@ -0,0 +1,65 @@
++﻿using System;
++using Microsoft.EntityFrameworkCore.Migrations;
++using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
++
++#nullable disable
++
++namespace ArturRios.Cerberus.Data.Migrations
++{
++    /// <inheritdoc />
++    public partial class VaultAccessSessions : Migration
++    {
++        /// <inheritdoc />
++        protected override void Up(MigrationBuilder migrationBuilder)
++        {
++            migrationBuilder.CreateTable(
++                name: "vault_access_session",
++                schema: "cerberus",
++                columns: table => new
++                {
++                    id = table.Column<long>(type: "bigint", nullable: false)
++                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
++                    handle_verifier = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
++                    account_id = table.Column<long>(type: "bigint", nullable: false),
++                    profile_id = table.Column<long>(type: "bigint", nullable: true),
++                    issued_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
++                    expires_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
++                    policy_revision = table.Column<long>(type: "bigint", nullable: false),
++                    revocation_generation = table.Column<long>(type: "bigint", nullable: false),
++                    revoked = table.Column<bool>(type: "boolean", nullable: false)
++                },
++                constraints: table =>
++                {
++                    table.PrimaryKey("pk_vault_access_session", x => x.id);
++                    table.ForeignKey(
++                        name: "fk_vault_access_session_account_account_id",
++                        column: x => x.account_id,
++                        principalSchema: "cerberus",
++                        principalTable: "account",
++                        principalColumn: "id",
++                        onDelete: ReferentialAction.Cascade);
++                });
++
++            migrationBuilder.CreateIndex(
++                name: "ix_vault_access_session_account_id",
++                schema: "cerberus",
++                table: "vault_access_session",
++                column: "account_id");
++
++            migrationBuilder.CreateIndex(
++                name: "ix_vault_access_session_handle_verifier",
++                schema: "cerberus",
++                table: "vault_access_session",
++                column: "handle_verifier",
++                unique: true);
++        }
++
++        /// <inheritdoc />
++        protected override void Down(MigrationBuilder migrationBuilder)
++        {
++            migrationBuilder.DropTable(
++                name: "vault_access_session",
++                schema: "cerberus");
++        }
++    }
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/AppDbContextModelSnapshot.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/AppDbContextModelSnapshot.cs
+index e72b4ee..45f7416 100644
+--- a/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/AppDbContextModelSnapshot.cs
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/AppDbContextModelSnapshot.cs
+@@ -16,20 +16,77 @@ namespace ArturRios.Cerberus.Data.Migrations
+         protected override void BuildModel(ModelBuilder modelBuilder)
+         {
+ #pragma warning disable 612, 618
+             modelBuilder
+                 .HasDefaultSchema("cerberus")
+                 .HasAnnotation("ProductVersion", "10.0.12")
+                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
+ 
+             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+ 
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Access.VaultAccessSession", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<long>("AccountId")
++                        .HasColumnType("bigint")
++                        .HasColumnName("account_id");
++
++                    b.Property<DateTimeOffset?>("ExpiresAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("expires_at");
++
++                    b.Property<string>("HandleVerifier")
++                        .IsRequired()
++                        .HasMaxLength(64)
++                        .HasColumnType("character varying(64)")
++                        .HasColumnName("handle_verifier");
++
++                    b.Property<DateTimeOffset>("IssuedAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("issued_at");
++
++                    b.Property<long>("PolicyRevision")
++                        .HasColumnType("bigint")
++                        .HasColumnName("policy_revision");
++
++                    b.Property<long?>("ProfileId")
++                        .HasColumnType("bigint")
++                        .HasColumnName("profile_id");
++
++                    b.Property<long>("RevocationGeneration")
++                        .HasColumnType("bigint")
++                        .HasColumnName("revocation_generation");
++
++                    b.Property<bool>("Revoked")
++                        .HasColumnType("boolean")
++                        .HasColumnName("revoked");
++
++                    b.HasKey("Id")
++                        .HasName("pk_vault_access_session");
++
++                    b.HasIndex("AccountId")
++                        .HasDatabaseName("ix_vault_access_session_account_id");
++
++                    b.HasIndex("HandleVerifier")
++                        .IsUnique()
++                        .HasDatabaseName("ix_vault_access_session_handle_verifier");
++
++                    b.ToTable("vault_access_session", "cerberus");
++                });
++
+             modelBuilder.Entity("ArturRios.Cerberus.Domain.Accounts.Account", b =>
+                 {
+                     b.Property<long>("Id")
+                         .ValueGeneratedOnAdd()
+                         .HasColumnType("bigint")
+                         .HasColumnName("id")
+                         .HasColumnOrder(1);
+ 
+                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+ 
+@@ -221,14 +278,24 @@ namespace ArturRios.Cerberus.Data.Migrations
+ 
+                     b.HasKey("Id")
+                         .HasName("pk_terminal_erasure");
+ 
+                     b.HasIndex("ResourceId")
+                         .IsUnique()
+                         .HasDatabaseName("ix_terminal_erasure_resource_id");
+ 
+                     b.ToTable("terminal_erasure", "cerberus");
+                 });
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Access.VaultAccessSession", b =>
++                {
++                    b.HasOne("ArturRios.Cerberus.Domain.Accounts.Account", null)
++                        .WithMany()
++                        .HasForeignKey("AccountId")
++                        .OnDelete(DeleteBehavior.Cascade)
++                        .IsRequired()
++                        .HasConstraintName("fk_vault_access_session_account_account_id");
++                });
+ #pragma warning restore 612, 618
+         }
+     }
+ }
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/AccountController.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/AccountController.cs
+index 34b20b2..d5cffd3 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/AccountController.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/AccountController.cs
+@@ -1,23 +1,44 @@
+ using ArturRios.Cerberus.Command.Accounts;
++using ArturRios.Cerberus.Query.Accounts;
+ using ArturRios.Mediator.Command;
++using ArturRios.Mediator.Query;
+ using ArturRios.Output;
+ using ArturRios.Util.WebApi.AspNetCore;
+ using Microsoft.AspNetCore.Authorization;
+ using Microsoft.AspNetCore.Mvc;
+ 
+ namespace ArturRios.Cerberus.WebApi.Controllers;
+ 
+ [ApiController]
+ [Route("api/accounts")]
+-public sealed class AccountController(CommandMediator commands) : ControllerBase
++public sealed class AccountController(CommandMediator commands, QueryMediator queries) : ControllerBase
+ {
++    [HttpGet("me")]
++    [ProducesResponseType(typeof(DataOutput<AccountOutput>), StatusCodes.Status200OK)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
++    public async Task<ActionResult<DataOutput<AccountOutput?>>> GetCurrent(
++        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
++    {
++        if (Request.Query.Count != 0 || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0
++            || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
++            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
++        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var identityId))
++            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
++        var result = await queries.ExecuteQueryAsync<GetAccountQuery, AccountOutput>(new GetAccountQuery(identityId, vaultAccess), cancellationToken);
++        return result.ToActionResult(statusMap: AccountQueryMessages.StatusCodes);
++    }
++
+     [HttpPost]
+     [AllowAnonymous]
+     [ProducesResponseType(typeof(DataOutput<RegisterAccountOutput>), StatusCodes.Status201Created)]
+     [ProducesResponseType(typeof(DataOutput<RegisterAccountOutput>), StatusCodes.Status200OK)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
+     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+index e8502ba..d758dcb 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+@@ -1,14 +1,17 @@
+ using ArturRios.Cerberus.Data;
+ using ArturRios.Cerberus.Data.Accounts;
+ using ArturRios.Cerberus.Command.Accounts;
+ using ArturRios.Cerberus.Command.Authentication;
++using ArturRios.Cerberus.Query.Accounts;
++using ArturRios.Mediator.Query;
++using ArturRios.Mediator.Query.Interfaces;
+ using ArturRios.Cerberus.Domain.Accounts;
+ using ArturRios.Mediator.Command;
+ using ArturRios.Mediator.Command.Interfaces;
+ using FluentValidation;
+ using ArturRios.Cerberus.Data.Configuration;
+ using ArturRios.Cerberus.Data.Erasure;
+ using ArturRios.Cerberus.Data.Operations;
+ using ArturRios.Cerberus.Domain.Operations;
+ using ArturRios.Cerberus.Shared.Configuration;
+ using ArturRios.Cerberus.Shared.Identity;
+@@ -40,20 +43,23 @@ public static class Startup
+         builder.Services.AddSerilog(configuration => configuration.MinimumLevel.Information().Enrich.FromLogContext()
+             // Framework/HTTP/EF events can carry URLs, identifiers and exception payloads.
+             // Only our deliberately redacted events enter the production sink.
+             .Filter.ByIncludingOnly(log => log.Properties.TryGetValue("SourceContext", out var source)
+                 && source is ScalarValue { Value: string category } && category.StartsWith("ArturRios.Cerberus.", StringComparison.Ordinal))
+             .WriteTo.Console(new JsonFormatter()));
+         builder.Services.AddSingleton(options);
+         builder.Services.AddSingleton(TimeProvider.System);
+         builder.Services.AddSingleton<HeimdallTokenValidator>();
+         builder.Services.AddScoped<CommandMediator>();
++        builder.Services.AddScoped<QueryMediator>();
++        builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
++        builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
+         builder.Services.AddScoped<IValidator<RegisterAccountCommand>, RegisterAccountValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<RegisterAccountCommand, RegisterAccountOutput>, RegisterAccountHandler>();
+         builder.Services.AddScoped<IRegistrationStore, RegistrationStore>();
+         builder.Services.AddScoped<IValidator<LoginCommand>, LoginValidator>();
+         builder.Services.AddScoped<IValidator<VerifyChallengeCommand>, VerifyChallengeValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<LoginCommand, AuthenticationOutput>, AuthenticationHandler>();
+         builder.Services.AddScoped<ICommandHandlerAsync<VerifyChallengeCommand, AuthenticationOutput>, AuthenticationHandler>();
+         builder.Services.AddScoped<IAccountAuthenticationStore, AccountAuthenticationStore>();
+         builder.Services.AddDbContextFactory<AppDbContext>(configuration => configuration.UseNpgsql(options.ConnectionString));
+         builder.Services.AddHttpClient<IHeimdallClient, HeimdallClient>(client =>
+diff --git a/tests/Application/ArturRios.Cerberus.Query.Tests/GetAccountHandlerTests.cs b/tests/Application/ArturRios.Cerberus.Query.Tests/GetAccountHandlerTests.cs
+new file mode 100644
+index 0000000..3d3a5da
+--- /dev/null
++++ b/tests/Application/ArturRios.Cerberus.Query.Tests/GetAccountHandlerTests.cs
+@@ -0,0 +1,78 @@
++using System.Text.Json;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Query.Accounts;
++using Moq;
++
++namespace ArturRios.Cerberus.Query.Tests;
++
++public class GetAccountHandlerTests
++{
++    private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
++    private static readonly Guid Identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
++    private static readonly DateTimeOffset Now = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
++
++    [UnitTheory]
++    [InlineData("identity", "authentication_required")]
++    [InlineData("missing", "vault_access_required")]
++    [InlineData("malformed", "validation_failed")]
++    public async Task GivenInvalidContext_WhenReadingAccount_ThenRejectBeforePersistence(string invalid, string error)
++    {
++        var query = new GetAccountQuery(invalid == "identity" ? Guid.Empty : Identity, invalid == "missing" ? null : invalid == "malformed" ? "invalid" : Handle);
++        var result = await new GetAccountHandler(new Mock<IAccountReadStore>(MockBehavior.Strict).Object, new Clock()).HandleAsync(query);
++        Assert.Contains(error, result.Errors);
++        Assert.Null(result.Data);
++    }
++
++    [UnitTheory]
++    [InlineData("not_found")]
++    [InlineData("vault_access_denied")]
++    [InlineData("persistence_unavailable")]
++    public async Task GivenDeniedOrUnavailableRead_WhenHandling_ThenReturnNoCiphertext(string error)
++    {
++        var result = await Handler(new AccountReadResult(Error: error)).HandleAsync(new GetAccountQuery(Identity, Handle));
++        Assert.Contains(error, result.Errors);
++        Assert.Null(result.Data);
++    }
++
++    [UnitFact]
++    public async Task GivenAuthorizedOpaqueAccount_WhenHandling_ThenReturnPublicContextAndExactEnvelope()
++    {
++        var envelope = new EncryptedEnvelope("cerberus-content-v1", 1, Handle, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA");
++        var id = Guid.NewGuid();
++        var snapshot = new AccountSnapshot(id, 3, AccountState.Active, JsonSerializer.SerializeToUtf8Bytes(envelope, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
++        var result = await Handler(new AccountReadResult(snapshot)).HandleAsync(new GetAccountQuery(Identity, Handle));
++        Assert.True(result.Success);
++        Assert.Equal(id, result.Data!.Id);
++        Assert.Equal(3, result.Data.Revision);
++        Assert.Equal("active", result.Data.State);
++        Assert.Equal(envelope, result.Data.Details);
++    }
++
++    [UnitTheory]
++    [InlineData("not json")]
++    [InlineData("null")]
++    [InlineData("{\"format\":\"unknown\"}")]
++    [InlineData("{\"format\":\"cerberus-content-v1\",\"keyEpoch\":\"1\"}")]
++    public async Task GivenCorruptStoredEnvelope_WhenHandling_ThenReturnUnavailableWithoutCiphertext(string json)
++    {
++        var snapshot = new AccountSnapshot(Guid.NewGuid(), 1, AccountState.Active, System.Text.Encoding.UTF8.GetBytes(json));
++        var result = await Handler(new AccountReadResult(snapshot)).HandleAsync(new GetAccountQuery(Identity, Handle));
++        Assert.Contains("persistence_unavailable", result.Errors);
++        Assert.Null(result.Data);
++    }
++
++    [UnitFact]
++    public async Task GivenIncompleteStoreResult_WhenHandling_ThenFailClosed()
++    {
++        var result = await Handler(new AccountReadResult()).HandleAsync(new GetAccountQuery(Identity, Handle));
++        Assert.Contains("persistence_unavailable", result.Errors);
++    }
++
++    private static GetAccountHandler Handler(AccountReadResult result)
++    {
++        var store = new Mock<IAccountReadStore>(MockBehavior.Strict);
++        store.Setup(x => x.ReadAsync(Identity, "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", Now, It.IsAny<CancellationToken>())).ReturnsAsync(result);
++        return new(store.Object, new Clock());
++    }
++    private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => Now; }
++}
+diff --git a/tests/Domain/ArturRios.Cerberus.Domain.Tests/OpaqueAccessHandleTests.cs b/tests/Domain/ArturRios.Cerberus.Domain.Tests/OpaqueAccessHandleTests.cs
+new file mode 100644
+index 0000000..080b02b
+--- /dev/null
++++ b/tests/Domain/ArturRios.Cerberus.Domain.Tests/OpaqueAccessHandleTests.cs
+@@ -0,0 +1,28 @@
++using ArturRios.Cerberus.Domain.Access;
++
++namespace ArturRios.Cerberus.Domain.Tests;
++
++public class OpaqueAccessHandleTests
++{
++    [UnitFact]
++    public void GivenCanonical32ByteHandle_WhenHashing_ThenReturnOnlyItsSha256Verifier()
++    {
++        Assert.True(OpaqueAccessHandle.TryHash("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", out var verifier));
++        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", verifier);
++    }
++
++    [UnitTheory]
++    [InlineData(null)]
++    [InlineData("")]
++    [InlineData("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")]
++    [InlineData("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")]
++    [InlineData("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")]
++    [InlineData("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB")]
++    [InlineData("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+")]
++    [InlineData("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAé")]
++    public void GivenInvalidHandle_WhenHashing_ThenRejectWithoutVerifier(string? token)
++    {
++        Assert.False(OpaqueAccessHandle.TryHash(token, out var verifier));
++        Assert.Empty(verifier);
++    }
++}
+diff --git a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/AccountReadStoreTests.cs b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/AccountReadStoreTests.cs
+new file mode 100644
+index 0000000..1c3547d
+--- /dev/null
++++ b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/AccountReadStoreTests.cs
+@@ -0,0 +1,98 @@
++using System.Security.Cryptography;
++using ArturRios.Cerberus.Data.Accounts;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Operations;
++using Microsoft.EntityFrameworkCore;
++
++namespace ArturRios.Cerberus.Data.Tests;
++
++[Collection("PostgreSQL")]
++public class AccountReadStoreTests(PostgresFixture fixture)
++{
++    private static readonly DateTimeOffset Now = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
++
++    [FunctionalTheory]
++    [InlineData("active", null)]
++    [InlineData("noExpiry", null)]
++    [InlineData("missingAccount", "not_found")]
++    [InlineData("closing", "not_found")]
++    [InlineData("erased", "not_found")]
++    [InlineData("missingSession", "vault_access_denied")]
++    [InlineData("otherAccount", "vault_access_denied")]
++    [InlineData("profileOnly", "vault_access_denied")]
++    [InlineData("expired", "vault_access_denied")]
++    [InlineData("expiryEquality", "vault_access_denied")]
++    [InlineData("futureIssue", "vault_access_denied")]
++    [InlineData("missingExpiry", "vault_access_denied")]
++    [InlineData("disabledWithExpiry", "vault_access_denied")]
++    [InlineData("revoked", "vault_access_denied")]
++    [InlineData("stalePolicy", "vault_access_denied")]
++    [InlineData("staleGeneration", "vault_access_denied")]
++    public async Task GivenCurrentAccountAndSession_WhenReading_ThenReturnOnlyCurrentlyAuthorizedCiphertext(string state, string? error)
++    {
++        var identity = Guid.NewGuid();
++        var id = Guid.NewGuid();
++        var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
++        await using (var setup = fixture.CreateContext())
++        {
++            var account = new Account { PublicId = id, HeimdallPublicId = identity, DetailsEnvelope = [1, 2, 3], Revision = 5,
++                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active, RenewalEnabled = state is not ("noExpiry" or "disabledWithExpiry") };
++            setup.Accounts.Add(account);
++            await setup.SaveChangesAsync();
++            var sessionAccountId = account.Id;
++            if (state == "otherAccount")
++            {
++                var other = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid(), DetailsEnvelope = [9, 9] };
++                setup.Accounts.Add(other);
++                await setup.SaveChangesAsync();
++                sessionAccountId = other.Id;
++            }
++            if (state != "missingSession") setup.VaultAccessSessions.Add(new VaultAccessSession
++            {
++                AccountId = sessionAccountId, HandleVerifier = verifier, ProfileId = state == "profileOnly" ? 42 : null,
++                IssuedAt = state == "futureIssue" ? Now.AddSeconds(1) : Now.AddMinutes(-5),
++                ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
++                PolicyRevision = state == "stalePolicy" ? 0 : 1, RevocationGeneration = state == "staleGeneration" ? 0 : 1,
++                Revoked = state == "revoked"
++            });
++            if (state == "erased") setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
++            await setup.SaveChangesAsync();
++        }
++        var result = await new AccountReadStore(fixture).ReadAsync(state == "missingAccount" ? Guid.NewGuid() : identity, verifier, Now, default);
++        Assert.Equal(error, result.Error);
++        if (error is null)
++        {
++            Assert.Equal(id, result.Account!.Id);
++            Assert.Equal(5, result.Account.Revision);
++            Assert.Equal(new byte[] { 1, 2, 3 }, result.Account.DetailsEnvelope);
++        }
++        else Assert.Null(result.Account);
++        await using var after = fixture.CreateContext();
++        var unchanged = await after.Accounts.SingleAsync(x => x.PublicId == id);
++        Assert.Equal(5, unchanged.Revision);
++        Assert.Equal(new byte[] { 1, 2, 3 }, unchanged.DetailsEnvelope);
++    }
++
++    [FunctionalFact]
++    public async Task GivenUnavailableDatabase_WhenReading_ThenReturn503ErrorWithoutCiphertext()
++    {
++        var result = await new AccountReadStore(new UnavailableFactory()).ReadAsync(Guid.NewGuid(), new string('a', 64), Now, default);
++        Assert.Equal("persistence_unavailable", result.Error);
++        Assert.Null(result.Account);
++    }
++
++    [FunctionalFact]
++    public async Task GivenCancelledCaller_WhenReading_ThenPropagateCancellation()
++    {
++        using var cancelled = new CancellationTokenSource();
++        cancelled.Cancel();
++        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new AccountReadStore(fixture).ReadAsync(Guid.NewGuid(), new string('a', 64), Now, cancelled.Token));
++    }
++
++    private sealed class UnavailableFactory : IDbContextFactory<AppDbContext>
++    {
++        public AppDbContext CreateDbContext() => new(new DbContextOptionsBuilder<AppDbContext>()
++            .UseNpgsql("Host=127.0.0.1;Port=1;Database=fixture;Username=fixture;Password=fixture;Timeout=1").Options);
++    }
++}
+diff --git a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/AccountReadHttpTests.cs b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/AccountReadHttpTests.cs
+new file mode 100644
+index 0000000..9fd187a
+--- /dev/null
++++ b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/AccountReadHttpTests.cs
+@@ -0,0 +1,191 @@
++using System.Net;
++using System.Net.Http.Json;
++using System.Security.Cryptography;
++using System.Text;
++using System.Text.Json;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Operations;
++using ArturRios.Cerberus.Query.Accounts;
++using ArturRios.Configuration.Enums;
++using ArturRios.Output;
++using ArturRios.Util.Test.Functional;
++using Microsoft.EntityFrameworkCore;
++
++namespace ArturRios.Cerberus.WebApi.Tests;
++
++[Collection("Registration host")]
++public class AccountReadHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
++{
++    private const string Header = "X-Cerberus-Vault-Access";
++
++    [FunctionalFact]
++    public async Task GivenCurrentOwnerAndAccountWideAccess_WhenReading_ThenReturnExactOpaqueAccountWithoutIdentityData()
++    {
++        var input = await Setup();
++        Authorize(RegistrationApiFixture.Token(input.Identity));
++        using var response = await Send(input.Handle);
++        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
++        Assert.True(response.Headers.CacheControl?.NoStore);
++        var result = (await response.Content.ReadFromJsonAsync<DataOutput<AccountOutput>>())!.Data!;
++        Assert.Equal(input.AccountId, result.Id);
++        Assert.Equal(3, result.Revision);
++        Assert.Equal("active", result.State);
++        Assert.Equal(input.Details, result.Details);
++        var raw = await response.Content.ReadAsStringAsync();
++        Assert.DoesNotContain("heimdallPublicId", raw);
++        Assert.DoesNotContain("accountId", raw);
++        Assert.DoesNotContain("handleVerifier", raw);
++        Assert.DoesNotContain("fixture-password", raw);
++        Assert.DoesNotContain(input.Handle, raw);
++    }
++
++    [FunctionalFact]
++    public async Task GivenNoIdentity_WhenReading_ThenRequireAuthentication()
++    {
++        using var response = await Send(null);
++        await Failure(response, HttpStatusCode.Unauthorized);
++    }
++
++    [FunctionalFact]
++    public async Task GivenIdentityWithoutVaultAccess_WhenReading_ThenRequireSeparateAccess()
++    {
++        var input = await Setup();
++        Authorize(RegistrationApiFixture.Token(input.Identity));
++        using var response = await Send(null);
++        await Failure(response, HttpStatusCode.Unauthorized);
++    }
++
++    [FunctionalFact]
++    public async Task GivenOtherOwnersHandle_WhenReading_ThenDenyWithoutCrossAccountDisclosure()
++    {
++        var owner = await Setup();
++        var other = await Setup();
++        Authorize(RegistrationApiFixture.Token(owner.Identity));
++        using var response = await Send(other.Handle);
++        await Failure(response, HttpStatusCode.Forbidden);
++        Assert.DoesNotContain(other.AccountId.ToString(), await response.Content.ReadAsStringAsync());
++    }
++
++    [FunctionalTheory]
++    [InlineData("missing")]
++    [InlineData("closing")]
++    [InlineData("erased")]
++    public async Task GivenAbsentOrHiddenAccount_WhenReading_ThenReturnNonrevealingNotFound(string state)
++    {
++        var input = await Setup(state);
++        Authorize(RegistrationApiFixture.Token(input.Identity));
++        using var response = await Send(input.Handle);
++        await Failure(response, HttpStatusCode.NotFound);
++    }
++
++    [FunctionalTheory]
++    [InlineData("profile")]
++    [InlineData("expired")]
++    [InlineData("revoked")]
++    [InlineData("stale")]
++    public async Task GivenInvalidSelectedAccess_WhenReading_ThenDenyWithoutCiphertext(string state)
++    {
++        var input = await Setup(state);
++        Authorize(RegistrationApiFixture.Token(input.Identity));
++        using var response = await Send(input.Handle);
++        await Failure(response, HttpStatusCode.Forbidden);
++    }
++
++    [FunctionalTheory]
++    [InlineData(false)]
++    [InlineData(true)]
++    public async Task GivenCurrentIdentityDeniedOrUnavailable_WhenReading_ThenFailClosed(bool unavailable)
++    {
++        var input = await Setup();
++        var pair = fixture.Users.Single(x => x.Value.Id == input.Identity);
++        fixture.Users[pair.Key] = pair.Value with { Deleted = !unavailable, IdentityUnavailable = unavailable };
++        Authorize(RegistrationApiFixture.Token(input.Identity));
++        using var response = await Send(input.Handle);
++        await Failure(response, unavailable ? HttpStatusCode.ServiceUnavailable : HttpStatusCode.Unauthorized);
++    }
++
++    [FunctionalTheory]
++    [InlineData("handle")]
++    [InlineData("duplicate")]
++    [InlineData("query")]
++    [InlineData("body")]
++    public async Task GivenUnexpectedVisibleInput_WhenReading_ThenRejectWithoutContent(string invalid)
++    {
++        var input = await Setup();
++        Authorize(RegistrationApiFixture.Token(input.Identity));
++        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/accounts/me" + (invalid == "query" ? "?ownerId=" + Guid.NewGuid() : ""));
++        request.Headers.TryAddWithoutValidation(Header, invalid == "duplicate" ? new[] { input.Handle, input.Handle } : new[] { invalid == "handle" ? "bad" : input.Handle });
++        if (invalid == "body") request.Content = new StringContent("{\"ownerId\":\"untrusted\"}", Encoding.UTF8, "application/json");
++        using var response = await Gateway.Client.SendAsync(request);
++        await Failure(response, HttpStatusCode.BadRequest);
++        await using var context = fixture.Context();
++        Assert.Equal(3, (await context.Accounts.SingleAsync(x => x.PublicId == input.AccountId)).Revision);
++    }
++
++    [FunctionalFact]
++    public async Task GivenUnavailableSessionPersistence_WhenReading_ThenReturn503WithoutCiphertext()
++    {
++        var input = await Setup();
++        Authorize(RegistrationApiFixture.Token(input.Identity));
++        await using var context = fixture.Context();
++        await context.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.vault_access_session RENAME TO fixture_unavailable_session");
++        try
++        {
++            using var response = await Send(input.Handle);
++            await Failure(response, HttpStatusCode.ServiceUnavailable);
++        }
++        finally { await context.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.fixture_unavailable_session RENAME TO vault_access_session"); }
++    }
++
++    [FunctionalFact]
++    public async Task GivenCorruptStoredEnvelope_WhenReading_ThenReturn503WithoutReturningCorruption()
++    {
++        var input = await Setup("corrupt");
++        Authorize(RegistrationApiFixture.Token(input.Identity));
++        using var response = await Send(input.Handle);
++        await Failure(response, HttpStatusCode.ServiceUnavailable);
++        Assert.DoesNotContain("not-json", await response.Content.ReadAsStringAsync());
++    }
++
++    private async Task<(Guid Identity, Guid AccountId, string Handle, EncryptedEnvelope Details)> Setup(string state = "active")
++    {
++        var identity = Guid.NewGuid();
++        var id = Guid.NewGuid();
++        fixture.Users[Guid.NewGuid().ToString("N") + "@example.test"] = new(identity, "fixture-password");
++        var handle = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
++        Assert.True(OpaqueAccessHandle.TryHash(handle, out var verifier));
++        var details = new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA");
++        if (state != "missing")
++        {
++            await using var context = fixture.Context();
++            var account = new Account { PublicId = id, HeimdallPublicId = identity, Revision = 3,
++                DetailsEnvelope = state == "corrupt" ? Encoding.UTF8.GetBytes("not-json") : JsonSerializer.SerializeToUtf8Bytes(details, new JsonSerializerOptions(JsonSerializerDefaults.Web)),
++                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
++            context.Accounts.Add(account);
++            await context.SaveChangesAsync();
++            context.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
++                ProfileId = state == "profile" ? 42 : null, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
++                ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
++                Revoked = state == "revoked", PolicyRevision = state == "stale" ? 0 : 1, RevocationGeneration = 1 });
++            if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
++            await context.SaveChangesAsync();
++        }
++        return (identity, id, handle, details);
++    }
++
++    private async Task<HttpResponseMessage> Send(string? handle)
++    {
++        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/accounts/me");
++        if (handle is not null) request.Headers.Add(Header, handle);
++        return await Gateway.Client.SendAsync(request);
++    }
++    private static async Task Failure(HttpResponseMessage response, HttpStatusCode status)
++    {
++        Assert.Equal(status, response.StatusCode);
++        Assert.True(response.Headers.CacheControl?.NoStore);
++        var output = (await response.Content.ReadFromJsonAsync<DataOutput<AccountOutput>>())!;
++        Assert.False(output.Success);
++        Assert.Null(output.Data);
++    }
++}

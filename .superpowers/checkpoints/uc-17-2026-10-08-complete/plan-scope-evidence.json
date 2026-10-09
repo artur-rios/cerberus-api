@@ -1,0 +1,54 @@
+{
+  "red": [
+    {
+      "case": 1,
+      "candidateRows": 101.0,
+      "ancestryRows": 5050.0,
+      "executionMs": 22.858
+    },
+    {
+      "case": 2,
+      "candidateRows": 203.0,
+      "ancestryRows": 10100.0,
+      "executionMs": 34.557
+    },
+    {
+      "case": 3,
+      "candidateRows": 304.0,
+      "ancestryRows": 15150.0,
+      "executionMs": 52.259
+    },
+    {
+      "case": 4,
+      "candidateRows": 405.0,
+      "ancestryRows": 20200.0,
+      "executionMs": 68.455
+    }
+  ],
+  "green": [
+    {
+      "case": 1,
+      "candidateRows": 1.0,
+      "ancestryRows": 0.0,
+      "executionMs": 5.861
+    },
+    {
+      "case": 2,
+      "candidateRows": 1.0,
+      "ancestryRows": 0.0,
+      "executionMs": 2.103
+    },
+    {
+      "case": 3,
+      "candidateRows": 1.0,
+      "ancestryRows": 0.0,
+      "executionMs": 1.263
+    },
+    {
+      "case": 4,
+      "candidateRows": 1.0,
+      "ancestryRows": 0.0,
+      "executionMs": 1.833
+    }
+  ]
+}

@@ -1,0 +1,455 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc39-worktree/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 435 ms).
+  Restored /tmp/cerberus-uc39-worktree/src/Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj (in 434 ms).
+  Restored /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj (in 434 ms).
+  4 of 7 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc39-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Release/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc39-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Release/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc39-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Release/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc39-worktree/src/Application/ArturRios.Cerberus.Command/bin/Release/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc39-worktree/src/Application/ArturRios.Cerberus.Query/bin/Release/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc39-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Release/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Release/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Release/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:15.41]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "badProof", status: 400) [FAIL]
+[xUnit.net 00:00:15.48]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "badChallenge", status: 400) [FAIL]
+[xUnit.net 00:00:15.54]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "missingChallenge", status: 401) [FAIL]
+[xUnit.net 00:00:15.59]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "body", status: 401) [FAIL]
+[xUnit.net 00:00:15.70]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "missingProof", status: 401) [FAIL]
+[xUnit.net 00:00:15.76]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "missingAccess", status: 401) [FAIL]
+[xUnit.net 00:00:15.82]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "multipleAccess", status: 400) [FAIL]
+[xUnit.net 00:00:15.87]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "wrongKey", status: 401) [FAIL]
+[xUnit.net 00:00:15.91]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "badAccess", status: 400) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "badProof", status: 400) [114 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "badChallenge", status: 400) [75 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "missingChallenge", status: 401) [53 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "body", status: 401) [52 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "missingProof", status: 401) [104 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "missingAccess", status: 401) [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "multipleAccess", status: 400) [54 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "wrongKey", status: 401) [49 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "badAccess", status: 400) [44 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:15.96]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "purpose", status: 401) [FAIL]
+[xUnit.net 00:00:16.04]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "query", status: 400) [FAIL]
+[xUnit.net 00:00:16.09]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "gzip", status: 400) [FAIL]
+[xUnit.net 00:00:16.14]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "bom", status: 400) [FAIL]
+[xUnit.net 00:00:16.21]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "multipleProof", status: 400) [FAIL]
+[xUnit.net 00:00:16.33]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "staleAccount", status: 409) [FAIL]
+[xUnit.net 00:00:16.43]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "expired", status: 403) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "purpose", status: 401) [42 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "query", status: 400) [79 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "gzip", status: 400) [53 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "bom", status: 400) [50 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(invalid: "multipleProof", status: 400) [66 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(String invalid, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 119
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "staleAccount", status: 409) [40 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Conflict
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "expired", status: 403) [49 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:16.48]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "revoked", status: 403) [FAIL]
+[xUnit.net 00:00:16.54]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "noProtection", status: 404) [FAIL]
+[xUnit.net 00:00:16.59]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "generation", status: 403) [FAIL]
+[xUnit.net 00:00:16.66]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "erased", status: 404) [FAIL]
+[xUnit.net 00:00:16.71]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "profile", status: 403) [FAIL]
+[xUnit.net 00:00:16.76]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "closing", status: 404) [FAIL]
+[xUnit.net 00:00:16.84]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "foreign", status: 404) [FAIL]
+[xUnit.net 00:00:16.95]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "staleProtection", status: 409) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "revoked", status: 403) [49 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "noProtection", status: 404) [50 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "generation", status: 403) [54 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "erased", status: 404) [62 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "profile", status: 403) [48 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "closing", status: 404) [52 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "foreign", status: 404) [81 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "staleProtection", status: 409) [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Conflict
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:17.04]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "policy", status: 403) [FAIL]
+[xUnit.net 00:00:17.09]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "missing", status: 404) [FAIL]
+[xUnit.net 00:00:17.16]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "case") [FAIL]
+[xUnit.net 00:00:17.21]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "unknown") [FAIL]
+[xUnit.net 00:00:17.27]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "duplicate") [FAIL]
+[xUnit.net 00:00:17.31]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "wrongEpoch") [FAIL]
+[xUnit.net 00:00:17.37]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "extraContent") [FAIL]
+[xUnit.net 00:00:17.45]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "missingContent") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "policy", status: 403) [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(state: "missing", status: 404) [46 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(String state, Int32 status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "case") [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "unknown") [48 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "duplicate") [60 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "wrongEpoch") [44 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "extraContent") [55 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "missingContent") [75 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:17.50]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "saltReuse") [FAIL]
+[xUnit.net 00:00:17.56]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "numericString") [FAIL]
+[xUnit.net 00:00:17.63]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "foreignContent") [FAIL]
+[xUnit.net 00:00:17.68]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "actor") [FAIL]
+[xUnit.net 00:00:17.73]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "keySubstitution") [FAIL]
+[xUnit.net 00:00:17.78]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "private") [FAIL]
+[xUnit.net 00:00:17.84]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenUnavailableProtectionPersistence_WhenChanging_ThenReturn503WithoutMutation [FAIL]
+[xUnit.net 00:00:17.90]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenConcurrentHttpChanges_WhenCommitting_ThenOneCompleteWinner [FAIL]
+[xUnit.net 00:00:18.01]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInitializedUnlockedOwner_WhenChangingAndUnlockingAgain_ThenReturnCoherentCurrentVault(mode: "rewrap") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "saltReuse") [54 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "numericString") [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "foreignContent") [64 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "actor") [55 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "keySubstitution") [42 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(invalid: "private") [50 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(String invalid) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenUnavailableProtectionPersistence_WhenChanging_ThenReturn503WithoutMutation [61 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.Failure(HttpResponseMessage r, HttpStatusCode status) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 197
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenUnavailableProtectionPersistence_WhenChanging_ThenReturn503WithoutMutation() in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 150
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenUnavailableProtectionPersistence_WhenChanging_ThenReturn503WithoutMutation() in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 151
+   at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenUnavailableProtectionPersistence_WhenChanging_ThenReturn503WithoutMutation() in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 152
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenConcurrentHttpChanges_WhenCommitting_ThenOneCompleteWinner [62 ms]
+  Error Message:
+   Assert.Single() Failure: The collection did not contain any matching items
+Expected:   (predicate expression)
+Collection: [StatusCode: 405, ReasonPhrase: 'Method Not Allowed', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+  Allow: GET, POST
+}, StatusCode: 405, ReasonPhrase: 'Method Not Allowed', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+  Allow: GET, POST
+}]
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenConcurrentHttpChanges_WhenCommitting_ThenOneCompleteWinner() in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 138
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInitializedUnlockedOwner_WhenChangingAndUnlockingAgain_ThenReturnCoherentCurrentVault(mode: "rewrap") [108 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInitializedUnlockedOwner_WhenChangingAndUnlockingAgain_ThenReturnCoherentCurrentVault(String mode) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 31
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:18.13]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInitializedUnlockedOwner_WhenChangingAndUnlockingAgain_ThenReturnCoherentCurrentVault(mode: "rotate-content") [FAIL]
+[xUnit.net 00:00:18.17]     ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenOriginalWhitespaceBody_WhenChanging_ThenVerifyWithoutReserialization [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInitializedUnlockedOwner_WhenChangingAndUnlockingAgain_ThenReturnCoherentCurrentVault(mode: "rotate-content") [113 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenInitializedUnlockedOwner_WhenChangingAndUnlockingAgain_ThenReturnCoherentCurrentVault(String mode) in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 31
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenOriginalWhitespaceBody_WhenChanging_ThenVerifyWithoutReserialization [40 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.VaultProtectionChangeHttpTests.GivenOriginalWhitespaceBody_WhenChanging_ThenVerifyWithoutReserialization() in /tmp/cerberus-uc39-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs:line 127
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    43, Passed:   244, Skipped:     0, Total:   287, Duration: 24 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

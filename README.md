@@ -4,7 +4,7 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** foundation infrastructure and UC-01 account registration implemented; 54 business
+> **Status:** foundation infrastructure and 30 business use cases implemented; 25 business
 > use cases remain. Independent protocol review is explicitly deferred for development and
 > remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
 > and [foundation status](docs/operations/foundation-status.md).

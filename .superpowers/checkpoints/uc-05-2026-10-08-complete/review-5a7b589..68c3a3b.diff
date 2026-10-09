@@ -1,0 +1,1903 @@
+# Review package: 5a7b5896ce493a7bb60044cf6fe3dabbf8d158fb..HEAD
+
+## Commits
+68c3a3b feat: update own identity details
+0af49f8 feat: guard identity updates with vault access
+46e5ce8 feat: delegate identity details to Heimdall
+2cbbda0 docs: plan delegated identity details updates
+
+## Files changed
+ README.md                                          |   4 +-
+ docs/contracts/openapi.json                        | 246 ++++++++++++++++++++
+ .../Operations & Infrastructure Document.md        |  20 ++
+ .../2026-10-08-uc-05-update-identity-details.md    |  60 +++++
+ ...6-10-08-uc-05-update-identity-details-design.md |  70 ++++++
+ .../Identity/UpdateIdentityCommand.cs              |  17 ++
+ .../Identity/UpdateIdentityHandler.cs              |  30 +++
+ .../Identity/UpdateIdentityMessages.cs             |  13 ++
+ .../Identity/UpdateIdentityOutput.cs               |  11 +
+ .../Identity/UpdateIdentityValidator.cs            |  12 +
+ .../Identity/HeimdallClient.IdentityUpdate.cs      |  41 ++++
+ .../Identity/HeimdallClient.cs                     |   4 +-
+ .../Identity/HeimdallContracts.cs                  |   3 +
+ .../Identity/IdentityUpdateContracts.cs            |  10 +
+ .../Identity/IdentityUpdateStore.cs                |  60 +++++
+ .../Controllers/IdentityController.cs              |  36 +++
+ .../ArturRios.Cerberus.WebApi/Startup.cs           |   6 +
+ .../UpdateIdentityHandlerTests.cs                  | 120 ++++++++++
+ .../IdentityUpdateClientTests.cs                   | 156 +++++++++++++
+ .../IdentityUpdateStoreTests.cs                    | 237 +++++++++++++++++++
+ .../IdentityUpdateHttpTests.cs                     | 254 +++++++++++++++++++++
+ .../RegistrationApiFixture.cs                      |  44 +++-
+ 22 files changed, 1446 insertions(+), 8 deletions(-)
+
+## Diff
+diff --git a/README.md b/README.md
+index 876e8d4..32971f0 100644
+--- a/README.md
++++ b/README.md
+@@ -104,21 +104,21 @@ no server and requires no deployment credentials.
+ ## Roadmap
+ 
+ Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
+ Each use case has one issue; the foundation issue comes first. Every milestone depends on
+ Foundation, with dependencies only on earlier milestones. Counts below are the snapshot at
+ creation; GitHub milestone pages show live progress. No due dates or labels were assigned.
+ 
+ | Milestone | Delivers | Depends on | Issues | Status |
+ | --- | --- | --- | --- | --- |
+ | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
+-| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 4 / 9 closed |
++| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 5 / 9 closed |
+ | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 0 / 26 closed |
+ | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
+ | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
+ | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
+ 
+ ## Backlog
+ 
+ ### M-01 — Foundation
+ 
+ | Issue | Work | Spec | Status |
+@@ -126,21 +126,21 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
+ | [#1](https://github.com/artur-rios/cerberus-api/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | Done |
+ 
+ ### M-02 — Account identity and vault protection
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Done |
+ | [#3](https://github.com/artur-rios/cerberus-api/issues/3) | UC-02 — Authenticate | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-02-authenticate) | Done |
+ | [#4](https://github.com/artur-rios/cerberus-api/issues/4) | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | Done |
+ | [#5](https://github.com/artur-rios/cerberus-api/issues/5) | UC-04 — Update account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-04-update-account) | Done |
+-| [#6](https://github.com/artur-rios/cerberus-api/issues/6) | UC-05 — Update identity details | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-05-update-identity-details) | Todo |
++| [#6](https://github.com/artur-rios/cerberus-api/issues/6) | UC-05 — Update identity details | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-05-update-identity-details) | Done |
+ | [#39](https://github.com/artur-rios/cerberus-api/issues/39) | UC-38 — Initialize vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-38-initialize-vault-protection) | Todo |
+ | [#40](https://github.com/artur-rios/cerberus-api/issues/40) | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | Todo |
+ | [#41](https://github.com/artur-rios/cerberus-api/issues/41) | UC-40 — Recover vault access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-40-recover-vault-access) | Todo |
+ | [#42](https://github.com/artur-rios/cerberus-api/issues/42) | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | Todo |
+ 
+ ### M-03 — Organized vault
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#10](https://github.com/artur-rios/cerberus-api/issues/10) | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | Todo |
+diff --git a/docs/contracts/openapi.json b/docs/contracts/openapi.json
+index 51c2897..f342b57 100644
+--- a/docs/contracts/openapi.json
++++ b/docs/contracts/openapi.json
+@@ -755,20 +755,197 @@
+               },
+               "text/json": {
+                 "schema": {
+                   "$ref": "#/components/schemas/ProcessOutput"
+                 }
+               }
+             }
+           }
+         }
+       }
++    },
++    "/api/identity/me": {
++      "put": {
++        "tags": [
++          "Identity"
++        ],
++        "parameters": [
++          {
++            "name": "X-Cerberus-Vault-Access",
++            "in": "header",
++            "schema": {
++              "type": "string"
++            }
++          }
++        ],
++        "requestBody": {
++          "content": {
++            "application/json": {
++              "schema": {
++                "$ref": "#/components/schemas/UpdateIdentityCommand"
++              }
++            },
++            "text/json": {
++              "schema": {
++                "$ref": "#/components/schemas/UpdateIdentityCommand"
++              }
++            },
++            "application/*+json": {
++              "schema": {
++                "$ref": "#/components/schemas/UpdateIdentityCommand"
++              }
++            }
++          }
++        },
++        "responses": {
++          "200": {
++            "description": "OK",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/UpdateIdentityOutputDataOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/UpdateIdentityOutputDataOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/UpdateIdentityOutputDataOutput"
++                }
++              }
++            }
++          },
++          "400": {
++            "description": "Bad Request",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "401": {
++            "description": "Unauthorized",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "403": {
++            "description": "Forbidden",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "404": {
++            "description": "Not Found",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "409": {
++            "description": "Conflict",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "503": {
++            "description": "Service Unavailable",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          }
++        }
++      }
+     }
+   },
+   "components": {
+     "schemas": {
+       "AccountOutput": {
+         "required": [
+           "details"
+         ],
+         "type": "object",
+         "properties": {
+@@ -1127,20 +1304,86 @@
+           "success": {
+             "type": "boolean",
+             "readOnly": true
+           },
+           "data": {
+             "$ref": "#/components/schemas/UpdateAccountOutput"
+           }
+         },
+         "additionalProperties": false
+       },
++      "UpdateIdentityCommand": {
++        "type": "object",
++        "properties": {
++          "name": {
++            "type": "string",
++            "nullable": true
++          },
++          "email": {
++            "type": "string",
++            "nullable": true
++          }
++        },
++        "additionalProperties": false
++      },
++      "UpdateIdentityOutput": {
++        "type": "object",
++        "properties": {
++          "id": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "name": {
++            "type": "string",
++            "nullable": true
++          },
++          "email": {
++            "type": "string",
++            "nullable": true
++          },
++          "emailVerified": {
++            "type": "boolean"
++          }
++        },
++        "additionalProperties": false
++      },
++      "UpdateIdentityOutputDataOutput": {
++        "type": "object",
++        "properties": {
++          "messages": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "errors": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "timestamp": {
++            "type": "string",
++            "format": "date-time"
++          },
++          "success": {
++            "type": "boolean",
++            "readOnly": true
++          },
++          "data": {
++            "$ref": "#/components/schemas/UpdateIdentityOutput"
++          }
++        },
++        "additionalProperties": false
++      },
+       "VerifyChallengeCommand": {
+         "type": "object",
+         "properties": {
+           "challengeToken": {
+             "type": "string",
+             "nullable": true
+           },
+           "code": {
+             "type": "string",
+             "nullable": true
+@@ -1153,13 +1396,16 @@
+         "additionalProperties": false
+       }
+     }
+   },
+   "tags": [
+     {
+       "name": "Account"
+     },
+     {
+       "name": "Auth"
++    },
++    {
++      "name": "Identity"
+     }
+   ]
+ }
+diff --git a/docs/requirements/Operations & Infrastructure Document.md b/docs/requirements/Operations & Infrastructure Document.md
+index bf946f1..0b485ad 100644
+--- a/docs/requirements/Operations & Infrastructure Document.md	
++++ b/docs/requirements/Operations & Infrastructure Document.md	
+@@ -258,20 +258,40 @@ Apply the additive `VaultAccessSessions` migration before enabling this route.
+ `PUT /api/accounts/me` uses the same current identity and account-wide access header.
+ Its strict JSON body contains only a positive integer `expectedRevision` and the
+ replacement `details` envelope. It atomically rechecks account state, erasure,
+ session access and expected revision before changing details and incrementing revision.
+ The identity link, policy and session records remain intact. Concurrent edits with
+ the same expected revision permit one winner; a stale edit or lost-response retry
+ returns `409/revision_conflict` and requires reloading the current account before
+ retrying. Success returns only the public account ID and new revision. No additional
+ migration is required for UC-04.
+ 
++`PUT /api/identity/me` requires the same current identity and account-wide access
++header. Its strict JSON body contains only required `name` (at most 200 characters)
++and a valid `email`. It forwards the original actor bearer to Heimdall's own public
++person route, omitting role, scope, password and other provider controls. Success
++returns only public identity ID, name, email and email verification state. Heimdall
++clears verification when email changes; its uniqueness/concurrency conflicts map
++to `409/identity_conflict`. Missing input/access, hidden account, denied access and
++unavailable dependencies use the same stable, non-cacheable 400/401/404/403/503
++contracts. No identity revision is invented: the inspected provider accepts none.
++
++The identity update locks the account and matching session in that order, then
++checks permission with fresh database statement time after waiting for locks.
++Those locks remain held across the bounded provider call to serialize local
++lifecycle/revocation changes. Cerberus retrieves no encrypted payload and changes
++no account, profile, revision, policy or session data. No migration is required.
++A timeout or malformed/lost response can follow a committed Heimdall update:
++503 does not imply remote rollback. Retry the same name/email replacement or verify
++identity state. Cross-service identity changes retain the existing current-request
++boundary; no distributed transaction is claimed.
++
+ ---
+ 
+ ## 8. Traceability
+ 
+ | Platform capability | Requirements |
+ | --- | --- |
+ | Scaffolding and data | IR-01 through IR-04 |
+ | Identity/configuration | IR-03, IR-05 |
+ | Logging and tests | IR-06 through IR-08 |
+ | Protocol release gate | IR-09 |
+diff --git a/docs/superpowers/plans/2026-10-08-uc-05-update-identity-details.md b/docs/superpowers/plans/2026-10-08-uc-05-update-identity-details.md
+new file mode 100644
+index 0000000..eb41d31
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-08-uc-05-update-identity-details.md
+@@ -0,0 +1,60 @@
++# UC-05 Update Identity Details Implementation Plan
++
++> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans inline under existing batch authorization, test-driven-development and one fresh final whole-branch review.
++
++**Goal:** Deliver issue #6, self-bound Heimdall name/email update with current account-wide vault access, preserving all Cerberus vault state.
++
++**Architecture:** Domain owns result/authorized-callback contracts; Shared implements the inspected Heimdall PUT; Data locks account/session and authorizes at fresh database statement time before invoking the callback. Command validates permitted fields and WebApi injects signed actor/token/raw access header.
++
++**Tech Stack:** Pinned .NET10, first-party mediator/output/JWT/test tooling, FluentValidation, EF Core/PostgreSQL, xUnit/Moq/Testcontainers and controlled Heimdall HTTP fixtures.
++
++**Spec:** `docs/superpowers/specs/2026-10-08-uc-05-update-identity-details-design.md`; UC05/FR-AC-10, BR02/BR03 and shared current authorization/no-store rules.
++
++## Global Constraints
++
++- Only authenticated current scoped actor's own identity; no target/owner/role/scope/password fields accepted.
++- Required name<=200 and valid email follow actual Heimdall rules; encrypted account details/profile data remain intact.
++- Current active non-erased account and account-wide session; lock account then session, validate expiry at fresh database statement time after locks.
++- Forward original actor token to `/api/persons/{actor-guid}`; never use registration service identity or forward arbitrary provider controls.
++- Curate only id/name/email/emailVerified; no internal IDs, credentials, provider error bodies or vault content in outputs/logs.
++- Invalid400, missing401, denied403, hidden404, provider conflict409, required dependencies503, all no-store.
++- No local vault writes/migration; remote response loss may follow an upstream commit, never claim rollback; safe name/email replacement retry.
++- Full suite zero failures/relevant skips,>=90% production line coverage and report branch; required CI green and authorized merge into develop.
++- Independent protocol/client approval remains deferred for development, pending for release.
++
++## Review Focus
++
++- Forged actor/role/scope or service credential substitution cannot change another identity.
++- Callback is never invoked for missing/denied/expired account access, including time spent waiting for locks.
++- Account/session lifecycle writes cannot interleave the authorized external callback; lock order is consistent.
++- Provider success must name the same scoped role3 person and required identity fields; incompatible/malformed results fail closed.
++- A lost provider response cannot mutate Cerberus vault state or fabricate a successful rollback.
++
++### Task 1: Implement typed self-bound Heimdall update adapter
++
++**Files:** Domain `Identity/IdentityUpdateContracts.cs`; Shared Identity contracts/client (split update parser into partial file if needed); Shared `IdentityUpdateClientTests.cs` plus existing adapter fixtures.
++
++**Interfaces:** `IdentityDetails(Guid Id,string Name,string Email,bool EmailVerified)`; `IdentityUpdateResult(IdentityDetails? Identity=null,string? Error=null)`; `IIdentityUpdateStore.UpdateAsync(Guid identityId,string verifier,Func<CancellationToken,Task<IdentityUpdateResult>> update,CancellationToken)`; `IHeimdallClient.UpdateIdentityAsync(string token,Guid identityId,string name,string email,CancellationToken)`.
++
++- [ ] Write adapter contract tests for exact own route/name-email-only body/actor bearer, invalid or mismatched token, correct curated response,400/401/403/404/409/503, malformed/missing/mismatched identity/scope/role/required metadata, duplicate/numeric JSON, timeout and caller cancellation. Observe absent-method RED.
++- [ ] Add Domain contracts and typed adapter. Validate original actor token, strict bounded response parsing, required own public identity/scope/role; map stable errors without provider bodies. Run full Shared suite GREEN. Commit.
++
++### Task 2: Hold current account permission across external update
++
++**Files:** Data `Identity/IdentityUpdateStore.cs`; Data `IdentityUpdateStoreTests.cs`.
++
++**Interfaces:** Consume Task1 authorized-callback store contract/result; no encrypted account bytes are retrieved; no local state writes.
++
++- [ ] Write PostgreSQL tests for valid/no-expiry callbacks, all account/session denials without callback, lock contention and access changed before guard, expired-after-wait boundary, callback provider errors/response loss, database outage/cancellation, unchanged vault state and account/session lock blocking. Observe missing-store RED.
++- [ ] Implement transaction locking account then matching session without ciphertext projection. Validate all access predicates using statement_timestamp() after locks; invoke callback only on success; commit/release locks, propagate typed failures/cancellation. Run full Data suite GREEN. Commit.
++
++### Task 3: Deliver protected identity command and route
++
++**Files:** Command `Identity/UpdateIdentityCommand.cs`, validator/handler/output/statuses; WebApi IdentityController/Startup; Command unit tests; WebApi identity-update HTTP tests and controlled Heimdall fixture extensions; OpenAPI/README/operational docs.
++
++**Interfaces:** strict command body Name/Email, server-only actor/token/access via SetActor; output public Id/Name/Email/EmailVerified; handler uses authorized store callback with typed adapter.
++
++- [ ] Write handler/validator tests for input and trusted context, callback sequencing, success/errors/incomplete results/cancellation. Observe RED; implement, run Command suite GREEN.
++- [ ] Write real-host tests for main/all five AFs, strict body/header/query rejection, owned access isolation, provider route/body/auth binding and failure/conflict contracts, name/email verification reset, and unchanged local vault state. Observe absent-route RED; implement controller/DI/controlled fixture, run full WebApi suite GREEN.
++- [ ] Generate/inspect OpenAPI, mark only UC05 done and milestone5/9. Run fresh unfiltered coverage.py/helper/spec/contract/diff checks; report line>=90% and branch. Commit and ledger.
++- [ ] One fresh final code review and one RED→GREEN correction pass if needed; open own PR closing #6, wait required CI green, merge/close/projectDone/verify remote branch deletion/sync/archive under existing authorization.
+diff --git a/docs/superpowers/specs/2026-10-08-uc-05-update-identity-details-design.md b/docs/superpowers/specs/2026-10-08-uc-05-update-identity-details-design.md
+new file mode 100644
+index 0000000..427e9b8
+--- /dev/null
++++ b/docs/superpowers/specs/2026-10-08-uc-05-update-identity-details-design.md
+@@ -0,0 +1,70 @@
++# UC-05 identity details update design
++
++Deliver issue #6 / FR-AC-10, BR02/BR03 using protected `PUT /api/identity/me`.
++This operation updates Heimdall identity details independently of Cerberus encrypted
++account details and vault profiles. Existing batch authorization supplies automated
++stage gates. Actual independent protocol/client approval remains deferred for
++development only and pending for release.
++
++Freshly inspected reference: Heimdall PersonController.Update uses authenticated
++`PUT /api/persons/{public-guid}` and UpdatePersonCommand replaces required name/email;
++roleId is optional, and actor/route fields are injected by Heimdall. Its validator
++requires nonempty name<=200 and valid email. The handler checks self/role permission,
++email uniqueness, clears email verification when email changes and returns public
++identity metadata. It supports no caller expected-revision field; business/provider
++concurrency errors map to409. Do not invent a provider endpoint, version token or
++admin operation.
++
++Cerberus accepts a strict JSON body with only `name` and `email`, mirroring those
++permitted changes. No role, password, scope, provider/person/account/profile ID or
++vault payload fields are accepted. Require signed/current scoped identity plus
++active non-erased account and current account-wide vault access, using the canonical
++single `X-Cerberus-Vault-Access` header. Profile-selected, foreign, stale, revoked,
++future or expired access is denied. Raw empty headers are malformed400, absence401.
++Unknown query/body fields and duplicate JSON/header values are400.
++
++Authorization store obtains the own account lock, then the matching session lock
++in that order, without retrieving encrypted details. After acquiring locks, a single
++SQL authorization decision checks active state, tombstones, account/session binding,
++profile scope, current policy/generation, issuance, revocation and expiry using
++PostgreSQL statement_timestamp(), not transaction-begin or captured request time.
++This avoids authorizing a queued operation with stale time. No local account, session,
++profile or envelope rows are updated. Execute the external update callback while
++holding the account/session locks; lifecycle/revocation writers cannot win between
++that permission decision and the external request. In-flight operations overlap an
++erasure/provider identity change under the existing cross-service request boundary;
++no shared transaction or remote rollback is claimed.
++
++The adapter validates that the forwarded original actor token names the supplied
++actor, sends only name/email to that actor's public person route, and never uses the
++registration service credential for this operation. Require a successful, well-formed
++response bound to the same public person, role3 and configured scope, with required
++name/email/emailVerified fields. Return only id/name/email/emailVerified. Missing,
++malformed, mismatched or credential-like responses fail closed without forwarding
++provider payloads. Parse strict JSON/numbers and reject duplicate upstream members.
++Map provider400/401/403/404/409 to stable redacted validation/auth/denial/not-found/
++identity-conflict codes; timeouts, transport failures and incompatible results503.
++Caller cancellation propagates.
++
++Ruling: AF04 follows the inspected provider's own409 uniqueness/concurrency semantics;
++no expected identity revision is invented because the actual PUT contract has none.
++Cost if wrong: future provider versioning needs a versioned adapter/contract change.
++Name/email replacement is retryable, but an unavailable/lost response can follow an
++upstream commit; return503 and let the owner retry the same replacement or verify
++identity state. Never claim an external rollback or mutate Cerberus vault state.
++
++| Flow | Verification |
++| --- | --- |
++| Main | Controlled real Heimdall HTTP fixture updates only the actor's name/email, resets email verification, returns curated identity output and leaves Cerberus account ciphertext/revision/link/policy and sessions unchanged. |
++| AF01 | Name/email boundaries, unknown role/ID/password/vault fields, duplicate/case/numeric JSON, query and malformed/duplicate/empty headers reject400 before callback. |
++| AF02 | Missing/inactive/erased account and upstream absent person return404 without hidden content or vault mutations. |
++| AF03 | Current identity, missing/foreign/profile/revoked/stale/expired/future access denied; callback never invoked; actor token and own public route asserted. |
++| AF04 | Provider409 uniqueness/concurrency yields identity_conflict409; local vault unchanged. Lock contention proves closure/session revocation cannot interleave the external operation. |
++| AF05 | Real database fault, provider outages/timeout/malformed output yield503 without local vault mutation; canceled callers propagate. |
++
++Domain defines identity update result and authorized-callback store contract; Shared
++owns the inspected HTTP adapter, Data owns current transactional permission, Command
++validates/dispatches, WebApi derives actor/bearer/header and maps public statuses.
++No migration or new runtime service. Family unit/functional tooling and real PostgreSQL
++cover all flows. Full unfiltered suite,>=90% line coverage (report branch), generated
++contract/helper/spec checks, one final code review and all required CI precede merge.
+diff --git a/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityCommand.cs b/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityCommand.cs
+new file mode 100644
+index 0000000..2df5c54
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityCommand.cs
+@@ -0,0 +1,17 @@
++using System.Text.Json.Serialization;
++using ArturRios.Mediator.Command;
++
++namespace ArturRios.Cerberus.Command.Identity;
++
++[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
++public sealed class UpdateIdentityCommand : BaseCommand
++{
++    public string Name { get; set; } = null!;
++    public string Email { get; set; } = null!;
++    internal Guid IdentityId { get; private set; }
++    internal string Token { get; private set; } = null!;
++    internal string? VaultAccess { get; private set; }
++
++    public void SetActor(Guid identityId, string token, string? vaultAccess)
++    { IdentityId = identityId; Token = token; VaultAccess = vaultAccess; }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityHandler.cs b/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityHandler.cs
+new file mode 100644
+index 0000000..7425680
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityHandler.cs
+@@ -0,0 +1,30 @@
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Identity;
++using ArturRios.Cerberus.Shared.Identity;
++using ArturRios.Mediator.Command.Interfaces;
++using ArturRios.Output;
++using FluentValidation;
++
++namespace ArturRios.Cerberus.Command.Identity;
++
++public sealed class UpdateIdentityHandler(IValidator<UpdateIdentityCommand> validator, IIdentityUpdateStore store,
++    IHeimdallClient identity) : ICommandHandlerAsync<UpdateIdentityCommand, UpdateIdentityOutput>
++{
++    public async Task<DataOutput<UpdateIdentityOutput?>> HandleAsync(UpdateIdentityCommand command, CancellationToken cancellationToken = default)
++    {
++        cancellationToken.ThrowIfCancellationRequested();
++        var output = DataOutput<UpdateIdentityOutput?>.New;
++        if (command.IdentityId == Guid.Empty || string.IsNullOrWhiteSpace(command.Token)) return output.WithError("authentication_required");
++        if (command.VaultAccess is null) return output.WithError("vault_access_required");
++        if (!OpaqueAccessHandle.TryHash(command.VaultAccess, out var verifier)
++            || !(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
++        var result = await store.UpdateAsync(command.IdentityId, verifier,
++            ct => identity.UpdateIdentityAsync(command.Token, command.IdentityId, command.Name, command.Email, ct), cancellationToken);
++        if (result.Error is not null) return output.WithError(result.Error);
++        var person = result.Identity;
++        if (person is null || person.Id != command.IdentityId || person.Name != command.Name
++            || !string.Equals(person.Email, command.Email, StringComparison.OrdinalIgnoreCase)) return output.WithError("identity_unavailable");
++        return output.WithData(new UpdateIdentityOutput { Id = person.Id, Name = person.Name,
++            Email = person.Email, EmailVerified = person.EmailVerified }).WithMessage("identity_updated");
++    }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityMessages.cs b/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityMessages.cs
+new file mode 100644
+index 0000000..18ebb1e
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityMessages.cs
+@@ -0,0 +1,13 @@
++namespace ArturRios.Cerberus.Command.Identity;
++
++public static class UpdateIdentityMessages
++{
++    public static readonly IReadOnlyDictionary<string, int> StatusCodes = new Dictionary<string, int>
++    {
++        ["identity_updated"] = 200, ["validation_failed"] = 400,
++        ["authentication_required"] = 401, ["vault_access_required"] = 401,
++        ["vault_access_denied"] = 403, ["identity_update_forbidden"] = 403,
++        ["not_found"] = 404, ["identity_conflict"] = 409,
++        ["identity_unavailable"] = 503, ["persistence_unavailable"] = 503
++    };
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityOutput.cs b/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityOutput.cs
+new file mode 100644
+index 0000000..86219f6
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityOutput.cs
+@@ -0,0 +1,11 @@
++using ArturRios.Mediator.Command;
++
++namespace ArturRios.Cerberus.Command.Identity;
++
++public sealed class UpdateIdentityOutput : CommandOutput
++{
++    public Guid Id { get; set; }
++    public string Name { get; set; } = null!;
++    public string Email { get; set; } = null!;
++    public bool EmailVerified { get; set; }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityValidator.cs b/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityValidator.cs
+new file mode 100644
+index 0000000..8064b98
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Identity/UpdateIdentityValidator.cs
+@@ -0,0 +1,12 @@
++using FluentValidation;
++
++namespace ArturRios.Cerberus.Command.Identity;
++
++public sealed class UpdateIdentityValidator : AbstractValidator<UpdateIdentityCommand>
++{
++    public UpdateIdentityValidator()
++    {
++        RuleFor(x => x.Name).NotEmpty().MaximumLength(200).WithMessage("validation_failed");
++        RuleFor(x => x.Email).NotEmpty().EmailAddress().WithMessage("validation_failed");
++    }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.IdentityUpdate.cs b/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.IdentityUpdate.cs
+new file mode 100644
+index 0000000..2f6a939
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.IdentityUpdate.cs
+@@ -0,0 +1,41 @@
++using System.Net;
++using System.Text.Json;
++using System.Text.Json.Serialization;
++using ArturRios.Cerberus.Domain.Identity;
++
++namespace ArturRios.Cerberus.Shared.Identity;
++
++public sealed partial class HeimdallClient
++{
++    private static readonly JsonSerializerOptions UpdateJson = new(JsonSerializerDefaults.Web)
++    { PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
++
++    public async Task<IdentityUpdateResult> UpdateIdentityAsync(string token, Guid identityId, string name, string email, CancellationToken cancellationToken)
++    {
++        cancellationToken.ThrowIfCancellationRequested();
++        var principal = await tokens.ValidateAsync(token);
++        if (principal is null || !Guid.TryParse(principal.FindFirst("id")?.Value, out var actor) || actor != identityId)
++            return new(Error: "authentication_required");
++        var response = await SendAsync(HttpMethod.Put, $"/api/persons/{identityId:D}", new { name, email }, token, cancellationToken);
++        if (response.Data is null) return new(Error: response.HttpStatus switch
++        {
++            HttpStatusCode.BadRequest => "validation_failed",
++            HttpStatusCode.Unauthorized => "authentication_required",
++            HttpStatusCode.Forbidden => "identity_update_forbidden",
++            HttpStatusCode.NotFound => "not_found",
++            HttpStatusCode.Conflict => "identity_conflict",
++            _ => "identity_unavailable"
++        });
++        UpdatedPerson? person;
++        try { person = response.Data.Value.Deserialize<UpdatedPerson>(UpdateJson); }
++        catch (JsonException) { return new(Error: "identity_unavailable"); }
++        if (person is null || person.Id != identityId || person.Role != 3 || person.ScopeId != options.HeimdallScopeId
++            || person.Name != name || !string.Equals(person.Email, email, StringComparison.OrdinalIgnoreCase))
++            return new(Error: "identity_unavailable");
++        return new(new IdentityDetails(person.Id, person.Name, person.Email, person.EmailVerified));
++    }
++
++    private sealed record UpdatedPerson([property: JsonRequired] Guid Id, [property: JsonRequired] string Name,
++        [property: JsonRequired] string Email, [property: JsonRequired] int Role, [property: JsonRequired] Guid ScopeId,
++        [property: JsonRequired] bool EmailVerified);
++}
+diff --git a/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.cs b/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.cs
+index 424c495..033f58e 100644
+--- a/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.cs
++++ b/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.cs
+@@ -1,21 +1,21 @@
+ using ArturRios.Cerberus.Shared.Configuration;
+ using ArturRios.Cerberus.Domain.Accounts;
+ using System.Net;
+ using System.Net.Http.Headers;
+ using System.Net.Http.Json;
+ using System.Text.Json;
+ using System.Text.Json.Serialization;
+ 
+ namespace ArturRios.Cerberus.Shared.Identity;
+ 
+-public sealed class HeimdallClient(HttpClient client, CerberusOptions options, HeimdallTokenValidator tokens) : IHeimdallClient
++public sealed partial class HeimdallClient(HttpClient client, CerberusOptions options, HeimdallTokenValidator tokens) : IHeimdallClient
+ {
+     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+ 
+     public async Task<HeimdallAuthentication> AuthenticateAsync(string email, string password, CancellationToken cancellationToken) =>
+         await AuthenticateResponseAsync(await SendAsync(HttpMethod.Post, "/api/auth/login",
+             new { email, password, scopeId = options.HeimdallScopeId }, null, cancellationToken), false, cancellationToken);
+ 
+     public async Task<HeimdallAuthentication> VerifyChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken) =>
+         await AuthenticateResponseAsync(await SendAsync(HttpMethod.Post, "/api/auth/2fa/verify",
+             new { challengeToken = challenge, code, recoveryCode }, null, cancellationToken), true, cancellationToken);
+@@ -193,21 +193,21 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
+                 || response.Content.Headers.ContentLength > options.MaxRequestBytes) return Unavailable with { HttpStatus = response.StatusCode };
+             await using var stream = await response.Content.ReadAsStreamAsync(dependencyToken);
+             using var buffer = new MemoryStream();
+             var block = new byte[4096];
+             int read;
+             while ((read = await stream.ReadAsync(block, dependencyToken)) != 0)
+             {
+                 if (buffer.Length > options.MaxRequestBytes - read) return Unavailable;
+                 await buffer.WriteAsync(block.AsMemory(0, read), dependencyToken);
+             }
+-            using var document = JsonDocument.Parse(buffer.ToArray());
++            using var document = JsonDocument.Parse(buffer.ToArray(), new JsonDocumentOptions { AllowDuplicateProperties = false });
+             var root = document.RootElement;
+             if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("success", out var success) || success.ValueKind != JsonValueKind.True
+                 || !root.TryGetProperty("errors", out var errors) || errors.ValueKind != JsonValueKind.Array || errors.GetArrayLength() != 0
+                 || !root.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Object) return Unavailable;
+             return new DependencyResponse(data.Clone(), HeimdallAuthorization.Authorized);
+         }
+         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return Unavailable; }
+         catch (HttpRequestException) { return Unavailable; }
+         catch (JsonException) { return Unavailable; }
+         catch (IOException) { return Unavailable; }
+diff --git a/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallContracts.cs b/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallContracts.cs
+index 85ce058..209e955 100644
+--- a/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallContracts.cs
++++ b/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallContracts.cs
+@@ -1,21 +1,24 @@
++using ArturRios.Cerberus.Domain.Identity;
++
+ namespace ArturRios.Cerberus.Shared.Identity;
+ 
+ public sealed record HeimdallLogin(string? Token, DateTimeOffset? ExpiresAt, bool? EmailVerified,
+     bool RequiresTwoFactor, string? ChallengeToken, IReadOnlyList<string>? AvailableMethods);
+ public sealed record HeimdallAuthentication(HeimdallLogin? Login = null, Guid? IdentityId = null, string? Error = null);
+ public sealed record HeimdallPerson(Guid Id, Guid? ScopeId, int Role, bool IsDeleted, IReadOnlyList<Guid>? OwnedScopeIds);
+ [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
+ public sealed record HeimdallRegistration(string Name, string Email, string Password);
+ 
+ public interface IHeimdallClient
+ {
++    Task<IdentityUpdateResult> UpdateIdentityAsync(string token, Guid identityId, string name, string email, CancellationToken cancellationToken);
+     Task<HeimdallAuthentication> AuthenticateAsync(string email, string password, CancellationToken cancellationToken);
+     Task<HeimdallAuthentication> VerifyChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken);
+     Task<ArturRios.Cerberus.Domain.Accounts.RegistrationIdentity> EstablishRegistrationIdentityAsync(
+         HeimdallRegistration registration, string? proofToken, CancellationToken cancellationToken);
+     Task<HeimdallLogin?> LoginAsync(string email, string password, CancellationToken cancellationToken);
+     Task<HeimdallLogin?> CompleteChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken);
+     Task<HeimdallPerson?> RegisterAsync(HeimdallRegistration registration, CancellationToken cancellationToken);
+     Task<HeimdallAuthorization> RevalidateAsync(string token, CancellationToken cancellationToken);
+     Task<bool> VerifyScopeAsync(CancellationToken cancellationToken);
+ }
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Identity/IdentityUpdateContracts.cs b/src/Domain/ArturRios.Cerberus.Domain/Identity/IdentityUpdateContracts.cs
+new file mode 100644
+index 0000000..4178a91
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Identity/IdentityUpdateContracts.cs
+@@ -0,0 +1,10 @@
++namespace ArturRios.Cerberus.Domain.Identity;
++
++public sealed record IdentityDetails(Guid Id, string Name, string Email, bool EmailVerified);
++public sealed record IdentityUpdateResult(IdentityDetails? Identity = null, string? Error = null);
++
++public interface IIdentityUpdateStore
++{
++    Task<IdentityUpdateResult> UpdateAsync(Guid identityId, string verifier,
++        Func<CancellationToken, Task<IdentityUpdateResult>> update, CancellationToken cancellationToken);
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Identity/IdentityUpdateStore.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Identity/IdentityUpdateStore.cs
+new file mode 100644
+index 0000000..fa03c55
+--- /dev/null
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Identity/IdentityUpdateStore.cs
+@@ -0,0 +1,60 @@
++using System.Data.Common;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Identity;
++using Microsoft.EntityFrameworkCore;
++
++namespace ArturRios.Cerberus.Data.Identity;
++
++public sealed class IdentityUpdateStore(IDbContextFactory<AppDbContext> factory) : IIdentityUpdateStore
++{
++    public async Task<IdentityUpdateResult> UpdateAsync(Guid identityId, string verifier,
++        Func<CancellationToken, Task<IdentityUpdateResult>> update, CancellationToken cancellationToken)
++    {
++        cancellationToken.ThrowIfCancellationRequested();
++        try
++        {
++            await using var context = await factory.CreateDbContextAsync(cancellationToken);
++            await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
++            // Lock order is account, then session. These selects retrieve no vault
++            // payload and keep lifecycle/revocation writes outside the callback.
++            await context.Database.ExecuteSqlInterpolatedAsync(
++                $"SELECT 1 FROM cerberus.account WHERE heimdall_public_id = {identityId} FOR UPDATE", cancellationToken);
++            await context.Database.ExecuteSqlInterpolatedAsync($"""
++                SELECT 1 FROM cerberus.vault_access_session AS s
++                JOIN cerberus.account AS a ON a.id = s.account_id
++                WHERE a.heimdall_public_id = {identityId} AND s.handle_verifier = {verifier}
++                FOR UPDATE OF s
++                """, cancellationToken);
++            // now() is transaction-begin time and can expire while waiting for
++            // locks. Authorize using a fresh statement timestamp after both locks.
++            var decision = await context.Database.SqlQuery<int>($"""
++                SELECT CASE
++                  WHEN NOT EXISTS (
++                    SELECT 1 FROM cerberus.account AS a
++                    WHERE a.heimdall_public_id = {identityId} AND a.state = {(int)AccountState.Active}
++                      AND NOT EXISTS (SELECT 1 FROM cerberus.terminal_erasure AS e WHERE e.resource_id = a.public_id)
++                  ) THEN 404
++                  WHEN NOT EXISTS (
++                    SELECT 1 FROM cerberus.vault_access_session AS s
++                    JOIN cerberus.account AS a ON a.id = s.account_id
++                    WHERE a.heimdall_public_id = {identityId} AND s.handle_verifier = {verifier}
++                      AND s.profile_id IS NULL AND NOT s.revoked AND s.issued_at <= statement_timestamp()
++                      AND s.policy_revision > 0 AND s.revocation_generation > 0
++                      AND s.policy_revision = a.policy_revision AND s.revocation_generation = a.revocation_generation
++                      AND ((a.renewal_enabled AND s.expires_at > statement_timestamp())
++                        OR (NOT a.renewal_enabled AND s.expires_at IS NULL))
++                  ) THEN 403 ELSE 200 END AS "Value"
++                """).SingleAsync(cancellationToken);
++            if (decision != 200) return new(Error: decision switch
++            { 404 => "not_found", 403 => "vault_access_denied", _ => "persistence_unavailable" });
++            var result = await update(cancellationToken);
++            await transaction.CommitAsync(cancellationToken);
++            return result;
++        }
++        catch (Exception exception) when (exception is DbException or TimeoutException
++            || exception is InvalidOperationException { InnerException: DbException or TimeoutException })
++        { return new(Error: "persistence_unavailable"); }
++        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
++        { return new(Error: "persistence_unavailable"); }
++    }
++}
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/IdentityController.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/IdentityController.cs
+new file mode 100644
+index 0000000..9e26a03
+--- /dev/null
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/IdentityController.cs
+@@ -0,0 +1,36 @@
++using ArturRios.Cerberus.Command.Identity;
++using ArturRios.Mediator.Command;
++using ArturRios.Output;
++using ArturRios.Util.WebApi.AspNetCore;
++using Microsoft.AspNetCore.Mvc;
++
++namespace ArturRios.Cerberus.WebApi.Controllers;
++
++[ApiController]
++[Route("api/identity")]
++public sealed class IdentityController(CommandMediator commands) : ControllerBase
++{
++    [HttpPut("me")]
++    [ProducesResponseType(typeof(DataOutput<UpdateIdentityOutput>), StatusCodes.Status200OK)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
++    public async Task<ActionResult<DataOutput<UpdateIdentityOutput?>>> UpdateCurrent(
++        [FromBody] UpdateIdentityCommand command,
++        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
++    {
++        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
++            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
++        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var identityId))
++            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
++        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
++        // ProtectedEndpointMiddleware validates the original bearer and current identity.
++        var token = Request.Headers.Authorization.ToString()[7..];
++        command.SetActor(identityId, token, vaultAccess);
++        var result = await commands.ExecuteCommandAsync<UpdateIdentityCommand, UpdateIdentityOutput>(command, cancellationToken);
++        return result.ToActionResult(statusMap: UpdateIdentityMessages.StatusCodes);
++    }
++}
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+index cfa62f7..561c29f 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+@@ -1,14 +1,17 @@
+ using ArturRios.Cerberus.Data;
+ using ArturRios.Cerberus.Data.Accounts;
+ using ArturRios.Cerberus.Command.Accounts;
+ using ArturRios.Cerberus.Command.Authentication;
++using ArturRios.Cerberus.Command.Identity;
++using ArturRios.Cerberus.Domain.Identity;
++using ArturRios.Cerberus.Data.Identity;
+ using ArturRios.Cerberus.Query.Accounts;
+ using ArturRios.Mediator.Query;
+ using ArturRios.Mediator.Query.Interfaces;
+ using ArturRios.Cerberus.Domain.Accounts;
+ using ArturRios.Mediator.Command;
+ using ArturRios.Mediator.Command.Interfaces;
+ using FluentValidation;
+ using ArturRios.Cerberus.Data.Configuration;
+ using ArturRios.Cerberus.Data.Erasure;
+ using ArturRios.Cerberus.Data.Operations;
+@@ -47,20 +50,23 @@ public static class Startup
+                 && source is ScalarValue { Value: string category } && category.StartsWith("ArturRios.Cerberus.", StringComparison.Ordinal))
+             .WriteTo.Console(new JsonFormatter()));
+         builder.Services.AddSingleton(options);
+         builder.Services.AddSingleton(TimeProvider.System);
+         builder.Services.AddSingleton<HeimdallTokenValidator>();
+         builder.Services.AddScoped<CommandMediator>();
+         builder.Services.AddScoped<QueryMediator>();
+         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
+         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
+         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
++        builder.Services.AddScoped<IIdentityUpdateStore, IdentityUpdateStore>();
++        builder.Services.AddScoped<IValidator<UpdateIdentityCommand>, UpdateIdentityValidator>();
++        builder.Services.AddScoped<ICommandHandlerAsync<UpdateIdentityCommand, UpdateIdentityOutput>, UpdateIdentityHandler>();
+         builder.Services.AddScoped<IValidator<UpdateAccountCommand>, UpdateAccountValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<UpdateAccountCommand, UpdateAccountOutput>, UpdateAccountHandler>();
+         builder.Services.AddScoped<IValidator<RegisterAccountCommand>, RegisterAccountValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<RegisterAccountCommand, RegisterAccountOutput>, RegisterAccountHandler>();
+         builder.Services.AddScoped<IRegistrationStore, RegistrationStore>();
+         builder.Services.AddScoped<IValidator<LoginCommand>, LoginValidator>();
+         builder.Services.AddScoped<IValidator<VerifyChallengeCommand>, VerifyChallengeValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<LoginCommand, AuthenticationOutput>, AuthenticationHandler>();
+         builder.Services.AddScoped<ICommandHandlerAsync<VerifyChallengeCommand, AuthenticationOutput>, AuthenticationHandler>();
+         builder.Services.AddScoped<IAccountAuthenticationStore, AccountAuthenticationStore>();
+diff --git a/tests/Application/ArturRios.Cerberus.Command.Tests/UpdateIdentityHandlerTests.cs b/tests/Application/ArturRios.Cerberus.Command.Tests/UpdateIdentityHandlerTests.cs
+new file mode 100644
+index 0000000..667b453
+--- /dev/null
++++ b/tests/Application/ArturRios.Cerberus.Command.Tests/UpdateIdentityHandlerTests.cs
+@@ -0,0 +1,120 @@
++using System.Text.Json;
++using ArturRios.Cerberus.Command.Identity;
++using ArturRios.Cerberus.Domain.Identity;
++using ArturRios.Cerberus.Shared.Identity;
++using Moq;
++
++namespace ArturRios.Cerberus.Command.Tests;
++
++public class UpdateIdentityHandlerTests
++{
++    private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
++    private const string Verifier = "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
++    private static readonly Guid Actor = Guid.NewGuid();
++
++    [UnitTheory]
++    [InlineData("actor", "authentication_required")]
++    [InlineData("token", "authentication_required")]
++    [InlineData("access", "vault_access_required")]
++    [InlineData("emptyAccess", "validation_failed")]
++    [InlineData("badAccess", "validation_failed")]
++    [InlineData("name", "validation_failed")]
++    [InlineData("longName", "validation_failed")]
++    [InlineData("email", "validation_failed")]
++    [InlineData("badEmail", "validation_failed")]
++    public async Task GivenInvalidInputOrContext_WhenUpdating_ThenNeverReachStoreOrProvider(string invalid, string error)
++    {
++        var command = Valid();
++        command.SetActor(invalid == "actor" ? Guid.Empty : Actor, invalid == "token" ? "" : "original-token",
++            invalid == "access" ? null : invalid == "emptyAccess" ? "" : invalid == "badAccess" ? "bad" : Handle);
++        if (invalid == "name") command.Name = " ";
++        if (invalid == "longName") command.Name = new string('x', 201);
++        if (invalid == "email") command.Email = null!;
++        if (invalid == "badEmail") command.Email = "invalid";
++        var result = await Handler(new Mock<IIdentityUpdateStore>(MockBehavior.Strict).Object,
++            new Mock<IHeimdallClient>(MockBehavior.Strict).Object).HandleAsync(command);
++        Assert.False(result.Success);
++        Assert.Contains(error, result.Errors);
++        Assert.Null(result.Data);
++    }
++
++    [UnitFact]
++    public async Task GivenAuthorizedStoreCallback_WhenUpdating_ThenForwardOnlyOriginalActorAndReturnCuratedIdentity()
++    {
++        var insideGuard = false;
++        using var source = new CancellationTokenSource();
++        var provider = new Mock<IHeimdallClient>(MockBehavior.Strict);
++        provider.Setup(x => x.UpdateIdentityAsync("original-token", Actor, "New Name", "new@example.test", source.Token))
++            .Returns(() => { Assert.True(insideGuard); return Task.FromResult(new IdentityUpdateResult(new(Actor, "New Name", "new@example.test", false))); });
++        var store = new Mock<IIdentityUpdateStore>(MockBehavior.Strict);
++        store.Setup(x => x.UpdateAsync(Actor, Verifier, It.IsAny<Func<CancellationToken, Task<IdentityUpdateResult>>>(), source.Token))
++            .Returns<Guid, string, Func<CancellationToken, Task<IdentityUpdateResult>>, CancellationToken>(async (_, _, update, ct) =>
++            { insideGuard = true; try { return await update(ct); } finally { insideGuard = false; } });
++        var command = Valid();
++        var result = await Handler(store.Object, provider.Object).HandleAsync(command, source.Token);
++        Assert.True(result.Success);
++        Assert.Equal(Actor, result.Data!.Id);
++        Assert.Equal("New Name", result.Data.Name);
++        Assert.Equal("new@example.test", result.Data.Email);
++        Assert.False(result.Data.EmailVerified);
++        Assert.Contains("identity_updated", result.Messages);
++        provider.VerifyAll();
++        using var body = JsonDocument.Parse(JsonSerializer.Serialize(command, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
++        Assert.Equal(new[] { "email", "name" }, body.RootElement.EnumerateObject().Select(x => x.Name).Order().ToArray());
++    }
++
++    [UnitTheory]
++    [InlineData("not_found", 404)]
++    [InlineData("vault_access_denied", 403)]
++    [InlineData("persistence_unavailable", 503)]
++    [InlineData("validation_failed", 400)]
++    [InlineData("authentication_required", 401)]
++    [InlineData("identity_update_forbidden", 403)]
++    [InlineData("identity_conflict", 409)]
++    [InlineData("identity_unavailable", 503)]
++    public async Task GivenFailedGuardOrProvider_WhenUpdating_ThenReturnStableErrorWithoutData(string error, int status)
++    {
++        var store = new Mock<IIdentityUpdateStore>();
++        store.Setup(x => x.UpdateAsync(Actor, Verifier, It.IsAny<Func<CancellationToken, Task<IdentityUpdateResult>>>(), It.IsAny<CancellationToken>()))
++            .ReturnsAsync(new IdentityUpdateResult(Error: error));
++        var result = await Handler(store.Object, new Mock<IHeimdallClient>(MockBehavior.Strict).Object).HandleAsync(Valid());
++        Assert.False(result.Success);
++        Assert.Contains(error, result.Errors);
++        Assert.Null(result.Data);
++        Assert.Equal(status, UpdateIdentityMessages.StatusCodes[error]);
++    }
++
++    [UnitTheory]
++    [InlineData("missing")]
++    [InlineData("foreign")]
++    [InlineData("name")]
++    [InlineData("email")]
++    public async Task GivenIncompatibleStoreResult_WhenUpdating_ThenFailClosed(string invalid)
++    {
++        IdentityDetails? identity = invalid == "missing" ? null : new(invalid == "foreign" ? Guid.NewGuid() : Actor,
++            invalid == "name" ? "Other" : "New Name", invalid == "email" ? "other@example.test" : "new@example.test", false);
++        var store = new Mock<IIdentityUpdateStore>();
++        store.Setup(x => x.UpdateAsync(Actor, Verifier, It.IsAny<Func<CancellationToken, Task<IdentityUpdateResult>>>(), It.IsAny<CancellationToken>()))
++            .ReturnsAsync(new IdentityUpdateResult(identity));
++        var result = await Handler(store.Object, new Mock<IHeimdallClient>(MockBehavior.Strict).Object).HandleAsync(Valid());
++        Assert.Contains("identity_unavailable", result.Errors);
++        Assert.Null(result.Data);
++    }
++
++    [UnitFact]
++    public async Task GivenCallerCancellation_WhenUpdating_ThenPropagateBeforeStore()
++    {
++        using var source = new CancellationTokenSource();
++        source.Cancel();
++        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new Mock<IIdentityUpdateStore>(MockBehavior.Strict).Object,
++            new Mock<IHeimdallClient>(MockBehavior.Strict).Object).HandleAsync(Valid(), source.Token));
++    }
++
++    private static UpdateIdentityCommand Valid()
++    {
++        var command = new UpdateIdentityCommand { Name = "New Name", Email = "new@example.test" };
++        command.SetActor(Actor, "original-token", Handle);
++        return command;
++    }
++    private static UpdateIdentityHandler Handler(IIdentityUpdateStore store, IHeimdallClient provider) => new(new UpdateIdentityValidator(), store, provider);
++}
+diff --git a/tests/Application/ArturRios.Cerberus.Shared.Tests/IdentityUpdateClientTests.cs b/tests/Application/ArturRios.Cerberus.Shared.Tests/IdentityUpdateClientTests.cs
+new file mode 100644
+index 0000000..9917e4d
+--- /dev/null
++++ b/tests/Application/ArturRios.Cerberus.Shared.Tests/IdentityUpdateClientTests.cs
+@@ -0,0 +1,156 @@
++using System.Net;
++using System.Text;
++using System.Text.Json;
++using ArturRios.Cerberus.Shared.Configuration;
++using ArturRios.Cerberus.Shared.Identity;
++using ArturRios.Jwt;
++
++namespace ArturRios.Cerberus.Shared.Tests;
++
++public class IdentityUpdateClientTests
++{
++    private static readonly Guid Identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
++    private const string Name = "Updated Owner";
++    private const string Email = "updated@example.test";
++
++    [UnitFact]
++    public async Task GivenValidActor_WhenUpdatingIdentity_ThenUseOwnPublicRouteOriginalTokenAndOnlyPermittedFields()
++    {
++        var token = Token();
++        var result = await Client(async (request, _) =>
++        {
++            Assert.Equal(HttpMethod.Put, request.Method);
++            Assert.Equal("/api/persons/" + Identity.ToString("D"), request.RequestUri!.AbsolutePath);
++            Assert.Equal(token, request.Headers.Authorization?.Parameter);
++            Assert.NotEqual(Options().HeimdallServiceCredential, request.Headers.Authorization?.Parameter);
++            using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync());
++            Assert.Equal(new[] { "email", "name" }, body.RootElement.EnumerateObject().Select(x => x.Name).Order().ToArray());
++            Assert.Equal(Name, body.RootElement.GetProperty("name").GetString());
++            Assert.Equal(Email, body.RootElement.GetProperty("email").GetString());
++            return Response();
++        }).UpdateIdentityAsync(token, Identity, Name, Email, default);
++        Assert.Null(result.Error);
++        Assert.Equal(Identity, result.Identity!.Id);
++        Assert.Equal(Name, result.Identity.Name);
++        Assert.Equal(Email, result.Identity.Email);
++        Assert.False(result.Identity.EmailVerified);
++        Assert.DoesNotContain("ScopeId", JsonSerializer.Serialize(result));
++        Assert.DoesNotContain("Role", JsonSerializer.Serialize(result));
++    }
++
++    [UnitTheory]
++    [InlineData("invalid")]
++    [InlineData("otherActor")]
++    [InlineData("foreignScope")]
++    public async Task GivenInvalidOrMismatchedActorToken_WhenUpdating_ThenRejectBeforeTransport(string invalid)
++    {
++        var token = invalid == "invalid" ? "not-a-token" : Token(invalid == "foreignScope" ? Guid.NewGuid() : null);
++        var actor = invalid == "otherActor" ? Guid.NewGuid() : Identity;
++        var client = Client((_, _) => throw new InvalidOperationException("Transport must not be called."));
++        var result = await client.UpdateIdentityAsync(token, actor, Name, Email, default);
++        Assert.Equal("authentication_required", result.Error);
++        Assert.Null(result.Identity);
++    }
++
++    [UnitTheory]
++    [InlineData(400, "validation_failed")]
++    [InlineData(401, "authentication_required")]
++    [InlineData(403, "identity_update_forbidden")]
++    [InlineData(404, "not_found")]
++    [InlineData(409, "identity_conflict")]
++    [InlineData(500, "identity_unavailable")]
++    [InlineData(503, "identity_unavailable")]
++    public async Task GivenProviderRefusal_WhenUpdating_ThenMapStableErrorWithoutProviderPayload(int status, string error)
++    {
++        var result = await Client((_, _) => Task.FromResult(new HttpResponseMessage((HttpStatusCode)status)
++        { Content = new StringContent("provider-private-details", Encoding.UTF8, "application/json") }))
++            .UpdateIdentityAsync(Token(), Identity, Name, Email, default);
++        Assert.Equal(error, result.Error);
++        Assert.Null(result.Identity);
++        Assert.DoesNotContain("provider-private", JsonSerializer.Serialize(result));
++    }
++
++    [UnitTheory]
++    [InlineData("missingId")]
++    [InlineData("missingName")]
++    [InlineData("missingEmail")]
++    [InlineData("missingVerified")]
++    [InlineData("missingScope")]
++    [InlineData("missingRole")]
++    [InlineData("wrongId")]
++    [InlineData("wrongScope")]
++    [InlineData("wrongRole")]
++    [InlineData("stringRole")]
++    [InlineData("nullName")]
++    [InlineData("nameMismatch")]
++    [InlineData("emailMismatch")]
++    [InlineData("duplicateData")]
++    [InlineData("duplicateRoot")]
++    [InlineData("invalidJson")]
++    public async Task GivenIncompatibleProviderSuccess_WhenUpdating_ThenFailClosedWithoutForwardingIdentityData(string invalid)
++    {
++        var data = Data();
++        var removed = invalid switch { "missingId" => "id", "missingName" => "name", "missingEmail" => "email",
++            "missingVerified" => "emailVerified", "missingScope" => "scopeId", "missingRole" => "role", _ => null };
++        if (removed is not null) data.Remove(removed);
++        if (invalid == "wrongId") data["id"] = Guid.NewGuid();
++        if (invalid == "wrongScope") data["scopeId"] = Guid.NewGuid();
++        if (invalid == "wrongRole") data["role"] = 1;
++        if (invalid == "stringRole") data["role"] = "3";
++        if (invalid == "nullName") data["name"] = null;
++        if (invalid == "nameMismatch") data["name"] = "another-person-private-name";
++        if (invalid == "emailMismatch") data["email"] = "another-person@example.test";
++        var body = JsonSerializer.Serialize(new { success = true, errors = Array.Empty<string>(), data });
++        if (invalid == "duplicateData") body = body.Replace("\"emailVerified\":false", "\"emailVerified\":true,\"emailVerified\":false");
++        if (invalid == "duplicateRoot") body = body.Replace("\"success\":true", "\"success\":false,\"success\":true");
++        if (invalid == "invalidJson") body = "not-json";
++        var result = await Client((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
++        { Content = new StringContent(body, Encoding.UTF8, "application/json") }))
++            .UpdateIdentityAsync(Token(), Identity, Name, Email, default);
++        Assert.Equal("identity_unavailable", result.Error);
++        Assert.Null(result.Identity);
++    }
++
++    [UnitFact]
++    public async Task GivenProviderTimeout_WhenUpdating_ThenReturnUnavailableWithoutIdentityData()
++    {
++        var result = await Client((_, _) => throw new TaskCanceledException("provider-private-details"))
++            .UpdateIdentityAsync(Token(), Identity, Name, Email, default);
++        Assert.Equal("identity_unavailable", result.Error);
++        Assert.Null(result.Identity);
++    }
++
++    [UnitFact]
++    public async Task GivenCancelledCaller_WhenUpdating_ThenPropagateWithoutTransport()
++    {
++        using var cancelled = new CancellationTokenSource();
++        cancelled.Cancel();
++        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Client((_, _) => throw new InvalidOperationException())
++            .UpdateIdentityAsync(Token(), Identity, Name, Email, cancelled.Token));
++    }
++
++    private static Dictionary<string, object?> Data() => new()
++    {
++        ["id"] = Identity, ["name"] = Name, ["email"] = Email, ["role"] = 3,
++        ["scopeId"] = Options().HeimdallScopeId, ["emailVerified"] = false,
++        ["ownedScopeIds"] = Array.Empty<Guid>(), ["createdAt"] = "2026-10-07T00:00:00Z", ["updatedAt"] = "2026-10-08T00:00:00Z"
++    };
++    private static CerberusOptions Options() => CerberusOptionsValidatorTests.ValidOptions();
++    private static string Token(Guid? scope = null)
++    {
++        var options = Options();
++        return new JwtHandler().CreateToken(new JwtConfiguration(60, options.AuthIssuer!, options.AuthAudience!, options.AuthValidationSecret!,
++            new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = "3", ["scopeId"] = (scope ?? options.HeimdallScopeId).ToString() }));
++    }
++    private static HttpResponseMessage Response() => new(HttpStatusCode.OK)
++    { Content = new StringContent(JsonSerializer.Serialize(new { success = true, errors = Array.Empty<string>(), data = Data() }), Encoding.UTF8, "application/json") };
++    private static HeimdallClient Client(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handler)
++    {
++        var options = Options();
++        return new(new HttpClient(new Transport(handler)) { BaseAddress = new Uri(options.HeimdallBaseUrl!) }, options, new HeimdallTokenValidator(options));
++    }
++    private sealed class Transport(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handler) : HttpMessageHandler
++    {
++        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => handler(request, cancellationToken);
++    }
++}
+diff --git a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/IdentityUpdateStoreTests.cs b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/IdentityUpdateStoreTests.cs
+new file mode 100644
+index 0000000..ca654e3
+--- /dev/null
++++ b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/IdentityUpdateStoreTests.cs
+@@ -0,0 +1,237 @@
++using System.Data.Common;
++using System.Security.Cryptography;
++using System.Text.Json;
++using ArturRios.Cerberus.Data.Identity;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Identity;
++using ArturRios.Cerberus.Domain.Operations;
++using Microsoft.EntityFrameworkCore;
++using Microsoft.EntityFrameworkCore.Diagnostics;
++using Npgsql;
++
++namespace ArturRios.Cerberus.Data.Tests;
++
++[Collection("PostgreSQL")]
++public class IdentityUpdateStoreTests(PostgresFixture fixture)
++{
++    [FunctionalTheory]
++    [InlineData("active", null)]
++    [InlineData("noExpiry", null)]
++    [InlineData("missing", "not_found")]
++    [InlineData("closing", "not_found")]
++    [InlineData("erased", "not_found")]
++    [InlineData("missingSession", "vault_access_denied")]
++    [InlineData("otherAccount", "vault_access_denied")]
++    [InlineData("profile", "vault_access_denied")]
++    [InlineData("expired", "vault_access_denied")]
++    [InlineData("future", "vault_access_denied")]
++    [InlineData("missingExpiry", "vault_access_denied")]
++    [InlineData("disabledWithExpiry", "vault_access_denied")]
++    [InlineData("revoked", "vault_access_denied")]
++    [InlineData("stalePolicy", "vault_access_denied")]
++    [InlineData("staleGeneration", "vault_access_denied")]
++    public async Task GivenAccountAndAccess_WhenUpdatingIdentity_ThenOnlyCurrentAccountWideAccessInvokesCallback(string state, string? error)
++    {
++        var input = await Setup(state);
++        var before = await Snapshot(input.Id, input.Verifier);
++        var called = false;
++        var result = await new IdentityUpdateStore(fixture).UpdateAsync(state == "missing" ? Guid.NewGuid() : input.Identity, input.Verifier,
++            _ => { called = true; return Task.FromResult(Success(input.Identity)); }, default);
++        Assert.Equal(error, result.Error);
++        Assert.Equal(error is null, called);
++        if (error is null) Assert.Equal(input.Identity, result.Identity!.Id);
++        else Assert.Null(result.Identity);
++        Assert.Equal(before, await Snapshot(input.Id, input.Verifier));
++    }
++
++    [FunctionalTheory]
++    [InlineData("identity_conflict")]
++    [InlineData("identity_unavailable")]
++    [InlineData("authentication_required")]
++    [InlineData("identity_update_forbidden")]
++    [InlineData("not_found")]
++    [InlineData("validation_failed")]
++    public async Task GivenProviderFailure_WhenUpdatingIdentity_ThenPreserveAllLocalVaultState(string error)
++    {
++        var input = await Setup();
++        var before = await Snapshot(input.Id, input.Verifier);
++        var result = await new IdentityUpdateStore(fixture).UpdateAsync(input.Identity, input.Verifier,
++            _ => Task.FromResult(new IdentityUpdateResult(Error: error)), default);
++        Assert.Equal(error, result.Error);
++        Assert.Null(result.Identity);
++        Assert.Equal(before, await Snapshot(input.Id, input.Verifier));
++    }
++
++    [FunctionalTheory]
++    [InlineData(false)]
++    [InlineData(true)]
++    public async Task GivenExternalCallbackInFlight_WhenClosingAccountOrRevokingSession_ThenLocksPreventInterleaving(bool session)
++    {
++        var input = await Setup();
++        var before = await Snapshot(input.Id, input.Verifier);
++        var result = await new IdentityUpdateStore(fixture).UpdateAsync(input.Identity, input.Verifier, async _ =>
++        {
++            await using var competing = fixture.CreateContext();
++            await competing.Database.OpenConnectionAsync();
++            await competing.Database.ExecuteSqlRawAsync("SET lock_timeout = '100ms'");
++            var error = await Assert.ThrowsAsync<PostgresException>(() => session
++                ? competing.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET revoked = TRUE WHERE handle_verifier = {input.Verifier}")
++                : competing.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET state = 1 WHERE public_id = {input.Id}"));
++            Assert.Equal(PostgresErrorCodes.LockNotAvailable, error.SqlState);
++            return Success(input.Identity);
++        }, default);
++        Assert.Null(result.Error);
++        Assert.Equal(before, await Snapshot(input.Id, input.Verifier));
++        // Completion released the locks; the later lifecycle operation can now win.
++        await using var after = fixture.CreateContext();
++        Assert.Equal(1, await (session
++            ? after.VaultAccessSessions.Where(x => x.HandleVerifier == input.Verifier).ExecuteUpdateAsync(s => s.SetProperty(x => x.Revoked, true))
++            : after.Accounts.Where(x => x.PublicId == input.Id).ExecuteUpdateAsync(s => s.SetProperty(x => x.State, AccountState.ClosurePending))));
++    }
++
++    [FunctionalTheory]
++    [InlineData("closure", "not_found")]
++    [InlineData("erasure", "not_found")]
++    [InlineData("revocation", "vault_access_denied")]
++    [InlineData("policy", "vault_access_denied")]
++    public async Task GivenStateChangesBeforeLocks_WhenUpdatingIdentity_ThenCurrentGuardRejectsWithoutCallback(string change, string error)
++    {
++        var input = await Setup();
++        var interceptor = new BeforeLock(sessionLock: false, async () =>
++        {
++            await using var competing = fixture.CreateContext();
++            var account = await competing.Accounts.SingleAsync(x => x.PublicId == input.Id);
++            if (change == "closure") account.State = AccountState.ClosurePending;
++            if (change == "policy") account.PolicyRevision++;
++            if (change == "revocation") (await competing.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == input.Verifier)).Revoked = true;
++            if (change == "erasure") competing.TerminalErasures.Add(new TerminalErasure { ResourceId = input.Id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
++            await competing.SaveChangesAsync();
++        });
++        var called = false;
++        var result = await new IdentityUpdateStore(new InterceptingFactory(fixture, interceptor)).UpdateAsync(input.Identity, input.Verifier,
++            _ => { called = true; return Task.FromResult(Success(input.Identity)); }, default);
++        Assert.True(interceptor.Ran);
++        Assert.Equal(error, result.Error);
++        Assert.False(called);
++        await using var verify = fixture.CreateContext();
++        var unchanged = await verify.Accounts.SingleAsync(x => x.PublicId == input.Id);
++        Assert.Equal(3, unchanged.Revision);
++        Assert.Equal(new byte[] { 1, 2, 3 }, unchanged.DetailsEnvelope);
++        Assert.Equal(input.Identity, unchanged.HeimdallPublicId);
++    }
++
++    [FunctionalFact]
++    public async Task GivenSessionExpiresWhileWaitingForSessionLock_WhenUpdatingIdentity_ThenUseFreshStatementTime()
++    {
++        var input = await Setup();
++        var expires = new DateTimeOffset(DateTimeOffset.UtcNow.AddSeconds(1).Ticks / 10 * 10, TimeSpan.Zero);
++        await using (var setup = fixture.CreateContext())
++        {
++            var session = await setup.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == input.Verifier);
++            session.ExpiresAt = expires;
++            await setup.SaveChangesAsync();
++        }
++        // Account lock already started the transaction. Delay its session-lock
++        // command until expiry; transaction-begin now() would be stale here.
++        var interceptor = new BeforeLock(sessionLock: true, async () =>
++        {
++            for (var remaining = expires - DateTimeOffset.UtcNow; remaining > TimeSpan.Zero; remaining = expires - DateTimeOffset.UtcNow)
++                await Task.Delay(remaining + TimeSpan.FromMilliseconds(20));
++        });
++        var called = false;
++        var before = await Snapshot(input.Id, input.Verifier);
++        var result = await new IdentityUpdateStore(new InterceptingFactory(fixture, interceptor)).UpdateAsync(input.Identity, input.Verifier,
++            _ => { called = true; return Task.FromResult(Success(input.Identity)); }, default);
++        Assert.True(interceptor.Ran);
++        Assert.Equal("vault_access_denied", result.Error);
++        Assert.False(called);
++        Assert.Equal(before, await Snapshot(input.Id, input.Verifier));
++    }
++
++    [FunctionalFact]
++    public async Task GivenUnavailableDatabase_WhenUpdatingIdentity_ThenFailWithoutInvokingProvider()
++    {
++        var result = await new IdentityUpdateStore(new UnavailableFactory()).UpdateAsync(Guid.NewGuid(), new string('a', 64),
++            _ => throw new InvalidOperationException("Provider must not be invoked."), default);
++        Assert.Equal("persistence_unavailable", result.Error);
++        Assert.Null(result.Identity);
++    }
++
++    [FunctionalTheory]
++    [InlineData(false)]
++    [InlineData(true)]
++    public async Task GivenCancelledCallerBeforeOrDuringCallback_WhenUpdatingIdentity_ThenPropagateAndReleaseLocks(bool during)
++    {
++        var input = await Setup();
++        var before = await Snapshot(input.Id, input.Verifier);
++        using var cancelled = new CancellationTokenSource();
++        if (!during) cancelled.Cancel();
++        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new IdentityUpdateStore(fixture).UpdateAsync(input.Identity, input.Verifier,
++            ct => { cancelled.Cancel(); ct.ThrowIfCancellationRequested(); return Task.FromResult(Success(input.Identity)); }, cancelled.Token));
++        Assert.Equal(before, await Snapshot(input.Id, input.Verifier));
++    }
++
++    private async Task<(Guid Id, Guid Identity, string Verifier)> Setup(string state = "active")
++    {
++        var id = Guid.NewGuid();
++        var identity = Guid.NewGuid();
++        var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
++        var now = new DateTimeOffset(DateTimeOffset.UtcNow.Ticks / 10 * 10, TimeSpan.Zero);
++        await using var context = fixture.CreateContext();
++        var account = new Account { PublicId = id, HeimdallPublicId = identity, Revision = 3, DetailsEnvelope = [1, 2, 3],
++            State = state == "closing" ? AccountState.ClosurePending : AccountState.Active, RenewalEnabled = state is not ("noExpiry" or "disabledWithExpiry") };
++        context.Accounts.Add(account);
++        await context.SaveChangesAsync();
++        var sessionOwner = account.Id;
++        if (state == "otherAccount")
++        {
++            var other = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid(), DetailsEnvelope = [4] };
++            context.Accounts.Add(other);
++            await context.SaveChangesAsync();
++            sessionOwner = other.Id;
++        }
++        if (state != "missingSession") context.VaultAccessSessions.Add(new VaultAccessSession
++        {
++            AccountId = sessionOwner, HandleVerifier = verifier, ProfileId = state == "profile" ? 42 : null,
++            IssuedAt = state == "future" ? now.AddHours(1) : now.AddMinutes(-5),
++            ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expired" ? now.AddMinutes(-1) : now.AddMinutes(5),
++            Revoked = state == "revoked", PolicyRevision = state == "stalePolicy" ? 0 : 1, RevocationGeneration = state == "staleGeneration" ? 0 : 1
++        });
++        if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = now });
++        await context.SaveChangesAsync();
++        return (id, identity, verifier);
++    }
++    private async Task<string> Snapshot(Guid id, string verifier)
++    {
++        await using var context = fixture.CreateContext();
++        return JsonSerializer.Serialize(new { Account = await context.Accounts.AsNoTracking().SingleAsync(x => x.PublicId == id),
++            Session = await context.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.HandleVerifier == verifier) });
++    }
++    private static IdentityUpdateResult Success(Guid identity) => new(new IdentityDetails(identity, "Updated Owner", "updated@example.test", false));
++    private sealed class BeforeLock(bool sessionLock, Func<Task> action) : DbCommandInterceptor
++    {
++        public bool Ran { get; private set; }
++        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData eventData,
++            InterceptionResult<int> result, CancellationToken cancellationToken = default)
++        {
++            if (!Ran && command.CommandText.Contains("FOR UPDATE", StringComparison.OrdinalIgnoreCase)
++                && command.CommandText.Contains(sessionLock ? "vault_access_session" : "cerberus.account", StringComparison.Ordinal))
++            { Ran = true; await action(); }
++            return result;
++        }
++    }
++    private sealed class InterceptingFactory(PostgresFixture fixture, DbCommandInterceptor interceptor) : IDbContextFactory<AppDbContext>
++    {
++        public AppDbContext CreateDbContext()
++        {
++            using var source = fixture.CreateContext();
++            return new(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(source.Database.GetConnectionString()).AddInterceptors(interceptor).Options);
++        }
++    }
++    private sealed class UnavailableFactory : IDbContextFactory<AppDbContext>
++    {
++        public AppDbContext CreateDbContext() => new(new DbContextOptionsBuilder<AppDbContext>()
++            .UseNpgsql("Host=127.0.0.1;Port=1;Database=fixture;Username=fixture;Password=fixture;Timeout=1").Options);
++    }
++}
+diff --git a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/IdentityUpdateHttpTests.cs b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/IdentityUpdateHttpTests.cs
+new file mode 100644
+index 0000000..c65c726
+--- /dev/null
++++ b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/IdentityUpdateHttpTests.cs
+@@ -0,0 +1,254 @@
++using System.Net;
++using System.Net.Http.Json;
++using System.Security.Cryptography;
++using System.Text;
++using System.Text.Json;
++using ArturRios.Cerberus.Command.Identity;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Operations;
++using ArturRios.Configuration.Enums;
++using ArturRios.Output;
++using ArturRios.Util.Test.Functional;
++using Microsoft.AspNetCore.Mvc.Testing;
++using Microsoft.AspNetCore.TestHost;
++using Microsoft.EntityFrameworkCore;
++
++namespace ArturRios.Cerberus.WebApi.Tests;
++
++[Collection("Registration host")]
++public class IdentityUpdateHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
++{
++    private const string Header = "X-Cerberus-Vault-Access";
++    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
++
++    [FunctionalTheory]
++    [InlineData(false)]
++    [InlineData(true)]
++    public async Task GivenCurrentOwner_WhenUpdatingIdentity_ThenBindOriginalActorAndPreserveVault(bool changeEmail)
++    {
++        var input = await Setup();
++        var token = RegistrationApiFixture.Token(input.Actor);
++        Authorize(token);
++        var email = changeEmail ? Guid.NewGuid().ToString("N") + "@example.test" : input.Email;
++        using var response = await Send(input.Handle, "Updated Name", email);
++        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
++        Assert.True(response.Headers.CacheControl?.NoStore);
++        var result = (await response.Content.ReadFromJsonAsync<DataOutput<UpdateIdentityOutput>>())!;
++        Assert.True(result.Success);
++        Assert.Equal(input.Actor, result.Data!.Id);
++        Assert.Equal("Updated Name", result.Data.Name);
++        Assert.Equal(email, result.Data.Email);
++        Assert.Equal(!changeEmail, result.Data.EmailVerified);
++        var capture = fixture.IdentityUpdates[input.Actor];
++        Assert.Equal("Bearer " + token, capture.Bearer);
++        using var sent = JsonDocument.Parse(capture.Body);
++        Assert.Equal(new[] { "email", "name" }, sent.RootElement.EnumerateObject().Select(x => x.Name).Order().ToArray());
++        Assert.Equal(email, sent.RootElement.GetProperty("email").GetString());
++        using var returned = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
++        Assert.Equal(new[] { "email", "emailVerified", "id", "name" }, returned.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order().ToArray());
++        Assert.DoesNotContain(input.Handle, await response.Content.ReadAsStringAsync());
++        Assert.Equal(input.Before, await Snapshot(input.Actor));
++    }
++
++    [FunctionalTheory]
++    [InlineData("anonymous", HttpStatusCode.Unauthorized)]
++    [InlineData("foreignScope", HttpStatusCode.Unauthorized)]
++    [InlineData("missingAccess", HttpStatusCode.Unauthorized)]
++    [InlineData("foreignAccess", HttpStatusCode.Forbidden)]
++    [InlineData("missing", HttpStatusCode.NotFound)]
++    [InlineData("closing", HttpStatusCode.NotFound)]
++    [InlineData("erased", HttpStatusCode.NotFound)]
++    [InlineData("profile", HttpStatusCode.Forbidden)]
++    [InlineData("expired", HttpStatusCode.Forbidden)]
++    [InlineData("revoked", HttpStatusCode.Forbidden)]
++    [InlineData("stale", HttpStatusCode.Forbidden)]
++    [InlineData("deletedIdentity", HttpStatusCode.Unauthorized)]
++    [InlineData("unavailableIdentity", HttpStatusCode.ServiceUnavailable)]
++    public async Task GivenDeniedAccess_WhenUpdatingIdentity_ThenNeverCallProviderOrChangeVault(string state, HttpStatusCode status)
++    {
++        var input = await Setup(state);
++        if (state != "anonymous") Authorize(RegistrationApiFixture.Token(input.Actor, state == "foreignScope" ? Guid.NewGuid() : null));
++        var handle = state == "foreignAccess" ? (await Setup()).Handle : state == "missingAccess" ? null : input.Handle;
++        var calls = fixture.IdentityUpdateCalls;
++        using var response = await Send(handle);
++        await Failure(response, status);
++        Assert.Equal(calls, fixture.IdentityUpdateCalls);
++        Assert.Equal(input.Before, await Snapshot(input.Actor));
++    }
++
++    [FunctionalTheory]
++    [InlineData("unknown")]
++    [InlineData("owner")]
++    [InlineData("role")]
++    [InlineData("scope")]
++    [InlineData("password")]
++    [InlineData("vault")]
++    [InlineData("duplicate")]
++    [InlineData("case")]
++    [InlineData("numericName")]
++    [InlineData("nullName")]
++    [InlineData("emptyName")]
++    [InlineData("longName")]
++    [InlineData("missingEmail")]
++    [InlineData("badEmail")]
++    [InlineData("query")]
++    [InlineData("duplicateHeader")]
++    [InlineData("badHeader")]
++    [InlineData("emptyHeader")]
++    public async Task GivenInvalidInput_WhenUpdatingIdentity_ThenReturn400BeforeProvider(string invalid)
++    {
++        var input = await Setup();
++        Authorize(RegistrationApiFixture.Token(input.Actor));
++        var body = invalid switch
++        {
++            "owner" => "{\"identityId\":\"" + Guid.NewGuid() + "\",\"name\":\"New\",\"email\":\"new@example.test\"}",
++            "role" => "{\"roleId\":2,\"name\":\"New\",\"email\":\"new@example.test\"}",
++            "scope" => "{\"scopeId\":\"" + Guid.NewGuid() + "\",\"name\":\"New\",\"email\":\"new@example.test\"}",
++            "password" => "{\"password\":\"secret\",\"name\":\"New\",\"email\":\"new@example.test\"}",
++            "vault" => "{\"details\":{},\"name\":\"New\",\"email\":\"new@example.test\"}",
++            "unknown" => "{\"other\":true,\"name\":\"New\",\"email\":\"new@example.test\"}",
++            "duplicate" => "{\"name\":\"First\",\"name\":\"New\",\"email\":\"new@example.test\"}",
++            "case" => "{\"Name\":\"New\",\"email\":\"new@example.test\"}",
++            "numericName" => "{\"name\":42,\"email\":\"new@example.test\"}",
++            "nullName" => "{\"name\":null,\"email\":\"new@example.test\"}",
++            "emptyName" => "{\"name\":\" \",\"email\":\"new@example.test\"}",
++            "longName" => JsonSerializer.Serialize(new { name = new string('x', 201), email = "new@example.test" }),
++            "missingEmail" => "{\"name\":\"New\"}",
++            "badEmail" => "{\"name\":\"New\",\"email\":\"invalid\"}",
++            _ => "{\"name\":\"New\",\"email\":\"new@example.test\"}"
++        };
++        var calls = fixture.IdentityUpdateCalls;
++        if (invalid == "emptyHeader")
++        {
++            using var host = new WebApplicationFactory<Program>();
++            var bytes = Encoding.UTF8.GetBytes(body);
++            var raw = await host.Server.SendAsync(context =>
++            {
++                context.Request.Method = "PUT"; context.Request.Path = "/api/identity/me";
++                context.Request.ContentType = "application/json"; context.Request.ContentLength = bytes.Length;
++                context.Request.Body = new MemoryStream(bytes);
++                context.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(input.Actor);
++                context.Request.Headers[Header] = "";
++            });
++            Assert.Equal(400, raw.Response.StatusCode);
++            Assert.Contains("no-store", raw.Response.Headers.CacheControl.ToString());
++            var result = (await JsonSerializer.DeserializeAsync<DataOutput<UpdateIdentityOutput>>(raw.Response.Body, Json))!;
++            Assert.False(result.Success); Assert.Null(result.Data);
++        }
++        else
++        {
++            using var request = new HttpRequestMessage(HttpMethod.Put, "/api/identity/me" + (invalid == "query" ? "?owner=untrusted" : ""))
++                { Content = new StringContent(body, Encoding.UTF8, "application/json") };
++            request.Headers.TryAddWithoutValidation(Header, invalid == "duplicateHeader" ? new[] { input.Handle, input.Handle }
++                : new[] { invalid == "badHeader" ? "invalid" : input.Handle });
++            using var response = await Gateway.Client.SendAsync(request);
++            await Failure(response, HttpStatusCode.BadRequest);
++        }
++        Assert.Equal(calls, fixture.IdentityUpdateCalls);
++        Assert.Equal(input.Before, await Snapshot(input.Actor));
++    }
++
++    [FunctionalTheory]
++    [InlineData(400)]
++    [InlineData(401)]
++    [InlineData(403)]
++    [InlineData(404)]
++    [InlineData(409)]
++    [InlineData(500)]
++    [InlineData(503)]
++    public async Task GivenProviderFailure_WhenUpdatingIdentity_ThenMapStableStatusAndPreserveVault(int status)
++    {
++        var input = await Setup();
++        Authorize(RegistrationApiFixture.Token(input.Actor));
++        using var response = await Send(input.Handle, "provider-" + status);
++        await Failure(response, (HttpStatusCode)(status >= 500 ? 503 : status));
++        Assert.DoesNotContain("private-provider-error", await response.Content.ReadAsStringAsync());
++        Assert.Equal(input.Before, await Snapshot(input.Actor));
++    }
++
++    [FunctionalFact]
++    public async Task GivenDuplicateEmail_WhenUpdatingIdentity_ThenReturnConflictAndPreserveBothOwners()
++    {
++        var input = await Setup(); var other = await Setup();
++        Authorize(RegistrationApiFixture.Token(input.Actor));
++        using var response = await Send(input.Handle, email: other.Email);
++        await Failure(response, HttpStatusCode.Conflict);
++        Assert.True(fixture.Users.ContainsKey(input.Email));
++        Assert.Equal(other.Actor, fixture.Users[other.Email].Id);
++        Assert.Equal(input.Before, await Snapshot(input.Actor));
++        Assert.Equal(other.Before, await Snapshot(other.Actor));
++    }
++
++    [FunctionalFact]
++    public async Task GivenLostResponseAfterProviderCommit_WhenRetryingReplacement_ThenNoVaultMutationOrFalseRollback()
++    {
++        var input = await Setup(); Authorize(RegistrationApiFixture.Token(input.Actor));
++        var email = Guid.NewGuid().ToString("N") + "@example.test";
++        using var lost = await Send(input.Handle, "response-loss", email);
++        await Failure(lost, HttpStatusCode.ServiceUnavailable);
++        Assert.Equal(input.Actor, fixture.Users[email].Id);
++        Assert.Equal(input.Before, await Snapshot(input.Actor));
++        using var retry = await Send(input.Handle, "Recovered Name", email);
++        Assert.Equal(HttpStatusCode.OK, retry.StatusCode);
++        Assert.True(retry.Headers.CacheControl?.NoStore);
++        Assert.Equal("Recovered Name", fixture.Users[email].Name);
++        Assert.False(fixture.Users[email].EmailVerified);
++        Assert.Equal(input.Before, await Snapshot(input.Actor));
++    }
++
++    [FunctionalFact]
++    public async Task GivenUnavailableDatabase_WhenUpdatingIdentity_ThenReturn503BeforeProvider()
++    {
++        var input = await Setup(); Authorize(RegistrationApiFixture.Token(input.Actor));
++        var calls = fixture.IdentityUpdateCalls;
++        await using var context = fixture.Context();
++        await context.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.account RENAME TO fixture_identity_unavailable_account");
++        try { using var response = await Send(input.Handle); await Failure(response, HttpStatusCode.ServiceUnavailable); }
++        finally { await context.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.fixture_identity_unavailable_account RENAME TO account"); }
++        Assert.Equal(calls, fixture.IdentityUpdateCalls);
++        Assert.Equal(input.Before, await Snapshot(input.Actor));
++    }
++
++    private async Task<(Guid Actor, string Email, string Handle, string Before)> Setup(string state = "active")
++    {
++        var actor = Guid.NewGuid(); var email = Guid.NewGuid().ToString("N") + "@example.test";
++        fixture.Users[email] = new(actor, "fixture-password", Deleted: state == "deletedIdentity", IdentityUnavailable: state == "unavailableIdentity", Email: email);
++        var handle = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
++        Assert.True(OpaqueAccessHandle.TryHash(handle, out var verifier));
++        if (state != "missing")
++        {
++            await using var context = fixture.Context();
++            var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = actor, Revision = 3,
++                DetailsEnvelope = JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), Json),
++                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
++            context.Accounts.Add(account); await context.SaveChangesAsync();
++            context.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
++                ProfileId = state == "profile" ? 42 : null, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
++                ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
++                Revoked = state == "revoked", PolicyRevision = state == "stale" ? 0 : 1, RevocationGeneration = 1 });
++            if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = account.PublicId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
++            await context.SaveChangesAsync();
++        }
++        return (actor, email, handle, await Snapshot(actor));
++    }
++    private async Task<string> Snapshot(Guid actor)
++    {
++        await using var context = fixture.Context();
++        var accounts = await context.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == actor).ToListAsync();
++        var ids = accounts.Select(x => x.Id).ToArray();
++        return JsonSerializer.Serialize(new { accounts, sessions = await context.VaultAccessSessions.AsNoTracking().Where(x => ids.Contains(x.AccountId)).OrderBy(x => x.Id).ToListAsync() });
++    }
++    private async Task<HttpResponseMessage> Send(string? handle, string name = "New Name", string email = "new@example.test")
++    {
++        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/identity/me") { Content = JsonContent.Create(new { name, email }) };
++        if (handle is not null) request.Headers.Add(Header, handle);
++        return await Gateway.Client.SendAsync(request);
++    }
++    private static async Task Failure(HttpResponseMessage response, HttpStatusCode status)
++    {
++        Assert.Equal(status, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore);
++        var result = (await response.Content.ReadFromJsonAsync<DataOutput<UpdateIdentityOutput>>())!;
++        Assert.False(result.Success); Assert.Null(result.Data);
++    }
++}
+diff --git a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationApiFixture.cs b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationApiFixture.cs
+index 38489d1..e2bf817 100644
+--- a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationApiFixture.cs
++++ b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationApiFixture.cs
+@@ -1,39 +1,47 @@
+ using System.Collections.Concurrent;
++using System.Text.Json;
+ using ArturRios.Cerberus.Data;
+ using ArturRios.Cerberus.Shared.Identity;
++using ArturRios.Cerberus.Shared.Configuration;
+ using ArturRios.Jwt;
+ using Microsoft.AspNetCore.Builder;
+ using Microsoft.AspNetCore.Hosting.Server;
+ using Microsoft.AspNetCore.Hosting.Server.Features;
+ using Microsoft.AspNetCore.Http;
+ using Microsoft.EntityFrameworkCore;
+ using Microsoft.Extensions.DependencyInjection;
+ using Microsoft.Extensions.Logging;
+ using Testcontainers.PostgreSql;
+ 
+ namespace ArturRios.Cerberus.WebApi.Tests;
+ 
+ public sealed class RegistrationApiFixture : IAsyncLifetime
+ {
+     public static readonly Guid Scope = Guid.Parse("527a1001-8ef5-4c9b-a565-111111111111");
+     private const string Secret = "fixture-only-signing-key-32-characters";
+     private readonly string _serviceToken = ServiceToken();
++    private readonly HeimdallTokenValidator _tokens = new(new CerberusOptions
++    { HeimdallScopeId = Scope, AuthIssuer = "fixture-issuer", AuthAudience = "fixture-audience", AuthValidationSecret = Secret });
+     private readonly PostgreSqlContainer _database = new PostgreSqlBuilder("postgres:18.6-alpine").Build();
+     private readonly Dictionary<string, string?> _previous = new();
+     private WebApplication _identity = null!;
+     private string _ledger = null!;
+     private int _identityCalls;
++    private int _identityUpdateCalls;
+     public int IdentityCalls => Volatile.Read(ref _identityCalls);
++    public int IdentityUpdateCalls => Volatile.Read(ref _identityUpdateCalls);
++    public ConcurrentDictionary<Guid, (string Bearer, string Body)> IdentityUpdates { get; } = new();
+     public ConcurrentDictionary<string, User> Users { get; } = new(StringComparer.OrdinalIgnoreCase);
+     private ConcurrentDictionary<string, Guid> Challenges { get; } = new();
+-    public sealed record User(Guid Id, string Password, bool Mfa = false, bool Deleted = false, bool IdentityUnavailable = false);
++    public sealed record User(Guid Id, string Password, bool Mfa = false, bool Deleted = false, bool IdentityUnavailable = false,
++        string Name = "Fixture Owner", string Email = "fixture@example.test", bool EmailVerified = true);
+ 
+     public async Task InitializeAsync()
+     {
+         await _database.StartAsync();
+         await using (var context = Context()) await context.Database.MigrateAsync();
+         var builder = WebApplication.CreateSlimBuilder();
+         builder.Logging.ClearProviders();
+         _identity = builder.Build();
+         _identity.Use(async (_, next) =>
+         {
+@@ -65,22 +73,50 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
+         _identity.MapPost("/api/scopes/{scope:guid}/persons", (Guid scope, HeimdallRegistration input, HttpContext request) =>
+         {
+             if (scope != Scope || input.Email.StartsWith("missing-", StringComparison.Ordinal)) return Results.StatusCode(404);
+             if (input.Email.StartsWith("forbidden-", StringComparison.Ordinal)) return Results.StatusCode(403);
+             if (request.Request.Headers.Authorization != "Bearer " + _serviceToken) return Results.StatusCode(403);
+             var user = new User(Guid.NewGuid(), input.Password);
+             return Users.TryAdd(input.Email, user) ? Person(user) : Results.StatusCode(409);
+         });
+         _identity.MapGet("/api/persons/{id:guid}", (Guid id) =>
+         {
+-            var user = Users.Values.SingleOrDefault(x => x.Id == id);
+-            return user is null ? Results.StatusCode(404) : user.IdentityUnavailable ? Results.StatusCode(503) : Person(user);
++            lock (Users)
++            {
++                var user = Users.Values.SingleOrDefault(x => x.Id == id);
++                return user is null ? Results.StatusCode(404) : user.IdentityUnavailable ? Results.StatusCode(503) : Person(user);
++            }
++        });
++        _identity.MapPut("/api/persons/{id:guid}", async Task<IResult> (Guid id, JsonElement input, HttpContext request) =>
++        {
++            Interlocked.Increment(ref _identityUpdateCalls);
++            IdentityUpdates[id] = (request.Request.Headers.Authorization.ToString(), input.GetRawText());
++            var bearer = request.Request.Headers.Authorization.ToString();
++            var principal = bearer.StartsWith("Bearer ", StringComparison.Ordinal) ? await _tokens.ValidateAsync(bearer[7..]) : null;
++            if (principal?.FindFirst("id")?.Value != id.ToString() || principal.FindFirst("roleId")?.Value != "3") return Results.StatusCode(403);
++            if (input.EnumerateObject().Count() != 2 || !input.TryGetProperty("name", out var nameValue)
++                || !input.TryGetProperty("email", out var emailValue)) return Results.StatusCode(400);
++            var name = nameValue.GetString()!;
++            var email = emailValue.GetString()!;
++            if (name.StartsWith("provider-", StringComparison.Ordinal) && int.TryParse(name[9..], out var failure))
++                return Results.Json(new { secret = "private-provider-error" }, statusCode: failure);
++            lock (Users)
++            {
++                var pair = Users.SingleOrDefault(x => x.Value.Id == id);
++                if (pair.Value is null || pair.Value.Deleted) return Results.StatusCode(404);
++                if (Users.TryGetValue(email, out var existing) && existing.Id != id) return Results.StatusCode(409);
++                var updated = pair.Value with { Name = name, Email = email,
++                    EmailVerified = pair.Value.EmailVerified && string.Equals(pair.Key, email, StringComparison.OrdinalIgnoreCase) };
++                Users.TryRemove(pair.Key, out _);
++                Users[email] = updated;
++                return name == "response-loss" ? Results.Text("invalid provider response", "application/json") : Person(updated);
++            }
+         });
+         await _identity.StartAsync();
+         var address = _identity.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.Single();
+         _ledger = Directory.CreateTempSubdirectory("cerberus-registration-ledger-").FullName;
+         var values = new Dictionary<string, string>
+         {
+             ["ASPNETCORE_ENVIRONMENT"] = "local",
+             ["CERBERUS_DATA_CONNECTIONSTRING"] = _database.GetConnectionString(),
+             ["CERBERUS_DATA_DATABASETYPE"] = "PostgreSql",
+             ["CERBERUS_HEIMDALL_BASE_URL"] = address,
+@@ -120,18 +156,18 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
+     {
+         await _identity.DisposeAsync();
+         await _database.DisposeAsync();
+         foreach (var (key, value) in _previous) Environment.SetEnvironmentVariable(key, value);
+         Directory.Delete(_ledger, recursive: true);
+     }
+     public static string Token(Guid id, Guid? scope = null) => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,
+         new Dictionary<string, string> { ["id"] = id.ToString(), ["roleId"] = "3", ["scopeId"] = (scope ?? Scope).ToString() }));
+     private static string ServiceToken() => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,
+         new Dictionary<string, string> { ["id"] = Guid.Parse("527a1001-8ef5-4c9b-a565-333333333333").ToString(), ["roleId"] = "2", ["ownedScopeIds"] = Scope.ToString() }));
+-    private static IResult Person(User user) => Envelope(new { id = user.Id, name = "Fixture Owner", email = "fixture@example.test", role = 3, scopeId = Scope, isDeleted = user.Deleted, emailVerified = true, twoFactorEnabled = user.Mfa, ownedScopeIds = Array.Empty<Guid>() });
++    private static IResult Person(User user) => Envelope(new { id = user.Id, name = user.Name, email = user.Email, role = 3, scopeId = Scope, isDeleted = user.Deleted, emailVerified = user.EmailVerified, twoFactorEnabled = user.Mfa, ownedScopeIds = Array.Empty<Guid>() });
+     private static IResult Envelope(object data) => Results.Json(new { success = true, errors = Array.Empty<string>(), messages = Array.Empty<string>(), data });
+     private sealed record LoginInput(string Email, string Password, Guid ScopeId);
+     private sealed record ChallengeInput(string ChallengeToken, string? Code, string? RecoveryCode);
+ }
+ 
+ [CollectionDefinition("Registration host", DisableParallelization = true)]
+ public sealed class RegistrationHostCollection : ICollectionFixture<RegistrationApiFixture>;

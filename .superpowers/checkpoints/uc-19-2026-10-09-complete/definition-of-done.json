@@ -1,0 +1,17 @@
+{
+  "useCase": "UC-19",
+  "pr": 80,
+  "mergeCommit": "1713397fea3deb4ae9d30119e493997eb7943514",
+  "testedHead": "0fc261bedce02663454e2dae163ff9c63c7cd1b2",
+  "issue": "CLOSED",
+  "projectStatus": "Done",
+  "checkedDoD": 9,
+  "remoteBranchDeleted": true,
+  "mergedTreeMatchesTested": true,
+  "primaryFourSHAUnchanged": true,
+  "totalTests": 3589,
+  "lineCoverage": 98.3,
+  "branchCoverage": 91.5,
+  "rulings": 22,
+  "deferredMinors": 2
+}

@@ -1,0 +1,8 @@
+UC20 Gate2/3 verification (actual committed implementation and full-suite evidence):
+Main: owned current-scope trash; unchanged retained content; complete typed stored-link snapshot/detach; only active immediate owned parent structural bumps; one typed operation/entry/queue; exact six public metadata fields/720hours; selected access remains valid. Data116/Command74/HTTP99.
+AF01: strict revision/canonical route/singleheader/noquery/UTF8 and malformed/unknown/duplicate/forged context rejection; exact output; no mutation. Command74+HTTP99.
+AF02: hidden/missing/unselected/revoked/ancestor/terminal/alreadytrashed404 before relevant corruption/stale expected. Data116+HTTP99.
+AF03: actual Heimdall identity, Master/PerProfile handles/current policy/generation/lifecycle/selection, foreign nativeRO+RW403, current native validation before denial, no foreign locks. Data116+HTTP99.
+AF04: optimistic edit/trash one winner; all lock-class expiry checked before conflict; final complete authority/ancestry/lifecycle; new unheld parents409; oldtypedentry409; one-operation retry404/no extension; exhausted/regressed metadata rollback. Actual store races Data116+HTTP99.
+AF05: database/outage/internal cancellation503, caller cancellation propagates; faults after partial target/link/parent/op/entry/queue write roll back and retry; malformed result503 no partial payload. Data116+Command74+HTTP99.
+Gate3: fresh unfiltered coverage.py exit0, all6family counts inspected:313Domain/259Query/125Shared/641Command/1304Data/1236Web=3878; zero failures/skips; all6productionassemblies>=90line,98.3line91.7branch. Native153OSV/322vectors/fourdirections/36helper/23Python/spec107FR55UC29BR/lockedrestore/NuGet/OpenAPI/diff allPASS. Ordinary final review/integrationCI/9DoD still pending.

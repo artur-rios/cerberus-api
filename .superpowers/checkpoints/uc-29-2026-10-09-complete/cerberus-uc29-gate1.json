@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "base": "886cf84fc8deb44388f2a804de3f79197276f81a",
+  "docs": {
+    "docs/requirements/Use Case Specification Document.md": "f6d53e40144002e4bcd6743837f087e198ab9dd6390db770873a7a009eb1765e",
+    "docs/requirements/System Requirements Document.md": "13da10042901f63b49f03193b5f913c110f6654aa71c3e8e199bcf432ee29caf",
+    "docs/requirements/Development Workflow Document.md": "df9a90427132a7006670b1d9c056d8fcf1c02cd5fb871a9c0cff18cecc10fc13",
+    "docs/requirements/Operations & Infrastructure Document.md": "838f79ba742cc45eb371be8601c7f74bfc9fc1797f8ea914056ce887f4bd6592",
+    "docs/requirements/Testing Specification Document.md": "8bf57440bde0df5edbc0b99e1e5dcec8685979e386ac62bcf2d4aebe3303d9fb",
+    "docs/requirements/Technology Stack Document.md": "f517f8508e10f8e9a70ebc441892ae51e93c052f25d49216624068f50173493e",
+    "docs/initial/Business Rules.md": "bfc2e8a53d484441d5c03b9d38f362c328c75bd27ab167e02d5537ec2ad8809b",
+    "docs/security/record-api.md": "9ea4f00b2193a38d4ab784c71f88865cc7a8cf9da4335641de46889cd1160429",
+    "docs/security/folder-api.md": "16e9acf8190cd09a1586ee1dec605193e3281cb9627e9565ffedadc3032e91e0"
+  },
+  "issue": 30,
+  "flows": "main+AF01..05",
+  "requirements": [
+    "FR-CL-01"
+  ],
+  "businessRules": [
+    "BR-05",
+    "BR-06"
+  ],
+  "tasks": 3,
+  "steps": 20,
+  "focus": [
+    "- Selected creation must not attach an owned private member or foreign native recipient item, including record-only routes and mixed direct/inherited collection paths.",
+    "- Authority must remain current through every wait and the INSERT, with natural expiry or typed terminal/scope changes denying before uniqueness or stale metadata leaks.",
+    "- Collection-before-content order must serialize current owner and native recipient writers without foreign-account or upward-chain deadlocks; changed captured or unheld routes require reload.",
+    "- Collection, every initial typed link and every distinct directly affected structural counter must commit together or fully roll back after actual mutations; opaque bytes, times, prior trash and winner state remain exact.",
+    "- A newly created collection must enter complete native rotation inventory without widening selected sessions, inventing usable keys or claiming durable inherited visibility/client qualification."
+  ],
+  "primarySha": {
+    "CONTRIBUTING.md": "e0e4f0c5c8dc7fc35fc30ca7fab3ba291aef40ebeb9a506bd06ec479b17f2f5d",
+    "README.md": "bcfbcfdd4b97a6ba29cebeb864626228c68df4b0a7d353225ec86de641c8e1f8",
+    "docs/requirements/Operations & Infrastructure Document.md": "81024f0962d9d6eddeedfe450231ddba403a31799358b0bfac220245b6368f8b",
+    "CHANGELOG.md": "be6f4973ea26f238bd6752381979d283c5a25ca4a9fa5df319a449d2e5878746"
+  },
+  "stepCountCorrection": "Illustrative checkbox syntax in header was initially counted as a step; actual5+9+6=20 TDD steps, all represented."
+}

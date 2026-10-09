@@ -1,0 +1,8 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc11-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ArturRios.Cerberus.Query.Tests.csproj (in 554 ms).
+  Restored /tmp/cerberus-uc11-worktree/src/Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj (in 556 ms).
+  2 of 4 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc11-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc11-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc11-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+/tmp/cerberus-uc11-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/GetProfileHandlerTests.cs(46,20): error CS0246: The type or namespace name 'GetProfileHandler' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc11-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ArturRios.Cerberus.Query.Tests.csproj]

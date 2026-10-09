@@ -1,0 +1,82 @@
+{
+  "route": "PUT /api/records/{id}",
+  "body": {
+    "required": [
+      "editedAt",
+      "envelope",
+      "expectedRevision"
+    ],
+    "type": "object",
+    "properties": {
+      "expectedRevision": {
+        "type": "integer",
+        "format": "int64"
+      },
+      "envelope": {
+        "$ref": "#/components/schemas/EncryptedEnvelope"
+      },
+      "editedAt": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+    "additionalProperties": false
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "recordId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "revision": {
+        "type": "integer",
+        "format": "int64"
+      },
+      "serverSequence": {
+        "type": "integer",
+        "format": "int64"
+      },
+      "editedAt": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+    "additionalProperties": false
+  },
+  "header": {
+    "name": "X-Cerberus-Vault-Access",
+    "in": "header",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "bodyRequired": null,
+  "statuses": [
+    "200",
+    "400",
+    "401",
+    "403",
+    "404",
+    "409",
+    "413",
+    "503"
+  ],
+  "empty413AdvertisedSchema": {
+    "text/plain": {
+      "schema": {
+        "$ref": "#/components/schemas/ProblemDetails"
+      }
+    },
+    "application/json": {
+      "schema": {
+        "$ref": "#/components/schemas/ProblemDetails"
+      }
+    },
+    "text/json": {
+      "schema": {
+        "$ref": "#/components/schemas/ProblemDetails"
+      }
+    }
+  }
+}

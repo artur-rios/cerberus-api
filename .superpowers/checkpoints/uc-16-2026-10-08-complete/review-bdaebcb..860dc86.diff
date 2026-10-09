@@ -1,0 +1,1465 @@
+# Review package: bdaebcb7e197bb497c2892c053de89b6bab4dc0d..HEAD
+
+## Commits
+860dc86 feat: expose encrypted record creation API
+11010f6 feat: validate encrypted record commands
+cbf3897 feat: persist scoped encrypted record creation
+05b5041 feat: define encrypted record creation contracts
+
+## Files changed
+ CHANGELOG.md                                       |   5 +
+ README.md                                          |   4 +-
+ docs/contracts/openapi.json                        | 289 +++++++++++++++++++++
+ .../Operations & Infrastructure Document.md        |  15 ++
+ docs/security/record-api.md                        |  64 +++++
+ .../plans/2026-10-08-uc-16-create-record.md        |  41 +++
+ .../specs/2026-10-08-uc-16-create-record.md        |  17 ++
+ .../Records/CreateRecordCommand.cs                 |  21 ++
+ .../Records/CreateRecordHandler.cs                 |  32 +++
+ .../Records/CreateRecordOutput.cs                  |  11 +
+ .../Records/CreateRecordValidator.cs               |   8 +
+ .../Records/RecordCreateMessages.cs                |  12 +
+ .../Records/RecordCreateContracts.cs               |  25 ++
+ .../Records/RecordCreateStore.cs                   | 157 +++++++++++
+ .../Controllers/RecordsController.cs               |  36 +++
+ .../ArturRios.Cerberus.WebApi/Startup.cs           |   6 +
+ .../RecordCreateHandlerTests.cs                    |  77 ++++++
+ .../RecordCreateContractTests.cs                   |  79 ++++++
+ .../RecordCreateStoreTests.cs                      | 125 +++++++++
+ .../RecordCreateHttpTests.cs                       | 121 +++++++++
+ 20 files changed, 1143 insertions(+), 2 deletions(-)
+
+## Diff
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 8588b86..b3016f6 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -5,20 +5,25 @@ All notable changes to the Cerberus API are recorded in this file.
+ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
+ [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ 
+ ## [Unreleased]
+ 
+ No release has been tagged yet. Independent review of the encryption protocol was deferred for
+ development into `develop` only; it is still required before any release.
+ 
+ ### Added
+ 
++- Encrypted record creation with owned profile/folder links (UC-16), including new
++  content inside native selected-profile access, atomic parent metadata updates and
++  rollback on failure. See [record API](docs/security/record-api.md) for the request,
++  scope, timestamp and retry rules.
++
+ - Opening profile access with native scoped proofs in Master and PerProfile modes (UC-15): fresh-identity
+   challenge bootstrap, one-use proof consumption and opaque handles restricted to the selected profile.
+   See [profile access API](docs/security/profile-access-api.md) for exact bodies, expiry and retry behavior.
+ 
+ - The specifications: initial notes, business rules, the formal requirements and the use case specification.
+ - The .NET 10 solution scaffold, with typed configuration validation, request byte limits and no-store responses.
+ - PostgreSQL persistence with its initial migration, and durable erasure files and retention leases.
+ - Strict Heimdall token validation and scoped Heimdall adapters with online identity revalidation.
+ - Restore reconciliation that replays erasures before traffic resumes.
+ - Command-line modes to validate configuration, migrate the database and reconcile a restore without starting HTTP.
+diff --git a/README.md b/README.md
+index 527b073..67f1c5c 100644
+--- a/README.md
++++ b/README.md
+@@ -78,21 +78,21 @@ Clone the repository with `git clone https://github.com/artur-rios/cerberus-api.
+ 
+ Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
+ Each use case has one issue; the foundation issue comes first. Every milestone depends on
+ Foundation, with dependencies only on earlier milestones. Counts below are updated as issues close;
+ GitHub milestone pages show live progress. No due dates or labels were assigned.
+ 
+ | Milestone | Delivers | Depends on | Issues | Status |
+ | --- | --- | --- | --- | --- |
+ | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
+ | [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 9 / 9 closed |
+-| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 7 / 26 closed |
++| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 8 / 26 closed |
+ | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
+ | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
+ | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
+ 
+ ## Backlog
+ 
+ ### M-01 — Foundation
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+@@ -116,21 +116,21 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#10](https://github.com/artur-rios/cerberus-api/issues/10) | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | Done |
+ | [#11](https://github.com/artur-rios/cerberus-api/issues/11) | UC-10 — List profiles | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-10-list-profiles) | Done |
+ | [#12](https://github.com/artur-rios/cerberus-api/issues/12) | UC-11 — Get profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-11-get-profile) | Done |
+ | [#13](https://github.com/artur-rios/cerberus-api/issues/13) | UC-12 — Update profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-12-update-profile) | Done |
+ | [#14](https://github.com/artur-rios/cerberus-api/issues/14) | UC-13 — Delete profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-13-delete-profile) | Done |
+ | [#15](https://github.com/artur-rios/cerberus-api/issues/15) | UC-14 — Set profile associations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-14-set-profile-associations) | Done |
+ | [#16](https://github.com/artur-rios/cerberus-api/issues/16) | UC-15 — Open profile access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-15-open-profile-access) | Done |
+-| [#17](https://github.com/artur-rios/cerberus-api/issues/17) | UC-16 — Create record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-16-create-record) | Todo |
++| [#17](https://github.com/artur-rios/cerberus-api/issues/17) | UC-16 — Create record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-16-create-record) | Done |
+ | [#18](https://github.com/artur-rios/cerberus-api/issues/18) | UC-17 — List records | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-17-list-records) | Todo |
+ | [#19](https://github.com/artur-rios/cerberus-api/issues/19) | UC-18 — Get record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-18-get-record) | Todo |
+ | [#20](https://github.com/artur-rios/cerberus-api/issues/20) | UC-19 — Update record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-19-update-record) | Todo |
+ | [#21](https://github.com/artur-rios/cerberus-api/issues/21) | UC-20 — Delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-20-delete-record) | Todo |
+ | [#22](https://github.com/artur-rios/cerberus-api/issues/22) | UC-21 — Move record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-21-move-record) | Todo |
+ | [#23](https://github.com/artur-rios/cerberus-api/issues/23) | UC-22 — Permanently delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-22-permanently-delete-record) | Todo |
+ | [#24](https://github.com/artur-rios/cerberus-api/issues/24) | UC-23 — Create folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-23-create-folder) | Todo |
+ | [#25](https://github.com/artur-rios/cerberus-api/issues/25) | UC-24 — List folders | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-24-list-folders) | Todo |
+ | [#26](https://github.com/artur-rios/cerberus-api/issues/26) | UC-25 — Get folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-25-get-folder) | Todo |
+ | [#27](https://github.com/artur-rios/cerberus-api/issues/27) | UC-26 — Update folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-26-update-folder) | Todo |
+diff --git a/docs/contracts/openapi.json b/docs/contracts/openapi.json
+index e4e2229..45a0f9b 100644
+--- a/docs/contracts/openapi.json
++++ b/docs/contracts/openapi.json
+@@ -2327,20 +2327,217 @@
+               "text/json": {
+                 "schema": {
+                   "$ref": "#/components/schemas/ProcessOutput"
+                 }
+               }
+             }
+           }
+         }
+       }
+     },
++    "/api/records": {
++      "post": {
++        "tags": [
++          "Records"
++        ],
++        "parameters": [
++          {
++            "name": "X-Cerberus-Vault-Access",
++            "in": "header",
++            "schema": {
++              "type": "string"
++            }
++          }
++        ],
++        "requestBody": {
++          "content": {
++            "application/json": {
++              "schema": {
++                "$ref": "#/components/schemas/CreateRecordCommand"
++              }
++            },
++            "text/json": {
++              "schema": {
++                "$ref": "#/components/schemas/CreateRecordCommand"
++              }
++            },
++            "application/*+json": {
++              "schema": {
++                "$ref": "#/components/schemas/CreateRecordCommand"
++              }
++            }
++          }
++        },
++        "responses": {
++          "201": {
++            "description": "Created",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/CreateRecordOutputDataOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/CreateRecordOutputDataOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/CreateRecordOutputDataOutput"
++                }
++              }
++            }
++          },
++          "400": {
++            "description": "Bad Request",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "401": {
++            "description": "Unauthorized",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "403": {
++            "description": "Forbidden",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "404": {
++            "description": "Not Found",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "409": {
++            "description": "Conflict",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "413": {
++            "description": "Content Too Large",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProblemDetails"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProblemDetails"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProblemDetails"
++                }
++              }
++            }
++          },
++          "503": {
++            "description": "Service Unavailable",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          }
++        }
++      }
++    },
+     "/api/vault/protection": {
+       "post": {
+         "tags": [
+           "Vault"
+         ],
+         "requestBody": {
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/InitializeVaultCommand"
+@@ -3937,20 +4134,109 @@
+           "success": {
+             "type": "boolean",
+             "readOnly": true
+           },
+           "data": {
+             "$ref": "#/components/schemas/CreateProfileOutput"
+           }
+         },
+         "additionalProperties": false
+       },
++      "CreateRecordCommand": {
++        "required": [
++          "editedAt",
++          "envelope",
++          "profileIds",
++          "recordId"
++        ],
++        "type": "object",
++        "properties": {
++          "recordId": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "envelope": {
++            "$ref": "#/components/schemas/EncryptedEnvelope"
++          },
++          "editedAt": {
++            "type": "string",
++            "format": "date-time"
++          },
++          "profileIds": {
++            "type": "array",
++            "items": {
++              "type": "string",
++              "format": "uuid"
++            },
++            "nullable": true
++          },
++          "folderId": {
++            "type": "string",
++            "format": "uuid",
++            "nullable": true
++          }
++        },
++        "additionalProperties": false
++      },
++      "CreateRecordOutput": {
++        "type": "object",
++        "properties": {
++          "recordId": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "revision": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "serverSequence": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "editedAt": {
++            "type": "string",
++            "format": "date-time"
++          }
++        },
++        "additionalProperties": false
++      },
++      "CreateRecordOutputDataOutput": {
++        "type": "object",
++        "properties": {
++          "messages": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "errors": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "timestamp": {
++            "type": "string",
++            "format": "date-time"
++          },
++          "success": {
++            "type": "boolean",
++            "readOnly": true
++          },
++          "data": {
++            "$ref": "#/components/schemas/CreateRecordOutput"
++          }
++        },
++        "additionalProperties": false
++      },
+       "DeleteProfileCommand": {
+         "type": "object",
+         "properties": {
+           "expectedRevision": {
+             "type": "integer",
+             "format": "int64"
+           }
+         },
+         "additionalProperties": false
+       },
+@@ -5568,15 +5854,18 @@
+     },
+     {
+       "name": "Auth"
+     },
+     {
+       "name": "Identity"
+     },
+     {
+       "name": "Profiles"
+     },
++    {
++      "name": "Records"
++    },
+     {
+       "name": "Vault"
+     }
+   ]
+ }
+diff --git a/docs/requirements/Operations & Infrastructure Document.md b/docs/requirements/Operations & Infrastructure Document.md
+index 1c481a6..26af599 100644
+--- a/docs/requirements/Operations & Infrastructure Document.md	
++++ b/docs/requirements/Operations & Infrastructure Document.md	
+@@ -360,20 +360,35 @@ UC41 reuses the recovery-outcome table and atomic transition with current accoun
+ session authorization and the old unlock key. No additional migration is needed.
+ New refresh requests lock account then session and recheck identity/challenge/session
+ expiry at statement time; failure rolls back consumption/wrappers/counters/outcome.
+ Exact completed retries under fresh current identity return historical counters even
+ when the original handle is now stale; they perform no new operation. A changed
+ purpose/body conflicts under the same account/idempotency key. The named fresh
+ recovery-material read creates no session and consumes no credential. Secrets remain
+ client-held; independent protocol/client approvals and strict release gate persist.
+ 
+ 
++### Encrypted record creation (UC16)
++
++`POST /api/records` uses current Heimdall identity and opaque vault access to create
++owned native ciphertext, with required `recordId`, `envelope`, `editedAt`, `profileIds`
++and optional nullable `folderId`. Account-wide access permits owned active links;
++selected access requires exactly its selected profile and an already permitted owned
++folder subtree. Foreign collection grants do not confer creation ownership.
++Creation, direct links and parent structural revision/sequence updates are atomic,
++preserving existing ciphertext, wrappers and edit times. Access/lifecycle is checked
++after waits and at statement time. UTC timestamps are floored to microseconds before
++binding, with minimum 10 ticks. No schema migration or dependency update is required.
++New records enter the complete protection-rotation inventory. The separate typed
++terminal-erasure repair remains required before physical purge. See the
++[record API](../security/record-api.md) for exact scope, fields, errors and retries.
++
+ ### Profile creation and protection inventory (UC09)
+ 
+ `POST /api/profiles` requires current Heimdall identity and a current account-wide
+ `X-Cerberus-Vault-Access` handle. Ownership comes from the identity binding. Client
+ public IDs are chosen before encryption; duplicate or permanently reserved IDs
+ conflict. Required relationships are explicit arrays; nonempty IDs resolve to owned records/folders
+ and owned or currently granted collections with nonrevealing404 for hidden targets.
+ 
+ Input fields are `profileId`, `envelope`, `keyWrappers`, `editedAt`, `recordIds`,
+ `folderIds`, `collectionIds`. Output contains only profile ID, initial revision1,
+diff --git a/docs/security/record-api.md b/docs/security/record-api.md
+new file mode 100644
+index 0000000..dd03932
+--- /dev/null
++++ b/docs/security/record-api.md
+@@ -0,0 +1,64 @@
++# Create encrypted records (UC16)
++
++`POST /api/records` requires a current Heimdall bearer identity and one canonical
++`X-Cerberus-Vault-Access` opaque handle. The server derives ownership from that
++identity. It accepts strict UTF-8 JSON without a BOM, compression, query parameters,
++duplicate properties, unknown properties, numeric strings or alternate property
++casing. Responses use `Cache-Control: no-store`.
++
++The required body fields are `recordId`, `envelope`, `editedAt` and `profileIds`.
++`folderId` is optional and may be null. Public IDs use canonical lowercase UUIDs;
++profile IDs must be nonzero and distinct. The envelope must use the native
++`cerberus-content-v1` format with initial content epoch 1 and canonical unpadded
++base64url fields. Choose the public record ID before encrypting.
++
++The encrypted payload contains the name and freeform or template-defined fields.
++Clients enforce name and field requirements, including text, numeric, boolean and
++hidden-text types. The server cannot inspect those values and accepts no plaintext
++name, fields or template ID alongside the envelope. Collection membership is handled
++by its separate use case; it is not a creation-body field.
++
++Account-wide access permits no profile links or multiple owned active profile links,
++and an optional owned active folder. A selected-profile handle permits creating new
++owned content only when `profileIds` contains exactly the selected profile. An
++optional folder must already be directly linked to that profile or descend from
++one of its directly linked, owned active folders. All ancestors must remain owned,
++active and nonterminal. A grant to another owner's collection, including a write
++grant, does not permit creating content for that owner.
++
++Success is `201` with `record_created` and exactly four data fields: `recordId`,
++`revision` (1), `serverSequence` and `editedAt`. The edit time must have UTC offset
++zero and be at least `0001-01-01T00:00:00.000001Z`; the server floors it to microseconds
++before PostgreSQL binding, including dates before 2000. Sequence gaps are valid.
++
++Creation atomically inserts the record and direct profile links. Each specified
++parent profile and the optional parent folder advances its structural revision,
++server sequence and concurrency stamp. Existing ciphertext, key wrappers, edit times
++and links remain intact. Clients reload parent metadata after creation. No expected
++parent revision is needed for this additive operation; an operation replacing an
++existing association set must still submit its current expected revision.
++
++| Status | Meaning |
++| --- | --- |
++| 400 | Invalid body, envelope, IDs, timestamp, header or query |
++| 401 | Missing/invalid current identity or missing vault access |
++| 403 | Expired/revoked/stale access, invalid selection, or an empty profile set under selected access |
++| 404 | Missing, foreign, trashed, terminal or out-of-selection relationship/account |
++| 409 | Record ID already retained/reserved, exhausted revision or sequence |
++| 413 | Body exceeds the common configured limit; response body is empty |
++| 503 | Identity/persistence unavailable or corrupt stored metadata/ancestry |
++
++The transaction locks the account, session, owned target profiles in public-ID order
++and then the owned folder ancestry. It rechecks access after lock waits and checks
++exclusive expiry, current policy/generation and lifecycle at database statement time
++in the final insert. Duplicate-ID races have one winner. A link or metadata failure
++rolls back all record, link and parent changes; retrying the same ID after a failed
++transaction can succeed. If a successful response is lost, a retry with that ID
++conflicts and preserves the original record; do not silently invent a new ID.
++
++New records participate in the complete protection-rotation inventory, including
++retained trash. The existing global terminal-ID reservation is conservative across
++resource kinds until the separately required typed-erasure repair before physical
++purge. This endpoint does not perform physical purge or repair that reservation.
++Independent protocol-security and real-client approvals remain pending and required
++before release; development tests do not constitute those approvals.
+diff --git a/docs/superpowers/plans/2026-10-08-uc-16-create-record.md b/docs/superpowers/plans/2026-10-08-uc-16-create-record.md
+new file mode 100644
+index 0000000..f5ca7d6
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-08-uc-16-create-record.md
+@@ -0,0 +1,41 @@
++# UC16 Create Record Implementation Plan
++> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
++Goal: create only client-encrypted owned records with current permitted folder/profile relationships, returning four public metadata fields.
++Spec: docs/superpowers/specs/2026-10-08-uc-16-create-record.md.
++Global: .NET10/PG18.6/current native envelopes, no new dependencies/schema; preserve user checkout; no raw vault secrets/template plaintext; UTC min10ticks and floorµs beforebinding, safe counters; account→session→ownedprofiles→ownedfolderchain locks; statement-time authorization afterwaits; one issue17/branch/PR, fullunfiltered>=90line0fail0skip; onefreshordinaryreview/oneTDDImportantfixpass; exactheadlatestCI/MERGEABLE/CLEAN normalmerge; independent approvals remain development-only deferred and release-gated. Existing batch authorization replaces repeated stage menus, not verification.
++Review Focus: selected handle creation must attach only new owned content inside its exact profile and an already permitted folder subtree, never broaden another profile or foreign recipient-owned resource; final expiry after all waits/validation; duplicate-ID winner and rollback of record/links/parentmetadata; bad/cyclic folder ancestry failclosed; record creation updates only intended parent structural revisions/sequences, preserving ciphertext/EditedAt and existing links; safe timestamps including min/pre2000; global terminal collision remains required beforephysicalpurge and must not be claimed solved here.
++
++### Task 1: Record create contracts
++
++Create Domain/Records/RecordCreateContracts.cs and tests/Domain/.../RecordCreateContractTests.cs. Required strict RecordCreateInput(Guid RecordId,EncryptedEnvelope Envelope,DateTimeOffset EditedAt,Guid[] ProfileIds,Guid? FolderId=null); IsValid nonzeroID/nativevalid initialepoch1/UTCticks>=10/profileIDs nonnullunique/nonzero/foldernullornonzero. ProfileIdmay equalRecordId acrosskind. RecordCreateRequest(Guid Actor,string AccessVerifier,RecordCreateInput Input); RecordCreateDetails(Guid RecordId,long Revision,long ServerSequence,DateTimeOffset EditedAt); IRecordCreateStore.CreateAsync(request,ct). Required body members recordId/envelope/editedAt/profileIds. Tests beforecode: validempty/multiplerelationships, nativeboundary/time/pre2000, required/unknown/number/case/duplicatebody, malformed fields/canonicalprotocol. No property-holder gettertests. GREENwholeDomain; commit.
++Interfaces: these contracts feed Task2 persistence andTask3 commands; no new entity schema.
++
++- [x] Write the specified failing tests, run the focused project and read the expected RED output.
++- [x] Implement only this task, run the named whole-family tests, read zero failures/skips and commit.
++
++### Task 2: Atomic scoped record creation
++
++Create Data/Records/RecordCreateStore.cs plus focusedpartial scopehelper ifneeded. Tests Data/RecordCreateStoreTests.cs native PG RED beforecode. Accountwide empty/multiprofile/optional folder; currentselected onlysingletonselection, mandatorynewdirectlink; optionalalreadyselectedfolderorownedactive descendant; rejectemptyselected403/otherprofile404/outofscopefolder404/foreign folder orprofiles404 inclsharedRW/RO. Verify trustedowner, initialrevision1/globalSeq, ciphertextbytes/timestampµs, actualprofilelinks/getprojection, intendedparentprofile/foldermetadata+seq only/EditedAt unchanged, account/protection/sessions/otherresources byte-for-byte unchanged. Hiddenaccount/target/trash/terminal; currentidentityActor0/malformedinput/deadDB/ct; expiredrevokedpolicygen/danglingforeignselected403. Lockaccount→session→profilesorderedGUID→folderancestors (all own); iterative sameowneractivefolderancestry withvisitedinternalIDs, corruptcycle503 andhiddenancestor404. Parentpositive safecounters corrupt503/max409. Existing/trash/terminalrecordID409 andcrossowner concurrentduplicateonewinner; activeotherkind sameGUIDallowed. Preserve existing conservativeglobalterminalreservation until beforepurge repair, no silentcrosskinddeletion. No new schema.
++FinalconditionalSQL insert checks currentownedactiveaccount/session/policy/gen/lifetime/selection/profile+folderstate at statement_timestamp afterwaits. Insertrecord +directlinks +atomicparentmetadata increments/stamps/globalnextval preservingcontent/EditedAt; no replacements. Verify all metadata beforecommit; unexpectedprojection/seqregression/link/parentwritefailure503rollbacksall/retrysameIDworks; globalSeqexhaust409. Expiry afteraccount/session/profile/folderlockwaits andimmediatelybeforeinsert, terminalreservationatboundary; concurrentcreates/association-set/trash winner without lostlinks. Tests mayusecontrolledDBinterceptors/triggerfixtures, no toycrypto. GREENwholeData; commit.
++Interfaces: implementsTask1IRecordCreateStore; consumedbyTask3. Scopehelper remains internal and used only for thisadmission; newhelper output ownedProfile rows/currentfolderchain/selectedscope and stableerror, not rawclientIDs trusted.
++
++- [x] Write the specified failing tests, run the focused project and read the expected RED output.
++- [x] Implement only this task, run the named whole-family tests, read zero failures/skips and commit.
++
++### Task 3: Strict record command boundary
++
++Create Command/Records/CreateRecordCommand/Validator/Handler/Output/RecordCreateMessages.cs and RecordCreateHandlerTests.cs. Strict requiredbody4fields, optionalnullfolder; trustedinternalActor/VaultAccess SetContext(actor,access). ValidatorToInput.IsValid, handlerActor401/missinghandle401/malformed400/hashonlystore; propagatect. Errorallowlist400/401/403/404/409/503unknown→503/error-with-data neverpayload; null/corruptoutputwrongID/revnot1/sequnsafe/timewrong offset/default/notnormalized503. ValidresultonlyRecordId/Revision/ServerSequence/EditedAt and record_created201. TestsREDrequiredwire/unknownownership/plaintextforge, validtrustedactor/hash/input/ct/4fieldshapes, allerrors/corruptresults/timeprecision/pre2000/statusmap/cancellation. GREENwholeCommand; commit.
++Interfaces: consumesTask1contracts/Task2store; Task4explicitDI andcontroller.
++
++- [x] Write the specified failing tests, run the focused project and read the expected RED output.
++- [x] Implement only this task, run the named whole-family tests, read zero failures/skips and commit.
++
++### Task 4: Actual HTTP and complete delivery
++
++Create RecordsController POST/api/records [VaultProofBody] forstrictboundedUTF8/noBOM/compression, noquery/singlecanonicalX-Cerberus-Vault-Access. Explicitstore/validator/handlerDI inStartup. ActualPG/HeimdallHTTP testsRED beforecontroller: encryptedfreeform/templateopaqueonly servermetadata, accountwidezero/multipleownprofiles/folder, nativeUC15newselectedhandle createsonlyinsidechosenprofile/folderdescendants, actualprofileget/listshowsnewtypedID/parentrevision, foreign/shared scope denial, IDconflict/trashterminal/concurrency/rollbackretry, expiry/revocation/lifecycle/provideridentity/no-store. Strict requiredmissing/null/duplicate/unknown/case/numericstring/nativebad/time/bodyUTF8/BOM/compression/charset/oversize413/headeremptyduplicate/missing/forgedownership orplaintextnames400; no changes on failures. Prove existingcomplete rotation inventory includes newlyHTTPcreatedrecord and preservescontent/nativebindings; no cryptoapprovalclaim. GREENfocusedHTTP. Truthfulops/recordAPI/docs/changelog/READMEUC16DoneM03eight/actualOpenAPIrequired4/optionalnullablefolder/output4/statuses audit, helpers23/spec/drift/diff/lockedrestore/vulnerability+nativecorpus checks and fullunfiltered6familycoverage>=90line0fail0skip; commit.
++Onefreshordinarywholebranchreview, adjudicateALLdeclinedscopes reason/cost, oneTDDCriticalImportantfixpass+fullsuite ifneeded, minorsledger. PushPRissueTesting verified explicitGraphQL; exactheadlatestbranch-policy/test/dockerSUCCESS+MERGEABLE+CLEAN normalmatchheadmerge, freshCloseDoD/Done/remoteabsent/fetchtestedtree/userSHA/archiveownworkspace; continueUC17.
++
++- [x] Write the specified failing tests, run the focused project and read the expected RED output.
++- [x] Implement only this task, run the named whole-family tests, read zero failures/skips and commit.
++
++Verification: dotnet test tests/Domain/ArturRios.Cerberus.Domain.Tests; dotnet test tests/Infrastructure/ArturRios.Cerberus.Data.Tests; dotnet test tests/Application/ArturRios.Cerberus.Command.Tests; dotnet test tests/Presentation/ArturRios.Cerberus.WebApi.Tests --filter FullyQualifiedName~RecordCreateHttpTests. Final python3 scripts/coverage.py unfiltered; helper/spec/openapi/diff/lockedrestore/vulnaudit/native. Serialize shared .NET builds (OpenAPI/test race observedUC15); use currentqualifiednativecache /tmp/cerberus-protocol.fCQIq1. Taskdone mayauditjust-completed unchanged actualwholefamily log aftercommit ratherthanrepeatunchanged tests. Fresh base exactUC15tested2549tree baseline neednotrerun beforeproductchanges.
+diff --git a/docs/superpowers/specs/2026-10-08-uc-16-create-record.md b/docs/superpowers/specs/2026-10-08-uc-16-create-record.md
+new file mode 100644
+index 0000000..ac66b49
+--- /dev/null
++++ b/docs/superpowers/specs/2026-10-08-uc-16-create-record.md
+@@ -0,0 +1,17 @@
++# UC16 create record design
++
++Intent: issue17 UC16, FR-RC-01, BR08/09; create only client-encrypted account-owned records, validate permitted relationships and return public metadata. All AF01–05 must be covered. Existing unattended batch authorization replaces repeated stage menus, not tests/review/CI. Independent protocol/client approvals remain development-only deferred/release-gated.
++
++Preferred design uses existing VaultRecord/FolderId/ProfileRecord schema and native EncryptedEnvelope, no new migrations/dependencies/crypto/templates. POST /api/records strict required recordId/envelope/editedAt/profileIds plus optional nullable folderId. Only metadata output recordId/revision/serverSequence/editedAt, initial revision1 and global safe sequence; normalizeUTCtimestamps down to microseconds beforePGbinding inclpre2000, minimum10ticks. GUIDs canonical atHTTP, arraysunique/nonzero; initialresourceepoch1. Owner from currentidentity/account, neverbody. Encrypted name, text/numeric/boolean/hidden-text and template requirements remain caller-side inside ciphertext.
++
++Account-wide current opaque access can create unlinked records or link to multiple own active profiles and optional own active folder. Selected access can create NEW owned content only inside its own selection: profileIds must contain exactly its selected profile, optional folder must already lie in that selection's direct folder/owned descendant scope. Empty selectedprofileIds403; otherprofile/outofscopefolder404; no existing content attached to wider scope. New directly linked record is then visible inside selection. Recipients cannot create resources for another owner, even with write grants; collection membership belongs its specified later UC. Alternative account-wide-only recordcreation would prevent standalone profile-password users from creating content; accepting arbitrary profile IDs with a selected handle would broaden authority.
++
++TX account→session→ownedprofile rows publicGUIDorder→ownedfolder/ancestors. Current active account/nonterminal and valid session policy/generation/lifetime/selected-current-active-profile mandatory. Account lock serializes all ownedwriters; do not lock foreign owners. Resolve onlycurrent owned active targets, preserve hidden404 before malformedstoredcounter/disclosure. Optionalfolderancestor walk checks sameowner/active/nonterminal at eachstep, detects cycliccorrupt ancestry failclosed503; no client-supplied internalIDs. Recheck session afterwaits beforetarget/duplicate details. Parentcounterpositive safe, saturation409; reserved recordID(existing/trash/terminal)409, concurrentduplicatesonewinner. Existing globalResourceId-only terminal collision remains separate required fix before ANYphysicalpurge; conservatively reserve existingterminal IDs until repaired, active IDs of different kinds remain permitted.
++
++Final conditionalSQL insert rechecks account/session/currentpolicygen/selectedscope/folder+profilelifecycle at statement_timestamp (exclusiveexpiry). Insert record and direct profilelinks, increment affectedprofile revisions/sequences/stamps without touching ciphertext/wrappers/EditedAt, likewise optionalparentfolderstructuralrevision/sequence, inoneTX. No replace-existing sets. No parent expectedrevisions required because creation is an additive commutative operation under ownership locks, not replacement of a cached set; existing expectedrevision writers observe metadata advances and conflict normally. No extra metadata for profiles affected only through dynamicdescendants: directlinks change onlyspecifiedprofiles, future recordlist/sync must evaluate currentcontainment. Any failure afterinsert/link/parentupdate rollsback all; unique/exhaustedsequence409, corruptpersistence503, retry creates once. No accesssession/challenge changes.
++
++Failuremap AF01 malformedstrictbody/relationships/envelope/header/route400 (oversizecommon413); AF02 missing/foreign/trashed/terminalrelationship/account404; AF03 missing/invalididentity401/provider503, missinghandle401/malformedhandle400/revokedexpiredstalegenerationpolicy403/invalidselectedscope403, outofselectiontarget404; AF04 duplicate/reservedID/saturatedcounter409 and preservewinningstate; AF05 dependency/corruptstate503 atomicrollback. No plaintext or handle returned, no-storeallresponses.
++
++Tests: domain requiredwire/native/time/typedrelationships; actualPG create/unlinked/multipleprofiles/folder/selecteddirect+descendant/ownerbindings, scoped escapes/nonowned/shared RO/RW denial, counter/ID conflicts, concurrency, terminal/trash, expiryafteraccount/session/profile/folderwaits+immediatepreinsert, finalterminalboundary, profilelink/parentmetadata failure rollback/retry, safe timestampmin/precision/pre2000, existing ciphertext/pins/sessions unchanged. ActualHeimdallHTTP strictparser/headers/query/body/no-store/identity, current newselectedUC15handle creation/scope + actualprofileget/listlinks, existingcomplete rotation inventories include newlycreatedrecord. Fullall6familiescoverage>=90line0fail0skip/helpers/spec/OpenAPI/native/dependency checks; ONEfreshordinaryreview/oneTDDImportantfixpass, exactheadlatestrequiredCI normalmergeDoD thenUC17.
++
++Gate1 selfcheck: FRRC01exists, BR08/09freshlyread, all5AF mapped; preferredselectedcreationrules and wire/transactions explicit; no alternativeleftundecided. Exact interfaces and iterative ownedfolder ancestry admission contract are recorded in the four-task test-first plan. No implementation begun. Gate1 complete under existing unattended authorization; create isolated branch only after UC15 integration DoD.
+diff --git a/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordCommand.cs b/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordCommand.cs
+new file mode 100644
+index 0000000..662394b
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordCommand.cs
+@@ -0,0 +1,21 @@
++using System.Text.Json.Serialization;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Records;
++using ArturRios.Mediator.Command;
++
++namespace ArturRios.Cerberus.Command.Records;
++
++[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
++[JsonNumberHandling(JsonNumberHandling.Strict)]
++public sealed class CreateRecordCommand : BaseCommand
++{
++    [JsonRequired] public Guid RecordId { get; set; }
++    [JsonRequired] public EncryptedEnvelope Envelope { get; set; } = null!;
++    [JsonRequired] public DateTimeOffset EditedAt { get; set; }
++    [JsonRequired] public Guid[] ProfileIds { get; set; } = null!;
++    public Guid? FolderId { get; set; }
++    internal Guid Actor { get; private set; }
++    internal string? VaultAccess { get; private set; }
++    public void SetContext(Guid actor, string? access) { Actor = actor; VaultAccess = access; }
++    public RecordCreateInput ToInput() => new(RecordId, Envelope, EditedAt, ProfileIds, FolderId);
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordHandler.cs b/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordHandler.cs
+new file mode 100644
+index 0000000..ac343e8
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordHandler.cs
+@@ -0,0 +1,32 @@
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.Domain.Records;
++using ArturRios.Mediator.Command.Interfaces;
++using ArturRios.Output;
++using FluentValidation;
++
++namespace ArturRios.Cerberus.Command.Records;
++
++public sealed class CreateRecordHandler(IValidator<CreateRecordCommand> validator, IRecordCreateStore store)
++    : ICommandHandlerAsync<CreateRecordCommand, CreateRecordOutput>
++{
++    public async Task<DataOutput<CreateRecordOutput?>> HandleAsync(CreateRecordCommand command, CancellationToken cancellationToken = default)
++    {
++        cancellationToken.ThrowIfCancellationRequested();
++        var output = DataOutput<CreateRecordOutput?>.New;
++        if (command.Actor == Guid.Empty) return output.WithError("authentication_required");
++        if (command.VaultAccess is null) return output.WithError("vault_access_required");
++        if (!OpaqueAccessHandle.TryHash(command.VaultAccess, out var verifier)
++            || !(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
++        var result = await store.CreateAsync(new(command.Actor, verifier, command.ToInput()), cancellationToken);
++        if (result?.Error is not null) return output.WithError(RecordCreateMessages.SafeError(result.Error));
++        var data = result?.Data;
++        var expectedTime = command.EditedAt.AddTicks(-(command.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
++        if (data is null || data.RecordId != command.RecordId || data.Revision != 1
++            || data.ServerSequence is <= 0 or > ProtocolBinary.MaxInteger || data.EditedAt.Offset != TimeSpan.Zero
++            || data.EditedAt.Ticks < TimeSpan.TicksPerMicrosecond || data.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond != 0
++            || data.EditedAt != expectedTime) return output.WithError("persistence_unavailable");
++        return output.WithData(new CreateRecordOutput { RecordId = data.RecordId, Revision = data.Revision,
++            ServerSequence = data.ServerSequence, EditedAt = data.EditedAt }).WithMessage("record_created");
++    }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordOutput.cs b/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordOutput.cs
+new file mode 100644
+index 0000000..267656e
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordOutput.cs
+@@ -0,0 +1,11 @@
++using ArturRios.Mediator.Command;
++
++namespace ArturRios.Cerberus.Command.Records;
++
++public sealed class CreateRecordOutput : CommandOutput
++{
++    public Guid RecordId { get; set; }
++    public long Revision { get; set; }
++    public long ServerSequence { get; set; }
++    public DateTimeOffset EditedAt { get; set; }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordValidator.cs b/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordValidator.cs
+new file mode 100644
+index 0000000..07ee7fc
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Records/CreateRecordValidator.cs
+@@ -0,0 +1,8 @@
++using FluentValidation;
++
++namespace ArturRios.Cerberus.Command.Records;
++
++public sealed class CreateRecordValidator : AbstractValidator<CreateRecordCommand>
++{
++    public CreateRecordValidator() => RuleFor(x => x).Must(x => x.ToInput().IsValid()).WithMessage("validation_failed");
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Records/RecordCreateMessages.cs b/src/Application/ArturRios.Cerberus.Command/Records/RecordCreateMessages.cs
+new file mode 100644
+index 0000000..c7aa88e
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Records/RecordCreateMessages.cs
+@@ -0,0 +1,12 @@
++namespace ArturRios.Cerberus.Command.Records;
++
++public static class RecordCreateMessages
++{
++    public static readonly IReadOnlyDictionary<string, int> StatusCodes = new Dictionary<string, int>
++    {
++        ["record_created"] = 201, ["authentication_required"] = 401, ["vault_access_required"] = 401,
++        ["vault_access_denied"] = 403, ["validation_failed"] = 400, ["not_found"] = 404,
++        ["revision_conflict"] = 409, ["persistence_unavailable"] = 503, ["identity_unavailable"] = 503
++    };
++    internal static string SafeError(string error) => StatusCodes.TryGetValue(error, out var status) && status >= 400 ? error : "persistence_unavailable";
++}
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Records/RecordCreateContracts.cs b/src/Domain/ArturRios.Cerberus.Domain/Records/RecordCreateContracts.cs
+new file mode 100644
+index 0000000..4e2c0ae
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Records/RecordCreateContracts.cs
+@@ -0,0 +1,25 @@
++using System.Text.Json.Serialization;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Cerberus.Domain.Protection;
++namespace ArturRios.Cerberus.Domain.Records;
++
++[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
++[JsonNumberHandling(JsonNumberHandling.Strict)]
++public sealed record RecordCreateInput(
++    [property:JsonRequired] Guid RecordId,
++    [property:JsonRequired] EncryptedEnvelope Envelope,
++    [property:JsonRequired] DateTimeOffset EditedAt,
++    [property:JsonRequired] Guid[] ProfileIds,
++    Guid? FolderId=null)
++{
++    public bool IsValid()=>RecordId!=Guid.Empty && Envelope?.IsValid()==true && Envelope.KeyEpoch==1
++        && EditedAt.Offset==TimeSpan.Zero && EditedAt.Ticks>=TimeSpan.TicksPerMicrosecond
++        && ProfileAssociationInput.ValidIds(ProfileIds) && FolderId!=Guid.Empty;
++}
++public sealed record RecordCreateRequest(Guid Actor,string AccessVerifier,RecordCreateInput Input);
++public sealed record RecordCreateDetails(Guid RecordId,long Revision,long ServerSequence,DateTimeOffset EditedAt);
++public interface IRecordCreateStore
++{
++    Task<VaultResult<RecordCreateDetails>> CreateAsync(RecordCreateRequest request,CancellationToken cancellationToken);
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordCreateStore.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordCreateStore.cs
+new file mode 100644
+index 0000000..9a7ee49
+--- /dev/null
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordCreateStore.cs
+@@ -0,0 +1,157 @@
++using System.Data.Common;
++using System.Text.Json;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.Domain.Records;
++using ArturRios.Cerberus.Domain.Resources;
++using Microsoft.EntityFrameworkCore;
++using Npgsql;
++
++namespace ArturRios.Cerberus.Data.Records;
++
++public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) : IRecordCreateStore
++{
++    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
++
++    public async Task<VaultResult<RecordCreateDetails>> CreateAsync(RecordCreateRequest request, CancellationToken ct)
++    {
++        ct.ThrowIfCancellationRequested();
++        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
++        var input = request.Input;
++        if (input?.IsValid() != true) return new(Error: "validation_failed");
++        try
++        {
++            await using var db = await factory.CreateDbContextAsync(ct);
++            await using var tx = await db.Database.BeginTransactionAsync(ct);
++            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", ct);
++            var account = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.HeimdallPublicId == request.Actor, ct);
++            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => x.ResourceId == account.PublicId, ct))
++                return new(Error: "not_found");
++            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
++            var session = await db.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.HandleVerifier == request.AccessVerifier, ct);
++            async Task<bool> Permitted()
++            {
++                var now = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
++                return session is not null && !session.Revoked && session.PolicyRevision > 0 && session.RevocationGeneration > 0
++                    && session.PolicyRevision == account.PolicyRevision && session.RevocationGeneration == account.RevocationGeneration
++                    && session.IssuedAt <= now && (account.RenewalEnabled ? session.ExpiresAt > now : session.ExpiresAt is null)
++                    && (session.ProfileId is null || await db.Profiles.AnyAsync(p => p.Id == session.ProfileId && p.AccountId == account.Id
++                        && p.DeletedAt == null && !db.TerminalErasures.Any(e => e.ResourceId == p.PublicId), ct));
++            }
++            if (!await Permitted()) return new(Error: "vault_access_denied");
++            if (session!.ProfileId is not null && input.ProfileIds.Length == 0) return new(Error: "vault_access_denied");
++            var profiles = new List<Profile>();
++            foreach (var id in input.ProfileIds.Order())
++            {
++                await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.profile WHERE account_id={account.Id} AND public_id={id} FOR UPDATE", ct);
++                if (!await Permitted()) return new(Error: "vault_access_denied");
++                var profile = await db.Profiles.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.PublicId == id, ct);
++                if (profile is null || profile.DeletedAt is not null || await db.TerminalErasures.AnyAsync(x => x.ResourceId == profile.PublicId, ct)
++                    || session.ProfileId is not null && (input.ProfileIds.Length != 1 || session.ProfileId != profile.Id))
++                    return new(Error: "not_found");
++                profiles.Add(profile);
++            }
++            var folders = new List<VaultFolder>();
++            if (input.FolderId is not null)
++            {
++                var folder = await db.Folders.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.PublicId == input.FolderId, ct);
++                if (folder is null) return new(Error: "not_found");
++                var visited = new HashSet<long>();
++                while (true)
++                {
++                    if (!visited.Add(folder.Id)) return new(Error: "persistence_unavailable");
++                    await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.folder WHERE account_id={account.Id} AND id={folder.Id} FOR UPDATE", ct);
++                    if (!await Permitted()) return new(Error: "vault_access_denied");
++                    folder = await db.Folders.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.Id == folder.Id, ct);
++                    if (folder is null || folder.DeletedAt is not null || await db.TerminalErasures.AnyAsync(x => x.ResourceId == folder.PublicId, ct))
++                        return new(Error: "not_found");
++                    folders.Add(folder);
++                    if (folder.ParentFolderId is null) break;
++                    folder = await db.Folders.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.Id == folder.ParentFolderId, ct);
++                    if (folder is null) return new(Error: "not_found");
++                }
++                var ancestry = folders.Select(x => x.Id).ToArray();
++                if (session.ProfileId is not null && !await db.ProfileFolders.AnyAsync(x => x.ProfileId == session.ProfileId && x.AccountId == account.Id && ancestry.Contains(x.FolderId), ct))
++                    return new(Error: "not_found");
++            }
++            if (!await Permitted()) return new(Error: "vault_access_denied");
++            foreach (var profile in profiles)
++            {
++                if (!Safe(profile.Revision) || !Safe(profile.ServerSequence)) return new(Error: "persistence_unavailable");
++                if (profile.Revision == ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
++            }
++            var parent = folders.FirstOrDefault();
++            if (parent is not null)
++            {
++                if (!Safe(parent.Revision) || !Safe(parent.ServerSequence)) return new(Error: "persistence_unavailable");
++                if (parent.Revision == ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
++            }
++            if (await db.Records.AnyAsync(x => x.PublicId == input.RecordId, ct) || await db.TerminalErasures.AnyAsync(x => x.ResourceId == input.RecordId, ct))
++                return new(Error: "revision_conflict");
++            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
++            var editedAt = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
++            var folderIds = folders.Select(x => x.Id).ToArray();
++            long? parentId = parent?.Id;
++            // All owned writers take the account lock. This statement also checks authority and
++            // lifecycle at database time, after lock waits and validation, before any write.
++            var inserted = await db.Database.ExecuteSqlInterpolatedAsync($"""
++                INSERT INTO cerberus.record(public_id,account_id,envelope,revision,edited_at,folder_id,concurrency_stamp)
++                SELECT {input.RecordId},a.id,{envelope},1,{editedAt},{parentId},{Guid.NewGuid()}
++                FROM cerberus.account a JOIN cerberus.vault_access_session s ON s.account_id=a.id
++                WHERE a.id={account.Id} AND a.heimdall_public_id={request.Actor} AND a.state={AccountState.Active}
++                    AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id OR e.resource_id={input.RecordId})
++                    AND s.handle_verifier={request.AccessVerifier} AND NOT s.revoked AND s.policy_revision>0 AND s.revocation_generation>0
++                    AND s.policy_revision=a.policy_revision AND s.revocation_generation=a.revocation_generation AND s.issued_at<=statement_timestamp()
++                    AND ((a.renewal_enabled AND s.expires_at>statement_timestamp()) OR (NOT a.renewal_enabled AND s.expires_at IS NULL))
++                    AND (s.profile_id IS NULL OR (cardinality({input.ProfileIds})=1 AND EXISTS(
++                        SELECT 1 FROM cerberus.profile p WHERE p.id=s.profile_id AND p.account_id=a.id AND p.public_id=ANY({input.ProfileIds})
++                        AND p.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id))
++                        AND (cardinality({folderIds})=0 OR EXISTS(SELECT 1 FROM cerberus.profile_folder pf
++                            WHERE pf.account_id=a.id AND pf.profile_id=s.profile_id AND pf.folder_id=ANY({folderIds})))))
++                    AND (SELECT count(*) FROM cerberus.profile p WHERE p.account_id=a.id AND p.public_id=ANY({input.ProfileIds})
++                        AND p.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id))=cardinality({input.ProfileIds})
++                    AND (SELECT count(*) FROM cerberus.folder f WHERE f.account_id=a.id AND f.id=ANY({folderIds})
++                        AND f.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id))=cardinality({folderIds})
++                """, ct);
++            if (inserted != 1)
++            {
++                if (!await Permitted()) return new(Error: "vault_access_denied");
++                if (await db.TerminalErasures.AnyAsync(x => x.ResourceId == input.RecordId, ct)) return new(Error: "revision_conflict");
++                return new(Error: "not_found");
++            }
++            var record = await db.Records.AsNoTracking().SingleAsync(x => x.PublicId == input.RecordId, ct);
++            if (record.Revision != 1 || !Safe(record.ServerSequence) || record.EditedAt != editedAt) return new(Error: "persistence_unavailable");
++            db.ProfileRecords.AddRange(profiles.Select(p => new ProfileRecord { AccountId = account.Id, ProfileId = p.Id, RecordId = record.Id }));
++            await db.SaveChangesAsync(ct);
++            foreach (var profile in profiles)
++            {
++                if (await db.Database.ExecuteSqlInterpolatedAsync($"""
++                    UPDATE cerberus.profile SET revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={Guid.NewGuid()}
++                    WHERE id={profile.Id} AND account_id={account.Id} AND revision={profile.Revision}
++                    """, ct) != 1) return new(Error: "persistence_unavailable");
++                var current = await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == profile.Id, ct);
++                if (current.Revision != profile.Revision + 1 || !Safe(current.ServerSequence) || current.ServerSequence <= profile.ServerSequence)
++                    return new(Error: "persistence_unavailable");
++            }
++            if (parent is not null)
++            {
++                if (await db.Database.ExecuteSqlInterpolatedAsync($"""
++                    UPDATE cerberus.folder SET revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={Guid.NewGuid()}
++                    WHERE id={parent.Id} AND account_id={account.Id} AND revision={parent.Revision}
++                    """, ct) != 1) return new(Error: "persistence_unavailable");
++                var current = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == parent.Id, ct);
++                if (current.Revision != parent.Revision + 1 || !Safe(current.ServerSequence) || current.ServerSequence <= parent.ServerSequence)
++                    return new(Error: "persistence_unavailable");
++            }
++            await tx.CommitAsync(ct);
++            return new(new(record.PublicId, record.Revision, record.ServerSequence, record.EditedAt));
++        }
++        catch (PostgresException e) when (e.SqlState is PostgresErrorCodes.UniqueViolation or "2200H") { return new(Error: "revision_conflict"); }
++        catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException
++            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException }) { return new(Error: "persistence_unavailable"); }
++        catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
++    }
++
++    private static bool Safe(long value) => value is > 0 and <= ProtocolBinary.MaxInteger;
++}
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/RecordsController.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/RecordsController.cs
+new file mode 100644
+index 0000000..73e3fde
+--- /dev/null
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/RecordsController.cs
+@@ -0,0 +1,36 @@
++using ArturRios.Cerberus.Command.Records;
++using ArturRios.Cerberus.WebApi.Middleware;
++using ArturRios.Mediator.Command;
++using ArturRios.Output;
++using ArturRios.Util.WebApi.AspNetCore;
++using Microsoft.AspNetCore.Mvc;
++
++namespace ArturRios.Cerberus.WebApi.Controllers;
++
++[ApiController]
++[Route("api/records")]
++public sealed class RecordsController(CommandMediator commands) : ControllerBase
++{
++    [HttpPost]
++    [VaultProofBody]
++    [ProducesResponseType(typeof(DataOutput<CreateRecordOutput>), StatusCodes.Status201Created)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
++    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
++    public async Task<ActionResult<DataOutput<CreateRecordOutput?>>> Create([FromBody] CreateRecordCommand command,
++        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
++    {
++        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
++            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
++        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
++            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
++        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
++        command.SetContext(actor, vaultAccess);
++        var result = await commands.ExecuteCommandAsync<CreateRecordCommand, CreateRecordOutput>(command, cancellationToken);
++        return result.ToActionResult(statusMap: RecordCreateMessages.StatusCodes);
++    }
++}
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+index ccc5c5e..aff0028 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+@@ -1,14 +1,17 @@
+ using ArturRios.Cerberus.Command.Profiles;
+ using ArturRios.Cerberus.Query.Profiles;
+ using ArturRios.Cerberus.Domain.Profiles;
+ using ArturRios.Cerberus.Data.Profiles;
++using ArturRios.Cerberus.Command.Records;
++using ArturRios.Cerberus.Domain.Records;
++using ArturRios.Cerberus.Data.Records;
+ using ArturRios.Cerberus.Data;
+ using ArturRios.Cerberus.Data.Accounts;
+ using ArturRios.Cerberus.Command.Accounts;
+ using ArturRios.Cerberus.Command.Authentication;
+ using ArturRios.Cerberus.Command.Identity;
+ using ArturRios.Cerberus.Domain.Identity;
+ using ArturRios.Cerberus.Data.Identity;
+ using ArturRios.Cerberus.Command.Protection;
+ using ArturRios.Cerberus.Domain.Protection;
+ using ArturRios.Cerberus.Data.Protection;
+@@ -58,20 +61,23 @@ public static class Startup
+                 && source is ScalarValue { Value: string category } && category.StartsWith("ArturRios.Cerberus.", StringComparison.Ordinal))
+             .WriteTo.Console(new JsonFormatter()));
+         builder.Services.AddSingleton(options);
+         builder.Services.AddSingleton(TimeProvider.System);
+         builder.Services.AddSingleton<HeimdallTokenValidator>();
+         builder.Services.AddScoped<CommandMediator>();
+         builder.Services.AddScoped<QueryMediator>();
+         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
+         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
+         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
++        builder.Services.AddScoped<IRecordCreateStore, RecordCreateStore>();
++        builder.Services.AddScoped<IValidator<CreateRecordCommand>, CreateRecordValidator>();
++        builder.Services.AddScoped<ICommandHandlerAsync<CreateRecordCommand, CreateRecordOutput>, CreateRecordHandler>();
+         builder.Services.AddScoped<IProfileAccessStore, ProfileAccessStore>();
+         builder.Services.AddScoped<IValidator<IssueProfileAccessChallengeCommand>, IssueProfileAccessChallengeValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<IssueProfileAccessChallengeCommand, IssueProfileAccessChallengeOutput>, IssueProfileAccessChallengeHandler>();
+         builder.Services.AddScoped<IValidator<OpenProfileAccessCommand>, OpenProfileAccessValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<OpenProfileAccessCommand, OpenProfileAccessOutput>, OpenProfileAccessHandler>();
+         builder.Services.AddScoped<IProfileAssociationStore, ProfileAssociationStore>();
+         builder.Services.AddScoped<IValidator<SetProfileAssociationsCommand>, SetProfileAssociationsValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<SetProfileAssociationsCommand, SetProfileAssociationsOutput>, SetProfileAssociationsHandler>();
+ 
+         builder.Services.AddScoped<IProfileTrashStore, ProfileTrashStore>();
+diff --git a/tests/Application/ArturRios.Cerberus.Command.Tests/RecordCreateHandlerTests.cs b/tests/Application/ArturRios.Cerberus.Command.Tests/RecordCreateHandlerTests.cs
+new file mode 100644
+index 0000000..897a12c
+--- /dev/null
++++ b/tests/Application/ArturRios.Cerberus.Command.Tests/RecordCreateHandlerTests.cs
+@@ -0,0 +1,77 @@
++using System.Text.Json;
++using System.Text.Json.Nodes;
++using ArturRios.Cerberus.Command.Records;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.Domain.Records;
++using ArturRios.Cerberus.TestSupport;
++using Moq;
++
++namespace ArturRios.Cerberus.Command.Tests;
++
++public class RecordCreateHandlerTests
++{
++    private const string Access="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
++    private readonly Guid actor=Guid.NewGuid();
++    private static readonly JsonSerializerOptions Json=new(ProtectionFixture.Json){NumberHandling=System.Text.Json.Serialization.JsonNumberHandling.Strict};
++    [UnitTheory][InlineData("actor","authentication_required")][InlineData("missing","vault_access_required")]
++    [InlineData("empty","validation_failed")][InlineData("bad","validation_failed")][InlineData("id","validation_failed")]
++    [InlineData("envelope","validation_failed")][InlineData("epoch","validation_failed")][InlineData("profiles","validation_failed")]
++    [InlineData("duplicates","validation_failed")][InlineData("folder","validation_failed")][InlineData("time","validation_failed")]
++    public async Task GivenInvalidInputOrAuthority_WhenHandling_ThenRejectWithoutPersistence(string kind,string error)
++    {
++        var c=Command();c.SetContext(kind=="actor"?Guid.Empty:actor,kind=="missing"?null:kind=="empty"?"":kind=="bad"?"bad":Access);
++        if(kind=="id")c.RecordId=Guid.Empty;if(kind=="envelope")c.Envelope=null!;if(kind=="epoch")c.Envelope=c.Envelope with{KeyEpoch=2};
++        if(kind=="profiles")c.ProfileIds=null!;if(kind=="duplicates")c.ProfileIds=[actor,actor];if(kind=="folder")c.FolderId=Guid.Empty;if(kind=="time")c.EditedAt=new(9,TimeSpan.Zero);
++        var r=await Handler(new Mock<IRecordCreateStore>(MockBehavior.Strict).Object).HandleAsync(c);Assert.False(r.Success);Assert.Contains(error,r.Errors);Assert.Null(r.Data);
++    }
++    [UnitTheory][InlineData("minimum")][InlineData("precision")][InlineData("pre2000")]
++    public async Task GivenValidCommand_WhenHandling_ThenSendTrustedHashAndReturnOnlyNormalizedPublicMetadata(string kind)
++    {
++        var c=Command();c.EditedAt=kind=="minimum"?new(10,TimeSpan.Zero):kind=="pre2000"?new DateTimeOffset(1999,12,31,23,59,59,TimeSpan.Zero).AddTicks(19):DateTimeOffset.UnixEpoch.AddTicks(19);
++        RecordCreateRequest? captured=null;CancellationToken received=default;using var source=new CancellationTokenSource();var store=new Mock<IRecordCreateStore>(MockBehavior.Strict);
++        store.Setup(x=>x.CreateAsync(It.IsAny<RecordCreateRequest>(),It.IsAny<CancellationToken>())).Returns<RecordCreateRequest,CancellationToken>((r,t)=>{captured=r;received=t;return Task.FromResult(new VaultResult<RecordCreateDetails>(new(c.RecordId,1,7,Normalize(c.EditedAt))));});
++        var result=await Handler(store.Object).HandleAsync(c,source.Token);Assert.True(result.Success);Assert.Contains("record_created",result.Messages);Assert.Equal(c.RecordId,result.Data!.RecordId);Assert.Equal(1,result.Data.Revision);Assert.Equal(7,result.Data.ServerSequence);Assert.Equal(Normalize(c.EditedAt),result.Data.EditedAt);
++        Assert.Equal(actor,captured!.Actor);Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",captured.AccessVerifier);Assert.Equal(c.ToInput(),captured.Input);Assert.Equal(source.Token,received);
++        using var output=JsonDocument.Parse(JsonSerializer.Serialize(result.Data,Json));Assert.Equal(new[]{"editedAt","recordId","revision","serverSequence"},output.RootElement.EnumerateObject().Select(x=>x.Name).Order());
++        using var wire=JsonDocument.Parse(JsonSerializer.Serialize(c,Json));Assert.Equal(new[]{"editedAt","envelope","folderId","profileIds","recordId"},wire.RootElement.EnumerateObject().Select(x=>x.Name).Order());
++    }
++    [UnitTheory][InlineData("validation_failed",400)][InlineData("authentication_required",401)][InlineData("vault_access_required",401)]
++    [InlineData("vault_access_denied",403)][InlineData("not_found",404)][InlineData("revision_conflict",409)]
++    [InlineData("persistence_unavailable",503)][InlineData("identity_unavailable",503)][InlineData("secret_internal_error",503)][InlineData("record_created",503)][InlineData("",503)]
++    public async Task GivenStoreErrorWithData_WhenHandling_ThenAllowlistErrorAndDiscardPayload(string error,int status)
++    {
++        var c=Command();var store=new Mock<IRecordCreateStore>();store.Setup(x=>x.CreateAsync(It.IsAny<RecordCreateRequest>(),It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecordCreateDetails>(new(c.RecordId,1,7,Normalize(c.EditedAt)),error));
++        var r=await Handler(store.Object).HandleAsync(c);var expected=error is "secret_internal_error" or "record_created" or ""?"persistence_unavailable":error;Assert.False(r.Success);Assert.Null(r.Data);Assert.Contains(expected,r.Errors);Assert.Equal(status,RecordCreateMessages.StatusCodes[expected]);
++    }
++    [UnitTheory][InlineData("nullResult")][InlineData("nullData")][InlineData("id")][InlineData("revision0")][InlineData("revision2")][InlineData("sequence0")][InlineData("unsafe")]
++    [InlineData("time")][InlineData("offset")][InlineData("defaultTime")][InlineData("unnormalized")]
++    public async Task GivenCorruptStoreOutput_WhenHandling_ThenFailClosed(string kind)
++    {
++        var c=Command();var data=new RecordCreateDetails(c.RecordId,1,7,Normalize(c.EditedAt));data=kind switch{"nullData"=>null!,"id"=>data with{RecordId=Guid.NewGuid()},"revision0"=>data with{Revision=0},"revision2"=>data with{Revision=2},"sequence0"=>data with{ServerSequence=0},"unsafe"=>data with{ServerSequence=9007199254740992},"time"=>data with{EditedAt=data.EditedAt.AddTicks(10)},"offset"=>data with{EditedAt=data.EditedAt.ToOffset(TimeSpan.FromHours(1))},"defaultTime"=>data with{EditedAt=default},"unnormalized"=>data with{EditedAt=data.EditedAt.AddTicks(1)},_=>data};
++        var store=new Mock<IRecordCreateStore>();store.Setup(x=>x.CreateAsync(It.IsAny<RecordCreateRequest>(),It.IsAny<CancellationToken>())).ReturnsAsync(kind=="nullResult"?null!:new VaultResult<RecordCreateDetails>(data));var r=await Handler(store.Object).HandleAsync(c);Assert.Contains("persistence_unavailable",r.Errors);Assert.False(r.Success);Assert.Null(r.Data);
++    }
++    [UnitTheory][InlineData("recordId")][InlineData("envelope")][InlineData("editedAt")][InlineData("profileIds")]
++    public void GivenOmittedRequiredBodyMember_WhenParsing_ThenReject(string name)
++    {var body=JsonSerializer.SerializeToNode(Command(),Json)!.AsObject();body.Remove(name);Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<CreateRecordCommand>(body.ToJsonString(),Json));}
++    [UnitTheory][InlineData("actor")][InlineData("accountId")][InlineData("vaultAccess")][InlineData("name")][InlineData("fields")][InlineData("templateId")][InlineData("collectionIds")][InlineData("unknown")]
++    public void GivenUnknownOrForgedBodyMember_WhenParsing_ThenReject(string name)
++    {var body=JsonSerializer.SerializeToNode(Command(),Json)!.AsObject();body[name]=null;Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<CreateRecordCommand>(body.ToJsonString(),Json));}
++    [UnitTheory][InlineData("duplicate")][InlineData("case")][InlineData("numeric")]
++    public void GivenAmbiguousStrictBody_WhenParsing_ThenReject(string kind)
++    {var body=JsonSerializer.Serialize(Command(),Json);body=kind=="duplicate"?body.Insert(1,"\"profileIds\":[],"):kind=="case"?body.Replace("profileIds","ProfileIds"):body.Replace("\"keyEpoch\":1","\"keyEpoch\":\"1\"");Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<CreateRecordCommand>(body,Json));}
++    [UnitTheory][InlineData(false)][InlineData(true)]
++    public void GivenOmittedOrNullOptionalFolder_WhenParsing_ThenPreserveUnfolderedCreation(bool omit)
++    {var body=JsonSerializer.SerializeToNode(Command(),Json)!.AsObject();if(omit)body.Remove("folderId");else body["folderId"]=null;var c=JsonSerializer.Deserialize<CreateRecordCommand>(body.ToJsonString(),Json)!;Assert.Null(c.FolderId);Assert.True(c.ToInput().IsValid());}
++    [UnitFact]
++    public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforePersistence()
++    {using var source=new CancellationTokenSource();source.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>Handler(new Mock<IRecordCreateStore>(MockBehavior.Strict).Object).HandleAsync(Command(),source.Token));}
++    [UnitFact]
++    public async Task GivenStoreCancellation_WhenHandling_ThenPropagateSameCallerToken()
++    {using var source=new CancellationTokenSource();var store=new Mock<IRecordCreateStore>();store.Setup(x=>x.CreateAsync(It.IsAny<RecordCreateRequest>(),source.Token)).ThrowsAsync(new OperationCanceledException(source.Token));var e=await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>Handler(store.Object).HandleAsync(Command(),source.Token));Assert.Equal(source.Token,e.CancellationToken);}
++    [UnitFact]
++    public void GivenRecordCreatedMessage_WhenMapping_ThenReturn201()=>Assert.Equal(201,RecordCreateMessages.StatusCodes["record_created"]);
++    private CreateRecordCommand Command(){var c=new CreateRecordCommand{RecordId=Guid.NewGuid(),Envelope=new EncryptedEnvelope("cerberus-content-v1",1,Access,"AAAAAAAAAAAAAAAA","AQID","AAAAAAAAAAAAAAAAAAAAAA"),EditedAt=DateTimeOffset.UnixEpoch.AddTicks(19),ProfileIds=[],FolderId=null};c.SetContext(actor,Access);return c;}
++    private static DateTimeOffset Normalize(DateTimeOffset value)=>value.AddTicks(-(value.Ticks%10));
++    private static CreateRecordHandler Handler(IRecordCreateStore store)=>new(new CreateRecordValidator(),store);
++}
+diff --git a/tests/Domain/ArturRios.Cerberus.Domain.Tests/RecordCreateContractTests.cs b/tests/Domain/ArturRios.Cerberus.Domain.Tests/RecordCreateContractTests.cs
+new file mode 100644
+index 0000000..d731f4b
+--- /dev/null
++++ b/tests/Domain/ArturRios.Cerberus.Domain.Tests/RecordCreateContractTests.cs
+@@ -0,0 +1,79 @@
++using System.Text.Json;
++using System.Text.Json.Serialization;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Records;
++using ArturRios.Cerberus.TestSupport;
++namespace ArturRios.Cerberus.Domain.Tests;
++
++public class RecordCreateContractTests
++{
++    private static readonly JsonSerializerOptions Json=new(ProtectionFixture.Json){NumberHandling=JsonNumberHandling.Strict};
++    [UnitTheory][InlineData("unlinked")][InlineData("folder")][InlineData("multipleProfiles")][InlineData("sameGuidDifferentKind")][InlineData("minimum")][InlineData("submicrosecond")][InlineData("pre2000")]
++    public void GivenNativeRecordWithPermittedRelationshipShape_WhenValidating_ThenAccept(string kind)
++    {
++        var input=Input();input=kind switch
++        {
++            "folder"=>input with{FolderId=Guid.NewGuid()},
++            "multipleProfiles"=>input with{ProfileIds=[Guid.NewGuid(),Guid.NewGuid()]},
++            "sameGuidDifferentKind"=>input with{ProfileIds=[input.RecordId],FolderId=input.RecordId},
++            "minimum"=>input with{EditedAt=new DateTimeOffset(10,TimeSpan.Zero)},
++            "submicrosecond"=>input with{EditedAt=new DateTimeOffset(19,TimeSpan.Zero)},
++            "pre2000"=>input with{EditedAt=new DateTimeOffset(1999,12,31,23,59,59,TimeSpan.Zero).AddTicks(19)},_=>input
++        };
++        Assert.True(input.IsValid());
++    }
++    [UnitTheory][InlineData("recordId")][InlineData("nullEnvelope")][InlineData("format")][InlineData("epoch")][InlineData("unsafeEpoch")][InlineData("salt")][InlineData("paddedSalt")][InlineData("nonce")][InlineData("tag")][InlineData("emptyCiphertext")][InlineData("paddedCiphertext")][InlineData("nullProfiles")][InlineData("zeroProfile")][InlineData("duplicateProfile")][InlineData("zeroFolder")][InlineData("defaultTime")][InlineData("roundsToDefault")][InlineData("nonUtcTime")]
++    public void GivenInvalidVisibleRecordInput_WhenValidating_ThenReject(string kind)
++    {
++        var input=Input();var id=Guid.NewGuid();input=kind switch
++        {
++            "recordId"=>input with{RecordId=Guid.Empty},"nullEnvelope"=>input with{Envelope=null!},
++            "format"=>input with{Envelope=input.Envelope with{Format="unsupported"}},
++            "epoch"=>input with{Envelope=input.Envelope with{KeyEpoch=2}},
++            "unsafeEpoch"=>input with{Envelope=input.Envelope with{KeyEpoch=9007199254740992}},
++            "salt"=>input with{Envelope=input.Envelope with{KeySalt="AQID"}},
++            "paddedSalt"=>input with{Envelope=input.Envelope with{KeySalt=input.Envelope.KeySalt+"="}},
++            "nonce"=>input with{Envelope=input.Envelope with{Nonce="AQID"}},
++            "tag"=>input with{Envelope=input.Envelope with{Tag="AQID"}},
++            "emptyCiphertext"=>input with{Envelope=input.Envelope with{Ciphertext=""}},
++            "paddedCiphertext"=>input with{Envelope=input.Envelope with{Ciphertext="AQID="}},
++            "nullProfiles"=>input with{ProfileIds=null!},"zeroProfile"=>input with{ProfileIds=[Guid.Empty]},
++            "duplicateProfile"=>input with{ProfileIds=[id,id]},"zeroFolder"=>input with{FolderId=Guid.Empty},
++            "defaultTime"=>input with{EditedAt=default},"roundsToDefault"=>input with{EditedAt=new(9,TimeSpan.Zero)},
++            _=>input with{EditedAt=DateTimeOffset.UnixEpoch.ToOffset(TimeSpan.FromHours(1))}
++        };
++        Assert.False(input.IsValid());
++    }
++    [UnitTheory][InlineData("recordId")][InlineData("envelope")][InlineData("editedAt")][InlineData("profileIds")]
++    public void GivenMissingRequiredCreationMember_WhenParsing_ThenReject(string field)
++    {
++        var body=JsonSerializer.Deserialize<Dictionary<string,JsonElement>>(JsonSerializer.Serialize(Input(),Json),Json)!;body.Remove(field);
++        Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<RecordCreateInput>(JsonSerializer.Serialize(body),Json));
++    }
++    [UnitTheory][InlineData("accountId")][InlineData("actor")][InlineData("vaultAccess")][InlineData("revision")][InlineData("serverSequence")][InlineData("deletedAt")][InlineData("name")][InlineData("fields")][InlineData("templateDescriptor")][InlineData("collectionIds")]
++    public void GivenForgedOwnershipMetadataOrPlaintextMembers_WhenParsing_ThenReject(string field)
++    {
++        var body=JsonSerializer.Serialize(Input(),Json).Insert(1,"\""+field+"\":null,");
++        Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<RecordCreateInput>(body,Json));
++    }
++    [UnitTheory][InlineData("duplicate")][InlineData("wrongCase")][InlineData("nestedNumeric")][InlineData("fractionalEpoch")][InlineData("unknownEnvelope")]
++    public void GivenAmbiguousOrNonNativeWireBody_WhenParsing_ThenReject(string kind)
++    {
++        var input=Input();var body=JsonSerializer.Serialize(input,Json);body=kind switch
++        {
++            "duplicate"=>body.Insert(1,"\"recordId\":\""+input.RecordId+"\","),
++            "wrongCase"=>body.Replace("recordId","RecordId"),
++            "nestedNumeric"=>body.Replace("\"keyEpoch\":1","\"keyEpoch\":\"1\""),
++            "fractionalEpoch"=>body.Replace("\"keyEpoch\":1","\"keyEpoch\":1.5"),
++            _=>body.Replace("\"envelope\":{","\"envelope\":{\"unknown\":1,")
++        };
++        Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<RecordCreateInput>(body,Json));
++    }
++    [UnitTheory][InlineData(false)][InlineData(true)]
++    public void GivenAbsentOrExplicitNullFolder_WhenParsing_ThenAcceptUnfolderedRecord(bool absent)
++    {
++        var input=Input();var body=JsonSerializer.Serialize(input,Json);if(absent)body=body.Replace(",\"folderId\":null","");
++        var parsed=JsonSerializer.Deserialize<RecordCreateInput>(body,Json)!;Assert.True(parsed.IsValid());Assert.Null(parsed.FolderId);Assert.Equal(input.RecordId,parsed.RecordId);Assert.Equal(input.Envelope,parsed.Envelope);
++    }
++    private static RecordCreateInput Input()=>new(Guid.NewGuid(),new EncryptedEnvelope("cerberus-content-v1",1,ProtectionFixture.Encode(new byte[32]),ProtectionFixture.Encode(new byte[12]),"AQID",ProtectionFixture.Encode(new byte[16])),DateTimeOffset.UnixEpoch,[]);
++}
+diff --git a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordCreateStoreTests.cs b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordCreateStoreTests.cs
+new file mode 100644
+index 0000000..6deef63
+--- /dev/null
++++ b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordCreateStoreTests.cs
+@@ -0,0 +1,125 @@
++using System.Data.Common;
++using System.Security.Cryptography;
++using System.Text.Json;
++using ArturRios.Cerberus.Data.Records;
++using ArturRios.Cerberus.Data.Profiles;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.Domain.Records;
++using ArturRios.Cerberus.Domain.Resources;
++using ArturRios.Cerberus.TestSupport;
++using Microsoft.EntityFrameworkCore;
++using Microsoft.EntityFrameworkCore.Diagnostics;
++namespace ArturRios.Cerberus.Data.Tests;
++
++[Collection("PostgreSQL")]
++public class RecordCreateStoreTests(PostgresFixture fixture)
++{
++    [FunctionalTheory][InlineData(0,false)][InlineData(0,true)][InlineData(2,false)][InlineData(2,true)]
++    public async Task GivenAccountWideAccess_WhenCreatingWithOwnedRelationships_ThenPersistOnlyNewCiphertextLinksAndParentMetadata(int profiles,bool folder)
++    {
++        using var owner=new ProtectionFixture();using var first=new ProtectionFixture();using var second=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var f=folder?await Folder(s):null;var parents=new List<Profile>();if(profiles>0){parents.Add(await Profile(s,owner,first,f));parents.Add(await Profile(s,owner,second,f));}var input=Input(parents.Select(p=>p.PublicId).ToArray(),f?.PublicId);var protectedBefore=await Protected(s);var result=await Store().CreateAsync(new(s.Actor,s.Verifier,input),default);
++        Assert.Null(result.Error);Assert.Equal(input.RecordId,result.Data!.RecordId);Assert.Equal(1,result.Data.Revision);Assert.True(result.Data.ServerSequence>0);Assert.Equal(Normalize(input.EditedAt),result.Data.EditedAt);Assert.Equal(protectedBefore,await Protected(s));await using var db=fixture.CreateContext();var row=await db.Records.SingleAsync(x=>x.PublicId==input.RecordId);Assert.Equal(s.InternalId,row.AccountId);Assert.Equal(JsonSerializer.SerializeToUtf8Bytes(input.Envelope,ProtectionFixture.Json),row.Envelope);Assert.Equal(f?.Id,row.FolderId);Assert.Equal(result.Data.ServerSequence,row.ServerSequence);Assert.Null(row.DeletedAt);Assert.Null(row.PurgeAt);Assert.Equal(parents.Select(p=>p.Id).Order(),await db.ProfileRecords.Where(x=>x.RecordId==row.Id).OrderBy(x=>x.ProfileId).Select(x=>x.ProfileId).ToArrayAsync());
++        foreach(var p in parents){var current=await db.Profiles.AsNoTracking().SingleAsync(x=>x.Id==p.Id);Assert.Equal(p.Revision+1,current.Revision);Assert.True(current.ServerSequence>p.ServerSequence);Assert.Equal(p.EditedAt,current.EditedAt);Assert.Equal(p.Envelope,current.Envelope);Assert.Equal(p.KeyWrappers,current.KeyWrappers);var view=await new ProfileReadStore(fixture).ReadAsync(new(s.Actor,s.Verifier,p.PublicId),default);Assert.Contains(input.RecordId,view.Data!.RecordIds);Assert.Equal(f is null?Array.Empty<Guid>():[f.PublicId],view.Data.FolderIds);}
++        if(f is not null){var current=await db.Folders.AsNoTracking().SingleAsync(x=>x.Id==f.Id);Assert.Equal(f.Revision+1,current.Revision);Assert.True(current.ServerSequence>f.ServerSequence);Assert.Equal(f.Envelope,current.Envelope);Assert.Equal(f.EditedAt,current.EditedAt);}
++    }
++    [FunctionalTheory][InlineData("none")][InlineData("direct")][InlineData("descendant")]
++    public async Task GivenSelectedAccess_WhenCreatingWithinSelection_ThenAttachNewRecordOnlyToSelectedProfile(string kind)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();using var otherKey=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var root=await Folder(s);var target=kind=="descendant"?await Folder(s,root.Id):root;var p=await Profile(s,owner,scoped,root);var other=await Profile(s,owner,otherKey);var verifier=await Selected(s,p.Id);var beforeOther=JsonSerializer.Serialize(other);var input=Input([p.PublicId],kind=="none"?null:target.PublicId);var result=await Store().CreateAsync(new(s.Actor,verifier,input),default);Assert.Null(result.Error);await using var db=fixture.CreateContext();var record=await db.Records.SingleAsync(x=>x.PublicId==input.RecordId);Assert.Equal(p.Id,Assert.Single(await db.ProfileRecords.Where(x=>x.RecordId==record.Id).ToArrayAsync()).ProfileId);Assert.Equal(beforeOther,JsonSerializer.Serialize(await db.Profiles.AsNoTracking().SingleAsync(x=>x.Id==other.Id)));Assert.Equal(input.RecordId,Assert.Single((await new ProfileReadStore(fixture).ReadAsync(new(s.Actor,verifier,p.PublicId),default)).Data!.RecordIds));Assert.Equal("not_found",(await new ProfileReadStore(fixture).ReadAsync(new(s.Actor,verifier,other.PublicId),default)).Error);
++    }
++    [FunctionalTheory][InlineData("unlinked",403)][InlineData("otherProfile",404)][InlineData("multipleProfiles",404)][InlineData("outsideFolder",404)][InlineData("corruptOutsideFolder",404)]
++    public async Task GivenSelectedAccess_WhenAttemptingScopeExpansion_ThenDenyWithoutMutation(string kind,int status)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();using var otherKey=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var p=await Profile(s,owner,scoped);var other=await Profile(s,owner,otherKey);var folder=await Folder(s);var verifier=await Selected(s,p.Id);if(kind=="corruptOutsideFolder"){await using var db=fixture.CreateContext();await db.Folders.Where(x=>x.Id==folder.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.Revision,0));}var input=Input(kind=="unlinked"?[]:kind=="otherProfile"?[other.PublicId]:kind=="multipleProfiles"?[p.PublicId,other.PublicId]:[p.PublicId],kind is "outsideFolder" or "corruptOutsideFolder"?folder.PublicId:null);var before=await Snapshot(s);var result=await Store().CreateAsync(new(s.Actor,verifier,input),default);Assert.Equal(status==403?"vault_access_denied":"not_found",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalTheory][InlineData("profileForeign")][InlineData("profileMissing")][InlineData("profileTrash")][InlineData("profileTerminal")][InlineData("folderForeign")][InlineData("folderMissing")][InlineData("folderTrash")][InlineData("folderTerminal")][InlineData("ancestorTrash")][InlineData("ancestorTerminal")][InlineData("closing")][InlineData("accountTerminal")][InlineData("accountMissing")]
++    public async Task GivenHiddenTargetOrAccount_WhenCreating_ThenNonrevealing404WithoutMutation(string kind)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var foreign=await ProfileSetup.Create(fixture,owner);var p=await Profile(kind=="profileForeign"?foreign:s,owner,scoped);var root=await Folder(kind=="folderForeign"?foreign:s);var folder=kind.StartsWith("ancestor",StringComparison.Ordinal)?await Folder(s,root.Id):root;var input=Input([kind=="profileMissing"?Guid.NewGuid():p.PublicId],kind=="folderMissing"?Guid.NewGuid():folder.PublicId);var actor=s.Actor;
++        await using(var db=fixture.CreateContext()){if(kind=="profileTrash")await db.Profiles.Where(x=>x.Id==p.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.DeletedAt,DateTimeOffset.UtcNow));if(kind is "folderTrash" or "ancestorTrash")await db.Folders.Where(x=>x.Id==(kind=="folderTrash"?folder.Id:root.Id)).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.DeletedAt,DateTimeOffset.UtcNow));if(kind=="closing")await db.Accounts.Where(x=>x.Id==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.State,AccountState.ClosurePending));if(kind is "profileTerminal" or "folderTerminal" or "ancestorTerminal" or "accountTerminal")db.TerminalErasures.Add(new(){ResourceId=kind=="profileTerminal"?p.PublicId:kind=="accountTerminal"?s.AccountId:kind=="ancestorTerminal"?root.PublicId:folder.PublicId,ResourceKind=kind=="profileTerminal"?"profile":kind=="accountTerminal"?"account":"folder",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();if(kind=="accountMissing")actor=Guid.NewGuid();}
++        var before=await Snapshot(s);var result=await Store().CreateAsync(new(actor,s.Verifier,input),default);Assert.Equal("not_found",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalTheory][InlineData(CollectionGrantAccess.ReadOnly)][InlineData(CollectionGrantAccess.ReadWrite)]
++    public async Task GivenRecipientGrant_WhenCreatingInForeignFolder_ThenCannotCreateForAnotherOwner(CollectionGrantAccess access)
++    {
++        using var owner=new ProtectionFixture();using var recipient=new ProtectionFixture();var foreign=await ProfileSetup.Create(fixture,owner);var s=await ProfileSetup.Create(fixture,recipient);var items=await AssociationSetup.Items(fixture,foreign);await AssociationSetup.Grant(fixture,foreign,owner,s,recipient,items.Collection,access);var before=await Snapshot(s);var foreignBefore=await Snapshot(foreign);var result=await Store().CreateAsync(new(s.Actor,s.Verifier,Input([],items.Folder.PublicId)),default);Assert.Equal("not_found",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));Assert.Equal(foreignBefore,await Snapshot(foreign));
++    }
++    [FunctionalTheory][InlineData("missing")][InlineData("revoked")][InlineData("expired")][InlineData("future")][InlineData("policy")][InlineData("generation")][InlineData("danglingSelection")][InlineData("foreignSelection")][InlineData("trashedSelection")][InlineData("terminalSelection")][InlineData("disabledWithExpiry")]
++    public async Task GivenInvalidCurrentSession_WhenCreating_Then403WithoutMutation(string kind)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var foreign=await ProfileSetup.Create(fixture,owner);var p=await Profile(kind=="foreignSelection"?foreign:s,owner,scoped);var verifier=s.Verifier;
++        await using(var db=fixture.CreateContext()){var v=await db.VaultAccessSessions.SingleAsync(x=>x.AccountId==s.InternalId);if(kind=="missing")verifier="missing";if(kind=="revoked")v.Revoked=true;if(kind=="expired")v.ExpiresAt=DateTimeOffset.UtcNow.AddSeconds(-1);if(kind=="future")v.IssuedAt=DateTimeOffset.UtcNow.AddHours(1);if(kind=="policy")v.PolicyRevision++;if(kind=="generation")v.RevocationGeneration++;if(kind=="danglingSelection")v.ProfileId=long.MaxValue;if(kind is "foreignSelection" or "trashedSelection" or "terminalSelection")v.ProfileId=p.Id;if(kind=="trashedSelection")await db.Profiles.Where(x=>x.Id==p.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.DeletedAt,DateTimeOffset.UtcNow));if(kind=="terminalSelection")db.TerminalErasures.Add(new(){ResourceId=p.PublicId,ResourceKind="profile",DeletedAt=DateTimeOffset.UtcNow});if(kind=="disabledWithExpiry")await db.Accounts.Where(x=>x.Id==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(a=>a.RenewalEnabled,false));await db.SaveChangesAsync();}
++        var before=await Snapshot(s);var result=await Store().CreateAsync(new(s.Actor,verifier,Input([p.PublicId])),default);Assert.Equal("vault_access_denied",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalFact]
++    public async Task GivenDisabledRenewalWithNullExpiry_WhenCreating_ThenAcceptCurrentAuthority()
++    {using var owner=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);await using(var db=fixture.CreateContext()){await db.Accounts.Where(x=>x.Id==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(a=>a.RenewalEnabled,false));await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,(DateTimeOffset?)null));}Assert.Null((await Store().CreateAsync(new(s.Actor,s.Verifier,Input()),default)).Error);}
++    [FunctionalTheory][InlineData("profileRevision",0,503)][InlineData("profileRevision",9007199254740992,503)][InlineData("profileRevision",9007199254740991,409)][InlineData("profileSequence",0,503)][InlineData("profileSequence",9007199254740992,503)][InlineData("folderRevision",0,503)][InlineData("folderRevision",9007199254740992,503)][InlineData("folderRevision",9007199254740991,409)][InlineData("folderSequence",0,503)][InlineData("folderSequence",9007199254740992,503)]
++    public async Task GivenCorruptOrSaturatedParentCounters_WhenCreating_ThenFailWithoutPartialWrites(string kind,long value,int status)
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var folder=await Folder(s);var p=await Profile(s,owner,scoped,folder);await using(var db=fixture.CreateContext()){if(kind=="profileRevision")await db.Profiles.Where(x=>x.Id==p.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.Revision,value));if(kind=="profileSequence")await db.Profiles.Where(x=>x.Id==p.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ServerSequence,value));if(kind=="folderRevision")await db.Folders.Where(x=>x.Id==folder.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.Revision,value));if(kind=="folderSequence")await db.Folders.Where(x=>x.Id==folder.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ServerSequence,value));}var before=await Snapshot(s);var result=await Store().CreateAsync(new(s.Actor,s.Verifier,Input([p.PublicId],folder.PublicId)),default);Assert.Equal(status==409?"revision_conflict":"persistence_unavailable",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData(false)][InlineData(true)]
++    public async Task GivenCyclicOwnedFolderAncestry_WhenCreating_Then503EvenIfDirectFolderIsSelected(bool selected)
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var root=await Folder(s);var child=await Folder(s,root.Id);var p=await Profile(s,owner,scoped,root);await using(var db=fixture.CreateContext())await db.Folders.Where(x=>x.Id==root.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ParentFolderId,child.Id));var verifier=selected?await Selected(s,p.Id):s.Verifier;var before=await Snapshot(s);var result=await Store().CreateAsync(new(s.Actor,verifier,Input([p.PublicId],root.PublicId)),default);Assert.Equal("persistence_unavailable",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("active")][InlineData("trash")][InlineData("foreign")][InlineData("terminal")]
++    public async Task GivenReservedRecordIdentifier_WhenCreating_Then409PreservesWinnerAndRelationships(string kind)
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var other=kind=="foreign"?await ProfileSetup.Create(fixture,owner):s;var p=await Profile(s,owner,scoped);var input=Input([p.PublicId]);await using(var db=fixture.CreateContext()){if(kind=="terminal")db.TerminalErasures.Add(new(){ResourceId=input.RecordId,ResourceKind="record",DeletedAt=DateTimeOffset.UtcNow});else db.Records.Add(new(){PublicId=input.RecordId,AccountId=other.InternalId,Envelope=JsonSerializer.SerializeToUtf8Bytes(ProfileSetup.Envelope(),ProtectionFixture.Json),EditedAt=DateTimeOffset.UnixEpoch,DeletedAt=kind=="trash"?DateTimeOffset.UtcNow:null});await db.SaveChangesAsync();}var before=await Snapshot(s);var result=await Store().CreateAsync(new(s.Actor,s.Verifier,input),default);Assert.Equal("revision_conflict",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalFact]
++    public async Task GivenRecordIdEqualToActiveOtherKinds_WhenCreating_ThenKeepTypedResourcesIndependent()
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var folder=await Folder(s);var p=await Profile(s,owner,scoped);var result=await Store().CreateAsync(new(s.Actor,s.Verifier,Input([p.PublicId],folder.PublicId) with{RecordId=p.PublicId}),default);Assert.Null(result.Error);await using var db=fixture.CreateContext();Assert.True(await db.Profiles.AnyAsync(x=>x.PublicId==p.PublicId));Assert.True(await db.Records.AnyAsync(x=>x.PublicId==p.PublicId));}
++    [FunctionalTheory][InlineData(false)][InlineData(true)]
++    public async Task GivenConcurrentDuplicateIds_WhenCreating_ThenOneWinnerAndNoLosingLinks(bool differentOwners)
++    {using var owner=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var other=differentOwners?await ProfileSetup.Create(fixture,owner):s;var input=Input();var results=await Task.WhenAll(Store().CreateAsync(new(s.Actor,s.Verifier,input),default),Store().CreateAsync(new(other.Actor,other.Verifier,input),default));Assert.Single(results,x=>x.Error is null);Assert.Equal("revision_conflict",Assert.Single(results,x=>x.Error is not null).Error);await using var db=fixture.CreateContext();Assert.Single(await db.Records.Where(x=>x.PublicId==input.RecordId).ToArrayAsync());}
++    [FunctionalFact]
++    public async Task GivenConcurrentAssociationReplacement_WhenCreating_ThenNewLinkCannotBeSilentlyLost()
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var p=await Profile(s,owner,scoped);var input=Input([p.PublicId]);var create=Store().CreateAsync(new(s.Actor,s.Verifier,input),default);var replace=new ProfileAssociationStore(fixture).SetAsync(new(s.Actor,s.Verifier,p.PublicId,new(1,[],[],[])),default);await Task.WhenAll(create,replace);Assert.Null(create.Result.Error);Assert.True(replace.Result.Error is null or "revision_conflict");var view=await new ProfileReadStore(fixture).ReadAsync(new(s.Actor,s.Verifier,p.PublicId),default);Assert.Contains(input.RecordId,view.Data!.RecordIds);Assert.Equal(replace.Result.Error is null?3:2,view.Data.Profile.Revision);}
++    [FunctionalFact]
++    public async Task GivenConcurrentProfileTrash_WhenCreating_ThenEitherWholeCreationOrWholeTrashWins()
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var p=await Profile(s,owner,scoped);var input=Input([p.PublicId]);var create=Store().CreateAsync(new(s.Actor,s.Verifier,input),default);var trash=new ProfileTrashStore(fixture).TrashAsync(new(s.Actor,s.Verifier,p.PublicId,1),default);await Task.WhenAll(create,trash);await using var db=fixture.CreateContext();if(create.Result.Error is null){Assert.Equal("revision_conflict",trash.Result.Error);Assert.True(await db.ProfileRecords.AnyAsync(x=>x.ProfileId==p.Id));Assert.Null((await db.Profiles.SingleAsync(x=>x.Id==p.Id)).DeletedAt);}else{Assert.Equal("not_found",create.Result.Error);Assert.Null(trash.Result.Error);Assert.False(await db.Records.AnyAsync(x=>x.PublicId==input.RecordId));}}
++    [FunctionalTheory][InlineData("minimum")][InlineData("precision")][InlineData("pre2000")]
++    public async Task GivenSupportedUtcTimestamp_WhenCreating_ThenNormalizeBeforePostgresBinding(string kind)
++    {using var owner=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var input=Input() with{EditedAt=kind=="minimum"?new(10,TimeSpan.Zero):kind=="pre2000"?new DateTimeOffset(1999,12,31,23,59,59,TimeSpan.Zero).AddTicks(19):DateTimeOffset.UnixEpoch.AddTicks(19)};var result=await Store().CreateAsync(new(s.Actor,s.Verifier,input),default);Assert.Null(result.Error);Assert.Equal(Normalize(input.EditedAt),result.Data!.EditedAt);await using var db=fixture.CreateContext();Assert.Equal(Normalize(input.EditedAt),(await db.Records.SingleAsync(x=>x.PublicId==input.RecordId)).EditedAt);}
++    [FunctionalTheory][InlineData("account")][InlineData("session")][InlineData("profile")][InlineData("folder")]
++    public async Task GivenAccessExpiresDuringLockWait_WhenCreating_Then403AndNoWrites(string kind)
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var folder=await Folder(s);var p=await Profile(s,owner,scoped,folder);var deadline=await Short(s);var before=await Snapshot(s);await using var held=fixture.CreateContext();await using var tx=await held.Database.BeginTransactionAsync();if(kind=="account")await held.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");if(kind=="session")await held.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={s.InternalId} FOR UPDATE");if(kind=="profile")await held.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.profile WHERE id={p.Id} FOR UPDATE");if(kind=="folder")await held.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.folder WHERE id={folder.Id} FOR UPDATE");var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var pending=new RecordCreateStore(new ProfileSetup.Factory(fixture,new Signal(reached,kind))).CreateAsync(new(s.Actor,s.Verifier,Input([p.PublicId],folder.PublicId)),default);await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await Past(deadline);await tx.CommitAsync();var result=await pending;Assert.Equal("vault_access_denied",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalFact]
++    public async Task GivenExpiryImmediatelyBeforeInsert_WhenCreating_ThenFinalStatementRejectsWithoutWrites()
++    {using var owner=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var deadline=await Short(s);var before=await Snapshot(s);var result=await new RecordCreateStore(new ProfileSetup.Factory(fixture,new Expire(deadline))).CreateAsync(new(s.Actor,s.Verifier,Input()),default);Assert.Equal("vault_access_denied",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("account",404)][InlineData("profile",404)][InlineData("folder",404)][InlineData("record",409)]
++    public async Task GivenTerminalReservationAtFinalInsert_WhenCreating_ThenFailClosedWithoutRecordOrParentChanges(string kind,int status)
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var folder=await Folder(s);var p=await Profile(s,owner,scoped,folder);var input=Input([p.PublicId],folder.PublicId);var before=await Snapshot(s);var id=kind=="account"?s.AccountId:kind=="profile"?p.PublicId:kind=="folder"?folder.PublicId:input.RecordId;var result=await new RecordCreateStore(new ProfileSetup.Factory(fixture,new Terminal(fixture,id,kind))).CreateAsync(new(s.Actor,s.Verifier,input),default);Assert.Equal(status==409?"revision_conflict":"not_found",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("afterInsert")][InlineData("afterParent")][InlineData("link")]
++    public async Task GivenPostInsertFailure_WhenCreating_ThenRollbackRecordLinksAndParentsAndRetrySameId(string kind)
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var folder=await Folder(s);var p=await Profile(s,owner,scoped,folder);var input=Input([p.PublicId],folder.PublicId);var before=await Snapshot(s);await using var db=fixture.CreateContext();if(kind=="link")await db.Database.ExecuteSqlRawAsync("CREATE FUNCTION cerberus.reject_record_create_fixture() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'synthetic link failure' USING ERRCODE='08006'; END $$; CREATE TRIGGER reject_record_create_fixture BEFORE INSERT ON cerberus.profile_record FOR EACH ROW EXECUTE FUNCTION cerberus.reject_record_create_fixture();");try{var store=kind=="link"?Store():new RecordCreateStore(new ProfileSetup.Factory(fixture,new Fail(kind)));var result=await store.CreateAsync(new(s.Actor,s.Verifier,input),default);Assert.Equal("persistence_unavailable",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));}finally{if(kind=="link")await db.Database.ExecuteSqlRawAsync("DROP TRIGGER IF EXISTS reject_record_create_fixture ON cerberus.profile_record; DROP FUNCTION IF EXISTS cerberus.reject_record_create_fixture();");}Assert.Null((await Store().CreateAsync(new(s.Actor,s.Verifier,input),default)).Error);}
++    [FunctionalTheory][InlineData(false)][InlineData(true)]
++    public async Task GivenInvalidGlobalSequence_WhenCreating_ThenRollbackAndReturnStableFailure(bool exhausted)
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var p=await Profile(s,owner,scoped);var before=await Snapshot(s);await using var db=fixture.CreateContext();var previous=await db.Database.SqlQuery<long>($"SELECT last_value AS \"Value\" FROM cerberus.server_sequence").SingleAsync();await db.Database.ExecuteSqlInterpolatedAsync($"SELECT setval('cerberus.server_sequence',{(exhausted?ProtocolBinary.MaxInteger:1)},true)");try{var result=await Store().CreateAsync(new(s.Actor,s.Verifier,Input([p.PublicId])),default);Assert.Equal(exhausted?"revision_conflict":"persistence_unavailable",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));}finally{await db.Database.ExecuteSqlInterpolatedAsync($"SELECT setval('cerberus.server_sequence',{previous},true)");}}
++    [FunctionalTheory][InlineData("actor")][InlineData("id")][InlineData("null")][InlineData("time")][InlineData("profiles")]
++    public async Task GivenInvalidTrustedInput_WhenCreating_ThenRejectBeforeDeadDependency(string kind)
++    {using var owner=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var input=Input();input=kind switch{"id"=>input with{RecordId=Guid.Empty},"null"=>null!,"time"=>input with{EditedAt=new(9,TimeSpan.Zero)},"profiles"=>input with{ProfileIds=null!},_=>input};var result=await Dead().CreateAsync(new(kind=="actor"?Guid.Empty:s.Actor,s.Verifier,input),default);Assert.Equal(kind=="actor"?"authentication_required":"validation_failed",result.Error);Assert.Null(result.Data);}
++    [FunctionalFact]
++    public async Task GivenUnavailablePersistenceOrCancelledCaller_WhenCreating_ThenFailClosedOrPropagateCancellation()
++    {using var owner=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var before=await Snapshot(s);var r=await Dead().CreateAsync(new(s.Actor,s.Verifier,Input()),default);Assert.Equal("persistence_unavailable",r.Error);Assert.Null(r.Data);using var source=new CancellationTokenSource();source.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>Store().CreateAsync(new(s.Actor,s.Verifier,Input()),source.Token));Assert.Equal(before,await Snapshot(s));}
++    private RecordCreateStore Store()=>new(fixture);
++    private static RecordCreateStore Dead()=>new(new ProfileSetup.Factory(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql("Host=127.0.0.1;Port=1;Database=unavailable;Username=none;Timeout=1;Pooling=false").Options));
++    private static RecordCreateInput Input(Guid[]? profiles=null,Guid? folder=null)=>new(Guid.NewGuid(),ProfileSetup.Envelope(),DateTimeOffset.UnixEpoch.AddTicks(19),profiles??[],folder);
++    private static DateTimeOffset Normalize(DateTimeOffset value)=>value.AddTicks(-(value.Ticks%TimeSpan.TicksPerMicrosecond));
++    private async Task<Profile> Profile(ProfileSetup.State s,ProtectionFixture owner,ProtectionFixture scoped,VaultFolder? folder=null){var input=ProfileSetup.Input(s,owner,scoped);if(folder is not null)input=input with{FolderIds=[folder.PublicId]};Assert.Null((await new ProfileCreateStore(fixture).CreateAsync(new(s.Actor,s.Verifier,input),default)).Error);await using var db=fixture.CreateContext();return await db.Profiles.AsNoTracking().SingleAsync(x=>x.PublicId==input.ProfileId);}
++    private async Task<VaultFolder> Folder(ProfileSetup.State s,long? parent=null){var folder=new VaultFolder{PublicId=Guid.NewGuid(),AccountId=s.InternalId,ParentFolderId=parent,Envelope=JsonSerializer.SerializeToUtf8Bytes(ProfileSetup.Envelope(),ProtectionFixture.Json),EditedAt=DateTimeOffset.UnixEpoch};await using var db=fixture.CreateContext();db.Folders.Add(folder);await db.SaveChangesAsync();return folder;}
++    private async Task<string> Selected(ProfileSetup.State s,long id){var verifier=Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));await using var db=fixture.CreateContext();db.VaultAccessSessions.Add(new(){AccountId=s.InternalId,ProfileId=id,HandleVerifier=verifier,IssuedAt=DateTimeOffset.UtcNow.AddMinutes(-1),ExpiresAt=DateTimeOffset.UtcNow.AddHours(1),PolicyRevision=1,RevocationGeneration=1});await db.SaveChangesAsync();return verifier;}
++    private async Task<DateTimeOffset> Short(ProfileSetup.State s){var deadline=DateTimeOffset.UtcNow.AddSeconds(2);await using var db=fixture.CreateContext();await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));return deadline;}
++    private static async Task Past(DateTimeOffset deadline){var remaining=deadline-DateTimeOffset.UtcNow;if(remaining>TimeSpan.Zero)await Task.Delay(remaining+TimeSpan.FromMilliseconds(120));}
++    private async Task<string> Protected(ProfileSetup.State s){await using var db=fixture.CreateContext();return JsonSerializer.Serialize(new{Account=await db.Accounts.AsNoTracking().SingleAsync(x=>x.Id==s.InternalId),Protection=await db.VaultProtections.AsNoTracking().SingleAsync(x=>x.AccountId==s.InternalId),Sessions=await db.VaultAccessSessions.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync()});}
++    private async Task<string> Snapshot(ProfileSetup.State s){await using var db=fixture.CreateContext();return JsonSerializer.Serialize(new{Protected=await Protected(s),Records=await db.Records.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync(),Profiles=await db.Profiles.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync(),Folders=await db.Folders.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync(),ProfileRecords=await db.ProfileRecords.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.ProfileId).ThenBy(x=>x.RecordId).ToArrayAsync(),ProfileFolders=await db.ProfileFolders.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.ProfileId).ThenBy(x=>x.FolderId).ToArrayAsync()});}
++    private sealed class Signal(TaskCompletionSource reached,string kind):DbCommandInterceptor{public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData e,InterceptionResult<int> r,CancellationToken ct=default){if(c.CommandText.Contains("FOR UPDATE") && c.CommandText.Contains(kind=="account"?"cerberus.account":kind=="session"?"cerberus.vault_access_session":kind=="profile"?"cerberus.profile":"cerberus.folder"))reached.TrySetResult();return ValueTask.FromResult(r);}}
++    private sealed class Expire(DateTimeOffset deadline):DbCommandInterceptor{public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData e,InterceptionResult<int> r,CancellationToken ct=default){if(c.CommandText.Contains("INSERT INTO cerberus.record"))await Past(deadline);return r;}}
++    private sealed class Terminal(PostgresFixture fixture,Guid id,string kind):DbCommandInterceptor{public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData e,InterceptionResult<int> r,CancellationToken ct=default){if(c.CommandText.Contains("INSERT INTO cerberus.record")){await using var db=fixture.CreateContext();db.TerminalErasures.Add(new(){ResourceId=id,ResourceKind=kind,DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync(ct);}return r;}}
++    private sealed class Fail(string kind):DbCommandInterceptor
++    {
++        private bool inserted;
++        public override ValueTask<int> NonQueryExecutedAsync(DbCommand c,CommandExecutedEventData e,int result,CancellationToken ct=default){if(c.CommandText.Contains("INSERT INTO cerberus.record"))inserted=true;if(kind=="afterParent" && c.CommandText.Contains("UPDATE cerberus.profile") && result>0)throw new TimeoutException("synthetic post-parent failure");return ValueTask.FromResult(result);}
++        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData e,InterceptionResult<DbDataReader> r,CancellationToken ct=default){if(kind=="afterInsert" && inserted)throw new TimeoutException("synthetic post-insert failure");return ValueTask.FromResult(r);}
++    }
++}
+diff --git a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordCreateHttpTests.cs b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordCreateHttpTests.cs
+new file mode 100644
+index 0000000..f046a78
+--- /dev/null
++++ b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordCreateHttpTests.cs
+@@ -0,0 +1,121 @@
++using System.Net;
++using System.Net.Http.Json;
++using System.Security.Cryptography;
++using System.Text;
++using System.Text.Json;
++using System.Text.Json.Nodes;
++using ArturRios.Cerberus.Command.Profiles;
++using ArturRios.Cerberus.Command.Records;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Profiles;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.Domain.Records;
++using ArturRios.Cerberus.Domain.Resources;
++using ArturRios.Cerberus.Query.Profiles;
++using ArturRios.Cerberus.TestSupport;
++using ArturRios.Configuration.Enums;
++using ArturRios.Output;
++using ArturRios.Util.Test.Functional;
++using Microsoft.AspNetCore.Http;
++using Microsoft.AspNetCore.Mvc.Testing;
++using Microsoft.EntityFrameworkCore;
++
++namespace ArturRios.Cerberus.WebApi.Tests;
++
++[Collection("Registration host")]
++public class RecordCreateHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
++{
++    [FunctionalTheory][InlineData(false,false)][InlineData(false,true)][InlineData(true,false)][InlineData(true,true)]
++    public async Task GivenAccountWideHandle_WhenCreatingOpaqueRecord_ThenPersistOwnedContentAndReturnOnlyMetadata(bool profiles,bool folder)
++    {
++        using var owner=new ProtectionFixture();using var first=new ProtectionFixture();using var second=new ProtectionFixture();var s=await Setup(owner);var f=folder?await Folder(s):null;var parents=profiles?new[]{await Profile(s,owner,first,f),await Profile(s,owner,second,f)}:[];var input=Input(parents.Select(x=>x.PublicId).ToArray(),f?.PublicId);var protectedBefore=await Protected(s);
++        using var response=await Send(s,input);var result=await Success<CreateRecordOutput>(response,201);Fields(result,"recordId","revision","serverSequence","editedAt");Assert.Equal(input.RecordId,result.RecordId);Assert.Equal(1,result.Revision);Assert.True(result.ServerSequence>0);Assert.Equal(Normalize(input.EditedAt),result.EditedAt);Assert.Equal(protectedBefore,await Protected(s));
++        await using var db=fixture.Context();var row=await db.Records.SingleAsync(x=>x.PublicId==input.RecordId);Assert.Equal(s.InternalId,row.AccountId);Assert.Equal(Bytes(input.Envelope),row.Envelope);Assert.Equal(f?.Id,row.FolderId);Assert.Equal(result.ServerSequence,row.ServerSequence);Assert.Equal(result.EditedAt,row.EditedAt);
++        foreach(var p in parents){using var get=await Read(s,"/api/profiles/"+p.PublicId);var detail=await Success<ProfileDetailsOutput>(get,200);Assert.Contains(input.RecordId,detail.RecordIds);Assert.Equal(2,detail.Revision);var current=await db.Profiles.AsNoTracking().SingleAsync(x=>x.Id==p.Id);Assert.Equal(p.Envelope,current.Envelope);Assert.Equal(p.KeyWrappers,current.KeyWrappers);Assert.Equal(p.EditedAt,current.EditedAt);}
++        using var list=await Read(s,"/api/profiles");var visible=await Success<ProfileListOutput>(list,200);foreach(var p in parents)Assert.Contains(input.RecordId,visible.Items.Single(x=>x.ProfileId==p.PublicId).RecordIds);
++        if(f is not null){var current=await db.Folders.AsNoTracking().SingleAsync(x=>x.Id==f.Id);Assert.Equal(2,current.Revision);Assert.Equal(f.EditedAt,current.EditedAt);Assert.Equal(f.Envelope,current.Envelope);}
++    }
++    [FunctionalTheory][InlineData("Master","none")][InlineData("Master","direct")][InlineData("Master","descendant")][InlineData("PerProfile","none")][InlineData("PerProfile","direct")][InlineData("PerProfile","descendant")]
++    public async Task GivenFreshNativeSelectedHandle_WhenCreating_ThenOnlyNewContentInsideSelectionBecomesVisible(string mode,string placement)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();using var otherKey=new ProtectionFixture();var s=await Setup(owner);var root=await Folder(s);var target=placement=="descendant"?await Folder(s,root.Id):root;var p=await Profile(s,owner,scoped,root,mode);var other=await Profile(s,owner,otherKey);var access=await Open(s,p,scoped);var selected=s with{Access=access};var input=Input([p.PublicId],placement=="none"?null:target.PublicId);using var response=await Send(selected,input);await Success<CreateRecordOutput>(response,201);
++        using var get=await Read(selected,"/api/profiles/"+p.PublicId);var detail=await Success<ProfileDetailsOutput>(get,200);Assert.Equal(input.RecordId,Assert.Single(detail.RecordIds));Assert.Equal(2,detail.Revision);using var list=await Read(selected,"/api/profiles");var item=Assert.Single((await Success<ProfileListOutput>(list,200)).Items);Assert.Equal(p.PublicId,item.ProfileId);Assert.Contains(input.RecordId,item.RecordIds);using var outside=await Read(selected,"/api/profiles/"+other.PublicId);await Failure(outside,404);
++        await using var db=fixture.Context();OpaqueAccessHandle.TryHash(access,out var verifier);Assert.Equal(p.Id,(await db.VaultAccessSessions.SingleAsync(x=>x.HandleVerifier==verifier)).ProfileId);Assert.Equal(1,(await db.Profiles.SingleAsync(x=>x.Id==other.Id)).Revision);
++    }
++    [FunctionalTheory][InlineData("empty",403)][InlineData("other",404)][InlineData("multiple",404)][InlineData("folder",404)]
++    public async Task GivenNativeSelectedHandle_WhenExpandingSelection_ThenRejectWithoutMutation(string kind,int status)
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();using var otherKey=new ProtectionFixture();var s=await Setup(owner);var p=await Profile(s,owner,scoped);var other=await Profile(s,owner,otherKey);var f=await Folder(s);s=s with{Access=await Open(s,p,scoped)};var input=Input(kind=="empty"?[]:kind=="other"?[other.PublicId]:kind=="multiple"?[p.PublicId,other.PublicId]:[p.PublicId],kind=="folder"?f.PublicId:null);var before=await Snapshot(s);using var r=await Send(s,input);await Failure(r,status);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData(CollectionGrantAccess.ReadOnly)][InlineData(CollectionGrantAccess.ReadWrite)]
++    public async Task GivenForeignCollectionGrant_WhenCreatingInForeignFolder_ThenOwnershipStillDeniesCreation(CollectionGrantAccess access)
++    {using var owner=new ProtectionFixture();using var recipient=new ProtectionFixture();var foreign=await Setup(owner);var s=await Setup(recipient);var f=await Folder(foreign);await using(var db=fixture.Context()){var collection=new VaultCollection{PublicId=Guid.NewGuid(),AccountId=foreign.InternalId,Envelope=Bytes(Envelope()),EditedAt=DateTimeOffset.UnixEpoch};db.Collections.Add(collection);await db.SaveChangesAsync();var id=Guid.NewGuid();db.CollectionGrants.Add(new(){PublicId=id,CollectionId=collection.Id,RecipientAccountId=s.InternalId,Access=access,RecipientKeyEnvelope=Bytes(owner.WrapGrant(foreign.AccountId,collection.PublicId,id,s.Actor,recipient.Material.RecipientKey))});await db.SaveChangesAsync();}var before=await Snapshot(s);var foreignBefore=await Snapshot(foreign);using var r=await Send(s,Input([],f.PublicId));await Failure(r,404);Assert.Equal(before,await Snapshot(s));Assert.Equal(foreignBefore,await Snapshot(foreign));}
++    [FunctionalTheory][InlineData("profileMissing")][InlineData("profileForeign")][InlineData("profileTrash")][InlineData("profileTerminal")][InlineData("folderMissing")][InlineData("folderForeign")][InlineData("folderTrash")][InlineData("folderTerminal")][InlineData("ancestorTrash")][InlineData("ancestorTerminal")]
++    public async Task GivenHiddenRelationship_WhenCreating_Then404WithoutPartialChanges(string kind)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(owner);var foreign=await Setup(owner);var p=await Profile(kind=="profileForeign"?foreign:s,owner,scoped);var root=await Folder(kind=="folderForeign"?foreign:s);var folder=kind.StartsWith("ancestor",StringComparison.Ordinal)?await Folder(s,root.Id):root;var input=Input([kind=="profileMissing"?Guid.NewGuid():p.PublicId],kind=="folderMissing"?Guid.NewGuid():folder.PublicId);
++        await using(var db=fixture.Context()){if(kind=="profileTrash")await db.Profiles.Where(x=>x.Id==p.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.DeletedAt,DateTimeOffset.UtcNow));if(kind is "folderTrash" or "ancestorTrash")await db.Folders.Where(x=>x.Id==(kind=="folderTrash"?folder.Id:root.Id)).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.DeletedAt,DateTimeOffset.UtcNow));if(kind.EndsWith("Terminal",StringComparison.Ordinal))db.TerminalErasures.Add(new(){ResourceId=kind=="profileTerminal"?p.PublicId:kind=="ancestorTerminal"?root.PublicId:folder.PublicId,ResourceKind=kind=="profileTerminal"?"profile":"folder",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}
++        var before=await Snapshot(s);using var r=await Send(s,input);await Failure(r,404,"not_found");Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalTheory][InlineData("missing",404)][InlineData("closing",404)][InlineData("terminal",404)][InlineData("revoked",403)][InlineData("expired",403)][InlineData("future",403)][InlineData("policy",403)][InlineData("generation",403)][InlineData("dangling",403)]
++    public async Task GivenInvalidLifecycleOrSession_WhenCreating_ThenFailClosed(string kind,int status)
++    {using var owner=new ProtectionFixture();var s=await Setup(owner);await using(var db=fixture.Context()){var v=await db.VaultAccessSessions.SingleAsync(x=>x.AccountId==s.InternalId);if(kind=="revoked")v.Revoked=true;if(kind=="expired")v.ExpiresAt=DateTimeOffset.UtcNow.AddSeconds(-1);if(kind=="future")v.IssuedAt=DateTimeOffset.UtcNow.AddHours(1);if(kind=="policy")v.PolicyRevision++;if(kind=="generation")v.RevocationGeneration++;if(kind=="dangling")v.ProfileId=long.MaxValue;if(kind=="closing")await db.Accounts.Where(x=>x.Id==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(a=>a.State,AccountState.ClosurePending));if(kind=="terminal")db.TerminalErasures.Add(new(){ResourceId=s.AccountId,ResourceKind="account",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}var before=await Snapshot(s);if(kind=="missing"){var actor=Guid.NewGuid();fixture.Users[actor+"@example.test"]=new(actor,"fixture-password");s=s with{Actor=actor};}using var r=await Send(s,Input());await Failure(r,status);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("missing",401)][InlineData("wrongScope",401)][InlineData("deleted",401)][InlineData("unavailable",503)]
++    public async Task GivenInvalidCurrentIdentity_WhenCreating_ThenRejectWithoutPersistence(string kind,int status)
++    {using var owner=new ProtectionFixture();var s=await Setup(owner);if(kind is "deleted" or "unavailable")fixture.Users[s.Actor+"@example.test"]=new(s.Actor,"fixture-password",Deleted:kind=="deleted",IdentityUnavailable:kind=="unavailable");var before=await Snapshot(s);using var request=Request(s,Bytes(Input()));request.Headers.Authorization=kind=="missing"?null:new("Bearer",RegistrationApiFixture.Token(s.Actor,kind=="wrongScope"?Guid.NewGuid():null));using var r=await Gateway.Client.SendAsync(request);await Failure(r,status);Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("active")][InlineData("trash")][InlineData("foreign")][InlineData("terminal")]
++    public async Task GivenReservedRecordId_WhenCreating_Then409PreservesWinningState(string kind)
++    {using var owner=new ProtectionFixture();var s=await Setup(owner);var other=kind=="foreign"?await Setup(owner):s;var input=Input();await using(var db=fixture.Context()){if(kind=="terminal")db.TerminalErasures.Add(new(){ResourceId=input.RecordId,ResourceKind="record",DeletedAt=DateTimeOffset.UtcNow});else db.Records.Add(new(){PublicId=input.RecordId,AccountId=other.InternalId,Envelope=Bytes(Envelope()),EditedAt=DateTimeOffset.UnixEpoch,DeletedAt=kind=="trash"?DateTimeOffset.UtcNow:null});await db.SaveChangesAsync();}var before=await Snapshot(s);using var r=await Send(s,input);await Failure(r,409,"revision_conflict");Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData(false)][InlineData(true)]
++    public async Task GivenConcurrentDuplicateRequests_WhenCreating_ThenExactlyOneHttpWinner(bool differentOwners)
++    {using var owner=new ProtectionFixture();var s=await Setup(owner);var other=differentOwners?await Setup(owner):s;var input=Input();var responses=await Task.WhenAll(Send(s,input),Send(other,input));try{await Success<CreateRecordOutput>(Assert.Single(responses,x=>x.StatusCode==HttpStatusCode.Created),201);await Failure(Assert.Single(responses,x=>x.StatusCode!=HttpStatusCode.Created),409);}finally{foreach(var r in responses)r.Dispose();}await using var db=fixture.Context();Assert.Single(await db.Records.Where(x=>x.PublicId==input.RecordId).ToArrayAsync());}
++    [FunctionalFact]
++    public async Task GivenLinkWriteOutage_WhenCreating_Then503RollsBackAndSameIdCanRetry()
++    {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(owner);var p=await Profile(s,owner,scoped);var input=Input([p.PublicId]);var before=await Snapshot(s);await using var db=fixture.Context();await db.Database.ExecuteSqlRawAsync("CREATE FUNCTION cerberus.reject_http_record_fixture() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'synthetic record link outage' USING ERRCODE='08006'; END $$; CREATE TRIGGER reject_http_record_fixture BEFORE INSERT ON cerberus.profile_record FOR EACH ROW EXECUTE FUNCTION cerberus.reject_http_record_fixture();");try{using var failed=await Send(s,input);await Failure(failed,503,"persistence_unavailable");Assert.Equal(before,await Snapshot(s));}finally{await db.Database.ExecuteSqlRawAsync("DROP TRIGGER IF EXISTS reject_http_record_fixture ON cerberus.profile_record; DROP FUNCTION IF EXISTS cerberus.reject_http_record_fixture();");}using var retry=await Send(s,input);await Success<CreateRecordOutput>(retry,201);}
++    [FunctionalFact]
++    public async Task GivenUnavailableRecordTable_WhenCreating_Then503AndNoParentChanges()
++    {using var owner=new ProtectionFixture();var s=await Setup(owner);var before=await Snapshot(s);await using var db=fixture.Context();await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.record RENAME TO fixture_unavailable_record");try{using var r=await Send(s,Input());await Failure(r,503,"persistence_unavailable");}finally{await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.fixture_unavailable_record RENAME TO record");}Assert.Equal(before,await Snapshot(s));}
++    public static TheoryData<string> InvalidBodies=>new("missingRecordId","missingEnvelope","missingEditedAt","missingProfileIds","nullEnvelope","nullProfiles","emptyId","emptyFolder","duplicateProfiles","zeroProfile","badFormat","epoch0","epoch2","badSalt","paddedNonce","emptyCiphertext","badTag","timeOffset","timeDefault","time9Ticks","actor","accountId","vaultAccess","name","fields","templateId","collectionIds","unknown","duplicate","case","numeric","fraction","nestedUnknown","uppercaseId","invalidUtf8","bom","gzip","charset","oversized","null","array");
++    [FunctionalTheory][MemberData(nameof(InvalidBodies))]
++    public async Task GivenMalformedOrForgedBody_WhenCreating_ThenRejectWithoutMutation(string kind)
++    {
++        using var owner=new ProtectionFixture();var s=await Setup(owner);var input=Input();var body=JsonSerializer.SerializeToNode(input,ProtectionFixture.Json)!.AsObject();var envelope=body["envelope"]!.AsObject();
++        var missing=kind switch{"missingRecordId"=>"recordId","missingEnvelope"=>"envelope","missingEditedAt"=>"editedAt","missingProfileIds"=>"profileIds",_=>null};if(missing is not null)body.Remove(missing);
++        if(kind=="nullEnvelope")body["envelope"]=null;if(kind=="nullProfiles")body["profileIds"]=null;if(kind=="emptyId")body["recordId"]=Guid.Empty;if(kind=="emptyFolder")body["folderId"]=Guid.Empty;if(kind=="duplicateProfiles")body["profileIds"]=new JsonArray(JsonValue.Create(s.Actor),JsonValue.Create(s.Actor));if(kind=="zeroProfile")body["profileIds"]=new JsonArray(JsonValue.Create(Guid.Empty));
++        if(kind=="badFormat")envelope["format"]="unknown";if(kind is "epoch0" or "epoch2")envelope["keyEpoch"]=kind=="epoch0"?0:2;if(kind=="badSalt")envelope["keySalt"]="bad";if(kind=="paddedNonce")envelope["nonce"]=envelope["nonce"]!.GetValue<string>()+"=";if(kind=="emptyCiphertext")envelope["ciphertext"]="";if(kind=="badTag")envelope["tag"]="bad";
++        if(kind=="timeOffset")body["editedAt"]=DateTimeOffset.UnixEpoch.ToOffset(TimeSpan.FromHours(1));if(kind=="timeDefault")body["editedAt"]=default(DateTimeOffset);if(kind=="time9Ticks")body["editedAt"]=new DateTimeOffset(9,TimeSpan.Zero);if(kind is "actor" or "accountId" or "vaultAccess" or "name" or "fields" or "templateId" or "collectionIds" or "unknown")body[kind]=null;if(kind=="nestedUnknown")envelope["name"]="plaintext";if(kind=="numeric")envelope["keyEpoch"]="1";if(kind=="fraction")envelope["keyEpoch"]=1.5;if(kind=="uppercaseId")body["recordId"]="ABCDEFAB-1234-1234-1234-ABCDEFABCDEF";
++        var raw=body.ToJsonString();if(kind=="duplicate")raw=raw.Insert(1,"\"profileIds\":[],");if(kind=="case")raw=raw.Replace("profileIds","ProfileIds");if(kind=="null")raw="null";if(kind=="array")raw="[]";if(kind=="oversized")raw=new string(' ',65537)+raw;var bytes=kind=="invalidUtf8"?new byte[]{255}:kind=="bom"?new byte[]{239,187,191}.Concat(Encoding.UTF8.GetBytes(raw)).ToArray():Encoding.UTF8.GetBytes(raw);var before=await Snapshot(s);using var request=Request(s,bytes);if(kind=="gzip")request.Content!.Headers.ContentEncoding.Add("gzip");if(kind=="charset")request.Content!.Headers.ContentType!.CharSet="iso-8859-1";using var r=await Gateway.Client.SendAsync(request);await Failure(r,kind=="oversized"?413:400,kind=="oversized"?null:"validation_failed");Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalTheory][InlineData("missing",401)][InlineData("bad",400)][InlineData("duplicate",400)][InlineData("empty",400)][InlineData("query",400)]
++    public async Task GivenMalformedAccessHeaderOrQuery_WhenCreating_ThenRejectWithoutMutation(string kind,int status)
++    {using var owner=new ProtectionFixture();var s=await Setup(owner);var before=await Snapshot(s);var raw=Bytes(Input());if(kind=="empty"){using var host=new WebApplicationFactory<Program>();var context=await host.Server.SendAsync(c=>{c.Request.Method="POST";c.Request.Path="/api/records";c.Request.Headers.Authorization="Bearer "+RegistrationApiFixture.Token(s.Actor);c.Request.Headers["X-Cerberus-Vault-Access"]="";c.Request.ContentType="application/json";c.Request.Body=new MemoryStream(raw);c.Request.ContentLength=raw.Length;});Assert.Equal(status,context.Response.StatusCode);Assert.Contains("no-store",context.Response.Headers.CacheControl.ToString());}else{using var request=Request(s,raw,kind=="query"?"/api/records?unexpected=1":"/api/records");if(kind=="missing")request.Headers.Remove("X-Cerberus-Vault-Access");if(kind=="bad"){request.Headers.Remove("X-Cerberus-Vault-Access");request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access","bad");}if(kind=="duplicate")request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access",s.Access);using var r=await Gateway.Client.SendAsync(request);await Failure(r,status);}Assert.Equal(before,await Snapshot(s));}
++    [FunctionalTheory][InlineData("minimum")][InlineData("pre2000")][InlineData("precision")]
++    public async Task GivenSupportedTimestamp_WhenCreatingThroughHttp_ThenReturnStoredMicrosecondFloor(string kind)
++    {using var owner=new ProtectionFixture();var s=await Setup(owner);var input=Input() with{EditedAt=kind=="minimum"?new(10,TimeSpan.Zero):kind=="pre2000"?new DateTimeOffset(1999,12,31,23,59,59,TimeSpan.Zero).AddTicks(19):DateTimeOffset.UnixEpoch.AddTicks(19)};using var r=await Send(s,input);var result=await Success<CreateRecordOutput>(r,201);Assert.Equal(Normalize(input.EditedAt),result.EditedAt);await using var db=fixture.Context();Assert.Equal(result.EditedAt,(await db.Records.SingleAsync(x=>x.PublicId==input.RecordId)).EditedAt);}
++    [FunctionalTheory][InlineData(false)][InlineData(true)]
++    public async Task GivenHttpCreatedRecord_WhenRotatingContent_ThenRequireCompleteInventoryAndPreserveEditedAt(bool complete)
++    {
++        using var owner=new ProtectionFixture();var s=await Setup(owner);var input=Input();using(var created=await Send(s,input))await Success<CreateRecordOutput>(created,201);var content=new List<ContentReplacement>{new("account",s.AccountId,1,Envelope(2))};if(complete)content.Add(new("record",input.RecordId,1,Envelope(2)));var change=new ProtectionChange(s.AccountId,1,1,"rotate-content",owner.Rewrap(),content.ToArray());var raw=Bytes(change);
++        using var challengeRequest=new HttpRequestMessage(HttpMethod.Post,"/api/vault/challenges"){Content=JsonContent.Create(new{operation="change-protection",requestHash=ProtocolBinary.Encode(SHA256.HashData(raw))})};challengeRequest.Headers.Authorization=new("Bearer",RegistrationApiFixture.Token(s.Actor));using var issued=await Gateway.Client.SendAsync(challengeRequest);Assert.Equal(HttpStatusCode.Created,issued.StatusCode);using var document=JsonDocument.Parse(await issued.Content.ReadAsStringAsync());var challenge=document.RootElement.GetProperty("data").GetProperty("challenge").Deserialize<VaultProofChallenge>(ProtectionFixture.Json)!;var before=await Snapshot(s);
++        using var request=Request(s,raw,"/api/vault/protection");request.Method=HttpMethod.Put;request.Headers.Add("X-Cerberus-Challenge-Id",challenge.ChallengeId.ToString());request.Headers.Add("X-Cerberus-Proof",owner.Sign(challenge));using var response=await Gateway.Client.SendAsync(request);if(!complete){await Failure(response,400,"validation_failed");Assert.Equal(before,await Snapshot(s));}else{Assert.Equal(HttpStatusCode.OK,response.StatusCode);Assert.True(response.Headers.CacheControl?.NoStore);await using var db=fixture.Context();var record=await db.Records.SingleAsync(x=>x.PublicId==input.RecordId);Assert.Equal(2,record.Revision);Assert.Equal(Bytes(content[1].Envelope),record.Envelope);Assert.Equal(Normalize(input.EditedAt),record.EditedAt);Assert.True((await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==challenge.ChallengeId)).Consumed);using var stale=await Send(s,Input());await Failure(stale,403);}
++    }
++    private sealed record State(Guid Actor,Guid AccountId,long InternalId,string Access);
++    private async Task<State> Setup(ProtectionFixture client)
++    {var actor=Guid.NewGuid();fixture.Users[actor+"@example.test"]=new(actor,"fixture-password");await using var db=fixture.Context();var account=new Account{PublicId=Guid.NewGuid(),HeimdallPublicId=actor,DetailsEnvelope=Bytes(Envelope())};db.Accounts.Add(account);await db.SaveChangesAsync();var access=ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32));OpaqueAccessHandle.TryHash(access,out var verifier);db.VaultProtections.Add(new(){AccountId=account.Id,Material=Bytes(client.Material)});db.VaultAccessSessions.Add(new(){AccountId=account.Id,HandleVerifier=verifier,IssuedAt=DateTimeOffset.UtcNow.AddMinutes(-1),ExpiresAt=DateTimeOffset.UtcNow.AddHours(1),PolicyRevision=1,RevocationGeneration=1});await db.SaveChangesAsync();return new(actor,account.PublicId,account.Id,access);}
++    private async Task<VaultFolder> Folder(State s,long? parent=null){var f=new VaultFolder{PublicId=Guid.NewGuid(),AccountId=s.InternalId,ParentFolderId=parent,Envelope=Bytes(Envelope()),EditedAt=DateTimeOffset.UnixEpoch};await using var db=fixture.Context();db.Folders.Add(f);await db.SaveChangesAsync();return f;}
++    private async Task<Profile> Profile(State s,ProtectionFixture owner,ProtectionFixture scoped,VaultFolder? folder=null,string mode="Master")
++    {var id=Guid.NewGuid();var input=new ProfileCreateInput(id,Envelope(),new(mode,scoped.Material.UnlockVerifier,owner.Wrap(s.AccountId,"profile",id,s.Actor),mode=="PerProfile"?scoped.Material.PasswordWrapper:null),DateTimeOffset.UnixEpoch,[],folder is null?[]:[folder.PublicId],[]);using var request=Request(s,Bytes(input),"/api/profiles");using var r=await Gateway.Client.SendAsync(request);Assert.Equal(HttpStatusCode.Created,r.StatusCode);await using var db=fixture.Context();return await db.Profiles.AsNoTracking().SingleAsync(x=>x.PublicId==id);}
++    private async Task<string> Open(State s,Profile p,ProtectionFixture scoped)
++    {var raw=Bytes(new{expectedRevision=1});using var challengeRequest=Request(s,Bytes(new{expectedRevision=1,requestHash=ProtocolBinary.Encode(SHA256.HashData(raw))}),"/api/profiles/"+p.PublicId+"/access/challenges");challengeRequest.Headers.Remove("X-Cerberus-Vault-Access");using var issued=await Gateway.Client.SendAsync(challengeRequest);var challenge=(await Success<IssueProfileAccessChallengeOutput>(issued,201)).Challenge;using var open=Request(s,raw,"/api/profiles/"+p.PublicId+"/access");open.Headers.Remove("X-Cerberus-Vault-Access");open.Headers.Add("X-Cerberus-Challenge-Id",challenge.ChallengeId.ToString());open.Headers.Add("X-Cerberus-Proof",scoped.Sign(challenge));using var response=await Gateway.Client.SendAsync(open);return (await Success<OpenProfileAccessOutput>(response,200)).VaultAccess;}
++    private static RecordCreateInput Input(Guid[]? profiles=null,Guid? folder=null)=>new(Guid.NewGuid(),Envelope(),DateTimeOffset.UnixEpoch.AddTicks(19),profiles??[],folder);
++    private static EncryptedEnvelope Envelope(long epoch=1)=>new("cerberus-content-v1",epoch,ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32)),ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(12)),ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(73)),ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(16)));
++    private static byte[] Bytes<T>(T value)=>JsonSerializer.SerializeToUtf8Bytes(value,ProtectionFixture.Json);
++    private static DateTimeOffset Normalize(DateTimeOffset value)=>value.AddTicks(-(value.Ticks%10));
++    private static HttpRequestMessage Request(State s,byte[] body,string path="/api/records"){var r=new HttpRequestMessage(HttpMethod.Post,path){Content=new ByteArrayContent(body)};r.Content.Headers.ContentType=new("application/json");r.Headers.Authorization=new("Bearer",RegistrationApiFixture.Token(s.Actor));r.Headers.Add("X-Cerberus-Vault-Access",s.Access);return r;}
++    private async Task<HttpResponseMessage> Send(State s,RecordCreateInput input){using var request=Request(s,Bytes(input));return await Gateway.Client.SendAsync(request);}
++    private async Task<HttpResponseMessage> Read(State s,string path){using var request=new HttpRequestMessage(HttpMethod.Get,path);request.Headers.Authorization=new("Bearer",RegistrationApiFixture.Token(s.Actor));request.Headers.Add("X-Cerberus-Vault-Access",s.Access);return await Gateway.Client.SendAsync(request);}
++    private async Task<string> Protected(State s){await using var db=fixture.Context();return JsonSerializer.Serialize(new{Account=await db.Accounts.AsNoTracking().SingleAsync(x=>x.Id==s.InternalId),Protection=await db.VaultProtections.AsNoTracking().SingleAsync(x=>x.AccountId==s.InternalId),Sessions=await db.VaultAccessSessions.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync()});}
++    private async Task<string> Snapshot(State s){await using var db=fixture.Context();return JsonSerializer.Serialize(new{Protected=await Protected(s),Records=await db.Records.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync(),Profiles=await db.Profiles.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync(),Folders=await db.Folders.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync(),ProfileRecords=await db.ProfileRecords.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.ProfileId).ThenBy(x=>x.RecordId).ToArrayAsync()});}
++    private static async Task<T> Success<T>(HttpResponseMessage r,int status) where T:class{Assert.Equal((HttpStatusCode)status,r.StatusCode);Assert.True(r.Headers.CacheControl?.NoStore);var result=await r.Content.ReadFromJsonAsync<DataOutput<T>>();Assert.True(result!.Success);return Assert.IsType<T>(result.Data);}
++    private static void Fields(object value,params string[] names){using var d=JsonDocument.Parse(JsonSerializer.Serialize(value,ProtectionFixture.Json));Assert.Equal(names.Order(),d.RootElement.EnumerateObject().Select(x=>x.Name).Order());}
++    private static async Task Failure(HttpResponseMessage r,int status,string? error=null){Assert.Equal((HttpStatusCode)status,r.StatusCode);Assert.True(r.Headers.CacheControl?.NoStore);if(status==413){Assert.Equal("",await r.Content.ReadAsStringAsync());return;}using var d=JsonDocument.Parse(await r.Content.ReadAsStringAsync());Assert.False(d.RootElement.GetProperty("success").GetBoolean());if(d.RootElement.TryGetProperty("data",out var data))Assert.Equal(JsonValueKind.Null,data.ValueKind);if(error is not null)Assert.Contains(error,d.RootElement.GetProperty("errors").EnumerateArray().Select(x=>x.GetString()));}
++}

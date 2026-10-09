@@ -1,0 +1,5 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc22-worktree/src/Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj (in 990 ms).
+  Restored /tmp/cerberus-uc22-worktree/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 1.07 sec).
+  Restored /tmp/cerberus-uc22-worktree/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 1.02 sec).
+  9 of 12 projects are up-to-date for restore.

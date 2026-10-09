@@ -1,0 +1,126 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc21-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc21-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc21-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc21-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc21-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc21-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:18.94]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "PerProfile", route: "toRoot") [FAIL]
+[xUnit.net 00:00:19.30]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "MasterFolder", route: "between") [FAIL]
+[xUnit.net 00:00:19.57]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "wide", route: "same") [FAIL]
+[xUnit.net 00:00:19.92]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "Master", route: "same") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "PerProfile", route: "toRoot") [547 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   3
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "MasterFolder", route: "between") [362 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   3
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "wide", route: "same") [270 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1
+Actual:   2
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "Master", route: "same") [343 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1
+Actual:   2
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:20.24]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "wide", route: "between") [FAIL]
+[xUnit.net 00:00:20.91]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "PerProfileFolder", route: "between") [FAIL]
+[xUnit.net 00:00:21.53]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "PerProfile", route: "same") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "wide", route: "between") [323 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   3
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "PerProfileFolder", route: "between") [657 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   3
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "PerProfile", route: "same") [615 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1
+Actual:   2
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:22.23]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "PerProfile", route: "between") [FAIL]
+[xUnit.net 00:00:22.66]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "Master", route: "toRoot") [FAIL]
+[xUnit.net 00:00:23.04]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "Master", route: "between") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "PerProfile", route: "between") [693 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   3
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "Master", route: "toRoot") [435 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   3
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "Master", route: "between") [372 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   3
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:23.37]     ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "wide", route: "toRoot") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(mode: "wide", route: "toRoot") [321 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   3
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+   at ArturRios.Cerberus.WebApi.Tests.RecordMoveHttpTests.GivenActualNativeOwnedScope_WhenMoving_ThenRetainCipherLinksAndHandleAndReturnFourFields(String mode, String route) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordMoveHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    11, Passed:   126, Skipped:     0, Total:   137, Duration: 36 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

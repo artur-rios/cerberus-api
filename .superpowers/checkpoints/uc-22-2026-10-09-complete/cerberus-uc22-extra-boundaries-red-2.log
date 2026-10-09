@@ -1,0 +1,106 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc22-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc22-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc22-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v4.0.0+05679a7ab5 (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.16]   Discovering: ArturRios.Cerberus.Data.Tests
+[xUnit.net 00:00:00.55]   Discovered:  ArturRios.Cerberus.Data.Tests
+[xUnit.net 00:00:00.58]   Starting:    ArturRios.Cerberus.Data.Tests
+[testcontainers.org 00:00:00.13] Connected to Docker:
+  Host: unix:///var/run/docker.sock
+  Server Version: 29.8.2
+  Kernel Version: 7.0.0-34-generic
+  API Version: 1.56
+  Operating System: Ubuntu 26.04.1 LTS
+  Total Memory: 31.34 GB
+[testcontainers.org 00:00:00.43] Docker container 588a9cd86bc6 created
+[testcontainers.org 00:00:00.50] Start Docker container 588a9cd86bc6
+[testcontainers.org 00:00:00.70] Wait for Docker container 588a9cd86bc6 to complete readiness checks
+[testcontainers.org 00:00:01.72] Docker container 588a9cd86bc6 ready
+[testcontainers.org 00:00:01.88] Docker container 00aba413319b created
+[testcontainers.org 00:00:01.88] Start Docker container 00aba413319b
+[testcontainers.org 00:00:02.05] Wait for Docker container 00aba413319b to complete readiness checks
+[testcontainers.org 00:00:02.06] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 00aba413319b
+[testcontainers.org 00:00:03.13] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 00aba413319b
+[testcontainers.org 00:00:04.18] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 00aba413319b
+[testcontainers.org 00:00:04.24] Docker container 00aba413319b ready
+[xUnit.net 00:00:09.43]     ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(afterLock: True) [FAIL]
+[xUnit.net 00:00:09.43]       Assert.False() Failure
+[xUnit.net 00:00:09.43]       Expected: False
+[xUnit.net 00:00:09.43]       Actual:   True
+[xUnit.net 00:00:09.44]       Stack Trace:
+[xUnit.net 00:00:09.44]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPurgeHandlerTests.cs(169,0): at ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(Boolean afterLock)
+[xUnit.net 00:00:09.44]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPurgeHandlerTests.cs(171,0): at ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(Boolean afterLock)
+[xUnit.net 00:00:09.44]         --- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(afterLock: True) [3 s]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(Boolean afterLock) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPurgeHandlerTests.cs:line 169
+   at ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(Boolean afterLock) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPurgeHandlerTests.cs:line 171
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:09.50]     ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(afterLock: False) [FAIL]
+[xUnit.net 00:00:09.50]       Assert.False() Failure
+[xUnit.net 00:00:09.50]       Expected: False
+[xUnit.net 00:00:09.50]       Actual:   True
+[xUnit.net 00:00:09.50]       Stack Trace:
+[xUnit.net 00:00:09.50]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPurgeHandlerTests.cs(169,0): at ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(Boolean afterLock)
+[xUnit.net 00:00:09.50]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPurgeHandlerTests.cs(171,0): at ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(Boolean afterLock)
+[xUnit.net 00:00:09.50]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:10.29]     ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(link: "collection") [FAIL]
+[xUnit.net 00:00:10.29]       Assert.Equal() Failure: Strings differ
+[xUnit.net 00:00:10.29]       Expected: "not_found"
+[xUnit.net 00:00:10.29]       Actual:   null
+[xUnit.net 00:00:10.29]       Stack Trace:
+[xUnit.net 00:00:10.29]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs(108,0): at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(String link)
+[xUnit.net 00:00:10.29]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs(110,0): at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(String link)
+[xUnit.net 00:00:10.29]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:10.48]     ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(link: "profile") [FAIL]
+[xUnit.net 00:00:10.48]       Assert.Equal() Failure: Strings differ
+[xUnit.net 00:00:10.48]       Expected: "not_found"
+[xUnit.net 00:00:10.48]       Actual:   null
+[xUnit.net 00:00:10.48]       Stack Trace:
+[xUnit.net 00:00:10.48]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs(108,0): at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(String link)
+[xUnit.net 00:00:10.48]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs(110,0): at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(String link)
+[xUnit.net 00:00:10.48]         --- End of stack trace from previous location ---
+[testcontainers.org 00:00:09.81] Delete Docker container 00aba413319b
+[xUnit.net 00:00:10.77]   Finished:    ArturRios.Cerberus.Data.Tests
+  Failed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(afterLock: False) [70 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(Boolean afterLock) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPurgeHandlerTests.cs:line 169
+   at ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(Boolean afterLock) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPurgeHandlerTests.cs:line 171
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(link: "collection") [786 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "not_found"
+Actual:   null
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(String link) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs:line 108
+   at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(String link) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs:line 110
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(link: "profile") [191 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "not_found"
+Actual:   null
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(String link) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs:line 108
+   at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(String link) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs:line 110
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 4
+     Failed: 4
+ Total time: 11.2960 Seconds

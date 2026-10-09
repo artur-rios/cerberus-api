@@ -1,0 +1,1 @@
+PASS actualOpenAPI PUTfolder:2requiredinputfields/4outputproperties/nullablefolder/8statuses. KnownsharedgeneratorMinors retained: requiredheader/requestBody/outputfields omitted;413ProblemDetails vsactualempty. Runtime137HTTP assertscorrectcontract.

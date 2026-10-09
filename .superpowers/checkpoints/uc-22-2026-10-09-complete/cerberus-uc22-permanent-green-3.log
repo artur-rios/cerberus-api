@@ -1,0 +1,154 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc22-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc22-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc22-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v4.0.0+05679a7ab5 (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.13]   Discovering: ArturRios.Cerberus.Data.Tests
+[xUnit.net 00:00:00.46]   Discovered:  ArturRios.Cerberus.Data.Tests
+[xUnit.net 00:00:00.52]   Starting:    ArturRios.Cerberus.Data.Tests
+[testcontainers.org 00:00:00.14] Connected to Docker:
+  Host: unix:///var/run/docker.sock
+  Server Version: 29.8.2
+  Kernel Version: 7.0.0-34-generic
+  API Version: 1.56
+  Operating System: Ubuntu 26.04.1 LTS
+  Total Memory: 31.34 GB
+[testcontainers.org 00:00:00.37] Docker container c5cacf89ef95 created
+[testcontainers.org 00:00:00.41] Start Docker container c5cacf89ef95
+[testcontainers.org 00:00:00.58] Wait for Docker container c5cacf89ef95 to complete readiness checks
+[testcontainers.org 00:00:01.61] Docker container c5cacf89ef95 ready
+[testcontainers.org 00:00:01.75] Docker container 8d3f7c8d7109 created
+[testcontainers.org 00:00:01.76] Start Docker container 8d3f7c8d7109
+[testcontainers.org 00:00:01.91] Wait for Docker container 8d3f7c8d7109 to complete readiness checks
+[testcontainers.org 00:00:01.92] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 8d3f7c8d7109
+[testcontainers.org 00:00:03.01] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 8d3f7c8d7109
+[testcontainers.org 00:00:04.05] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 8d3f7c8d7109
+[testcontainers.org 00:00:04.13] Docker container 8d3f7c8d7109 ready
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenInvalidPersistedPurgeAuthority_WhenExecuting_ThenNoLedgerOrPhysicalRemoval(kind: "missingTerminal") [1 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenInvalidPersistedPurgeAuthority_WhenExecuting_ThenNoLedgerOrPhysicalRemoval(kind: "completed") [137 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenInvalidPersistedPurgeAuthority_WhenExecuting_ThenNoLedgerOrPhysicalRemoval(kind: "wrongWork") [93 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenInvalidPersistedPurgeAuthority_WhenExecuting_ThenNoLedgerOrPhysicalRemoval(kind: "otherKind") [111 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenInvalidPersistedPurgeAuthority_WhenExecuting_ThenNoLedgerOrPhysicalRemoval(kind: "wrongKey") [49 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenInvalidPersistedPurgeAuthority_WhenExecuting_ThenNoLedgerOrPhysicalRemoval(kind: "stolen") [75 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenInvalidPersistedPurgeAuthority_WhenExecuting_ThenNoLedgerOrPhysicalRemoval(kind: "expired") [68 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenClaimExpiresAfterCheckBeforePhysicalStatement_WhenPurging_ThenThatStatementCannotRemoveRows(table: "record") [2 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenClaimExpiresAfterCheckBeforePhysicalStatement_WhenPurging_ThenThatStatementCannotRemoveRows(table: "trash_operation") [2 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenClaimExpiresAfterCheckBeforePhysicalStatement_WhenPurging_ThenThatStatementCannotRemoveRows(table: "trash_entry") [2 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenClaimExpiresAfterCheckBeforePhysicalStatement_WhenPurging_ThenThatStatementCannotRemoveRows(table: "retention_work_item") [2 s]
+[testcontainers.org 00:00:16.27] Execute "pg_dump --username=postgres --dbname=postgres --schema=cerberus --clean --if-exists --file=/tmp/cerberus-test-backup-767b69694dee4eb98a9db0c2ab41f450.sql" at Docker container 8d3f7c8d7109
+[testcontainers.org 00:00:16.53] Execute "psql --username=postgres --dbname=postgres --set=ON_ERROR_STOP=1 --file=/tmp/cerberus-test-backup-767b69694dee4eb98a9db0c2ab41f450.sql" at Docker container 8d3f7c8d7109
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenClaimChangesDuringDurableLedgerWrite_WhenPurging_ThenFinalFenceKeepsCipherForNewClaim(kind: "expired") [69 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenClaimChangesDuringDurableLedgerWrite_WhenPurging_ThenFinalFenceKeepsCipherForNewClaim(kind: "stolen") [40 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenFailureAfterPhysicalDelete_WhenPurging_ThenRollbackCipherRemovalAndRetryWithoutDuplicateLedger [54 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenBackupBeforePermanentDeletion_WhenRestoringAndReplayingLedger_ThenRemoveCiphertextBeforeTrafficAndKeepOtherKinds [639 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenNonemptyTrashCascadeWithSameGuidOtherKind_WhenPurgingRecord_ThenKeepOtherEntryOperationAndResources [119 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenControlledRecipientEditAndOwnerPermanentDelete_WhenWaitingOnCollections_ThenOneWinnerWithoutDeadlock(deleteFirst: True) [283 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenControlledRecipientEditAndOwnerPermanentDelete_WhenWaitingOnCollections_ThenOneWinnerWithoutDeadlock(deleteFirst: False) [131 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenChangedRestrictedTrashScope_WhenPermanentlyDeleting_ThenNoIntentOrErasure(route: "direct", change: "profileTrash", error: "vault_access_denied") [333 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenChangedRestrictedTrashScope_WhenPermanentlyDeleting_ThenNoIntentOrErasure(route: "direct", change: "missing", error: "not_found") [191 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenChangedRestrictedTrashScope_WhenPermanentlyDeleting_ThenNoIntentOrErasure(route: "collection", change: "collectionTrash", error: "not_found") [188 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenChangedRestrictedTrashScope_WhenPermanentlyDeleting_ThenNoIntentOrErasure(route: "direct", change: "snapshot", error: "persistence_unavailable") [119 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenChangedRestrictedTrashScope_WhenPermanentlyDeleting_ThenNoIntentOrErasure(route: "descendant", change: "folderTrash", error: "not_found") [192 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenChangedRestrictedTrashScope_WhenPermanentlyDeleting_ThenNoIntentOrErasure(route: "collection", change: "removedCollection", error: "not_found") [172 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenChangedRestrictedTrashScope_WhenPermanentlyDeleting_ThenNoIntentOrErasure(route: "direct", change: "wrongProfile", error: "not_found") [102 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenChangedRestrictedTrashScope_WhenPermanentlyDeleting_ThenNoIntentOrErasure(route: "folder", change: "folderTrash", error: "not_found") [126 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(route: "wide", trash: True) [178 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(route: "collection", trash: False) [158 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(route: "folder", trash: True) [189 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(route: "descendant", trash: True) [186 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(route: "folder", trash: False) [123 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(route: "collection", trash: True) [170 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(route: "direct", trash: False) [97 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(route: "wide", trash: False) [92 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(route: "direct", trash: True) [161 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(route: "descendant", trash: False) [119 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "revoked", error: "vault_access_denied") [26 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "missing", error: "not_found") [21 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "actor", error: "not_found") [13 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "future", error: "vault_access_denied") [27 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "closing", error: "not_found") [25 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "unselected", error: "not_found") [51 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "terminal", error: "not_found") [29 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "handle", error: "vault_access_denied") [48 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "policy", error: "vault_access_denied") [40 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "stale", error: "revision_conflict") [60 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "ancestorTrash", error: "not_found") [46 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "dangling", error: "vault_access_denied") [50 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "generation", error: "vault_access_denied") [33 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(kind: "expired", error: "vault_access_denied") [32 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenOwnedDamagedCipherAndMaximumRevision_WhenDeleting_ThenEraseWithoutDecryptionOrRevisionIncrement(trash: False) [66 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenOwnedDamagedCipherAndMaximumRevision_WhenDeleting_ThenEraseWithoutDecryptionOrRevisionIncrement(trash: True) [100 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenNativeVisibleForeignOwner_WhenDeletingWithStaleRevisionAndBadCipher_Then403WithoutLedger(access: ReadWrite, selected: True) [111 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenNativeVisibleForeignOwner_WhenDeletingWithStaleRevisionAndBadCipher_Then403WithoutLedger(access: ReadWrite, selected: False) [40 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenNativeVisibleForeignOwner_WhenDeletingWithStaleRevisionAndBadCipher_Then403WithoutLedger(access: ReadOnly, selected: False) [38 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenNativeVisibleForeignOwner_WhenDeletingWithStaleRevisionAndBadCipher_Then403WithoutLedger(access: ReadOnly, selected: True) [67 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenUnsafeRequiredMetadata_WhenDeleting_ThenNoIntentOrParentMutation(kind: "revisionZero", error: "persistence_unavailable") [92 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenUnsafeRequiredMetadata_WhenDeleting_ThenNoIntentOrParentMutation(kind: "revisionUnsafe", error: "persistence_unavailable") [123 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenUnsafeRequiredMetadata_WhenDeleting_ThenNoIntentOrParentMutation(kind: "parentRevisionZero", error: "persistence_unavailable") [100 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenUnsafeRequiredMetadata_WhenDeleting_ThenNoIntentOrParentMutation(kind: "sequenceUnsafe", error: "persistence_unavailable") [86 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenUnsafeRequiredMetadata_WhenDeleting_ThenNoIntentOrParentMutation(kind: "parentRevisionMax", error: "revision_conflict") [86 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenUnsafeRequiredMetadata_WhenDeleting_ThenNoIntentOrParentMutation(kind: "sequenceZero", error: "persistence_unavailable") [124 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenUnsafeRequiredMetadata_WhenDeleting_ThenNoIntentOrParentMutation(kind: "parentSequenceZero", error: "persistence_unavailable") [82 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenFailureAfterIntentMutation_WhenDeleting_ThenRollbackEverythingAndAllowRetry(table: "record") [192 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenFailureAfterIntentMutation_WhenDeleting_ThenRollbackEverythingAndAllowRetry(table: "collection") [184 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenFailureAfterIntentMutation_WhenDeleting_ThenRollbackEverythingAndAllowRetry(table: "folder") [180 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenFailureAfterIntentMutation_WhenDeleting_ThenRollbackEverythingAndAllowRetry(table: "profile") [155 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTerminalRecordAwaitingLedger_WhenRotatingSurvivingInventory_ThenTrashIsRequiredButTerminalCipherIsExcluded(includeTerminal: False) [214 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTerminalRecordAwaitingLedger_WhenRotatingSurvivingInventory_ThenTrashIsRequiredButTerminalCipherIsExcluded(includeTerminal: True) [72 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenUnrelatedDeepInventory_WhenPermanentlyDeleting_ThenAnalyzeOneTargetAndOwnOrderedLocks [194 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenLedgerFailureAfterCommittedIntent_WhenDeletingThenRunningWorker_ThenDenyAllWritersAndRecoverDurably(failAfterLedger: False) [135 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenLedgerFailureAfterCommittedIntent_WhenDeletingThenRunningWorker_ThenDenyAllWritersAndRecoverDurably(failAfterLedger: True) [112 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenAuthorityChangesBeforeFinalIntent_WhenDeleting_ThenReclassifyWithoutMutation(change: "ownerTerminal", error: "not_found") [107 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenAuthorityChangesBeforeFinalIntent_WhenDeleting_ThenReclassifyWithoutMutation(change: "ancestorHidden", error: "not_found") [93 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenAuthorityChangesBeforeFinalIntent_WhenDeleting_ThenReclassifyWithoutMutation(change: "recordTerminal", error: "not_found") [102 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenAuthorityChangesBeforeFinalIntent_WhenDeleting_ThenReclassifyWithoutMutation(change: "ancestorCycle", error: "persistence_unavailable") [105 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenPermanentIntentHoldsOwnedParents_WhenAnotherActualWriterStarts_ThenSerializeWithoutDeadlock(writer: "create") [139 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenPermanentIntentHoldsOwnedParents_WhenAnotherActualWriterStarts_ThenSerializeWithoutDeadlock(writer: "association") [118 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenExpiryDuringAnyRequiredLockWait_WhenDeletingStaleRevision_Then403BeforeConflictAndNoIntent(kind: "collection") [2 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenExpiryDuringAnyRequiredLockWait_WhenDeletingStaleRevision_Then403BeforeConflictAndNoIntent(kind: "profile") [2 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenExpiryDuringAnyRequiredLockWait_WhenDeletingStaleRevision_Then403BeforeConflictAndNoIntent(kind: "folder") [2 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenExpiryDuringAnyRequiredLockWait_WhenDeletingStaleRevision_Then403BeforeConflictAndNoIntent(kind: "record") [2 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenExpiryDuringAnyRequiredLockWait_WhenDeletingStaleRevision_Then403BeforeConflictAndNoIntent(kind: "session") [2 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenExpiryDuringAnyRequiredLockWait_WhenDeletingStaleRevision_Then403BeforeConflictAndNoIntent(kind: "account") [2 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenAccountwideOwnedTrash_WhenDeleting_ThenEraseDespiteUnusedHistoryOrElapsedRestoreWindow(kind: "expiredRetention") [131 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenAccountwideOwnedTrash_WhenDeleting_ThenEraseDespiteUnusedHistoryOrElapsedRestoreWindow(kind: "badSnapshot") [135 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenActualConcurrentExpectedRevisionWriters_WhenDeleting_ThenKeepOneWinnerAndNoResurrection(writer: "trash") [97 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenActualConcurrentExpectedRevisionWriters_WhenDeleting_ThenKeepOneWinnerAndNoResurrection(writer: "move") [206 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenActualConcurrentExpectedRevisionWriters_WhenDeleting_ThenKeepOneWinnerAndNoResurrection(writer: "edit") [105 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenActualConcurrentExpectedRevisionWriters_WhenDeleting_ThenKeepOneWinnerAndNoResurrection(writer: "permanent") [51 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenMalformedForeignNativeRoute_WhenDeleting_Then503OnlyIfCurrentTargetVisible(access: ReadWrite, visible: False) [43 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenMalformedForeignNativeRoute_WhenDeleting_Then503OnlyIfCurrentTargetVisible(access: ReadOnly, visible: False) [48 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenMalformedForeignNativeRoute_WhenDeleting_Then503OnlyIfCurrentTargetVisible(access: ReadOnly, visible: True) [36 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenMalformedForeignNativeRoute_WhenDeleting_Then503OnlyIfCurrentTargetVisible(access: ReadWrite, visible: True) [36 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenNewUnheldEarlierAuthorityBeforeRecordLock_WhenDeleting_Then409WithoutLateLockOrIntent(kind: "profile") [75 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenNewUnheldEarlierAuthorityBeforeRecordLock_WhenDeleting_Then409WithoutLateLockOrIntent(kind: "collection") [74 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenNewUnheldEarlierAuthorityBeforeRecordLock_WhenDeleting_Then409WithoutLateLockOrIntent(kind: "parent") [128 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCancellationAtLedgerBoundary_WhenDeleting_ThenKeepCommittedTerminalIntentAndOutbox(caller: True) [72 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCancellationAtLedgerBoundary_WhenDeleting_ThenKeepCommittedTerminalIntentAndOutbox(caller: False) [63 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenParentSequenceExhaustionOrRegression_WhenDeleting_ThenRollbackIntentAndParents(regress: False) [90 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenParentSequenceExhaustionOrRegression_WhenDeleting_ThenRollbackIntentAndParents(regress: True) [91 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenCancelledCaller_WhenDeleting_ThenPropagateWithoutIntent [21 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenFreshExpiryAtFinalStatement_WhenDeleting_Then403AndNoTerminalIntent [2 s]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenActiveDirectParent_WhenDeleting_ThenAdvanceStructuralMetadataOnceAndKeepCipher(parent: "profile") [136 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenActiveDirectParent_WhenDeleting_ThenAdvanceStructuralMetadataOnceAndKeepCipher(parent: "collection") [101 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenActiveDirectParent_WhenDeleting_ThenAdvanceStructuralMetadataOnceAndKeepCipher(parent: "folder") [114 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidInternalRequest_WhenDeleting_ThenRejectWithoutDependencyOrIntent(field: "negative", error: "validation_failed") [9 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidInternalRequest_WhenDeleting_ThenRejectWithoutDependencyOrIntent(field: "zero", error: "validation_failed") [6 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidInternalRequest_WhenDeleting_ThenRejectWithoutDependencyOrIntent(field: "actor", error: "authentication_required") [6 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidInternalRequest_WhenDeleting_ThenRejectWithoutDependencyOrIntent(field: "record", error: "validation_failed") [7 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidInternalRequest_WhenDeleting_ThenRejectWithoutDependencyOrIntent(field: "unsafe", error: "validation_failed") [11 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenUnavailableDatabase_WhenDeleting_Then503WithoutLedger [41 ms]
+[testcontainers.org 00:00:42.07] Delete Docker container 8d3f7c8d7109
+[xUnit.net 00:00:42.93]   Finished:    ArturRios.Cerberus.Data.Tests
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenOtherKindsSharingRecordGuid_WhenPermanentlyDeleting_ThenPreserveTheirRowsAndAccess(trash: True) [182 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenOtherKindsSharingRecordGuid_WhenPermanentlyDeleting_ThenPreserveTheirRowsAndAccess(trash: False) [144 ms]
+
+Test Run Successful.
+Total tests: 114
+     Passed: 114
+ Total time: 43.3576 Seconds

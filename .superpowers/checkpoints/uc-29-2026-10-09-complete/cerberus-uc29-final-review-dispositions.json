@@ -1,0 +1,24 @@
+{
+  "reviewedHead": "413aa0afd64180d7f17e7c77dbba61d8eda3579a",
+  "agent": "/root/uc29_final_review",
+  "critical": 0,
+  "important": 0,
+  "newMinor": 0,
+  "declined": 8,
+  "allDeclinedRegraded": true,
+  "blockingFixPassRequired": false,
+  "rulings": [
+    "Final: Ruling: D1 independent formal crypto/security/protocol qualification remains development-only deferred \u2014 the owner explicitly authorized this boundary and ordinary review/native checks are not formal approval; main/tag/release gates remain mandatory \u2014 cost if wrong: latent security or protocol defects require independent qualification before release.",
+    "Final: Ruling: D2 external-client usable-key provisioning and authenticated decryption remain release obligations \u2014 creation groups opaque owned ciphertext without fabricating wrappers or usable keys, as the binding contract requires \u2014 cost if wrong: a real client may need additional opaque key provisioning and must not infer working decryption from creation success.",
+    "Final: Ruling: D3 durable inherited visibility and offline removals belong to UC48 \u2014 current GET/list recalculates initial collection membership, while direct structural bumps do not claim complete offline event delivery \u2014 cost if wrong: offline clients can retain obsolete visibility until the synchronization flow is implemented and qualified.",
+    "Final: Ruling: D4 collection list/detail/update/delete/membership replacement follow as UC30\u201334 in the authorized batch \u2014 this reviewed branch implements only UC29 POST and all its flows; extending endpoints here would break the one-use-case delivery boundary \u2014 cost if wrong: those operations remain unavailable until their subsequent deliveries.",
+    "Final: Ruling: D5 trash restoration and physical expiry remain mandatory later use cases \u2014 this operation preserves actual earlier trash operations/deadlines and complete retained rotation, while missing retention handlers currently retry \u2014 cost if wrong: restore/physical expiry cannot be claimed complete or released before UC50\u201353 deliver them.",
+    "Final: Ruling: D6 implicit recipient-account FK audit remains mandatory before UC35 public grant creation \u2014 controlled current owner/native recipient content writers pass, but no new recipient-account FK writer is introduced here \u2014 cost if wrong: future grant creation can introduce cross-account deadlocks unless the separate audit and regressions are completed first.",
+    "Final: Ruling: D7 shared generated requiredness/wrapper/empty413 metadata remains a before-client-release obligation \u2014 the new operation has exact six required inner inputs/four output fields/eight statuses and all baseline operations remain unchanged; runtime strictness and actual empty413 are verified \u2014 cost if wrong: generated clients can omit required context or mis-model success/error data and attempt decoding an absent413 body.",
+    "Final: Ruling: D8 remote delivery must still be proven by the executor \u2014 read-only code review does not attest CI/merge/issue/project/archive completion; proceed only through exact-head checks and actual closeout evidence \u2014 cost if wrong: premature completion claims can leave a tested branch unmerged or its issue/project incomplete."
+  ],
+  "inheritedMinors": [
+    "Final: minor (deferred, inherited): Shared OpenAPI access-header/body requiredness, success-field required lists and wrapper nullability remain incomplete. Correct shared generation before external-client release. Cost: generated clients can omit inputs or mis-model successful/error output; runtime strictness is verified.",
+    "Final: minor (deferred, inherited): Shared OpenAPI advertises ProblemDetails for actual empty413. Correct shared response metadata before external-client release. Cost: generated clients can attempt decoding an absent body; bounded rejection is verified."
+  ]
+}

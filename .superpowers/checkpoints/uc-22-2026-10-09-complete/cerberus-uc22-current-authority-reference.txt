@@ -1,0 +1,96 @@
+    private sealed record Item(Guid RecordId,long Id,long AccountId,long Revision,long Sequence,DateTimeOffset EditedAt,string Envelope);
+    private sealed class Snapshot
+    {
+        public bool ActorActive{get;set;}public bool Allowed{get;set;}public bool CorruptAncestry{get;set;}public bool Writable{get;set;}
+        public string? Item{get;set;}public long[] Collections{get;set;}=[];public long[] GrantsIds{get;set;}=[];
+        public string Grants{get;set;}="[]";public string? Protection{get;set;}
+    }
+    private sealed record GrantEvidence(Guid CollectionId,long CollectionEpoch,string CollectionEnvelope,Guid GrantId,long GrantRevision,string GrantEnvelope);
+    private sealed record ProtectionEvidence(Guid OwnerId,Guid RecipientIdentity,string? OwnerMaterial,long? OwnerRevision,long? OwnerEpoch,long? OwnerGeneration,string? RecipientMaterial,long? RecipientRevision,long? RecipientEpoch,long? RecipientGeneration);
+    private const string SnapshotSelect="""
+        SELECT EXISTS(SELECT FROM actor a WHERE a.state=@active AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id))) AS actor_active,
+          EXISTS(SELECT FROM session) AS allowed,EXISTS(SELECT FROM writable) AS writable,
+          EXISTS(SELECT FROM scoped r JOIN ancestry t ON t.record_id=r.id WHERE t.cycle
+            AND NOT EXISTS(SELECT FROM ancestry hidden WHERE hidden.record_id=r.id AND hidden.hidden)) AS corrupt_ancestry,
+          (SELECT jsonb_build_object('recordId',r.public_id,'id',r.id,'accountId',r.account_id,'revision',r.revision,
+            'sequence',r.server_sequence,'editedAt',r.edited_at,'envelope',encode(r.envelope,'hex'))::text FROM visible r) AS item,
+          ARRAY(SELECT DISTINCT i.collection_id FROM included i JOIN visible r ON r.id=i.record_id) AS collections,
+          ARRAY(SELECT grant_id FROM relevant_grants) AS grants_ids,
+          (SELECT jsonb_build_object('ownerId',owner.public_id,'recipientIdentity',a.heimdall_public_id,
+            'ownerMaterial',encode(op.material,'hex'),'ownerRevision',op.revision,'ownerEpoch',op.key_epoch,'ownerGeneration',op.recovery_generation,
+            'recipientMaterial',encode(rp.material,'hex'),'recipientRevision',rp.revision,'recipientEpoch',rp.key_epoch,'recipientGeneration',rp.recovery_generation)::text
+            FROM visible r JOIN cerberus.account owner ON owner.id=r.account_id CROSS JOIN actor a
+            LEFT JOIN cerberus.vault_protection op ON op.account_id=owner.id LEFT JOIN cerberus.vault_protection rp ON rp.account_id=a.id
+            WHERE EXISTS(SELECT FROM relevant_grants)) AS protection,
+          COALESCE((SELECT jsonb_agg(jsonb_build_object('collectionId',c.public_id,'collectionEpoch',c.key_epoch,
+            'collectionEnvelope',encode(c.envelope,'hex'),'grantId',g.public_id,'grantRevision',g.revision,'grantEnvelope',encode(g.recipient_key_envelope,'hex')))
+            FROM relevant_grants rg JOIN cerberus.collection_grant g ON g.id=rg.grant_id JOIN cerberus.collection c ON c.id=g.collection_id),'[]'::jsonb)::text AS grants
+        """;
+    private const string Authority="""
+        WITH RECURSIVE actor AS (
+                            SELECT a.* FROM cerberus.account a WHERE a.heimdall_public_id=@actor
+                        ), session AS (
+                            SELECT s.* FROM cerberus.vault_access_session s JOIN actor a ON a.id=s.account_id
+                            WHERE a.state=@active
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id))
+                              AND s.handle_verifier=@verifier AND NOT s.revoked
+                              AND s.policy_revision>0 AND s.revocation_generation>0
+                              AND s.policy_revision=a.policy_revision AND s.revocation_generation=a.revocation_generation
+                              AND s.issued_at<=statement_timestamp()
+                              AND CASE WHEN a.renewal_enabled THEN s.expires_at>statement_timestamp() ELSE s.expires_at IS NULL END
+                              AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile p
+                                  WHERE p.id=s.profile_id AND p.account_id=a.id AND p.deleted_at IS NULL
+                                    AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id))))
+                        ), collections AS (
+                            SELECT c.*,g.id grant_id FROM cerberus.collection c
+                            JOIN cerberus.account owner ON owner.id=c.account_id CROSS JOIN session s
+                            LEFT JOIN cerberus.collection_grant g ON g.collection_id=c.id AND g.recipient_account_id=s.account_id
+                              AND g.state=@grant_active
+                              AND g.access IN (@read_only,@read_write)
+                              AND g.revision>0 AND g.revision<=@max
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='grant' AND e.resource_id=g.public_id))
+                            WHERE owner.state=@active AND c.deleted_at IS NULL
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=owner.public_id) OR (e.resource_kind='collection' AND e.resource_id=c.public_id))
+                              AND (c.account_id=s.account_id OR g.id IS NOT NULL)
+                              AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile_collection pc WHERE pc.profile_id=s.profile_id AND pc.collection_id=c.id))
+                        ), candidates AS MATERIALIZED (
+                            SELECT r.* FROM cerberus.record r JOIN cerberus.account owner ON owner.id=r.account_id CROSS JOIN session s
+                            WHERE r.public_id=@target AND owner.state=@active
+                              AND (r.account_id=s.account_id OR EXISTS(SELECT FROM collections c WHERE c.account_id=r.account_id))
+                              AND r.deleted_at IS NULL
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='record' AND e.resource_id=r.public_id) OR (e.resource_kind='account' AND e.resource_id=owner.public_id))
+                        ), ancestry AS (
+                            SELECT r.id record_id,r.account_id,f.id,f.parent_folder_id,ARRAY[f.id] path,false cycle,
+                                (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))) hidden
+                            FROM candidates r JOIN cerberus.folder f ON f.id=r.folder_id AND f.account_id=r.account_id
+                            UNION ALL
+                            SELECT t.record_id,t.account_id,f.id,f.parent_folder_id,t.path||f.id,f.id=ANY(t.path),
+                                t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))
+                            FROM ancestry t JOIN cerberus.folder f ON f.id=t.parent_folder_id AND f.account_id=t.account_id
+                            WHERE NOT t.cycle
+                        ), included AS (
+                            SELECT r.id record_id,c.id collection_id,c.grant_id FROM candidates r JOIN collections c ON c.account_id=r.account_id
+                            WHERE EXISTS(SELECT FROM cerberus.collection_record cr WHERE cr.collection_id=c.id AND cr.record_id=r.id AND cr.account_id=r.account_id)
+                               OR EXISTS(SELECT FROM cerberus.collection_folder cf JOIN ancestry t ON t.id=cf.folder_id
+                                   WHERE cf.collection_id=c.id AND cf.account_id=r.account_id AND t.record_id=r.id)
+                        ), scoped AS (
+                            SELECT r.* FROM candidates r CROSS JOIN session s WHERE
+                              (r.account_id=s.account_id AND (s.profile_id IS NULL
+                                OR EXISTS(SELECT FROM cerberus.profile_record pr WHERE pr.profile_id=s.profile_id AND pr.account_id=s.account_id AND pr.record_id=r.id)
+                                OR EXISTS(SELECT FROM cerberus.profile_folder pf JOIN ancestry t ON t.id=pf.folder_id
+                                    WHERE pf.profile_id=s.profile_id AND pf.account_id=s.account_id AND t.record_id=r.id)))
+                              OR EXISTS(SELECT FROM included i WHERE i.record_id=r.id)
+                        ), visible AS (
+                            SELECT r.* FROM scoped r WHERE
+                              NOT EXISTS(SELECT FROM ancestry t WHERE t.record_id=r.id AND (t.hidden OR t.cycle))
+                              AND (r.folder_id IS NULL OR EXISTS(SELECT FROM ancestry t WHERE t.record_id=r.id AND t.parent_folder_id IS NULL))
+                        ), relevant_grants AS (
+                            SELECT DISTINCT i.grant_id FROM included i JOIN visible r ON r.id=i.record_id CROSS JOIN session s
+                            WHERE r.account_id<>s.account_id AND i.grant_id IS NOT NULL
+                        ), writable AS (
+            SELECT r.* FROM visible r CROSS JOIN session s WHERE r.account_id=s.account_id
+              OR EXISTS(SELECT FROM included i JOIN cerberus.collection_grant g ON g.id=i.grant_id
+                        WHERE i.record_id=r.id AND g.access=@read_write)
+        )
+        """;
+}

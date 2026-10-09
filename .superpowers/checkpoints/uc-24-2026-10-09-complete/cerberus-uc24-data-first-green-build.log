@@ -1,0 +1,5 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc24-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc24-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc24-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+/tmp/cerberus-uc24-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderListStoreTests.cs(157,189): error CS8115: A throw expression is not allowed in this context. [/tmp/cerberus-uc24-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]
+/tmp/cerberus-uc24-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderListStoreTests.cs(157,195): error CS0029: Cannot implicitly convert type 'bool' to 'System.Exception' [/tmp/cerberus-uc24-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]

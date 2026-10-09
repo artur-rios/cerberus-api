@@ -1,0 +1,1492 @@
+docker	Set up job	﻿2026-10-09T06:07:44.5181199Z Current runner version: '2.337.0'
+docker	Set up job	2026-10-09T06:07:44.5201087Z ##[group]Runner Image Provisioner
+docker	Set up job	2026-10-09T06:07:44.5202014Z Hosted Compute Agent
+docker	Set up job	2026-10-09T06:07:44.5202369Z Version: 20261002.596
+docker	Set up job	2026-10-09T06:07:44.5202792Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+docker	Set up job	2026-10-09T06:07:44.5203260Z Build Date: 2026-10-02T22:28:27Z
+docker	Set up job	2026-10-09T06:07:44.5203666Z Worker ID: {66fff96f-00bc-416c-8520-289af840f901}
+docker	Set up job	2026-10-09T06:07:44.5204117Z Region: centralus
+docker	Set up job	2026-10-09T06:07:44.5204449Z Cloud: Azure
+docker	Set up job	2026-10-09T06:07:44.5204765Z ##[endgroup]
+docker	Set up job	2026-10-09T06:07:44.5205854Z ##[group]Operating System
+docker	Set up job	2026-10-09T06:07:44.5206225Z Ubuntu
+docker	Set up job	2026-10-09T06:07:44.5206604Z 24.04.5
+docker	Set up job	2026-10-09T06:07:44.5206917Z LTS
+docker	Set up job	2026-10-09T06:07:44.5207219Z ##[endgroup]
+docker	Set up job	2026-10-09T06:07:44.5207629Z ##[group]Runner Image
+docker	Set up job	2026-10-09T06:07:44.5208005Z Image: ubuntu-24.04
+docker	Set up job	2026-10-09T06:07:44.5208366Z Version: 20261004.327.1
+docker	Set up job	2026-10-09T06:07:44.5208992Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+docker	Set up job	2026-10-09T06:07:44.5210081Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+docker	Set up job	2026-10-09T06:07:44.5210635Z ##[endgroup]
+docker	Set up job	2026-10-09T06:07:44.5211503Z ##[group]GITHUB_TOKEN Permissions
+docker	Set up job	2026-10-09T06:07:44.5212914Z Contents: read
+docker	Set up job	2026-10-09T06:07:44.5213302Z Metadata: read
+docker	Set up job	2026-10-09T06:07:44.5213678Z Packages: read
+docker	Set up job	2026-10-09T06:07:44.5214009Z ##[endgroup]
+docker	Set up job	2026-10-09T06:07:44.5215409Z Secret source: Actions
+docker	Set up job	2026-10-09T06:07:44.5215954Z Cache mode: write
+docker	Set up job	2026-10-09T06:07:44.5216458Z Prepare workflow directory
+docker	Set up job	2026-10-09T06:07:44.5430009Z Prepare all required actions
+docker	Set up job	2026-10-09T06:07:44.5462384Z Getting action download info
+docker	Set up job	2026-10-09T06:07:44.8012322Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+docker	Set up job	2026-10-09T06:07:44.9115674Z Download action repository 'docker/build-push-action@v7' (SHA:c3c9e263c25d99ce0380d002d59b67737d91b0dc)
+docker	Set up job	2026-10-09T06:07:45.5953407Z Complete job name: docker
+docker	Checkout repository	﻿2026-10-09T06:07:45.6452685Z ##[group]Run actions/checkout@v7
+docker	Checkout repository	2026-10-09T06:07:45.6453125Z with:
+docker	Checkout repository	2026-10-09T06:07:45.6453383Z   repository: artur-rios/cerberus-api
+docker	Checkout repository	2026-10-09T06:07:45.6455447Z   token: ***
+docker	Checkout repository	2026-10-09T06:07:45.6455687Z   ssh-strict: true
+docker	Checkout repository	2026-10-09T06:07:45.6455927Z   ssh-user: git
+docker	Checkout repository	2026-10-09T06:07:45.6456173Z   persist-credentials: true
+docker	Checkout repository	2026-10-09T06:07:45.6456438Z   clean: true
+docker	Checkout repository	2026-10-09T06:07:45.6456685Z   sparse-checkout-cone-mode: true
+docker	Checkout repository	2026-10-09T06:07:45.6456968Z   fetch-depth: 1
+docker	Checkout repository	2026-10-09T06:07:45.6457204Z   fetch-tags: false
+docker	Checkout repository	2026-10-09T06:07:45.6457451Z   show-progress: true
+docker	Checkout repository	2026-10-09T06:07:45.6457694Z   lfs: false
+docker	Checkout repository	2026-10-09T06:07:45.6457921Z   submodules: false
+docker	Checkout repository	2026-10-09T06:07:45.6458165Z   set-safe-directory: true
+docker	Checkout repository	2026-10-09T06:07:45.6458442Z   allow-unsafe-pr-checkout: false
+docker	Checkout repository	2026-10-09T06:07:45.6458794Z ##[endgroup]
+docker	Checkout repository	2026-10-09T06:07:45.7189036Z Syncing repository: artur-rios/cerberus-api
+docker	Checkout repository	2026-10-09T06:07:45.7191031Z ##[group]Getting Git version info
+docker	Checkout repository	2026-10-09T06:07:45.7191910Z Working directory is '/home/runner/work/cerberus-api/cerberus-api'
+docker	Checkout repository	2026-10-09T06:07:45.7193021Z [command]/usr/bin/git version
+docker	Checkout repository	2026-10-09T06:07:45.7261206Z git version 2.55.0
+docker	Checkout repository	2026-10-09T06:07:45.7279288Z ##[endgroup]
+docker	Checkout repository	2026-10-09T06:07:45.7289705Z Temporarily overriding HOME='/home/runner/work/_temp/558a480b-2210-46e4-9c8a-925136266402' before making global git config changes
+docker	Checkout repository	2026-10-09T06:07:45.7291060Z Adding repository directory to the temporary git global config as a safe directory
+docker	Checkout repository	2026-10-09T06:07:45.7294650Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/cerberus-api/cerberus-api
+docker	Checkout repository	2026-10-09T06:07:45.7345966Z Deleting the contents of '/home/runner/work/cerberus-api/cerberus-api'
+docker	Checkout repository	2026-10-09T06:07:45.7348727Z ##[group]Determining repository object format
+docker	Checkout repository	2026-10-09T06:07:45.7350138Z ##[endgroup]
+docker	Checkout repository	2026-10-09T06:07:45.7350542Z ##[group]Initializing the repository
+docker	Checkout repository	2026-10-09T06:07:45.7354733Z [command]/usr/bin/git init /home/runner/work/cerberus-api/cerberus-api
+docker	Checkout repository	2026-10-09T06:07:45.7506785Z hint: Using 'master' as the name for the initial branch. This default branch name
+docker	Checkout repository	2026-10-09T06:07:45.7508705Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+docker	Checkout repository	2026-10-09T06:07:45.7509766Z hint: to use in all of your new repositories, which will suppress this warning,
+docker	Checkout repository	2026-10-09T06:07:45.7510602Z hint: call:
+docker	Checkout repository	2026-10-09T06:07:45.7511080Z hint:
+docker	Checkout repository	2026-10-09T06:07:45.7511841Z hint: 	git config --global init.defaultBranch <name>
+docker	Checkout repository	2026-10-09T06:07:45.7512531Z hint:
+docker	Checkout repository	2026-10-09T06:07:45.7513170Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+docker	Checkout repository	2026-10-09T06:07:45.7514104Z hint: 'development'. The just-created branch can be renamed via this command:
+docker	Checkout repository	2026-10-09T06:07:45.7514872Z hint:
+docker	Checkout repository	2026-10-09T06:07:45.7515353Z hint: 	git branch -m <name>
+docker	Checkout repository	2026-10-09T06:07:45.7515874Z hint:
+docker	Checkout repository	2026-10-09T06:07:45.7516526Z hint: Disable this message with "git config set advice.defaultBranchName false"
+docker	Checkout repository	2026-10-09T06:07:45.7517806Z Initialized empty Git repository in /home/runner/work/cerberus-api/cerberus-api/.git/
+docker	Checkout repository	2026-10-09T06:07:45.7519956Z [command]/usr/bin/git remote add origin https://github.com/artur-rios/cerberus-api
+docker	Checkout repository	2026-10-09T06:07:45.7673605Z ##[endgroup]
+docker	Checkout repository	2026-10-09T06:07:45.7674172Z ##[group]Disabling automatic garbage collection
+docker	Checkout repository	2026-10-09T06:07:45.7679319Z [command]/usr/bin/git config --local gc.auto 0
+docker	Checkout repository	2026-10-09T06:07:45.7797957Z ##[endgroup]
+docker	Checkout repository	2026-10-09T06:07:45.7798651Z ##[group]Setting up auth
+docker	Checkout repository	2026-10-09T06:07:45.7799154Z Removing SSH command configuration
+docker	Checkout repository	2026-10-09T06:07:45.7803826Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+docker	Checkout repository	2026-10-09T06:07:45.7838135Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+docker	Checkout repository	2026-10-09T06:07:45.8115503Z Removing HTTP extra header
+docker	Checkout repository	2026-10-09T06:07:45.8120140Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+docker	Checkout repository	2026-10-09T06:07:45.8158487Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+docker	Checkout repository	2026-10-09T06:07:45.8332300Z Removing includeIf entries pointing to credentials config files
+docker	Checkout repository	2026-10-09T06:07:45.8337058Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+docker	Checkout repository	2026-10-09T06:07:45.8367481Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+docker	Checkout repository	2026-10-09T06:07:45.8547890Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-8e316133-8d1d-495f-9c0e-578006720833.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+docker	Checkout repository	2026-10-09T06:07:45.8588869Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git.path /home/runner/work/_temp/git-credentials-8e316133-8d1d-495f-9c0e-578006720833.config
+docker	Checkout repository	2026-10-09T06:07:45.8643590Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-8e316133-8d1d-495f-9c0e-578006720833.config
+docker	Checkout repository	2026-10-09T06:07:45.8695871Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-8e316133-8d1d-495f-9c0e-578006720833.config
+docker	Checkout repository	2026-10-09T06:07:45.8904475Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-8e316133-8d1d-495f-9c0e-578006720833.config
+docker	Checkout repository	2026-10-09T06:07:45.9097559Z ##[endgroup]
+docker	Checkout repository	2026-10-09T06:07:45.9098070Z ##[group]Fetching the repository
+docker	Checkout repository	2026-10-09T06:07:45.9104281Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +b84253e488b806c236f479f5ae1ef894bc42f9a5:refs/remotes/pull/84/merge
+docker	Checkout repository	2026-10-09T06:07:46.8212923Z From https://github.com/artur-rios/cerberus-api
+docker	Checkout repository	2026-10-09T06:07:46.8214618Z  * [new ref]         b84253e488b806c236f479f5ae1ef894bc42f9a5 -> pull/84/merge
+docker	Checkout repository	2026-10-09T06:07:46.8217266Z ##[endgroup]
+docker	Checkout repository	2026-10-09T06:07:46.8218087Z ##[group]Determining the checkout info
+docker	Checkout repository	2026-10-09T06:07:46.8219029Z ##[endgroup]
+docker	Checkout repository	2026-10-09T06:07:46.8221053Z [command]/usr/bin/git sparse-checkout disable
+docker	Checkout repository	2026-10-09T06:07:46.9101531Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+docker	Checkout repository	2026-10-09T06:07:46.9306830Z ##[group]Checking out the ref
+docker	Checkout repository	2026-10-09T06:07:46.9309789Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/84/merge
+docker	Checkout repository	2026-10-09T06:07:46.9689700Z Note: switching to 'refs/remotes/pull/84/merge'.
+docker	Checkout repository	2026-10-09T06:07:46.9694526Z 
+docker	Checkout repository	2026-10-09T06:07:46.9695340Z You are in 'detached HEAD' state. You can look around, make experimental
+docker	Checkout repository	2026-10-09T06:07:46.9697063Z changes and commit them, and you can discard any commits you make in this
+docker	Checkout repository	2026-10-09T06:07:46.9698800Z state without impacting any branches by switching back to a branch.
+docker	Checkout repository	2026-10-09T06:07:46.9700004Z 
+docker	Checkout repository	2026-10-09T06:07:46.9700759Z If you want to create a new branch to retain commits you create, you may
+docker	Checkout repository	2026-10-09T06:07:46.9702618Z do so (now or later) by using -c with the switch command. Example:
+docker	Checkout repository	2026-10-09T06:07:46.9703623Z 
+docker	Checkout repository	2026-10-09T06:07:46.9704017Z   git switch -c <new-branch-name>
+docker	Checkout repository	2026-10-09T06:07:46.9704701Z 
+docker	Checkout repository	2026-10-09T06:07:46.9705103Z Or undo this operation with:
+docker	Checkout repository	2026-10-09T06:07:46.9705735Z 
+docker	Checkout repository	2026-10-09T06:07:46.9706087Z   git switch -
+docker	Checkout repository	2026-10-09T06:07:46.9706867Z 
+docker	Checkout repository	2026-10-09T06:07:46.9708204Z Turn off this advice by setting config variable advice.detachedHead to false
+docker	Checkout repository	2026-10-09T06:07:46.9709411Z 
+docker	Checkout repository	2026-10-09T06:07:46.9710825Z HEAD is now at b84253e Merge 3bf6b37c211447cfc74ca277defa75910bcae7ec into d72d92072eaba28509597c545f4833a8ef58faa6
+docker	Checkout repository	2026-10-09T06:07:46.9715253Z ##[endgroup]
+docker	Checkout repository	2026-10-09T06:07:46.9744995Z [command]/usr/bin/git log -1 --format=%H
+docker	Checkout repository	2026-10-09T06:07:46.9770811Z b84253e488b806c236f479f5ae1ef894bc42f9a5
+docker	Detect Docker scaffold	﻿2026-10-09T06:07:47.0013699Z ##[group]Run if test -f Dockerfile; then
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0014632Z [36;1mif test -f Dockerfile; then[0m
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0015410Z [36;1m  echo "ready=true" >> "$GITHUB_OUTPUT"[0m
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0016307Z [36;1melif test -f src/ArturRios.Cerberus.sln; then[0m
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0017377Z [36;1m  echo "::error::The foundation solution requires its Dockerfile."[0m
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0018320Z [36;1m  exit 1[0m
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0018846Z [36;1melse[0m
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0019471Z [36;1m  echo "ready=false" >> "$GITHUB_OUTPUT"[0m
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0020654Z [36;1m  echo "Documentation-only stage; Docker build starts with the foundation scaffold."[0m
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0021916Z [36;1mfi[0m
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0222612Z shell: /usr/bin/bash -e {0}
+docker	Detect Docker scaffold	2026-10-09T06:07:47.0223309Z ##[endgroup]
+docker	Build the container image	﻿2026-10-09T06:07:47.0896836Z ##[group]Run docker/build-push-action@v7
+docker	Build the container image	2026-10-09T06:07:47.0897532Z with:
+docker	Build the container image	2026-10-09T06:07:47.0897944Z   context: .
+docker	Build the container image	2026-10-09T06:07:47.0898371Z   push: false
+docker	Build the container image	2026-10-09T06:07:47.0898801Z   load: false
+docker	Build the container image	2026-10-09T06:07:47.0899263Z   no-cache: false
+docker	Build the container image	2026-10-09T06:07:47.0899714Z   pull: false
+docker	Build the container image	2026-10-09T06:07:47.0904817Z   github-token: ***
+docker	Build the container image	2026-10-09T06:07:47.0905285Z ##[endgroup]
+docker	Build the container image	2026-10-09T06:07:47.2701839Z ##[group]GitHub Actions runtime token ACs
+docker	Build the container image	2026-10-09T06:07:47.2707661Z refs/pull/84/merge: read/write
+docker	Build the container image	2026-10-09T06:07:47.2708131Z refs/heads/develop: read
+docker	Build the container image	2026-10-09T06:07:47.2708780Z ##[endgroup]
+docker	Build the container image	2026-10-09T06:07:47.2709307Z ##[group]Docker info
+docker	Build the container image	2026-10-09T06:07:47.2736010Z [command]/usr/bin/docker version
+docker	Build the container image	2026-10-09T06:07:47.3565877Z Client: Docker Engine - Community
+docker	Build the container image	2026-10-09T06:07:47.3566922Z  Version:           28.0.4
+docker	Build the container image	2026-10-09T06:07:47.3567838Z  API version:       1.48
+docker	Build the container image	2026-10-09T06:07:47.3568278Z  Go version:        go1.23.7
+docker	Build the container image	2026-10-09T06:07:47.3568695Z  Git commit:        b8034c0
+docker	Build the container image	2026-10-09T06:07:47.3569165Z  Built:             Tue Mar 25 15:07:16 2025
+docker	Build the container image	2026-10-09T06:07:47.3569462Z  OS/Arch:           linux/amd64
+docker	Build the container image	2026-10-09T06:07:47.3569707Z  Context:           default
+docker	Build the container image	2026-10-09T06:07:47.3570134Z 
+docker	Build the container image	2026-10-09T06:07:47.3570255Z Server: Docker Engine - Community
+docker	Build the container image	2026-10-09T06:07:47.3570499Z  Engine:
+docker	Build the container image	2026-10-09T06:07:47.3570825Z   Version:          28.0.4
+docker	Build the container image	2026-10-09T06:07:47.3571204Z   API version:      1.48 (minimum version 1.24)
+docker	Build the container image	2026-10-09T06:07:47.3571725Z   Go version:       go1.23.7
+docker	Build the container image	2026-10-09T06:07:47.3572045Z   Git commit:       6430e49
+docker	Build the container image	2026-10-09T06:07:47.3572364Z   Built:            Tue Mar 25 15:07:16 2025
+docker	Build the container image	2026-10-09T06:07:47.3573140Z   OS/Arch:          linux/amd64
+docker	Build the container image	2026-10-09T06:07:47.3573574Z   Experimental:     false
+docker	Build the container image	2026-10-09T06:07:47.3573914Z  containerd:
+docker	Build the container image	2026-10-09T06:07:47.3574241Z   Version:          v2.3.6
+docker	Build the container image	2026-10-09T06:07:47.3574580Z   GitCommit:        ee2735368117d2eb259779949d5e75cdafec9761
+docker	Build the container image	2026-10-09T06:07:47.3574930Z  runc:
+docker	Build the container image	2026-10-09T06:07:47.3575216Z   Version:          1.5.1
+docker	Build the container image	2026-10-09T06:07:47.3575551Z   GitCommit:        v1.5.1-0-g8f2685a4
+docker	Build the container image	2026-10-09T06:07:47.3575883Z  docker-init:
+docker	Build the container image	2026-10-09T06:07:47.3576173Z   Version:          0.19.0
+docker	Build the container image	2026-10-09T06:07:47.3576482Z   GitCommit:        de40ad0
+docker	Build the container image	2026-10-09T06:07:47.3612319Z [command]/usr/bin/docker info
+docker	Build the container image	2026-10-09T06:07:47.5874159Z Client: Docker Engine - Community
+docker	Build the container image	2026-10-09T06:07:47.5874752Z  Version:    28.0.4
+docker	Build the container image	2026-10-09T06:07:47.5875066Z  Context:    default
+docker	Build the container image	2026-10-09T06:07:47.5875364Z  Debug Mode: false
+docker	Build the container image	2026-10-09T06:07:47.5875643Z  Plugins:
+docker	Build the container image	2026-10-09T06:07:47.5875908Z   buildx: Docker Buildx (Docker Inc.)
+docker	Build the container image	2026-10-09T06:07:47.5876199Z     Version:  v0.37.2
+docker	Build the container image	2026-10-09T06:07:47.5876543Z     Path:     /usr/libexec/docker/cli-plugins/docker-buildx
+docker	Build the container image	2026-10-09T06:07:47.5876875Z   compose: Docker Compose (Docker Inc.)
+docker	Build the container image	2026-10-09T06:07:47.5877245Z     Version:  v2.38.2
+docker	Build the container image	2026-10-09T06:07:47.5877575Z     Path:     /usr/libexec/docker/cli-plugins/docker-compose
+docker	Build the container image	2026-10-09T06:07:47.5877790Z 
+docker	Build the container image	2026-10-09T06:07:47.5877919Z Server:
+docker	Build the container image	2026-10-09T06:07:47.5878213Z  Containers: 0
+docker	Build the container image	2026-10-09T06:07:47.5878461Z   Running: 0
+docker	Build the container image	2026-10-09T06:07:47.5878706Z   Paused: 0
+docker	Build the container image	2026-10-09T06:07:47.5878951Z   Stopped: 0
+docker	Build the container image	2026-10-09T06:07:47.5879192Z  Images: 6
+docker	Build the container image	2026-10-09T06:07:47.5879452Z  Server Version: 28.0.4
+docker	Build the container image	2026-10-09T06:07:47.5879727Z  Storage Driver: overlay2
+docker	Build the container image	2026-10-09T06:07:47.5880010Z   Backing Filesystem: extfs
+docker	Build the container image	2026-10-09T06:07:47.5880292Z   Supports d_type: true
+docker	Build the container image	2026-10-09T06:07:47.5880584Z   Using metacopy: false
+docker	Build the container image	2026-10-09T06:07:47.5880863Z   Native Overlay Diff: false
+docker	Build the container image	2026-10-09T06:07:47.5881162Z   userxattr: false
+docker	Build the container image	2026-10-09T06:07:47.5881559Z  Logging Driver: json-file
+docker	Build the container image	2026-10-09T06:07:47.5881836Z  Cgroup Driver: systemd
+docker	Build the container image	2026-10-09T06:07:47.5882100Z  Cgroup Version: 2
+docker	Build the container image	2026-10-09T06:07:47.5882348Z  Plugins:
+docker	Build the container image	2026-10-09T06:07:47.5882587Z   Volume: local
+docker	Build the container image	2026-10-09T06:07:47.5882867Z   Network: bridge host ipvlan macvlan null overlay
+docker	Build the container image	2026-10-09T06:07:47.5883415Z   Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
+docker	Build the container image	2026-10-09T06:07:47.5884414Z  Swarm: inactive
+docker	Build the container image	2026-10-09T06:07:47.5884689Z  Runtimes: io.containerd.runc.v2 runc
+docker	Build the container image	2026-10-09T06:07:47.5884986Z  Default Runtime: runc
+docker	Build the container image	2026-10-09T06:07:47.5885249Z  Init Binary: docker-init
+docker	Build the container image	2026-10-09T06:07:47.5885571Z  containerd version: ee2735368117d2eb259779949d5e75cdafec9761
+docker	Build the container image	2026-10-09T06:07:47.5885922Z  runc version: v1.5.1-0-g8f2685a4
+docker	Build the container image	2026-10-09T06:07:47.5886203Z  init version: de40ad0
+docker	Build the container image	2026-10-09T06:07:47.5886463Z  Security Options:
+docker	Build the container image	2026-10-09T06:07:47.5886712Z   apparmor
+docker	Build the container image	2026-10-09T06:07:47.5887040Z   seccomp
+docker	Build the container image	2026-10-09T06:07:47.5887378Z    Profile: builtin
+docker	Build the container image	2026-10-09T06:07:47.5887727Z   cgroupns
+docker	Build the container image	2026-10-09T06:07:47.5888079Z  Kernel Version: 6.17.0-1022-azure
+docker	Build the container image	2026-10-09T06:07:47.5888497Z  Operating System: Ubuntu 24.04.5 LTS
+docker	Build the container image	2026-10-09T06:07:47.5888903Z  OSType: linux
+docker	Build the container image	2026-10-09T06:07:47.5889250Z  Architecture: x86_64
+docker	Build the container image	2026-10-09T06:07:47.5889588Z  CPUs: 4
+docker	Build the container image	2026-10-09T06:07:47.5889903Z  Total Memory: 15.61GiB
+docker	Build the container image	2026-10-09T06:07:47.5890156Z  Name: runnervmmprz5
+docker	Build the container image	2026-10-09T06:07:47.5890403Z  ID: 07f0e779-c305-4162-b8ec-c48c30f52fbe
+docker	Build the container image	2026-10-09T06:07:47.5890794Z  Docker Root Dir: /var/lib/docker
+docker	Build the container image	2026-10-09T06:07:47.5891165Z  Debug Mode: false
+docker	Build the container image	2026-10-09T06:07:47.5891694Z  Username: githubactions
+docker	Build the container image	2026-10-09T06:07:47.5892252Z  Experimental: false
+docker	Build the container image	2026-10-09T06:07:47.5892597Z  Insecure Registries:
+docker	Build the container image	2026-10-09T06:07:47.5898166Z   ::1/128
+docker	Build the container image	2026-10-09T06:07:47.5898434Z   127.0.0.0/8
+docker	Build the container image	2026-10-09T06:07:47.5898672Z  Live Restore Enabled: false
+docker	Build the container image	2026-10-09T06:07:47.5898835Z 
+docker	Build the container image	2026-10-09T06:07:47.5899547Z ##[endgroup]
+docker	Build the container image	2026-10-09T06:07:47.5899955Z ##[group]Proxy configuration
+docker	Build the container image	2026-10-09T06:07:47.5900220Z No proxy configuration found
+docker	Build the container image	2026-10-09T06:07:47.5900642Z ##[endgroup]
+docker	Build the container image	2026-10-09T06:07:47.6362712Z ##[group]Buildx version
+docker	Build the container image	2026-10-09T06:07:47.6376748Z [command]/usr/bin/docker buildx version
+docker	Build the container image	2026-10-09T06:07:47.7139462Z github.com/docker/buildx v0.37.2 2d379c0c3f22da0d2759d132a0ec81ca949098f0
+docker	Build the container image	2026-10-09T06:07:47.7166137Z ##[endgroup]
+docker	Build the container image	2026-10-09T06:07:47.7166837Z ##[group]Builder info
+docker	Build the container image	2026-10-09T06:07:47.8535334Z {
+docker	Build the container image	2026-10-09T06:07:47.8535944Z   "nodes": [
+docker	Build the container image	2026-10-09T06:07:47.8536298Z     {
+docker	Build the container image	2026-10-09T06:07:47.8536626Z       "name": "default",
+docker	Build the container image	2026-10-09T06:07:47.8536998Z       "endpoint": "default",
+docker	Build the container image	2026-10-09T06:07:47.8537387Z       "status": "running",
+docker	Build the container image	2026-10-09T06:07:47.8537758Z       "buildkit": "v0.20.2",
+docker	Build the container image	2026-10-09T06:07:47.8538246Z       "platforms": "linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/amd64/v4,linux/386",
+docker	Build the container image	2026-10-09T06:07:47.8538806Z       "features": {
+docker	Build the container image	2026-10-09T06:07:47.8539274Z         "Automatically load images to the Docker Engine image store": true,
+docker	Build the container image	2026-10-09T06:07:47.8539845Z         "Cache export": true,
+docker	Build the container image	2026-10-09T06:07:47.8540307Z         "Direct push": true,
+docker	Build the container image	2026-10-09T06:07:47.8540721Z         "Docker exporter": true,
+docker	Build the container image	2026-10-09T06:07:47.8541159Z         "Multi-platform build": true,
+docker	Build the container image	2026-10-09T06:07:47.8541712Z         "OCI exporter": true,
+docker	Build the container image	2026-10-09T06:07:47.8542132Z         "Prefer image digest": true
+docker	Build the container image	2026-10-09T06:07:47.8542544Z       },
+docker	Build the container image	2026-10-09T06:07:47.8542881Z       "labels": {
+docker	Build the container image	2026-10-09T06:07:47.8543414Z         "org.mobyproject.buildkit.worker.moby.host-gateway-ip": "172.17.0.1"
+docker	Build the container image	2026-10-09T06:07:47.8544015Z       }
+docker	Build the container image	2026-10-09T06:07:47.8544385Z     }
+docker	Build the container image	2026-10-09T06:07:47.8544702Z   ],
+docker	Build the container image	2026-10-09T06:07:47.8545033Z   "name": "default",
+docker	Build the container image	2026-10-09T06:07:47.8545401Z   "driver": "docker"
+docker	Build the container image	2026-10-09T06:07:47.8545763Z }
+docker	Build the container image	2026-10-09T06:07:47.8546693Z ##[endgroup]
+docker	Build the container image	2026-10-09T06:07:48.0172720Z [command]/usr/bin/docker buildx build --iidfile /home/runner/work/_temp/docker-actions-toolkit-jnWGfT/build-iidfile-6e5261f9e0.txt --metadata-file /home/runner/work/_temp/docker-actions-toolkit-jnWGfT/build-metadata-b9f08b881a.json .
+docker	Build the container image	2026-10-09T06:07:48.2900773Z #0 building with "default" instance using docker driver
+docker	Build the container image	2026-10-09T06:07:48.2901250Z 
+docker	Build the container image	2026-10-09T06:07:48.2901555Z #1 [internal] load build definition from Dockerfile
+docker	Build the container image	2026-10-09T06:07:48.2901896Z #1 transferring dockerfile: 784B done
+docker	Build the container image	2026-10-09T06:07:48.2902186Z #1 DONE 0.1s
+docker	Build the container image	2026-10-09T06:07:48.4553914Z 
+docker	Build the container image	2026-10-09T06:07:48.4555035Z #2 [internal] load metadata for mcr.microsoft.com/dotnet/aspnet:10.0@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4
+docker	Build the container image	2026-10-09T06:07:48.5516049Z #2 ...
+docker	Build the container image	2026-10-09T06:07:48.5517974Z 
+docker	Build the container image	2026-10-09T06:07:48.5518846Z #3 [internal] load metadata for mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317
+docker	Build the container image	2026-10-09T06:07:48.5519637Z #3 DONE 0.2s
+docker	Build the container image	2026-10-09T06:07:48.7319457Z 
+docker	Build the container image	2026-10-09T06:07:48.7320507Z #2 [internal] load metadata for mcr.microsoft.com/dotnet/aspnet:10.0@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4
+docker	Build the container image	2026-10-09T06:07:48.7321241Z #2 DONE 0.3s
+docker	Build the container image	2026-10-09T06:07:48.7321363Z 
+docker	Build the container image	2026-10-09T06:07:48.7321696Z #4 [internal] load .dockerignore
+docker	Build the container image	2026-10-09T06:07:48.7321968Z #4 transferring context: 152B done
+docker	Build the container image	2026-10-09T06:07:49.0515264Z #4 DONE 0.5s
+docker	Build the container image	2026-10-09T06:07:49.2864097Z 
+docker	Build the container image	2026-10-09T06:07:49.2866009Z #5 [internal] load build context
+docker	Build the container image	2026-10-09T06:07:49.2872776Z #5 transferring context: 1.04MB 0.0s done
+docker	Build the container image	2026-10-09T06:07:49.2873195Z #5 DONE 0.0s
+docker	Build the container image	2026-10-09T06:07:49.2873303Z 
+docker	Build the container image	2026-10-09T06:07:49.2873689Z #6 [build 1/6] FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317
+docker	Build the container image	2026-10-09T06:07:49.2874731Z #6 resolve mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317 0.0s done
+docker	Build the container image	2026-10-09T06:07:49.2875163Z #6 sha256:4df5db956df7e072bd410b3f1b69b60194ab4cdd163e8d0f44bdb0d57446371d 5.64kB / 5.64kB done
+docker	Build the container image	2026-10-09T06:07:49.2875535Z #6 sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317 1.08kB / 1.08kB done
+docker	Build the container image	2026-10-09T06:07:49.2875894Z #6 sha256:0eeb52c76e35a5431ca707ad2bc75e38006a05393045d8532ae44c15d9474523 2.64kB / 2.64kB done
+docker	Build the container image	2026-10-09T06:07:49.2876257Z #6 sha256:cc5f75342e9df50121ed06b98a4c3c1ef540823947e47b876b2bead3d4de22af 13.63MB / 16.78MB 0.1s
+docker	Build the container image	2026-10-09T06:07:49.2876635Z #6 sha256:371202940c24d6658420d820bcc0cdb5df77c67038777ad559a9206eac8041f4 3.57kB / 3.57kB 0.1s done
+docker	Build the container image	2026-10-09T06:07:49.3866195Z #6 sha256:cc5f75342e9df50121ed06b98a4c3c1ef540823947e47b876b2bead3d4de22af 16.78MB / 16.78MB 0.2s
+docker	Build the container image	2026-10-09T06:07:49.3866703Z #6 sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b 29.77MB / 29.77MB 0.2s
+docker	Build the container image	2026-10-09T06:07:49.3867133Z #6 sha256:1cd530f65c97a6d091ed29491e0a06b15976dd71a32a2a31b3d6be720de5681a 30.41MB / 36.60MB 0.2s
+docker	Build the container image	2026-10-09T06:07:49.5860279Z #6 sha256:1cd530f65c97a6d091ed29491e0a06b15976dd71a32a2a31b3d6be720de5681a 36.60MB / 36.60MB 0.4s
+docker	Build the container image	2026-10-09T06:07:49.8532648Z #6 sha256:cc5f75342e9df50121ed06b98a4c3c1ef540823947e47b876b2bead3d4de22af 16.78MB / 16.78MB 0.5s done
+docker	Build the container image	2026-10-09T06:07:49.8533333Z #6 sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b 29.77MB / 29.77MB 0.5s done
+docker	Build the container image	2026-10-09T06:07:49.8533995Z #6 sha256:1cd530f65c97a6d091ed29491e0a06b15976dd71a32a2a31b3d6be720de5681a 36.60MB / 36.60MB 0.5s done
+docker	Build the container image	2026-10-09T06:07:49.8534770Z #6 sha256:ac6f29623db71ff92d8da6791126e0f01e6b58ed621a56fc46bcec31a487f9b9 154B / 154B 0.6s done
+docker	Build the container image	2026-10-09T06:07:49.8535372Z #6 sha256:32bc8786185914d38a44bc89ffeff78e3d7fdfec4fc046bf135b1128e4a5ff70 8.39MB / 23.84MB 0.6s
+docker	Build the container image	2026-10-09T06:07:49.8535877Z #6 sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c 0B / 189.60MB 0.6s
+docker	Build the container image	2026-10-09T06:07:49.8536392Z #6 sha256:e3ea09d212970668f1a1699e25c84a1f256d7d0d2544f1bf9ee234c17b70f851 12.74MB / 12.74MB 0.6s
+docker	Build the container image	2026-10-09T06:07:49.9612363Z #6 sha256:32bc8786185914d38a44bc89ffeff78e3d7fdfec4fc046bf135b1128e4a5ff70 23.84MB / 23.84MB 0.7s
+docker	Build the container image	2026-10-09T06:07:49.9613056Z #6 sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c 17.83MB / 189.60MB 0.7s
+docker	Build the container image	2026-10-09T06:07:50.0628810Z #6 sha256:32bc8786185914d38a44bc89ffeff78e3d7fdfec4fc046bf135b1128e4a5ff70 23.84MB / 23.84MB 0.8s done
+docker	Build the container image	2026-10-09T06:07:50.0629822Z #6 sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c 38.80MB / 189.60MB 0.8s
+docker	Build the container image	2026-10-09T06:07:50.0630541Z #6 sha256:e3ea09d212970668f1a1699e25c84a1f256d7d0d2544f1bf9ee234c17b70f851 12.74MB / 12.74MB 0.7s done
+docker	Build the container image	2026-10-09T06:07:50.0631904Z #6 extracting sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b 0.3s
+docker	Build the container image	2026-10-09T06:07:50.0632229Z #6 sha256:dab9b05c2cad4729c801647671db67a7f332348208adfd74691be1de6e4396e3 0B / 21.02MB 0.8s
+docker	Build the container image	2026-10-09T06:07:50.0632595Z #6 sha256:2c6f72fec6544b6bf7da120d6e4128b4c10856e803c8d998f72f8da51a1cdedd 0B / 499B 0.8s
+docker	Build the container image	2026-10-09T06:07:50.1701810Z #6 sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c 63.96MB / 189.60MB 0.9s
+docker	Build the container image	2026-10-09T06:07:50.1702536Z #6 sha256:dab9b05c2cad4729c801647671db67a7f332348208adfd74691be1de6e4396e3 19.92MB / 21.02MB 0.9s
+docker	Build the container image	2026-10-09T06:07:50.1703137Z #6 sha256:2c6f72fec6544b6bf7da120d6e4128b4c10856e803c8d998f72f8da51a1cdedd 499B / 499B 0.9s done
+docker	Build the container image	2026-10-09T06:07:50.2854591Z #6 sha256:eae92bbb09aea95984502ab6604c31ed5247c847c4cf3c3e6fd5934e7c6a3f5b 1.05MB / 20.57MB 0.9s
+docker	Build the container image	2026-10-09T06:07:50.2855523Z #6 sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c 105.91MB / 189.60MB 1.1s
+docker	Build the container image	2026-10-09T06:07:50.2856133Z #6 sha256:dab9b05c2cad4729c801647671db67a7f332348208adfd74691be1de6e4396e3 21.02MB / 21.02MB 1.0s
+docker	Build the container image	2026-10-09T06:07:50.2856509Z #6 sha256:eae92bbb09aea95984502ab6604c31ed5247c847c4cf3c3e6fd5934e7c6a3f5b 20.57MB / 20.57MB 1.1s
+docker	Build the container image	2026-10-09T06:07:50.7626264Z #6 sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c 128.97MB / 189.60MB 1.5s
+docker	Build the container image	2026-10-09T06:07:50.7627084Z #6 sha256:dab9b05c2cad4729c801647671db67a7f332348208adfd74691be1de6e4396e3 21.02MB / 21.02MB 1.4s done
+docker	Build the container image	2026-10-09T06:07:50.7627904Z #6 sha256:eae92bbb09aea95984502ab6604c31ed5247c847c4cf3c3e6fd5934e7c6a3f5b 20.57MB / 20.57MB 1.4s done
+docker	Build the container image	2026-10-09T06:07:50.8868229Z #6 sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c 178.26MB / 189.60MB 1.7s
+docker	Build the container image	2026-10-09T06:07:51.0859463Z #6 sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c 189.60MB / 189.60MB 1.9s
+docker	Build the container image	2026-10-09T06:07:52.0035981Z #6 sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c 189.60MB / 189.60MB 2.7s done
+docker	Build the container image	2026-10-09T06:07:52.0036541Z #6 extracting sha256:cc5f75342e9df50121ed06b98a4c3c1ef540823947e47b876b2bead3d4de22af 1.1s
+docker	Build the container image	2026-10-09T06:07:57.6533540Z #6 extracting sha256:371202940c24d6658420d820bcc0cdb5df77c67038777ad559a9206eac8041f4 done
+docker	Build the container image	2026-10-09T06:07:57.7541310Z #6 extracting sha256:1cd530f65c97a6d091ed29491e0a06b15976dd71a32a2a31b3d6be720de5681a 0.2s
+docker	Build the container image	2026-10-09T06:07:57.9883878Z #6 extracting sha256:1cd530f65c97a6d091ed29491e0a06b15976dd71a32a2a31b3d6be720de5681a 0.3s done
+docker	Build the container image	2026-10-09T06:07:58.5930078Z #6 extracting sha256:32bc8786185914d38a44bc89ffeff78e3d7fdfec4fc046bf135b1128e4a5ff70
+docker	Build the container image	2026-10-09T06:07:58.6940375Z #6 ...
+docker	Build the container image	2026-10-09T06:07:58.6940990Z 
+docker	Build the container image	2026-10-09T06:07:58.6953707Z #7 [runtime 1/3] FROM mcr.microsoft.com/dotnet/aspnet:10.0@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4
+docker	Build the container image	2026-10-09T06:07:58.6954462Z #7 resolve mcr.microsoft.com/dotnet/aspnet:10.0@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4 0.0s done
+docker	Build the container image	2026-10-09T06:07:58.6955250Z #7 sha256:0fa044f682cb7d93a5a90401a00c626c66f7b00b86922be9441f869eae039f80 1.58kB / 1.58kB done
+docker	Build the container image	2026-10-09T06:07:58.6955963Z #7 sha256:1cd530f65c97a6d091ed29491e0a06b15976dd71a32a2a31b3d6be720de5681a 36.60MB / 36.60MB 0.5s done
+docker	Build the container image	2026-10-09T06:07:58.6956562Z #7 sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4 1.08kB / 1.08kB done
+docker	Build the container image	2026-10-09T06:07:58.6957185Z #7 sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b 29.77MB / 29.77MB 0.5s done
+docker	Build the container image	2026-10-09T06:07:58.6982003Z #7 sha256:d61417333ceed11a9a0de53e620ea7b853639016a493a7ecd987490c017b90ef 3.13kB / 3.13kB done
+docker	Build the container image	2026-10-09T06:07:58.6982633Z #7 sha256:cc5f75342e9df50121ed06b98a4c3c1ef540823947e47b876b2bead3d4de22af 16.78MB / 16.78MB 0.5s done
+docker	Build the container image	2026-10-09T06:07:58.6983118Z #7 extracting sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b 1.1s done
+docker	Build the container image	2026-10-09T06:07:58.6983701Z #7 sha256:ac6f29623db71ff92d8da6791126e0f01e6b58ed621a56fc46bcec31a487f9b9 154B / 154B 0.6s done
+docker	Build the container image	2026-10-09T06:07:58.6984257Z #7 sha256:e3ea09d212970668f1a1699e25c84a1f256d7d0d2544f1bf9ee234c17b70f851 12.74MB / 12.74MB 0.7s done
+docker	Build the container image	2026-10-09T06:07:58.6984942Z #7 extracting sha256:cc5f75342e9df50121ed06b98a4c3c1ef540823947e47b876b2bead3d4de22af 1.4s done
+docker	Build the container image	2026-10-09T06:07:58.6985308Z #7 extracting sha256:ac6f29623db71ff92d8da6791126e0f01e6b58ed621a56fc46bcec31a487f9b9 done
+docker	Build the container image	2026-10-09T06:07:58.6985793Z #7 extracting sha256:e3ea09d212970668f1a1699e25c84a1f256d7d0d2544f1bf9ee234c17b70f851 0.1s done
+docker	Build the container image	2026-10-09T06:07:58.6986123Z #7 DONE 9.4s
+docker	Build the container image	2026-10-09T06:07:58.6986217Z 
+docker	Build the container image	2026-10-09T06:07:58.6986321Z #8 [runtime 2/3] WORKDIR /app
+docker	Build the container image	2026-10-09T06:07:58.6986541Z #8 DONE 0.0s
+docker	Build the container image	2026-10-09T06:07:58.6986642Z 
+docker	Build the container image	2026-10-09T06:07:58.6986891Z #6 [build 1/6] FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317
+docker	Build the container image	2026-10-09T06:07:59.2637885Z #6 extracting sha256:32bc8786185914d38a44bc89ffeff78e3d7fdfec4fc046bf135b1128e4a5ff70 0.5s done
+docker	Build the container image	2026-10-09T06:07:59.4782387Z #6 extracting sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c
+docker	Build the container image	2026-10-09T06:08:01.8057828Z #6 extracting sha256:ab9e7b356e2d0263a6bb7d624e94a5827efb77c109f345dfb95e7e20c3c7ba2c 2.2s done
+docker	Build the container image	2026-10-09T06:08:04.7567382Z #6 extracting sha256:dab9b05c2cad4729c801647671db67a7f332348208adfd74691be1de6e4396e3
+docker	Build the container image	2026-10-09T06:08:04.9431227Z #6 extracting sha256:dab9b05c2cad4729c801647671db67a7f332348208adfd74691be1de6e4396e3 0.0s done
+docker	Build the container image	2026-10-09T06:08:04.9432391Z #6 extracting sha256:2c6f72fec6544b6bf7da120d6e4128b4c10856e803c8d998f72f8da51a1cdedd
+docker	Build the container image	2026-10-09T06:08:05.0607472Z #6 extracting sha256:2c6f72fec6544b6bf7da120d6e4128b4c10856e803c8d998f72f8da51a1cdedd done
+docker	Build the container image	2026-10-09T06:08:05.0608065Z #6 extracting sha256:eae92bbb09aea95984502ab6604c31ed5247c847c4cf3c3e6fd5934e7c6a3f5b 0.1s
+docker	Build the container image	2026-10-09T06:08:05.3415340Z #6 extracting sha256:eae92bbb09aea95984502ab6604c31ed5247c847c4cf3c3e6fd5934e7c6a3f5b 0.2s done
+docker	Build the container image	2026-10-09T06:08:05.5053701Z #6 DONE 16.3s
+docker	Build the container image	2026-10-09T06:08:05.7019584Z 
+docker	Build the container image	2026-10-09T06:08:05.7020207Z #9 [build 2/6] WORKDIR /source
+docker	Build the container image	2026-10-09T06:08:05.7020548Z #9 DONE 0.0s
+docker	Build the container image	2026-10-09T06:08:05.7024404Z 
+docker	Build the container image	2026-10-09T06:08:05.7024851Z #10 [build 3/6] COPY global.json Directory.Build.props Directory.Packages.props ./
+docker	Build the container image	2026-10-09T06:08:05.7025278Z #10 DONE 0.0s
+docker	Build the container image	2026-10-09T06:08:05.7025372Z 
+docker	Build the container image	2026-10-09T06:08:05.7025429Z #11 [build 4/6] COPY src/ src/
+docker	Build the container image	2026-10-09T06:08:05.7025565Z #11 DONE 0.0s
+docker	Build the container image	2026-10-09T06:08:05.7025633Z 
+docker	Build the container image	2026-10-09T06:08:05.7025821Z #12 [build 5/6] RUN dotnet restore src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj
+docker	Build the container image	2026-10-09T06:08:06.0794693Z #12 0.528   Determining projects to restore...
+docker	Build the container image	2026-10-09T06:08:08.4804613Z #12 2.928   Restored /source/src/Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj (in 1.6 sec).
+docker	Build the container image	2026-10-09T06:08:08.6680155Z #12 2.930   Restored /source/src/Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj (in 1.6 sec).
+docker	Build the container image	2026-10-09T06:08:08.6680909Z #12 2.931   Restored /source/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 1.6 sec).
+docker	Build the container image	2026-10-09T06:08:08.6681748Z #12 2.951   Restored /source/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 4 ms).
+docker	Build the container image	2026-10-09T06:08:08.6682431Z #12 2.966   Restored /source/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 1.66 sec).
+docker	Build the container image	2026-10-09T06:08:09.2402143Z #12 3.689   Restored /source/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 743 ms).
+docker	Build the container image	2026-10-09T06:08:10.4258602Z #12 DONE 4.9s
+docker	Build the container image	2026-10-09T06:08:10.5769361Z 
+docker	Build the container image	2026-10-09T06:08:10.5770155Z #13 [build 6/6] RUN dotnet publish src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj     --configuration Release --no-restore --output /publish
+docker	Build the container image	2026-10-09T06:08:12.8809982Z #13 2.455   ArturRios.Cerberus.Domain -> /source/src/Domain/ArturRios.Cerberus.Domain/bin/Release/net10.0/ArturRios.Cerberus.Domain.dll
+docker	Build the container image	2026-10-09T06:08:13.2518487Z #13 2.825   ArturRios.Cerberus.Shared -> /source/src/Application/ArturRios.Cerberus.Shared/bin/Release/net10.0/ArturRios.Cerberus.Shared.dll
+docker	Build the container image	2026-10-09T06:08:14.3351963Z #13 3.909   ArturRios.Cerberus.Command -> /source/src/Application/ArturRios.Cerberus.Command/bin/Release/net10.0/ArturRios.Cerberus.Command.dll
+docker	Build the container image	2026-10-09T06:08:14.5037981Z #13 4.077   ArturRios.Cerberus.Query -> /source/src/Application/ArturRios.Cerberus.Query/bin/Release/net10.0/ArturRios.Cerberus.Query.dll
+docker	Build the container image	2026-10-09T06:08:16.2630356Z #13 5.836   ArturRios.Cerberus.Data -> /source/src/Infrastructure/ArturRios.Cerberus.Data/bin/Release/net10.0/ArturRios.Cerberus.Data.dll
+docker	Build the container image	2026-10-09T06:08:17.1626876Z #13 6.736   ArturRios.Cerberus.WebApi -> /source/src/Presentation/ArturRios.Cerberus.WebApi/bin/Release/net10.0/ArturRios.Cerberus.WebApi.dll
+docker	Build the container image	2026-10-09T06:08:17.3541366Z #13 6.822   ArturRios.Cerberus.WebApi -> /publish/
+docker	Build the container image	2026-10-09T06:08:17.3542540Z #13 DONE 6.9s
+docker	Build the container image	2026-10-09T06:08:17.6504266Z 
+docker	Build the container image	2026-10-09T06:08:17.6504933Z #14 [runtime 3/3] COPY --from=build /publish ./
+docker	Build the container image	2026-10-09T06:08:17.7528197Z #14 DONE 0.1s
+docker	Build the container image	2026-10-09T06:08:17.9041852Z 
+docker	Build the container image	2026-10-09T06:08:17.9042293Z #15 exporting to image
+docker	Build the container image	2026-10-09T06:08:17.9042501Z #15 exporting layers
+docker	Build the container image	2026-10-09T06:08:18.0057311Z #15 exporting layers 0.3s done
+docker	Build the container image	2026-10-09T06:08:18.0212745Z #15 writing image sha256:815fc689b94b555638e6725b0aa19b2f0094a896ecba64881cf8395231c86566 done
+docker	Build the container image	2026-10-09T06:08:18.0213480Z #15 DONE 0.3s
+docker	Build the container image	2026-10-09T06:08:18.0213557Z 
+docker	Build the container image	2026-10-09T06:08:18.0213625Z #16 resolving provenance for metadata file
+docker	Build the container image	2026-10-09T06:08:18.0213781Z #16 DONE 0.0s
+docker	Build the container image	2026-10-09T06:08:18.0259514Z ##[group]ImageID
+docker	Build the container image	2026-10-09T06:08:18.0259741Z sha256:815fc689b94b555638e6725b0aa19b2f0094a896ecba64881cf8395231c86566
+docker	Build the container image	2026-10-09T06:08:18.0260532Z ##[endgroup]
+docker	Build the container image	2026-10-09T06:08:18.0260965Z ##[group]Digest
+docker	Build the container image	2026-10-09T06:08:18.0261239Z sha256:815fc689b94b555638e6725b0aa19b2f0094a896ecba64881cf8395231c86566
+docker	Build the container image	2026-10-09T06:08:18.0261860Z ##[endgroup]
+docker	Build the container image	2026-10-09T06:08:18.0263570Z ##[group]Metadata
+docker	Build the container image	2026-10-09T06:08:18.0269909Z ::stop-commands::***
+docker	Build the container image	2026-10-09T06:08:18.0270446Z {
+docker	Build the container image	2026-10-09T06:08:18.0270762Z   "buildx.build.provenance": {
+docker	Build the container image	2026-10-09T06:08:18.0270994Z     "builder": {
+docker	Build the container image	2026-10-09T06:08:18.0271163Z       "id": ""
+docker	Build the container image	2026-10-09T06:08:18.0271274Z     },
+docker	Build the container image	2026-10-09T06:08:18.0271622Z     "buildType": "https://mobyproject.org/buildkit@v1",
+docker	Build the container image	2026-10-09T06:08:18.0271851Z     "materials": [
+docker	Build the container image	2026-10-09T06:08:18.0272023Z       {
+docker	Build the container image	2026-10-09T06:08:18.0272366Z         "uri": "pkg:docker/mcr.microsoft.com/dotnet/aspnet@10.0?digest=sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4&platform=linux%2Famd64",
+docker	Build the container image	2026-10-09T06:08:18.0272726Z         "digest": {
+docker	Build the container image	2026-10-09T06:08:18.0272916Z           "sha256": "222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4"
+docker	Build the container image	2026-10-09T06:08:18.0273146Z         }
+docker	Build the container image	2026-10-09T06:08:18.0273248Z       },
+docker	Build the container image	2026-10-09T06:08:18.0273347Z       {
+docker	Build the container image	2026-10-09T06:08:18.0273677Z         "uri": "pkg:docker/mcr.microsoft.com/dotnet/sdk@10.0?digest=sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317&platform=linux%2Famd64",
+docker	Build the container image	2026-10-09T06:08:18.0274031Z         "digest": {
+docker	Build the container image	2026-10-09T06:08:18.0274220Z           "sha256": "e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317"
+docker	Build the container image	2026-10-09T06:08:18.0274437Z         }
+docker	Build the container image	2026-10-09T06:08:18.0274536Z       }
+docker	Build the container image	2026-10-09T06:08:18.0274631Z     ],
+docker	Build the container image	2026-10-09T06:08:18.0274738Z     "invocation": {
+docker	Build the container image	2026-10-09T06:08:18.0274878Z       "configSource": {
+docker	Build the container image	2026-10-09T06:08:18.0275010Z         "entryPoint": "Dockerfile"
+docker	Build the container image	2026-10-09T06:08:18.0275144Z       },
+docker	Build the container image	2026-10-09T06:08:18.0275249Z       "parameters": {
+docker	Build the container image	2026-10-09T06:08:18.0275379Z         "frontend": "dockerfile.v0",
+docker	Build the container image	2026-10-09T06:08:18.0275521Z         "locals": [
+docker	Build the container image	2026-10-09T06:08:18.0275632Z           {
+docker	Build the container image	2026-10-09T06:08:18.0275743Z             "name": "context"
+docker	Build the container image	2026-10-09T06:08:18.0275870Z           },
+docker	Build the container image	2026-10-09T06:08:18.0275971Z           {
+docker	Build the container image	2026-10-09T06:08:18.0276078Z             "name": "dockerfile"
+docker	Build the container image	2026-10-09T06:08:18.0276204Z           }
+docker	Build the container image	2026-10-09T06:08:18.0276311Z         ]
+docker	Build the container image	2026-10-09T06:08:18.0276409Z       },
+docker	Build the container image	2026-10-09T06:08:18.0276513Z       "environment": {
+docker	Build the container image	2026-10-09T06:08:18.0276640Z         "platform": "linux/amd64"
+docker	Build the container image	2026-10-09T06:08:18.0277005Z       }
+docker	Build the container image	2026-10-09T06:08:18.0277121Z     }
+docker	Build the container image	2026-10-09T06:08:18.0277218Z   },
+docker	Build the container image	2026-10-09T06:08:18.0277386Z   "buildx.build.ref": "default/default/56s5zbkynywz75w02qzpzgvxd",
+docker	Build the container image	2026-10-09T06:08:18.0277741Z   "containerimage.config.digest": "sha256:815fc689b94b555638e6725b0aa19b2f0094a896ecba64881cf8395231c86566",
+docker	Build the container image	2026-10-09T06:08:18.0278114Z   "containerimage.digest": "sha256:815fc689b94b555638e6725b0aa19b2f0094a896ecba64881cf8395231c86566"
+docker	Build the container image	2026-10-09T06:08:18.0278356Z }
+docker	Build the container image	2026-10-09T06:08:18.0278702Z ::***::
+docker	Build the container image	2026-10-09T06:08:18.0278974Z ##[endgroup]
+docker	Build the container image	2026-10-09T06:08:18.0279226Z ##[group]Reference
+docker	Build the container image	2026-10-09T06:08:18.0279359Z default/default/56s5zbkynywz75w02qzpzgvxd
+docker	Build the container image	2026-10-09T06:08:18.0279588Z ##[endgroup]
+docker	Build the container image	2026-10-09T06:08:18.0279800Z ##[group]Check build summary support
+docker	Build the container image	2026-10-09T06:08:18.0280130Z Build summary supported!
+docker	Build the container image	2026-10-09T06:08:18.0280346Z ##[endgroup]
+docker	Post Build the container image	﻿2026-10-09T06:08:18.0469929Z Post job cleanup.
+docker	Post Build the container image	2026-10-09T06:08:18.1971039Z ##[group]Generating build summary
+docker	Post Build the container image	2026-10-09T06:08:18.2502167Z exporting build record to /home/runner/work/_temp/docker-actions-toolkit-89NBa9/export
+docker	Post Build the container image	2026-10-09T06:08:18.3125270Z [command]/usr/bin/docker buildx history export --builder default --output /home/runner/work/_temp/docker-actions-toolkit-89NBa9/export/artur-rios~cerberus-api~56S5ZB.dockerbuild 56s5zbkynywz75w02qzpzgvxd --finalize
+docker	Post Build the container image	2026-10-09T06:08:18.3909326Z Build record written to /home/runner/work/_temp/docker-actions-toolkit-89NBa9/export/artur-rios~cerberus-api~56S5ZB.dockerbuild (21.25 KB)
+docker	Post Build the container image	2026-10-09T06:08:18.3910037Z Uploading artur-rios~cerberus-api~56S5ZB.dockerbuild as an artifact
+docker	Post Build the container image	2026-10-09T06:08:18.3917963Z Artifact name is valid!
+docker	Post Build the container image	2026-10-09T06:08:18.3918310Z Root directory input is valid!
+docker	Post Build the container image	2026-10-09T06:08:18.6644703Z Uploading artifact: artur-rios~cerberus-api~56S5ZB.dockerbuild
+docker	Post Build the container image	2026-10-09T06:08:18.6674714Z Beginning upload of artifact content to blob storage
+docker	Post Build the container image	2026-10-09T06:08:18.8325240Z Uploaded bytes 21755
+docker	Post Build the container image	2026-10-09T06:08:18.8694003Z Finished uploading artifact content to blob storage!
+docker	Post Build the container image	2026-10-09T06:08:18.8694598Z SHA256 digest of uploaded artifact is 776f85ae22a1f0c0faa2aabed380d53a5cbc6e713d0facd3e7b4f31c6d098b9c
+docker	Post Build the container image	2026-10-09T06:08:18.8695039Z Finalizing artifact upload
+docker	Post Build the container image	2026-10-09T06:08:19.1771307Z Artifact artur-rios~cerberus-api~56S5ZB.dockerbuild successfully finalized. Artifact ID 11598810990
+docker	Post Build the container image	2026-10-09T06:08:19.1772432Z Artifact download URL: https://github.com/artur-rios/cerberus-api/actions/runs/37891925199/artifacts/11598810990
+docker	Post Build the container image	2026-10-09T06:08:19.1789479Z Writing summary
+docker	Post Build the container image	2026-10-09T06:08:19.1798918Z ##[endgroup]
+docker	Post Build the container image	2026-10-09T06:08:19.1799361Z ##[group]Removing temp folder /home/runner/work/_temp/docker-actions-toolkit-jnWGfT
+docker	Post Build the container image	2026-10-09T06:08:19.1802569Z ##[endgroup]
+docker	Post Build the container image	2026-10-09T06:08:19.1802947Z ##[group]Post cache
+docker	Post Build the container image	2026-10-09T06:08:19.1806453Z State not set
+docker	Post Build the container image	2026-10-09T06:08:19.1806789Z ##[endgroup]
+docker	Post Checkout repository	﻿2026-10-09T06:08:19.1945354Z Post job cleanup.
+docker	Post Checkout repository	2026-10-09T06:08:19.2521357Z [command]/usr/bin/git version
+docker	Post Checkout repository	2026-10-09T06:08:19.2553378Z git version 2.55.0
+docker	Post Checkout repository	2026-10-09T06:08:19.2574910Z Temporarily overriding HOME='/home/runner/work/_temp/9ae96ff5-69ab-45b5-b3c1-f1b3cc8bd2b7' before making global git config changes
+docker	Post Checkout repository	2026-10-09T06:08:19.2575596Z Adding repository directory to the temporary git global config as a safe directory
+docker	Post Checkout repository	2026-10-09T06:08:19.2579172Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/cerberus-api/cerberus-api
+docker	Post Checkout repository	2026-10-09T06:08:19.2607045Z Removing SSH command configuration
+docker	Post Checkout repository	2026-10-09T06:08:19.2611221Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+docker	Post Checkout repository	2026-10-09T06:08:19.2643170Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+docker	Post Checkout repository	2026-10-09T06:08:19.2845229Z Removing HTTP extra header
+docker	Post Checkout repository	2026-10-09T06:08:19.2850841Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+docker	Post Checkout repository	2026-10-09T06:08:19.2886937Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+docker	Post Checkout repository	2026-10-09T06:08:19.3087055Z Removing includeIf entries pointing to credentials config files
+docker	Post Checkout repository	2026-10-09T06:08:19.3092887Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+docker	Post Checkout repository	2026-10-09T06:08:19.3120756Z includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git.path
+docker	Post Checkout repository	2026-10-09T06:08:19.3121229Z includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git/worktrees/*.path
+docker	Post Checkout repository	2026-10-09T06:08:19.3121626Z includeif.gitdir:/github/workspace/.git.path
+docker	Post Checkout repository	2026-10-09T06:08:19.3121831Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+docker	Post Checkout repository	2026-10-09T06:08:19.3127678Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git.path
+docker	Post Checkout repository	2026-10-09T06:08:19.3149315Z /home/runner/work/_temp/git-credentials-8e316133-8d1d-495f-9c0e-578006720833.config
+docker	Post Checkout repository	2026-10-09T06:08:19.3157165Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-8e316133\-8d1d\-495f\-9c0e\-578006720833\.config
+docker	Post Checkout repository	2026-10-09T06:08:19.3194725Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git/worktrees/*.path
+docker	Post Checkout repository	2026-10-09T06:08:19.3218689Z /home/runner/work/_temp/git-credentials-8e316133-8d1d-495f-9c0e-578006720833.config
+docker	Post Checkout repository	2026-10-09T06:08:19.3225493Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-8e316133\-8d1d\-495f\-9c0e\-578006720833\.config
+docker	Post Checkout repository	2026-10-09T06:08:19.3255996Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+docker	Post Checkout repository	2026-10-09T06:08:19.3277832Z /github/runner_temp/git-credentials-8e316133-8d1d-495f-9c0e-578006720833.config
+docker	Post Checkout repository	2026-10-09T06:08:19.3283107Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-8e316133\-8d1d\-495f\-9c0e\-578006720833\.config
+docker	Post Checkout repository	2026-10-09T06:08:19.3312788Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+docker	Post Checkout repository	2026-10-09T06:08:19.3333966Z /github/runner_temp/git-credentials-8e316133-8d1d-495f-9c0e-578006720833.config
+docker	Post Checkout repository	2026-10-09T06:08:19.3339068Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-8e316133\-8d1d\-495f\-9c0e\-578006720833\.config
+docker	Post Checkout repository	2026-10-09T06:08:19.3369975Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+docker	Post Checkout repository	2026-10-09T06:08:19.3544449Z Removing credentials config '/home/runner/work/_temp/git-credentials-8e316133-8d1d-495f-9c0e-578006720833.config'
+docker	Complete job	﻿2026-10-09T06:08:19.3666943Z Cleaning up orphan processes
+test	Set up job	﻿2026-10-09T06:08:20.9481633Z Current runner version: '2.337.0'
+test	Set up job	2026-10-09T06:08:20.9505937Z ##[group]Runner Image Provisioner
+test	Set up job	2026-10-09T06:08:20.9506878Z Hosted Compute Agent
+test	Set up job	2026-10-09T06:08:20.9507492Z Version: 20261002.596
+test	Set up job	2026-10-09T06:08:20.9508213Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+test	Set up job	2026-10-09T06:08:20.9509121Z Build Date: 2026-10-02T22:28:27Z
+test	Set up job	2026-10-09T06:08:20.9509855Z Worker ID: {bd0a0c9f-846f-46dd-bea0-635393ff2229}
+test	Set up job	2026-10-09T06:08:20.9510621Z Region: northcentralus
+test	Set up job	2026-10-09T06:08:20.9511568Z Cloud: Azure
+test	Set up job	2026-10-09T06:08:20.9512163Z ##[endgroup]
+test	Set up job	2026-10-09T06:08:20.9513800Z ##[group]Operating System
+test	Set up job	2026-10-09T06:08:20.9514491Z Ubuntu
+test	Set up job	2026-10-09T06:08:20.9515084Z 24.04.5
+test	Set up job	2026-10-09T06:08:20.9515610Z LTS
+test	Set up job	2026-10-09T06:08:20.9516162Z ##[endgroup]
+test	Set up job	2026-10-09T06:08:20.9516796Z ##[group]Runner Image
+test	Set up job	2026-10-09T06:08:20.9517402Z Image: ubuntu-24.04
+test	Set up job	2026-10-09T06:08:20.9518007Z Version: 20261004.327.1
+test	Set up job	2026-10-09T06:08:20.9519138Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+test	Set up job	2026-10-09T06:08:20.9521223Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+test	Set up job	2026-10-09T06:08:20.9522282Z ##[endgroup]
+test	Set up job	2026-10-09T06:08:20.9523524Z ##[group]GITHUB_TOKEN Permissions
+test	Set up job	2026-10-09T06:08:20.9525463Z Contents: read
+test	Set up job	2026-10-09T06:08:20.9526207Z Metadata: read
+test	Set up job	2026-10-09T06:08:20.9526806Z Packages: read
+test	Set up job	2026-10-09T06:08:20.9527354Z ##[endgroup]
+test	Set up job	2026-10-09T06:08:20.9529388Z Secret source: Actions
+test	Set up job	2026-10-09T06:08:20.9530421Z Cache mode: write
+test	Set up job	2026-10-09T06:08:20.9531580Z Prepare workflow directory
+test	Set up job	2026-10-09T06:08:20.9954131Z Prepare all required actions
+test	Set up job	2026-10-09T06:08:21.0024397Z Getting action download info
+test	Set up job	2026-10-09T06:08:21.2554290Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+test	Set up job	2026-10-09T06:08:21.3389672Z Download action repository 'actions/setup-dotnet@v6' (SHA:a98b56852c35b8e3190ac28c8c2271da59106c68)
+test	Set up job	2026-10-09T06:08:21.8743275Z Download action repository 'actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6' (SHA:de7274f081f381c8f8158605e0321c36c376e2e6)
+test	Set up job	2026-10-09T06:08:22.3323770Z Download action repository 'actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97' (SHA:5fda3b95a4ea91299a34e894583c3862153e4b97)
+test	Set up job	2026-10-09T06:08:22.4542686Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+test	Set up job	2026-10-09T06:08:23.0269685Z Complete job name: test
+test	Checkout repository	﻿2026-10-09T06:08:23.1362722Z ##[group]Run actions/checkout@v7
+test	Checkout repository	2026-10-09T06:08:23.1364083Z with:
+test	Checkout repository	2026-10-09T06:08:23.1364974Z   repository: artur-rios/cerberus-api
+test	Checkout repository	2026-10-09T06:08:23.1373331Z   token: ***
+test	Checkout repository	2026-10-09T06:08:23.1374198Z   ssh-strict: true
+test	Checkout repository	2026-10-09T06:08:23.1375048Z   ssh-user: git
+test	Checkout repository	2026-10-09T06:08:23.1375925Z   persist-credentials: true
+test	Checkout repository	2026-10-09T06:08:23.1376861Z   clean: true
+test	Checkout repository	2026-10-09T06:08:23.1377731Z   sparse-checkout-cone-mode: true
+test	Checkout repository	2026-10-09T06:08:23.1378741Z   fetch-depth: 1
+test	Checkout repository	2026-10-09T06:08:23.1379577Z   fetch-tags: false
+test	Checkout repository	2026-10-09T06:08:23.1380464Z   show-progress: true
+test	Checkout repository	2026-10-09T06:08:23.1381486Z   lfs: false
+test	Checkout repository	2026-10-09T06:08:23.1382288Z   submodules: false
+test	Checkout repository	2026-10-09T06:08:23.1383170Z   set-safe-directory: true
+test	Checkout repository	2026-10-09T06:08:23.1384167Z   allow-unsafe-pr-checkout: false
+test	Checkout repository	2026-10-09T06:08:23.1385503Z ##[endgroup]
+test	Checkout repository	2026-10-09T06:08:23.2389806Z Syncing repository: artur-rios/cerberus-api
+test	Checkout repository	2026-10-09T06:08:23.2393052Z ##[group]Getting Git version info
+test	Checkout repository	2026-10-09T06:08:23.2395102Z Working directory is '/home/runner/work/cerberus-api/cerberus-api'
+test	Checkout repository	2026-10-09T06:08:23.2397274Z [command]/usr/bin/git version
+test	Checkout repository	2026-10-09T06:08:23.2469876Z git version 2.55.0
+test	Checkout repository	2026-10-09T06:08:23.2512506Z ##[endgroup]
+test	Checkout repository	2026-10-09T06:08:23.2531807Z Temporarily overriding HOME='/home/runner/work/_temp/71056470-2544-410a-aa1c-3546d6f1e855' before making global git config changes
+test	Checkout repository	2026-10-09T06:08:23.2536475Z Adding repository directory to the temporary git global config as a safe directory
+test	Checkout repository	2026-10-09T06:08:23.2540446Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/cerberus-api/cerberus-api
+test	Checkout repository	2026-10-09T06:08:23.2592170Z Deleting the contents of '/home/runner/work/cerberus-api/cerberus-api'
+test	Checkout repository	2026-10-09T06:08:23.2603477Z ##[group]Determining repository object format
+test	Checkout repository	2026-10-09T06:08:23.2606432Z ##[endgroup]
+test	Checkout repository	2026-10-09T06:08:23.2608837Z ##[group]Initializing the repository
+test	Checkout repository	2026-10-09T06:08:23.2612381Z [command]/usr/bin/git init /home/runner/work/cerberus-api/cerberus-api
+test	Checkout repository	2026-10-09T06:08:23.2720595Z hint: Using 'master' as the name for the initial branch. This default branch name
+test	Checkout repository	2026-10-09T06:08:23.2724172Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+test	Checkout repository	2026-10-09T06:08:23.2727061Z hint: to use in all of your new repositories, which will suppress this warning,
+test	Checkout repository	2026-10-09T06:08:23.2729558Z hint: call:
+test	Checkout repository	2026-10-09T06:08:23.2731477Z hint:
+test	Checkout repository	2026-10-09T06:08:23.2732865Z hint: 	git config --global init.defaultBranch <name>
+test	Checkout repository	2026-10-09T06:08:23.2734120Z hint:
+test	Checkout repository	2026-10-09T06:08:23.2735510Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+test	Checkout repository	2026-10-09T06:08:23.2738449Z hint: 'development'. The just-created branch can be renamed via this command:
+test	Checkout repository	2026-10-09T06:08:23.2739967Z hint:
+test	Checkout repository	2026-10-09T06:08:23.2740781Z hint: 	git branch -m <name>
+test	Checkout repository	2026-10-09T06:08:23.2742019Z hint:
+test	Checkout repository	2026-10-09T06:08:23.2743938Z hint: Disable this message with "git config set advice.defaultBranchName false"
+test	Checkout repository	2026-10-09T06:08:23.2746789Z Initialized empty Git repository in /home/runner/work/cerberus-api/cerberus-api/.git/
+test	Checkout repository	2026-10-09T06:08:23.2750141Z [command]/usr/bin/git remote add origin https://github.com/artur-rios/cerberus-api
+test	Checkout repository	2026-10-09T06:08:23.2796453Z ##[endgroup]
+test	Checkout repository	2026-10-09T06:08:23.2799159Z ##[group]Disabling automatic garbage collection
+test	Checkout repository	2026-10-09T06:08:23.2802156Z [command]/usr/bin/git config --local gc.auto 0
+test	Checkout repository	2026-10-09T06:08:23.2840234Z ##[endgroup]
+test	Checkout repository	2026-10-09T06:08:23.2843360Z ##[group]Setting up auth
+test	Checkout repository	2026-10-09T06:08:23.2845196Z Removing SSH command configuration
+test	Checkout repository	2026-10-09T06:08:23.2847787Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+test	Checkout repository	2026-10-09T06:08:23.2882816Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+test	Checkout repository	2026-10-09T06:08:23.3296401Z Removing HTTP extra header
+test	Checkout repository	2026-10-09T06:08:23.3302523Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+test	Checkout repository	2026-10-09T06:08:23.3341368Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+test	Checkout repository	2026-10-09T06:08:23.3558338Z Removing includeIf entries pointing to credentials config files
+test	Checkout repository	2026-10-09T06:08:23.3562996Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+test	Checkout repository	2026-10-09T06:08:23.3597163Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+test	Checkout repository	2026-10-09T06:08:23.3825242Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-43fbfe50-e95e-4aa3-9344-95956db4a43e.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+test	Checkout repository	2026-10-09T06:08:23.3867135Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git.path /home/runner/work/_temp/git-credentials-43fbfe50-e95e-4aa3-9344-95956db4a43e.config
+test	Checkout repository	2026-10-09T06:08:23.3902676Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-43fbfe50-e95e-4aa3-9344-95956db4a43e.config
+test	Checkout repository	2026-10-09T06:08:23.3942778Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-43fbfe50-e95e-4aa3-9344-95956db4a43e.config
+test	Checkout repository	2026-10-09T06:08:23.3979876Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-43fbfe50-e95e-4aa3-9344-95956db4a43e.config
+test	Checkout repository	2026-10-09T06:08:23.4012273Z ##[endgroup]
+test	Checkout repository	2026-10-09T06:08:23.4013712Z ##[group]Fetching the repository
+test	Checkout repository	2026-10-09T06:08:23.4019381Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +b84253e488b806c236f479f5ae1ef894bc42f9a5:refs/remotes/pull/84/merge
+test	Checkout repository	2026-10-09T06:08:24.0623682Z From https://github.com/artur-rios/cerberus-api
+test	Checkout repository	2026-10-09T06:08:24.0624945Z  * [new ref]         b84253e488b806c236f479f5ae1ef894bc42f9a5 -> pull/84/merge
+test	Checkout repository	2026-10-09T06:08:24.0630276Z ##[endgroup]
+test	Checkout repository	2026-10-09T06:08:24.0631336Z ##[group]Determining the checkout info
+test	Checkout repository	2026-10-09T06:08:24.0632910Z ##[endgroup]
+test	Checkout repository	2026-10-09T06:08:24.0641788Z [command]/usr/bin/git sparse-checkout disable
+test	Checkout repository	2026-10-09T06:08:24.0701483Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+test	Checkout repository	2026-10-09T06:08:24.0736668Z ##[group]Checking out the ref
+test	Checkout repository	2026-10-09T06:08:24.0740953Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/84/merge
+test	Checkout repository	2026-10-09T06:08:24.1291628Z Note: switching to 'refs/remotes/pull/84/merge'.
+test	Checkout repository	2026-10-09T06:08:24.1292544Z 
+test	Checkout repository	2026-10-09T06:08:24.1293038Z You are in 'detached HEAD' state. You can look around, make experimental
+test	Checkout repository	2026-10-09T06:08:24.1294155Z changes and commit them, and you can discard any commits you make in this
+test	Checkout repository	2026-10-09T06:08:24.1295064Z state without impacting any branches by switching back to a branch.
+test	Checkout repository	2026-10-09T06:08:24.1295381Z 
+test	Checkout repository	2026-10-09T06:08:24.1295613Z If you want to create a new branch to retain commits you create, you may
+test	Checkout repository	2026-10-09T06:08:24.1296091Z do so (now or later) by using -c with the switch command. Example:
+test	Checkout repository	2026-10-09T06:08:24.1296363Z 
+test	Checkout repository	2026-10-09T06:08:24.1296481Z   git switch -c <new-branch-name>
+test	Checkout repository	2026-10-09T06:08:24.1296657Z 
+test	Checkout repository	2026-10-09T06:08:24.1296770Z Or undo this operation with:
+test	Checkout repository	2026-10-09T06:08:24.1296930Z 
+test	Checkout repository	2026-10-09T06:08:24.1297021Z   git switch -
+test	Checkout repository	2026-10-09T06:08:24.1297158Z 
+test	Checkout repository	2026-10-09T06:08:24.1297386Z Turn off this advice by setting config variable advice.detachedHead to false
+test	Checkout repository	2026-10-09T06:08:24.1297713Z 
+test	Checkout repository	2026-10-09T06:08:24.1298064Z HEAD is now at b84253e Merge 3bf6b37c211447cfc74ca277defa75910bcae7ec into d72d92072eaba28509597c545f4833a8ef58faa6
+test	Checkout repository	2026-10-09T06:08:24.1303637Z ##[endgroup]
+test	Checkout repository	2026-10-09T06:08:24.1351134Z [command]/usr/bin/git log -1 --format=%H
+test	Checkout repository	2026-10-09T06:08:24.1380443Z b84253e488b806c236f479f5ae1ef894bc42f9a5
+test	Validate specifications	﻿2026-10-09T06:08:24.1649966Z ##[group]Run python3 scripts/verify_specs.py
+test	Validate specifications	2026-10-09T06:08:24.1650409Z [36;1mpython3 scripts/verify_specs.py[0m
+test	Validate specifications	2026-10-09T06:08:24.1901748Z shell: /usr/bin/bash -e {0}
+test	Validate specifications	2026-10-09T06:08:24.1902048Z ##[endgroup]
+test	Validate specifications	2026-10-09T06:08:24.3255066Z PASS: 13 Markdown files; 7 template structures; links/anchors; no placeholders or duplicated framework versions; 107 FRs fully covered by 55 UCs; 12 features; 29 BRs; workflow parity; 6 milestones and 56 backlog entries.
+test	Detect foundation scaffold	﻿2026-10-09T06:08:24.3366811Z ##[group]Run if test -f src/ArturRios.Cerberus.sln; then
+test	Detect foundation scaffold	2026-10-09T06:08:24.3367309Z [36;1mif test -f src/ArturRios.Cerberus.sln; then[0m
+test	Detect foundation scaffold	2026-10-09T06:08:24.3367704Z [36;1m  echo "ready=true" >> "$GITHUB_OUTPUT"[0m
+test	Detect foundation scaffold	2026-10-09T06:08:24.3368165Z [36;1melif find src tests -name '*.csproj' -print -quit 2>/dev/null | grep -q .; then[0m
+test	Detect foundation scaffold	2026-10-09T06:08:24.3368715Z [36;1m  echo "::error::C# projects exist without the required solution."[0m
+test	Detect foundation scaffold	2026-10-09T06:08:24.3369101Z [36;1m  exit 1[0m
+test	Detect foundation scaffold	2026-10-09T06:08:24.3369304Z [36;1melse[0m
+test	Detect foundation scaffold	2026-10-09T06:08:24.3369537Z [36;1m  echo "ready=false" >> "$GITHUB_OUTPUT"[0m
+test	Detect foundation scaffold	2026-10-09T06:08:24.3370038Z [36;1m  echo "Documentation-only stage; application checks start with the foundation scaffold."[0m
+test	Detect foundation scaffold	2026-10-09T06:08:24.3370506Z [36;1mfi[0m
+test	Detect foundation scaffold	2026-10-09T06:08:24.3429086Z shell: /usr/bin/bash -e {0}
+test	Detect foundation scaffold	2026-10-09T06:08:24.3429372Z ##[endgroup]
+test	Setup .NET	﻿2026-10-09T06:08:24.3602717Z ##[group]Run actions/setup-dotnet@v6
+test	Setup .NET	2026-10-09T06:08:24.3603048Z with:
+test	Setup .NET	2026-10-09T06:08:24.3603253Z   dotnet-version: 10.0.x
+test	Setup .NET	2026-10-09T06:08:24.3603489Z   cache: false
+test	Setup .NET	2026-10-09T06:08:24.3603689Z ##[endgroup]
+test	Setup .NET	2026-10-09T06:08:24.4942535Z [command]/home/runner/work/_actions/actions/setup-dotnet/v6/externals/install-dotnet.sh --skip-non-versioned-files --runtime dotnet --channel LTS
+test	Setup .NET	2026-10-09T06:08:25.1128610Z dotnet-install: .NET Core Runtime with version '10.0.12' is already installed.
+test	Setup .NET	2026-10-09T06:08:25.1154720Z [command]/home/runner/work/_actions/actions/setup-dotnet/v6/externals/install-dotnet.sh --skip-non-versioned-files --channel 10.0
+test	Setup .NET	2026-10-09T06:08:25.2667240Z dotnet-install: .NET Core SDK with version '10.0.401' is already installed.
+test	Run the Python helper tests	﻿2026-10-09T06:08:25.2831072Z ##[group]Run python3 -m unittest discover -s scripts -p "test_*.py" --verbose
+test	Run the Python helper tests	2026-10-09T06:08:25.2831768Z [36;1mpython3 -m unittest discover -s scripts -p "test_*.py" --verbose[0m
+test	Run the Python helper tests	2026-10-09T06:08:25.2896567Z shell: /usr/bin/bash -e {0}
+test	Run the Python helper tests	2026-10-09T06:08:25.2896846Z env:
+test	Run the Python helper tests	2026-10-09T06:08:25.2897051Z   DOTNET_ROOT: /usr/share/dotnet
+test	Run the Python helper tests	2026-10-09T06:08:25.2897309Z ##[endgroup]
+test	Run the Python helper tests	2026-10-09T06:08:25.3881863Z test_given_coverage_inputs_when_generating_then_exclude_test_and_foreign_assemblies (test_coverage.CoverageTests.test_given_coverage_inputs_when_generating_then_exclude_test_and_foreign_assemblies) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3898979Z test_given_invalid_or_empty_summary_when_reading_then_fail_closed (test_coverage.CoverageTests.test_given_invalid_or_empty_summary_when_reading_then_fail_closed) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3909166Z test_given_old_results_when_starting_fresh_collection_then_remove_only_test_artifacts (test_coverage.CoverageTests.test_given_old_results_when_starting_fresh_collection_then_remove_only_test_artifacts) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3914057Z test_given_valid_merged_summary_when_checking_then_enforce_floor (test_coverage.CoverageTests.test_given_valid_merged_summary_when_checking_then_enforce_floor) ... 
+test	Run the Python helper tests	2026-10-09T06:08:25.3915628Z Line coverage 89.9% is below the 90.0% minimum.
+test	Run the Python helper tests	2026-10-09T06:08:25.3916485Z Open /tmp/cerberus-coverage-test-ixjo3w9e to see which classes carry the gap.
+test	Run the Python helper tests	2026-10-09T06:08:25.3919441Z ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3928353Z test_given_changed_route_when_comparing_then_detect_drift (test_openapi.OpenApiTests.test_given_changed_route_when_comparing_then_detect_drift) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3930644Z test_given_changed_schema_when_comparing_then_detect_drift (test_openapi.OpenApiTests.test_given_changed_schema_when_comparing_then_detect_drift) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3933129Z test_given_missing_contracts_when_comparing_then_fail_closed (test_openapi.OpenApiTests.test_given_missing_contracts_when_comparing_then_fail_closed) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3935352Z test_given_only_property_order_changed_when_comparing_then_accept (test_openapi.OpenApiTests.test_given_only_property_order_changed_when_comparing_then_accept) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3948643Z test_given_artifact_outside_repo_when_validating_then_block (test_protocol.ProtocolGateTests.test_given_artifact_outside_repo_when_validating_then_block) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3954442Z test_given_changed_artifact_when_validating_then_block (test_protocol.ProtocolGateTests.test_given_changed_artifact_when_validating_then_block) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3956352Z test_given_claimed_approval_without_reviewers_when_validating_then_block (test_protocol.ProtocolGateTests.test_given_claimed_approval_without_reviewers_when_validating_then_block) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3970372Z test_given_complete_synthetic_approval_when_validating_then_accept_unchanged_artifacts (test_protocol.ProtocolGateTests.test_given_complete_synthetic_approval_when_validating_then_accept_unchanged_artifacts) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3972929Z test_given_pending_review_when_requiring_approval_then_block (test_protocol.ProtocolGateTests.test_given_pending_review_when_requiring_approval_then_block) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3978303Z test_given_unrelated_reviewed_artifact_when_validating_then_require_protocol_and_vectors (test_protocol.ProtocolGateTests.test_given_unrelated_reviewed_artifact_when_validating_then_require_protocol_and_vectors) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3981419Z test_given_an_unknown_severity_when_described_then_it_sorts_last_rather_than_failing (test_vulnerabilities.DescribeTests.test_given_an_unknown_severity_when_described_then_it_sorts_last_rather_than_failing) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3984237Z test_given_mixed_severities_when_described_then_the_worst_is_first (test_vulnerabilities.DescribeTests.test_given_mixed_severities_when_described_then_the_worst_is_first) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3986474Z test_given_a_clean_tree_when_parsed_then_there_are_no_findings (test_vulnerabilities.ParseTests.test_given_a_clean_tree_when_parsed_then_there_are_no_findings) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3988637Z test_given_a_header_row_when_parsed_then_it_is_not_a_finding (test_vulnerabilities.ParseTests.test_given_a_header_row_when_parsed_then_it_is_not_a_finding) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3990007Z test_given_a_top_level_vulnerability_when_parsed_then_its_columns_are_read (test_vulnerabilities.ParseTests.test_given_a_top_level_vulnerability_when_parsed_then_its_columns_are_read) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3991940Z test_given_a_transitive_vulnerability_when_parsed_then_the_missing_column_does_not_shift_it (test_vulnerabilities.ParseTests.test_given_a_transitive_vulnerability_when_parsed_then_the_missing_column_does_not_shift_it) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3993385Z test_given_both_shapes_when_parsed_then_every_row_is_found (test_vulnerabilities.ParseTests.test_given_both_shapes_when_parsed_then_every_row_is_found) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3994612Z test_given_no_output_at_all_when_parsed_then_there_are_no_findings (test_vulnerabilities.ParseTests.test_given_no_output_at_all_when_parsed_then_there_are_no_findings) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3996021Z test_given_the_single_project_wording_when_parsed_then_the_project_is_attributed (test_vulnerabilities.ParseTests.test_given_the_single_project_wording_when_parsed_then_the_project_is_attributed) ... ok
+test	Run the Python helper tests	2026-10-09T06:08:25.3996766Z 
+test	Run the Python helper tests	2026-10-09T06:08:25.3996983Z ----------------------------------------------------------------------
+test	Run the Python helper tests	2026-10-09T06:08:25.3997358Z Ran 23 tests in 0.013s
+test	Run the Python helper tests	2026-10-09T06:08:25.3997509Z 
+test	Run the Python helper tests	2026-10-09T06:08:25.3997587Z OK
+test	Run the Python helper tests	2026-10-09T06:08:25.3997837Z Found 1 coverage file(s)
+test	Run the Python helper tests	2026-10-09T06:08:25.3998223Z REPORTGENERATOR_LICENSE is not set; generating with the free version
+test	Run the Python helper tests	2026-10-09T06:08:25.3998644Z Line coverage 90.0% (minimum 90.0%)
+test	Run the Python helper tests	2026-10-09T06:08:25.3998941Z Line coverage 94.7% (minimum 90.0%)
+test	Setup protocol Java	﻿2026-10-09T06:08:25.4239391Z ##[group]Run actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+test	Setup protocol Java	2026-10-09T06:08:25.4239822Z with:
+test	Setup protocol Java	2026-10-09T06:08:25.4240026Z   distribution: temurin
+test	Setup protocol Java	2026-10-09T06:08:25.4240257Z   java-version: 25
+test	Setup protocol Java	2026-10-09T06:08:25.4240472Z   java-package: jdk
+test	Setup protocol Java	2026-10-09T06:08:25.4240689Z   check-latest: false
+test	Setup protocol Java	2026-10-09T06:08:25.4241208Z   force-download: false
+test	Setup protocol Java	2026-10-09T06:08:25.4241434Z   set-default: true
+test	Setup protocol Java	2026-10-09T06:08:25.4241640Z   server-id: github
+test	Setup protocol Java	2026-10-09T06:08:25.4241877Z   mvn-repositories-include-central: true
+test	Setup protocol Java	2026-10-09T06:08:25.4242199Z   mvn-repositories-prioritize-central: true
+test	Setup protocol Java	2026-10-09T06:08:25.4242507Z   overwrite-settings: true
+test	Setup protocol Java	2026-10-09T06:08:25.4242746Z   cache-read-only: false
+test	Setup protocol Java	2026-10-09T06:08:25.4242972Z   job-status: success
+test	Setup protocol Java	2026-10-09T06:08:25.4245261Z   token: ***
+test	Setup protocol Java	2026-10-09T06:08:25.4245482Z   show-download-progress: false
+test	Setup protocol Java	2026-10-09T06:08:25.4245748Z   problem-matcher: true
+test	Setup protocol Java	2026-10-09T06:08:25.4245965Z env:
+test	Setup protocol Java	2026-10-09T06:08:25.4246172Z   DOTNET_ROOT: /usr/share/dotnet
+test	Setup protocol Java	2026-10-09T06:08:25.4246446Z ##[endgroup]
+test	Setup protocol Java	2026-10-09T06:08:25.4964894Z ##[group]Installed distributions
+test	Setup protocol Java	2026-10-09T06:08:25.5051719Z Resolved Java 25.0.4+1 from tool-cache
+test	Setup protocol Java	2026-10-09T06:08:25.5052335Z Setting Java 25.0.4+1 as the default
+test	Setup protocol Java	2026-10-09T06:08:25.5059921Z 
+test	Setup protocol Java	2026-10-09T06:08:25.5060262Z Java configuration:
+test	Setup protocol Java	2026-10-09T06:08:25.5060614Z   Distribution: temurin
+test	Setup protocol Java	2026-10-09T06:08:25.5061023Z   Version: 25.0.4+1
+test	Setup protocol Java	2026-10-09T06:08:25.5061396Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Setup protocol Java	2026-10-09T06:08:25.5061853Z 
+test	Setup protocol Java	2026-10-09T06:08:25.5062508Z ##[endgroup]
+test	Setup protocol Java	2026-10-09T06:08:25.5081971Z Creating settings.xml with server-id: github
+test	Setup protocol Java	2026-10-09T06:08:25.5087402Z Creating toolchains.xml for JDK version 25 from temurin
+test	Setup protocol Java	2026-10-09T06:08:25.5091143Z Writing to /home/runner/.m2/settings.xml
+test	Setup protocol Java	2026-10-09T06:08:25.5102690Z Writing to /home/runner/.m2/toolchains.xml
+test	Setup protocol Java	2026-10-09T06:08:25.5112038Z Configured MAVEN_ARGS to include -ntp to suppress Maven transfer progress logs. Set 'show-download-progress: true' to keep the download progress output.
+test	Setup protocol Python	﻿2026-10-09T06:08:25.5262679Z ##[group]Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+test	Setup protocol Python	2026-10-09T06:08:25.5263121Z with:
+test	Setup protocol Python	2026-10-09T06:08:25.5263324Z   python-version: 3.14
+test	Setup protocol Python	2026-10-09T06:08:25.5263549Z   architecture: x64
+test	Setup protocol Python	2026-10-09T06:08:25.5263763Z   check-latest: false
+test	Setup protocol Python	2026-10-09T06:08:25.5266075Z   token: ***
+test	Setup protocol Python	2026-10-09T06:08:25.5266294Z   update-environment: true
+test	Setup protocol Python	2026-10-09T06:08:25.5266543Z   allow-prereleases: false
+test	Setup protocol Python	2026-10-09T06:08:25.5266779Z   freethreaded: false
+test	Setup protocol Python	2026-10-09T06:08:25.5266986Z env:
+test	Setup protocol Python	2026-10-09T06:08:25.5267178Z   DOTNET_ROOT: /usr/share/dotnet
+test	Setup protocol Python	2026-10-09T06:08:25.5267541Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Setup protocol Python	2026-10-09T06:08:25.5268024Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Setup protocol Python	2026-10-09T06:08:25.5268411Z   MAVEN_ARGS: -ntp
+test	Setup protocol Python	2026-10-09T06:08:25.5268618Z ##[endgroup]
+test	Setup protocol Python	2026-10-09T06:08:25.6516781Z ##[group]Installed versions
+test	Setup protocol Python	2026-10-09T06:08:25.6620771Z Successfully set up CPython (3.14.8)
+test	Setup protocol Python	2026-10-09T06:08:25.6621811Z ##[endgroup]
+test	Install locked protocol dependencies	﻿2026-10-09T06:08:25.6741404Z ##[group]Run HARNESS_TMP=$(mktemp -d "$RUNNER_TEMP/cerberus-protocol.XXXXXX")
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6742065Z [36;1mHARNESS_TMP=$(mktemp -d "$RUNNER_TEMP/cerberus-protocol.XXXXXX")[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6742533Z [36;1mexport MAVEN_USER_HOME="$HARNESS_TMP/maven-user"[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6742911Z [36;1mexport HARNESS_MAVEN_CACHE="$HARNESS_TMP/m2"[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6743281Z [36;1mexport CERBERUS_PYTHON_WHEELS="$HARNESS_TMP/wheels"[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6743713Z [36;1mexport CERBERUS_MAVEN_DISTRIBUTION="$HARNESS_TMP/maven.zip"[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6744117Z [36;1mpython -m venv "$HARNESS_TMP/venv"[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6744482Z [36;1mexport HARNESS_PYTHON="$HARNESS_TMP/venv/bin/python"[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6745252Z [36;1m"$HARNESS_PYTHON" -m pip download --only-binary=:all: --require-hashes -r tools/protocol-harness/python/requirements.lock --dest "$CERBERUS_PYTHON_WHEELS"[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6746385Z [36;1m"$HARNESS_PYTHON" -m pip install --no-index --find-links "$CERBERUS_PYTHON_WHEELS" --only-binary=:all: --require-hashes -r tools/protocol-harness/python/requirements.lock[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6747169Z [36;1m"$HARNESS_PYTHON" - <<'PY'[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6747495Z [36;1mimport hashlib, json, os, pathlib, urllib.request[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6748118Z [36;1mlock = json.loads(pathlib.Path('tools/protocol-harness/dependencies.lock.json').read_text())['mavenDistribution'][0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6749042Z [36;1mtarget = pathlib.Path(os.environ['CERBERUS_MAVEN_DISTRIBUTION'])[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6749553Z [36;1mwith urllib.request.urlopen(lock['url'], timeout=60) as response:[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6749966Z [36;1m    data = response.read(32 * 1024 * 1024 + 1)[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6750395Z [36;1mif len(data) > 32 * 1024 * 1024 or hashlib.sha256(data).hexdigest() != lock['sha256']:[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6751309Z [36;1m    raise SystemExit('unsupported_dependency')[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6751905Z [36;1mtarget.write_bytes(data)[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6752222Z [36;1mPY[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6752848Z [36;1mtools/protocol-harness/java/mvnw -B -Dmaven.repo.local="$HARNESS_MAVEN_CACHE" -f tools/protocol-harness/java/pom.xml clean test dependency:tree[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6753804Z [36;1mfor name in MAVEN_USER_HOME HARNESS_MAVEN_CACHE CERBERUS_PYTHON_WHEELS CERBERUS_MAVEN_DISTRIBUTION HARNESS_PYTHON; do[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6754388Z [36;1m  echo "$name=${!name}" >> "$GITHUB_ENV"[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6754678Z [36;1mdone[0m
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6825746Z shell: /usr/bin/bash -e {0}
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6826176Z env:
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6826381Z   DOTNET_ROOT: /usr/share/dotnet
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6826760Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6827271Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6827653Z   MAVEN_ARGS: -ntp
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6827926Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6828607Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6829344Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6829981Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6830704Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6831627Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Install locked protocol dependencies	2026-10-09T06:08:25.6832166Z ##[endgroup]
+test	Install locked protocol dependencies	2026-10-09T06:08:29.6167292Z Collecting pip==26.2.1 (from -r tools/protocol-harness/python/requirements.lock (line 3))
+test	Install locked protocol dependencies	2026-10-09T06:08:29.6628725Z   Downloading pip-26.2.1-py3-none-any.whl (1.8 MB)
+test	Install locked protocol dependencies	2026-10-09T06:08:29.7044488Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 131.1 MB/s  0:00:00
+test	Install locked protocol dependencies	2026-10-09T06:08:29.9376083Z Collecting cryptography==50.0.2 (from -r tools/protocol-harness/python/requirements.lock (line 4))
+test	Install locked protocol dependencies	2026-10-09T06:08:29.9413327Z   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+test	Install locked protocol dependencies	2026-10-09T06:08:29.9584533Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 302.7 MB/s  0:00:00
+test	Install locked protocol dependencies	2026-10-09T06:08:30.0583688Z Collecting cffi==2.1.1 (from -r tools/protocol-harness/python/requirements.lock (line 5))
+test	Install locked protocol dependencies	2026-10-09T06:08:30.0618483Z   Downloading cffi-2.1.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+test	Install locked protocol dependencies	2026-10-09T06:08:30.0727940Z Collecting pycparser==3.0 (from -r tools/protocol-harness/python/requirements.lock (line 6))
+test	Install locked protocol dependencies	2026-10-09T06:08:30.0758973Z   Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+test	Install locked protocol dependencies	2026-10-09T06:08:30.0822114Z Saved /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels/pip-26.2.1-py3-none-any.whl
+test	Install locked protocol dependencies	2026-10-09T06:08:30.0840032Z Saved /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels/cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl
+test	Install locked protocol dependencies	2026-10-09T06:08:30.0844837Z Saved /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels/cffi-2.1.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+test	Install locked protocol dependencies	2026-10-09T06:08:30.0849290Z Saved /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels/pycparser-3.0-py3-none-any.whl
+test	Install locked protocol dependencies	2026-10-09T06:08:30.0851141Z Successfully downloaded pip cryptography cffi pycparser
+test	Install locked protocol dependencies	2026-10-09T06:08:30.4534152Z Looking in links: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Install locked protocol dependencies	2026-10-09T06:08:30.4541326Z Requirement already satisfied: pip==26.2.1 in /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/lib/python3.14/site-packages (from -r tools/protocol-harness/python/requirements.lock (line 3)) (26.2.1)
+test	Install locked protocol dependencies	2026-10-09T06:08:30.4628618Z Processing /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels/cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (from -r tools/protocol-harness/python/requirements.lock (line 4))
+test	Install locked protocol dependencies	2026-10-09T06:08:30.4772983Z Processing /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels/cffi-2.1.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r tools/protocol-harness/python/requirements.lock (line 5))
+test	Install locked protocol dependencies	2026-10-09T06:08:30.4802176Z Processing /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels/pycparser-3.0-py3-none-any.whl (from -r tools/protocol-harness/python/requirements.lock (line 6))
+test	Install locked protocol dependencies	2026-10-09T06:08:30.5017817Z Installing collected packages: pycparser, cffi, cryptography
+test	Install locked protocol dependencies	2026-10-09T06:08:30.8419069Z 
+test	Install locked protocol dependencies	2026-10-09T06:08:30.8432055Z Successfully installed cffi-2.1.1 cryptography-50.0.2 pycparser-3.0
+test	Install locked protocol dependencies	2026-10-09T06:08:34.9123785Z [INFO] Scanning for projects...
+test	Install locked protocol dependencies	2026-10-09T06:08:36.7615851Z [INFO] Loaded 24034 auto-discovered prefixes for remote repository central (prefixes-central.txt)
+test	Install locked protocol dependencies	2026-10-09T06:08:37.0131956Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:37.0169311Z [INFO] ----------------< cerberus.reference:protocol-harness >-----------------
+test	Install locked protocol dependencies	2026-10-09T06:08:37.0170209Z [INFO] Building protocol-harness 1.0.0
+test	Install locked protocol dependencies	2026-10-09T06:08:37.0181673Z [INFO]   from pom.xml
+test	Install locked protocol dependencies	2026-10-09T06:08:37.0182339Z [INFO] --------------------------------[ jar ]---------------------------------
+test	Install locked protocol dependencies	2026-10-09T06:08:38.5497290Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:38.5502894Z [INFO] --- clean:3.5.0:clean (default-clean) @ protocol-harness ---
+test	Install locked protocol dependencies	2026-10-09T06:08:38.7402864Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:38.7403920Z [INFO] --- resources:3.5.0:resources (default-resources) @ protocol-harness ---
+test	Install locked protocol dependencies	2026-10-09T06:08:39.1002803Z [INFO] skip non existing resourceDirectory /home/runner/work/cerberus-api/cerberus-api/tools/protocol-harness/java/src/main/resources
+test	Install locked protocol dependencies	2026-10-09T06:08:39.1003947Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:39.1004583Z [INFO] --- compiler:3.16.0:compile (default-compile) @ protocol-harness ---
+test	Install locked protocol dependencies	2026-10-09T06:08:39.5971988Z [INFO] Loaded 74 auto-discovered prefixes for remote repository apache.snapshots (prefixes-apache.snapshots.txt)
+test	Install locked protocol dependencies	2026-10-09T06:08:40.0872409Z [INFO] Recompiling the module because of changed source code.
+test	Install locked protocol dependencies	2026-10-09T06:08:40.0923950Z [INFO] Compiling 19 source files with javac [debug release 25] to target/classes
+test	Install locked protocol dependencies	2026-10-09T06:08:42.8526140Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:42.8552614Z [INFO] --- resources:3.5.0:testResources (default-testResources) @ protocol-harness ---
+test	Install locked protocol dependencies	2026-10-09T06:08:42.8582819Z [INFO] skip non existing resourceDirectory /home/runner/work/cerberus-api/cerberus-api/tools/protocol-harness/java/src/test/resources
+test	Install locked protocol dependencies	2026-10-09T06:08:42.8616376Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:42.8632437Z [INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ protocol-harness ---
+test	Install locked protocol dependencies	2026-10-09T06:08:42.8680349Z [INFO] Recompiling the module because of changed dependency.
+test	Install locked protocol dependencies	2026-10-09T06:08:42.8685662Z [INFO] Compiling 14 source files with javac [debug release 25] to target/test-classes
+test	Install locked protocol dependencies	2026-10-09T06:08:43.7580082Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:43.7592581Z [INFO] --- surefire:3.6.0:test (default-test) @ protocol-harness ---
+test	Install locked protocol dependencies	2026-10-09T06:08:44.1674841Z [INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+test	Install locked protocol dependencies	2026-10-09T06:08:44.4430793Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:44.4431644Z [INFO] -------------------------------------------------------
+test	Install locked protocol dependencies	2026-10-09T06:08:44.4432239Z [INFO]  T E S T S
+test	Install locked protocol dependencies	2026-10-09T06:08:44.4432752Z [INFO] -------------------------------------------------------
+test	Install locked protocol dependencies	2026-10-09T06:08:45.9449175Z [INFO] Running cerberus.protocol.RecipientTest
+test	Install locked protocol dependencies	2026-10-09T06:08:46.7790139Z [INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.810 s -- in cerberus.protocol.RecipientTest
+test	Install locked protocol dependencies	2026-10-09T06:08:46.7792205Z [INFO] Running cerberus.protocol.FixtureCasesTest
+test	Install locked protocol dependencies	2026-10-09T06:08:47.1614490Z [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.406 s -- in cerberus.protocol.FixtureCasesTest
+test	Install locked protocol dependencies	2026-10-09T06:08:47.1617389Z [INFO] Running cerberus.protocol.OfflineClockTest
+test	Install locked protocol dependencies	2026-10-09T06:08:47.2317880Z [INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.068 s -- in cerberus.protocol.OfflineClockTest
+test	Install locked protocol dependencies	2026-10-09T06:08:47.2319200Z [INFO] Running cerberus.protocol.ChallengeTest
+test	Install locked protocol dependencies	2026-10-09T06:08:47.4761889Z [INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.243 s -- in cerberus.protocol.ChallengeTest
+test	Install locked protocol dependencies	2026-10-09T06:08:47.4785675Z [INFO] Running cerberus.protocol.PrimitivesTest
+test	Install locked protocol dependencies	2026-10-09T06:08:47.9573047Z [INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.482 s -- in cerberus.protocol.PrimitivesTest
+test	Install locked protocol dependencies	2026-10-09T06:08:47.9579826Z [INFO] Running cerberus.protocol.RecoveryModelTest
+test	Install locked protocol dependencies	2026-10-09T06:08:49.0997764Z [INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.137 s -- in cerberus.protocol.RecoveryModelTest
+test	Install locked protocol dependencies	2026-10-09T06:08:49.0999350Z [INFO] Running cerberus.protocol.LeaseTest
+test	Install locked protocol dependencies	2026-10-09T06:08:49.3309734Z [INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.228 s -- in cerberus.protocol.LeaseTest
+test	Install locked protocol dependencies	2026-10-09T06:08:49.3332611Z [INFO] Running cerberus.protocol.SymmetricTest
+test	Install locked protocol dependencies	2026-10-09T06:08:49.4259328Z [INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.100 s -- in cerberus.protocol.SymmetricTest
+test	Install locked protocol dependencies	2026-10-09T06:08:49.4262411Z [INFO] Running cerberus.protocol.ProtectionTest
+test	Install locked protocol dependencies	2026-10-09T06:08:57.4733133Z [INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.048 s -- in cerberus.protocol.ProtectionTest
+test	Install locked protocol dependencies	2026-10-09T06:08:57.4734773Z [INFO] Running cerberus.protocol.WireTest
+test	Install locked protocol dependencies	2026-10-09T06:08:57.5112345Z [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 s -- in cerberus.protocol.WireTest
+test	Install locked protocol dependencies	2026-10-09T06:08:57.5120345Z [INFO] Running cerberus.protocol.EncodingTest
+test	Install locked protocol dependencies	2026-10-09T06:08:57.6104994Z [INFO] Tests run: 40, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.098 s -- in cerberus.protocol.EncodingTest
+test	Install locked protocol dependencies	2026-10-09T06:08:57.6152010Z [INFO] Running cerberus.protocol.DiagnosticsTest
+test	Install locked protocol dependencies	2026-10-09T06:08:57.6184740Z [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in cerberus.protocol.DiagnosticsTest
+test	Install locked protocol dependencies	2026-10-09T06:08:57.6186153Z [INFO] Running cerberus.protocol.KeysTest
+test	Install locked protocol dependencies	2026-10-09T06:08:57.7483875Z [INFO] Tests run: 27, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.127 s -- in cerberus.protocol.KeysTest
+test	Install locked protocol dependencies	2026-10-09T06:08:57.7643893Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:57.7644407Z [INFO] Results:
+test	Install locked protocol dependencies	2026-10-09T06:08:57.7644828Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:57.7650353Z [INFO] Tests run: 173, Failures: 0, Errors: 0, Skipped: 0
+test	Install locked protocol dependencies	2026-10-09T06:08:57.7651507Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:57.7670626Z [INFO] 
+test	Install locked protocol dependencies	2026-10-09T06:08:57.7671797Z [INFO] --- dependency:3.11.0:tree (default-cli) @ protocol-harness ---
+test	Install locked protocol dependencies	2026-10-09T06:08:59.0957162Z [INFO] cerberus.reference:protocol-harness:jar:1.0.0
+test	Install locked protocol dependencies	2026-10-09T06:08:59.0981951Z [INFO] +- org.bouncycastle:bcprov-jdk18on:jar:1.86:compile
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1021820Z [INFO] +- com.fasterxml.jackson.core:jackson-core:jar:2.22.3:compile
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1042299Z [INFO] \- org.junit.jupiter:junit-jupiter:jar:6.1.3:test
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1043537Z [INFO]    +- org.junit.jupiter:junit-jupiter-api:jar:6.1.3:test
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1044365Z [INFO]    |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1045430Z [INFO]    |  +- org.junit.platform:junit-platform-commons:jar:6.1.3:test
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1046272Z [INFO]    |  +- org.apiguardian:apiguardian-api:jar:1.1.2:test
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1046700Z [INFO]    |  \- org.jspecify:jspecify:jar:1.0.0:test
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1047304Z [INFO]    +- org.junit.jupiter:junit-jupiter-params:jar:6.1.3:test
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1047818Z [INFO]    \- org.junit.jupiter:junit-jupiter-engine:jar:6.1.3:test
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1048290Z [INFO]       \- org.junit.platform:junit-platform-engine:jar:6.1.3:test
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1048962Z [INFO] ------------------------------------------------------------------------
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1049351Z [INFO] BUILD SUCCESS
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1049700Z [INFO] ------------------------------------------------------------------------
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1050079Z [INFO] Total time:  24.256 s
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1050371Z [INFO] Finished at: 2026-10-09T06:08:59Z
+test	Install locked protocol dependencies	2026-10-09T06:08:59.1050756Z [INFO] ------------------------------------------------------------------------
+test	Audit locked protocol dependencies	﻿2026-10-09T06:08:59.1290242Z ##[group]Run "$HARNESS_PYTHON" tools/protocol-harness/audit.py --maven-cache "$HARNESS_MAVEN_CACHE" --wheels "$CERBERUS_PYTHON_WHEELS" --maven-distribution "$CERBERUS_MAVEN_DISTRIBUTION"
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1292483Z [36;1m"$HARNESS_PYTHON" tools/protocol-harness/audit.py --maven-cache "$HARNESS_MAVEN_CACHE" --wheels "$CERBERUS_PYTHON_WHEELS" --maven-distribution "$CERBERUS_MAVEN_DISTRIBUTION"[0m
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1356312Z shell: /usr/bin/bash -e {0}
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1356562Z env:
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1356756Z   DOTNET_ROOT: /usr/share/dotnet
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1357112Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1357604Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1358002Z   MAVEN_ARGS: -ntp
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1358460Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1358926Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1359375Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1359742Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1360105Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1360472Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1361159Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1361676Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1362188Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1362758Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1363318Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.1363720Z ##[endgroup]
+test	Audit locked protocol dependencies	2026-10-09T06:08:59.8237092Z {"feed": "https://api.osv.dev/v1/querybatch", "findings": [], "limitations": "Version-based OSV snapshot, not proof of library correctness; native runtime/OS vulnerabilities require separate review.", "lockSha256": "1e9a47097b9a2a8ee17855c5cc75b71b7b01d8fae86a8b248eb7d2805e969bab", "queriedPackages": 153, "scannedAtUtc": "2026-10-09T06:08:59.822992+00:00", "status": "pass"}
+test	Replay protocol corpus and complete native suites	﻿2026-10-09T06:08:59.8410354Z ##[group]Run "$HARNESS_PYTHON" tools/protocol-harness/verify.py --check docs/security/interoperability-vectors.json
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8411542Z [36;1m"$HARNESS_PYTHON" tools/protocol-harness/verify.py --check docs/security/interoperability-vectors.json[0m
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8412188Z [36;1mpython3 -m unittest discover -s tools/protocol-harness/tests -v[0m
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8475208Z shell: /usr/bin/bash -e {0}
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8475458Z env:
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8475668Z   DOTNET_ROOT: /usr/share/dotnet
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8476032Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8476516Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8476902Z   MAVEN_ARGS: -ntp
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8477170Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8477600Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8478029Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8478430Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8478792Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8479159Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8479599Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8480099Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8480606Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8481468Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8482038Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Replay protocol corpus and complete native suites	2026-10-09T06:08:59.8482430Z ##[endgroup]
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.5898689Z {"status": "pass", "cases": 322, "directions": 4}
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7219711Z test_GivenChangedMavenDistribution_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenChangedMavenDistribution_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7241128Z test_GivenChangedOrMissingArtifact_WhenAudited_ThenNoFeedQuery (test_audit.AuditTest.test_GivenChangedOrMissingArtifact_WhenAudited_ThenNoFeedQuery) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7260473Z test_GivenChangedWheel_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenChangedWheel_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7287961Z test_GivenCompleteCleanFeed_WhenAudited_ThenEveryBuildAndRuntimeCoordinateIsQueried (test_audit.AuditTest.test_GivenCompleteCleanFeed_WhenAudited_ThenEveryBuildAndRuntimeCoordinateIsQueried) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7308103Z test_GivenDuplicateLockedCoordinate_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenDuplicateLockedCoordinate_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7332060Z test_GivenEmptyVulnerabilityArrays_WhenAudited_ThenPass (test_audit.AuditTest.test_GivenEmptyVulnerabilityArrays_WhenAudited_ThenPass) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7353613Z test_GivenExtraResolvedJar_WhenAudited_ThenNoFeedQuery (test_audit.AuditTest.test_GivenExtraResolvedJar_WhenAudited_ThenNoFeedQuery) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7375912Z test_GivenFeedOutage_WhenAudited_ThenRedactedFailure (test_audit.AuditTest.test_GivenFeedOutage_WhenAudited_ThenRedactedFailure) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7397069Z test_GivenInstalledVersionDrift_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenInstalledVersionDrift_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7489697Z test_GivenMalformedOrIncompleteFeed_WhenAudited_ThenFailClosed (test_audit.AuditTest.test_GivenMalformedOrIncompleteFeed_WhenAudited_ThenFailClosed) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7529061Z test_GivenPinnedEmbeddedJarWithoutMetadata_WhenAudited_ThenItsCoordinateIsQueried (test_audit.AuditTest.test_GivenPinnedEmbeddedJarWithoutMetadata_WhenAudited_ThenItsCoordinateIsQueried) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7555449Z test_GivenUnknownEmbeddedBuildDependency_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenUnknownEmbeddedBuildDependency_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7587209Z test_GivenUnsafeOrUnresolvedLock_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenUnsafeOrUnresolvedLock_WhenAudited_ThenReject) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.7611362Z test_GivenVulnerability_WhenAudited_ThenFailClosedWithPublicFinding (test_audit.AuditTest.test_GivenVulnerability_WhenAudited_ThenFailClosedWithPublicFinding) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.8930068Z test_GivenChildFailure_WhenMeasured_ThenPreviousEvidencePreserved (test_benchmark.BenchmarkTests.test_GivenChildFailure_WhenMeasured_ThenPreviousEvidencePreserved) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.8951499Z test_GivenCompleteSamples_WhenMeasured_ThenProfileAndStatisticsRecorded (test_benchmark.BenchmarkTests.test_GivenCompleteSamples_WhenMeasured_ThenProfileAndStatisticsRecorded) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.8978180Z test_GivenIncompleteDuplicateBogusOrSecretBearingMetrics_WhenMeasured_ThenNoArtifact (test_benchmark.BenchmarkTests.test_GivenIncompleteDuplicateBogusOrSecretBearingMetrics_WhenMeasured_ThenNoArtifact) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.8994913Z test_GivenInvalidSamples_WhenMeasured_ThenRejected (test_benchmark.BenchmarkTests.test_GivenInvalidSamples_WhenMeasured_ThenRejected) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.9541957Z test_GivenGreenHarnessAndPendingReview_WhenReleaseGateRuns_ThenReleaseBlocked (test_delivery.DeliveryTests.test_GivenGreenHarnessAndPendingReview_WhenReleaseGateRuns_ThenReleaseBlocked) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.9544393Z test_GivenHarnessCI_WhenParsed_ThenLockedAuditPrecedesFullReplay (test_delivery.DeliveryTests.test_GivenHarnessCI_WhenParsed_ThenLockedAuditPrecedesFullReplay) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:25.9550683Z test_GivenHarnessCI_WhenParsed_ThenProductionChecksRetained (test_delivery.DeliveryTests.test_GivenHarnessCI_WhenParsed_ThenProductionChecksRetained) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:26.0665344Z test_GivenMissingOrStaleReview_WhenGateRuns_ThenBlocked (test_delivery.DeliveryTests.test_GivenMissingOrStaleReview_WhenGateRuns_ThenBlocked) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:26.0704627Z test_GivenProductionGraphAndDocker_WhenInspected_ThenHarnessExcluded (test_delivery.DeliveryTests.test_GivenProductionGraphAndDocker_WhenInspected_ThenHarnessExcluded) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:26.1603052Z test_GivenBenchmarkOutputOrResultGrowth_WhenMeasured_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenBenchmarkOutputOrResultGrowth_WhenMeasured_ThenStoppedBeforeFurtherWork) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:26.7662271Z test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup (test_process_limits.ProcessLimitTests.test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:26.8116970Z test_GivenExcessChildOutput_WhenRunning_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenExcessChildOutput_WhenRunning_ThenStoppedBeforeFurtherWork) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:26.8640192Z test_GivenGrowingResultFile_WhenInvoked_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenGrowingResultFile_WhenInvoked_ThenStoppedBeforeFurtherWork) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:26.8655356Z test_GivenLiveOrUnreadableDescendant_WhenCheckingTimeout_ThenNeverAcceptStoppedGroup (test_process_limits.ProcessLimitTests.test_GivenLiveOrUnreadableDescendant_WhenCheckingTimeout_ThenNeverAcceptStoppedGroup) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.1685700Z test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped (test_process_limits.ProcessLimitTests.test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.1825478Z test_GivenCompleteBidirectionalResults_WhenVerified_ThenEvidenceAtomicallyWritten (test_verify.VerifyTests.test_GivenCompleteBidirectionalResults_WhenVerified_ThenEvidenceAtomicallyWritten) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.1965722Z test_GivenCorruptCorpus_WhenReplayed_ThenRejectedWithoutOverwrite (test_verify.VerifyTests.test_GivenCorruptCorpus_WhenReplayed_ThenRejectedWithoutOverwrite) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.1986601Z test_GivenEmptySkippedOrFailingNativeSuite_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenEmptySkippedOrFailingNativeSuite_WhenVerified_ThenNoEvidenceWritten) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.2410027Z test_GivenMissingDuplicateExtraOrWrongResultIds_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenMissingDuplicateExtraOrWrongResultIds_WhenVerified_ThenNoEvidenceWritten) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.2458009Z test_GivenMissingKnownAnswersOrProducerCases_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenMissingKnownAnswersOrProducerCases_WhenVerified_ThenNoEvidenceWritten) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.2476258Z test_GivenMissingTimeoutNonzeroOrMalformedChild_WhenVerified_ThenPreviousEvidencePreserved (test_verify.VerifyTests.test_GivenMissingTimeoutNonzeroOrMalformedChild_WhenVerified_ThenPreviousEvidencePreserved) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.2559184Z test_GivenWrongProducerIdentityOrDeterministicFlag_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenWrongProducerIdentityOrDeterministicFlag_WhenVerified_ThenNoEvidenceWritten) ... ok
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.2560597Z 
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.2561157Z ----------------------------------------------------------------------
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.2561757Z Ran 36 tests in 1.556s
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.2561973Z 
+test	Replay protocol corpus and complete native suites	2026-10-09T06:09:27.2562093Z OK
+test	Restore dependencies	﻿2026-10-09T06:09:27.2779931Z ##[group]Run dotnet restore src/ArturRios.Cerberus.sln
+test	Restore dependencies	2026-10-09T06:09:27.2780349Z [36;1mdotnet restore src/ArturRios.Cerberus.sln[0m
+test	Restore dependencies	2026-10-09T06:09:27.2842686Z shell: /usr/bin/bash -e {0}
+test	Restore dependencies	2026-10-09T06:09:27.2842932Z env:
+test	Restore dependencies	2026-10-09T06:09:27.2843126Z   DOTNET_ROOT: /usr/share/dotnet
+test	Restore dependencies	2026-10-09T06:09:27.2843491Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Restore dependencies	2026-10-09T06:09:27.2843975Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Restore dependencies	2026-10-09T06:09:27.2844347Z   MAVEN_ARGS: -ntp
+test	Restore dependencies	2026-10-09T06:09:27.2844620Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Restore dependencies	2026-10-09T06:09:27.2845042Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Restore dependencies	2026-10-09T06:09:27.2845454Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Restore dependencies	2026-10-09T06:09:27.2845825Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Restore dependencies	2026-10-09T06:09:27.2846188Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Restore dependencies	2026-10-09T06:09:27.2846586Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Restore dependencies	2026-10-09T06:09:27.2847024Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Restore dependencies	2026-10-09T06:09:27.2847683Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Restore dependencies	2026-10-09T06:09:27.2848184Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Restore dependencies	2026-10-09T06:09:27.2848744Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Restore dependencies	2026-10-09T06:09:27.2849306Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Restore dependencies	2026-10-09T06:09:27.2849692Z ##[endgroup]
+test	Restore dependencies	2026-10-09T06:09:33.6900350Z   Determining projects to restore...
+test	Restore dependencies	2026-10-09T06:09:38.1432896Z   Restored /home/runner/work/cerberus-api/cerberus-api/src/Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj (in 2.34 sec).
+test	Restore dependencies	2026-10-09T06:09:38.1435392Z   Restored /home/runner/work/cerberus-api/cerberus-api/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 2.34 sec).
+test	Restore dependencies	2026-10-09T06:09:38.3943333Z   Restored /home/runner/work/cerberus-api/cerberus-api/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 11 ms).
+test	Restore dependencies	2026-10-09T06:09:38.4672659Z   Restored /home/runner/work/cerberus-api/cerberus-api/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 2.8 sec).
+test	Restore dependencies	2026-10-09T06:09:38.4732627Z   Restored /home/runner/work/cerberus-api/cerberus-api/src/Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj (in 30 ms).
+test	Restore dependencies	2026-10-09T06:09:39.0577351Z   Restored /home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/ArturRios.Cerberus.Domain.Tests.csproj (in 3.48 sec).
+test	Restore dependencies	2026-10-09T06:09:39.4170229Z   Restored /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/ArturRios.Cerberus.Shared.Tests.csproj (in 17 ms).
+test	Restore dependencies	2026-10-09T06:09:39.4473944Z   Restored /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/ArturRios.Cerberus.Query.Tests.csproj (in 18 ms).
+test	Restore dependencies	2026-10-09T06:09:39.5682696Z   Restored /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj (in 24 ms).
+test	Restore dependencies	2026-10-09T06:09:39.9250791Z   Restored /home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj (in 1.44 sec).
+test	Restore dependencies	2026-10-09T06:09:39.9272767Z   Restored /home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj (in 1.45 sec).
+test	Restore dependencies	2026-10-09T06:09:39.9738807Z   Restored /home/runner/work/cerberus-api/cerberus-api/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 1.81 sec).
+test	Scan for vulnerable dependencies	﻿2026-10-09T06:09:40.0352499Z ##[group]Run python3 scripts/vulnerabilities.py
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0352911Z [36;1mpython3 scripts/vulnerabilities.py[0m
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0416436Z shell: /usr/bin/bash -e {0}
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0416688Z env:
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0416885Z   DOTNET_ROOT: /usr/share/dotnet
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0417259Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0417735Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0418103Z   MAVEN_ARGS: -ntp
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0418369Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0418772Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0419180Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0419543Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0419923Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0420324Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0421015Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0421595Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0422312Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0422873Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0423436Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0423831Z ##[endgroup]
+test	Scan for vulnerable dependencies	2026-10-09T06:09:40.0995660Z $ dotnet list /home/runner/work/cerberus-api/cerberus-api/src/ArturRios.Cerberus.sln package --vulnerable --include-transitive
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1516244Z   Determining projects to restore...
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1516912Z   All projects are up-to-date for restore.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1517160Z 
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1517302Z The following sources were used:
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1517648Z    https://api.nuget.org/v3/index.json
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1517848Z 
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1518210Z The given project `ArturRios.Cerberus.Domain` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1518969Z The given project `ArturRios.Cerberus.Command` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1519728Z The given project `ArturRios.Cerberus.Shared` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1520473Z The given project `ArturRios.Cerberus.Query` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1521479Z The given project `ArturRios.Cerberus.Data` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1522241Z The given project `ArturRios.Cerberus.WebApi` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1523013Z The given project `ArturRios.Cerberus.Domain.Tests` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1523806Z The given project `ArturRios.Cerberus.Command.Tests` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1524591Z The given project `ArturRios.Cerberus.Query.Tests` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1525356Z The given project `ArturRios.Cerberus.Shared.Tests` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1526106Z The given project `ArturRios.Cerberus.Data.Tests` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1526858Z The given project `ArturRios.Cerberus.WebApi.Tests` has no vulnerable packages given the current sources.
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1527266Z 
+test	Scan for vulnerable dependencies	2026-10-09T06:09:53.1527487Z No known vulnerabilities in any dependency, direct or transitive.
+test	Build solution	﻿2026-10-09T06:09:53.1646649Z ##[group]Run dotnet build src/ArturRios.Cerberus.sln --configuration Release --no-restore
+test	Build solution	2026-10-09T06:09:53.1647313Z [36;1mdotnet build src/ArturRios.Cerberus.sln --configuration Release --no-restore[0m
+test	Build solution	2026-10-09T06:09:53.1711213Z shell: /usr/bin/bash -e {0}
+test	Build solution	2026-10-09T06:09:53.1711480Z env:
+test	Build solution	2026-10-09T06:09:53.1711675Z   DOTNET_ROOT: /usr/share/dotnet
+test	Build solution	2026-10-09T06:09:53.1712036Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Build solution	2026-10-09T06:09:53.1712530Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Build solution	2026-10-09T06:09:53.1712928Z   MAVEN_ARGS: -ntp
+test	Build solution	2026-10-09T06:09:53.1713197Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Build solution	2026-10-09T06:09:53.1713637Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Build solution	2026-10-09T06:09:53.1714049Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Build solution	2026-10-09T06:09:53.1714416Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Build solution	2026-10-09T06:09:53.1714777Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Build solution	2026-10-09T06:09:53.1715173Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Build solution	2026-10-09T06:09:53.1715618Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Build solution	2026-10-09T06:09:53.1716106Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Build solution	2026-10-09T06:09:53.1716617Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Build solution	2026-10-09T06:09:53.1717186Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Build solution	2026-10-09T06:09:53.1717941Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Build solution	2026-10-09T06:09:53.1718335Z ##[endgroup]
+test	Build solution	2026-10-09T06:10:00.1886370Z   ArturRios.Cerberus.Domain -> /home/runner/work/cerberus-api/cerberus-api/src/Domain/ArturRios.Cerberus.Domain/bin/Release/net10.0/ArturRios.Cerberus.Domain.dll
+test	Build solution	2026-10-09T06:10:01.1329125Z   ArturRios.Cerberus.Shared -> /home/runner/work/cerberus-api/cerberus-api/src/Application/ArturRios.Cerberus.Shared/bin/Release/net10.0/ArturRios.Cerberus.Shared.dll
+test	Build solution	2026-10-09T06:10:02.3197115Z   ArturRios.Cerberus.Command -> /home/runner/work/cerberus-api/cerberus-api/src/Application/ArturRios.Cerberus.Command/bin/Release/net10.0/ArturRios.Cerberus.Command.dll
+test	Build solution	2026-10-09T06:10:04.4199529Z   ArturRios.Cerberus.Domain.Tests -> /home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Release/net10.0/ArturRios.Cerberus.Domain.Tests.dll
+test	Build solution	2026-10-09T06:10:04.6403800Z   ArturRios.Cerberus.Command.Tests -> /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Release/net10.0/ArturRios.Cerberus.Command.Tests.dll
+test	Build solution	2026-10-09T06:10:07.3401603Z   ArturRios.Cerberus.Data -> /home/runner/work/cerberus-api/cerberus-api/src/Infrastructure/ArturRios.Cerberus.Data/bin/Release/net10.0/ArturRios.Cerberus.Data.dll
+test	Build solution	2026-10-09T06:10:07.7767777Z   ArturRios.Cerberus.Shared.Tests -> /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Release/net10.0/ArturRios.Cerberus.Shared.Tests.dll
+test	Build solution	2026-10-09T06:10:08.0503010Z   ArturRios.Cerberus.Query -> /home/runner/work/cerberus-api/cerberus-api/src/Application/ArturRios.Cerberus.Query/bin/Release/net10.0/ArturRios.Cerberus.Query.dll
+test	Build solution	2026-10-09T06:10:16.3617114Z   ArturRios.Cerberus.Data.Tests -> /home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Release/net10.0/ArturRios.Cerberus.Data.Tests.dll
+test	Build solution	2026-10-09T06:10:16.4479729Z   ArturRios.Cerberus.Query.Tests -> /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Release/net10.0/ArturRios.Cerberus.Query.Tests.dll
+test	Build solution	2026-10-09T06:10:16.7139978Z   ArturRios.Cerberus.WebApi -> /home/runner/work/cerberus-api/cerberus-api/src/Presentation/ArturRios.Cerberus.WebApi/bin/Release/net10.0/ArturRios.Cerberus.WebApi.dll
+test	Build solution	2026-10-09T06:10:22.0203599Z   ArturRios.Cerberus.WebApi.Tests -> /home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Release/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+test	Build solution	2026-10-09T06:10:22.1010431Z 
+test	Build solution	2026-10-09T06:10:22.1018319Z Build succeeded.
+test	Build solution	2026-10-09T06:10:22.1019182Z     0 Warning(s)
+test	Build solution	2026-10-09T06:10:22.1019530Z     0 Error(s)
+test	Build solution	2026-10-09T06:10:22.1021292Z 
+test	Build solution	2026-10-09T06:10:22.1021574Z Time Elapsed 00:00:28.66
+test	Check generated OpenAPI contract	﻿2026-10-09T06:10:22.1342475Z ##[group]Run python3 scripts/openapi.py
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1342851Z [36;1mpython3 scripts/openapi.py[0m
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1406617Z shell: /usr/bin/bash -e {0}
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1406871Z env:
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1407071Z   DOTNET_ROOT: /usr/share/dotnet
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1407446Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1407955Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1408337Z   MAVEN_ARGS: -ntp
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1408607Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1409021Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1409429Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1409817Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1410183Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1410557Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1411372Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1412075Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1412606Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1413162Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1413744Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Check generated OpenAPI contract	2026-10-09T06:10:22.1414134Z ##[endgroup]
+test	Check generated OpenAPI contract	2026-10-09T06:10:32.9817951Z OpenAPI contract is current.
+test	Run unit tests	﻿2026-10-09T06:10:32.9953481Z ##[group]Run dotnet test src/ArturRios.Cerberus.sln --configuration Release --no-build --filter "Category=Unit" --collect:"XPlat Code Coverage"
+test	Run unit tests	2026-10-09T06:10:32.9954597Z [36;1mdotnet test src/ArturRios.Cerberus.sln --configuration Release --no-build --filter "Category=Unit" --collect:"XPlat Code Coverage"[0m
+test	Run unit tests	2026-10-09T06:10:33.0018355Z shell: /usr/bin/bash -e {0}
+test	Run unit tests	2026-10-09T06:10:33.0018610Z env:
+test	Run unit tests	2026-10-09T06:10:33.0018820Z   DOTNET_ROOT: /usr/share/dotnet
+test	Run unit tests	2026-10-09T06:10:33.0019190Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Run unit tests	2026-10-09T06:10:33.0019690Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Run unit tests	2026-10-09T06:10:33.0020066Z   MAVEN_ARGS: -ntp
+test	Run unit tests	2026-10-09T06:10:33.0020333Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run unit tests	2026-10-09T06:10:33.0020746Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Run unit tests	2026-10-09T06:10:33.0021308Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run unit tests	2026-10-09T06:10:33.0021732Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run unit tests	2026-10-09T06:10:33.0022106Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run unit tests	2026-10-09T06:10:33.0022473Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Run unit tests	2026-10-09T06:10:33.0022917Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Run unit tests	2026-10-09T06:10:33.0023416Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Run unit tests	2026-10-09T06:10:33.0023931Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Run unit tests	2026-10-09T06:10:33.0024490Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Run unit tests	2026-10-09T06:10:33.0025072Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Run unit tests	2026-10-09T06:10:33.0025469Z ##[endgroup]
+test	Run unit tests	2026-10-09T06:10:34.3593020Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Release/net10.0/ArturRios.Cerberus.Domain.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run unit tests	2026-10-09T06:10:34.5260323Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Release/net10.0/ArturRios.Cerberus.Command.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run unit tests	2026-10-09T06:10:34.6041612Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Release/net10.0/ArturRios.Cerberus.Query.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run unit tests	2026-10-09T06:10:34.7905902Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Release/net10.0/ArturRios.Cerberus.Shared.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run unit tests	2026-10-09T06:10:35.1972707Z A total of 1 test files matched the specified pattern.
+test	Run unit tests	2026-10-09T06:10:35.2131686Z A total of 1 test files matched the specified pattern.
+test	Run unit tests	2026-10-09T06:10:35.2161823Z A total of 1 test files matched the specified pattern.
+test	Run unit tests	2026-10-09T06:10:35.2206158Z A total of 1 test files matched the specified pattern.
+test	Run unit tests	2026-10-09T06:10:40.9232347Z 
+test	Run unit tests	2026-10-09T06:10:40.9274419Z Passed!  - Failed:     0, Passed:   361, Skipped:     0, Total:   361, Duration: 1 s - ArturRios.Cerberus.Domain.Tests.dll (net10.0)
+test	Run unit tests	2026-10-09T06:10:41.0356775Z 
+test	Run unit tests	2026-10-09T06:10:41.0462505Z Passed!  - Failed:     0, Passed:   125, Skipped:     0, Total:   125, Duration: 1 s - ArturRios.Cerberus.Shared.Tests.dll (net10.0)
+test	Run unit tests	2026-10-09T06:10:41.1239480Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Release/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run unit tests	2026-10-09T06:10:41.1882205Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Release/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run unit tests	2026-10-09T06:10:41.5603136Z A total of 1 test files matched the specified pattern.
+test	Run unit tests	2026-10-09T06:10:41.6891883Z 
+test	Run unit tests	2026-10-09T06:10:41.6994547Z Passed!  - Failed:     0, Passed:   259, Skipped:     0, Total:   259, Duration: 1 s - ArturRios.Cerberus.Query.Tests.dll (net10.0)
+test	Run unit tests	2026-10-09T06:10:41.7912092Z A total of 1 test files matched the specified pattern.
+test	Run unit tests	2026-10-09T06:10:44.4471421Z 
+test	Run unit tests	2026-10-09T06:10:44.4692511Z Passed!  - Failed:     0, Passed:   841, Skipped:     0, Total:   841, Duration: 2 s - ArturRios.Cerberus.Command.Tests.dll (net10.0)
+test	Run unit tests	2026-10-09T06:10:49.4883320Z No test matches the given testcase filter `Category=Unit` in /home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Release/net10.0/ArturRios.Cerberus.Data.Tests.dll
+test	Run unit tests	2026-10-09T06:10:50.0391534Z 
+test	Run unit tests	2026-10-09T06:10:50.6721400Z 
+test	Run unit tests	2026-10-09T06:10:50.6783242Z Passed!  - Failed:     0, Passed:    33, Skipped:     0, Total:    33, Duration: 254 ms - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)
+test	Run unit tests	2026-10-09T06:10:50.9165758Z 
+test	Run unit tests	2026-10-09T06:10:50.9181985Z Attachments:
+test	Run unit tests	2026-10-09T06:10:50.9185880Z   /home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/56472b3f-166f-42a1-92c0-6882eeeacc53/coverage.cobertura.xml
+test	Run unit tests	2026-10-09T06:10:50.9189173Z   /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/0e773099-b11f-4591-bd79-0fc6ca6b5523/coverage.cobertura.xml
+test	Run unit tests	2026-10-09T06:10:50.9192242Z   /home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/a5b8b876-6ee2-4315-a56b-ccc829c7f003/coverage.cobertura.xml
+test	Run unit tests	2026-10-09T06:10:50.9195217Z   /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/823d2ea6-1dc2-4d24-a7cb-c5718ba489a6/coverage.cobertura.xml
+test	Run unit tests	2026-10-09T06:10:50.9198261Z   /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/bc766df1-3925-4aaa-a3ec-4ea8cab9532f/coverage.cobertura.xml
+test	Run unit tests	2026-10-09T06:10:50.9201438Z   /home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/ad2347f7-8613-4afc-b8f3-3278633a3953/coverage.cobertura.xml
+test	Run functional tests	﻿2026-10-09T06:10:50.9929102Z ##[group]Run dotnet test src/ArturRios.Cerberus.sln --configuration Release --no-build --filter "Category=Functional" --collect:"XPlat Code Coverage"
+test	Run functional tests	2026-10-09T06:10:50.9930204Z [36;1mdotnet test src/ArturRios.Cerberus.sln --configuration Release --no-build --filter "Category=Functional" --collect:"XPlat Code Coverage"[0m
+test	Run functional tests	2026-10-09T06:10:50.9993905Z shell: /usr/bin/bash -e {0}
+test	Run functional tests	2026-10-09T06:10:50.9994165Z env:
+test	Run functional tests	2026-10-09T06:10:50.9994358Z   DOTNET_ROOT: /usr/share/dotnet
+test	Run functional tests	2026-10-09T06:10:50.9994733Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Run functional tests	2026-10-09T06:10:50.9995239Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Run functional tests	2026-10-09T06:10:50.9995630Z   MAVEN_ARGS: -ntp
+test	Run functional tests	2026-10-09T06:10:50.9995907Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run functional tests	2026-10-09T06:10:50.9996318Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Run functional tests	2026-10-09T06:10:50.9996752Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run functional tests	2026-10-09T06:10:50.9997159Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run functional tests	2026-10-09T06:10:50.9997522Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run functional tests	2026-10-09T06:10:50.9997887Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Run functional tests	2026-10-09T06:10:50.9998325Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Run functional tests	2026-10-09T06:10:50.9999000Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Run functional tests	2026-10-09T06:10:50.9999502Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Run functional tests	2026-10-09T06:10:51.0000054Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Run functional tests	2026-10-09T06:10:51.0000624Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Run functional tests	2026-10-09T06:10:51.0001384Z ##[endgroup]
+test	Run functional tests	2026-10-09T06:10:52.3443520Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Release/net10.0/ArturRios.Cerberus.Domain.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run functional tests	2026-10-09T06:10:52.4521311Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Release/net10.0/ArturRios.Cerberus.Command.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run functional tests	2026-10-09T06:10:52.4903426Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Release/net10.0/ArturRios.Cerberus.Query.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run functional tests	2026-10-09T06:10:52.5990136Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Release/net10.0/ArturRios.Cerberus.Shared.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run functional tests	2026-10-09T06:10:52.7771788Z A total of 1 test files matched the specified pattern.
+test	Run functional tests	2026-10-09T06:10:52.8552167Z A total of 1 test files matched the specified pattern.
+test	Run functional tests	2026-10-09T06:10:52.9302185Z A total of 1 test files matched the specified pattern.
+test	Run functional tests	2026-10-09T06:10:52.9693280Z A total of 1 test files matched the specified pattern.
+test	Run functional tests	2026-10-09T06:10:55.7203297Z No test matches the given testcase filter `Category=Functional` in /home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Release/net10.0/ArturRios.Cerberus.Domain.Tests.dll
+test	Run functional tests	2026-10-09T06:10:55.9593284Z No test matches the given testcase filter `Category=Functional` in /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Release/net10.0/ArturRios.Cerberus.Query.Tests.dll
+test	Run functional tests	2026-10-09T06:10:56.0892280Z 
+test	Run functional tests	2026-10-09T06:10:56.2493833Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Release/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run functional tests	2026-10-09T06:10:56.3661680Z 
+test	Run functional tests	2026-10-09T06:10:56.6379225Z No test matches the given testcase filter `Category=Functional` in /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Release/net10.0/ArturRios.Cerberus.Shared.Tests.dll
+test	Run functional tests	2026-10-09T06:10:56.6397978Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Release/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run functional tests	2026-10-09T06:10:56.6623229Z A total of 1 test files matched the specified pattern.
+test	Run functional tests	2026-10-09T06:10:57.0881395Z 
+test	Run functional tests	2026-10-09T06:10:57.1786101Z A total of 1 test files matched the specified pattern.
+test	Run functional tests	2026-10-09T06:10:57.9763858Z No test matches the given testcase filter `Category=Functional` in /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Release/net10.0/ArturRios.Cerberus.Command.Tests.dll
+test	Run functional tests	2026-10-09T06:10:58.4879887Z 
+test	Run functional tests	2026-10-09T06:13:48.1704270Z 
+test	Run functional tests	2026-10-09T06:13:48.1785015Z Passed!  - Failed:     0, Passed:  1560, Skipped:     0, Total:  1560, Duration: 2 m 43 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)
+test	Run functional tests	2026-10-09T06:16:09.8677052Z 
+test	Run functional tests	2026-10-09T06:16:09.8737057Z Passed!  - Failed:     0, Passed:  1740, Skipped:     0, Total:  1740, Duration: 5 m 5 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)
+test	Run functional tests	2026-10-09T06:16:10.0893765Z 
+test	Run functional tests	2026-10-09T06:16:10.0900046Z Attachments:
+test	Run functional tests	2026-10-09T06:16:10.0902474Z   /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/b416f224-24b7-4096-bdf5-27356abea344/coverage.cobertura.xml
+test	Run functional tests	2026-10-09T06:16:10.0905426Z   /home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/3bea2784-2642-478f-a32b-8ca611d4dcc1/coverage.cobertura.xml
+test	Run functional tests	2026-10-09T06:16:10.0908034Z   /home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/3eed4eb7-a22f-486d-b9a2-8e9d4ae69287/coverage.cobertura.xml
+test	Run functional tests	2026-10-09T06:16:10.0910647Z   /home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/2da7c956-2d92-4ceb-bf97-54d7d485793b/coverage.cobertura.xml
+test	Run functional tests	2026-10-09T06:16:10.0913568Z   /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/73ba37b0-b368-4ea3-828b-d826e5580e6e/coverage.cobertura.xml
+test	Run functional tests	2026-10-09T06:16:10.0916245Z   /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/107b63fc-1c13-4302-af1b-6ac28613cefa/coverage.cobertura.xml
+test	Run complete unfiltered suite	﻿2026-10-09T06:16:10.1498806Z ##[group]Run dotnet test src/ArturRios.Cerberus.sln --configuration Release --no-build --logger trx --collect:"XPlat Code Coverage"
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1499859Z [36;1mdotnet test src/ArturRios.Cerberus.sln --configuration Release --no-build --logger trx --collect:"XPlat Code Coverage"[0m
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1563838Z shell: /usr/bin/bash -e {0}
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1564092Z env:
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1564296Z   DOTNET_ROOT: /usr/share/dotnet
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1564670Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1565200Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1565588Z   MAVEN_ARGS: -ntp
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1565863Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1566309Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1566723Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1567098Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1567504Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1567892Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1568343Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1568852Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1569365Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1569933Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1570500Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Run complete unfiltered suite	2026-10-09T06:16:10.1571238Z ##[endgroup]
+test	Run complete unfiltered suite	2026-10-09T06:16:11.2593154Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Release/net10.0/ArturRios.Cerberus.Domain.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run complete unfiltered suite	2026-10-09T06:16:11.5543446Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Release/net10.0/ArturRios.Cerberus.Command.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run complete unfiltered suite	2026-10-09T06:16:11.5671090Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Release/net10.0/ArturRios.Cerberus.Query.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run complete unfiltered suite	2026-10-09T06:16:11.6325630Z A total of 1 test files matched the specified pattern.
+test	Run complete unfiltered suite	2026-10-09T06:16:11.6387801Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Release/net10.0/ArturRios.Cerberus.Shared.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run complete unfiltered suite	2026-10-09T06:16:11.8643510Z A total of 1 test files matched the specified pattern.
+test	Run complete unfiltered suite	2026-10-09T06:16:11.9641970Z A total of 1 test files matched the specified pattern.
+test	Run complete unfiltered suite	2026-10-09T06:16:12.0114786Z A total of 1 test files matched the specified pattern.
+test	Run complete unfiltered suite	2026-10-09T06:16:17.3417265Z Results File: /home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/_runnervmmprz5_2026-10-09_06_16_15_net10.0.trx
+test	Run complete unfiltered suite	2026-10-09T06:16:17.3441555Z 
+test	Run complete unfiltered suite	2026-10-09T06:16:17.3502371Z Passed!  - Failed:     0, Passed:   361, Skipped:     0, Total:   361, Duration: 1 s - ArturRios.Cerberus.Domain.Tests.dll (net10.0)
+test	Run complete unfiltered suite	2026-10-09T06:16:17.6023336Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Release/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run complete unfiltered suite	2026-10-09T06:16:17.6137363Z Results File: /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/_runnervmmprz5_2026-10-09_06_16_16_net10.0.trx
+test	Run complete unfiltered suite	2026-10-09T06:16:17.6191487Z 
+test	Run complete unfiltered suite	2026-10-09T06:16:17.6196123Z Passed!  - Failed:     0, Passed:   125, Skipped:     0, Total:   125, Duration: 645 ms - ArturRios.Cerberus.Shared.Tests.dll (net10.0)
+test	Run complete unfiltered suite	2026-10-09T06:16:17.8343500Z Test run for /home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Release/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+test	Run complete unfiltered suite	2026-10-09T06:16:18.4022073Z A total of 1 test files matched the specified pattern.
+test	Run complete unfiltered suite	2026-10-09T06:16:18.5463209Z Results File: /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/_runnervmmprz5_2026-10-09_06_16_16_net10.0.trx
+test	Run complete unfiltered suite	2026-10-09T06:16:18.5551265Z 
+test	Run complete unfiltered suite	2026-10-09T06:16:18.5643839Z Passed!  - Failed:     0, Passed:   259, Skipped:     0, Total:   259, Duration: 1 s - ArturRios.Cerberus.Query.Tests.dll (net10.0)
+test	Run complete unfiltered suite	2026-10-09T06:16:18.5852234Z A total of 1 test files matched the specified pattern.
+test	Run complete unfiltered suite	2026-10-09T06:16:20.5233028Z Results File: /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/_runnervmmprz5_2026-10-09_06_16_17_net10.0.trx
+test	Run complete unfiltered suite	2026-10-09T06:16:20.5261245Z 
+test	Run complete unfiltered suite	2026-10-09T06:16:20.5297444Z Passed!  - Failed:     0, Passed:   841, Skipped:     0, Total:   841, Duration: 2 s - ArturRios.Cerberus.Command.Tests.dll (net10.0)
+test	Run complete unfiltered suite	2026-10-09T06:19:17.1696136Z Results File: /home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/_runnervmmprz5_2026-10-09_06_16_25_net10.0.trx
+test	Run complete unfiltered suite	2026-10-09T06:19:17.1702667Z 
+test	Run complete unfiltered suite	2026-10-09T06:19:17.1777439Z Passed!  - Failed:     0, Passed:  1593, Skipped:     0, Total:  1593, Duration: 2 m 50 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)
+test	Run complete unfiltered suite	2026-10-09T06:21:37.3562601Z Results File: /home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/_runnervmmprz5_2026-10-09_06_16_26_net10.0.trx
+test	Run complete unfiltered suite	2026-10-09T06:21:37.3565718Z 
+test	Run complete unfiltered suite	2026-10-09T06:21:37.3617600Z Passed!  - Failed:     0, Passed:  1740, Skipped:     0, Total:  1740, Duration: 5 m 11 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)
+test	Run complete unfiltered suite	2026-10-09T06:21:37.5809290Z 
+test	Run complete unfiltered suite	2026-10-09T06:21:37.5817384Z Attachments:
+test	Run complete unfiltered suite	2026-10-09T06:21:37.5819685Z   /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/5d068773-48c7-40d4-be5a-61012dea074f/coverage.cobertura.xml
+test	Run complete unfiltered suite	2026-10-09T06:21:37.5821686Z   /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/ea56f0ae-2a83-4c9c-98a5-c8f4f0e1a804/coverage.cobertura.xml
+test	Run complete unfiltered suite	2026-10-09T06:21:37.5823356Z   /home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/377bfb83-3aee-439b-a0ca-5a8af47ed0d4/coverage.cobertura.xml
+test	Run complete unfiltered suite	2026-10-09T06:21:37.5824993Z   /home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/5c5f5caa-65c3-4f2e-b7b4-ac3d5ab2b16d/coverage.cobertura.xml
+test	Run complete unfiltered suite	2026-10-09T06:21:37.5826534Z   /home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/5a500847-a080-4013-bef9-2f1aa0a5cc91/coverage.cobertura.xml
+test	Run complete unfiltered suite	2026-10-09T06:21:37.5827992Z   /home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/2a918e4c-8b7f-4f0a-bfb2-7a65de02aed8/coverage.cobertura.xml
+test	Install ReportGenerator	﻿2026-10-09T06:21:37.6402920Z ##[group]Run dotnet tool install --global dotnet-reportgenerator-globaltool
+test	Install ReportGenerator	2026-10-09T06:21:37.6403505Z [36;1mdotnet tool install --global dotnet-reportgenerator-globaltool[0m
+test	Install ReportGenerator	2026-10-09T06:21:37.6403930Z [36;1mecho "$HOME/.dotnet/tools" >> "$GITHUB_PATH"[0m
+test	Install ReportGenerator	2026-10-09T06:21:37.6467277Z shell: /usr/bin/bash -e {0}
+test	Install ReportGenerator	2026-10-09T06:21:37.6467529Z env:
+test	Install ReportGenerator	2026-10-09T06:21:37.6467728Z   DOTNET_ROOT: /usr/share/dotnet
+test	Install ReportGenerator	2026-10-09T06:21:37.6468099Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Install ReportGenerator	2026-10-09T06:21:37.6468602Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Install ReportGenerator	2026-10-09T06:21:37.6468995Z   MAVEN_ARGS: -ntp
+test	Install ReportGenerator	2026-10-09T06:21:37.6469264Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Install ReportGenerator	2026-10-09T06:21:37.6469674Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Install ReportGenerator	2026-10-09T06:21:37.6470086Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Install ReportGenerator	2026-10-09T06:21:37.6470469Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Install ReportGenerator	2026-10-09T06:21:37.6471157Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Install ReportGenerator	2026-10-09T06:21:37.6471562Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Install ReportGenerator	2026-10-09T06:21:37.6472016Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Install ReportGenerator	2026-10-09T06:21:37.6472517Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Install ReportGenerator	2026-10-09T06:21:37.6473032Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Install ReportGenerator	2026-10-09T06:21:37.6473613Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Install ReportGenerator	2026-10-09T06:21:37.6474180Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Install ReportGenerator	2026-10-09T06:21:37.6474572Z ##[endgroup]
+test	Install ReportGenerator	2026-10-09T06:21:39.0435883Z You can invoke the tool using the following command: reportgenerator
+test	Install ReportGenerator	2026-10-09T06:21:39.0437119Z Tool 'dotnet-reportgenerator-globaltool' (version '5.5.11') was successfully installed.
+test	Generate coverage report and enforce the minimum	﻿2026-10-09T06:21:39.0677430Z ##[group]Run python3 scripts/coverage.py --report-only
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0677863Z [36;1mpython3 scripts/coverage.py --report-only[0m
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0741521Z shell: /usr/bin/bash -e {0}
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0741777Z env:
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0741968Z   DOTNET_ROOT: /usr/share/dotnet
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0742326Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0742802Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0743178Z   MAVEN_ARGS: -ntp
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0743459Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0743885Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0744300Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0744665Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0745026Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0745431Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0745869Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0746361Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0746860Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0747414Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0747973Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0748373Z   REPORTGENERATOR_LICENSE: 
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.0748597Z ##[endgroup]
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.1405560Z Found 18 coverage file(s)
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.1406232Z REPORTGENERATOR_LICENSE is not set; generating with the free version
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.1420611Z $ reportgenerator -reports:/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/5d068773-48c7-40d4-be5a-61012dea074f/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/73ba37b0-b368-4ea3-828b-d826e5580e6e/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/823d2ea6-1dc2-4d24-a7cb-c5718ba489a6/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/107b63fc-1c13-4302-af1b-6ac28613cefa/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/5c5f5caa-65c3-4f2e-b7b4-ac3d5ab2b16d/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/bc766df1-3925-4aaa-a3ec-4ea8cab9532f/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/0e773099-b11f-4591-bd79-0fc6ca6b5523/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/b416f224-24b7-4096-bdf5-27356abea344/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/ea56f0ae-2a83-4c9c-98a5-c8f4f0e1a804/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/3eed4eb7-a22f-486d-b9a2-8e9d4ae69287/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/5a500847-a080-4013-bef9-2f1aa0a5cc91/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/a5b8b876-6ee2-4315-a56b-ccc829c7f003/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/2a918e4c-8b7f-4f0a-bfb2-7a65de02aed8/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/3bea2784-2642-478f-a32b-8ca611d4dcc1/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/ad2347f7-8613-4afc-b8f3-3278633a3953/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/2da7c956-2d92-4ceb-bf97-54d7d485793b/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/377bfb83-3aee-439b-a0ca-5a8af47ed0d4/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/56472b3f-166f-42a1-92c0-6882eeeacc53/coverage.cobertura.xml -targetdir:/home/runner/work/cerberus-api/cerberus-api/docs/coverage-report -reporttypes:Html;JsonSummary -assemblyfilters:+ArturRios.Cerberus.*;-*.Tests -title:Cerberus API
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.1884996Z 2026-10-09T06:21:39: Arguments
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.1898416Z 2026-10-09T06:21:39:  -reports:/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/5d068773-48c7-40d4-be5a-61012dea074f/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/73ba37b0-b368-4ea3-828b-d826e5580e6e/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/823d2ea6-1dc2-4d24-a7cb-c5718ba489a6/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/107b63fc-1c13-4302-af1b-6ac28613cefa/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/5c5f5caa-65c3-4f2e-b7b4-ac3d5ab2b16d/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/bc766df1-3925-4aaa-a3ec-4ea8cab9532f/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/0e773099-b11f-4591-bd79-0fc6ca6b5523/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/b416f224-24b7-4096-bdf5-27356abea344/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/ea56f0ae-2a83-4c9c-98a5-c8f4f0e1a804/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/3eed4eb7-a22f-486d-b9a2-8e9d4ae69287/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/5a500847-a080-4013-bef9-2f1aa0a5cc91/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/a5b8b876-6ee2-4315-a56b-ccc829c7f003/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/2a918e4c-8b7f-4f0a-bfb2-7a65de02aed8/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/3bea2784-2642-478f-a32b-8ca611d4dcc1/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/ad2347f7-8613-4afc-b8f3-3278633a3953/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/2da7c956-2d92-4ceb-bf97-54d7d485793b/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/377bfb83-3aee-439b-a0ca-5a8af47ed0d4/coverage.cobertura.xml;/home/runner/work/cerberus-api/cerberus-api/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/56472b3f-166f-42a1-92c0-6882eeeacc53/coverage.cobertura.xml
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.1911468Z 2026-10-09T06:21:39:  -targetdir:/home/runner/work/cerberus-api/cerberus-api/docs/coverage-report
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.1912076Z 2026-10-09T06:21:39:  -reporttypes:Html;JsonSummary
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.1912541Z 2026-10-09T06:21:39:  -assemblyfilters:+ArturRios.Cerberus.*;-*.Tests
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.1912948Z 2026-10-09T06:21:39:  -title:Cerberus API
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:39.2542826Z 2026-10-09T06:21:39: The license is not valid or has expired
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:41.3142058Z 2026-10-09T06:21:41: Writing report file '/home/runner/work/cerberus-api/cerberus-api/docs/coverage-report/index.html'
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:41.3796816Z 2026-10-09T06:21:41: Writing report file '/home/runner/work/cerberus-api/cerberus-api/docs/coverage-report/Summary.json'
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:41.4155955Z 2026-10-09T06:21:41: Report generation took 2.1 seconds
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:41.4242984Z 
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:41.4243767Z Report written to /home/runner/work/cerberus-api/cerberus-api/docs/coverage-report
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:41.4257316Z Line coverage 98.4% (minimum 90.0%)
+test	Generate coverage report and enforce the minimum	2026-10-09T06:21:41.4257975Z Open the HTML report at: /home/runner/work/cerberus-api/cerberus-api/docs/coverage-report/index.html
+test	Upload coverage report	﻿2026-10-09T06:21:41.4415631Z ##[group]Run actions/upload-artifact@v7
+test	Upload coverage report	2026-10-09T06:21:41.4415956Z with:
+test	Upload coverage report	2026-10-09T06:21:41.4416157Z   name: coverage-report
+test	Upload coverage report	2026-10-09T06:21:41.4416392Z   path: docs/coverage-report
+test	Upload coverage report	2026-10-09T06:21:41.4416635Z   if-no-files-found: error
+test	Upload coverage report	2026-10-09T06:21:41.4416864Z   compression-level: 6
+test	Upload coverage report	2026-10-09T06:21:41.4417070Z   overwrite: false
+test	Upload coverage report	2026-10-09T06:21:41.4417282Z   include-hidden-files: false
+test	Upload coverage report	2026-10-09T06:21:41.4417512Z   archive: true
+test	Upload coverage report	2026-10-09T06:21:41.4417697Z env:
+test	Upload coverage report	2026-10-09T06:21:41.4417883Z   DOTNET_ROOT: /usr/share/dotnet
+test	Upload coverage report	2026-10-09T06:21:41.4418226Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Upload coverage report	2026-10-09T06:21:41.4418701Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Upload coverage report	2026-10-09T06:21:41.4419255Z   MAVEN_ARGS: -ntp
+test	Upload coverage report	2026-10-09T06:21:41.4419517Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload coverage report	2026-10-09T06:21:41.4419925Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Upload coverage report	2026-10-09T06:21:41.4420423Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload coverage report	2026-10-09T06:21:41.4421137Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload coverage report	2026-10-09T06:21:41.4421565Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload coverage report	2026-10-09T06:21:41.4421940Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Upload coverage report	2026-10-09T06:21:41.4422381Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Upload coverage report	2026-10-09T06:21:41.4422875Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Upload coverage report	2026-10-09T06:21:41.4423389Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Upload coverage report	2026-10-09T06:21:41.4423941Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Upload coverage report	2026-10-09T06:21:41.4424514Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Upload coverage report	2026-10-09T06:21:41.4424906Z ##[endgroup]
+test	Upload coverage report	2026-10-09T06:21:41.6742165Z With the provided path, there will be 354 files uploaded
+test	Upload coverage report	2026-10-09T06:21:41.6743384Z Artifact name is valid!
+test	Upload coverage report	2026-10-09T06:21:41.6743816Z Root directory input is valid!
+test	Upload coverage report	2026-10-09T06:21:41.9085131Z Uploading artifact: coverage-report.zip
+test	Upload coverage report	2026-10-09T06:21:41.9128635Z Beginning upload of artifact content to blob storage
+test	Upload coverage report	2026-10-09T06:21:42.5523139Z Uploaded bytes 1476348
+test	Upload coverage report	2026-10-09T06:21:42.5841010Z Finished uploading artifact content to blob storage!
+test	Upload coverage report	2026-10-09T06:21:42.5842297Z SHA256 digest of uploaded artifact is 49aeb4e65e1add141461e2e2e427f5a4f161d8e1da951f00148b1e77674bc84e
+test	Upload coverage report	2026-10-09T06:21:42.5843223Z Finalizing artifact upload
+test	Upload coverage report	2026-10-09T06:21:42.8522634Z Artifact coverage-report successfully finalized. Artifact ID 11598861847
+test	Upload coverage report	2026-10-09T06:21:42.8524134Z Artifact coverage-report has been successfully uploaded! Final size is 1476348 bytes. Artifact ID is 11598861847
+test	Upload coverage report	2026-10-09T06:21:42.8525816Z Artifact download URL: https://github.com/artur-rios/cerberus-api/actions/runs/37891925199/artifacts/11598861847
+test	Upload test results	﻿2026-10-09T06:21:42.8692451Z ##[group]Run actions/upload-artifact@v7
+test	Upload test results	2026-10-09T06:21:42.8692762Z with:
+test	Upload test results	2026-10-09T06:21:42.8692957Z   name: test-results
+test	Upload test results	2026-10-09T06:21:42.8693180Z   path: **/TestResults/*.trx
+test	Upload test results	2026-10-09T06:21:42.8693422Z   if-no-files-found: warn
+test	Upload test results	2026-10-09T06:21:42.8693656Z   compression-level: 6
+test	Upload test results	2026-10-09T06:21:42.8693866Z   overwrite: false
+test	Upload test results	2026-10-09T06:21:42.8694078Z   include-hidden-files: false
+test	Upload test results	2026-10-09T06:21:42.8694311Z   archive: true
+test	Upload test results	2026-10-09T06:21:42.8694503Z env:
+test	Upload test results	2026-10-09T06:21:42.8694691Z   DOTNET_ROOT: /usr/share/dotnet
+test	Upload test results	2026-10-09T06:21:42.8695037Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Upload test results	2026-10-09T06:21:42.8695516Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.4-1/x64
+test	Upload test results	2026-10-09T06:21:42.8695904Z   MAVEN_ARGS: -ntp
+test	Upload test results	2026-10-09T06:21:42.8696181Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload test results	2026-10-09T06:21:42.8696591Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib/pkgconfig
+test	Upload test results	2026-10-09T06:21:42.8696994Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload test results	2026-10-09T06:21:42.8697398Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload test results	2026-10-09T06:21:42.8697801Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.8/x64
+test	Upload test results	2026-10-09T06:21:42.8698194Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.8/x64/lib
+test	Upload test results	2026-10-09T06:21:42.8698639Z   MAVEN_USER_HOME: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven-user
+test	Upload test results	2026-10-09T06:21:42.8699133Z   HARNESS_MAVEN_CACHE: /home/runner/work/_temp/cerberus-protocol.efC0tu/m2
+test	Upload test results	2026-10-09T06:21:42.8699641Z   CERBERUS_PYTHON_WHEELS: /home/runner/work/_temp/cerberus-protocol.efC0tu/wheels
+test	Upload test results	2026-10-09T06:21:42.8700201Z   CERBERUS_MAVEN_DISTRIBUTION: /home/runner/work/_temp/cerberus-protocol.efC0tu/maven.zip
+test	Upload test results	2026-10-09T06:21:42.8700764Z   HARNESS_PYTHON: /home/runner/work/_temp/cerberus-protocol.efC0tu/venv/bin/python
+test	Upload test results	2026-10-09T06:21:42.8701666Z ##[endgroup]
+test	Upload test results	2026-10-09T06:21:43.4756964Z With the provided path, there will be 6 files uploaded
+test	Upload test results	2026-10-09T06:21:43.4764055Z Artifact name is valid!
+test	Upload test results	2026-10-09T06:21:43.4764773Z Root directory input is valid!
+test	Upload test results	2026-10-09T06:21:43.7492254Z Uploading artifact: test-results.zip
+test	Upload test results	2026-10-09T06:21:43.7531308Z Beginning upload of artifact content to blob storage
+test	Upload test results	2026-10-09T06:21:44.1566145Z Uploaded bytes 1488576
+test	Upload test results	2026-10-09T06:21:44.1842488Z Finished uploading artifact content to blob storage!
+test	Upload test results	2026-10-09T06:21:44.1843871Z SHA256 digest of uploaded artifact is 2168ab328aefa1fe4501174bc84465f7d70bd18fa7354d182177761fe4367074
+test	Upload test results	2026-10-09T06:21:44.1845085Z Finalizing artifact upload
+test	Upload test results	2026-10-09T06:21:44.4287161Z Artifact test-results successfully finalized. Artifact ID 11598836821
+test	Upload test results	2026-10-09T06:21:44.4288411Z Artifact test-results has been successfully uploaded! Final size is 1488576 bytes. Artifact ID is 11598836821
+test	Upload test results	2026-10-09T06:21:44.4291515Z Artifact download URL: https://github.com/artur-rios/cerberus-api/actions/runs/37891925199/artifacts/11598836821
+test	Post Setup protocol Python	﻿2026-10-09T06:21:44.4483640Z Post job cleanup.
+test	Post Setup protocol Java	﻿2026-10-09T06:21:44.5888692Z Post job cleanup.
+test	Post Setup .NET	﻿2026-10-09T06:21:44.6965882Z Post job cleanup.
+test	Post Checkout repository	﻿2026-10-09T06:21:44.8622562Z Post job cleanup.
+test	Post Checkout repository	2026-10-09T06:21:44.9780586Z [command]/usr/bin/git version
+test	Post Checkout repository	2026-10-09T06:21:44.9882420Z git version 2.55.0
+test	Post Checkout repository	2026-10-09T06:21:44.9959003Z Temporarily overriding HOME='/home/runner/work/_temp/6f074480-eb60-4d04-a1e3-a362c9dc52ab' before making global git config changes
+test	Post Checkout repository	2026-10-09T06:21:44.9960474Z Adding repository directory to the temporary git global config as a safe directory
+test	Post Checkout repository	2026-10-09T06:21:44.9961925Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/cerberus-api/cerberus-api
+test	Post Checkout repository	2026-10-09T06:21:45.0002267Z Removing SSH command configuration
+test	Post Checkout repository	2026-10-09T06:21:45.0003599Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+test	Post Checkout repository	2026-10-09T06:21:45.0054620Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+test	Post Checkout repository	2026-10-09T06:21:45.0399656Z Removing HTTP extra header
+test	Post Checkout repository	2026-10-09T06:21:45.0401089Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+test	Post Checkout repository	2026-10-09T06:21:45.0853486Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+test	Post Checkout repository	2026-10-09T06:21:45.0905336Z Removing includeIf entries pointing to credentials config files
+test	Post Checkout repository	2026-10-09T06:21:45.0912221Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+test	Post Checkout repository	2026-10-09T06:21:45.0937187Z includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git.path
+test	Post Checkout repository	2026-10-09T06:21:45.0938572Z includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git/worktrees/*.path
+test	Post Checkout repository	2026-10-09T06:21:45.0939691Z includeif.gitdir:/github/workspace/.git.path
+test	Post Checkout repository	2026-10-09T06:21:45.0940538Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+test	Post Checkout repository	2026-10-09T06:21:45.0944587Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git.path
+test	Post Checkout repository	2026-10-09T06:21:45.0982621Z /home/runner/work/_temp/git-credentials-43fbfe50-e95e-4aa3-9344-95956db4a43e.config
+test	Post Checkout repository	2026-10-09T06:21:45.1005316Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-43fbfe50\-e95e\-4aa3\-9344\-95956db4a43e\.config
+test	Post Checkout repository	2026-10-09T06:21:45.1083557Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git/worktrees/*.path
+test	Post Checkout repository	2026-10-09T06:21:45.1123944Z /home/runner/work/_temp/git-credentials-43fbfe50-e95e-4aa3-9344-95956db4a43e.config
+test	Post Checkout repository	2026-10-09T06:21:45.1142257Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/cerberus-api/cerberus-api/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-43fbfe50\-e95e\-4aa3\-9344\-95956db4a43e\.config
+test	Post Checkout repository	2026-10-09T06:21:45.1195816Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+test	Post Checkout repository	2026-10-09T06:21:45.1243710Z /github/runner_temp/git-credentials-43fbfe50-e95e-4aa3-9344-95956db4a43e.config
+test	Post Checkout repository	2026-10-09T06:21:45.1278938Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-43fbfe50\-e95e\-4aa3\-9344\-95956db4a43e\.config
+test	Post Checkout repository	2026-10-09T06:21:45.1350507Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+test	Post Checkout repository	2026-10-09T06:21:45.1407842Z /github/runner_temp/git-credentials-43fbfe50-e95e-4aa3-9344-95956db4a43e.config
+test	Post Checkout repository	2026-10-09T06:21:45.1414590Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-43fbfe50\-e95e\-4aa3\-9344\-95956db4a43e\.config
+test	Post Checkout repository	2026-10-09T06:21:45.1503486Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+test	Post Checkout repository	2026-10-09T06:21:45.1891647Z Removing credentials config '/home/runner/work/_temp/git-credentials-43fbfe50-e95e-4aa3-9344-95956db4a43e.config'
+test	Complete job	﻿2026-10-09T06:21:45.2148496Z Cleaning up orphan processes
+test	Complete job	2026-10-09T06:21:45.2539619Z Terminate orphan process: pid (6465) (dotnet)
+test	Complete job	2026-10-09T06:21:45.2572344Z Terminate orphan process: pid (6466) (dotnet)
+test	Complete job	2026-10-09T06:21:45.2600445Z Terminate orphan process: pid (6467) (dotnet)

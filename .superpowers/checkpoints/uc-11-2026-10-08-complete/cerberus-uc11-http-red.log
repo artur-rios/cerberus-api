@@ -1,0 +1,463 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc11-worktree/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 508 ms).
+  Restored /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj (in 510 ms).
+  Restored /tmp/cerberus-uc11-worktree/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 508 ms).
+  4 of 7 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc11-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc11-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc11-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc11-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc11-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc11-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:08.97]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(kind: "deleted", status: 401) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(kind: "deleted", status: 401) [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:09.11]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(kind: "wrongscope", status: 401) [FAIL]
+[xUnit.net 00:00:09.24]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:09.32]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(kind: "unavailable", status: 503) [FAIL]
+[xUnit.net 00:00:09.44]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(kind: "query", status: 400) [FAIL]
+[xUnit.net 00:00:09.73]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(kind: "duplicate", status: 400) [FAIL]
+[xUnit.net 00:00:09.95]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:10.25]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(kind: "malformed", status: 400) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(kind: "wrongscope", status: 401) [142 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(kind: "missing", status: 401) [136 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(kind: "unavailable", status: 503) [74 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidOrUnavailableIdentity_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(kind: "query", status: 400) [118 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(kind: "duplicate", status: 400) [280 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(kind: "missing", status: 401) [206 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(kind: "malformed", status: 400) [277 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 46
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:10.64]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(kind: "body", status: 400) [FAIL]
+[xUnit.net 00:00:10.74]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "%20abcdefab-1234-4321-abcd-123456789abc") [FAIL]
+[xUnit.net 00:00:10.80]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "ABCDEFAB-1234-4321-ABCD-123456789ABC") [FAIL]
+[xUnit.net 00:00:10.88]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "abcdefab12344321abcd123456789abc") [FAIL]
+[xUnit.net 00:00:10.99]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "bad") [FAIL]
+[xUnit.net 00:00:11.07]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "{abcdefab-1234-4321-abcd-123456789abc}") [FAIL]
+[xUnit.net 00:00:11.13]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "00000000-0000-0000-0000-000000000000") [FAIL]
+[xUnit.net 00:00:11.36]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(kind: "revision") [FAIL]
+[xUnit.net 00:00:11.46]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(kind: "envelope") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(kind: "body", status: 400) [386 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "%20abcdefab-1234-4321-abcd-123456789abc") [93 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(String id) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 42
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "ABCDEFAB-1234-4321-ABCD-123456789ABC") [56 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(String id) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 42
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "abcdefab12344321abcd123456789abc") [71 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(String id) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 42
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "bad") [109 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(String id) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 42
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "{abcdefab-1234-4321-abcd-123456789abc}") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(String id) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 42
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(id: "00000000-0000-0000-0000-000000000000") [65 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenMalformedOrNoncanonicalPath_WhenGetting_Then400(String id) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 42
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(kind: "revision") [225 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(String kind) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(kind: "envelope") [98 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(String kind) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 61
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.56]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(kind: "sequence") [FAIL]
+[xUnit.net 00:00:11.68]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(kind: "recipient") [FAIL]
+[xUnit.net 00:00:11.89]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "revoked", status: 403) [FAIL]
+[xUnit.net 00:00:12.03]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "policy", status: 403) [FAIL]
+[xUnit.net 00:00:12.20]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "closing", status: 404) [FAIL]
+[xUnit.net 00:00:12.43]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "expired", status: 403) [FAIL]
+[xUnit.net 00:00:12.58]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "missing", status: 404) [FAIL]
+[xUnit.net 00:00:12.86]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "generation", status: 403) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(kind: "sequence") [100 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(String kind) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(kind: "recipient") [105 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenCorruptStoredVisibleMetadata_WhenGetting_Then503WithoutPartialData(String kind) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "revoked", status: 403) [218 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "policy", status: 403) [129 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "closing", status: 404) [167 ms]
+  Error Message:
+   System.Text.Json.JsonException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
+---- System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ReThrowWithPath(ReadStack& state, JsonReaderException ex)
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.ContinueDeserialize[TReadBufferState,TStream](TReadBufferState& bufferState, JsonReaderState& jsonReaderState, ReadStack& readStack, T& value)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.DeserializeAsync[TReadBufferState,TStream](TStream utf8Json, TReadBufferState bufferState, CancellationToken cancellationToken)
+   at System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsyncCore[T](HttpContent content, JsonSerializerOptions options, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "expired", status: 403) [223 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "missing", status: 404) [149 ms]
+  Error Message:
+   System.Text.Json.JsonException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
+---- System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ReThrowWithPath(ReadStack& state, JsonReaderException ex)
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.ContinueDeserialize[TReadBufferState,TStream](TReadBufferState& bufferState, JsonReaderState& jsonReaderState, ReadStack& readStack, T& value)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.DeserializeAsync[TReadBufferState,TStream](TStream utf8Json, TReadBufferState bufferState, CancellationToken cancellationToken)
+   at System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsyncCore[T](HttpContent content, JsonSerializerOptions options, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "generation", status: 403) [271 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.12]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "erased", status: 404) [FAIL]
+[xUnit.net 00:00:13.27]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "selection", status: 403) [FAIL]
+[xUnit.net 00:00:13.36]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenOwnedEncryptedProfile_WhenGetting_ThenExactPublicOpaqueDataAndEmptyLinks(mode: "Master") [FAIL]
+[xUnit.net 00:00:13.50]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenOwnedEncryptedProfile_WhenGetting_ThenExactPublicOpaqueDataAndEmptyLinks(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:13.61]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(kind: "missing") [FAIL]
+[xUnit.net 00:00:13.77]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(kind: "erased") [FAIL]
+[xUnit.net 00:00:13.87]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(kind: "trash") [FAIL]
+[xUnit.net 00:00:14.06]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(kind: "foreign") [FAIL]
+[xUnit.net 00:00:14.23]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenUnavailableProfileTable_WhenGetting_Then503Unchanged [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "erased", status: 404) [255 ms]
+  Error Message:
+   System.Text.Json.JsonException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
+---- System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ReThrowWithPath(ReadStack& state, JsonReaderException ex)
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.ContinueDeserialize[TReadBufferState,TStream](TReadBufferState& bufferState, JsonReaderState& jsonReaderState, ReadStack& readStack, T& value)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.DeserializeAsync[TReadBufferState,TStream](TStream utf8Json, TReadBufferState bufferState, CancellationToken cancellationToken)
+   at System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsyncCore[T](HttpContent content, JsonSerializerOptions options, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(kind: "selection", status: 403) [143 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenOwnedEncryptedProfile_WhenGetting_ThenExactPublicOpaqueDataAndEmptyLinks(mode: "Master") [89 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Profile(HttpResponseMessage response) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 76
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenOwnedEncryptedProfile_WhenGetting_ThenExactPublicOpaqueDataAndEmptyLinks(String mode) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 26
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenOwnedEncryptedProfile_WhenGetting_ThenExactPublicOpaqueDataAndEmptyLinks(mode: "PerProfile") [120 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Profile(HttpResponseMessage response) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 76
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenOwnedEncryptedProfile_WhenGetting_ThenExactPublicOpaqueDataAndEmptyLinks(String mode) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 26
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(kind: "missing") [108 ms]
+  Error Message:
+   System.Text.Json.JsonException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
+---- System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ReThrowWithPath(ReadStack& state, JsonReaderException ex)
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.ContinueDeserialize[TReadBufferState,TStream](TReadBufferState& bufferState, JsonReaderState& jsonReaderState, ReadStack& readStack, T& value)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.DeserializeAsync[TReadBufferState,TStream](TStream utf8Json, TReadBufferState bufferState, CancellationToken cancellationToken)
+   at System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsyncCore[T](HttpContent content, JsonSerializerOptions options, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(String kind) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 33
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(kind: "erased") [154 ms]
+  Error Message:
+   System.Text.Json.JsonException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
+---- System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ReThrowWithPath(ReadStack& state, JsonReaderException ex)
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.ContinueDeserialize[TReadBufferState,TStream](TReadBufferState& bufferState, JsonReaderState& jsonReaderState, ReadStack& readStack, T& value)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.DeserializeAsync[TReadBufferState,TStream](TStream utf8Json, TReadBufferState bufferState, CancellationToken cancellationToken)
+   at System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsyncCore[T](HttpContent content, JsonSerializerOptions options, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(String kind) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 33
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(kind: "trash") [107 ms]
+  Error Message:
+   System.Text.Json.JsonException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
+---- System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ReThrowWithPath(ReadStack& state, JsonReaderException ex)
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.ContinueDeserialize[TReadBufferState,TStream](TReadBufferState& bufferState, JsonReaderState& jsonReaderState, ReadStack& readStack, T& value)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.DeserializeAsync[TReadBufferState,TStream](TStream utf8Json, TReadBufferState bufferState, CancellationToken cancellationToken)
+   at System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsyncCore[T](HttpContent content, JsonSerializerOptions options, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(String kind) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 33
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(kind: "foreign") [176 ms]
+  Error Message:
+   System.Text.Json.JsonException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
+---- System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ReThrowWithPath(ReadStack& state, JsonReaderException ex)
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.ContinueDeserialize[TReadBufferState,TStream](TReadBufferState& bufferState, JsonReaderState& jsonReaderState, ReadStack& readStack, T& value)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.DeserializeAsync[TReadBufferState,TStream](TStream utf8Json, TReadBufferState bufferState, CancellationToken cancellationToken)
+   at System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsyncCore[T](HttpContent content, JsonSerializerOptions options, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(String kind) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 33
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenUnavailableProfileTable_WhenGetting_Then503Unchanged [175 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenUnavailableProfileTable_WhenGetting_Then503Unchanged() in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 64
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenUnavailableProfileTable_WhenGetting_Then503Unchanged() in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 64
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenUnavailableProfileTable_WhenGetting_Then503Unchanged() in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 64
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.28]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenRawEmptyAccessOrUnknownLengthBody_WhenGetting_Then400(kind: "http2") [FAIL]
+[xUnit.net 00:00:14.34]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenRawEmptyAccessOrUnknownLengthBody_WhenGetting_Then400(kind: "empty") [FAIL]
+[xUnit.net 00:00:14.57]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenValidSelectedSession_WhenGetting_ThenSelectionSucceedsAndOtherOwnProfile404(otherTarget: False) [FAIL]
+[xUnit.net 00:00:14.80]     ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenValidSelectedSession_WhenGetting_ThenSelectionSucceedsAndOtherOwnProfile404(otherTarget: True) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenRawEmptyAccessOrUnknownLengthBody_WhenGetting_Then400(kind: "http2") [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   404
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenRawEmptyAccessOrUnknownLengthBody_WhenGetting_Then400(String kind) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 49
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenRawEmptyAccessOrUnknownLengthBody_WhenGetting_Then400(kind: "empty") [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   404
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenRawEmptyAccessOrUnknownLengthBody_WhenGetting_Then400(String kind) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 49
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenValidSelectedSession_WhenGetting_ThenSelectionSucceedsAndOtherOwnProfile404(otherTarget: False) [229 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Profile(HttpResponseMessage response) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 76
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenValidSelectedSession_WhenGetting_ThenSelectionSucceedsAndOtherOwnProfile404(Boolean otherTarget) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenValidSelectedSession_WhenGetting_ThenSelectionSucceedsAndOtherOwnProfile404(otherTarget: True) [216 ms]
+  Error Message:
+   System.Text.Json.JsonException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
+---- System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ReThrowWithPath(ReadStack& state, JsonReaderException ex)
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.ContinueDeserialize[TReadBufferState,TStream](TReadBufferState& bufferState, JsonReaderState& jsonReaderState, ReadStack& readStack, T& value)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.DeserializeAsync[TReadBufferState,TStream](TStream utf8Json, TReadBufferState bufferState, CancellationToken cancellationToken)
+   at System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsyncCore[T](HttpContent content, JsonSerializerOptions options, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 78
+   at ArturRios.Cerberus.WebApi.Tests.ProfileReadHttpTests.GivenValidSelectedSession_WhenGetting_ThenSelectionSucceedsAndOtherOwnProfile404(Boolean otherTarget) in /tmp/cerberus-uc11-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileReadHttpTests.cs:line 37
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+
+Failed!  - Failed:    38, Passed:     0, Skipped:     0, Total:    38, Duration: 7 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

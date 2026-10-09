@@ -1,0 +1,108 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------< cerberus.reference:protocol-harness >-----------------
+[INFO] Building protocol-harness 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] Loaded 24026 auto-discovered prefixes for remote repository central (prefixes-central.txt)
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ protocol-harness ---
+[INFO] skip non existing resourceDirectory /tmp/cerberus-uc09-worktree/tools/protocol-harness/java/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ protocol-harness ---
+[INFO] Loaded 74 auto-discovered prefixes for remote repository apache.snapshots (prefixes-apache.snapshots.txt)
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 19 source files with javac [debug release 25] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ protocol-harness ---
+[INFO] skip non existing resourceDirectory /tmp/cerberus-uc09-worktree/tools/protocol-harness/java/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ protocol-harness ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 14 source files with javac [debug release 25] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ protocol-harness ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running cerberus.protocol.WireTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.269 s -- in cerberus.protocol.WireTest
+[INFO] Running cerberus.protocol.SymmetricTest
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.293 s -- in cerberus.protocol.SymmetricTest
+[INFO] Running cerberus.protocol.RecoveryModelTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.457 s -- in cerberus.protocol.RecoveryModelTest
+[INFO] Running cerberus.protocol.RecipientTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.310 s -- in cerberus.protocol.RecipientTest
+[INFO] Running cerberus.protocol.ProtectionTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.814 s -- in cerberus.protocol.ProtectionTest
+[INFO] Running cerberus.protocol.PrimitivesTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.579 s -- in cerberus.protocol.PrimitivesTest
+[INFO] Running cerberus.protocol.OfflineClockTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.068 s -- in cerberus.protocol.OfflineClockTest
+[INFO] Running cerberus.protocol.LeaseTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.265 s -- in cerberus.protocol.LeaseTest
+[INFO] Running cerberus.protocol.KeysTest
+[INFO] Tests run: 27, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.178 s -- in cerberus.protocol.KeysTest
+[INFO] Running cerberus.protocol.FixtureCasesTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.562 s -- in cerberus.protocol.FixtureCasesTest
+[INFO] Running cerberus.protocol.EncodingTest
+[INFO] Tests run: 40, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.061 s -- in cerberus.protocol.EncodingTest
+[INFO] Running cerberus.protocol.DiagnosticsTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in cerberus.protocol.DiagnosticsTest
+[INFO] Running cerberus.protocol.ChallengeTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.194 s -- in cerberus.protocol.ChallengeTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 173, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  32.443 s
+[INFO] Finished at: 2026-10-08T17:24:33Z
+[INFO] ------------------------------------------------------------------------
+{"status": "pass", "cases": 322, "directions": 4}
+test_GivenChangedMavenDistribution_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenChangedMavenDistribution_WhenAudited_ThenReject) ... ok
+test_GivenChangedOrMissingArtifact_WhenAudited_ThenNoFeedQuery (test_audit.AuditTest.test_GivenChangedOrMissingArtifact_WhenAudited_ThenNoFeedQuery) ... ok
+test_GivenChangedWheel_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenChangedWheel_WhenAudited_ThenReject) ... ok
+test_GivenCompleteCleanFeed_WhenAudited_ThenEveryBuildAndRuntimeCoordinateIsQueried (test_audit.AuditTest.test_GivenCompleteCleanFeed_WhenAudited_ThenEveryBuildAndRuntimeCoordinateIsQueried) ... ok
+test_GivenDuplicateLockedCoordinate_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenDuplicateLockedCoordinate_WhenAudited_ThenReject) ... ok
+test_GivenEmptyVulnerabilityArrays_WhenAudited_ThenPass (test_audit.AuditTest.test_GivenEmptyVulnerabilityArrays_WhenAudited_ThenPass) ... ok
+test_GivenExtraResolvedJar_WhenAudited_ThenNoFeedQuery (test_audit.AuditTest.test_GivenExtraResolvedJar_WhenAudited_ThenNoFeedQuery) ... ok
+test_GivenFeedOutage_WhenAudited_ThenRedactedFailure (test_audit.AuditTest.test_GivenFeedOutage_WhenAudited_ThenRedactedFailure) ... ok
+test_GivenInstalledVersionDrift_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenInstalledVersionDrift_WhenAudited_ThenReject) ... ok
+test_GivenMalformedOrIncompleteFeed_WhenAudited_ThenFailClosed (test_audit.AuditTest.test_GivenMalformedOrIncompleteFeed_WhenAudited_ThenFailClosed) ... ok
+test_GivenPinnedEmbeddedJarWithoutMetadata_WhenAudited_ThenItsCoordinateIsQueried (test_audit.AuditTest.test_GivenPinnedEmbeddedJarWithoutMetadata_WhenAudited_ThenItsCoordinateIsQueried) ... ok
+test_GivenUnknownEmbeddedBuildDependency_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenUnknownEmbeddedBuildDependency_WhenAudited_ThenReject) ... ok
+test_GivenUnsafeOrUnresolvedLock_WhenAudited_ThenReject (test_audit.AuditTest.test_GivenUnsafeOrUnresolvedLock_WhenAudited_ThenReject) ... ok
+test_GivenVulnerability_WhenAudited_ThenFailClosedWithPublicFinding (test_audit.AuditTest.test_GivenVulnerability_WhenAudited_ThenFailClosedWithPublicFinding) ... ok
+test_GivenChildFailure_WhenMeasured_ThenPreviousEvidencePreserved (test_benchmark.BenchmarkTests.test_GivenChildFailure_WhenMeasured_ThenPreviousEvidencePreserved) ... ok
+test_GivenCompleteSamples_WhenMeasured_ThenProfileAndStatisticsRecorded (test_benchmark.BenchmarkTests.test_GivenCompleteSamples_WhenMeasured_ThenProfileAndStatisticsRecorded) ... ok
+test_GivenIncompleteDuplicateBogusOrSecretBearingMetrics_WhenMeasured_ThenNoArtifact (test_benchmark.BenchmarkTests.test_GivenIncompleteDuplicateBogusOrSecretBearingMetrics_WhenMeasured_ThenNoArtifact) ... ok
+test_GivenInvalidSamples_WhenMeasured_ThenRejected (test_benchmark.BenchmarkTests.test_GivenInvalidSamples_WhenMeasured_ThenRejected) ... ok
+test_GivenGreenHarnessAndPendingReview_WhenReleaseGateRuns_ThenReleaseBlocked (test_delivery.DeliveryTests.test_GivenGreenHarnessAndPendingReview_WhenReleaseGateRuns_ThenReleaseBlocked) ... ok
+test_GivenHarnessCI_WhenParsed_ThenLockedAuditPrecedesFullReplay (test_delivery.DeliveryTests.test_GivenHarnessCI_WhenParsed_ThenLockedAuditPrecedesFullReplay) ... ok
+test_GivenHarnessCI_WhenParsed_ThenProductionChecksRetained (test_delivery.DeliveryTests.test_GivenHarnessCI_WhenParsed_ThenProductionChecksRetained) ... ok
+test_GivenMissingOrStaleReview_WhenGateRuns_ThenBlocked (test_delivery.DeliveryTests.test_GivenMissingOrStaleReview_WhenGateRuns_ThenBlocked) ... ok
+test_GivenProductionGraphAndDocker_WhenInspected_ThenHarnessExcluded (test_delivery.DeliveryTests.test_GivenProductionGraphAndDocker_WhenInspected_ThenHarnessExcluded) ... ok
+test_GivenBenchmarkOutputOrResultGrowth_WhenMeasured_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenBenchmarkOutputOrResultGrowth_WhenMeasured_ThenStoppedBeforeFurtherWork) ... ok
+test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup (test_process_limits.ProcessLimitTests.test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup) ... ok
+test_GivenExcessChildOutput_WhenRunning_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenExcessChildOutput_WhenRunning_ThenStoppedBeforeFurtherWork) ... ok
+test_GivenGrowingResultFile_WhenInvoked_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenGrowingResultFile_WhenInvoked_ThenStoppedBeforeFurtherWork) ... ok
+test_GivenLiveOrUnreadableDescendant_WhenCheckingTimeout_ThenNeverAcceptStoppedGroup (test_process_limits.ProcessLimitTests.test_GivenLiveOrUnreadableDescendant_WhenCheckingTimeout_ThenNeverAcceptStoppedGroup) ... ok
+test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped (test_process_limits.ProcessLimitTests.test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped) ... ok
+test_GivenCompleteBidirectionalResults_WhenVerified_ThenEvidenceAtomicallyWritten (test_verify.VerifyTests.test_GivenCompleteBidirectionalResults_WhenVerified_ThenEvidenceAtomicallyWritten) ... ok
+test_GivenCorruptCorpus_WhenReplayed_ThenRejectedWithoutOverwrite (test_verify.VerifyTests.test_GivenCorruptCorpus_WhenReplayed_ThenRejectedWithoutOverwrite) ... ok
+test_GivenEmptySkippedOrFailingNativeSuite_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenEmptySkippedOrFailingNativeSuite_WhenVerified_ThenNoEvidenceWritten) ... ok
+test_GivenMissingDuplicateExtraOrWrongResultIds_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenMissingDuplicateExtraOrWrongResultIds_WhenVerified_ThenNoEvidenceWritten) ... ok
+test_GivenMissingKnownAnswersOrProducerCases_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenMissingKnownAnswersOrProducerCases_WhenVerified_ThenNoEvidenceWritten) ... ok
+test_GivenMissingTimeoutNonzeroOrMalformedChild_WhenVerified_ThenPreviousEvidencePreserved (test_verify.VerifyTests.test_GivenMissingTimeoutNonzeroOrMalformedChild_WhenVerified_ThenPreviousEvidencePreserved) ... ok
+test_GivenWrongProducerIdentityOrDeterministicFlag_WhenVerified_ThenNoEvidenceWritten (test_verify.VerifyTests.test_GivenWrongProducerIdentityOrDeterministicFlag_WhenVerified_ThenNoEvidenceWritten) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 1.793s
+
+OK

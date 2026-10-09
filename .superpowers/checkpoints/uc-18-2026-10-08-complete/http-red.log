@@ -1,0 +1,664 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc18-worktree/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 623 ms).
+  Restored /tmp/cerberus-uc18-worktree/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 654 ms).
+  Restored /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj (in 688 ms).
+  4 of 7 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc18-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc18-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc18-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc18-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc18-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc18-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:07.69]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(kind: "unavailable") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(kind: "unavailable") [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:07.83]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(kind: "time") [FAIL]
+[xUnit.net 00:00:07.97]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(kind: "zero") [FAIL]
+[xUnit.net 00:00:08.08]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(kind: "revision") [FAIL]
+[xUnit.net 00:00:08.20]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(kind: "envelope") [FAIL]
+[xUnit.net 00:00:08.25]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [FAIL]
+[xUnit.net 00:00:08.30]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(kind: "transfer", status: 400) [FAIL]
+[xUnit.net 00:00:08.34]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(kind: "body", status: 400) [FAIL]
+[xUnit.net 00:00:08.45]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(kind: "missing", status: 401) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(kind: "time") [133 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(kind: "zero") [143 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(kind: "revision") [109 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(kind: "envelope") [114 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptVisibleContentOrDependency_WhenGetting_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 72
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [50 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 93
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(kind: "transfer", status: 400) [46 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 93
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(kind: "body", status: 400) [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 93
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(kind: "missing", status: 401) [45 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 93
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:08.50]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(kind: "bad", status: 400) [FAIL]
+[xUnit.net 00:00:08.77]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptRelevantNativeGrant_WhenGetting_Then503WithoutAnyPayload(kind: "pins") [FAIL]
+[xUnit.net 00:00:08.94]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptRelevantNativeGrant_WhenGetting_Then503WithoutAnyPayload(kind: "wrapper") [FAIL]
+[xUnit.net 00:00:09.09]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptRelevantNativeGrant_WhenGetting_Then503WithoutAnyPayload(kind: "epoch") [FAIL]
+[xUnit.net 00:00:09.16]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "dangling", status: 403) [FAIL]
+[xUnit.net 00:00:09.20]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "closing", status: 404) [FAIL]
+[xUnit.net 00:00:09.27]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "terminal", status: 404) [FAIL]
+[xUnit.net 00:00:09.31]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "missing", status: 404) [FAIL]
+[xUnit.net 00:00:09.34]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "future", status: 403) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(kind: "bad", status: 400) [49 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenMalformedAccessOrGetBody_WhenGetting_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 93
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptRelevantNativeGrant_WhenGetting_Then503WithoutAnyPayload(kind: "pins") [262 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptRelevantNativeGrant_WhenGetting_Then503WithoutAnyPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 144
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptRelevantNativeGrant_WhenGetting_Then503WithoutAnyPayload(kind: "wrapper") [169 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptRelevantNativeGrant_WhenGetting_Then503WithoutAnyPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 144
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptRelevantNativeGrant_WhenGetting_Then503WithoutAnyPayload(kind: "epoch") [155 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCorruptRelevantNativeGrant_WhenGetting_Then503WithoutAnyPayload(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 144
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "dangling", status: 403) [65 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 133
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "closing", status: 404) [38 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 133
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "terminal", status: 404) [68 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 133
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "missing", status: 404) [39 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 133
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "future", status: 403) [35 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 133
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:09.38]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "generation", status: 403) [FAIL]
+[xUnit.net 00:00:09.43]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "expired", status: 403) [FAIL]
+[xUnit.net 00:00:09.47]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "policy", status: 403) [FAIL]
+[xUnit.net 00:00:09.53]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "revoked", status: 403) [FAIL]
+[xUnit.net 00:00:09.58]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?profileId=other") [FAIL]
+[xUnit.net 00:00:09.63]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?search=secret") [FAIL]
+[xUnit.net 00:00:09.67]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?id=other") [FAIL]
+[xUnit.net 00:00:09.70]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?pageSize=1") [FAIL]
+[xUnit.net 00:00:09.75]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?owner=other") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "generation", status: 403) [33 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 133
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "expired", status: 403) [49 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 133
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "policy", status: 403) [44 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 133
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(kind: "revoked", status: 403) [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentAccountOrSession_WhenGetting_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 133
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?profileId=other") [52 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(String query) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?search=secret") [43 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(String query) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?id=other") [42 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(String query) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?pageSize=1") [30 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(String query) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?owner=other") [46 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(String query) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 66
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:09.79]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?cursor=opaque") [FAIL]
+[xUnit.net 00:00:10.64]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadWrite, folderRoute: False, selectedScope: True) [FAIL]
+[xUnit.net 00:00:10.90]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadWrite, folderRoute: True, selectedScope: False) [FAIL]
+[xUnit.net 00:00:11.15]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadOnly, folderRoute: True, selectedScope: True) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(query: "?cursor=opaque") [41 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenAnyQueryOverride_WhenGetting_Then400WithoutMutation(String query) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadWrite, folderRoute: False, selectedScope: True) [842 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(CollectionGrantAccess access, Boolean folderRoute, Boolean selectedScope) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadWrite, folderRoute: True, selectedScope: False) [265 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(CollectionGrantAccess access, Boolean folderRoute, Boolean selectedScope) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadOnly, folderRoute: True, selectedScope: True) [248 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(CollectionGrantAccess access, Boolean folderRoute, Boolean selectedScope) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.60]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadWrite, folderRoute: True, selectedScope: True) [FAIL]
+[xUnit.net 00:00:11.85]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadOnly, folderRoute: True, selectedScope: False) [FAIL]
+[xUnit.net 00:00:12.08]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadOnly, folderRoute: False, selectedScope: False) [FAIL]
+[xUnit.net 00:00:12.29]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(hidden: True, selectedScope: True) [FAIL]
+[xUnit.net 00:00:12.44]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(hidden: True, selectedScope: False) [FAIL]
+[xUnit.net 00:00:12.70]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(hidden: False, selectedScope: True) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadWrite, folderRoute: True, selectedScope: True) [441 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(CollectionGrantAccess access, Boolean folderRoute, Boolean selectedScope) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadOnly, folderRoute: True, selectedScope: False) [252 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(CollectionGrantAccess access, Boolean folderRoute, Boolean selectedScope) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(access: ReadOnly, folderRoute: False, selectedScope: False) [223 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeRecipientGrant_WhenGetting_ThenExposeOnlyIncludedCurrentRecipientRelationships(CollectionGrantAccess access, Boolean folderRoute, Boolean selectedScope) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(hidden: True, selectedScope: True) [208 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(Boolean hidden, Boolean selectedScope) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 78
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(hidden: True, selectedScope: False) [146 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(Boolean hidden, Boolean selectedScope) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 78
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(hidden: False, selectedScope: True) [252 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(Boolean hidden, Boolean selectedScope) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 78
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.85]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(hidden: False, selectedScope: False) [FAIL]
+[xUnit.net 00:00:13.04]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenHttpCreatedOwnedRecord_WhenGetting_ThenReturnEightFieldsAndCurrentDirectRelationshipsWithoutMutation [FAIL]
+[xUnit.net 00:00:13.08]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "compact") [FAIL]
+[xUnit.net 00:00:13.11]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "braced") [FAIL]
+[xUnit.net 00:00:13.16]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "urn") [FAIL]
+[xUnit.net 00:00:13.19]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "uppercase") [FAIL]
+[xUnit.net 00:00:13.22]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "bad") [FAIL]
+[xUnit.net 00:00:13.25]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "zero") [FAIL]
+[xUnit.net 00:00:13.36]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSharedContentBecomesHidden_WhenGetting_ThenOmitBeforeNativeInspection(kind: "terminal") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(hidden: False, selectedScope: False) [148 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenCyclicOrHiddenAncestry_WhenGetting_ThenDistinguishRelevant503FromHidden404(Boolean hidden, Boolean selectedScope) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 78
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenHttpCreatedOwnedRecord_WhenGetting_ThenReturnEightFieldsAndCurrentDirectRelationshipsWithoutMutation [189 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenHttpCreatedOwnedRecord_WhenGetting_ThenReturnEightFieldsAndCurrentDirectRelationshipsWithoutMutation() in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "compact") [42 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 62
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "braced") [28 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 62
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "urn") [45 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 62
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "uppercase") [29 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 62
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "bad") [30 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 62
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(kind: "zero") [34 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNoncanonicalPublicId_WhenGetting_Then400WithoutMutation(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 62
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSharedContentBecomesHidden_WhenGetting_ThenOmitBeforeNativeInspection(kind: "terminal") [99 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSharedContentBecomesHidden_WhenGetting_ThenOmitBeforeNativeInspection(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.43]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSharedContentBecomesHidden_WhenGetting_ThenOmitBeforeNativeInspection(kind: "owner") [FAIL]
+[xUnit.net 00:00:13.51]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSharedContentBecomesHidden_WhenGetting_ThenOmitBeforeNativeInspection(kind: "trash") [FAIL]
+[xUnit.net 00:00:13.80]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(mode: "PerProfile", folderRoute: True) [FAIL]
+[xUnit.net 00:00:14.02]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(mode: "Master", folderRoute: True) [FAIL]
+[xUnit.net 00:00:14.31]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(mode: "Master", folderRoute: False) [FAIL]
+[xUnit.net 00:00:14.55]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(mode: "PerProfile", folderRoute: False) [FAIL]
+[xUnit.net 00:00:14.60]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenUnknownTarget_WhenGetting_ThenNonrevealing404WithoutMutation [FAIL]
+[xUnit.net 00:00:14.65]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(kind: "unavailable", status: 503) [FAIL]
+[xUnit.net 00:00:14.70]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(kind: "deleted", status: 401) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSharedContentBecomesHidden_WhenGetting_ThenOmitBeforeNativeInspection(kind: "owner") [68 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSharedContentBecomesHidden_WhenGetting_ThenOmitBeforeNativeInspection(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSharedContentBecomesHidden_WhenGetting_ThenOmitBeforeNativeInspection(kind: "trash") [79 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSharedContentBecomesHidden_WhenGetting_ThenOmitBeforeNativeInspection(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(mode: "PerProfile", folderRoute: True) [288 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(String mode, Boolean folderRoute) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(mode: "Master", folderRoute: True) [223 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(String mode, Boolean folderRoute) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(mode: "Master", folderRoute: False) [283 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(String mode, Boolean folderRoute) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(mode: "PerProfile", folderRoute: False) [244 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenNativeSelectedProfile_WhenGetting_ThenHideOtherProfilesAndParentWithoutFolderRoute(String mode, Boolean folderRoute) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenUnknownTarget_WhenGetting_ThenNonrevealing404WithoutMutation [47 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenUnknownTarget_WhenGetting_ThenNonrevealing404WithoutMutation() in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(kind: "unavailable", status: 503) [46 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(kind: "deleted", status: 401) [51 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.74]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:14.77]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(kind: "wrongScope", status: 401) [FAIL]
+[xUnit.net 00:00:14.85]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenGetting_Then400(kind: "empty") [FAIL]
+[xUnit.net 00:00:14.92]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenGetting_Then400(kind: "http2") [FAIL]
+[xUnit.net 00:00:15.13]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSelectedProfileBecomesHidden_WhenGetting_Then403WithoutMutation(kind: "trash") [FAIL]
+[xUnit.net 00:00:15.37]     ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSelectedProfileBecomesHidden_WhenGetting_Then403WithoutMutation(kind: "terminal") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(kind: "missing", status: 401) [35 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(kind: "wrongScope", status: 401) [35 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenInvalidCurrentIdentity_WhenGetting_ThenRejectWithoutPersistence(String kind, Int32 status) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenGetting_Then400(kind: "empty") [74 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   404
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenGetting_Then400(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 104
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenGetting_Then400(kind: "http2") [71 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   404
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenGetting_Then400(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 104
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSelectedProfileBecomesHidden_WhenGetting_Then403WithoutMutation(kind: "trash") [205 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSelectedProfileBecomesHidden_WhenGetting_Then403WithoutMutation(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 139
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSelectedProfileBecomesHidden_WhenGetting_Then403WithoutMutation(kind: "terminal") [242 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.RecordReadHttpTests.GivenSelectedProfileBecomesHidden_WhenGetting_Then403WithoutMutation(String kind) in /tmp/cerberus-uc18-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs:line 139
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    61, Passed:     1, Skipped:     0, Total:    62, Duration: 9 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

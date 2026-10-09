@@ -1,0 +1,20 @@
+{
+  "savedAt": "2026-10-08T10:03:03.601835+00:00",
+  "paused": true,
+  "worktree": "/tmp/cerberus-foundation-worktree",
+  "branch": "feature/protocol-harness-design",
+  "head": "bb0483e21ebb87f17ca89d5b5e0770f414dc7097",
+  "status": "M  docs/security/interoperability-vectors.json\nA  docs/security/protocol-harness-benchmarks.json\nM  tools/protocol-harness/README.md\nA  tools/protocol-harness/benchmark.py\nM  tools/protocol-harness/java/src/main/java/cerberus/protocol/Main.java\nM  tools/protocol-harness/python/cerberus_protocol/__main__.py\nA  tools/protocol-harness/tests/test_benchmark.py\n",
+  "stagedFiles": [
+    "docs/security/interoperability-vectors.json",
+    "docs/security/protocol-harness-benchmarks.json",
+    "tools/protocol-harness/README.md",
+    "tools/protocol-harness/benchmark.py",
+    "tools/protocol-harness/java/src/main/java/cerberus/protocol/Main.java",
+    "tools/protocol-harness/python/cerberus_protocol/__main__.py",
+    "tools/protocol-harness/tests/test_benchmark.py"
+  ],
+  "nextTask": 10,
+  "nextAction": "Commit already-staged Task 10 only after user resumes",
+  "dependencyCachesArchived": false
+}

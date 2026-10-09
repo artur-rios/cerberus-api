@@ -1,0 +1,13 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc21-worktree/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 1.75 sec).
+  Restored /tmp/cerberus-uc21-worktree/src/Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj (in 1.75 sec).
+  Restored /tmp/cerberus-uc21-worktree/src/Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj (in 1.75 sec).
+  Restored /tmp/cerberus-uc21-worktree/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 1.75 sec).
+  Restored /tmp/cerberus-uc21-worktree/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 5 ms).
+  Restored /tmp/cerberus-uc21-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/ArturRios.Cerberus.Domain.Tests.csproj (in 90 ms).
+  Restored /tmp/cerberus-uc21-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj (in 1.9 sec).
+  Restored /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj (in 1.9 sec).
+  Restored /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ArturRios.Cerberus.Query.Tests.csproj (in 1.92 sec).
+  Restored /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/ArturRios.Cerberus.Shared.Tests.csproj (in 108 ms).
+  Restored /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj (in 1.92 sec).
+  Restored /tmp/cerberus-uc21-worktree/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 382 ms).

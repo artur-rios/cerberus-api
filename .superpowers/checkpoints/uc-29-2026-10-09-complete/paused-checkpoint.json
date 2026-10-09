@@ -1,0 +1,1942 @@
+{
+  "checkedAt": "2026-10-09",
+  "request": "Now, implement all open issues",
+  "status": "paused",
+  "existingBatchAuthorization": "docs/superpowers/plans/2026-10-07-cerberus-backlog.md",
+  "baseBranch": "develop",
+  "steps": [
+    {
+      "step": "Resolve all issues against specifications",
+      "status": "complete"
+    },
+    {
+      "step": "Verify unattended execution preconditions",
+      "status": "complete",
+      "reason": "Owner explicitly deferred independent review for development; strict release gate retained"
+    },
+    {
+      "step": "Authorization",
+      "status": "existing_authorization_preserved"
+    },
+    {
+      "step": "Implement each use case",
+      "status": "paused_by_user_after_issue30"
+    },
+    {
+      "step": "Report completed use cases",
+      "status": "30 use cases merged, closed, Done; pause before UC30 issue31"
+    },
+    {
+      "step": "Report batch blocker",
+      "status": "recorded"
+    }
+  ],
+  "protocolGate": {
+    "command": "python3 scripts/verify_protocol.py",
+    "exitCode": 1,
+    "output": "BLOCKED: Protocol security and client review is pending.",
+    "requirement": "NFR-11",
+    "manifestStatus": "pending"
+  },
+  "ciScope": "Development owner deferral merged in PR59: protocol approval required for main/base main/tags; other CI remains mandatory for develop PRs.",
+  "pr58": {
+    "url": "https://github.com/artur-rios/cerberus-api/pull/58",
+    "draft": false,
+    "checks": {
+      "branch-policy": "SUCCESS",
+      "test": "SUCCESS",
+      "docker": "SUCCESS"
+    },
+    "reviews": [],
+    "state": "MERGED"
+  },
+  "issuesMergedThisRun": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    39,
+    40,
+    41,
+    42,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "issuesClosedThisRun": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    39,
+    40,
+    41,
+    42,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "useCases": [
+    {
+      "id": "UC-01",
+      "issue": {
+        "milestone": {
+          "number": 2,
+          "title": "M-02 \u2014 Account identity and vault protection",
+          "description": "Register/login, manage account details and protect/recover the vault. Covers UC-01, UC-02, UC-03, UC-04, UC-05, UC-38, UC-39, UC-40, UC-41. Depends on M-01.",
+          "dueOn": null
+        },
+        "number": 2,
+        "title": "UC-01 \u2014 Register account",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/2"
+      },
+      "status": "done",
+      "branch": "feature/uc-01-register-account",
+      "worktree": "/tmp/cerberus-uc01-worktree",
+      "pr": 60,
+      "head": "8374c6a6e4496002f578139c661459bbad237edb",
+      "tests": 227,
+      "lineCoverage": 95.9,
+      "branchCoverage": 82.5,
+      "review": "one pass complete; all 3 important findings reproduced and fixed",
+      "mergeCommit": "6f9c21c842cf09bba2125e2b6fe974ac9353fbdd",
+      "definitionOfDone": "pass; issue checklist completed; all CI green; remote branch automatically deleted"
+    },
+    {
+      "id": "UC-02",
+      "issue": {
+        "milestone": {
+          "number": 2,
+          "title": "M-02 \u2014 Account identity and vault protection",
+          "description": "Register/login, manage account details and protect/recover the vault. Covers UC-01, UC-02, UC-03, UC-04, UC-05, UC-38, UC-39, UC-40, UC-41. Depends on M-01.",
+          "dueOn": null
+        },
+        "number": 3,
+        "title": "UC-02 \u2014 Authenticate",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/3"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc02-worktree",
+      "branch": "feature/uc-02-authenticate",
+      "head": "7b46c9e0885a7b3aa30f02e47375d70785f03e42",
+      "pr": 61,
+      "tests": 299,
+      "lineCoverage": 96.1,
+      "branchCoverage": 85.1,
+      "ledger": "/tmp/cerberus-uc02-worktree/.superpowers/sdd/2026-10-08-uc-02-authenticate/progress.md",
+      "reviewAgent": "/root/uc02_review",
+      "mergeCommit": "b6196f07a48dc172b96f5d4bfc3e02c5790da92d",
+      "definitionOfDone": "pass; issue checklist done/project Done; all CI green; auto-deleted remote feature branch"
+    },
+    {
+      "id": "UC-03",
+      "issue": {
+        "milestone": {
+          "number": 2,
+          "title": "M-02 \u2014 Account identity and vault protection",
+          "description": "Register/login, manage account details and protect/recover the vault. Covers UC-01, UC-02, UC-03, UC-04, UC-05, UC-38, UC-39, UC-40, UC-41. Depends on M-01.",
+          "dueOn": null
+        },
+        "number": 4,
+        "title": "UC-03 \u2014 Get account",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/4"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc03-worktree",
+      "branch": "feature/uc-03-get-account",
+      "head": "a9493512f8844c68da0b0673572e9f5d95f1728c",
+      "pr": 62,
+      "tests": 360,
+      "lineCoverage": 96.6,
+      "branchCoverage": 85.7,
+      "reviewAgent": "/root/uc03_review",
+      "review": "single pass; HTTP/2 body and malformed-header regressions corrected, complete suite green",
+      "mergeCommit": "c2da6b02214184a48387601b916930c4710cfd0e",
+      "definitionOfDone": "pass; issue checklist done/project Done; all CI green; auto-deleted remote feature branch"
+    },
+    {
+      "id": "UC-04",
+      "issue": {
+        "milestone": {
+          "number": 2,
+          "title": "M-02 \u2014 Account identity and vault protection",
+          "description": "Register/login, manage account details and protect/recover the vault. Covers UC-01, UC-02, UC-03, UC-04, UC-05, UC-38, UC-39, UC-40, UC-41. Depends on M-01.",
+          "dueOn": null
+        },
+        "number": 5,
+        "title": "UC-04 \u2014 Update account",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/5"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc04-worktree",
+      "branch": "feature/uc-04-update-account",
+      "head": "80253d55b67912720f1194ee3ca231890aa0ee7c",
+      "tests": 429,
+      "lineCoverage": 96.5,
+      "branchCoverage": 86.2,
+      "reviewAgent": "/root/uc04_review",
+      "pr": 63,
+      "review": "one pass; captured-time expiry Important reproduced and fixed; natural unchanged-expiry regression passes",
+      "mergeCommit": "5a7b5896ce493a7bb60044cf6fe3dabbf8d158fb",
+      "definitionOfDone": "pass; issue checklist done/project Done; all CI green; auto-deleted feature branch"
+    },
+    {
+      "id": "UC-05",
+      "issue": {
+        "milestone": {
+          "number": 2,
+          "title": "M-02 \u2014 Account identity and vault protection",
+          "description": "Register/login, manage account details and protect/recover the vault. Covers UC-01, UC-02, UC-03, UC-04, UC-05, UC-38, UC-39, UC-40, UC-41. Depends on M-01.",
+          "dueOn": null
+        },
+        "number": 6,
+        "title": "UC-05 \u2014 Update identity details",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/6"
+      },
+      "status": "done",
+      "branch": "feature/uc-05-update-identity-details",
+      "worktree": "/tmp/cerberus-uc05-worktree",
+      "head": "68c3a3bdf73277d2ec3bd53f9b0e1dbbe8e65a0c",
+      "ledger": "/tmp/cerberus-uc05-worktree/.superpowers/sdd/2026-10-08-uc-05-update-identity-details/progress.md",
+      "tests": 555,
+      "lineCoverage": 96.7,
+      "branchCoverage": 86.7,
+      "reviewAgent": "/root/uc05_review",
+      "review": "fresh final review complete; no Critical/Important; two deferred minors",
+      "pr": 64,
+      "mergeCommit": "2b281dd315314b1b4770172b61236dfbf00addd2",
+      "definitionOfDone": "pass; CI green, issue checklist closed/project Done; remote branch auto-deleted; tested trees equal"
+    },
+    {
+      "id": "UC-38",
+      "issue": {
+        "milestone": {
+          "number": 2,
+          "title": "M-02 \u2014 Account identity and vault protection",
+          "description": "Register/login, manage account details and protect/recover the vault. Covers UC-01, UC-02, UC-03, UC-04, UC-05, UC-38, UC-39, UC-40, UC-41. Depends on M-01.",
+          "dueOn": null
+        },
+        "number": 39,
+        "title": "UC-38 \u2014 Initialize vault protection",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/39"
+      },
+      "status": "done",
+      "branch": "feature/uc-38-initialize-vault-protection",
+      "worktree": "/tmp/cerberus-uc38-worktree",
+      "head": "f02874975aadecfdd18ef5dad350acfde5c04b3d",
+      "ledger": "/tmp/cerberus-uc38-worktree/.superpowers/sdd/2026-10-08-uc-38-initialize-vault-protection/progress.md",
+      "pr": 65,
+      "tests": 750,
+      "lineCoverage": 97.2,
+      "branchCoverage": 87.5,
+      "reviewAgent": "/root/uc03_review",
+      "ci": {
+        "branch-policy": "SUCCESS",
+        "docker": "SUCCESS",
+        "test": "SUCCESS",
+        "run": 37800291365
+      },
+      "mergeCommit": "96f6000a85c9bad6f668a80fdd2810609fd19d70",
+      "review": "single whole-branch review; no blocking findings, one deferred global OpenAPI Minor",
+      "definitionOfDone": "pass; issue39 checklist closed/project Done; required CI green; remote branch absent; tested trees equal"
+    },
+    {
+      "id": "UC-39",
+      "issue": {
+        "milestone": {
+          "number": 2,
+          "title": "M-02 \u2014 Account identity and vault protection",
+          "description": "Register/login, manage account details and protect/recover the vault. Covers UC-01, UC-02, UC-03, UC-04, UC-05, UC-38, UC-39, UC-40, UC-41. Depends on M-01.",
+          "dueOn": null
+        },
+        "number": 40,
+        "title": "UC-39 \u2014 Change vault protection",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/40"
+      },
+      "status": "done",
+      "branch": "feature/uc-39-change-vault-protection",
+      "worktree": "/tmp/cerberus-uc39-worktree",
+      "head": "528aeb4b4239e682f75768d4be2ee25f6c3d4e1c",
+      "ledger": "/tmp/cerberus-uc39-worktree/.superpowers/sdd/2026-10-08-uc-39-change-vault-protection/progress.md",
+      "pr": 66,
+      "tests": 902,
+      "lineCoverage": 97.2,
+      "branchCoverage": 88.1,
+      "reviewAgent": "/root/uc05_review",
+      "mergeCommit": "911819afaeb5553b2502cda0392342c2c3a283c7",
+      "review": "one ordinary whole-branch review no blockers, one deferred known global OpenAPI Minor",
+      "definitionOfDone": "pass; all CI green; issue40 checklist closed/project Done; remote branch absent; tested trees equal",
+      "ci": {
+        "branch-policy": "SUCCESS",
+        "test": "SUCCESS",
+        "docker": "SUCCESS",
+        "run": 37803674658
+      }
+    },
+    {
+      "id": "UC-40",
+      "issue": {
+        "milestone": {
+          "number": 2,
+          "title": "M-02 \u2014 Account identity and vault protection",
+          "description": "Register/login, manage account details and protect/recover the vault. Covers UC-01, UC-02, UC-03, UC-04, UC-05, UC-38, UC-39, UC-40, UC-41. Depends on M-01.",
+          "dueOn": null
+        },
+        "number": 41,
+        "title": "UC-40 \u2014 Recover vault access",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/41"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc40-worktree",
+      "branch": "feature/uc-40-recover-vault-access",
+      "ledger": "/tmp/cerberus-uc40-worktree/.superpowers/sdd/2026-10-08-uc-40-recover-vault-access/progress.md",
+      "task": 3,
+      "head": "b19403851486232eecee42a720019301357aa4e0",
+      "pullRequest": 67,
+      "tests": 1039,
+      "lineCoverage": 97.5,
+      "branchCoverage": 87.8,
+      "pr": 67,
+      "mergeCommit": "f04744c28299818e19e5ffad49fc63f4c9d2845a",
+      "reviewAgent": "/root/uc03_review",
+      "review": "one ordinary review no blockers/no new Minor; known global metadata follow-up",
+      "definitionOfDone": "pass; all CI green; issue41 checklist closed/projectDone; remote branch absent; tested trees equal",
+      "ci": {
+        "branch-policy": "SUCCESS",
+        "test": "SUCCESS",
+        "docker": "SUCCESS",
+        "run": 37807118944
+      },
+      "integrationCorrection": {
+        "pr": 68,
+        "route": "GET /api/vault/recovery-material",
+        "status": "delivered",
+        "commit": "7953ae0fa364d78841b1c472034bd96c64109fea"
+      }
+    },
+    {
+      "id": "UC-41",
+      "issue": {
+        "milestone": {
+          "number": 2,
+          "title": "M-02 \u2014 Account identity and vault protection",
+          "description": "Register/login, manage account details and protect/recover the vault. Covers UC-01, UC-02, UC-03, UC-04, UC-05, UC-38, UC-39, UC-40, UC-41. Depends on M-01.",
+          "dueOn": null
+        },
+        "number": 42,
+        "title": "UC-41 \u2014 Refresh recovery key",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/42"
+      },
+      "status": "done",
+      "branch": "feature/uc-41-refresh-recovery-key",
+      "worktree": "/tmp/cerberus-uc41-worktree",
+      "ledger": "/tmp/cerberus-uc41-worktree/.superpowers/sdd/2026-10-08-uc-41-refresh-recovery-key/progress.md",
+      "task": 3,
+      "head": "a86a969ea005d10bd6fc002f5e15809fcf2765ea",
+      "pr": 68,
+      "tests": 1165,
+      "lineCoverage": 97.4,
+      "branchCoverage": 88.0,
+      "reviewAgent": "/root/uc05_review",
+      "review": "one ordinary whole-branch review no blockers; known global OpenAPI Minor retained before release",
+      "mergeCommit": "7953ae0fa364d78841b1c472034bd96c64109fea",
+      "definitionOfDone": "pass; all CI green; issue42 checklist closed/projectDone; remote branch absent; tested trees equal",
+      "ci": {
+        "branch-policy": "SUCCESS",
+        "test": "SUCCESS",
+        "docker": "SUCCESS",
+        "run": 37809780789
+      }
+    },
+    {
+      "id": "UC-09",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 10,
+        "title": "UC-09 \u2014 Create profile",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/10"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc09-worktree",
+      "branch": "feature/uc-09-create-profile",
+      "task": 3,
+      "ledger": "/tmp/cerberus-uc09-worktree/.superpowers/sdd/2026-10-08-uc-09-create-profile/progress.md",
+      "head": "053335ee52a2829133ca5008fd99bfaaf91ac9c7",
+      "tests": 1339,
+      "lineCoverage": 97.6,
+      "branchCoverage": 88.6,
+      "reviewAgent": "/root/uc03_review",
+      "pr": 69,
+      "review": "one ordinary review; Important timestamp fixed RED\u2192GREEN; CI helper race fixed; complete suite/native verification green; no second review",
+      "ci": {
+        "branch-policy": "SUCCESS",
+        "test": "SUCCESS",
+        "docker": "SUCCESS",
+        "run": 37816640837
+      },
+      "definitionOfDone": "pass; issue10 checklist closed/projectDone; all required CI green; remote branch absent; tested trees equal",
+      "mergeCommit": "d521230b6833571e8d8e3ec93db8a6eb4d5a41ad"
+    },
+    {
+      "id": "UC-10",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 11,
+        "title": "UC-10 \u2014 List profiles",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/11"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc10-worktree",
+      "branch": "feature/uc-10-list-profiles",
+      "head": "64595a09a569694cb7fea859e02de8528cb75df7",
+      "task": 3,
+      "tests": 1461,
+      "lineCoverage": 97.6,
+      "branchCoverage": 89.1,
+      "reviewAgent": "/root/uc01_review",
+      "pr": 70,
+      "pullRequest": 70,
+      "review": "one ordinary final review; both Important reproduced/fixed in ONE pass, focused122 and full1461 green; all declined/minor items ruled with cost; no second review",
+      "ci": {
+        "run": 37823713983,
+        "branchPolicyRun": 37823713991,
+        "head": "64595a09a569694cb7fea859e02de8528cb75df7",
+        "status": "SUCCESS",
+        "branch-policy": "SUCCESS",
+        "test": "SUCCESS",
+        "docker": "SUCCESS"
+      },
+      "mergeCommit": "be431f2a376be2e7ba3d67ade50aadb4b02fcfcd",
+      "definitionOfDone": "pass; issue11 checklist closed/projectDone; current requiredCI green; remote branch absent; entire tested/merged trees equal; original user files preserved"
+    },
+    {
+      "id": "UC-11",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 12,
+        "title": "UC-11 \u2014 Get profile",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/12"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc11-worktree",
+      "branch": "feature/uc-11-get-profile",
+      "task": 3,
+      "head": "976cea4b902ec486a9cefea519721349b9feb802",
+      "dataTests": 406,
+      "queryTests": 103,
+      "newHttpTests": 38,
+      "pr": 71,
+      "pullRequest": 71,
+      "tests": 1564,
+      "lineCoverage": 97.7,
+      "branchCoverage": 89.3,
+      "reviewAgent": "/root/uc05_review",
+      "review": "one ordinary final review complete; no Critical/Important; all five declined scopes and known Minor ruled with reason/cost",
+      "mergeCommit": "55f4969261c422f201074c64bba434ad4860dd9d",
+      "definitionOfDone": "pass; required CI green; issue12 checklist closed/projectDone; entire tested/merged trees equal; remote branch absent; original user files preserved",
+      "ci": {
+        "run": 37826381600,
+        "branchPolicyRun": 37827006239,
+        "head": "976cea4b902ec486a9cefea519721349b9feb802",
+        "branch-policy": "SUCCESS",
+        "test": "SUCCESS",
+        "docker": "SUCCESS"
+      }
+    },
+    {
+      "id": "UC-12",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 13,
+        "title": "UC-12 \u2014 Update profile",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/13"
+      },
+      "status": "done",
+      "branch": "feature/uc-12-update-profile",
+      "worktree": "/tmp/cerberus-uc12-worktree",
+      "task": 3,
+      "ledger": "/tmp/cerberus-uc12-worktree/.superpowers/sdd/2026-10-08-uc-12-update-profile/progress.md",
+      "head": "348dbc0f31901c38789180c6e233fa4f4f8a93e2",
+      "dataTests": 462,
+      "commandTests": 231,
+      "newHttpTests": 55,
+      "contextGuardTests": 2,
+      "fullTestSession": 17963,
+      "tests": 1711,
+      "lineCoverage": 97.7,
+      "branchCoverage": 89.4,
+      "reviewAgent": "/root/uc03_review",
+      "pr": 73,
+      "pullRequest": 73,
+      "review": "single ordinary review; timestampImportant reproduced/fixedONEpass actualHTTP6 and full1711GREEN;8declinedscopes reason/cost and2minors retained; no second review",
+      "ci": {
+        "run": 37830514660,
+        "branchPolicyRun": 37830550775,
+        "head": "348dbc0f31901c38789180c6e233fa4f4f8a93e2",
+        "branch-policy": "SUCCESS",
+        "test": "SUCCESS",
+        "docker": "SUCCESS"
+      },
+      "mergeCommit": "2069753cbf0029bdfb109bc0bc6f0ec080ca58fe",
+      "definitionOfDone": "pass product gates; issue13 checklistclosed/projectDone; allrequiredCIgreen; tested code/tests/workflows/tools/contracts identical with parallel owner docsPR72 separately verified; remoteabsent/userSHA; premergeUNKNOWN localgate incident recorded",
+      "workflowIncident": "Workflow incident: all requiredCI SUCCESS exacthead, but premerge query returned UNKNOWN mergeable/state and local assertion failed. Executor incorrectly continued the exec script and normal match-head merge succeeded without bypass. Did not verify CLEAN before merge. Parallel owner docsPR72 merged631c4f9 at19:17:17 before UC12merge2069753 at19:20:40. Postmerge tree difference limited exactly to .gitignore, CHANGELOG, CONTRIBUTING, README and Operations document; ALL code/tests/workflows/tools/contracts identical to tested corrected head. Fresh merged-tree spec/link/workflow consistency passes, UC12 README/wrapper integration retained, closed checklist/projectDone/remoteabsence/userSHA verified. Correct future orchestration: checked tool wrapper exits script on any nonzero result; never issue merge until fresh exacthead/MERGEABLE/CLEAN/latestchecksSUCCESS assertions pass. No red requiredCI, conflict, refused merge, force/admin or test bypass occurred. Failed readiness snapshot preserved; no retrospective CLEAN or entire-tree-equality claim."
+    },
+    {
+      "id": "UC-13",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 14,
+        "title": "UC-13 \u2014 Delete profile",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/14"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc13-worktree",
+      "branch": "feature/uc-13-delete-profile",
+      "task": 3,
+      "ledger": "/tmp/cerberus-uc13-worktree/.superpowers/sdd/2026-10-08-uc-13-delete-profile/progress.md",
+      "head": "0647dc566c4a8cdaea54f15b0d07aa0c5659107d",
+      "dataTests": 511,
+      "commandTests": 269,
+      "httpTests": 49,
+      "pr": 74,
+      "tests": 1845,
+      "lineCoverage": 97.9,
+      "branchCoverage": 89.6,
+      "reviewAgent": "/root/uc05_review",
+      "review": "single ordinary review no blockers;2minors deferred;8declined scopes explicitly reason/cost ruled in ledger and aggregate",
+      "mergeCommit": "105ef8623976d03c4804ee975a1c72914669bffe",
+      "ci": {
+        "run": 37833720304,
+        "branchPolicyRun": 37833720626,
+        "head": "0647dc566c4a8cdaea54f15b0d07aa0c5659107d",
+        "branch-policy": "SUCCESS",
+        "test": "SUCCESS",
+        "docker": "SUCCESS"
+      },
+      "definitionOfDone": "PASS:1845/0fails0skips97.9line89.6branch;singleordinaryreviewno blockers;strictfreshMERGEABLE/CLEAN/exacthead/requiredCI gate before normalmerge;entiretestedtreeequal;issue14checklistclosed/Done/remoteabsent/userSHA preserved",
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-13-2026-10-08-complete"
+    },
+    {
+      "id": "UC-14",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 15,
+        "title": "UC-14 \u2014 Set profile associations",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/15"
+      },
+      "status": "complete",
+      "worktree": "/tmp/cerberus-uc14-worktree",
+      "branch": "feature/uc-14-set-profile-associations",
+      "task": 6,
+      "ledger": "/tmp/cerberus-uc14-worktree/.superpowers/sdd/2026-10-08-uc-14-profile-associations/progress.md",
+      "dataTests": 688,
+      "domainTests": 228,
+      "head": "74ef1cb10d59973bd24f441b8efef77c6601fc2e",
+      "queryTests": 109,
+      "commandTests": 325,
+      "pullRequest": 75,
+      "totalTests": 2176,
+      "lineCoverage": 98.1,
+      "branchCoverage": 90,
+      "webTests": 701,
+      "projectStatus": "Done",
+      "reviewAgent": "/root/uc14_final_review",
+      "reviewStatus": "one_Important_fixed_single_TDD_pass_no_second_review",
+      "mergeCommit": "17299f22197b43dd5b009401ea4b9c38103ac35f",
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-14-2026-10-08-complete",
+      "ci": "all_required_success_exact_head"
+    },
+    {
+      "id": "UC-15",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 16,
+        "title": "UC-15 \u2014 Open profile access",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/16"
+      },
+      "status": "complete",
+      "worktree": "/tmp/cerberus-uc15-worktree",
+      "branch": "feature/uc-15-open-profile-access",
+      "base": "17299f22197b43dd5b009401ea4b9c38103ac35f",
+      "task": 5,
+      "projectStatus": "Done",
+      "ledger": "/tmp/cerberus-uc15-worktree/.superpowers/sdd/2026-10-08-uc-15-open-profile-access/progress.md",
+      "domainTests": 267,
+      "head": "479781d583a9ec8c8ec1637357905b9526e94220",
+      "dataTests": 787,
+      "webTests": 821,
+      "commandTests": 440,
+      "httpFocusedTests": 120,
+      "fullTests": 2549,
+      "lineCoverage": 98.1,
+      "branchCoverage": 90.9,
+      "reviewAgent": "/root/uc15_final_review",
+      "pr": 76,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/76",
+      "review": "ordinary fresh reviewer: no Critical/Important;15scope rulings+knownOpenAPIminor recorded",
+      "mergedCommit": "bdaebcb7e197bb497c2892c053de89b6bab4dc0d",
+      "archivedEvidence": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-15-2026-10-08-complete",
+      "issueClosed": true,
+      "remoteBranchDeleted": true
+    },
+    {
+      "id": "UC-16",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 17,
+        "title": "UC-16 \u2014 Create record",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/17"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc16-worktree",
+      "branch": "feature/uc-16-create-record",
+      "base": "bdaebcb7e197bb497c2892c053de89b6bab4dc0d",
+      "task": "complete",
+      "ledger": "/tmp/cerberus-uc16-worktree/.superpowers/sdd/2026-10-08-uc-16-create-record/progress.md",
+      "projectItem": "PVTI_lAHOAgOUtM4BmFmuzg_Lxqg",
+      "head": "860dc86885e7b2eb5167e33ef2d0b2ee857cc176",
+      "domainTests": 313,
+      "projectStatus": "Done",
+      "dataTests": 870,
+      "commandTests": 496,
+      "fullTests": 2832,
+      "lineCoverage": 98.1,
+      "branchCoverage": 90.9,
+      "reviewAgent": "/root/uc16_final_review",
+      "pr": 77,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/77",
+      "review": "clean; noCriticalImportant;3declinedscopesindividuallyruled;OpenAPIminorbeforeRelease",
+      "mergeCommit": "26ec7e217cdd881dc83a5c886f8b6872b398a26b",
+      "issueState": "CLOSED",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-16-2026-10-08-complete"
+    },
+    {
+      "id": "UC-17",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 18,
+        "title": "UC-17 \u2014 List records",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/18"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc17-worktree",
+      "branch": "feature/uc-17-list-records",
+      "base": "26ec7e217cdd881dc83a5c886f8b6872b398a26b",
+      "task": "complete",
+      "ledger": "/tmp/cerberus-uc17-worktree/.superpowers/sdd/2026-10-08-uc-17-list-records/progress.md",
+      "projectItem": "PVTI_lAHOAgOUtM4BmFmuzg_LxtI",
+      "projectStatus": "Done",
+      "head": "c7c6382a999afa50a811acd039874d21daa8d037",
+      "dataTests": 973,
+      "queryTests": 205,
+      "focusedHttpTests": 67,
+      "webTests": 986,
+      "totalTests": 3098,
+      "lineCoverage": 98.3,
+      "branchCoverage": 91.4,
+      "finalReview": "one ordinary review; soleImportant fixed4planRED\u2192GREEN90focused/full3098; twoMinor/fiveDeclined reasoncostrecorded",
+      "pr": 78,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/78",
+      "mergeCommit": "cdd89ab3df2cab6f0dda9969c0f5155b85f59dc6",
+      "issueState": "CLOSED",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-17-2026-10-08-complete"
+    },
+    {
+      "id": "UC-18",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 19,
+        "title": "UC-18 \u2014 Get record",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/19"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc18-worktree",
+      "branch": "feature/uc-18-get-record",
+      "base": "cdd89ab3df2cab6f0dda9969c0f5155b85f59dc6",
+      "task": 3,
+      "ledger": "/tmp/cerberus-uc18-worktree/.superpowers/sdd/2026-10-08-uc-18-get-record/progress.md",
+      "projectItem": "PVTI_lAHOAgOUtM4BmFmuzg_Lxvw",
+      "head": "cba728815e3cdeec9994e0f61c863a6119ad2e11",
+      "dataTests": 1084,
+      "focusedDataTests": 201,
+      "projectStatus": "Done",
+      "queryTests": 259,
+      "webTests": 1051,
+      "focusedHttpTests": 65,
+      "totalTests": 3328,
+      "lineCoverage": 98.3,
+      "branchCoverage": 91.5,
+      "reviewAgent": "/root/uc18_final_review",
+      "importantReviewFindingsFixed": 1,
+      "pr": 79,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/79",
+      "mergeCommit": "15cf4fac7bfa7db2552df5618e0f4a236c0fd5b1",
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-18-2026-10-08-complete",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true
+    },
+    {
+      "id": "UC-19",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 20,
+        "title": "UC-19 \u2014 Update record",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/20"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc19-worktree",
+      "branch": "feature/uc-19-update-record",
+      "base": "15cf4fac7bfa7db2552df5618e0f4a236c0fd5b1",
+      "task": 3,
+      "ledger": "/tmp/cerberus-uc19-worktree/.superpowers/sdd/2026-10-09-uc-19-update-record/progress.md",
+      "projectItem": "PVTI_lAHOAgOUtM4BmFmuzg_Lx0c",
+      "projectStatus": "Done",
+      "head": "0fc261bedce02663454e2dae163ff9c63c7cd1b2",
+      "focusedDataTests": 104,
+      "dataTests": 1188,
+      "queryTests": 259,
+      "commandTests": 567,
+      "focusedCommandTests": 71,
+      "focusedHttpTests": 86,
+      "webTests": 1137,
+      "totalTests": 3589,
+      "lineCoverage": 98.3,
+      "branchCoverage": 91.5,
+      "reviewAgent": "/root/uc19_final_review",
+      "importantReviewFindingsFixed": 0,
+      "reviewVerdict": "ready_for_development_CI",
+      "deferredMinorCount": 2,
+      "pr": 80,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/80",
+      "mergeCommit": "1713397fea3deb4ae9d30119e493997eb7943514",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-19-2026-10-09-complete"
+    },
+    {
+      "id": "UC-20",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 21,
+        "title": "UC-20 \u2014 Delete record",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/21"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc20-worktree",
+      "branch": "feature/uc-20-delete-record",
+      "base": "1713397fea3deb4ae9d30119e493997eb7943514",
+      "task": 3,
+      "ledger": "/tmp/cerberus-uc20-worktree/.superpowers/sdd/2026-10-09-uc-20-delete-record/progress.md",
+      "projectItem": "PVTI_lAHOAgOUtM4BmFmuzg_Lx4g",
+      "projectStatus": "Done",
+      "head": "67042c4632936dcb73ee170e00ea10e061a1a2a5",
+      "focusedDataFirstPass": 90,
+      "focusedDataExpected": 107,
+      "focusedDataTests": 116,
+      "focusedDataLastPass": 114,
+      "dataTestsExpected": 1304,
+      "dataTests": 1304,
+      "commandTests": 641,
+      "focusedCommandTests": 74,
+      "tests": 3878,
+      "lineCoverage": 98.3,
+      "branchCoverage": 91.7,
+      "currentTask": "complete",
+      "review": "ONEfreshordinary review0Critical0Importantblocking;8declinedbehaviors reason/cost ruled;2OpenAPIminors retained",
+      "rulings": 20,
+      "focusedHttpTests": 99,
+      "pr": 81,
+      "url": "https://github.com/artur-rios/cerberus-api/pull/81",
+      "totalTests": 3878,
+      "webTests": 1236,
+      "queryTests": 259,
+      "reviewAgent": "/root/uc20_final_review",
+      "importantReviewFindingsFixed": 0,
+      "reviewVerdict": "ready_for_development_CI",
+      "deferredMinorCount": 2,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/81",
+      "mergeCommit": "a59310da31ea48e3561d8bd2507f6ca62b5ae44d",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-20-2026-10-09-complete"
+    },
+    {
+      "id": "UC-21",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 22,
+        "title": "UC-21 \u2014 Move record",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/22"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc21-worktree",
+      "branch": "feature/uc-21-move-record",
+      "base": "a59310da31ea48e3561d8bd2507f6ca62b5ae44d",
+      "projectItem": "PVTI_lAHOAgOUtM4BmFmuzg_Lx8M",
+      "projectStatus": "Done",
+      "head": "1c6e9adfddc075716dc0fdda9a01cb58fa6e7746",
+      "task": 3,
+      "ledger": "/tmp/cerberus-uc21-worktree/.superpowers/sdd/2026-10-09-uc-21-move-record/progress.md",
+      "focusedDataFirstPass": 96,
+      "currentTask": "complete",
+      "focusedDataPass": 142,
+      "wholeDataPass": 1446,
+      "wholeCommandPass": 717,
+      "focusedCommandPass": 76,
+      "focusedHttpPass": 139,
+      "fullSuiteFailureDiagnosed": "Firstfull4233cases:Data1446Command717Domain313Query259Shared125PASS,Web1364PASS9FAIL duecachedfixtureServiceToken60secondexpiry;realvalidatorunchanged;onlytestserviceToken3600now.",
+      "totalTests": 4235,
+      "webTests": 1375,
+      "reviewAgent": "/root/uc21_final_review",
+      "reviewVerdict": "ready_for_development_CI",
+      "rulingCount": 20,
+      "deferredMinorCount": 3,
+      "rangeDiffCheckExitCode": 2,
+      "pr": 82,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/82",
+      "mergeCommit": "5c994f6f5626c83cb332cb5170d93907cd8e10ef",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-21-2026-10-09-complete"
+    },
+    {
+      "id": "UC-22",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 23,
+        "title": "UC-22 \u2014 Permanently delete record",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/23"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc22-worktree",
+      "branch": "feature/uc-22-permanently-delete-record",
+      "base": "5c994f6f5626c83cb332cb5170d93907cd8e10ef",
+      "projectItem": "PVTI_lAHOAgOUtM4BmFmuzg_LyBQ",
+      "task": 2,
+      "ledger": "/tmp/cerberus-uc22-worktree/.superpowers/sdd/2026-10-09-uc-22-permanently-delete-record/progress.md",
+      "head": "cc2b8bb1983950ec45e8f2c7e0252d9e88e2dd88",
+      "projectStatus": "Done",
+      "focusedTypedPass": 60,
+      "newTypedTests": 47,
+      "typedWholeDataSession": 95153,
+      "typedWholeDataExpected": 1493,
+      "wholeDataPass": 1493,
+      "typedPrerequisiteComplete": true,
+      "currentTask": "complete",
+      "rulingCount": 26,
+      "task2Red": "/tmp/cerberus-uc22-permanent-red-2.log",
+      "reviewAgent": "/root/uc22_final_review",
+      "totalTests": 4596,
+      "lineCoverage": 98.4,
+      "branchCoverage": 91.7,
+      "reviewVerdict": "ready_for_development_CI",
+      "deferredMinorCount": 3,
+      "rangeDiffCheckExitCode": 0,
+      "pr": 83,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/83",
+      "mergeCommit": "d72d92072eaba28509597c545f4833a8ef58faa6",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-22-2026-10-09-complete"
+    },
+    {
+      "id": "UC-23",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 24,
+        "title": "UC-23 \u2014 Create folder",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/24"
+      },
+      "status": "done",
+      "projectStatus": "Done",
+      "worktree": "/tmp/cerberus-uc23-worktree",
+      "branch": "feature/uc-23-create-folder",
+      "base": "d72d92072eaba28509597c545f4833a8ef58faa6",
+      "currentTask": "complete",
+      "head": "3bf6b37c211447cfc74ca277defa75910bcae7ec",
+      "rulingCount": 24,
+      "totalTestsExpected": 4919,
+      "reviewAgent": "/root/uc23_final_review",
+      "totalTests": 4919,
+      "reviewVerdict": "ready_for_development_CI",
+      "deferredMinorCount": 4,
+      "rangeDiffCheckExitCode": 0,
+      "pr": 84,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/84",
+      "mergeCommit": "fc4bda98a88eef28851486cd404537da663f227e",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-23-2026-10-09-complete"
+    },
+    {
+      "id": "UC-24",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 25,
+        "title": "UC-24 \u2014 List folders",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/25"
+      },
+      "status": "done",
+      "projectStatus": "Done",
+      "branch": "feature/uc-24-list-folders",
+      "worktree": "/tmp/cerberus-uc24-worktree",
+      "ledger": "/tmp/cerberus-uc24-worktree/.superpowers/sdd/2026-10-09-uc-24-list-folders/progress.md",
+      "base": "fc4bda98a88eef28851486cd404537da663f227e",
+      "rulingCount": 21,
+      "currentTask": "complete",
+      "head": "484d7b80e0c79b114959c507c019e639f64ba291",
+      "queryTests": 97,
+      "queryWholeTests": 356,
+      "dataTests": 104,
+      "dataWholeTests": 1844,
+      "httpTests": 89,
+      "expectedWholeSuiteTests": 5209,
+      "totalTests": 5209,
+      "lineCoverage": 98.4,
+      "branchCoverage": 92,
+      "reviewAgent": "/root/uc24_final_review",
+      "reviewVerdict": "ready_for_development_CI",
+      "deferredMinorCount": 2,
+      "rangeDiffCheckExitCode": 0,
+      "pr": 85,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/85",
+      "mergeCommit": "955ca9db39753d27fda5cf2637f6e3970cfd6a1b",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-24-2026-10-09-complete"
+    },
+    {
+      "id": "UC-25",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 26,
+        "title": "UC-25 \u2014 Get folder",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/26"
+      },
+      "status": "done",
+      "branch": "feature/uc-25-get-folder",
+      "worktree": "/tmp/cerberus-uc25-worktree",
+      "base": "955ca9db39753d27fda5cf2637f6e3970cfd6a1b",
+      "ledger": "/tmp/cerberus-uc25-worktree/.superpowers/sdd/2026-10-09-uc-25-get-folder/progress.md",
+      "currentTask": "complete",
+      "queryTests": 55,
+      "dataTests": 127,
+      "head": "36f93bc185fac8c8e31d47956216146101ad9c1d",
+      "projectStatus": "Done",
+      "httpTests": 83,
+      "totalTests": 5474,
+      "reviewAgent": "/root/uc25_final_review",
+      "lineCoverage": 98.4,
+      "branchCoverage": 92.1,
+      "rulingCount": 25,
+      "reviewVerdict": "ready_for_development_CI",
+      "deferredMinorCount": 3,
+      "rangeDiffCheckExitCode": 0,
+      "pr": 86,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/86",
+      "mergeCommit": "9aa8e51e7ee39a78294d072f36e17833306a856c",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-25-2026-10-09-complete"
+    },
+    {
+      "id": "UC-26",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 27,
+        "title": "UC-26 \u2014 Update folder",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/27"
+      },
+      "status": "done",
+      "branch": "feature/uc-26-update-folder",
+      "worktree": "/tmp/cerberus-uc26-worktree",
+      "base": "9aa8e51e7ee39a78294d072f36e17833306a856c",
+      "ledger": "/tmp/cerberus-uc26-worktree/.superpowers/sdd/2026-10-09-uc-26-update-folder/progress.md",
+      "currentTask": "complete",
+      "task1Commit": "67032d88b76bd7321b8a4f665ebdc9a78aacd1f2",
+      "commandFocusedTests": 71,
+      "commandWholeTests": 912,
+      "rulingCount": 27,
+      "projectStatus": "Done",
+      "dataFocusedTests": 127,
+      "task2Commit": "cc62f762759537cc28a9b37f6611adda0dd2e21b",
+      "dataWholeTests": 2098,
+      "httpFocusedTests": 108,
+      "testedHead": "612c5b8de98a76f615d49f61e2883b0693d30c30",
+      "totalTests": 5780,
+      "lineCoverage": 98.4,
+      "branchCoverage": 92,
+      "reviewAgent": "/root/uc26_final_review",
+      "reviewVerdict": "ready_for_development_CI",
+      "deferredMinorCount": 2,
+      "rangeDiffCheckExitCode": 0,
+      "pr": 87,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/87",
+      "activeExecSession": 54593,
+      "mergeCommit": "a03bf90a99bc6310e5a8b11841203363fa0a7c8b",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-26-2026-10-09-complete"
+    },
+    {
+      "id": "UC-27",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 28,
+        "title": "UC-27 \u2014 Delete folder",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/28"
+      },
+      "status": "done",
+      "branch": "feature/uc-27-delete-folder",
+      "worktree": "/tmp/cerberus-uc27-worktree",
+      "baseCommit": "a03bf90a99bc6310e5a8b11841203363fa0a7c8b",
+      "ledger": "/tmp/cerberus-uc27-worktree/.superpowers/sdd/2026-10-09-uc-27-delete-folder/progress.md",
+      "spec": "docs/superpowers/specs/2026-10-09-uc-27-delete-folder.md",
+      "plan": "docs/superpowers/plans/2026-10-09-uc-27-delete-folder.md",
+      "rulingCount": 32,
+      "completedTasks": [
+        1,
+        2,
+        3
+      ],
+      "currentTask": "complete",
+      "focusedCommandTests": 75,
+      "wholeCommandTests": 987,
+      "head": "5bff5e8fd68ba90596588f2d326ca360f8f2910c",
+      "projectStatus": "Done",
+      "task1Status": "complete",
+      "task2RedLog": "/tmp/cerberus-uc27-data-red.log",
+      "focusedDataTests": 147,
+      "task2Status": "complete wholeData2245PASS",
+      "activeTestLog": "/tmp/cerberus-uc27-coverage.log",
+      "wholeDataPassed": 2245,
+      "focusedHttpPassed": 108,
+      "currentHead": "5bff5e8fd68ba90596588f2d326ca360f8f2910c",
+      "task3Status": "complete6110PASS/98.4line91.9branch",
+      "totalTests": 6110,
+      "lineCoverage": 98.4,
+      "branchCoverage": 91.9,
+      "reviewAgent": "/root/uc27_final_review",
+      "focusedHttpTests": 108,
+      "reviewVerdict": "ready_for_development_CI",
+      "deferredMinorCount": 3,
+      "pr": 88,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/88",
+      "ciRun": 37918112381,
+      "branchPolicyRun": 37918112206,
+      "mergeCommit": "5c5615935786da2ecc8d82b447fbb6d99d85c481",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-27-2026-10-09-complete"
+    },
+    {
+      "id": "UC-28",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 29,
+        "title": "UC-28 \u2014 Move folder",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/29"
+      },
+      "status": "done",
+      "branch": "feature/uc-28-move-folder",
+      "worktree": "/tmp/cerberus-uc28-worktree",
+      "baseCommit": "5c5615935786da2ecc8d82b447fbb6d99d85c481",
+      "ledger": "/tmp/cerberus-uc28-worktree/.superpowers/sdd/2026-10-09-uc-28-move-folder/progress.md",
+      "spec": "/tmp/cerberus-uc28-worktree/docs/superpowers/specs/2026-10-09-uc-28-move-folder.md",
+      "plan": "/tmp/cerberus-uc28-worktree/docs/superpowers/plans/2026-10-09-uc-28-move-folder.md",
+      "rulingCount": 32,
+      "completedTasks": [
+        1,
+        2,
+        3
+      ],
+      "currentTask": "complete",
+      "projectStatus": "Done",
+      "focusedCommandTests": 89,
+      "wholeCommandTests": 1076,
+      "head": "d1b5fa73449135a298d87534e0fcdbba8630bfb6",
+      "dataInitialRuntime": {
+        "passed": 202,
+        "failed": 5,
+        "total": 207,
+        "cause": "two fixture assumptions, production unchanged"
+      },
+      "focusedDataTests": 211,
+      "wholeDataTests": 2456,
+      "httpRed": {
+        "total": 148,
+        "failed": 147,
+        "passed": 1,
+        "classification": "all147missingroute404 including33emptyJSONfallback, no prerequisite errors"
+      },
+      "focusedHttpTests": 148,
+      "ordinaryPrecoverageChecks": "allpass actual153OSV/322x4/36+23/specs/lockedrestore/NuGet/OpenAPIwrite+drift+shape",
+      "currentHead": "d1b5fa73449135a298d87534e0fcdbba8630bfb6",
+      "totalTests": 6559,
+      "lineCoverage": 98.4,
+      "branchCoverage": 92,
+      "reviewAgent": "/root/uc28_final_review",
+      "deferredMinorCount": 2,
+      "reviewVerdict": "oneImportantfixtureFixedTDD_and_exactCIverified",
+      "focusHttp": 149,
+      "reviewFixRed": "/tmp/cerberus-uc28-review-red.log",
+      "reviewFixGreen": "/tmp/cerberus-uc28-review-green.log",
+      "finalCoverageLog": "/tmp/cerberus-uc28-final-coverage.log",
+      "pr": 89,
+      "prUrl": "https://github.com/artur-rios/cerberus-api/pull/89",
+      "mergeCommit": "886cf84fc8deb44388f2a804de3f79197276f81a",
+      "definitionOfDone": "verified_all_nine",
+      "remoteBranchDeleted": true,
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-28-2026-10-09-complete"
+    },
+    {
+      "id": "UC-29",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 30,
+        "title": "UC-29 \u2014 Create collection",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/30"
+      },
+      "status": "done",
+      "worktree": "/tmp/cerberus-uc29-worktree",
+      "branch": "feature/uc-29-create-collection",
+      "head": "e9c9116a02625b19763d6797534b8ce51a810e8a",
+      "pr": 90,
+      "mergeCommit": "2668b4a605e315307190da350016b9adf46efb9e",
+      "tests": 7005,
+      "lineCoverage": 98.4,
+      "branchCoverage": 91.9,
+      "review": "Sole ordinary review: no Critical/Important/newMinor; 27 rulings and two inherited Minors retained",
+      "definitionOfDone": "pass; nine checked; CLOSED/Done; exact CI green; remote absent; tested trees equal",
+      "archive": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete",
+      "ledger": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete/sdd-evidence/progress.md",
+      "ci": {
+        "branch-policy": "SUCCESS",
+        "docker": "SUCCESS",
+        "test": "SUCCESS",
+        "run": 37940892359
+      }
+    },
+    {
+      "id": "UC-30",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 31,
+        "title": "UC-30 \u2014 List collections",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/31"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-31",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 32,
+        "title": "UC-31 \u2014 Get collection",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/32"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-32",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 33,
+        "title": "UC-32 \u2014 Update collection",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/33"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-33",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 34,
+        "title": "UC-33 \u2014 Delete collection",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/34"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-34",
+      "issue": {
+        "milestone": {
+          "number": 3,
+          "title": "M-03 \u2014 Organized vault",
+          "description": "Manage profiles, custom records, nested folders and collection membership. Covers UC-09, UC-10, UC-11, UC-12, UC-13, UC-14, UC-15, UC-16, UC-17, UC-18, UC-19, UC-20, UC-21, UC-22, UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31, UC-32, UC-33, UC-34. Depends on M-01, M-02.",
+          "dueOn": null
+        },
+        "number": 35,
+        "title": "UC-34 \u2014 Set collection membership",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/35"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-35",
+      "issue": {
+        "milestone": {
+          "number": 4,
+          "title": "M-04 \u2014 Controlled sharing and software secrets",
+          "description": "Share selected collections and serve explicitly granted software ciphertext. Covers UC-35, UC-36, UC-37, UC-42, UC-43, UC-44. Depends on M-01, M-02, M-03.",
+          "dueOn": null
+        },
+        "number": 36,
+        "title": "UC-35 \u2014 Grant collection access",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/36"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-36",
+      "issue": {
+        "milestone": {
+          "number": 4,
+          "title": "M-04 \u2014 Controlled sharing and software secrets",
+          "description": "Share selected collections and serve explicitly granted software ciphertext. Covers UC-35, UC-36, UC-37, UC-42, UC-43, UC-44. Depends on M-01, M-02, M-03.",
+          "dueOn": null
+        },
+        "number": 37,
+        "title": "UC-36 \u2014 Change collection access",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/37"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-37",
+      "issue": {
+        "milestone": {
+          "number": 4,
+          "title": "M-04 \u2014 Controlled sharing and software secrets",
+          "description": "Share selected collections and serve explicitly granted software ciphertext. Covers UC-35, UC-36, UC-37, UC-42, UC-43, UC-44. Depends on M-01, M-02, M-03.",
+          "dueOn": null
+        },
+        "number": 38,
+        "title": "UC-37 \u2014 Revoke collection access",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/38"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-42",
+      "issue": {
+        "milestone": {
+          "number": 4,
+          "title": "M-04 \u2014 Controlled sharing and software secrets",
+          "description": "Share selected collections and serve explicitly granted software ciphertext. Covers UC-35, UC-36, UC-37, UC-42, UC-43, UC-44. Depends on M-01, M-02, M-03.",
+          "dueOn": null
+        },
+        "number": 43,
+        "title": "UC-42 \u2014 Grant software access",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/43"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-43",
+      "issue": {
+        "milestone": {
+          "number": 4,
+          "title": "M-04 \u2014 Controlled sharing and software secrets",
+          "description": "Share selected collections and serve explicitly granted software ciphertext. Covers UC-35, UC-36, UC-37, UC-42, UC-43, UC-44. Depends on M-01, M-02, M-03.",
+          "dueOn": null
+        },
+        "number": 44,
+        "title": "UC-43 \u2014 Retrieve software secrets",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/44"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-44",
+      "issue": {
+        "milestone": {
+          "number": 4,
+          "title": "M-04 \u2014 Controlled sharing and software secrets",
+          "description": "Share selected collections and serve explicitly granted software ciphertext. Covers UC-35, UC-36, UC-37, UC-42, UC-43, UC-44. Depends on M-01, M-02, M-03.",
+          "dueOn": null
+        },
+        "number": 45,
+        "title": "UC-44 \u2014 Revoke software access",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/45"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-45",
+      "issue": {
+        "milestone": {
+          "number": 5,
+          "title": "M-05 \u2014 Offline synchronization",
+          "description": "Apply configurable renewal, incremental access changes and deterministic offline edits. Covers UC-45, UC-46, UC-47, UC-48, UC-49. Depends on M-01, M-02, M-03, M-04.",
+          "dueOn": null
+        },
+        "number": 46,
+        "title": "UC-45 \u2014 Get offline policy",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/46"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-46",
+      "issue": {
+        "milestone": {
+          "number": 5,
+          "title": "M-05 \u2014 Offline synchronization",
+          "description": "Apply configurable renewal, incremental access changes and deterministic offline edits. Covers UC-45, UC-46, UC-47, UC-48, UC-49. Depends on M-01, M-02, M-03, M-04.",
+          "dueOn": null
+        },
+        "number": 47,
+        "title": "UC-46 \u2014 Set offline policy",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/47"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-47",
+      "issue": {
+        "milestone": {
+          "number": 5,
+          "title": "M-05 \u2014 Offline synchronization",
+          "description": "Apply configurable renewal, incremental access changes and deterministic offline edits. Covers UC-45, UC-46, UC-47, UC-48, UC-49. Depends on M-01, M-02, M-03, M-04.",
+          "dueOn": null
+        },
+        "number": 48,
+        "title": "UC-47 \u2014 Renew offline authorization",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/48"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-48",
+      "issue": {
+        "milestone": {
+          "number": 5,
+          "title": "M-05 \u2014 Offline synchronization",
+          "description": "Apply configurable renewal, incremental access changes and deterministic offline edits. Covers UC-45, UC-46, UC-47, UC-48, UC-49. Depends on M-01, M-02, M-03, M-04.",
+          "dueOn": null
+        },
+        "number": 49,
+        "title": "UC-48 \u2014 Download synchronization changes",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/49"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-49",
+      "issue": {
+        "milestone": {
+          "number": 5,
+          "title": "M-05 \u2014 Offline synchronization",
+          "description": "Apply configurable renewal, incremental access changes and deterministic offline edits. Covers UC-45, UC-46, UC-47, UC-48, UC-49. Depends on M-01, M-02, M-03, M-04.",
+          "dueOn": null
+        },
+        "number": 50,
+        "title": "UC-49 \u2014 Upload offline edits",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/50"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-06",
+      "issue": {
+        "milestone": {
+          "number": 6,
+          "title": "M-06 \u2014 Recoverable deletion and beta operations",
+          "description": "Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. Covers UC-06, UC-07, UC-08, UC-50, UC-51, UC-52, UC-53, UC-54, UC-55. Depends on M-01, M-02, M-03, M-04, M-05.",
+          "dueOn": null
+        },
+        "number": 7,
+        "title": "UC-06 \u2014 Request account closure",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/7"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-07",
+      "issue": {
+        "milestone": {
+          "number": 6,
+          "title": "M-06 \u2014 Recoverable deletion and beta operations",
+          "description": "Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. Covers UC-06, UC-07, UC-08, UC-50, UC-51, UC-52, UC-53, UC-54, UC-55. Depends on M-01, M-02, M-03, M-04, M-05.",
+          "dueOn": null
+        },
+        "number": 8,
+        "title": "UC-07 \u2014 Cancel account closure",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/8"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-08",
+      "issue": {
+        "milestone": {
+          "number": 6,
+          "title": "M-06 \u2014 Recoverable deletion and beta operations",
+          "description": "Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. Covers UC-06, UC-07, UC-08, UC-50, UC-51, UC-52, UC-53, UC-54, UC-55. Depends on M-01, M-02, M-03, M-04, M-05.",
+          "dueOn": null
+        },
+        "number": 9,
+        "title": "UC-08 \u2014 Permanently delete account",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/9"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-50",
+      "issue": {
+        "milestone": {
+          "number": 6,
+          "title": "M-06 \u2014 Recoverable deletion and beta operations",
+          "description": "Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. Covers UC-06, UC-07, UC-08, UC-50, UC-51, UC-52, UC-53, UC-54, UC-55. Depends on M-01, M-02, M-03, M-04, M-05.",
+          "dueOn": null
+        },
+        "number": 51,
+        "title": "UC-50 \u2014 List trash",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/51"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-51",
+      "issue": {
+        "milestone": {
+          "number": 6,
+          "title": "M-06 \u2014 Recoverable deletion and beta operations",
+          "description": "Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. Covers UC-06, UC-07, UC-08, UC-50, UC-51, UC-52, UC-53, UC-54, UC-55. Depends on M-01, M-02, M-03, M-04, M-05.",
+          "dueOn": null
+        },
+        "number": 52,
+        "title": "UC-51 \u2014 Restore trash entry",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/52"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-52",
+      "issue": {
+        "milestone": {
+          "number": 6,
+          "title": "M-06 \u2014 Recoverable deletion and beta operations",
+          "description": "Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. Covers UC-06, UC-07, UC-08, UC-50, UC-51, UC-52, UC-53, UC-54, UC-55. Depends on M-01, M-02, M-03, M-04, M-05.",
+          "dueOn": null
+        },
+        "number": 53,
+        "title": "UC-52 \u2014 Empty trash",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/53"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-53",
+      "issue": {
+        "milestone": {
+          "number": 6,
+          "title": "M-06 \u2014 Recoverable deletion and beta operations",
+          "description": "Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. Covers UC-06, UC-07, UC-08, UC-50, UC-51, UC-52, UC-53, UC-54, UC-55. Depends on M-01, M-02, M-03, M-04, M-05.",
+          "dueOn": null
+        },
+        "number": 54,
+        "title": "UC-53 \u2014 Expire retained deletions",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/54"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-54",
+      "issue": {
+        "milestone": {
+          "number": 6,
+          "title": "M-06 \u2014 Recoverable deletion and beta operations",
+          "description": "Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. Covers UC-06, UC-07, UC-08, UC-50, UC-51, UC-52, UC-53, UC-54, UC-55. Depends on M-01, M-02, M-03, M-04, M-05.",
+          "dueOn": null
+        },
+        "number": 55,
+        "title": "UC-54 \u2014 Export account data",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/55"
+      },
+      "status": "not_started"
+    },
+    {
+      "id": "UC-55",
+      "issue": {
+        "milestone": {
+          "number": 6,
+          "title": "M-06 \u2014 Recoverable deletion and beta operations",
+          "description": "Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. Covers UC-06, UC-07, UC-08, UC-50, UC-51, UC-52, UC-53, UC-54, UC-55. Depends on M-01, M-02, M-03, M-04, M-05.",
+          "dueOn": null
+        },
+        "number": 56,
+        "title": "UC-55 \u2014 Check API health",
+        "url": "https://github.com/artur-rios/cerberus-api/issues/56"
+      },
+      "status": "not_started"
+    }
+  ],
+  "preservedUserFilesSha256": {
+    "CONTRIBUTING.md": "e0e4f0c5c8dc7fc35fc30ca7fab3ba291aef40ebeb9a506bd06ec479b17f2f5d",
+    "README.md": "bcfbcfdd4b97a6ba29cebeb864626228c68df4b0a7d353225ec86de641c8e1f8",
+    "docs/requirements/Operations & Infrastructure Document.md": "81024f0962d9d6eddeedfe450231ddba403a31799358b0bfac220245b6368f8b",
+    "CHANGELOG.md": "be6f4973ea26f238bd6752381979d283c5a25ca4a9fa5df319a449d2e5878746"
+  },
+  "requiredToResume": "Paused by user after UC29 issue30 PR90 merged 2668b4a605e315307190da350016b9adf46efb9e. Thirty use cases done,25 remain. Do not start UC30 issue31 until user resumes. Then freshly load issue/specifications and verify develop before new design/branch/TDD. Existing authorization and development-only deferral persist; all release and ordinary verification gates remain.",
+  "reviewDeferral": {
+    "instruction": "Skip the independent security and client-operability checks for now and keep going",
+    "pr": 59,
+    "scope": "development only; release approval remains pending"
+  },
+  "pr59": {
+    "state": "MERGED",
+    "url": "https://github.com/artur-rios/cerberus-api/pull/59"
+  },
+  "currentUseCase": "UC-29",
+  "currentWorktree": "/tmp/cerberus-uc29-worktree",
+  "currentBranch": "feature/uc-29-create-collection",
+  "currentLedger": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete/sdd-evidence/progress.md",
+  "deferredMinorFindings": [
+    {
+      "useCase": "UC-02",
+      "finding": "OpenAPI account nullable / required credential+challenge / exactly-one-factor schema metadata",
+      "runtime": "enforced and tested",
+      "followUp": "generator schema metadata before release",
+      "evidence": "PR61 body and archived review.md"
+    },
+    {
+      "useCase": "UC-12",
+      "finding": "Session expiry during profile lock wait plus stale revision may return409 before final403 permission check; no write/data",
+      "runtime": "final statement-time UPDATE denies expired access; current focused lock tests pass",
+      "followUp": "before-release post-profile-lock fresh expiry/status-priority recheck with stale expectedrevision regression",
+      "evidence": "UC12 single ordinary final review/progress ledger"
+    },
+    "UC13 retry/race docs must qualify 404 with still-valid account-wide access; selected handle revoked by deletion correctly returns403. Runtime safe; before-release docs/design correction.",
+    {
+      "useCase": "UC-16",
+      "finding": "Shared OpenAPI required access header/request body, profileIds nullability and empty413 response schema discrepancies",
+      "runtime": "strict validation and empty413 behavior tested; no blocking code defects",
+      "followUp": "correct shared generator before release",
+      "evidence": "PR77 body and archived final-review.md"
+    },
+    {
+      "useCase": "UC-19",
+      "finding": "Shared OpenAPI required header/body/output metadata and actually empty413 advertised as ProblemDetails",
+      "runtime": "strict runtime inputs/exact four-field output/empty413 exercised in86 actualHTTP tests",
+      "followUp": "shared generator correction before release",
+      "evidence": "PR80 exhaustive body and /tmp/cerberus-uc19-final-review.md"
+    },
+    {
+      "useCase": "UC-20",
+      "finding": "SharedOpenAPIrequiredheader/body/sixoutputfields and actualempty413 modeledProblemDetails",
+      "runtime": "strictinputs/exact6metadata/empty413 testedHTTP99",
+      "followUp": "sharedgeneratorcorrectbeforerelease",
+      "evidence": "PR81 exhaustive20rulings+2minors and archivedfinalreview"
+    },
+    {
+      "useCase": "UC-21",
+      "findings": [
+        "Final: minor (deferred): Shared OpenAPI omits mandatory vault-access header, request body and guaranteed four-field output requiredness; runtime rejects omissions safely and actual HTTP tests pass, but generated clients may produce rejected requests or optional response models. Correct shared generator and contract checks before client/release qualification.",
+        "Final: minor (deferred): Shared OpenAPI advertises ProblemDetails content for an actually empty413; runtime correctly rejects oversized input but generated clients may attempt invalid deserialization. Correct shared response generator before client/release qualification.",
+        "Final: minor (deferred): RecordMoveHttpTests.cs:143 has four trailing spaces on an added blank line; full branch diff --check exits2. No runtime impact; retain for authorized formatting cleanup and report actual verification result, never blanket diffPASS."
+      ],
+      "runtime": "strict2inputs/exact4metadata/nullablefolder/empty413 actualHTTP139",
+      "followUp": "shared generator before release; formatting blank143 deferred; fullrange diffcheck exit2 explicitly recorded",
+      "evidence": "PR82 allRulings+Minors/archivedreview"
+    },
+    {
+      "useCase": "UC-22",
+      "findings": [
+        "Final: minor (deferred): Ledger UnauthorizedAccessException escapes to 500/internal_failure instead of documented dependency 503/persistence_unavailable; terminal intent/outbox survives, reads stay denied and recovery retries. Correct the permission-error mapping with a deterministic regression before release; current cost is wrong outage classification without false erasure success.",
+        "Final: minor (deferred): Shared OpenAPI omits required vault-access header, request body and recordId/deletedAt output requiredness; runtime rejects incomplete requests and enforces exact success output. Correct the shared generator before client/release qualification to avoid incomplete generated requests and unnecessarily optional models.",
+        "Final: minor (deferred): Shared OpenAPI advertises ProblemDetails content for an actually empty 413; runtime rejection is correct, but generated clients may attempt to deserialize an absent body. Correct shared response metadata before client/release qualification."
+      ],
+      "runtime": "strict expectedRevision input/exact two metadata fields/empty413 actualHTTP107",
+      "followUp": "shared generator and ledger permission-error mapping before release; full UC22 range diffcheck passed",
+      "evidence": "PR83 allRulings+Minors/archivedreview"
+    },
+    {
+      "useCase": "UC-23",
+      "findings": [
+        "Final: minor (deferred): Data and HTTP RO/RW foreign-grant fixtures omit CollectionFolder membership, proving foreign-parent rejection with an unrelated grant rather than a genuinely granted folder. Owner-constrained parent queries still reject all foreign folders; add actual membership and fixture visibility assertions before release. Cost: reduced regression confidence for foreign folders visible through grants; no observed current ownership bypass.",
+        "Final: minor (deferred): afterParent failure interceptor fires after UPDATE cerberus.profile, before the immediate folder UPDATE. This proves linked-profile rollback, not post-folder-mutation rollback; current folder update still shares the transaction before commit. Add precisely named profile and actual folder-update fault cases before release. Cost: narrower rollback regression confidence, with no observed partial-commit path.",
+        "Final: minor (deferred): Shared OpenAPI lacks required access-header/body/output metadata and advertises nullable profileIds despite runtime rejecting null. Correct shared generation/nullability and regenerate before client/release qualification. Cost: generated clients can produce avoidable 400/401 requests or unnecessarily optional success models; runtime enforcement remains correct.",
+        "Final: minor (deferred): Shared OpenAPI advertises ProblemDetails content for the actually empty 413. Correct shared response metadata before client/release qualification. Cost: generated error parsers may try to deserialize an absent body; runtime bounded-body rejection remains correct."
+      ],
+      "runtime": "strict required4/optionalparent input/exact four metadata fields/empty413 actualHTTP111",
+      "followUp": "shared generator and two narrowed test fixtures before release; full UC23 range diffcheck passed",
+      "evidence": "PR84 allRulings+Minors/archivedreview"
+    },
+    {
+      "useCase": "UC-24",
+      "findings": [
+        "Final: minor (deferred): Shared OpenAPI omits required access-header/output metadata and advertises nullable items despite runtime requiring access and always emitting the five item fields plus nonnull items and nextCursor. Correct shared generation before external-client release qualification. Cost: generated clients can omit access and receive 401 or model successful data as missing/null; runtime authorization and serialization remain correct.",
+        "Final: minor (deferred): Shared OpenAPI advertises ProblemDetails for the actual empty 413. Correct shared response metadata before external-client release qualification. Cost: generated decoders can try to deserialize an absent body; bounded-body rejection and valid folder listing remain correct."
+      ],
+      "runtime": "strict canonicalquery/vaultheader/noGETbody/exact five folder fields/non-null items/empty413 actualHTTP89",
+      "followUp": "shared OpenAPI requiredness/nullability and empty413 metadata before client/release qualification; full UC24 range diffcheck passed",
+      "evidence": "PR85 allRulings+Minors/archivedreview"
+    },
+    {
+      "useCase": "UC-25",
+      "findings": [
+        "Final: minor (deferred): Shared OpenAPI omits required vault-access header/output metadata and advertises nullable profileIds/collectionIds although runtime requires access and always returns all eight fields with nonnull arrays. Correct shared generation before external-client release. Cost: clients can omit access and receive 401 or unnecessarily model missing/null fields; runtime authorization/output are correct.",
+        "Final: minor (deferred): Shared OpenAPI advertises ProblemDetails for actual empty 413. Correct shared metadata before client release. Cost: generated decoders may attempt an absent body; bounded rejection remains correct.",
+        "Final: minor (deferred): GetFolderQuery constructor parameter recordId populates FolderId. Rename to folderId in later maintenance. Cost: named callers/maintainers see a misleading name; current positional calls and HTTP behavior are correct."
+      ],
+      "runtime": "strict canonicalpath/vaultheader/noquery/noGETbody/exact eight fields/non-null refs/empty413 actualHTTP83",
+      "followUp": "shared OpenAPI requiredness/nullability/empty413 before client release; misleading query constructor parameter later maintenance; full UC25 range diffcheck passed",
+      "evidence": "PR86 allRulings+Minors/archivedreview"
+    },
+    {
+      "useCase": "UC-26",
+      "findings": [
+        "Final: minor (deferred): Shared OpenAPI lacks required vault-access header/body/success-field flags and wrapper failure/null distinction, while all three inner inputs are required and runtime enforces the exact four-field success. Correct shared generation before external-client release. Cost: generated clients can omit input locally or mishandle optional/error metadata; authorization and persistence remain safe.",
+        "Final: minor (deferred): Shared OpenAPI advertises ProblemDetails for actual empty 413. Correct shared metadata before client release. Cost: generated decoders may try to deserialize an absent body; bounded rejection remains correct."
+      ],
+      "runtime": "strict canonicalpath/vaultheader/noquery/exactthreebody/fouroutput/currentRW/empty413 actualHTTP108",
+      "followUp": "shared OpenAPI required header/body/output and empty413 metadata before client release; full UC26 range diffcheck passed",
+      "evidence": "PR87 allRulings+Minors/archivedreview"
+    },
+    {
+      "useCase": "UC-27",
+      "findings": [
+        "Final: minor (deferred): M1 FolderTrashStore.cs:63/131/168\u2013170 external active profile/collection/rootparent inventory omits PurgeAt consistency; no normal current writer creates this state, deadline/authority unchanged. Add purge field/check and actual three-parent rollback cases in defensive follow-up.",
+        "Final: minor (deferred): M2 docs/contracts/openapi.json:781/788/6426 optional vault header/body and missing six-output required list contradict strict runtime; fix shared generated schema before client release.",
+        "Final: minor (deferred): M3 docs/contracts/openapi.json:928 advertises ProblemDetails for actual empty413; fix shared body metadata before client release."
+      ],
+      "runtime": "strict canonicalpath/vaultheader/noquery/exactonebody/sixoutput/ownercascade/empty413 actualHTTP108",
+      "followUp": "shared OpenAPI required header/body/output and empty413 metadata before client release; full UC27 range diffcheck passed",
+      "evidence": "PR88 allRulings+Minors/archivedreview"
+    },
+    {
+      "useCase": "UC-28",
+      "findings": [
+        "Final: minor (deferred): Shared OpenAPI accessheader/body requiredness, four-output required list and wrapper nullability metadata do not fully describe strict runtime. Correct shared generator/regenerate before external-client release. Cost: generated clients can omit input or mis-model successful/error output; runtime authorization remains correct.",
+        "Final: minor (deferred): Shared OpenAPI advertises ProblemDetails for actualempty413. Correct shared response metadata before external-client release. Cost: generated clients can try to decode an absent error body; bounded-body rejection remains correct."
+      ],
+      "runtime": "strict canonicalpath/vaultheader/noquery/exacttwobody/fouroutput/ownerparentmove/empty413 actualHTTP148",
+      "followUp": "shared OpenAPI required header/body/output and empty413 metadata before client release; full UC28 range diffcheck passed",
+      "evidence": "PR89 allRulings+Minors/archivedreview"
+    },
+    {
+      "useCase": "UC-29",
+      "findings": [
+        "Final: minor (deferred, inherited): Shared OpenAPI access-header/body requiredness, success-field required lists and wrapper nullability remain incomplete. Correct shared generation before external-client release. Cost: generated clients can omit inputs or mis-model successful/error output; runtime strictness is verified.",
+        "Final: minor (deferred, inherited): Shared OpenAPI advertises ProblemDetails for actual empty413. Correct shared response metadata before external-client release. Cost: generated clients can attempt decoding an absent body; bounded rejection is verified."
+      ],
+      "followUp": "Shared generated OpenAPI requiredness/wrapper/empty413 metadata before external-client release",
+      "evidence": "PR90 full27Rulings/2Minors; archived sole review"
+    }
+  ],
+  "remoteApprovalBlock": {
+    "action": "push feature branch; create PR; update project status",
+    "reason": "auto-review rejects saved prior authorization as untrusted file content; explicit current-chat GitHub approval requested asynchronously",
+    "destination": "https://github.com/artur-rios/cerberus-api",
+    "attempts": 2,
+    "requiredToResume": "User approval through pending prompt",
+    "resolvedBy": "User current-conversation reply Go ahead after explicit GitHub batch permission request"
+  },
+  "integrationObligations": [
+    {
+      "source": "UC-39",
+      "requirement": "Extend complete protection-rotation inventory when new encrypted content/profile/recipient entities are introduced; selected-profile password changes must use own scoped verifier/access. Add missing/extra/foreign recipient/content regressions before those flows release.",
+      "targets": [
+        "UC-09..34",
+        "UC-35..37",
+        "UC-42..44"
+      ],
+      "status": "pending_later_entity_use_cases"
+    },
+    {
+      "source": "UC-09 ordinary review",
+      "requirement": "Before selected-profile access UC15, establish scoped verifier isolation across current profiles; reused verifiers may need client replacement. Before erasure flows, resolve cross-kind GUID collision semantics in global ResourceId-only tombstone ledger and add account/profile/resource regressions.",
+      "targets": [
+        "UC-15",
+        "UC-07",
+        "UC-52",
+        "UC-55"
+      ],
+      "status": "pending_before_dependent_flow_release"
+    },
+    {
+      "source": "UC09 timestamp correction",
+      "requirement": "Later editedAt persistence paths must normalize UTC microsecond precision before PostgreSQL parameter binding; cover pre-2000/sub-microsecond values to prevent committed writes followed by false503. Validate that the normalized time is not default (minimum accepted UTC0001-01-01T00:00:00.000001Z), with first/last submicrosecond and first representable microsecond regressions; UC12 corrects creation/update consistently.",
+      "targets": [
+        "UC-12",
+        "UC-16..34",
+        "UC-49"
+      ],
+      "status": "pending_future_time_bearing_paths"
+    },
+    {
+      "source": "UC11 profile retrieval",
+      "requirement": "When records/folders/collections/links/grants arrive, extend profile create and same-snapshot get/list relationships to include only active visible links before releasing those flows. Current arrays are truthfully empty; nonempty create links404 until entities exist.",
+      "targets": [
+        "UC-16..34",
+        "UC-35..37",
+        "UC-42..44"
+      ],
+      "status": "pending_later_entities"
+    },
+    {
+      "source": "UC13 trash lifecycle design",
+      "requirement": "Before physical trash purge/list/restore releases, integrate typed retention handler, deadline/operation membership/association restore, and cross-kind terminal GUID semantics; first resource/sharing UCs extend actual trash association snapshots/deactivation without deleting underlying items.",
+      "targets": [
+        "UC-16..34",
+        "UC-35..37",
+        "UC-50..53"
+      ],
+      "status": "pending_dependent_flows"
+    },
+    "Before UC35 publicgrant creation, audit implicit PostgreSQL recipient-account FK KEY SHARE against existing recipient-owned writers that hold account FOR UPDATE (e.g. profile associations). UC19 uses NO KEY UPDATE on actor account/record, proven newauthority regression; global lock-order rules must account for implicit FK locks too."
+  ],
+  "resumeInstruction": "Paused by user after UC29 issue30 PR90 merged 2668b4a605e315307190da350016b9adf46efb9e. Thirty use cases done,25 remain. Do not start UC30 issue31 until user resumes. Then freshly load issue/specifications and verify develop before new design/branch/TDD. Existing authorization and development-only deferral persist; all release and ordinary verification gates remain.",
+  "nextUseCase": "UC-30",
+  "resolvedStops": [
+    {
+      "useCase": "UC-09",
+      "reason": "required test CI failure",
+      "pr": 69,
+      "issue": 10,
+      "head": "d082b8b4fd75e36c5d1f5bb09e51b4697f40b95c",
+      "run": 37814207079,
+      "job": 113438512243,
+      "cause": "native-harness /proc descendant termination test TOCTOU read ProcessLookupError at test_process_limits.py:50; .NET CI not reached",
+      "reviewImportant": "pre-2000 sub-microsecond EditedAt can commit then handler503 due provider timestamp epoch truncation mismatch",
+      "next": "TDD timestamp normalization and native helper /proc disappearance race; full suite/native checks/required green CI; preserve one existing final review, no second reviewer",
+      "alreadyMergedRetained": true,
+      "remainingNotStarted": 45,
+      "resolvedBy": {
+        "commit": "053335ee52a2829133ca5008fd99bfaaf91ac9c7",
+        "ciRun": 37816640837,
+        "mergeCommit": "d521230b6833571e8d8e3ec93db8a6eb4d5a41ad"
+      }
+    }
+  ],
+  "currentTask": "UC29 issue30 complete; user-requested pause before UC30 issue31",
+  "head": "e9c9116a02625b19763d6797534b8ce51a810e8a",
+  "worktree": "/tmp/cerberus-uc29-worktree",
+  "branch": "feature/uc-29-create-collection",
+  "ledger": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete/sdd-evidence/progress.md",
+  "currentHead": "e9c9116a02625b19763d6797534b8ce51a810e8a",
+  "nextUseCasePreparation": {
+    "id": "UC-30",
+    "issue": 31,
+    "status": "not_started; preliminary read-only exploration only",
+    "needsFreshCheckoutSpecReload": true
+  },
+  "task2Evidence": {
+    "path": "/tmp/cerberus-uc29-task2-focused-evidence.json",
+    "focused": 206,
+    "wholeLog": "/tmp/cerberus-uc29-data-whole.log",
+    "audit": "/tmp/cerberus-uc29-verify-task2.py",
+    "wholeResult": "PASS2662/0fail/0skip"
+  },
+  "task3Evidence": {
+    "httpFocus": 142,
+    "httpRedFailed": 141,
+    "httpRedAlreadyPass": 1,
+    "httpLog": "/tmp/cerberus-uc29-http-green.log",
+    "precoverage": "/tmp/cerberus-uc29-precoverage-evidence.json",
+    "coverageLog": "/tmp/cerberus-uc29-coverage.log",
+    "sourceSha": "/tmp/cerberus-uc29-precoverage-source-sha.json",
+    "completedFullFamilies": {
+      "Domain": 361,
+      "Shared": 125,
+      "Query": 411,
+      "Command": 1174,
+      "Data": 2662,
+      "WebApi": 2272
+    },
+    "gate2": "/tmp/cerberus-uc29-gate2.json",
+    "coverageEvidence": "/tmp/cerberus-uc29-coverage-evidence.json",
+    "result": "PASS7005/0fail/0skip/98.4line/91.9branch",
+    "reviewAgent": "/root/uc29_final_review",
+    "reviewResult": "No Critical/Important/newMinor; all8declinedFinalRulings",
+    "pr": 90,
+    "allRulings": 27,
+    "ciRun": 37940892359,
+    "testJob": 113854690452,
+    "ciWatchSession": null,
+    "ciChecks": {
+      "branch-policy": "SUCCESS",
+      "docker": "SUCCESS",
+      "test": "SUCCESS"
+    }
+  },
+  "pauseRequestedAfterCurrentIssue": true,
+  "pauseAfterIssue": 30,
+  "pauseInstruction": "User: Pause after finishing the current issue. Complete UC29 issue30 PR90 CI/merge/nineDoD/projectDone/archive closeout; then pause before UC30 issue31 implementation. No further issue starts.",
+  "lastCompletedUseCase": "UC-29",
+  "nextIssue": 31,
+  "pauseReason": "User: Pause after finishing the current issue",
+  "archiveVerification": {
+    "path": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete",
+    "files": 112,
+    "sha256Verified": true,
+    "ownedSddRemoved": "/tmp/cerberus-uc29-worktree/.superpowers/sdd/2026-10-09-uc-29-create-collection"
+  }
+}

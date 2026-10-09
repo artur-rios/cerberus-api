@@ -1,0 +1,19 @@
+# SDD ledger — plan: docs/superpowers/plans/2026-10-08-uc-02-authenticate.md
+
+Gate 1: fresh UC-02/FR-AC-05–07/endpoint inventory read; all five AFs mapped to concrete tests; existing batch authorization covers stage gates and delivery. Baseline origin/develop6f9c21c production/test/contract tree equals verified PR60 head8374c6a: 227 tests, zero skips, CI green.
+Pre-flight: Task1 typed HeimdallAuthentication and methods are consumed by Task3 handlers; Task2 IAccountAuthenticationStore and public context consumed by Task3 output/handler. No interface conflict.
+Ruling: unbound valid scoped identity returns original Heimdall result plus null account context to support onboarding/MFA and future explicit non-human grants — absence is not an existing inactive account; no vault right/session is issued — cost if wrong: clients may need a later explicit onboarding state. Existing inactive/erased account denies ordinary login; UC07 uses separate fresh-auth restricted path.
+Ruling: inspected Heimdall scoped-person login is the supported email/password contract; no invented application-secret login — non-human identity grants remain explicit in later use cases — cost if wrong: a future provider application-auth contract needs a separate adapter.
+Task1: in progress, tests first.
+Task 1: complete (commits e058632..55d5246, tests: dotnet test tests/Application/ArturRios.Cerberus.Shared.Tests --configuration Release --no-restore --no-build → Passed!  - Failed:     0, Passed:    96, Skipped:     0, Total:    96, Duration: 298 ms - ArturRios.Cerberus.Shared.Tests.dll (net10.0))
+Task 2: complete (commits 55d5246..e7cc2cf, tests: dotnet test tests/Infrastructure/ArturRios.Cerberus.Data.Tests --configuration Release --no-restore → Passed!  - Failed:     0, Passed:    44, Skipped:     0, Total:    44, Duration: 11 s - ArturRios.Cerberus.Data.Tests.dll (net10.0))
+
+Task3: command RED missing types→GREEN44 complete Command tests; real-host HTTP RED23 absent routes→85 pass/1 test-assertion failure. Root cause: ProcessOutput includes a response creation timestamp, so generic credential-denial equality must compare every other field. Corrected assertion removes only the documented timestamp from both objects and compares the entire remaining body; status/no-store remain asserted. No production behavior changed to satisfy the test. Actual PostgreSQL missing-table fault returns503 with no bearer.
+
+Task3 implementation: all five AFs covered; fresh unfiltered299 tests zero failures/skips; line96.1%, branch85.1%. Helper23/23, specs/OpenAPI/format pass. Ruling: use already fresh coverage.py evidence for task-done report-only instead of rerunning an identical full suite. Final review and CI closeout pending.
+Task 3: complete (commits e7cc2cf..7b46c9e, tests: python3 scripts/coverage.py --report-only → Open the HTML report at: /tmp/cerberus-uc02-worktree/docs/coverage-report/index.html)
+
+Final review: one fresh reviewer6f9c21c..7b46c9e reports no Critical/Important findings; one Minor accepted/deferred: generated OpenAPI omits nullable Account and required credentials/challenge/exactly-one-factor rule. Actual DTO/validators/tests enforce the runtime contract and written design documents null account semantics. Follow-up: generator schema metadata before release, without changing runtime behavior. Cost if wrong: generated SDKs may assume a nonnull account or underconstrain requests; actual API remains fail-closed. No second review and no production correction needed.
+CI: required branch-policy/test/docker allSUCCESS at head7b46c9e; no bypass.
+
+Delivery complete: PR61 mergedb6196f0, issue3closed/checklistcomplete/projectDone; branch-policy/test/dockerSUCCESS; remote feature branch auto-deleted. Verified merged production/test/OpenAPI tree identical to7b46c9e. Fresh review report and rulings archived; worktree retained.

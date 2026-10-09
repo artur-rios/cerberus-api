@@ -1,0 +1,22 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc39-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Release/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc39-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Release/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc39-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Release/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc39-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Release/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc39-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Release/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:12.92]     ArturRios.Cerberus.Data.Tests.VaultProtectionChangeStoreTests.GivenValidProofForDifferentParsedReplacement_WhenChanging_ThenRejectWithoutMutation [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.VaultProtectionChangeStoreTests.GivenValidProofForDifferentParsedReplacement_WhenChanging_ThenRejectWithoutMutation [32 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "vault_proof_rejected"
+Actual:   null
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.VaultProtectionChangeStoreTests.GivenValidProofForDifferentParsedReplacement_WhenChanging_ThenRejectWithoutMutation() in /tmp/cerberus-uc39-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/VaultProtectionChangeStoreTests.cs:line 119
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:   208, Skipped:     0, Total:   209, Duration: 24 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)

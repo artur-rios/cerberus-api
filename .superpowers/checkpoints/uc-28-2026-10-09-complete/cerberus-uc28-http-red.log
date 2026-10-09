@@ -1,0 +1,1578 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc28-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc28-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc28-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc28-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc28-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc28-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:11.17]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenDamagedOwnedRoot_WhenMoving_Then503RetainsAllOpaqueBytes [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenDamagedOwnedRoot_WhenMoving_Then503RetainsAllOpaqueBytes [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenDamagedOwnedRoot_WhenMoving_Then503RetainsAllOpaqueBytes() in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 168
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.53]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "child", status: 400) [FAIL]
+[xUnit.net 00:00:11.73]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "cycle", status: 503) [FAIL]
+[xUnit.net 00:00:11.95]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "deep", status: 400) [FAIL]
+[xUnit.net 00:00:12.14]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "foreign", status: 404) [FAIL]
+[xUnit.net 00:00:12.30]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "self", status: 400) [FAIL]
+[xUnit.net 00:00:12.47]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "trash", status: 404) [FAIL]
+[xUnit.net 00:00:12.66]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "missing", status: 404) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "child", status: 400) [353 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 148
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "cycle", status: 503) [202 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 148
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "deep", status: 400) [209 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 148
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "foreign", status: 404) [195 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 148
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "self", status: 400) [162 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 148
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "trash", status: 404) [161 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 148
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: "missing", status: 404) [186 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 148
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.79]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "collectionIds") [FAIL]
+[xUnit.net 00:00:12.87]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "numericString") [FAIL]
+[xUnit.net 00:00:12.99]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "fraction") [FAIL]
+[xUnit.net 00:00:13.09]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderBad") [FAIL]
+[xUnit.net 00:00:13.21]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "vaultAccess") [FAIL]
+[xUnit.net 00:00:13.34]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "cascade") [FAIL]
+[xUnit.net 00:00:13.41]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "duplicateRevision") [FAIL]
+[xUnit.net 00:00:13.51]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "trashOperationId") [FAIL]
+[xUnit.net 00:00:13.64]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderZero") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "collectionIds") [129 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "numericString") [81 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "fraction") [118 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderBad") [92 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "vaultAccess") [118 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "cascade") [131 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "duplicateRevision") [69 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "trashOperationId") [96 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderZero") [119 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.83]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "unknown") [FAIL]
+[xUnit.net 00:00:13.94]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "purgeAt") [FAIL]
+[xUnit.net 00:00:14.13]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderNumeric") [FAIL]
+[xUnit.net 00:00:14.25]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "null") [FAIL]
+[xUnit.net 00:00:14.36]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "keyWrappers") [FAIL]
+[xUnit.net 00:00:14.45]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "missingRevision") [FAIL]
+[xUnit.net 00:00:14.54]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "unsafe") [FAIL]
+[xUnit.net 00:00:14.66]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "profileIds") [FAIL]
+[xUnit.net 00:00:14.72]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderId") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "unknown") [186 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "purgeAt") [113 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderNumeric") [183 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "null") [121 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "keyWrappers") [107 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "missingRevision") [86 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "unsafe") [92 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "profileIds") [114 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderId") [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.81]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderCompact") [FAIL]
+[xUnit.net 00:00:14.91]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "fields") [FAIL]
+[xUnit.net 00:00:14.98]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "missingFolder") [FAIL]
+[xUnit.net 00:00:15.06]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "duplicateFolder") [FAIL]
+[xUnit.net 00:00:15.16]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "name") [FAIL]
+[xUnit.net 00:00:15.28]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "recordId") [FAIL]
+[xUnit.net 00:00:15.40]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "envelope") [FAIL]
+[xUnit.net 00:00:15.50]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "empty") [FAIL]
+[xUnit.net 00:00:15.59]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "editedAt") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderCompact") [92 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "fields") [95 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "missingFolder") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "duplicateFolder") [78 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "name") [103 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "recordId") [119 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "envelope") [111 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "empty") [97 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "editedAt") [93 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:15.72]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderUppercase") [FAIL]
+[xUnit.net 00:00:15.81]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "overflow") [FAIL]
+[xUnit.net 00:00:15.90]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "negative") [FAIL]
+[xUnit.net 00:00:16.01]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "array") [FAIL]
+[xUnit.net 00:00:16.11]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "nullRevision") [FAIL]
+[xUnit.net 00:00:16.24]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "actor") [FAIL]
+[xUnit.net 00:00:16.35]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "caseRevision") [FAIL]
+[xUnit.net 00:00:16.49]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "caseFolder") [FAIL]
+[xUnit.net 00:00:16.62]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "ownerId") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "folderUppercase") [131 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "overflow") [87 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "negative") [83 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "array") [107 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "nullRevision") [104 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "actor") [126 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "caseRevision") [106 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "caseFolder") [134 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "ownerId") [121 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:16.82]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "zero") [FAIL]
+[xUnit.net 00:00:16.94]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "deletedAt") [FAIL]
+[xUnit.net 00:00:17.98]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "Master", route: "toRoot") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "zero") [202 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: "deletedAt") [117 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 128
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "Master", route: "toRoot") [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:18.45]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "Master", route: "between") [FAIL]
+[xUnit.net 00:00:18.69]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "wide", route: "toRoot") [FAIL]
+[xUnit.net 00:00:18.90]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "wide", route: "same") [FAIL]
+[xUnit.net 00:00:19.13]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "PerProfile", route: "toRoot") [FAIL]
+[xUnit.net 00:00:19.41]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "PerProfile", route: "same") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "Master", route: "between") [477 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "wide", route: "toRoot") [215 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "wide", route: "same") [231 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "PerProfile", route: "toRoot") [222 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "PerProfile", route: "same") [285 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:19.80]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "Master", route: "same") [FAIL]
+[xUnit.net 00:00:20.14]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "PerProfile", route: "between") [FAIL]
+[xUnit.net 00:00:20.38]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "wide", route: "fromRoot") [FAIL]
+[xUnit.net 00:00:20.68]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "wide", route: "between") [FAIL]
+[xUnit.net 00:00:20.90]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "wide", route: "rootNoop") [FAIL]
+[xUnit.net 00:00:21.04]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "dangling", status: 403) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "Master", route: "same") [385 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "PerProfile", route: "between") [333 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "wide", route: "fromRoot") [237 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "wide", route: "between") [300 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: "wide", route: "rootNoop") [221 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(String mode, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 136
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "dangling", status: 403) [136 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:21.16]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "closing", status: 404) [FAIL]
+[xUnit.net 00:00:21.26]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "revoked", status: 403) [FAIL]
+[xUnit.net 00:00:21.37]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "terminal", status: 404) [FAIL]
+[xUnit.net 00:00:21.50]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "expired", status: 403) [FAIL]
+[xUnit.net 00:00:21.69]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "generation", status: 403) [FAIL]
+[xUnit.net 00:00:21.84]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "future", status: 403) [FAIL]
+[xUnit.net 00:00:21.95]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "policy", status: 403) [FAIL]
+[xUnit.net 00:00:22.08]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "bom", status: 400) [FAIL]
+[xUnit.net 00:00:22.16]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "compression", status: 400) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "closing", status: 404) [116 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "revoked", status: 403) [95 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "terminal", status: 404) [117 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "expired", status: 403) [123 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "generation", status: 403) [188 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "future", status: 403) [142 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: "policy", status: 403) [114 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "bom", status: 400) [123 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 39
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "compression", status: 400) [76 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 39
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:22.25]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "bad", status: 400) [FAIL]
+[xUnit.net 00:00:22.34]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:22.41]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "query", status: 400) [FAIL]
+[xUnit.net 00:00:22.47]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [FAIL]
+[xUnit.net 00:00:22.68]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "charset", status: 400) [FAIL]
+[xUnit.net 00:00:22.75]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "utf8", status: 400) [FAIL]
+[xUnit.net 00:00:23.01]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: "downgrade", status: 403) [FAIL]
+[xUnit.net 00:00:23.14]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: "move", status: 404) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "bad", status: 400) [96 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 39
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "missing", status: 401) [80 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 39
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "query", status: 400) [71 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 39
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 39
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "charset", status: 400) [86 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 39
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: "utf8", status: 400) [77 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 39
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: "downgrade", status: 403) [257 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 64
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: "move", status: 404) [131 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 64
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:23.28]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: "member", status: 404) [FAIL]
+[xUnit.net 00:00:23.43]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: "grant", status: 404) [FAIL]
+[xUnit.net 00:00:23.81]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "PerProfile", kind: "collection", existing: True) [FAIL]
+[xUnit.net 00:00:24.42]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "Master", kind: "profile", existing: False) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: "member", status: 404) [131 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 64
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: "grant", status: 404) [144 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 64
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "PerProfile", kind: "collection", existing: True) [378 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(String mode, String kind, Boolean existing) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 145
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "Master", kind: "profile", existing: False) [617 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(String mode, String kind, Boolean existing) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 145
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:24.93]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "PerProfile", kind: "collection", existing: False) [FAIL]
+[xUnit.net 00:00:25.28]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "Master", kind: "profile", existing: True) [FAIL]
+[xUnit.net 00:00:25.66]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "PerProfile", kind: "profile", existing: False) [FAIL]
+[xUnit.net 00:00:25.93]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "Master", kind: "collection", existing: False) [FAIL]
+[xUnit.net 00:00:26.00]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(kind: "lostSuccess") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "PerProfile", kind: "collection", existing: False) [506 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(String mode, String kind, Boolean existing) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 145
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "Master", kind: "profile", existing: True) [341 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(String mode, String kind, Boolean existing) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 145
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "PerProfile", kind: "profile", existing: False) [382 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(String mode, String kind, Boolean existing) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 145
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: "Master", kind: "collection", existing: False) [271 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(String mode, String kind, Boolean existing) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 145
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(kind: "lostSuccess") [64 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 165
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:26.31]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(kind: "trashWinner") [FAIL]
+[xUnit.net 00:00:26.56]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(kind: "putWinner") [FAIL]
+[xUnit.net 00:00:27.16]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRawEmptyAccessHeader_WhenMoving_Then400 [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(kind: "trashWinner") [308 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 165
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(kind: "putWinner") [250 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Conflict
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 165
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRawEmptyAccessHeader_WhenMoving_Then400 [579 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   404
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRawEmptyAccessHeader_WhenMoving_Then400() in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 44
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:28.48]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation(mode: "Master") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation(mode: "Master") [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation(String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 121
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:29.53]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:30.37]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "PerProfile") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation(mode: "PerProfile") [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation(String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 121
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "PerProfile") [829 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 95
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:30.86]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "Master") [FAIL]
+[xUnit.net 00:00:31.36]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:31.83]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "Master") [FAIL]
+[xUnit.net 00:00:32.12]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "wide") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "Master") [491 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 95
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "PerProfile") [494 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 95
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "Master") [474 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 95
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "wide") [281 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 95
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:32.35]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "wide") [FAIL]
+[xUnit.net 00:00:32.68]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: "signature", route: "destination") [FAIL]
+[xUnit.net 00:00:32.96]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: "pins", route: "destination") [FAIL]
+[xUnit.net 00:00:33.28]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: "signature", route: "record") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "wide") [233 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 95
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: "signature", route: "destination") [324 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(String kind, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 162
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: "pins", route: "destination") [272 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(String kind, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 162
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: "signature", route: "record") [316 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(String kind, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 162
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:33.70]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: "signature", route: "child") [FAIL]
+[xUnit.net 00:00:33.90]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: "missing", route: "destination") [FAIL]
+[xUnit.net 00:00:33.94]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "bad") [FAIL]
+[xUnit.net 00:00:33.98]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "zero") [FAIL]
+[xUnit.net 00:00:34.05]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "braced") [FAIL]
+[xUnit.net 00:00:34.09]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "urn") [FAIL]
+[xUnit.net 00:00:34.17]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "compact") [FAIL]
+[xUnit.net 00:00:34.27]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "uppercase") [FAIL]
+[xUnit.net 00:00:34.75]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: "parent", selected: True) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: "signature", route: "child") [416 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(String kind, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 162
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: "missing", route: "destination") [196 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(String kind, String route) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 162
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "bad") [38 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "zero") [41 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "braced") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "urn") [42 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "compact") [79 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: "uppercase") [92 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: "parent", selected: True) [477 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(String kind, Boolean selected) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 84
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:34.97]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: "sibling", selected: True) [FAIL]
+[xUnit.net 00:00:35.13]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: "parent", selected: False) [FAIL]
+[xUnit.net 00:00:35.34]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: "sibling", selected: False) [FAIL]
+[xUnit.net 00:00:35.71]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection(kind: "profileTrash") [FAIL]
+[xUnit.net 00:00:35.96]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection(kind: "profileTerminal") [FAIL]
+[xUnit.net 00:00:36.06]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:36.17]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: "deleted", status: 401) [FAIL]
+[xUnit.net 00:00:36.23]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: "unavailable", status: 503) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: "sibling", selected: True) [216 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(String kind, Boolean selected) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 84
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: "parent", selected: False) [156 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(String kind, Boolean selected) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 84
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: "sibling", selected: False) [216 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(String kind, Boolean selected) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 84
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection(kind: "profileTrash") [366 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection(kind: "profileTerminal") [250 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 75
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: "missing", status: 401) [96 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: "deleted", status: 401) [105 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: "unavailable", status: 503) [61 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:36.31]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: "scope", status: 401) [FAIL]
+[xUnit.net 00:00:36.38]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(kind: "sequence") [FAIL]
+[xUnit.net 00:00:36.44]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(kind: "outage") [FAIL]
+[xUnit.net 00:00:36.53]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(kind: "revision") [FAIL]
+[xUnit.net 00:00:36.80]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadOnly, mode: "Master") [FAIL]
+[xUnit.net 00:00:36.96]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadWrite, mode: "wide") [FAIL]
+[xUnit.net 00:00:37.20]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadWrite, mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:37.36]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadOnly, mode: "wide") [FAIL]
+[xUnit.net 00:00:37.64]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadWrite, mode: "Master") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: "scope", status: 401) [71 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(String kind, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(kind: "sequence") [73 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 110
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 110
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 110
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(kind: "outage") [62 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 110
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 110
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 110
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(kind: "revision") [85 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 110
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 110
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 110
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadOnly, mode: "Master") [264 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadWrite, mode: "wide") [158 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadWrite, mode: "PerProfile") [239 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadOnly, mode: "wide") [165 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadWrite, mode: "Master") [274 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:37.91]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadOnly, mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:38.04]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(kind: "signature") [FAIL]
+[xUnit.net 00:00:38.12]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(kind: "pins") [FAIL]
+[xUnit.net 00:00:38.23]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(kind: "numericString") [FAIL]
+[xUnit.net 00:00:38.35]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "foreign") [FAIL]
+[xUnit.net 00:00:38.45]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "missing") [FAIL]
+[xUnit.net 00:00:38.53]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "folderTrash") [FAIL]
+[xUnit.net 00:00:38.64]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "folderTerminal") [FAIL]
+[xUnit.net 00:00:38.79]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "unselected") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadOnly, mode: "PerProfile") [270 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(kind: "signature") [123 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 68
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(kind: "pins") [81 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 68
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(kind: "numericString") [105 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 68
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "foreign") [115 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "missing") [102 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "folderTrash") [80 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "folderTerminal") [108 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "unselected") [148 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 59
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:38.88]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "ancestorTrash") [FAIL]
+[xUnit.net 00:00:38.96]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "revoked") [FAIL]
+[xUnit.net 00:00:39.05]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "ownerClosing") [FAIL]
+[xUnit.net 00:00:39.47]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadOnly, mode: "wide") [FAIL]
+[xUnit.net 00:00:40.09]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadOnly, mode: "Master") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "ancestorTrash") [85 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "revoked") [80 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: "ownerClosing") [89 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 59
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadOnly, mode: "wide") [414 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 156
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadOnly, mode: "Master") [617 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 156
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:40.63]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadWrite, mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:41.04]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadWrite, mode: "wide") [FAIL]
+[xUnit.net 00:00:41.54]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadWrite, mode: "Master") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadWrite, mode: "PerProfile") [541 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 156
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadWrite, mode: "wide") [401 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 156
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadWrite, mode: "Master") [500 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 156
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:42.14]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadOnly, mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:42.49]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:42.80]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(mode: "Master") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadOnly, mode: "PerProfile") [589 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 156
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(mode: "PerProfile") [356 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 105
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 105
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(mode: "Master") [302 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 209
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 105
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 105
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:43.51]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualIndependentRecordAndChildTrash_WhenMovingActiveAncestor_ThenOriginalDeadlinesAndSnapshotsRemain [FAIL]
+[xUnit.net 00:00:44.03]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:44.64]     ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain(mode: "Master") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualIndependentRecordAndChildTrash_WhenMovingActiveAncestor_ThenOriginalDeadlinesAndSnapshotsRemain [703 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualIndependentRecordAndChildTrash_WhenMovingActiveAncestor_ThenOriginalDeadlinesAndSnapshotsRemain() in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 171
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain(mode: "PerProfile") [519 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain(String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 142
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain(String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 142
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain(mode: "Master") [607 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 207
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain(String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 142
+   at ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain(String mode) in /tmp/cerberus-uc28-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs:line 142
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:   147, Passed:     1, Skipped:     0, Total:   148, Duration: 35 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

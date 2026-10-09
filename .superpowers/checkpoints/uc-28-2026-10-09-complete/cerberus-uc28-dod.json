@@ -1,0 +1,52 @@
+{
+  "useCase": "UC-28",
+  "issue": 29,
+  "pr": 89,
+  "testedHead": "d1b5fa73449135a298d87534e0fcdbba8630bfb6",
+  "mergeCommit": "886cf84fc8deb44388f2a804de3f79197276f81a",
+  "definitionOfDone": [
+    {
+      "item": "Own isolated feature branch from verified develop",
+      "passed": true
+    },
+    {
+      "item": "Main and all AF01..06 implemented and verified",
+      "passed": true
+    },
+    {
+      "item": "Unit/Data/actualnativeHTTP at correctlayers",
+      "passed": true
+    },
+    {
+      "item": "Freshunfiltered6559PASS zero fail-skip/98.4line/92branch sixassemblies>=90line/allotherchecks",
+      "passed": true
+    },
+    {
+      "item": "Ownership/native/sharing/opaquecontent preserved; independentformal/clientreleasegates pending",
+      "passed": true
+    },
+    {
+      "item": "ONEfreshordinaryreview +exactlatesthead3CISUCCESS +normalmatchheadsquash under explicitauthorization",
+      "passed": true
+    },
+    {
+      "item": "Actualremotebranchabsent",
+      "passed": true
+    },
+    {
+      "item": "Actualissue29Closed/nineDoDchecked/projectDone",
+      "passed": true
+    },
+    {
+      "item": "MergedREADMEUC28Done/M03twenty",
+      "passed": true
+    }
+  ],
+  "developTreeEqualsTestedHead": true,
+  "primaryFourSha256Unchanged": true,
+  "rulings": 32,
+  "deferredMinors": 2,
+  "tests": 6559,
+  "lineCoverage": 98.4,
+  "branchCoverage": 92
+}

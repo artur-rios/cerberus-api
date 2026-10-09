@@ -1,0 +1,1156 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 401 ms).
+  Restored /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj (in 383 ms).
+  Restored /tmp/cerberus-uc17-worktree/src/Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj (in 374 ms).
+  Restored /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 374 ms).
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc17-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:07.09]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenEmptyInventoryOrMaximumPageSize_WhenListing_ThenReturnFiniteFinalPageWithoutOverflow [FAIL]
+[xUnit.net 00:00:07.29]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "negative") [FAIL]
+[xUnit.net 00:00:07.33]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "duplicate") [FAIL]
+[xUnit.net 00:00:07.37]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "unsafe") [FAIL]
+[xUnit.net 00:00:07.39]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "zero") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenEmptyInventoryOrMaximumPageSize_WhenListing_ThenReturnFiniteFinalPageWithoutOverflow [602 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenEmptyInventoryOrMaximumPageSize_WhenListing_ThenReturnFiniteFinalPageWithoutOverflow() in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 96
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "negative") [197 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 68
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "duplicate") [38 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 68
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "unsafe") [30 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 68
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(kind: "zero") [22 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptPermittedOrdering_WhenListing_Then503BeforeKeysetCanHideOrSplitIt(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 68
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:07.86]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "missing", error: "not_found") [FAIL]
+[xUnit.net 00:00:07.92]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "disabledExpiry", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:07.97]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "noExpiry", error: null) [FAIL]
+[xUnit.net 00:00:08.03]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "zeroGeneration", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:08.14]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "closing", error: "not_found") [FAIL]
+[xUnit.net 00:00:08.19]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "revoked", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:08.26]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "future", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:08.33]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "expired", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:08.38]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "policy", error: "vault_access_denied") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "missing", error: "not_found") [466 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "disabledExpiry", error: "vault_access_denied") [60 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "noExpiry", error: null) [46 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "zeroGeneration", error: "vault_access_denied") [54 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "closing", error: "not_found") [106 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "revoked", error: "vault_access_denied") [44 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "future", error: "vault_access_denied") [66 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "expired", error: "vault_access_denied") [66 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "policy", error: "vault_access_denied") [54 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:08.47]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "terminal", error: "not_found") [FAIL]
+[xUnit.net 00:00:08.51]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "nullExpiry", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:08.55]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "access", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:08.60]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "zeroPolicy", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:08.68]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "generation", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:08.91]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "recipient") [FAIL]
+[xUnit.net 00:00:08.99]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "recipientPins") [FAIL]
+[xUnit.net 00:00:09.08]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "blob") [FAIL]
+[xUnit.net 00:00:09.17]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "collection") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "terminal", error: "not_found") [62 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "nullExpiry", error: "vault_access_denied") [32 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "access", error: "vault_access_denied") [37 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "zeroPolicy", error: "vault_access_denied") [56 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(kind: "generation", error: "vault_access_denied") [78 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCurrentAccountOrSessionState_WhenListing_ThenRevalidateWithoutMutation(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 61
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "recipient") [222 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "recipientPins") [78 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "blob") [93 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "collection") [84 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:09.27]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "signature") [FAIL]
+[xUnit.net 00:00:09.37]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "missingRecipientPins") [FAIL]
+[xUnit.net 00:00:09.43]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "collectionEnvelope") [FAIL]
+[xUnit.net 00:00:09.52]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "epoch") [FAIL]
+[xUnit.net 00:00:09.64]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "grant") [FAIL]
+[xUnit.net 00:00:09.73]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "ownerPins") [FAIL]
+[xUnit.net 00:00:09.84]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "missingOwnerPins") [FAIL]
+[xUnit.net 00:00:09.93]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "owner") [FAIL]
+[xUnit.net 00:00:10.04]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "revision") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "signature") [99 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "missingRecipientPins") [97 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "collectionEnvelope") [63 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "epoch") [84 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "grant") [114 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "ownerPins") [88 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "missingOwnerPins") [115 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "owner") [79 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(kind: "revision") [115 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 53
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:10.51]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedDirectAndFolderDescendantLinks_WhenListing_ThenIncludeOnlyCurrentOwnedSelectionWithoutDuplicates [FAIL]
+[xUnit.net 00:00:10.60]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeSharedContent_WhenReading_ThenUseOneSqlSnapshotEvenIfGrantRevokesAfterStatement [FAIL]
+[xUnit.net 00:00:10.66]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "unknownAccess") [FAIL]
+[xUnit.net 00:00:10.71]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ownerClosing") [FAIL]
+[xUnit.net 00:00:10.75]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "grantTerminal") [FAIL]
+[xUnit.net 00:00:10.78]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ownerTerminal") [FAIL]
+[xUnit.net 00:00:10.83]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "unsafeRevision") [FAIL]
+[xUnit.net 00:00:10.89]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ancestorTerminal") [FAIL]
+[xUnit.net 00:00:10.96]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "recordTrash") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedDirectAndFolderDescendantLinks_WhenListing_ThenIncludeOnlyCurrentOwnedSelectionWithoutDuplicates [464 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedDirectAndFolderDescendantLinks_WhenListing_ThenIncludeOnlyCurrentOwnedSelectionWithoutDuplicates() in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 30
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeSharedContent_WhenReading_ThenUseOneSqlSnapshotEvenIfGrantRevokesAfterStatement [85 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeSharedContent_WhenReading_ThenUseOneSqlSnapshotEvenIfGrantRevokesAfterStatement() in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 90
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "unknownAccess") [60 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ownerClosing") [46 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "grantTerminal") [34 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ownerTerminal") [32 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "unsafeRevision") [43 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ancestorTerminal") [63 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "recordTrash") [64 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.02]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "collectionTerminal") [FAIL]
+[xUnit.net 00:00:11.10]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "revoked") [FAIL]
+[xUnit.net 00:00:11.13]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "zeroRevision") [FAIL]
+[xUnit.net 00:00:11.17]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "recordTerminal") [FAIL]
+[xUnit.net 00:00:11.23]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ancestorTrash") [FAIL]
+[xUnit.net 00:00:11.29]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "wrongRecipient") [FAIL]
+[xUnit.net 00:00:11.35]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "collectionTrash") [FAIL]
+[xUnit.net 00:00:11.49]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "profileCollection") [FAIL]
+[xUnit.net 00:00:11.58]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "member") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "collectionTerminal") [58 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "revoked") [71 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "zeroRevision") [30 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "recordTerminal") [42 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "ancestorTrash") [56 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "wrongRecipient") [58 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(kind: "collectionTrash") [49 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenSharedAuthorityOrContent_WhenListing_ThenOmitBeforePaginationWithoutNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "profileCollection") [144 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 84
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "member") [79 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 84
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.69]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "session") [FAIL]
+[xUnit.net 00:00:11.86]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "grant") [FAIL]
+[xUnit.net 00:00:11.97]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnselectedGrantedCollectionWithCorruptWrapper_WhenListing_ThenDoNotDiscloseOrDenySelectedOwnContent [FAIL]
+[xUnit.net 00:00:12.07]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "both", selected: False) [FAIL]
+[xUnit.net 00:00:12.19]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "folder", selected: False) [FAIL]
+[xUnit.net 00:00:12.31]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "both", selected: True) [FAIL]
+[xUnit.net 00:00:12.44]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "direct", selected: False) [FAIL]
+[xUnit.net 00:00:12.56]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "both", selected: False) [FAIL]
+[xUnit.net 00:00:12.67]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "both", selected: True) [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "session") [108 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 84
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(kind: "grant") [163 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRevocationBetweenPages_WhenContinuing_ThenApplyCurrentPermissionWithoutFillingWithHiddenRows(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 84
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnselectedGrantedCollectionWithCorruptWrapper_WhenListing_ThenDoNotDiscloseOrDenySelectedOwnContent [106 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnselectedGrantedCollectionWithCorruptWrapper_WhenListing_ThenDoNotDiscloseOrDenySelectedOwnContent() in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 57
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "both", selected: False) [102 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(CollectionGrantAccess access, String membership, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 36
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "folder", selected: False) [110 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(CollectionGrantAccess access, String membership, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 36
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "both", selected: True) [122 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(CollectionGrantAccess access, String membership, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 36
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "direct", selected: False) [125 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(CollectionGrantAccess access, String membership, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 36
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "both", selected: False) [122 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(CollectionGrantAccess access, String membership, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 36
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "both", selected: True) [111 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(CollectionGrantAccess access, String membership, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 36
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.78]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "direct", selected: False) [FAIL]
+[xUnit.net 00:00:12.85]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "folder", selected: False) [FAIL]
+[xUnit.net 00:00:12.95]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRelevantCyclicAncestry_WhenListing_Then503WithoutHanging(selected: True) [FAIL]
+[xUnit.net 00:00:13.00]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRelevantCyclicAncestry_WhenListing_Then503WithoutHanging(selected: False) [FAIL]
+[xUnit.net 00:00:13.06]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptHiddenOrdering_WhenListing_ThenDoNotInspectOutOfScopeOrTrashedRows(selected: True) [FAIL]
+[xUnit.net 00:00:13.12]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptHiddenOrdering_WhenListing_ThenDoNotInspectOutOfScopeOrTrashedRows(selected: False) [FAIL]
+[xUnit.net 00:00:13.19]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "terminal", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:13.25]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "valid", error: null) [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadOnly, membership: "direct", selected: False) [101 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(CollectionGrantAccess access, String membership, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 36
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(access: ReadWrite, membership: "folder", selected: False) [76 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenNativeRecipientGrant_WhenListing_ThenExposeOnlyIncludedContentWithinCurrentSelectedCollection(CollectionGrantAccess access, String membership, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 36
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRelevantCyclicAncestry_WhenListing_Then503WithoutHanging(selected: True) [54 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRelevantCyclicAncestry_WhenListing_Then503WithoutHanging(Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 77
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRelevantCyclicAncestry_WhenListing_Then503WithoutHanging(selected: False) [46 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenRelevantCyclicAncestry_WhenListing_Then503WithoutHanging(Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 77
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptHiddenOrdering_WhenListing_ThenDoNotInspectOutOfScopeOrTrashedRows(selected: True) [59 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptHiddenOrdering_WhenListing_ThenDoNotInspectOutOfScopeOrTrashedRows(Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 71
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptHiddenOrdering_WhenListing_ThenDoNotInspectOutOfScopeOrTrashedRows(selected: False) [59 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenCorruptHiddenOrdering_WhenListing_ThenDoNotInspectOutOfScopeOrTrashedRows(Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 71
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "terminal", error: "vault_access_denied") [68 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 65
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "valid", error: null) [56 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 65
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.30]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "foreign", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:13.36]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "dangling", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:13.43]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "trash", error: "vault_access_denied") [FAIL]
+[xUnit.net 00:00:13.50]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenOwnedAncestor_WhenListingDirectlyLinkedRecord_ThenOmitInconsistentActiveDescendant(kind: "trash") [FAIL]
+[xUnit.net 00:00:13.56]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenOwnedAncestor_WhenListingDirectlyLinkedRecord_ThenOmitInconsistentActiveDescendant(kind: "terminal") [FAIL]
+[xUnit.net 00:00:13.65]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnrelatedCyclicAncestry_WhenListingSelection_ThenOmitWithoutAvailabilityOracle [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "foreign", error: "vault_access_denied") [48 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 65
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "dangling", error: "vault_access_denied") [63 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 65
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(kind: "trash", error: "vault_access_denied") [64 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedProfileLifecycle_WhenListing_ThenRequireCurrentOwnedActiveSelection(String kind, String error) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 65
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenOwnedAncestor_WhenListingDirectlyLinkedRecord_ThenOmitInconsistentActiveDescendant(kind: "trash") [68 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenOwnedAncestor_WhenListingDirectlyLinkedRecord_ThenOmitInconsistentActiveDescendant(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenOwnedAncestor_WhenListingDirectlyLinkedRecord_ThenOmitInconsistentActiveDescendant(kind: "terminal") [63 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenOwnedAncestor_WhenListingDirectlyLinkedRecord_ThenOmitInconsistentActiveDescendant(String kind) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnrelatedCyclicAncestry_WhenListingSelection_ThenOmitWithoutAvailabilityOracle [81 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenUnrelatedCyclicAncestry_WhenListingSelection_ThenOmitWithoutAvailabilityOracle() in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 80
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.79]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenExpiryImmediatelyBeforeSql_WhenListing_ThenDatabaseTimeDeniesWithoutMutation [FAIL]
+[xUnit.net 00:00:14.88]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludedDescendantsAreVisibleWithoutDirectProfileLinks [FAIL]
+[xUnit.net 00:00:14.93]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenForeignTrashAndTerminalRows_WhenPaging_ThenFilterBeforeTakeAndKeepInitialBoundary [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenExpiryImmediatelyBeforeSql_WhenListing_ThenDatabaseTimeDeniesWithoutMutation [1 s]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenExpiryImmediatelyBeforeSql_WhenListing_ThenDatabaseTimeDeniesWithoutMutation() in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 93
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludedDescendantsAreVisibleWithoutDirectProfileLinks [50 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludedDescendantsAreVisibleWithoutDirectProfileLinks() in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 40
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenForeignTrashAndTerminalRows_WhenPaging_ThenFilterBeforeTakeAndKeepInitialBoundary [54 ms]
+  Error Message:
+   System.InvalidOperationException : The required column 'actor_active' was not present in the results of a 'FromSql' operation.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.BuildIndexMap(IReadOnlyList`1 columnNames, DbDataReader dataReader)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 28
+   at ArturRios.Cerberus.Data.Records.RecordListStore.ListAsync(RecordListRequest request, CancellationToken ct) in /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs:line 123
+   at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenForeignTrashAndTerminalRows_WhenPaging_ThenFilterBeforeTakeAndKeepInitialBoundary() in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 25
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    76, Passed:     6, Skipped:     0, Total:    82, Duration: 8 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)

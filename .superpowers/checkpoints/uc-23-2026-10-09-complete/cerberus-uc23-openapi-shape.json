@@ -1,0 +1,50 @@
+{
+  "route": "POST /api/folders",
+  "requiredInput": [
+    "editedAt",
+    "envelope",
+    "folderId",
+    "profileIds"
+  ],
+  "parent": {
+    "type": "string",
+    "format": "uuid",
+    "nullable": true
+  },
+  "output": [
+    "editedAt",
+    "folderId",
+    "revision",
+    "serverSequence"
+  ],
+  "statuses": [
+    "201",
+    "400",
+    "401",
+    "403",
+    "404",
+    "409",
+    "413",
+    "503"
+  ],
+  "headerRequired": false,
+  "bodyRequired": false,
+  "outputRequired": [],
+  "empty413Metadata": {
+    "text/plain": {
+      "schema": {
+        "$ref": "#/components/schemas/ProblemDetails"
+      }
+    },
+    "application/json": {
+      "schema": {
+        "$ref": "#/components/schemas/ProblemDetails"
+      }
+    },
+    "text/json": {
+      "schema": {
+        "$ref": "#/components/schemas/ProblemDetails"
+      }
+    }
+  }
+}

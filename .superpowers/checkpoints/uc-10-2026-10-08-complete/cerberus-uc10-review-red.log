@@ -1,0 +1,125 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc10-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc10-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Domain.Tests -> /tmp/cerberus-uc10-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll
+Test run for /tmp/cerberus-uc10-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc10-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Shared.Tests -> /tmp/cerberus-uc10-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll
+Test run for /tmp/cerberus-uc10-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc10-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+No test matches the given testcase filter `FullyQualifiedName~ListProfilesHandlerTests|FullyQualifiedName~ProfileListStoreTests|FullyQualifiedName~ProfileListHttpTests` in /tmp/cerberus-uc10-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll
+
+  ArturRios.Cerberus.Command.Tests -> /tmp/cerberus-uc10-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll
+Test run for /tmp/cerberus-uc10-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `FullyQualifiedName~ListProfilesHandlerTests|FullyQualifiedName~ProfileListStoreTests|FullyQualifiedName~ProfileListHttpTests` in /tmp/cerberus-uc10-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll
+
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc10-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc10-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc10-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+  ArturRios.Cerberus.Query.Tests -> /tmp/cerberus-uc10-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Query.Tests.dll
+Test run for /tmp/cerberus-uc10-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Query.Tests.dll (.NETCoreApp,Version=v10.0)
+Starting test execution, please wait...
+VSTest version 18.0.2 (x64)
+
+No test matches the given testcase filter `FullyQualifiedName~ListProfilesHandlerTests|FullyQualifiedName~ProfileListStoreTests|FullyQualifiedName~ProfileListHttpTests` in /tmp/cerberus-uc10-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+[xUnit.net 00:00:00.49]     ArturRios.Cerberus.Query.Tests.ListProfilesHandlerTests.GivenCorruptStoredPage_WhenListing_ThenFailWholePageClosed(kind: "recipient") [FAIL]
+  Failed ArturRios.Cerberus.Query.Tests.ListProfilesHandlerTests.GivenCorruptStoredPage_WhenListing_ThenFailWholePageClosed(kind: "recipient") [4 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  "persistence_unavailable"
+  Stack Trace:
+     at ArturRios.Cerberus.Query.Tests.ListProfilesHandlerTests.GivenCorruptStoredPage_WhenListing_ThenFailWholePageClosed(String kind) in /tmp/cerberus-uc10-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ListProfilesHandlerTests.cs:line 71
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:    47, Skipped:     0, Total:    48, Duration: 255 ms - ArturRios.Cerberus.Query.Tests.dll (net10.0)
+[xUnit.net 00:00:08.36]     ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(kind: "excessive") [FAIL]
+[xUnit.net 00:00:08.42]     ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(kind: "zero") [FAIL]
+[xUnit.net 00:00:08.49]     ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(kind: "negative") [FAIL]
+[xUnit.net 00:00:08.57]     ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(kind: "duplicate") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(kind: "excessive") [105 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "persistence_unavailable"
+Actual:   null
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(String kind) in /tmp/cerberus-uc10-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileListStoreTests.cs:line 80
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(kind: "zero") [69 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "persistence_unavailable"
+Actual:   null
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(String kind) in /tmp/cerberus-uc10-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileListStoreTests.cs:line 80
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(kind: "negative") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "persistence_unavailable"
+Actual:   null
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(String kind) in /tmp/cerberus-uc10-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileListStoreTests.cs:line 80
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(kind: "duplicate") [74 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "persistence_unavailable"
+Actual:   null
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.ProfileListStoreTests.GivenCorruptPermittedSequence_WhenListingFirstPage_ThenUnavailableInsteadOfOmission(String kind) in /tmp/cerberus-uc10-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileListStoreTests.cs:line 80
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     4, Passed:    25, Skipped:     0, Total:    29, Duration: 3 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc10-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:11.02]     ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(corrupt: "zero") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(corrupt: "zero") [133 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   OK
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.Failure(HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 101
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 86
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 86
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 87
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.57]     ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(corrupt: "recipient") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(corrupt: "recipient") [284 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   OK
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.Failure(HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 101
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 86
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 86
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 87
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     2, Passed:    43, Skipped:     0, Total:    45, Duration: 7 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

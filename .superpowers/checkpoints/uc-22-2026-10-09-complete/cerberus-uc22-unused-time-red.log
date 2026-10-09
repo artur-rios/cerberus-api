@@ -1,0 +1,76 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc22-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc22-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc22-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v4.0.0+05679a7ab5 (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.14]   Discovering: ArturRios.Cerberus.Data.Tests
+[xUnit.net 00:00:00.47]   Discovered:  ArturRios.Cerberus.Data.Tests
+[xUnit.net 00:00:00.50]   Starting:    ArturRios.Cerberus.Data.Tests
+[testcontainers.org 00:00:00.16] Connected to Docker:
+  Host: unix:///var/run/docker.sock
+  Server Version: 29.8.2
+  Kernel Version: 7.0.0-34-generic
+  API Version: 1.56
+  Operating System: Ubuntu 26.04.1 LTS
+  Total Memory: 31.34 GB
+[testcontainers.org 00:00:00.41] Docker container 25620aa1cb49 created
+[testcontainers.org 00:00:00.45] Start Docker container 25620aa1cb49
+[testcontainers.org 00:00:00.61] Wait for Docker container 25620aa1cb49 to complete readiness checks
+[testcontainers.org 00:00:01.66] Docker container 25620aa1cb49 ready
+[testcontainers.org 00:00:01.83] Docker container d0f84c0205a2 created
+[testcontainers.org 00:00:01.84] Start Docker container d0f84c0205a2
+[testcontainers.org 00:00:01.97] Wait for Docker container d0f84c0205a2 to complete readiness checks
+[testcontainers.org 00:00:01.98] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container d0f84c0205a2
+[testcontainers.org 00:00:03.06] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container d0f84c0205a2
+[testcontainers.org 00:00:04.10] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container d0f84c0205a2
+[testcontainers.org 00:00:04.15] Docker container d0f84c0205a2 ready
+[xUnit.net 00:00:07.16]     ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(foreign: True) [FAIL]
+[xUnit.net 00:00:07.16]       Assert.Equal() Failure: Strings differ
+[xUnit.net 00:00:07.16]                  ↓ (pos 0)
+[xUnit.net 00:00:07.16]       Expected: "vault_access_denied"
+[xUnit.net 00:00:07.16]       Actual:   "persistence_unavailable"
+[xUnit.net 00:00:07.16]                  ↑ (pos 0)
+[xUnit.net 00:00:07.16]       Stack Trace:
+[xUnit.net 00:00:07.17]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs(132,0): at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(Boolean foreign)
+[xUnit.net 00:00:07.17]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs(134,0): at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(Boolean foreign)
+[xUnit.net 00:00:07.17]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:07.20]     ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(foreign: False) [FAIL]
+[xUnit.net 00:00:07.20]       Assert.Equal() Failure: Strings differ
+[xUnit.net 00:00:07.20]       Expected: null
+[xUnit.net 00:00:07.20]       Actual:   "persistence_unavailable"
+[xUnit.net 00:00:07.20]       Stack Trace:
+[xUnit.net 00:00:07.20]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs(132,0): at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(Boolean foreign)
+[xUnit.net 00:00:07.20]         /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs(134,0): at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(Boolean foreign)
+[xUnit.net 00:00:07.20]         --- End of stack trace from previous location ---
+[testcontainers.org 00:00:06.59] Delete Docker container d0f84c0205a2
+[xUnit.net 00:00:07.41]   Finished:    ArturRios.Cerberus.Data.Tests
+  Failed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(foreign: True) [1 s]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "vault_access_denied"
+Actual:   "persistence_unavailable"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(Boolean foreign) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs:line 132
+   at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(Boolean foreign) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs:line 134
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(foreign: False) [36 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: null
+Actual:   "persistence_unavailable"
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(Boolean foreign) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs:line 132
+   at ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenInvalidUnusedClientTimestamp_WhenPermanentlyDeleting_ThenOwnedErasureOrForeign403DoesNotParseIt(Boolean foreign) in /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs:line 134
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 2
+     Failed: 2
+ Total time: 7.8768 Seconds

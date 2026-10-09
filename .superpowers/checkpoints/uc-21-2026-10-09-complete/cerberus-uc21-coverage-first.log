@@ -1,0 +1,168 @@
+$ dotnet test /tmp/cerberus-uc21-worktree/src/ArturRios.Cerberus.sln --collect:XPlat Code Coverage
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc21-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc21-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc21-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc21-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc21-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Shared.Tests -> /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll
+  ArturRios.Cerberus.Domain.Tests -> /tmp/cerberus-uc21-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll
+  ArturRios.Cerberus.Query.Tests -> /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Query.Tests.dll
+Test run for /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Query.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /tmp/cerberus-uc21-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+VSTest version 18.0.2 (x64)
+
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc21-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc21-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   313, Skipped:     0, Total:   313, Duration: 222 ms - ArturRios.Cerberus.Domain.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   125, Skipped:     0, Total:   125, Duration: 308 ms - ArturRios.Cerberus.Shared.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   259, Skipped:     0, Total:   259, Duration: 343 ms - ArturRios.Cerberus.Query.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  1446, Skipped:     0, Total:  1446, Duration: 5 m 13 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)
+  ArturRios.Cerberus.Command.Tests -> /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc21-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+Test run for /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   717, Skipped:     0, Total:   717, Duration: 1 s - ArturRios.Cerberus.Command.Tests.dll (net10.0)
+[xUnit.net 00:01:33.68]     ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenNewAccount_WhenPostingRegistration_ThenBindIdentityAndPreserveCiphertextWithoutKeys [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenNewAccount_WhenPostingRegistration_ThenBindIdentityAndPreserveCiphertextWithoutKeys [370 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   Forbidden
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenNewAccount_WhenPostingRegistration_ThenBindIdentityAndPreserveCiphertextWithoutKeys() in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+[xUnit.net 00:01:35.04]     ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenPendingMfa_WhenPosting_ThenRequireCompletionBeforeBinding [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenPendingMfa_WhenPosting_ThenRequireCompletionBeforeBinding [142 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   Forbidden
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenPendingMfa_WhenPosting_ThenRequireCompletionBeforeBinding() in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs:line 118
+--- End of stack trace from previous location ---
+[xUnit.net 00:01:35.48]     ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenConcurrentIdenticalRegistration_WhenPosting_ThenReturnOneCreatedOutcomeAndIdempotentReplays [FAIL]
+[xUnit.net 00:01:35.97]     ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenRequiredIdentityFailure_WhenPosting_ThenFailClosedWithStableRedactedOutcome(prefix: "missing", expected: NotFound) [FAIL]
+[xUnit.net 00:01:36.22]     ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenRequiredIdentityFailure_WhenPosting_ThenFailClosedWithStableRedactedOutcome(prefix: "unavailable", expected: ServiceUnavailable) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenConcurrentIdenticalRegistration_WhenPosting_ThenReturnOneCreatedOutcomeAndIdempotentReplays [426 ms]
+  Error Message:
+   Assert.Single() Failure: The collection did not contain any matching items
+Expected:   (predicate expression)
+Collection: [StatusCode: 403, ReasonPhrase: 'Forbidden', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+  Content-Type: application/json; charset=utf-8
+}, StatusCode: 403, ReasonPhrase: 'Forbidden', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+  Content-Type: application/json; charset=utf-8
+}, StatusCode: 403, ReasonPhrase: 'Forbidden', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+  Content-Type: application/json; charset=utf-8
+}, StatusCode: 403, ReasonPhrase: 'Forbidden', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+  Content-Type: application/json; charset=utf-8
+}, StatusCode: 403, ReasonPhrase: 'Forbidden', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+  Content-Type: application/json; charset=utf-8
+}, ···]
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenConcurrentIdenticalRegistration_WhenPosting_ThenReturnOneCreatedOutcomeAndIdempotentReplays() in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs:line 168
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenRequiredIdentityFailure_WhenPosting_ThenFailClosedWithStableRedactedOutcome(prefix: "missing", expected: NotFound) [184 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   Forbidden
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenRequiredIdentityFailure_WhenPosting_ThenFailClosedWithStableRedactedOutcome(String prefix, HttpStatusCode expected) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs:line 92
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenRequiredIdentityFailure_WhenPosting_ThenFailClosedWithStableRedactedOutcome(prefix: "unavailable", expected: ServiceUnavailable) [143 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   Forbidden
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenRequiredIdentityFailure_WhenPosting_ThenFailClosedWithStableRedactedOutcome(String prefix, HttpStatusCode expected) in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs:line 92
+--- End of stack trace from previous location ---
+[xUnit.net 00:01:36.49]     ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenHarnessContentEnvelope_WhenRegistering_ThenAcceptAndPreserveEveryField [FAIL]
+[xUnit.net 00:01:36.61]     ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenExistingIdentityWithoutOwnershipProof_WhenPosting_ThenNeverLinkByEmail [FAIL]
+[xUnit.net 00:01:36.68]     ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenLocalPersistenceFailureAfterIdentityCreation_WhenRetrying_ThenReconcileWithoutDuplicateIdentity [FAIL]
+[xUnit.net 00:01:36.75]     ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenExistingIdentityWithCompletedProof_WhenPosting_ThenBindOnlyProvedIdentity [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenHarnessContentEnvelope_WhenRegistering_ThenAcceptAndPreserveEveryField [77 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   Forbidden
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenHarnessContentEnvelope_WhenRegistering_ThenAcceptAndPreserveEveryField() in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs:line 32
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenExistingIdentityWithoutOwnershipProof_WhenPosting_ThenNeverLinkByEmail [104 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   Forbidden
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenExistingIdentityWithoutOwnershipProof_WhenPosting_ThenNeverLinkByEmail() in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs:line 107
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenLocalPersistenceFailureAfterIdentityCreation_WhenRetrying_ThenReconcileWithoutDuplicateIdentity [76 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   Forbidden
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenLocalPersistenceFailureAfterIdentityCreation_WhenRetrying_ThenReconcileWithoutDuplicateIdentity() in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs:line 144
+   at ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenLocalPersistenceFailureAfterIdentityCreation_WhenRetrying_ThenReconcileWithoutDuplicateIdentity() in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs:line 150
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenExistingIdentityWithCompletedProof_WhenPosting_ThenBindOnlyProvedIdentity [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   Forbidden
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RegistrationHttpTests.GivenExistingIdentityWithCompletedProof_WhenPosting_ThenBindOnlyProvedIdentity() in /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs:line 131
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     9, Passed:  1364, Skipped:     0, Total:  1373, Duration: 5 m 14 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)
+
+Attachments:
+  /tmp/cerberus-uc21-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/f101d0a5-e6b7-4144-aa58-75379384dee0/coverage.cobertura.xml
+  /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/edd0a8ec-46e7-4d3a-8598-7b617ede6814/coverage.cobertura.xml
+  /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/8489514b-544e-4e27-b267-f73b04a9b9e6/coverage.cobertura.xml
+  /tmp/cerberus-uc21-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/b63c36ac-0e67-45d9-b4a0-a1a9944cdb67/coverage.cobertura.xml
+  /tmp/cerberus-uc21-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/cc242604-351a-4ff2-b525-c4f1b59921fb/coverage.cobertura.xml
+  /tmp/cerberus-uc21-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/9b00c340-42da-4b09-b834-38c2aa0341f5/coverage.cobertura.xml
+Tests failed; the report was not regenerated.

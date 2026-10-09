@@ -1,0 +1,6 @@
+87|idle in transaction|Client|ClientRead|{}|WITH RECURSIVE actor AS (
+                    SELECT a.* FROM cerberus.account a WHERE a.heimdall_public_id=$1
+                ), session AS (
+                    SELECT s.* FROM cerberus.vault_access
+88|active|Lock|transactionid|{87}|INSERT INTO cerberus.collection_record (collection_id, record_id, account_id)
+VALUES ($1, $2, $3)

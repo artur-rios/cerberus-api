@@ -1,0 +1,84 @@
+$ dotnet test /tmp/cerberus-uc13-worktree/src/ArturRios.Cerberus.sln --collect:XPlat Code Coverage
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc13-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/ArturRios.Cerberus.Domain.Tests.csproj (in 427 ms).
+  Restored /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ArturRios.Cerberus.Query.Tests.csproj (in 521 ms).
+  Restored /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/ArturRios.Cerberus.Shared.Tests.csproj (in 521 ms).
+  9 of 12 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc13-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc13-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc13-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc13-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc13-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Domain.Tests -> /tmp/cerberus-uc13-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll
+Test run for /tmp/cerberus-uc13-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+  ArturRios.Cerberus.Query.Tests -> /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Query.Tests.dll
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  ArturRios.Cerberus.Shared.Tests -> /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll
+Test run for /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Query.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc13-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc13-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   198, Skipped:     0, Total:   198, Duration: 200 ms - ArturRios.Cerberus.Domain.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   125, Skipped:     0, Total:   125, Duration: 313 ms - ArturRios.Cerberus.Shared.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   103, Skipped:     0, Total:   103, Duration: 281 ms - ArturRios.Cerberus.Query.Tests.dll (net10.0)
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc13-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.Command.Tests -> /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll
+Test run for /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc13-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc13-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+Starting test execution, please wait...
+VSTest version 18.0.2 (x64)
+
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   269, Skipped:     0, Total:   269, Duration: 662 ms - ArturRios.Cerberus.Command.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   639, Skipped:     0, Total:   639, Duration: 1 m 6 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   511, Skipped:     0, Total:   511, Duration: 1 m 29 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)
+
+Attachments:
+  /tmp/cerberus-uc13-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/9428c1a6-4a3e-4578-b67d-97463fc99e76/coverage.cobertura.xml
+  /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/b2c962a5-6016-4eb6-b7dd-0f65b68a0a9b/coverage.cobertura.xml
+  /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/41e0c941-4632-41d1-b8ca-e6033e627c31/coverage.cobertura.xml
+  /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/b16a0bc6-9a6a-4751-87de-33568e422d85/coverage.cobertura.xml
+  /tmp/cerberus-uc13-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/0ff002b2-d41c-4587-9410-64b120abb963/coverage.cobertura.xml
+  /tmp/cerberus-uc13-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/4718c5c4-51ba-4861-b189-ca8d2b264dd9/coverage.cobertura.xml
+Found 6 coverage file(s)
+REPORTGENERATOR_LICENSE is not set; generating with the free version
+$ reportgenerator -reports:/tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/b16a0bc6-9a6a-4751-87de-33568e422d85/coverage.cobertura.xml;/tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/41e0c941-4632-41d1-b8ca-e6033e627c31/coverage.cobertura.xml;/tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/b2c962a5-6016-4eb6-b7dd-0f65b68a0a9b/coverage.cobertura.xml;/tmp/cerberus-uc13-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/9428c1a6-4a3e-4578-b67d-97463fc99e76/coverage.cobertura.xml;/tmp/cerberus-uc13-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/4718c5c4-51ba-4861-b189-ca8d2b264dd9/coverage.cobertura.xml;/tmp/cerberus-uc13-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/0ff002b2-d41c-4587-9410-64b120abb963/coverage.cobertura.xml -targetdir:/tmp/cerberus-uc13-worktree/docs/coverage-report -reporttypes:Html;JsonSummary -assemblyfilters:+ArturRios.Cerberus.*;-*.Tests -title:Cerberus API
+2026-10-08T19:39:30: Arguments
+2026-10-08T19:39:30:  -reports:/tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/b16a0bc6-9a6a-4751-87de-33568e422d85/coverage.cobertura.xml;/tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/41e0c941-4632-41d1-b8ca-e6033e627c31/coverage.cobertura.xml;/tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/b2c962a5-6016-4eb6-b7dd-0f65b68a0a9b/coverage.cobertura.xml;/tmp/cerberus-uc13-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/9428c1a6-4a3e-4578-b67d-97463fc99e76/coverage.cobertura.xml;/tmp/cerberus-uc13-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/4718c5c4-51ba-4861-b189-ca8d2b264dd9/coverage.cobertura.xml;/tmp/cerberus-uc13-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/0ff002b2-d41c-4587-9410-64b120abb963/coverage.cobertura.xml
+2026-10-08T19:39:30:  -targetdir:/tmp/cerberus-uc13-worktree/docs/coverage-report
+2026-10-08T19:39:30:  -reporttypes:Html;JsonSummary
+2026-10-08T19:39:30:  -assemblyfilters:+ArturRios.Cerberus.*;-*.Tests
+2026-10-08T19:39:30:  -title:Cerberus API
+2026-10-08T19:39:31: Writing report file '/tmp/cerberus-uc13-worktree/docs/coverage-report/index.html'
+2026-10-08T19:39:31: Writing report file '/tmp/cerberus-uc13-worktree/docs/coverage-report/Summary.json'
+2026-10-08T19:39:31: Report generation took 0.6 seconds
+
+Report written to /tmp/cerberus-uc13-worktree/docs/coverage-report
+Line coverage 97.9% (minimum 90.0%)
+Open the HTML report at: /tmp/cerberus-uc13-worktree/docs/coverage-report/index.html

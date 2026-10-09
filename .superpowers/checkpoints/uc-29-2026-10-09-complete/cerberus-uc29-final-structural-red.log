@@ -1,0 +1,143 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc29-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc29-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc29-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:08.38]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "record", field: "unsafe") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "record", field: "unsafe") [1 s]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:08.76]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "folder", field: "purge") [FAIL]
+[xUnit.net 00:00:08.93]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "folder", field: "time") [FAIL]
+[xUnit.net 00:00:09.10]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "folder", field: "unsafe") [FAIL]
+[xUnit.net 00:00:09.23]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "record", field: "time") [FAIL]
+[xUnit.net 00:00:09.53]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "folder", field: "zero") [FAIL]
+[xUnit.net 00:00:09.63]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "profile", field: "purge") [FAIL]
+[xUnit.net 00:00:09.75]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "record", field: "purge") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "folder", field: "purge") [168 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "folder", field: "time") [161 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "folder", field: "unsafe") [178 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "record", field: "time") [119 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "folder", field: "zero") [108 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "profile", field: "purge") [101 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "record", field: "purge") [117 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:10.11]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "profile", field: "time") [FAIL]
+[xUnit.net 00:00:10.27]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "profile", field: "zero") [FAIL]
+[xUnit.net 00:00:11.19]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "record", field: "zero") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "profile", field: "time") [189 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "profile", field: "zero") [155 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "record", field: "zero") [278 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.52]     ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "profile", field: "unsafe") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(kind: "profile", field: "unsafe") [126 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "persistence_unavailable"
+Actual:   "revision_conflict"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.CollectionCreateStoreTests.GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(String kind, String field) in /tmp/cerberus-uc29-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs:line 534
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    12, Passed:     6, Skipped:     0, Total:    18, Duration: 4 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)

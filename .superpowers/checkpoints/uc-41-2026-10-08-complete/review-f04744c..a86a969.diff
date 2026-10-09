@@ -1,0 +1,1507 @@
+# Review package: f04744c..HEAD
+
+## Commits
+a86a969 feat: expose recovery refresh and material read
+8439f77 feat: authorize atomic recovery key refresh
+79d6cfb feat: model recovery key refresh transition
+ec3dff7 docs: plan recovery key refresh
+
+## Files changed
+ README.md                                          |   4 +-
+ docs/contracts/openapi.json                        | 318 +++++++++++++++++++++
+ .../Operations & Infrastructure Document.md        |  10 +
+ docs/security/vault-protection-api.md              |  45 ++-
+ .../plans/2026-10-08-uc-41-refresh-recovery-key.md |  48 ++++
+ ...2026-10-08-uc-41-refresh-recovery-key-design.md |  30 ++
+ .../Protection/RecoverVaultCommand.cs              |   5 +-
+ .../Protection/RecoverVaultHandler.cs              |   9 +-
+ .../Protection/VaultValidators.cs                  |   2 +-
+ .../Protection/RecoveryReplacement.cs              |   4 +-
+ .../Protection/VaultProtectionStore.cs             |   2 +-
+ .../Protection/VaultRecoveryStore.cs               |  36 ++-
+ .../Controllers/VaultController.cs                 |  31 +-
+ .../VaultRecoveryRefreshHandlerTests.cs            |  55 ++++
+ .../RecoveryReplacementTests.cs                    |  16 +-
+ .../VaultRecoveryRefreshStoreTests.cs              | 243 ++++++++++++++++
+ .../VaultRecoveryRefreshHttpTests.cs               | 172 +++++++++++
+ 17 files changed, 1011 insertions(+), 19 deletions(-)
+
+## Diff
+diff --git a/README.md b/README.md
+index b8d2522..6318a4e 100644
+--- a/README.md
++++ b/README.md
+@@ -104,21 +104,21 @@ no server and requires no deployment credentials.
+ ## Roadmap
+ 
+ Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
+ Each use case has one issue; the foundation issue comes first. Every milestone depends on
+ Foundation, with dependencies only on earlier milestones. Counts below are the snapshot at
+ creation; GitHub milestone pages show live progress. No due dates or labels were assigned.
+ 
+ | Milestone | Delivers | Depends on | Issues | Status |
+ | --- | --- | --- | --- | --- |
+ | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
+-| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 8 / 9 closed |
++| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 9 / 9 closed |
+ | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 0 / 26 closed |
+ | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
+ | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
+ | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
+ 
+ ## Backlog
+ 
+ ### M-01 — Foundation
+ 
+ | Issue | Work | Spec | Status |
+@@ -130,21 +130,21 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Done |
+ | [#3](https://github.com/artur-rios/cerberus-api/issues/3) | UC-02 — Authenticate | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-02-authenticate) | Done |
+ | [#4](https://github.com/artur-rios/cerberus-api/issues/4) | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | Done |
+ | [#5](https://github.com/artur-rios/cerberus-api/issues/5) | UC-04 — Update account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-04-update-account) | Done |
+ | [#6](https://github.com/artur-rios/cerberus-api/issues/6) | UC-05 — Update identity details | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-05-update-identity-details) | Done |
+ | [#39](https://github.com/artur-rios/cerberus-api/issues/39) | UC-38 — Initialize vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-38-initialize-vault-protection) | Done |
+ | [#40](https://github.com/artur-rios/cerberus-api/issues/40) | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | Done |
+ | [#41](https://github.com/artur-rios/cerberus-api/issues/41) | UC-40 — Recover vault access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-40-recover-vault-access) | Done |
+-| [#42](https://github.com/artur-rios/cerberus-api/issues/42) | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | Todo |
++| [#42](https://github.com/artur-rios/cerberus-api/issues/42) | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | Done |
+ 
+ ### M-03 — Organized vault
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#10](https://github.com/artur-rios/cerberus-api/issues/10) | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | Todo |
+ | [#11](https://github.com/artur-rios/cerberus-api/issues/11) | UC-10 — List profiles | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-10-list-profiles) | Todo |
+ | [#12](https://github.com/artur-rios/cerberus-api/issues/12) | UC-11 — Get profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-11-get-profile) | Todo |
+ | [#13](https://github.com/artur-rios/cerberus-api/issues/13) | UC-12 — Update profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-12-update-profile) | Todo |
+ | [#14](https://github.com/artur-rios/cerberus-api/issues/14) | UC-13 — Delete profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-13-delete-profile) | Todo |
+diff --git a/docs/contracts/openapi.json b/docs/contracts/openapi.json
+index 69c0661..5600262 100644
+--- a/docs/contracts/openapi.json
++++ b/docs/contracts/openapi.json
+@@ -1559,20 +1559,338 @@
+                 }
+               },
+               "text/json": {
+                 "schema": {
+                   "$ref": "#/components/schemas/RecoverVaultOutputDataOutput"
+                 }
+               }
+             }
+           }
+         }
++      },
++      "put": {
++        "tags": [
++          "Vault"
++        ],
++        "parameters": [
++          {
++            "name": "X-Cerberus-Vault-Access",
++            "in": "header",
++            "schema": {
++              "type": "string"
++            }
++          },
++          {
++            "name": "X-Cerberus-Challenge-Id",
++            "in": "header",
++            "schema": {
++              "type": "string"
++            }
++          },
++          {
++            "name": "X-Cerberus-Proof",
++            "in": "header",
++            "schema": {
++              "type": "string"
++            }
++          }
++        ],
++        "requestBody": {
++          "content": {
++            "application/json": {
++              "schema": {
++                "$ref": "#/components/schemas/RecoverVaultCommand"
++              }
++            },
++            "text/json": {
++              "schema": {
++                "$ref": "#/components/schemas/RecoverVaultCommand"
++              }
++            },
++            "application/*+json": {
++              "schema": {
++                "$ref": "#/components/schemas/RecoverVaultCommand"
++              }
++            }
++          }
++        },
++        "responses": {
++          "400": {
++            "description": "Bad Request",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "401": {
++            "description": "Unauthorized",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "404": {
++            "description": "Not Found",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "409": {
++            "description": "Conflict",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "503": {
++            "description": "Service Unavailable",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "200": {
++            "description": "OK",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/RecoverVaultOutputDataOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/RecoverVaultOutputDataOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/RecoverVaultOutputDataOutput"
++                }
++              }
++            }
++          },
++          "403": {
++            "description": "Forbidden",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          }
++        }
++      }
++    },
++    "/api/vault/recovery-material": {
++      "get": {
++        "tags": [
++          "Vault"
++        ],
++        "responses": {
++          "400": {
++            "description": "Bad Request",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "401": {
++            "description": "Unauthorized",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "404": {
++            "description": "Not Found",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "409": {
++            "description": "Conflict",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "503": {
++            "description": "Service Unavailable",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "200": {
++            "description": "OK",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/VaultProtectionOutputDataOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/VaultProtectionOutputDataOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/VaultProtectionOutputDataOutput"
++                }
++              }
++            }
++          }
++        }
+       }
+     },
+     "/api/vault/challenges": {
+       "post": {
+         "tags": [
+           "Vault"
+         ],
+         "requestBody": {
+           "content": {
+             "application/json": {
+diff --git a/docs/requirements/Operations & Infrastructure Document.md b/docs/requirements/Operations & Infrastructure Document.md
+index 2291736..2882efc 100644
+--- a/docs/requirements/Operations & Infrastructure Document.md	
++++ b/docs/requirements/Operations & Infrastructure Document.md	
+@@ -346,10 +346,20 @@ original-body proof binding and ambiguous-response retry behavior.
+ UC40 adds `VaultRecoveryOperations`, a unique own-account/idempotency-key table
+ containing only the original body digest and committed protection/recovery/revocation
+ counters. It contains no credentials, proofs, wrappers or access handles and cascades
+ with account erasure. Apply the additive `VaultRecoveryOperations` migration before
+ serving recovery. Recovery locks the account, rechecks current lifecycle/policy and
+ signed-iat freshness against database statement time, then atomically consumes the
+ old recovery proof and replaces wrappers/verifier/counters/outcome. Exact retries
+ return the historical result after challenge expiry or cleanup; clients retrieve
+ latest protection separately. Current fresh provider identity remains mandatory,
+ and different body bytes with the same key conflict. Secrets remain client-held.
++
++UC41 reuses the recovery-outcome table and atomic transition with current account-wide
++session authorization and the old unlock key. No additional migration is needed.
++New refresh requests lock account then session and recheck identity/challenge/session
++expiry at statement time; failure rolls back consumption/wrappers/counters/outcome.
++Exact completed retries under fresh current identity return historical counters even
++when the original handle is now stale; they perform no new operation. A changed
++purpose/body conflicts under the same account/idempotency key. The named fresh
++recovery-material read creates no session and consumes no credential. Secrets remain
++client-held; independent protocol/client approvals and strict release gate persist.
+diff --git a/docs/security/vault-protection-api.md b/docs/security/vault-protection-api.md
+index f72293c..1b3528e 100644
+--- a/docs/security/vault-protection-api.md
++++ b/docs/security/vault-protection-api.md
+@@ -1,13 +1,13 @@
+ # Vault protection and account unlock API
+ 
+-Development contract for UC38–40. The independent protocol/client review is deferred
++Development contract for UC38–41. The independent protocol/client review is deferred
+ by the owner; the actual approval record remains pending and release is gated.
+ Use TLS at the deployed API boundary and to Heimdall. All responses are no-store.
+ 
+ ## Initialize and retrieve protection
+ 
+ POST `/api/vault/protection` accepts exactly `accountId`, `expectedAccountRevision`
+ and `material`. Use the public account ID/revision returned by registration or login;
+ actor identity is always derived from the current signed/currently revalidated bearer.
+ The owner account must be active and non-erased. No existing session is required to
+ bootstrap the first protection state. Success201 returns `accountId`,
+@@ -176,10 +176,53 @@ back everything, allowing the identical proof to retry.
+ After a lost response, retry the exact original bytes and idempotency key with
+ current fresh identity. The durable own-account/key/body-digest result is returned
+ before consumed, expired, cleaned-up challenge or current generation checks, even
+ if the signature has an equivalent valid representation. This is the **original
+ historical outcome**; GET latest protection before deciding what state is current.
+ Reuse of the key with different original bytes returns409. Identity freshness and
+ current account/provider authorization still apply to retries. Missing/invalid proof
+ 401, malformed input400, hidden/inactive account404 and required dependency503
+ preserve state. The replacement recovery secret is displayed/stored only by the
+ client; neither the stored outcome nor a replay can recover it.
++
++## Refresh the recovery credential (UC41)
++
++PUT `/api/vault/recovery` accepts the same six fields as recovery, with exactly
++`operation:"refresh-recovery"`. POST remains recover-only and PUT refresh-only.
++Generate a new secret and independent recovery key locally; replace both complete
++wrappers using slot epoch+1, recovery generation+1 and fresh visible contexts.
++The native full-wrapper transition requires a fresh password wrapper too. A flow
++preserving that wrapper needs a separately reviewed protocol. All content and
++unlock/recipient/author pins stay unchanged.
++
++For a new refresh, present current own account-wide `X-Cerberus-Vault-Access`, obtain
++a `refresh-recovery` challenge (generation:null), and sign its original-byte binding
++with the **old registered unlock key**. The old recovery key cannot refresh; the
++unlock key cannot recover. Current provider identity and signed-iat freshness apply
++at submission and after account/session locks. Session policy/revocation/scope and
++exclusive identity/challenge/session expiry are checked again at the consumption
++statement. Missing handle401, malformed400, denied current session403, invalid
++proof401, hidden account404, stale revision/challenge409 and dependency503 preserve
++all state. A changed policy makes a session bound to the old policy invalid403.
++
++The complete wrappers/new recovery verifier, protection/slot/recovery/revocation
++increments, challenge consumption and durable outcome commit together. Superseded
++recovery fails for future new operations; new recovery works after refresh. Old
++sessions are stale; prove a new unlock before another operation. No secret/access
++handle is returned. Response fields match the four recovery outcome fields.
++
++An exact completed refresh retry with fresh current owner identity and the original
++canonical handle/body/key can return its historical outcome after the original
++handle or challenge expires or is superseded. This native idempotency path performs
++no new transition and does not authorize a new operation. Different body bytes or
++purpose under the same key conflict409. GET current protection before acting on a
++historical result. Current identity/provider/lifecycle and freshness always apply.
++
++## Fresh recovery material read
++
++GET `/api/vault/recovery-material` returns the same own public counters and opaque
++protection material as GET protection, with fresh signed-iat/current provider
++identity required. It needs no existing vault session, accepts no query/body,
++creates no session and consumes no challenge or recovery credential. Responses
++are no-store. Missing/hidden/closing/erased protection404, unfresh/invalid identity401,
++malformed request400 and required dependency503. Local decryption, key verification
++and replacement-secret presentation remain the client's responsibility.
+diff --git a/docs/superpowers/plans/2026-10-08-uc-41-refresh-recovery-key.md b/docs/superpowers/plans/2026-10-08-uc-41-refresh-recovery-key.md
+new file mode 100644
+index 0000000..22de828
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-08-uc-41-refresh-recovery-key.md
+@@ -0,0 +1,48 @@
++# UC41 Refresh recovery key implementation plan
++
++> REQUIRED: executing-plans inline, test-driven development, one final ordinary whole-branch review. Existing explicit batch authorization replaces approval gates.
++
++**Goal:** issue42 authorized full-wrapper refresh, old recovery invalidation and the missing named fresh recovery-material read.
++**Architecture:** extend tested strict RecoveryReplacement/Request and shared atomic recovery store/handler; PUT pins refresh purpose, POST pins recover; no new migration/dependency/secret handling.
++**Spec:** docs/superpowers/specs/2026-10-08-uc-41-refresh-recovery-key-design.md.
++
++## Global Constraints
++
++- Fresh/current owner+account-wide session+old unlock proof for new refresh operation; native six-field/full-wrapper protocol.
++- Current slot/recovery/protection/revocation increments, retained pins/content unchanged; safe counters/fresh contexts.
++- Original bytes, purpose/identity/scope/epoch/revision binding; null refresh challenge generation.
++- Account/session locks and fresh statement timestamps; expiry checked at atomic consume, rollback all writes.
++- Historical exact retries before consumed/expired/current-session checks; current/fresh owner still mandatory, no secret returned.
++- Full main/AF01–05, unfiltered0fail0skip/line>=90/reportbranch, single ordinary review/CI before merge.
++
++## Review Focus
++
++- POST cannot invoke refresh; PUT cannot invoke recover, even with valid signatures.
++- Recovery key cannot authorize refresh; current unlock key cannot recover; fresh new recovery key proves neither old credential.
++- Natural session/challenge/identity expiry after waiting for account/session lock rejects without consumption.
++- Refreshed generation invalidates old recovery and old handles; new unlock and new recovery succeed.
++- Exact committed retry under stale original handle returns historical nonsecret outcome without another transition; changed bytes/purpose conflict.
++- Named recovery-material GET requires fresh/current identity and never consumes or creates sessions.
++
++### Task 1: Native refresh transition contracts
++
++**Files:** Domain/Protection/RecoveryReplacement.cs; Domain.Tests/RecoveryReplacementTests.cs.
++**Interfaces:** existing RecoveryReplacement.IsValid accepts recover/refresh-recovery; existing RecoveryRequest adds optional string? AccessVerifier=null after Replacement. Existing callers compile unchanged. Pure transition validation/material replacement shared.
++- [ ] Write refresh full-wrapper/pin/generation/context tests and unsupported-operation regression; observe refresh rejected RED.
++- [ ] Extend strict contracts, full Domain GREEN, commit/ledger.
++
++### Task 2: Current-session authorized atomic refresh
++
++**Files:** Data/Protection/VaultRecoveryStore.cs, VaultProtectionStore.cs; Data.Tests/VaultRecoveryRefreshStoreTests.cs.
++**Interfaces:** shared RecoverAsync(RecoveryRequest,ct); operation selects old recovery/current unlock key and generation binding. Challenge accepts refresh-recovery with null generation. Reuse unique outcomes; no migration.
++- [ ] Real PostgreSQL refresh/new recovery/old credential rejection; denied session variants, wrong key/purpose/body, lifecycle/revision/policy/overflow, lock-wait account/session/proof/iat expiry, concurrent same/different-key, historical replay/purpose collision, actual outage/cancel and post-consumption rollback. Observe unsupported purpose RED.
++- [ ] Implement account-first/current session locks and statement-time consume checks, purpose-selected native key, atomic replacement/outcome. Full Data GREEN, commit/ledger.
++
++### Task 3: Strict PUT refresh and named fresh recovery read
++
++**Files:** shared RecoverVaultCommand/Validator/Handler, challenge validator/handler, VaultController; Command.Tests/VaultRecoveryRefreshHandlerTests.cs; WebApi.Tests/VaultRecoveryRefreshHttpTests.cs; docs/README/OpenAPI.
++**Interfaces:** existing command SetContext adds optional access=null internal; handler hashes access only for refresh; same six public fields/four output. POST checks operation recover; PUT checks refresh-recovery. GET recovery-material shares GetVaultProtectionQuery projection and strict GET body/query checks, requires fresh current identity.
++- [ ] Command context/access/purpose/hash/projection/error/cancel/challenge generation tests RED; implement full Command GREEN.
++- [ ] HTTP missing PUT/read RED; implement native refresh→old recovery denial→new unlock/recovery, exact retry, AFs/strictness/current and fresh identity, read no consumption/session. Full WebApi GREEN.
++- [ ] Docs/README UC41Done/M02 9/9, supporting UC40 read correction; generate/inspect OpenAPI; helpers/spec/drift/diff/full unfiltered coverage; commit/ledger.
++- [ ] One final ordinary review/blocker correction pass if needed; required CI/pinned merge/issueDone/branch absence/tested tree equality/archive/sync.
+diff --git a/docs/superpowers/specs/2026-10-08-uc-41-refresh-recovery-key-design.md b/docs/superpowers/specs/2026-10-08-uc-41-refresh-recovery-key-design.md
+new file mode 100644
+index 0000000..1f95608
+--- /dev/null
++++ b/docs/superpowers/specs/2026-10-08-uc-41-refresh-recovery-key-design.md
+@@ -0,0 +1,30 @@
++# UC41 Refresh recovery key design
++
++Issue42 implements UC41 main/AF01–05, FRKY11/12 and BR10/12/14. Fresh specs/permissions/testing/operations and native recovery_model.py read. Explicit batch authorization covers verified develop delivery; independent security/client approval remains deferred for development and release-gated.
++
++## Contract and architecture
++
++PUT `/api/vault/recovery` reuses the existing strict six-field RecoverVaultCommand and four-field RecoverVaultOutput with `operation:"refresh-recovery"`. POST remains explicitly recover-only. Share the tested transition/store/handler rather than duplicate atomic recovery logic. Both wrappers must move slot epoch+1, recovery generation+1, fresh salts/nonces/KDF salt; new independent recovery verifier differs from every old role. Preserve unlock/recipient/author pins, all content bytes/epochs/revisions. Native full-wrapper refresh requires updating both wrappers; password-wrapper-preserving behavior needs a separately reviewed protocol.
++
++Require current/fresh provider-revalidated owner identity, one account-wide X-Cerberus-Vault-Access handle plus native refresh-recovery purpose proof from the OLD registered unlock key. Header context internal only. Challenge generation null for refresh, current recovery generation for recover. Original UTF8 bytes/digest remain immutable; strict schema/headers/identifiers/proof, no secrets/private keys/decryption/signing by API.
++
++Extend RecoveryReplacement.IsValid to both native operations; validator/handler accept only those; each HTTP method pins its expected operation. Extend RecoveryRequest with optional AccessVerifier (default null, existing callers compatible). Handler hashes access only for refresh. Data locks account then current own session; verifies account-wide, policy/revocation, issued/expiry/renewal state using fresh statement time. Native old unlock proof binds current slot/revision/purpose/body and null generation. Conditional consumption rechecks identity/challenge/session expiry together at statement time. Replace wrappers/verifier, advance protection/slot/recovery/revocation, and durable outcome in one transaction. Old sessions/challenges/old recovery generation are invalid; new unlock and recovery work.
++
++Reuse unique(accountId,idempotencyKey) outcome table; original digest includes operation, so cross-purpose reuse conflicts. Exact completed retries return historical nonsecret result before expired/consumed/current-state/session checks, following native reference; current fresh owner/provider still required, canonical handle/header shape still required by PUT. The original handle becomes stale after commit, but exact retry performs no new transition. New operations always require current valid account-wide access. Cost: historical retry returns old counters; GET latest state before acting.
++
++## Supporting recovery read correction
++
++System Requirements additional-steps table specifies GET `/api/vault/recovery-material` for UC40. Existing GET protection already exposes own opaque material without a session, but the named fresh route was omitted. Add the named route using the same validated query/projection, require fresh signed iat/current provider, no query/body, no session/consumption, no-store. Record this additive UC40 integration correction in PR/report; do not rewrite merged history.
++
++## Flows and verification
++
++| Flow | Required assertion |
++| --- | --- |
++| Main | Current account-wide access+old unlock proof refreshes full wrappers/key/counters atomically; preserves content/pins; old recovery rejected and new credential works. |
++| AF01 | Wrong method purpose/schema/unsafe counters/private/unknown/duplicate fields/pins/salts/header/encoding400, unchanged state. |
++| AF02 | Missing/hidden/closing/erased account/protection404, foreign handle/proof cannot disclose. |
++| AF03 | Current provider/fresh iat401; missing handle401, malformed400, expired/revoked/profile/foreign/policy/session denial403; wrong old key/purpose/body proof401. |
++| AF04 | Stale revisions/policy/counter overflow409; concurrent changes one winner; same key/body one transition; changed bytes conflict. |
++| AF05 | Real database/provider outage503, true caller cancellation; post-consumption write failure full rollback and identical proof retry. |
++
++Real PostgreSQL tests cover unchanged natural session/challenge/identity deadlines across account and session locks, queued lifecycle/policy, concurrent winners, rollback, historical retries and cross-operation digest binding. HTTP tests exercise refresh→old recovery rejected→new unlock/new recovery, strict boundary/AFs/current provider/freshness, exact retry and named recovery-material read/no consumption. Run full unfiltered suite0fail0skip>=90%line/reportbranch, helpers/spec/OpenAPI drift, one ordinary final review, required CI, merge/Done/archive.
+diff --git a/src/Application/ArturRios.Cerberus.Command/Protection/RecoverVaultCommand.cs b/src/Application/ArturRios.Cerberus.Command/Protection/RecoverVaultCommand.cs
+index 4e3bf0a..1d57ed9 100644
+--- a/src/Application/ArturRios.Cerberus.Command/Protection/RecoverVaultCommand.cs
++++ b/src/Application/ArturRios.Cerberus.Command/Protection/RecoverVaultCommand.cs
+@@ -7,19 +7,20 @@ namespace ArturRios.Cerberus.Command.Protection;
+ [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+ [JsonNumberHandling(JsonNumberHandling.Strict)]
+ public sealed class RecoverVaultCommand : BaseCommand
+ {
+     public string Operation { get; set; } = null!;
+     public Guid IdempotencyKey { get; set; }
+     public long ExpectedRevision { get; set; }
+     public PasswordWrapper PasswordWrapper { get; set; } = null!;
+     public RecoveryWrapper RecoveryWrapper { get; set; } = null!;
+     public PublicJwk NewRecoveryVerifier { get; set; } = null!;
++    internal string? Access { get; private set; }
+     internal Guid Actor { get; private set; }
+     internal long IdentityIssuedAt { get; private set; } = -1;
+     internal Guid ChallengeId { get; private set; }
+     internal string Proof { get; private set; } = null!;
+     internal byte[] RawBody { get; private set; } = [];
+     public RecoveryReplacement ToReplacement() => new(Operation, IdempotencyKey, ExpectedRevision, PasswordWrapper, RecoveryWrapper, NewRecoveryVerifier);
+-    public void SetContext(Guid actor, long identityIssuedAt, Guid challengeId, string proof, byte[] rawBody)
+-    { Actor = actor; IdentityIssuedAt = identityIssuedAt; ChallengeId = challengeId; Proof = proof; RawBody = rawBody; }
++    public void SetContext(Guid actor, long identityIssuedAt, Guid challengeId, string proof, byte[] rawBody, string? access = null)
++    { Actor = actor; IdentityIssuedAt = identityIssuedAt; ChallengeId = challengeId; Proof = proof; RawBody = rawBody; Access = access; }
+ }
+diff --git a/src/Application/ArturRios.Cerberus.Command/Protection/RecoverVaultHandler.cs b/src/Application/ArturRios.Cerberus.Command/Protection/RecoverVaultHandler.cs
+index 48ba789..8d6e6fa 100644
+--- a/src/Application/ArturRios.Cerberus.Command/Protection/RecoverVaultHandler.cs
++++ b/src/Application/ArturRios.Cerberus.Command/Protection/RecoverVaultHandler.cs
+@@ -1,26 +1,33 @@
+ using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.Domain.Access;
+ using ArturRios.Mediator.Command.Interfaces;
+ using ArturRios.Output;
+ using FluentValidation;
+ 
+ namespace ArturRios.Cerberus.Command.Protection;
+ 
+ public sealed class RecoverVaultHandler(IValidator<RecoverVaultCommand> validator, IVaultRecoveryStore store)
+     : ICommandHandlerAsync<RecoverVaultCommand, RecoverVaultOutput>
+ {
+     public async Task<DataOutput<RecoverVaultOutput?>> HandleAsync(RecoverVaultCommand command, CancellationToken cancellationToken = default)
+     {
+         cancellationToken.ThrowIfCancellationRequested();
+         var output = DataOutput<RecoverVaultOutput?>.New;
+         if (command.Actor == Guid.Empty) return output.WithError("authentication_required");
++        string? verifier = null;
++        if (command.Operation == "refresh-recovery")
++        {
++            if (command.Access is null) return output.WithError("vault_access_required");
++            if (!OpaqueAccessHandle.TryHash(command.Access, out verifier)) return output.WithError("validation_failed");
++        }
+         if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
+-        var result = await store.RecoverAsync(new(command.Actor, command.IdentityIssuedAt, command.ChallengeId, command.Proof, command.RawBody, command.ToReplacement()), cancellationToken);
++        var result = await store.RecoverAsync(new(command.Actor, command.IdentityIssuedAt, command.ChallengeId, command.Proof, command.RawBody, command.ToReplacement(), verifier), cancellationToken);
+         if (result.Error is not null) return output.WithError(result.Error);
+         var data = result.Data;
+         if (data is null || data.Status != "committed" || data.ProtectionRevision != command.ExpectedRevision + 1
+             || data.ProtectionRevision > ProtocolBinary.MaxInteger || data.Generation != command.RecoveryWrapper.Generation
+             || data.RevocationGeneration is <= 0 or > ProtocolBinary.MaxInteger) return output.WithError("persistence_unavailable");
+         return output.WithData(new RecoverVaultOutput { Status = data.Status, ProtectionRevision = data.ProtectionRevision,
+             Generation = data.Generation, RevocationGeneration = data.RevocationGeneration }).WithMessage("recovery_committed");
+     }
+ }
+diff --git a/src/Application/ArturRios.Cerberus.Command/Protection/VaultValidators.cs b/src/Application/ArturRios.Cerberus.Command/Protection/VaultValidators.cs
+index 8735fa6..b3a4cc8 100644
+--- a/src/Application/ArturRios.Cerberus.Command/Protection/VaultValidators.cs
++++ b/src/Application/ArturRios.Cerberus.Command/Protection/VaultValidators.cs
+@@ -9,21 +9,21 @@ public sealed class InitializeVaultValidator : AbstractValidator<InitializeVault
+     {
+         RuleFor(x => x.AccountId).NotEmpty();
+         RuleFor(x => x.ExpectedAccountRevision).InclusiveBetween(1, ProtocolBinary.MaxInteger);
+         RuleFor(x => x.Material).Must(x => x?.IsValid() == true && x.PasswordWrapper.KeyEpoch == 1 && x.RecoveryWrapper.Generation == 1);
+     }
+ }
+ public sealed class IssueVaultChallengeValidator : AbstractValidator<IssueVaultChallengeCommand>
+ {
+     public IssueVaultChallengeValidator()
+     {
+-        RuleFor(x => x.Operation).Must(x => x is "unlock-account" or "change-protection" or "recover");
++        RuleFor(x => x.Operation).Must(x => x is "unlock-account" or "change-protection" or "recover" or "refresh-recovery");
+         RuleFor(x => x.RequestHash).Must(x => ProtocolBinary.TryDecode(x, 32, out _));
+     }
+ }
+ public sealed class UnlockVaultValidator : AbstractValidator<UnlockVaultCommand>
+ {
+     public UnlockVaultValidator()
+     {
+         RuleFor(x => x.ExpectedProtectionRevision).InclusiveBetween(1, ProtocolBinary.MaxInteger);
+         RuleFor(x => x.ChallengeId).NotEmpty();
+         RuleFor(x => x.Proof).Must(x => ProtocolBinary.TryDecode(x, 64, out _));
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Protection/RecoveryReplacement.cs b/src/Domain/ArturRios.Cerberus.Domain/Protection/RecoveryReplacement.cs
+index 52fbf53..dbfeab8 100644
+--- a/src/Domain/ArturRios.Cerberus.Domain/Protection/RecoveryReplacement.cs
++++ b/src/Domain/ArturRios.Cerberus.Domain/Protection/RecoveryReplacement.cs
+@@ -1,39 +1,39 @@
+ using System.Text.Json.Serialization;
+ using ArturRios.Data.Relational.Core.Entities;
+ 
+ namespace ArturRios.Cerberus.Domain.Protection;
+ 
+ [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+ [JsonNumberHandling(JsonNumberHandling.Strict)]
+ public sealed record RecoveryReplacement(string Operation, Guid IdempotencyKey, long ExpectedRevision,
+     PasswordWrapper PasswordWrapper, RecoveryWrapper RecoveryWrapper, PublicJwk NewRecoveryVerifier)
+ {
+-    public bool IsValid() => Operation == "recover" && IdempotencyKey != Guid.Empty
++    public bool IsValid() => Operation is ("recover" or "refresh-recovery") && IdempotencyKey != Guid.Empty
+         && ExpectedRevision is > 0 and <= ProtocolBinary.MaxInteger
+         && PasswordWrapper?.IsValid() == true && RecoveryWrapper?.IsValid() == true && NewRecoveryVerifier?.IsValid() == true
+         && PasswordWrapper.KeyEpoch == RecoveryWrapper.KeyEpoch && RecoveryWrapper.ProofKeyFingerprint == NewRecoveryVerifier.Fingerprint();
+ 
+     public bool IsValidTransition(ProtectionMaterial current) => IsValid() && current?.IsValid() == true
+         && current.PasswordWrapper.KeyEpoch < ProtocolBinary.MaxInteger && current.RecoveryWrapper.Generation < ProtocolBinary.MaxInteger
+         && PasswordWrapper.KeyEpoch == current.PasswordWrapper.KeyEpoch + 1 && RecoveryWrapper.Generation == current.RecoveryWrapper.Generation + 1
+         && NewRecoveryVerifier != current.RecoveryVerifier && NewRecoveryVerifier != current.UnlockVerifier
+         && NewRecoveryVerifier != current.RecipientKey && NewRecoveryVerifier != current.AuthorKey
+         && PasswordWrapper.KeySalt != current.PasswordWrapper.KeySalt && PasswordWrapper.Nonce != current.PasswordWrapper.Nonce
+         && PasswordWrapper.Kdf.Salt != current.PasswordWrapper.Kdf.Salt
+         && RecoveryWrapper.KeySalt != current.RecoveryWrapper.KeySalt && RecoveryWrapper.Nonce != current.RecoveryWrapper.Nonce;
+ 
+     public ProtectionMaterial Replace(ProtectionMaterial current) => current with
+     { PasswordWrapper = PasswordWrapper, RecoveryWrapper = RecoveryWrapper, RecoveryVerifier = NewRecoveryVerifier };
+ }
+ 
+-public sealed record RecoveryRequest(Guid Actor, long IdentityIssuedAt, Guid ChallengeId, string Proof, byte[] RawBody, RecoveryReplacement Replacement);
++public sealed record RecoveryRequest(Guid Actor, long IdentityIssuedAt, Guid ChallengeId, string Proof, byte[] RawBody, RecoveryReplacement Replacement, string? AccessVerifier = null);
+ public sealed record RecoveryDetails(string Status, long ProtectionRevision, long Generation, long RevocationGeneration);
+ public interface IVaultRecoveryStore
+ {
+     Task<VaultResult<RecoveryDetails>> RecoverAsync(RecoveryRequest request, CancellationToken cancellationToken);
+ }
+ public sealed class VaultRecoveryOperation : Entity
+ {
+     public long AccountId { get; set; }
+     public Guid IdempotencyKey { get; set; }
+     public string RequestHash { get; set; } = null!;
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionStore.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionStore.cs
+index c76fc91..14170bd 100644
+--- a/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionStore.cs
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionStore.cs
+@@ -36,21 +36,21 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
+             var row = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, ct);
+             return row is null ? new(Error: "not_found") : new(Details(account, row));
+         });
+ 
+     public Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string requestHash, CancellationToken cancellationToken)
+         => ChallengeAsync(actor, "unlock-account", requestHash, cancellationToken);
+ 
+     public Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string operation, string requestHash, CancellationToken cancellationToken)
+     {
+         cancellationToken.ThrowIfCancellationRequested();
+-        if (operation is not ("unlock-account" or "change-protection" or "recover") || !ProtocolBinary.TryDecode(requestHash, 32, out _)) return Task.FromResult(new VaultResult<VaultProofChallenge>(Error: "validation_failed"));
++        if (operation is not ("unlock-account" or "change-protection" or "recover" or "refresh-recovery") || !ProtocolBinary.TryDecode(requestHash, 32, out _)) return Task.FromResult(new VaultResult<VaultProofChallenge>(Error: "validation_failed"));
+         return Run<VaultProofChallenge>(actor, cancellationToken, async (db, account, ct) =>
+         {
+             var row = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, ct);
+             if (row is null) return new(Error: "not_found");
+             _ = Details(account, row);
+             if (account.PolicyRevision <= 0 || account.RevocationGeneration <= 0) return new(Error: "persistence_unavailable");
+             var now = await Now(db, ct);
+             await db.VaultUnlockChallenges.Where(x => x.AccountId == account.Id && (x.Consumed || x.ExpiresAt <= now)).ExecuteDeleteAsync(ct);
+             var issued = now.ToUnixTimeSeconds();
+             var challenge = new VaultProofChallenge("cerberus-challenge-v1", Guid.NewGuid(), ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32)),
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultRecoveryStore.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultRecoveryStore.cs
+index 850162f..c9f9214 100644
+--- a/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultRecoveryStore.cs
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultRecoveryStore.cs
+@@ -1,14 +1,15 @@
+ using System.Data.Common;
+ using System.Security.Cryptography;
+ using System.Text.Json;
+ using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Access;
+ using ArturRios.Cerberus.Domain.Protection;
+ using Microsoft.EntityFrameworkCore;
+ 
+ namespace ArturRios.Cerberus.Data.Protection;
+ 
+ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) : IVaultRecoveryStore
+ {
+     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
+ 
+@@ -18,21 +19,21 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory)
+         if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
+         var input = request.Replacement;
+         if (input?.IsValid() != true || request.RawBody is not { Length: > 0 and <= 1048576 }) return new(Error: "validation_failed");
+         var hash = ProtocolBinary.Encode(SHA256.HashData(request.RawBody));
+         try
+         {
+             await using var db = await factory.CreateDbContextAsync(cancellationToken);
+             await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", cancellationToken);
+             var a = await db.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == request.Actor)
+-                .Select(x => new { x.Id, x.PublicId, x.State, x.PolicyRevision, x.RevocationGeneration }).SingleOrDefaultAsync(cancellationToken);
++                .Select(x => new { x.Id, x.PublicId, x.State, x.PolicyRevision, x.RevocationGeneration, x.RenewalEnabled }).SingleOrDefaultAsync(cancellationToken);
+             if (a is null || a.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => x.ResourceId == a.PublicId, cancellationToken)) return new(Error: "not_found");
+             var now = await Now(db, cancellationToken);
+             if (!Fresh(request.IdentityIssuedAt, now)) return new(Error: "fresh_authentication_required");
+             var stored = await db.VaultRecoveryOperations.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.IdempotencyKey == input.IdempotencyKey, cancellationToken);
+             if (stored is not null)
+             {
+                 if (stored.RequestHash != hash) return new(Error: "revision_conflict");
+                 if (!ProtocolBinary.TryDecode(stored.RequestHash, 32, out _) || stored.ProtectionRevision != input.ExpectedRevision + 1
+                     || stored.ProtectionRevision > ProtocolBinary.MaxInteger || stored.Generation != input.RecoveryWrapper.Generation
+                     || stored.RevocationGeneration is <= 0 or > ProtocolBinary.MaxInteger || !Matches(input, request.RawBody))
+@@ -42,42 +43,67 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory)
+             }
+             var protection = await db.VaultProtections.SingleOrDefaultAsync(x => x.AccountId == a.Id, cancellationToken);
+             if (protection is null) return new(Error: "not_found");
+             var current = JsonSerializer.Deserialize<ProtectionMaterial>(protection.Material, Json);
+             if (current?.IsValid() != true || protection.KeyEpoch != current.PasswordWrapper.KeyEpoch
+                 || protection.RecoveryGeneration != current.RecoveryWrapper.Generation || protection.Revision <= 0
+                 || a.PolicyRevision is <= 0 or > ProtocolBinary.MaxInteger || a.RevocationGeneration <= 0) return new(Error: "persistence_unavailable");
+             if (protection.Revision >= ProtocolBinary.MaxInteger || protection.KeyEpoch >= ProtocolBinary.MaxInteger
+                 || protection.RecoveryGeneration >= ProtocolBinary.MaxInteger || a.RevocationGeneration >= ProtocolBinary.MaxInteger)
+                 return new(Error: "revision_conflict");
+-            if (input.RecoveryWrapper.Generation <= protection.RecoveryGeneration) return new(Error: "recovery_credential_consumed");
++            if (input.Operation == "recover" && input.RecoveryWrapper.Generation <= protection.RecoveryGeneration) return new(Error: "recovery_credential_consumed");
+             if (input.ExpectedRevision != protection.Revision) return new(Error: "revision_conflict");
++            var recover = input.Operation == "recover";
++            var accessVerifier = request.AccessVerifier ?? string.Empty;
++            VaultAccessSession? session = null;
++            if (!recover)
++            {
++                await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={a.Id} AND handle_verifier={accessVerifier} FOR UPDATE", cancellationToken);
++                session = await db.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.HandleVerifier == accessVerifier, cancellationToken);
++            }
++            bool Permitted(DateTimeOffset at) => recover || session is not null && session.ProfileId is null && !session.Revoked
++                && session.PolicyRevision == a.PolicyRevision && session.RevocationGeneration == a.RevocationGeneration
++                && session.IssuedAt <= at && (a.RenewalEnabled ? session.ExpiresAt > at : session.ExpiresAt is null);
++            now = await Now(db, cancellationToken);
++            if (!Fresh(request.IdentityIssuedAt, now)) return new(Error: "fresh_authentication_required");
++            if (!Permitted(now)) return new(Error: "vault_access_denied");
+             if (!input.IsValidTransition(current)) return new(Error: "validation_failed");
+             var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.PublicId == request.ChallengeId, cancellationToken);
+             if (row is null || row.Consumed) return new(Error: "vault_proof_rejected");
+             var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, Json) ?? throw new JsonException();
+             if (challenge.ChallengeId != row.PublicId || row.ExpiresAt != DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt)) return new(Error: "persistence_unavailable");
+             if (row.PolicyRevision != a.PolicyRevision || row.RevocationGeneration != a.RevocationGeneration
+                 || challenge.ProtectionRevision != protection.Revision || challenge.KeyEpoch != protection.KeyEpoch
+                 || challenge.Operation == "recover" && challenge.Generation != protection.RecoveryGeneration) return new(Error: "revision_conflict");
+             now = await Now(db, cancellationToken);
+             if (!Fresh(request.IdentityIssuedAt, now)) return new(Error: "fresh_authentication_required");
+-            var binding = new VaultProofBinding("recover", request.Actor, a.PublicId, "account", a.PublicId, protection.KeyEpoch, protection.Revision, protection.RecoveryGeneration);
+-            if (!VaultProof.Verify(challenge, binding, request.RawBody, current.RecoveryVerifier, request.Proof, now.ToUnixTimeSeconds())
++            var binding = new VaultProofBinding(input.Operation, request.Actor, a.PublicId, "account", a.PublicId, protection.KeyEpoch, protection.Revision, recover ? protection.RecoveryGeneration : null);
++            if (!Permitted(now)) return new(Error: "vault_access_denied");
++            if (!VaultProof.Verify(challenge, binding, request.RawBody, recover ? current.RecoveryVerifier : current.UnlockVerifier, request.Proof, now.ToUnixTimeSeconds())
+                 || !Matches(input, request.RawBody)) return new(Error: "vault_proof_rejected");
+             var consumed = await db.Database.ExecuteSqlInterpolatedAsync($"""
+                 UPDATE cerberus.vault_unlock_challenge SET consumed=TRUE
+                 WHERE id={row.Id} AND NOT consumed AND expires_at>statement_timestamp()
+                 AND floor(extract(epoch from statement_timestamp()))>={request.IdentityIssuedAt}
+                 AND floor(extract(epoch from statement_timestamp()))<{request.IdentityIssuedAt}+60
++                AND ({recover} OR EXISTS(SELECT 1 FROM cerberus.vault_access_session
++                    WHERE account_id={a.Id} AND handle_verifier={accessVerifier}
++                    AND profile_id IS NULL AND NOT revoked AND policy_revision={a.PolicyRevision}
++                    AND revocation_generation={a.RevocationGeneration} AND issued_at<=statement_timestamp()
++                    AND (({a.RenewalEnabled} AND expires_at>statement_timestamp())
++                        OR (NOT {a.RenewalEnabled} AND expires_at IS NULL))))
+                 """, cancellationToken);
+-            if (consumed != 1) return new(Error: Fresh(request.IdentityIssuedAt, await Now(db, cancellationToken)) ? "vault_proof_rejected" : "fresh_authentication_required");
++            if (consumed != 1)
++            {
++                now = await Now(db, cancellationToken);
++                return new(Error: !Fresh(request.IdentityIssuedAt, now) ? "fresh_authentication_required" : !Permitted(now) ? "vault_access_denied" : "vault_proof_rejected");
++            }
+             protection.Material = JsonSerializer.SerializeToUtf8Bytes(input.Replace(current), Json);
+             protection.Revision++; protection.KeyEpoch++; protection.RecoveryGeneration++;
+             var changed = await db.Accounts.Where(x => x.Id == a.Id).ExecuteUpdateAsync(set => set.SetProperty(x => x.RevocationGeneration, x => x.RevocationGeneration + 1), cancellationToken);
+             if (changed != 1) return new(Error: "revision_conflict");
+             var result = new RecoveryDetails("committed", protection.Revision, protection.RecoveryGeneration, a.RevocationGeneration + 1);
+             db.VaultRecoveryOperations.Add(new VaultRecoveryOperation { AccountId = a.Id, IdempotencyKey = input.IdempotencyKey,
+                 RequestHash = hash, ProtectionRevision = result.ProtectionRevision, Generation = result.Generation, RevocationGeneration = result.RevocationGeneration });
+             await db.SaveChangesAsync(cancellationToken);
+             await transaction.CommitAsync(cancellationToken);
+             return new(result);
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/VaultController.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/VaultController.cs
+index 4a9dff0..7050ad2 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/VaultController.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/VaultController.cs
+@@ -46,37 +46,62 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
+             || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw) return Invalid();
+         vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var access) ? access.ToString() : null;
+         command.SetContext(Actor(), vaultAccess, id, proof, raw);
+         var result = await commands.ExecuteCommandAsync<ChangeVaultProtectionCommand, ChangeVaultProtectionOutput>(command, cancellationToken);
+         return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);
+     }
+ 
+     [HttpPost("recovery")]
+     [VaultProofBody]
+     [ProducesResponseType(typeof(DataOutput<RecoverVaultOutput>), StatusCodes.Status200OK)]
+-    public async Task<ActionResult<DataOutput<RecoverVaultOutput?>>> Recover([FromBody] RecoverVaultCommand command,
++    public Task<ActionResult<DataOutput<RecoverVaultOutput?>>> Recover([FromBody] RecoverVaultCommand command,
++        [FromHeader(Name = "X-Cerberus-Challenge-Id")] string? challengeId,
++        [FromHeader(Name = "X-Cerberus-Proof")] string? proof, CancellationToken cancellationToken) =>
++        command.Operation != "recover" ? Task.FromResult<ActionResult<DataOutput<RecoverVaultOutput?>>>(Invalid()) : RecoverCore(command, null, cancellationToken);
++
++    [HttpPut("recovery")]
++    [VaultProofBody]
++    [ProducesResponseType(typeof(DataOutput<RecoverVaultOutput>), StatusCodes.Status200OK)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
++    public Task<ActionResult<DataOutput<RecoverVaultOutput?>>> RefreshRecovery([FromBody] RecoverVaultCommand command,
++        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess,
+         [FromHeader(Name = "X-Cerberus-Challenge-Id")] string? challengeId,
+         [FromHeader(Name = "X-Cerberus-Proof")] string? proof, CancellationToken cancellationToken)
++    {
++        if (command.Operation != "refresh-recovery" || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
++            return Task.FromResult<ActionResult<DataOutput<RecoverVaultOutput?>>>(Invalid());
++        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var access) ? access.ToString() : null;
++        return RecoverCore(command, vaultAccess, cancellationToken);
++    }
++
++    private async Task<ActionResult<DataOutput<RecoverVaultOutput?>>> RecoverCore(RecoverVaultCommand command, string? access, CancellationToken cancellationToken)
+     {
+         if (Request.Query.Count != 0) return Invalid();
+         if (!FreshIdentity.IsFresh(User, clock.GetUtcNow())) return Unauthorized(ProcessOutput.New.WithError("fresh_authentication_required"));
+         var ids = Request.Headers["X-Cerberus-Challenge-Id"]; var proofs = Request.Headers["X-Cerberus-Proof"];
+         if (ids.Count == 0 || proofs.Count == 0) return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
+-        challengeId = ids.ToString(); proof = proofs.ToString();
++        var challengeId = ids.ToString(); var proof = proofs.ToString();
+         if (ids.Count != 1 || proofs.Count != 1 || !Guid.TryParseExact(challengeId, "D", out var id) || id == Guid.Empty
+             || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw) return Invalid();
+         var issued = long.Parse(User.FindFirst("iat")!.Value, System.Globalization.CultureInfo.InvariantCulture);
+-        command.SetContext(Actor(), issued, id, proof, raw);
++        command.SetContext(Actor(), issued, id, proof, raw, access);
+         var result = await commands.ExecuteCommandAsync<RecoverVaultCommand, RecoverVaultOutput>(command, cancellationToken);
+         return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);
+     }
+ 
++    [HttpGet("recovery-material")]
++    [ProducesResponseType(typeof(DataOutput<VaultProtectionOutput>), StatusCodes.Status200OK)]
++    public Task<ActionResult<DataOutput<VaultProtectionOutput?>>> RecoveryMaterial(CancellationToken cancellationToken) =>
++        !FreshIdentity.IsFresh(User, clock.GetUtcNow())
++            ? Task.FromResult<ActionResult<DataOutput<VaultProtectionOutput?>>>(Unauthorized(ProcessOutput.New.WithError("fresh_authentication_required")))
++            : Read(cancellationToken);
++
+     [HttpGet("protection")]
+     [ProducesResponseType(typeof(DataOutput<VaultProtectionOutput>), StatusCodes.Status200OK)]
+     public async Task<ActionResult<DataOutput<VaultProtectionOutput?>>> Read(CancellationToken cancellationToken)
+     {
+         if (Request.Query.Count != 0 || HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true
+             || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0) return Invalid();
+         var result = await queries.ExecuteQueryAsync<GetVaultProtectionQuery, VaultProtectionOutput>(new GetVaultProtectionQuery(Actor()), cancellationToken);
+         return result.ToActionResult(statusMap: VaultProtectionQueryMessages.StatusCodes);
+     }
+ 
+diff --git a/tests/Application/ArturRios.Cerberus.Command.Tests/VaultRecoveryRefreshHandlerTests.cs b/tests/Application/ArturRios.Cerberus.Command.Tests/VaultRecoveryRefreshHandlerTests.cs
+new file mode 100644
+index 0000000..6e44f21
+--- /dev/null
++++ b/tests/Application/ArturRios.Cerberus.Command.Tests/VaultRecoveryRefreshHandlerTests.cs
+@@ -0,0 +1,55 @@
++using ArturRios.Cerberus.Command.Protection;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.TestSupport;
++using Moq;
++
++namespace ArturRios.Cerberus.Command.Tests;
++
++public class VaultRecoveryRefreshHandlerTests
++{
++    private static readonly Guid Actor=Guid.NewGuid(),Challenge=Guid.NewGuid();
++    private static readonly string Access=ProtectionFixture.Encode(new byte[32]),Proof=ProtectionFixture.Encode(new byte[64]);
++    [UnitFact]
++    public async Task GivenCurrentRefreshContext_WhenHandling_ThenHashAccessAndBindOriginalPurpose()
++    {
++        using var client=new ProtectionFixture();var c=Command(client);OpaqueAccessHandle.TryHash(Access,out var verifier);var store=new Mock<IVaultRecoveryStore>(MockBehavior.Strict);
++        store.Setup(x=>x.RecoverAsync(It.Is<RecoveryRequest>(r=>r.Actor==Actor&&r.AccessVerifier==verifier&&r.Replacement.Operation=="refresh-recovery"&&r.Replacement==c.ToReplacement()&&r.ChallengeId==Challenge&&r.Proof==Proof&&r.RawBody.Length==1),It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecoveryDetails>(new("committed",2,2,2)));
++        var result=await new RecoverVaultHandler(new RecoverVaultValidator(),store.Object).HandleAsync(c);Assert.True(result.Success);Assert.Equal("committed",result.Data!.Status);Assert.Equal(2,result.Data.Generation);
++    }
++    [UnitTheory]
++    [InlineData(null,"vault_access_required")][InlineData("bad","validation_failed")][InlineData("","validation_failed")]
++    public async Task GivenMissingOrMalformedRefreshAccess_WhenHandling_ThenRejectBeforeStore(string? access,string error)
++    {
++        using var client=new ProtectionFixture();var c=Command(client);c.SetContext(Actor,1000,Challenge,Proof,[1],access);
++        var result=await new RecoverVaultHandler(new RecoverVaultValidator(),new Mock<IVaultRecoveryStore>(MockBehavior.Strict).Object).HandleAsync(c);Assert.Contains(error,result.Errors);Assert.Null(result.Data);
++    }
++    [UnitFact]
++    public async Task GivenRecoverPurposeWithExtraneousAccess_WhenHandling_ThenNeverUseHandleForRecoveryAuthorization()
++    {
++        using var client=new ProtectionFixture();var c=Command(client);c.Operation="recover";c.SetContext(Actor,1000,Challenge,Proof,[1],"untrusted");var store=new Mock<IVaultRecoveryStore>(MockBehavior.Strict);
++        store.Setup(x=>x.RecoverAsync(It.Is<RecoveryRequest>(r=>r.AccessVerifier==null&&r.Replacement.Operation=="recover"),It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecoveryDetails>(new("committed",2,2,2)));
++        Assert.True((await new RecoverVaultHandler(new RecoverVaultValidator(),store.Object).HandleAsync(c)).Success);
++    }
++    [UnitTheory]
++    [InlineData("vault_access_denied",403)][InlineData("revision_conflict",409)][InlineData("vault_proof_rejected",401)][InlineData("persistence_unavailable",503)]
++    public async Task GivenRefreshStoreFailure_WhenHandling_ThenReturnStableErrorWithoutOutcome(string error,int status)
++    {
++        using var client=new ProtectionFixture();var store=new Mock<IVaultRecoveryStore>();store.Setup(x=>x.RecoverAsync(It.IsAny<RecoveryRequest>(),It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecoveryDetails>(Error:error));
++        var result=await new RecoverVaultHandler(new RecoverVaultValidator(),store.Object).HandleAsync(Command(client));Assert.Contains(error,result.Errors);Assert.Null(result.Data);Assert.Equal(status,VaultProtectionMessages.StatusCodes[error]);
++    }
++    [UnitTheory]
++    [InlineData(null,true)][InlineData(1L,false)]
++    public async Task GivenRefreshChallenge_WhenHandling_ThenRequireNullRecoveryGeneration(long? generation,bool success)
++    {
++        var c=new IssueVaultChallengeCommand { Operation="refresh-recovery",RequestHash=ProtectionFixture.Encode(new byte[32]) };c.SetActor(Actor);var account=Guid.NewGuid();
++        var challenge=new VaultProofChallenge("cerberus-challenge-v1",Challenge,ProtectionFixture.Encode(new byte[32]),"refresh-recovery",Actor,account,"account",account,1,1,generation,c.RequestHash,1000,1060);
++        var store=new Mock<IVaultProtectionStore>(MockBehavior.Strict);store.Setup(x=>x.ChallengeAsync(Actor,"refresh-recovery",c.RequestHash,It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<VaultProofChallenge>(challenge));
++        var result=await new IssueVaultChallengeHandler(new IssueVaultChallengeValidator(),store.Object).HandleAsync(c);Assert.Equal(success,result.Success);if(!success)Assert.Contains("persistence_unavailable",result.Errors);
++    }
++    private static RecoverVaultCommand Command(ProtectionFixture client)
++    {
++        var m=client.Rewrap();var c=new RecoverVaultCommand { Operation="refresh-recovery",IdempotencyKey=Guid.NewGuid(),ExpectedRevision=1,PasswordWrapper=m.PasswordWrapper,RecoveryWrapper=m.RecoveryWrapper with { Generation=2 },NewRecoveryVerifier=m.RecoveryVerifier };
++        c.SetContext(Actor,1000,Challenge,Proof,[1],Access);return c;
++    }
++}
+diff --git a/tests/Domain/ArturRios.Cerberus.Domain.Tests/RecoveryReplacementTests.cs b/tests/Domain/ArturRios.Cerberus.Domain.Tests/RecoveryReplacementTests.cs
+index c0fabcd..a94e2ed 100644
+--- a/tests/Domain/ArturRios.Cerberus.Domain.Tests/RecoveryReplacementTests.cs
++++ b/tests/Domain/ArturRios.Cerberus.Domain.Tests/RecoveryReplacementTests.cs
+@@ -17,21 +17,21 @@ public class RecoveryReplacementTests
+     }
+ 
+     [UnitTheory]
+     [InlineData("operation")][InlineData("idempotency")][InlineData("revision")][InlineData("unsafeRevision")][InlineData("password")]
+     [InlineData("recovery")][InlineData("verifier")][InlineData("offCurve")][InlineData("fingerprint")][InlineData("differentEpochs")]
+     public void GivenMalformedVisibleRecoveryInput_WhenValidating_ThenReject(string invalid)
+     {
+         using var current=new ProtectionFixture();using var next=new ProtectionFixture();var r=Replacement(current,next);
+         r=invalid switch
+         {
+-            "operation"=>r with { Operation="refresh-recovery" },"idempotency"=>r with { IdempotencyKey=Guid.Empty },
++            "operation"=>r with { Operation="unsupported" },"idempotency"=>r with { IdempotencyKey=Guid.Empty },
+             "revision"=>r with { ExpectedRevision=0 },"unsafeRevision"=>r with { ExpectedRevision=9007199254740992 },
+             "password"=>r with { PasswordWrapper=null! },"recovery"=>r with { RecoveryWrapper=null! },"verifier"=>r with { NewRecoveryVerifier=null! },
+             "offCurve"=>r with { NewRecoveryVerifier=r.NewRecoveryVerifier with { X=ProtectionFixture.Encode(new byte[32]),Y=ProtectionFixture.Encode(new byte[32]) } },
+             "fingerprint"=>r with { RecoveryWrapper=r.RecoveryWrapper with { ProofKeyFingerprint=ProtectionFixture.Encode(new byte[32]) } },
+             _=>r with { RecoveryWrapper=r.RecoveryWrapper with { KeyEpoch=3 } }
+         };
+         Assert.False(r.IsValid());
+     }
+ 
+     [UnitTheory]
+@@ -56,16 +56,30 @@ public class RecoveryReplacementTests
+     }
+ 
+     [UnitTheory]
+     [InlineData("unknown")][InlineData("private")][InlineData("numericString")]
+     public void GivenSecretBearingOrNoncanonicalRecoveryBody_WhenParsing_ThenReject(string invalid)
+     {
+         using var current=new ProtectionFixture();using var next=new ProtectionFixture();var raw=JsonSerializer.Serialize(Replacement(current,next),ProtectionFixture.Json);
+         raw=invalid switch { "unknown"=>raw.Insert(1,"\"recoverySecret\":\"secret\","),"private"=>raw.Replace("\"crv\":","\"d\":\"private\",\"crv\":"),_=>raw.Replace("\"expectedRevision\":1","\"expectedRevision\":\"1\"") };
+         Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<RecoveryReplacement>(raw,ProtectionFixture.Json));
+     }
++    [UnitFact]
++    public void GivenNativeFullWrapperRefresh_WhenApplying_ThenAdvanceRecoveryAndRetainOtherPins()
++    {
++        using var current=new ProtectionFixture();using var next=new ProtectionFixture();var r=Replacement(current,next) with { Operation="refresh-recovery" };
++        Assert.True(r.IsValid());Assert.True(r.IsValidTransition(current.Material));var m=r.Replace(current.Material);
++        Assert.Equal(current.Material.UnlockVerifier,m.UnlockVerifier);Assert.Equal(current.Material.RecipientKey,m.RecipientKey);Assert.Equal(current.Material.AuthorKey,m.AuthorKey);Assert.Equal(next.Material.RecoveryVerifier,m.RecoveryVerifier);
++        Assert.Equal(2,m.PasswordWrapper.KeyEpoch);Assert.Equal(2,m.RecoveryWrapper.Generation);
++    }
++    [UnitFact]
++    public void GivenRefreshPreservingOldPasswordWrapper_WhenValidating_ThenRejectUnreviewedMixedSlotTransition()
++    {
++        using var current=new ProtectionFixture();using var next=new ProtectionFixture();var r=Replacement(current,next) with { Operation="refresh-recovery",PasswordWrapper=current.Material.PasswordWrapper };
++        Assert.False(r.IsValidTransition(current.Material));
++    }
+     private static RecoveryReplacement Replacement(ProtectionFixture current,ProtectionFixture next)
+     {
+         var fresh=current.Rewrap();return new("recover",Guid.NewGuid(),1,fresh.PasswordWrapper,
+             fresh.RecoveryWrapper with { Generation=2,ProofKeyFingerprint=next.Material.RecoveryVerifier.Fingerprint() },next.Material.RecoveryVerifier);
+     }
+ }
+diff --git a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/VaultRecoveryRefreshStoreTests.cs b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/VaultRecoveryRefreshStoreTests.cs
+new file mode 100644
+index 0000000..918bb41
+--- /dev/null
++++ b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/VaultRecoveryRefreshStoreTests.cs
+@@ -0,0 +1,243 @@
++using System.Data.Common;
++using System.Numerics;
++using System.Security.Cryptography;
++using System.Text;
++using System.Text.Json;
++using ArturRios.Cerberus.Data.Protection;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Operations;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.TestSupport;
++using Microsoft.EntityFrameworkCore;
++using Microsoft.EntityFrameworkCore.Diagnostics;
++
++namespace ArturRios.Cerberus.Data.Tests;
++
++[Collection("PostgreSQL")]
++public class VaultRecoveryRefreshStoreTests(PostgresFixture fixture)
++{
++    [FunctionalFact]
++    public async Task GivenFreshOwnerWithCurrentAccountSession_WhenRecovering_ThenReplaceCredentialAndPreserveContent()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));
++        var result=await Store().RecoverAsync(r,default);Assert.Equal(new RecoveryDetails("committed",2,2,2),result.Data);Assert.Null(result.Error);
++        await using var db=fixture.CreateContext();var a=await db.Accounts.SingleAsync(x=>x.Id==s.InternalId);var p=await db.VaultProtections.SingleAsync(x=>x.AccountId==s.InternalId);
++        Assert.Equal(s.Envelope,a.DetailsEnvelope);Assert.Equal(3,a.Revision);Assert.Equal(2,a.RevocationGeneration);Assert.Equal(1,a.PolicyRevision);
++        Assert.Equal(2,p.Revision);Assert.Equal(2,p.KeyEpoch);Assert.Equal(2,p.RecoveryGeneration);Assert.Equal(r.Replacement.Replace(old.Material),JsonSerializer.Deserialize<ProtectionMaterial>(p.Material,ProtectionFixture.Json));
++        Assert.True((await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==r.ChallengeId)).Consumed);Assert.Single(await db.Set<VaultRecoveryOperation>().Where(x=>x.AccountId==s.InternalId).ToListAsync());
++        Assert.Equal(1,Assert.Single(await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ToListAsync()).RevocationGeneration);
++    }
++
++    [FunctionalFact]
++    public async Task GivenCommittedRecovery_WhenRetryingAfterExpiryWithMalleatedProof_ThenReturnDurableHistoricalOutcome()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();using var third=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));
++        var first=(await Store().RecoverAsync(r,default)).Data!;Assert.NotNull(first);
++        await using(var db=fixture.CreateContext())
++        {
++            var row=await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==r.ChallengeId);var c=JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge,ProtectionFixture.Json)!;
++            c=c with { IssuedAt=1,ExpiresAt=61 };row.Challenge=JsonSerializer.SerializeToUtf8Bytes(c,ProtectionFixture.Json);row.ExpiresAt=DateTimeOffset.FromUnixTimeSeconds(61);await db.SaveChangesAsync();
++        }
++        s=await CurrentAccess(s,old,2);var second=await Request(s,old,Replacement(old,third,3,3,2));var beforeSecond=await Snapshot(s);
++        Assert.Equal("vault_proof_rejected",(await Store().RecoverAsync(second with { Proof=old.SignRecovery(await Challenge(second.ChallengeId)) },default)).Error);Assert.Equal(beforeSecond,await Snapshot(s));
++        Assert.Null((await Store().RecoverAsync(second,default)).Error);
++        await using(var db=fixture.CreateContext())Assert.False(await db.VaultUnlockChallenges.AnyAsync(x=>x.PublicId==r.ChallengeId));
++        var before=await Snapshot(s);var replay=await new VaultRecoveryStore(fixture).RecoverAsync(r with { Proof=Malleate(r.Proof),IdentityIssuedAt=DateTimeOffset.UtcNow.ToUnixTimeSeconds() },default);
++        Assert.Equal(first,replay.Data);Assert.Null(replay.Error);Assert.Equal(before,await Snapshot(s));Assert.Equal(2,replay.Data!.Generation);
++    }
++
++    [FunctionalFact]
++    public async Task GivenRefreshedCredential_WhenOldRecoveryThenNewRecoveryAttempted_ThenOnlyNewGenerationCanCommit()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();using var third=new ProtectionFixture();var s=await Setup(old);
++        var oldInput=Replacement(old,third) with { Operation="recover" };var oldRequest=await Request(s,old,oldInput,"recover");
++        var refresh=await Request(s,old,Replacement(old,next));Assert.Null((await Store().RecoverAsync(refresh,default)).Error);var before=await Snapshot(s);
++        Assert.Equal("recovery_credential_consumed",(await Store().RecoverAsync(oldRequest,default)).Error);Assert.Equal(before,await Snapshot(s));
++        var replacement=Replacement(old,third,3,3,2) with { Operation="recover" };var recovery=await Request(s,next,replacement,"recover");
++        Assert.Equal(new RecoveryDetails("committed",3,3,3),(await Store().RecoverAsync(recovery,default)).Data);
++        await using var db=fixture.CreateContext();var account=await db.Accounts.SingleAsync(x=>x.Id==s.InternalId);Assert.Equal(s.Envelope,account.DetailsEnvelope);Assert.Equal(3,account.Revision);
++    }
++    [FunctionalTheory]
++    [InlineData(false)][InlineData(true)]
++    public async Task GivenSessionExpiringDuringAccountOrSessionLockWait_WhenRefreshing_ThenRejectWithoutConsumption(bool sessionLock)
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));var deadline=DateTimeOffset.UtcNow.AddSeconds(2);
++        await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(y=>y.ExpiresAt,deadline));var before=await Snapshot(s);
++        await using var holder=fixture.CreateContext();await using var tx=await holder.Database.BeginTransactionAsync();
++        if(sessionLock)await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={s.InternalId} FOR UPDATE");
++        else await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
++        var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var pending=new VaultRecoveryStore(new Factory(fixture,new LockSignal(reached,sessionLock?"vault_access_session":null))).RecoverAsync(r,default);
++        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);var delay=deadline-DateTimeOffset.UtcNow;if(delay>TimeSpan.Zero)await Task.Delay(delay+TimeSpan.FromMilliseconds(100));
++        await tx.CommitAsync();Assert.Equal("vault_access_denied",(await pending).Error);Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalFact]
++    public async Task GivenCommittedRefreshKey_WhenReusedForRecoverPurpose_ThenDigestConflictWithoutTransition()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));Assert.Null((await Store().RecoverAsync(r,default)).Error);
++        var recover=r.Replacement with { Operation="recover" };var before=await Snapshot(s);
++        var result=await Store().RecoverAsync(r with { Replacement=recover,RawBody=JsonSerializer.SerializeToUtf8Bytes(recover,ProtectionFixture.Json) },default);
++        Assert.Equal("revision_conflict",result.Error);Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalTheory]
++    [InlineData(false)][InlineData(true)]
++    public async Task GivenConcurrentRecoveryRequests_WhenCommitting_ThenOnlyOneGenerationTransition(bool exactRetry)
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var a=await Request(s,old,Replacement(old,next));var b=exactRetry?a:await Request(s,old,Replacement(old,next));
++        var results=await Task.WhenAll(Store().RecoverAsync(a,default),Store().RecoverAsync(b,default));
++        if(exactRetry){Assert.All(results,x=>Assert.Null(x.Error));Assert.Equal(results[0].Data,results[1].Data);}
++        else{Assert.Single(results,x=>x.Error is null);Assert.Equal("revision_conflict",Assert.Single(results,x=>x.Error is not null).Error);}
++        await using var db=fixture.CreateContext();Assert.Equal(2,(await db.VaultProtections.SingleAsync(x=>x.AccountId==s.InternalId)).RecoveryGeneration);
++        Assert.Equal(1,await db.Set<VaultRecoveryOperation>().CountAsync(x=>x.AccountId==s.InternalId));Assert.Equal(1,await db.VaultUnlockChallenges.CountAsync(x=>x.AccountId==s.InternalId&&x.Consumed));
++    }
++
++    [FunctionalTheory]
++    [InlineData("changedBytes","revision_conflict")][InlineData("changedPayload","revision_conflict")][InlineData("actor","not_found")]
++    [InlineData("staleAuth","fresh_authentication_required")][InlineData("corruptResult","persistence_unavailable")]
++    public async Task GivenStoredRecoveryResult_WhenRetryBindingOrCurrentAuthenticationWrong_ThenRejectUnchanged(string invalid,string error)
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));Assert.Null((await Store().RecoverAsync(r,default)).Error);
++        if(invalid=="changedBytes")r=r with { RawBody=[..r.RawBody,(byte)' '] };
++        if(invalid=="changedPayload")r=r with { Replacement=r.Replacement with { PasswordWrapper=r.Replacement.PasswordWrapper with { Ciphertext="CgsM" } },RawBody=Encoding.UTF8.GetBytes("{\"changed\":true}") };
++        if(invalid=="actor")r=r with { Actor=Guid.NewGuid() };if(invalid=="staleAuth")r=r with { IdentityIssuedAt=DateTimeOffset.UtcNow.ToUnixTimeSeconds()-60 };
++        if(invalid=="corruptResult"){await using var db=fixture.CreateContext();await db.Set<VaultRecoveryOperation>().Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(o=>o.Generation,0));}
++        var before=await Snapshot(s);var result=await Store().RecoverAsync(r,default);Assert.Equal(error,result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));
++    }
++
++    [FunctionalTheory]
++    [InlineData("closing","not_found")][InlineData("erased","not_found")][InlineData("missingProtection","not_found")]
++    [InlineData("oldAuth","fresh_authentication_required")][InlineData("futureAuth","fresh_authentication_required")]
++    [InlineData("revision","revision_conflict")][InlineData("policy","vault_access_denied")][InlineData("challengePolicy","revision_conflict")][InlineData("consumed","vault_proof_rejected")]
++    [InlineData("wrongKey","vault_proof_rejected")][InlineData("newKey","vault_proof_rejected")][InlineData("purpose","vault_proof_rejected")]
++    [InlineData("body","vault_proof_rejected")][InlineData("parsedPayload","vault_proof_rejected")]
++    [InlineData("generation","validation_failed")][InlineData("reusedKey","validation_failed")][InlineData("salt","validation_failed")]
++    [InlineData("overflow","revision_conflict")][InlineData("expired","vault_proof_rejected")]
++    [InlineData("missingSession","vault_access_denied")][InlineData("foreignSession","vault_access_denied")]
++    [InlineData("revokedSession","vault_access_denied")][InlineData("profileSession","vault_access_denied")]
++    [InlineData("expiredSession","vault_access_denied")][InlineData("futureSession","vault_access_denied")]
++    [InlineData("sessionPolicy","vault_access_denied")][InlineData("sessionGeneration","vault_access_denied")]
++    [InlineData("enabledNullExpiry","vault_access_denied")][InlineData("disabledExpiry","vault_access_denied")]
++    public async Task GivenInvalidRecoveryStateOrProof_WhenRecovering_ThenPreserveEveryWrite(string invalid,string error)
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var p=Replacement(old,next);
++        if(invalid=="revision")p=p with { ExpectedRevision=2 };
++        if(invalid=="generation")p=p with { RecoveryWrapper=p.RecoveryWrapper with { Generation=3 } };
++        if(invalid=="reusedKey")p=p with { NewRecoveryVerifier=old.Material.UnlockVerifier,RecoveryWrapper=p.RecoveryWrapper with { ProofKeyFingerprint=old.Material.UnlockVerifier.Fingerprint() } };
++        if(invalid=="salt")p=p with { PasswordWrapper=p.PasswordWrapper with { Nonce=old.Material.PasswordWrapper.Nonce } };
++        var r=await Request(s,old,p,invalid=="purpose"?"change-protection":"refresh-recovery");
++        await using(var db=fixture.CreateContext())
++        {
++            var a=await db.Accounts.SingleAsync(x=>x.Id==s.InternalId);var c=await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==r.ChallengeId);
++            if(invalid=="closing")a.State=AccountState.ClosurePending;if(invalid=="erased")db.TerminalErasures.Add(new TerminalErasure { ResourceId=s.Id,ResourceKind="account",DeletedAt=DateTimeOffset.UtcNow });
++            if(invalid=="missingProtection")await db.VaultProtections.Where(x=>x.AccountId==a.Id).ExecuteDeleteAsync();
++            if(invalid=="policy")a.PolicyRevision++;if(invalid=="challengePolicy")c.PolicyRevision++;if(invalid=="consumed")c.Consumed=true;if(invalid=="overflow")a.RevocationGeneration=9007199254740991;
++            if(invalid=="expired")
++            {
++                var issued=JsonSerializer.Deserialize<VaultProofChallenge>(c.Challenge,ProtectionFixture.Json)! with { IssuedAt=1,ExpiresAt=61 };c.Challenge=JsonSerializer.SerializeToUtf8Bytes(issued,ProtectionFixture.Json);c.ExpiresAt=DateTimeOffset.FromUnixTimeSeconds(61);r=r with { Proof=old.Sign(issued) };
++            }
++            var session=await db.VaultAccessSessions.SingleAsync(x=>x.AccountId==a.Id);
++            if(invalid=="missingSession")db.VaultAccessSessions.Remove(session);if(invalid=="revokedSession")session.Revoked=true;
++            if(invalid=="profileSession")session.ProfileId=123;if(invalid=="expiredSession")session.ExpiresAt=DateTimeOffset.UtcNow.AddSeconds(-1);
++            if(invalid=="futureSession")session.IssuedAt=DateTimeOffset.UtcNow.AddMinutes(1);if(invalid=="sessionPolicy")session.PolicyRevision++;
++            if(invalid=="sessionGeneration")session.RevocationGeneration++;if(invalid=="enabledNullExpiry")session.ExpiresAt=null;if(invalid=="disabledExpiry")a.RenewalEnabled=false;
++            await db.SaveChangesAsync();
++        }
++        if(invalid=="foreignSession")r=r with { AccessVerifier=new string('a',64) };
++        if(invalid=="oldAuth")r=r with { IdentityIssuedAt=DateTimeOffset.UtcNow.ToUnixTimeSeconds()-60 };if(invalid=="futureAuth")r=r with { IdentityIssuedAt=DateTimeOffset.UtcNow.ToUnixTimeSeconds()+60 };
++        if(invalid=="wrongKey")r=r with { Proof=old.SignRecovery(await Challenge(r.ChallengeId)) };if(invalid=="newKey")r=r with { Proof=next.SignRecovery(await Challenge(r.ChallengeId)) };
++        if(invalid=="body")r=r with { RawBody=Encoding.UTF8.GetBytes(" "+Encoding.UTF8.GetString(r.RawBody)) };
++        if(invalid=="parsedPayload")r=r with { Replacement=r.Replacement with { PasswordWrapper=r.Replacement.PasswordWrapper with { Ciphertext="CgsM" } } };
++        var before=await Snapshot(s);var result=await Store().RecoverAsync(r,default);Assert.Equal(error,result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));
++    }
++
++    [FunctionalTheory]
++    [InlineData("challenge","vault_proof_rejected")][InlineData("identity","fresh_authentication_required")]
++    public async Task GivenNaturalDeadlineExpiringWhileAccountLocked_WhenRecovering_ThenRejectWithoutConsumption(string expires,string error)
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));
++        var deadline=DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds()+2);
++        if(expires=="identity")r=r with { IdentityIssuedAt=deadline.ToUnixTimeSeconds()-60 };
++        else
++        {
++            await using var db=fixture.CreateContext();var row=await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==r.ChallengeId);
++            var c=JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge,ProtectionFixture.Json)! with { IssuedAt=deadline.ToUnixTimeSeconds()-60,ExpiresAt=deadline.ToUnixTimeSeconds() };
++            row.Challenge=JsonSerializer.SerializeToUtf8Bytes(c,ProtectionFixture.Json);row.ExpiresAt=deadline;await db.SaveChangesAsync();r=r with { Proof=old.Sign(c) };
++        }
++        var before=await Snapshot(s);await using var holder=fixture.CreateContext();await using var tx=await holder.Database.BeginTransactionAsync();
++        await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
++        var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var pending=new VaultRecoveryStore(new Factory(fixture,new LockSignal(reached))).RecoverAsync(r,default);
++        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);var delay=deadline-DateTimeOffset.UtcNow;if(delay>TimeSpan.Zero)await Task.Delay(delay+TimeSpan.FromMilliseconds(100));
++        await tx.CommitAsync();Assert.Equal(error,(await pending).Error);Assert.Equal(before,await Snapshot(s));
++    }
++
++    [FunctionalTheory]
++    [InlineData("closing","not_found")][InlineData("erased","not_found")][InlineData("policy","vault_access_denied")]
++    public async Task GivenLifecycleChangingWhileQueued_WhenRecovering_ThenUseCurrentLockedState(string state,string error)
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));
++        await using var holder=fixture.CreateContext();await using var tx=await holder.Database.BeginTransactionAsync();await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
++        var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var pending=new VaultRecoveryStore(new Factory(fixture,new LockSignal(reached))).RecoverAsync(r,default);await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);
++        var a=await holder.Accounts.SingleAsync(x=>x.Id==s.InternalId);if(state=="closing")a.State=AccountState.ClosurePending;if(state=="policy")a.PolicyRevision++;
++        if(state=="erased")holder.TerminalErasures.Add(new TerminalErasure { ResourceId=s.Id,ResourceKind="account",DeletedAt=DateTimeOffset.UtcNow });await holder.SaveChangesAsync();await tx.CommitAsync();var before=await Snapshot(s);
++        Assert.Equal(error,(await pending).Error);Assert.Equal(before,await Snapshot(s));
++    }
++
++    [FunctionalFact]
++    public async Task GivenFailureAfterConsumption_WhenRecovering_ThenRollbackAndAllowIdenticalProofRetry()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));var before=await Snapshot(s);
++        Assert.Equal("persistence_unavailable",(await new VaultRecoveryStore(new Factory(fixture,new RejectWrite())).RecoverAsync(r,default)).Error);
++        Assert.Equal(before,await Snapshot(s));Assert.Null((await Store().RecoverAsync(r,default)).Error);
++    }
++
++    [FunctionalFact]
++    public async Task GivenUnavailableDatabaseOrCancelledCaller_WhenRecovering_ThenFailClosed()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));var before=await Snapshot(s);
++        var down=new VaultRecoveryStore(new Factory(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql("Host=127.0.0.1;Port=1;Database=unavailable;Username=fixture;Password=fixture;Timeout=1").Options));
++        Assert.Equal("persistence_unavailable",(await down.RecoverAsync(r,default)).Error);using var cancel=new CancellationTokenSource();cancel.Cancel();
++        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>Store().RecoverAsync(r,cancel.Token));Assert.Equal(before,await Snapshot(s));
++    }
++
++    [FunctionalFact]
++    public async Task GivenRecoveredAccount_WhenDeleting_ThenCascadeNonsecretOutcome()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));Assert.Null((await Store().RecoverAsync(r,default)).Error);
++        await using var db=fixture.CreateContext();await db.Accounts.Where(x=>x.Id==s.InternalId).ExecuteDeleteAsync();Assert.False(await db.Set<VaultRecoveryOperation>().AnyAsync(x=>x.AccountId==s.InternalId));
++    }
++
++    private VaultRecoveryStore Store()=>new(fixture);
++    private sealed record State(Guid Actor,Guid Id,long InternalId,byte[] Envelope,string Verifier);
++    private async Task<State> Setup(ProtectionFixture old)
++    {
++        var actor=Guid.NewGuid();var id=Guid.NewGuid();byte[] envelope=[1,2,3];await using var db=fixture.CreateContext();var a=new Account { PublicId=id,HeimdallPublicId=actor,DetailsEnvelope=envelope,Revision=3 };
++        db.Accounts.Add(a);await db.SaveChangesAsync();db.VaultProtections.Add(new VaultProtection { AccountId=a.Id,Material=JsonSerializer.SerializeToUtf8Bytes(old.Material,ProtectionFixture.Json) });await db.SaveChangesAsync();var access=ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32));OpaqueAccessHandle.TryHash(access,out var verifier);db.VaultAccessSessions.Add(new VaultAccessSession { AccountId=a.Id,HandleVerifier=verifier,IssuedAt=DateTimeOffset.UtcNow.AddSeconds(-1),ExpiresAt=DateTimeOffset.UtcNow.AddHours(1),PolicyRevision=1,RevocationGeneration=1 });await db.SaveChangesAsync();return new(actor,id,a.Id,envelope,verifier);
++    }
++    private static RecoveryReplacement Replacement(ProtectionFixture old,ProtectionFixture next,long epoch=2,long generation=2,long revision=1)
++    {var m=old.Rewrap(epoch);return new("refresh-recovery",Guid.NewGuid(),revision,m.PasswordWrapper,m.RecoveryWrapper with { Generation=generation,ProofKeyFingerprint=next.Material.RecoveryVerifier.Fingerprint() },next.Material.RecoveryVerifier);}
++    private async Task<RecoveryRequest> Request(State s,ProtectionFixture key,RecoveryReplacement input,string operation="refresh-recovery")
++    {var raw=JsonSerializer.SerializeToUtf8Bytes(input,ProtectionFixture.Json);var issued=await new VaultProtectionStore(fixture).ChallengeAsync(s.Actor,operation,ProtocolBinary.Encode(SHA256.HashData(raw)),default);Assert.Null(issued.Error);var c=issued.Data!;return new(s.Actor,DateTimeOffset.UtcNow.ToUnixTimeSeconds(),c.ChallengeId,operation=="recover"?key.SignRecovery(c):key.Sign(c),raw,input,s.Verifier);}
++    private async Task<State> CurrentAccess(State s,ProtectionFixture key,long revision)
++    {
++        var raw=JsonSerializer.SerializeToUtf8Bytes(new { expectedProtectionRevision=revision },ProtectionFixture.Json);var store=new VaultProtectionStore(fixture);
++        var c=(await store.ChallengeAsync(s.Actor,ProtocolBinary.Encode(SHA256.HashData(raw)),default)).Data!;
++        var unlocked=await store.UnlockAsync(s.Actor,revision,c.ChallengeId,key.Sign(c),raw,default);Assert.Null(unlocked.Error);
++        Assert.True(OpaqueAccessHandle.TryHash(unlocked.Data!.Access,out var verifier));return s with { Verifier=verifier };
++    }
++    private async Task<VaultProofChallenge> Challenge(Guid id)
++    {await using var db=fixture.CreateContext();return JsonSerializer.Deserialize<VaultProofChallenge>((await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==id)).Challenge,ProtectionFixture.Json)!;}
++    private async Task<string> Snapshot(State s)
++    {await using var db=fixture.CreateContext();return JsonSerializer.Serialize(new { Account=await db.Accounts.AsNoTracking().SingleAsync(x=>x.Id==s.InternalId),Protection=await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==s.InternalId),Challenges=await db.VaultUnlockChallenges.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToListAsync(),Sessions=await db.VaultAccessSessions.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToListAsync(),Outcomes=await db.Set<VaultRecoveryOperation>().AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToListAsync() });}
++    private static string Malleate(string proof)
++    {var bytes=ProtectionFixture.Decode(proof);var order=BigInteger.Parse("0FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551",System.Globalization.NumberStyles.HexNumber);var s=new BigInteger(bytes.AsSpan(32),true,true);var alternate=(order-s).ToByteArray(true,true);Array.Clear(bytes,32,32);alternate.CopyTo(bytes,64-alternate.Length);return ProtectionFixture.Encode(bytes);}
++    private sealed class Factory : IDbContextFactory<AppDbContext>
++    {
++        private readonly DbContextOptions<AppDbContext> options;public Factory(DbContextOptions<AppDbContext> value)=>options=value;
++        public Factory(PostgresFixture f,IInterceptor interceptor){using var db=f.CreateContext();options=new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(db.Database.GetConnectionString()).AddInterceptors(interceptor).Options;}
++        public AppDbContext CreateDbContext()=>new(options);
++    }
++    private sealed class LockSignal(TaskCompletionSource reached,string? table=null) : DbCommandInterceptor
++    {public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default){if(c.CommandText.Contains("FOR UPDATE",StringComparison.Ordinal)&&(table is null||c.CommandText.Contains(table,StringComparison.Ordinal)))reached.TrySetResult();return ValueTask.FromResult(r);}}
++    private sealed class RejectWrite : DbCommandInterceptor
++    {public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<DbDataReader> r,CancellationToken ct=default){if(c.CommandText.Contains("INSERT INTO cerberus.vault_recovery_operation",StringComparison.Ordinal))throw new TimeoutException("synthetic recovery write failure");return ValueTask.FromResult(r);}}
++}
+diff --git a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultRecoveryRefreshHttpTests.cs b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultRecoveryRefreshHttpTests.cs
+new file mode 100644
+index 0000000..5f02371
+--- /dev/null
++++ b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultRecoveryRefreshHttpTests.cs
+@@ -0,0 +1,172 @@
++using System.IdentityModel.Tokens.Jwt;
++using System.Security.Claims;
++using Microsoft.IdentityModel.Tokens;
++using System.Net;
++using System.Net.Http.Json;
++using System.Security.Cryptography;
++using System.Text;
++using System.Text.Json;
++using ArturRios.Cerberus.Command.Protection;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Operations;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.TestSupport;
++using ArturRios.Configuration.Enums;
++using ArturRios.Output;
++using ArturRios.Util.Test.Functional;
++using Microsoft.EntityFrameworkCore;
++
++namespace ArturRios.Cerberus.WebApi.Tests;
++
++[Collection("Registration host")]
++public class VaultRecoveryRefreshHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
++{
++    [FunctionalFact]
++    public async Task GivenInitializedUnlockedOwner_WhenRefreshing_ThenOldRecoveryFailsAndNewUnlockAndRecoveryWork()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();using var third=new ProtectionFixture();var state=await Setup(old,false);Authorize(RegistrationApiFixture.Token(state.Actor));
++        using(var init=await Gateway.Client.PostAsJsonAsync("/api/vault/protection",new { accountId=state.Id,expectedAccountRevision=3,material=old.Material }))Assert.Equal(HttpStatusCode.Created,init.StatusCode);
++        currentAccess=await Unlock(old,1);var oldRecovery=Replacement(old,third) with { Operation="recover" };var oldRaw=Bytes(oldRecovery);var oldChallenge=await Challenge(oldRaw,"recover");
++        var input=Replacement(old,next);var raw=Bytes(input);var c=await Challenge(raw);Assert.Null(c.Generation);var originalAccess=currentAccess;
++        using(var response=await Send(raw,c,old.Sign(c)))
++        {Assert.Equal(HttpStatusCode.OK,response.StatusCode);Assert.True(response.Headers.CacheControl?.NoStore);var result=(await response.Content.ReadFromJsonAsync<DataOutput<RecoverVaultOutput>>())!.Data!;Assert.Equal(new[]{2L,2L,2L},new[]{result.ProtectionRevision,result.Generation,result.RevocationGeneration});Assert.Equal("committed",result.Status);}
++        var before=await Snapshot(state);using(var rejected=await Recover(oldRaw,oldChallenge,old.SignRecovery(oldChallenge)))await Failure(rejected,409);Assert.Equal(before,await Snapshot(state));
++        using(var retry=await Send(raw,c,old.Sign(c),originalAccess))Assert.Equal(HttpStatusCode.OK,retry.StatusCode);Assert.Equal(before,await Snapshot(state));
++        currentAccess=await Unlock(old,2);var recovery=Replacement(old,third,3,3,2) with { Operation="recover" };var recoveryRaw=Bytes(recovery);var recoveryChallenge=await Challenge(recoveryRaw,"recover");
++        using(var rejected=await Recover(recoveryRaw,recoveryChallenge,old.SignRecovery(recoveryChallenge)))await Failure(rejected,401);
++        using(var committed=await Recover(recoveryRaw,recoveryChallenge,next.SignRecovery(recoveryChallenge)))Assert.Equal(HttpStatusCode.OK,committed.StatusCode);
++        before=await Snapshot(state);using(var replay=await Send(raw,c,old.Sign(c),originalAccess)){Assert.Equal(HttpStatusCode.OK,replay.StatusCode);Assert.Equal(2,(await replay.Content.ReadFromJsonAsync<DataOutput<RecoverVaultOutput>>())!.Data!.Generation);}Assert.Equal(before,await Snapshot(state));
++        using(var conflict=await Send([..raw,(byte)' '],c,old.Sign(c),originalAccess))await Failure(conflict,409);Assert.Equal(before,await Snapshot(state));
++        await using var db=fixture.Context();var account=await db.Accounts.SingleAsync(x=>x.PublicId==state.Id);Assert.Equal(state.Envelope,account.DetailsEnvelope);Assert.Equal(3,account.Revision);Assert.Equal(3,account.RevocationGeneration);Assert.Equal(2,await db.VaultRecoveryOperations.CountAsync(x=>x.AccountId==account.Id));
++    }
++    [FunctionalTheory]
++    [InlineData("anonymous",401)][InlineData("scope",401)][InlineData("deletedIdentity",401)][InlineData("identityUnavailable",503)]
++    [InlineData("foreign",404)][InlineData("closing",404)][InlineData("erased",404)][InlineData("noProtection",404)]
++    [InlineData("revision",409)][InlineData("policy",403)][InlineData("challengePolicy",409)]
++    [InlineData("revokedSession",403)][InlineData("expiredSession",403)][InlineData("profileSession",403)][InlineData("accessGeneration",403)][InlineData("consumed",401)][InlineData("expired",401)]
++    public async Task GivenInvalidIdentityOrCurrentState_WhenRecovering_ThenPreserveEveryWrite(string state,int status)
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);Authorize(RegistrationApiFixture.Token(s.Actor));var input=Replacement(old,next);if(state=="revision")input=input with { ExpectedRevision=2 };var raw=Bytes(input);var c=await Challenge(raw);
++        await using(var db=fixture.Context())
++        {
++            var a=await db.Accounts.SingleAsync(x=>x.PublicId==s.Id);if(state=="closing")a.State=AccountState.ClosurePending;if(state=="policy")a.PolicyRevision++;
++            if(state=="erased")db.TerminalErasures.Add(new TerminalErasure { ResourceId=s.Id,ResourceKind="account",DeletedAt=DateTimeOffset.UtcNow });
++            if(state=="noProtection")await db.VaultProtections.Where(x=>x.AccountId==a.Id).ExecuteDeleteAsync();
++            var session=await db.VaultAccessSessions.SingleAsync(x=>x.AccountId==a.Id);if(state=="revokedSession")session.Revoked=true;if(state=="expiredSession")session.ExpiresAt=DateTimeOffset.UtcNow.AddSeconds(-1);if(state=="profileSession")session.ProfileId=123;if(state=="accessGeneration")session.RevocationGeneration++;
++            var row=await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==c.ChallengeId);if(state=="challengePolicy")row.PolicyRevision++;if(state=="consumed")row.Consumed=true;
++            if(state=="expired"){c=c with { IssuedAt=1,ExpiresAt=61 };row.Challenge=Bytes(c);row.ExpiresAt=DateTimeOffset.FromUnixTimeSeconds(61);}await db.SaveChangesAsync();
++        }
++        if(state=="anonymous")Gateway.Client.DefaultRequestHeaders.Authorization=null;if(state=="scope")Authorize(RegistrationApiFixture.Token(s.Actor,Guid.NewGuid()));if(state=="foreign"){var foreign=Guid.NewGuid();fixture.Users[Guid.NewGuid()+"@example.test"]=new(foreign,"fixture-password");Authorize(RegistrationApiFixture.Token(foreign));}
++        if(state is "deletedIdentity" or "identityUnavailable"){var pair=fixture.Users.Single(x=>x.Value.Id==s.Actor);fixture.Users[pair.Key]=pair.Value with { Deleted=state=="deletedIdentity",IdentityUnavailable=state=="identityUnavailable" };}
++        var before=await Snapshot(s);using var response=await Send(raw,c,old.Sign(c));await Failure(response,status);Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalTheory]
++    [InlineData("unknown")][InlineData("actor")][InlineData("private")][InlineData("duplicate")][InlineData("case")][InlineData("numericString")]
++    [InlineData("missing")][InlineData("generation")][InlineData("reusedKey")][InlineData("salt")][InlineData("operation")][InlineData("key")]
++    public async Task GivenMalformedOrIncompleteRecovery_WhenSubmitting_ThenReturn400Unchanged(string invalid)
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);Authorize(RegistrationApiFixture.Token(s.Actor));var p=Replacement(old,next);
++        p=invalid switch { "generation"=>p with { RecoveryWrapper=p.RecoveryWrapper with { Generation=3 } },"reusedKey"=>p with { NewRecoveryVerifier=old.Material.UnlockVerifier,RecoveryWrapper=p.RecoveryWrapper with { ProofKeyFingerprint=old.Material.UnlockVerifier.Fingerprint() } },"salt"=>p with { PasswordWrapper=p.PasswordWrapper with { Nonce=old.Material.PasswordWrapper.Nonce } },"operation"=>p with { Operation="recover" },"key"=>p with { IdempotencyKey=Guid.Empty },_=>p };
++        var text=JsonSerializer.Serialize(p,ProtectionFixture.Json);text=invalid switch { "unknown"=>text.Insert(1,"\"password\":\"secret\","),"actor"=>text.Insert(1,"\"actor\":\""+s.Actor+"\","),"private"=>text.Replace("\"crv\":","\"d\":\"private\",\"crv\":"),"duplicate"=>text.Insert(1,"\"expectedRevision\":1,"),"case"=>text.Replace("\"operation\":","\"Operation\":"),"numericString"=>text.Replace("\"expectedRevision\":1","\"expectedRevision\":\"1\""),"missing"=>text.Replace("\"newRecoveryVerifier\":", "\"missingVerifier\":"),_=>text };
++        var raw=Encoding.UTF8.GetBytes(text);var c=await Challenge(raw);var before=await Snapshot(s);using var response=await Send(raw,c,old.Sign(c));await Failure(response,400);Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalTheory]
++    [InlineData("missingAccess",401)][InlineData("badAccess",400)][InlineData("multipleAccess",400)]
++    [InlineData("missingProof",401)][InlineData("missingChallenge",401)][InlineData("multipleProof",400)][InlineData("multipleChallenge",400)]
++    [InlineData("badProof",400)][InlineData("badChallenge",400)][InlineData("query",400)][InlineData("gzip",400)][InlineData("bom",400)]
++    [InlineData("wrongKey",401)][InlineData("recoveryKey",401)][InlineData("newKey",401)][InlineData("purpose",401)][InlineData("body",401)]
++    public async Task GivenInvalidWireOrProof_WhenRecovering_ThenReturnFailureUnchanged(string invalid,int status)
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();using var other=new ProtectionFixture();var s=await Setup(old);Authorize(RegistrationApiFixture.Token(s.Actor));var raw=Bytes(Replacement(old,next));var c=await Challenge(raw,invalid=="purpose"?"unlock-account":"refresh-recovery");var before=await Snapshot(s);
++        if(invalid=="body")raw=[(byte)' ',..raw];if(invalid=="bom")raw=[239,187,191,..raw];using var request=new HttpRequestMessage(HttpMethod.Put,"/api/vault/recovery"+(invalid=="query"?"?owner=untrusted":"")) { Content=new ByteArrayContent(raw) };request.Content.Headers.ContentType=new("application/json");
++        if(invalid!="missingAccess")request.Headers.Add("X-Cerberus-Vault-Access",invalid=="badAccess"?"bad":currentAccess);if(invalid=="multipleAccess")request.Headers.Add("X-Cerberus-Vault-Access",currentAccess);
++        if(invalid=="gzip")request.Content.Headers.ContentEncoding.Add("gzip");if(invalid!="missingChallenge")request.Headers.Add("X-Cerberus-Challenge-Id",invalid=="badChallenge"?"bad":c.ChallengeId.ToString());
++        if(invalid!="missingProof")request.Headers.Add("X-Cerberus-Proof",invalid=="badProof"?"bad":invalid=="wrongKey"?other.Sign(c):invalid=="recoveryKey"?old.SignRecovery(c):invalid=="newKey"?next.Sign(c):old.Sign(c));
++        if(invalid=="multipleProof")request.Headers.Add("X-Cerberus-Proof",old.Sign(c));if(invalid=="multipleChallenge")request.Headers.Add("X-Cerberus-Challenge-Id",c.ChallengeId.ToString());
++        using var response=await Gateway.Client.SendAsync(request);await Failure(response,status);Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalFact]
++    public async Task GivenWhitespaceOriginalBodyAndConcurrentExactRetry_WhenRecovering_ThenOnlyOneTransition()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);Authorize(RegistrationApiFixture.Token(s.Actor));var raw=Encoding.UTF8.GetBytes("\n "+JsonSerializer.Serialize(Replacement(old,next),ProtectionFixture.Json)+"\n");var c=await Challenge(raw);
++        var responses=await Task.WhenAll(Send(raw,c,old.Sign(c)),Send(raw,c,old.Sign(c)));try{Assert.All(responses,r=>Assert.Equal(HttpStatusCode.OK,r.StatusCode));await using var db=fixture.Context();var a=await db.Accounts.SingleAsync(x=>x.PublicId==s.Id);Assert.Equal(2,a.RevocationGeneration);Assert.Equal(1,await db.VaultRecoveryOperations.CountAsync(x=>x.AccountId==a.Id));}finally{foreach(var response in responses)response.Dispose();}
++    }
++    [FunctionalFact]
++    public async Task GivenUnavailableRecoveryPersistence_WhenRecovering_ThenReturn503WithoutMutation()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);Authorize(RegistrationApiFixture.Token(s.Actor));var raw=Bytes(Replacement(old,next));var c=await Challenge(raw);var before=await Snapshot(s);await using var db=fixture.Context();await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.vault_recovery_operation RENAME TO fixture_unavailable_recovery");
++        try{using var response=await Send(raw,c,old.Sign(c));await Failure(response,503);}finally{await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.fixture_unavailable_recovery RENAME TO vault_recovery_operation");}Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalTheory]
++    [InlineData("missing")][InlineData("old")][InlineData("future")]
++    public async Task GivenUnfreshSignedIdentity_WhenRecoveringOrReplaying_ThenRejectUnchanged(string freshness)
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);Authorize(RegistrationApiFixture.Token(s.Actor));var raw=Bytes(Replacement(old,next));var c=await Challenge(raw);
++        var before=await Snapshot(s);Authorize(TokenWithIssuedAt(s.Actor,freshness));using(var response=await Send(raw,c,old.Sign(c)))await Failure(response,401);Assert.Equal(before,await Snapshot(s));
++        Authorize(RegistrationApiFixture.Token(s.Actor));using(var committed=await Send(raw,c,old.Sign(c)))Assert.Equal(HttpStatusCode.OK,committed.StatusCode);
++        before=await Snapshot(s);Authorize(TokenWithIssuedAt(s.Actor,freshness));using(var retry=await Send(raw,c,old.Sign(c)))await Failure(retry,401);Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalFact]
++    public async Task GivenCommittedRecoveryAndDeletedProviderIdentity_WhenReplaying_ThenRequireCurrentIdentity()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);Authorize(RegistrationApiFixture.Token(s.Actor));var raw=Bytes(Replacement(old,next));var c=await Challenge(raw);
++        using(var committed=await Send(raw,c,old.Sign(c)))Assert.Equal(HttpStatusCode.OK,committed.StatusCode);
++        var pair=fixture.Users.Single(x=>x.Value.Id==s.Actor);fixture.Users[pair.Key]=pair.Value with { Deleted=true };var before=await Snapshot(s);using var retry=await Send(raw,c,old.Sign(c));await Failure(retry,401);Assert.Equal(before,await Snapshot(s));
++    }
++    private static string TokenWithIssuedAt(Guid actor,string freshness)
++    {
++        var claims=new List<Claim> { new("id",actor.ToString()),new("roleId","3"),new("scopeId",RegistrationApiFixture.Scope.ToString()) };
++        if(freshness!="missing")claims.Add(new("iat",(DateTimeOffset.UtcNow.ToUnixTimeSeconds()+(freshness=="old"?-120:120)).ToString(),ClaimValueTypes.Integer64));
++        return new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken("fixture-issuer","fixture-audience",claims,DateTime.UtcNow.AddMinutes(-5),DateTime.UtcNow.AddMinutes(5),new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes("fixture-only-signing-key-32-characters")),SecurityAlgorithms.HmacSha256)));
++    }
++    [FunctionalTheory]
++    [InlineData("old")][InlineData("missing")][InlineData("future")]
++    public async Task GivenRecoveryMaterialRead_WhenIdentityUnfresh_ThenReturn401WithoutMutation(string freshness)
++    {
++        using var old=new ProtectionFixture();var state=await Setup(old);Authorize(TokenWithIssuedAt(state.Actor,freshness));var before=await Snapshot(state);
++        using var response=await Gateway.Client.GetAsync("/api/vault/recovery-material");await Failure(response,401);Assert.Equal(before,await Snapshot(state));
++    }
++    [FunctionalTheory]
++    [InlineData("valid",200)][InlineData("query",400)][InlineData("body",400)][InlineData("closing",404)][InlineData("missing",404)][InlineData("provider",503)]
++    public async Task GivenNamedFreshRecoveryMaterialRead_WhenRequesting_ThenReturnOwnOpaqueMaterialWithoutConsumption(string state,int status)
++    {
++        using var old=new ProtectionFixture();var s=await Setup(old);Authorize(RegistrationApiFixture.Token(s.Actor));
++        if(state is "closing" or "missing"){await using var db=fixture.Context();var a=await db.Accounts.SingleAsync(x=>x.PublicId==s.Id);if(state=="closing"){a.State=AccountState.ClosurePending;await db.SaveChangesAsync();}else await db.VaultProtections.Where(x=>x.AccountId==a.Id).ExecuteDeleteAsync();}
++        if(state=="valid"){await using var db=fixture.Context();await db.VaultAccessSessions.Where(x=>db.Accounts.Any(a=>a.Id==x.AccountId&&a.PublicId==s.Id)).ExecuteDeleteAsync();}
++        if(state=="provider"){var pair=fixture.Users.Single(x=>x.Value.Id==s.Actor);fixture.Users[pair.Key]=pair.Value with { IdentityUnavailable=true };}
++        var before=await Snapshot(s);using var request=new HttpRequestMessage(HttpMethod.Get,"/api/vault/recovery-material"+(state=="query"?"?owner=untrusted":""));if(state=="body")request.Content=new StringContent("{}",Encoding.UTF8,"application/json");
++        using var response=await Gateway.Client.SendAsync(request);if(status==200){Assert.Equal(HttpStatusCode.OK,response.StatusCode);Assert.True(response.Headers.CacheControl?.NoStore);using var doc=JsonDocument.Parse(await response.Content.ReadAsStringAsync());var material=JsonSerializer.Deserialize<ProtectionMaterial>(doc.RootElement.GetProperty("data").GetProperty("material"),ProtectionFixture.Json);Assert.Equal(old.Material,material);}else await Failure(response,status);Assert.Equal(before,await Snapshot(s));
++    }
++    [FunctionalFact]
++    public async Task GivenWrongMethodPurpose_WhenPostingRefreshOrPuttingRecover_ThenReturn400WithoutMutation()
++    {
++        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var state=await Setup(old);Authorize(RegistrationApiFixture.Token(state.Actor));var refresh=Bytes(Replacement(old,next));var recover=Bytes(Replacement(old,next) with { Operation="recover" });var rc=await Challenge(refresh);var cc=await Challenge(recover,"recover");var before=await Snapshot(state);
++        using(var response=await Recover(refresh,rc,old.Sign(rc)))await Failure(response,400);using(var response=await Send(recover,cc,old.SignRecovery(cc)))await Failure(response,400);Assert.Equal(before,await Snapshot(state));
++    }
++    private async Task<string> Unlock(ProtectionFixture key,long revision)
++    {
++        var raw=Bytes(new { expectedProtectionRevision=revision });var c=await Challenge(raw,"unlock-account");using var request=new HttpRequestMessage(HttpMethod.Post,"/api/vault/unlock") { Content=new ByteArrayContent(raw) };request.Content.Headers.ContentType=new("application/json");request.Headers.Add("X-Cerberus-Challenge-Id",c.ChallengeId.ToString());request.Headers.Add("X-Cerberus-Proof",key.Sign(c));
++        using var response=await Gateway.Client.SendAsync(request);Assert.Equal(HttpStatusCode.OK,response.StatusCode);return(await response.Content.ReadFromJsonAsync<DataOutput<VaultUnlockOutput>>())!.Data!.VaultAccess;
++    }
++    private async Task<HttpResponseMessage> Recover(byte[] raw,VaultProofChallenge c,string proof)
++    {using var request=new HttpRequestMessage(HttpMethod.Post,"/api/vault/recovery") { Content=new ByteArrayContent(raw) };request.Content.Headers.ContentType=new("application/json");request.Headers.Add("X-Cerberus-Challenge-Id",c.ChallengeId.ToString());request.Headers.Add("X-Cerberus-Proof",proof);return await Gateway.Client.SendAsync(request);}
++    private string? currentAccess;
++    private sealed record State(Guid Actor,Guid Id,byte[] Envelope,string Access);
++    private async Task<State> Setup(ProtectionFixture old,bool initialize=true)
++    {
++        var actor=Guid.NewGuid();var id=Guid.NewGuid();fixture.Users[Guid.NewGuid().ToString("N")+"@example.test"]=new(actor,"fixture-password");var envelope=Bytes(new EncryptedEnvelope("cerberus-content-v1",1,ProtectionFixture.Encode(new byte[32]),ProtectionFixture.Encode(new byte[12]),"AQID",ProtectionFixture.Encode(new byte[16])));
++        await using var db=fixture.Context();var a=new Account { PublicId=id,HeimdallPublicId=actor,DetailsEnvelope=envelope,Revision=3 };db.Accounts.Add(a);await db.SaveChangesAsync();if(initialize){db.VaultProtections.Add(new VaultProtection { AccountId=a.Id,Material=Bytes(old.Material) });await db.SaveChangesAsync();}var access=ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(32));OpaqueAccessHandle.TryHash(access,out var verifier);db.VaultAccessSessions.Add(new VaultAccessSession { AccountId=a.Id,HandleVerifier=verifier,IssuedAt=DateTimeOffset.UtcNow.AddSeconds(-1),ExpiresAt=DateTimeOffset.UtcNow.AddHours(1),PolicyRevision=1,RevocationGeneration=1 });await db.SaveChangesAsync();currentAccess=access;return new(actor,id,envelope,access);
++    }
++    private static RecoveryReplacement Replacement(ProtectionFixture old,ProtectionFixture next,long epoch=2,long generation=2,long revision=1)
++    {var m=old.Rewrap(epoch);return new("refresh-recovery",Guid.NewGuid(),revision,m.PasswordWrapper,m.RecoveryWrapper with { Generation=generation,ProofKeyFingerprint=next.Material.RecoveryVerifier.Fingerprint() },next.Material.RecoveryVerifier);}
++    private static byte[] Bytes<T>(T value)=>JsonSerializer.SerializeToUtf8Bytes(value,ProtectionFixture.Json);
++    private async Task<VaultProofChallenge> Challenge(byte[] raw,string operation="refresh-recovery")
++    {using var response=await Gateway.Client.PostAsJsonAsync("/api/vault/challenges",new { operation,requestHash=ProtocolBinary.Encode(SHA256.HashData(raw)) });Assert.Equal(HttpStatusCode.Created,response.StatusCode);return(await response.Content.ReadFromJsonAsync<DataOutput<VaultChallengeOutput>>())!.Data!.Challenge;}
++    private async Task<HttpResponseMessage> Send(byte[] raw,VaultProofChallenge c,string proof,string? access=null)
++    {using var request=new HttpRequestMessage(HttpMethod.Put,"/api/vault/recovery") { Content=new ByteArrayContent(raw) };request.Content.Headers.ContentType=new("application/json");request.Headers.Add("X-Cerberus-Challenge-Id",c.ChallengeId.ToString());request.Headers.Add("X-Cerberus-Proof",proof);request.Headers.Add("X-Cerberus-Vault-Access",access??currentAccess!);return await Gateway.Client.SendAsync(request);}
++    private async Task<string> Snapshot(State s)
++    {await using var db=fixture.Context();var a=await db.Accounts.AsNoTracking().SingleAsync(x=>x.PublicId==s.Id);return JsonSerializer.Serialize(new { Account=a,Protection=await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==a.Id),Challenges=await db.VaultUnlockChallenges.AsNoTracking().Where(x=>x.AccountId==a.Id).OrderBy(x=>x.Id).ToListAsync(),Sessions=await db.VaultAccessSessions.AsNoTracking().Where(x=>x.AccountId==a.Id).OrderBy(x=>x.Id).ToListAsync(),Outcomes=await db.VaultRecoveryOperations.AsNoTracking().Where(x=>x.AccountId==a.Id).OrderBy(x=>x.Id).ToListAsync() });}
++    private static async Task Failure(HttpResponseMessage response,int status)
++    {Assert.Equal((HttpStatusCode)status,response.StatusCode);Assert.True(response.Headers.CacheControl?.NoStore);using var doc=JsonDocument.Parse(await response.Content.ReadAsStringAsync());Assert.False(doc.RootElement.GetProperty("success").GetBoolean());if(doc.RootElement.TryGetProperty("data",out var data))Assert.Equal(JsonValueKind.Null,data.ValueKind);}
++}

@@ -1,0 +1,1795 @@
+# Review package: 96f6000a85c9bad6f668a80fdd2810609fd19d70..HEAD
+
+## Commits
+528aeb4 feat: expose atomic vault protection changes
+f914e25 feat: replace vault protection atomically
+59854a9 feat: validate vault protection transitions
+e4fa84a docs: plan atomic vault protection changes
+
+## Files changed
+ README.md                                          |   4 +-
+ docs/contracts/openapi.json                        | 299 +++++++++++++++++++++
+ .../Operations & Infrastructure Document.md        |   9 +
+ docs/security/vault-protection-api.md              |  51 ++++
+ .../2026-10-08-uc-39-change-vault-protection.md    |  48 ++++
+ ...6-10-08-uc-39-change-vault-protection-design.md |  39 +++
+ .../Protection/ChangeVaultProtectionCommand.cs     |  25 ++
+ .../Protection/ChangeVaultProtectionHandler.cs     |  31 +++
+ .../Protection/ChangeVaultProtectionOutput.cs      |  12 +
+ .../Protection/ChangeVaultProtectionValidator.cs   |  15 ++
+ .../Protection/VaultHandlers.cs                    |   6 +-
+ .../Protection/VaultProtectionMessages.cs          |   1 +
+ .../Protection/VaultValidators.cs                  |   2 +-
+ .../Protection/ProtectionChange.cs                 |  42 +++
+ .../Protection/VaultProtectionContracts.cs         |   1 +
+ .../Protection/VaultProtectionChangeStore.cs       | 121 +++++++++
+ .../Protection/VaultProtectionStore.cs             |   7 +-
+ .../Controllers/VaultController.cs                 |  21 ++
+ .../ArturRios.Cerberus.WebApi/Startup.cs           |   3 +
+ .../VaultProtectionChangeHandlerTests.cs           |  90 +++++++
+ .../ProtectionChangeTests.cs                       |  84 ++++++
+ .../VaultProtectionChangeStoreTests.cs             | 249 +++++++++++++++++
+ .../VaultProtectionChangeHttpTests.cs              | 198 ++++++++++++++
+ tests/TestSupport/ProtectionFixture.cs             |   7 +
+ 24 files changed, 1358 insertions(+), 7 deletions(-)
+
+## Diff
+diff --git a/README.md b/README.md
+index f2e4c5d..056d0b3 100644
+--- a/README.md
++++ b/README.md
+@@ -104,21 +104,21 @@ no server and requires no deployment credentials.
+ ## Roadmap
+ 
+ Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
+ Each use case has one issue; the foundation issue comes first. Every milestone depends on
+ Foundation, with dependencies only on earlier milestones. Counts below are the snapshot at
+ creation; GitHub milestone pages show live progress. No due dates or labels were assigned.
+ 
+ | Milestone | Delivers | Depends on | Issues | Status |
+ | --- | --- | --- | --- | --- |
+ | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
+-| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 6 / 9 closed |
++| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 7 / 9 closed |
+ | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 0 / 26 closed |
+ | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
+ | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
+ | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
+ 
+ ## Backlog
+ 
+ ### M-01 — Foundation
+ 
+ | Issue | Work | Spec | Status |
+@@ -128,21 +128,21 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
+ ### M-02 — Account identity and vault protection
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Done |
+ | [#3](https://github.com/artur-rios/cerberus-api/issues/3) | UC-02 — Authenticate | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-02-authenticate) | Done |
+ | [#4](https://github.com/artur-rios/cerberus-api/issues/4) | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | Done |
+ | [#5](https://github.com/artur-rios/cerberus-api/issues/5) | UC-04 — Update account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-04-update-account) | Done |
+ | [#6](https://github.com/artur-rios/cerberus-api/issues/6) | UC-05 — Update identity details | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-05-update-identity-details) | Done |
+ | [#39](https://github.com/artur-rios/cerberus-api/issues/39) | UC-38 — Initialize vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-38-initialize-vault-protection) | Done |
+-| [#40](https://github.com/artur-rios/cerberus-api/issues/40) | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | Todo |
++| [#40](https://github.com/artur-rios/cerberus-api/issues/40) | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | Done |
+ | [#41](https://github.com/artur-rios/cerberus-api/issues/41) | UC-40 — Recover vault access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-40-recover-vault-access) | Todo |
+ | [#42](https://github.com/artur-rios/cerberus-api/issues/42) | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | Todo |
+ 
+ ### M-03 — Organized vault
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#10](https://github.com/artur-rios/cerberus-api/issues/10) | UC-09 — Create profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-09-create-profile) | Todo |
+ | [#11](https://github.com/artur-rios/cerberus-api/issues/11) | UC-10 — List profiles | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-10-list-profiles) | Todo |
+ | [#12](https://github.com/artur-rios/cerberus-api/issues/12) | UC-11 — Get profile | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-11-get-profile) | Todo |
+diff --git a/docs/contracts/openapi.json b/docs/contracts/openapi.json
+index 46d3115..e5dc9ce 100644
+--- a/docs/contracts/openapi.json
++++ b/docs/contracts/openapi.json
+@@ -1080,20 +1080,209 @@
+               },
+               "text/json": {
+                 "schema": {
+                   "$ref": "#/components/schemas/VaultInitializationOutputDataOutput"
+                 }
+               }
+             }
+           }
+         }
+       },
++      "put": {
++        "tags": [
++          "Vault"
++        ],
++        "parameters": [
++          {
++            "name": "X-Cerberus-Vault-Access",
++            "in": "header",
++            "schema": {
++              "type": "string"
++            }
++          },
++          {
++            "name": "X-Cerberus-Challenge-Id",
++            "in": "header",
++            "schema": {
++              "type": "string"
++            }
++          },
++          {
++            "name": "X-Cerberus-Proof",
++            "in": "header",
++            "schema": {
++              "type": "string"
++            }
++          }
++        ],
++        "requestBody": {
++          "content": {
++            "application/json": {
++              "schema": {
++                "$ref": "#/components/schemas/ChangeVaultProtectionCommand"
++              }
++            },
++            "text/json": {
++              "schema": {
++                "$ref": "#/components/schemas/ChangeVaultProtectionCommand"
++              }
++            },
++            "application/*+json": {
++              "schema": {
++                "$ref": "#/components/schemas/ChangeVaultProtectionCommand"
++              }
++            }
++          }
++        },
++        "responses": {
++          "400": {
++            "description": "Bad Request",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "401": {
++            "description": "Unauthorized",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "404": {
++            "description": "Not Found",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "409": {
++            "description": "Conflict",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "503": {
++            "description": "Service Unavailable",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "200": {
++            "description": "OK",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ChangeVaultProtectionOutputDataOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ChangeVaultProtectionOutputDataOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ChangeVaultProtectionOutputDataOutput"
++                }
++              }
++            }
++          },
++          "403": {
++            "description": "Forbidden",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          }
++        }
++      },
+       "get": {
+         "tags": [
+           "Vault"
+         ],
+         "responses": {
+           "400": {
+             "description": "Bad Request",
+             "content": {
+               "text/plain": {
+                 "schema": {
+@@ -1638,20 +1827,130 @@
+           "success": {
+             "type": "boolean",
+             "readOnly": true
+           },
+           "data": {
+             "$ref": "#/components/schemas/AuthenticationOutput"
+           }
+         },
+         "additionalProperties": false
+       },
++      "ChangeVaultProtectionCommand": {
++        "type": "object",
++        "properties": {
++          "accountId": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "expectedProtectionRevision": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "expectedAccountRevision": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "mode": {
++            "type": "string",
++            "nullable": true
++          },
++          "material": {
++            "$ref": "#/components/schemas/ProtectionMaterial"
++          },
++          "contentReplacements": {
++            "type": "array",
++            "items": {
++              "$ref": "#/components/schemas/ContentReplacement"
++            },
++            "nullable": true
++          }
++        },
++        "additionalProperties": false
++      },
++      "ChangeVaultProtectionOutput": {
++        "type": "object",
++        "properties": {
++          "accountId": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "protectionRevision": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "keyEpoch": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "recoveryGeneration": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "accountRevision": {
++            "type": "integer",
++            "format": "int64"
++          }
++        },
++        "additionalProperties": false
++      },
++      "ChangeVaultProtectionOutputDataOutput": {
++        "type": "object",
++        "properties": {
++          "messages": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "errors": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "timestamp": {
++            "type": "string",
++            "format": "date-time"
++          },
++          "success": {
++            "type": "boolean",
++            "readOnly": true
++          },
++          "data": {
++            "$ref": "#/components/schemas/ChangeVaultProtectionOutput"
++          }
++        },
++        "additionalProperties": false
++      },
++      "ContentReplacement": {
++        "type": "object",
++        "properties": {
++          "resourceKind": {
++            "type": "string",
++            "nullable": true
++          },
++          "resourceId": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "expectedRevision": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "envelope": {
++            "$ref": "#/components/schemas/EncryptedEnvelope"
++          }
++        },
++        "additionalProperties": false
++      },
+       "EncryptedEnvelope": {
+         "type": "object",
+         "properties": {
+           "format": {
+             "type": "string",
+             "nullable": true
+           },
+           "keyEpoch": {
+             "type": "integer",
+             "format": "int64"
+diff --git a/docs/requirements/Operations & Infrastructure Document.md b/docs/requirements/Operations & Infrastructure Document.md
+index b4afb0a..ae2caa6 100644
+--- a/docs/requirements/Operations & Infrastructure Document.md	
++++ b/docs/requirements/Operations & Infrastructure Document.md	
+@@ -326,10 +326,19 @@ pending and the main/tag release gate stays enforced.
+ | Identity/configuration | IR-03, IR-05 |
+ | Logging and tests | IR-06 through IR-08 |
+ | Protocol release gate | IR-09 |
+ | Delivery, retention and restore | IR-10 through IR-14 |
+ | Health | FR-OP-01, FR-OP-02, FR-OP-03; UC-55 |
+ 
+ The single foundation issue owns all IR requirements; do not create an issue per IR. Use-case
+ issues own functional health, retention, recovery, synchronization and privacy behavior.
+ Foundational infrastructure provides those modules with tested primitives, not a claim that
+ every future use case is already delivered.
++
++UC39 protection replacement requires both account-wide vault access and the current
++registered unlock-key proof. Rewrap preserves account ciphertext; complete current
++content rotation and both wrappers commit with protection/account revisions and
++revocation generation in one transaction. Previous sessions/challenges become stale;
++clients must re-unlock. The complete current inventory is the account envelope and
++zero recipient grants; future profile/content/sharing flows must extend its coverage.
++See [vault protection API](../security/vault-protection-api.md) for exact modes,
++original-body proof binding and ambiguous-response retry behavior.
+diff --git a/docs/security/vault-protection-api.md b/docs/security/vault-protection-api.md
+index cef597b..0603541 100644
+--- a/docs/security/vault-protection-api.md
++++ b/docs/security/vault-protection-api.md
+@@ -85,10 +85,61 @@ session: request a new challenge and prove again; no raw handle can be recovered
+ from its stored verifier. Expired/consumed challenges are pruned on the next issuance.
+ 
+ ## Encrypted client record contract
+ 
+ FR-KY-03..05 and BR08/09 apply inside ciphertext: every record requires a name and
+ may contain text, numeric, boolean and hidden-text fields; a selected template's
+ required fields must be checked locally before encryption. The API accepts no
+ plaintext record/key material and cannot enforce those obligations by decryption.
+ Native harness vectors validate the shared cryptographic wire contract; they do
+ not constitute the deferred independent security or real-client approval.
++
++## Change the master vault protection (UC39)
++
++Prepare strict JSON for PUT `/api/vault/protection` with exactly `accountId`,
++`expectedProtectionRevision`, `expectedAccountRevision`, `mode`, `material`,
++`contentReplacements`. Derive the actor from the bearer, never a JSON identity.
++Use the current own account-wide `X-Cerberus-Vault-Access` handle. Obtain a fresh
++`change-protection` challenge for the SHA256 of the exact prepared body and sign
++with the **current old registered unlock key**. Submit its single-valued challenge
++and proof headers with those original bytes. An unlock-purpose proof cannot change
++protection, and a change-purpose proof cannot unlock.
++
++Replace both complete password/recovery wrappers, each at protection-slot epoch+1,
++using fresh keySalt/nonce and a fresh password KDF salt. Keep all four public key
++pins and the recovery generation unchanged. Recovery identity changes belong to
++recovery/refresh, and recipient/author identity transitions require their separately
++specified authenticated transition. The server cannot inspect the encrypted bundle;
++clients must validate that its inner roots and private/public correspondence remain
++correct. Password change cannot destroy a recipient's already copied keys or data.
++
++`mode:"rewrap"` requires `contentReplacements:[]`. It advances the protection revision
++and slot epoch while preserving every existing account ciphertext byte and its
++revision/content epoch. The slot epoch in wrapper context is distinct from an inner
++content root's epoch, as demonstrated by the native harness rewrap vectors.
++
++`mode:"rotate-content"` replaces the complete current authoritative content set
++in the same transaction. Each replacement has `resourceKind`, `resourceId`,
++`expectedRevision`, `envelope`. The current set is exactly the own account envelope;
++use `resourceKind:"account"`, own `accountId`, the expected account revision and
++content epoch equal to the current account envelope epoch+1. Missing, duplicate,
++foreign or extra replacements fail400 before challenge consumption. The complete
++pair of protection wrappers must wrap the locally rotated inner roots. Current
++recipient-grant inventory is empty. Profile/content/grant creation flows must extend
++this completeness invariant when those entities become available; this route does
++not claim support for nonexistent selected profiles or grants.
++
++Success200 returns only accountId, protectionRevision, keyEpoch (slot epoch),
++recoveryGeneration and accountRevision. Content rotation increments the account
++revision; rewrap preserves it. Both increment account revocation generation,
++invalidating old handles/challenges. Request a new unlock challenge and prove again
++to obtain new access. No handle or raw password/key is returned by a change.
++
++Locks serialize the current account and presented own session; session/challenge
++expiry is rechecked using fresh database statement time at proof consumption.
++All wrapper, optional content, revision and revocation writes commit atomically.
++Concurrent changes allow one winner; stale expected revisions return409. A failed
++write rolls back consumption and all state. Missing handle401, malformed input400,
++invalid current handle403, unbound/expired/consumed proof401, hidden target404 and
++required dependency503 all preserve protection. After a lost response, retrieve
++current opaque protection and compare the intended revision/wrappers before retrying;
++an old expected revision cannot replace the winner or recover a plaintext key.
+diff --git a/docs/superpowers/plans/2026-10-08-uc-39-change-vault-protection.md b/docs/superpowers/plans/2026-10-08-uc-39-change-vault-protection.md
+new file mode 100644
+index 0000000..2043198
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-08-uc-39-change-vault-protection.md
+@@ -0,0 +1,48 @@
++# UC39 Change Vault Protection Implementation Plan
++
++> **For agentic workers:** REQUIRED SUB-SKILL: superpowers:executing-plans inline, TDD, one final whole-branch ordinary review under existing batch authorization.
++
++**Goal:** Deliver issue40 complete atomic master-vault rewrap/content rotation.
++**Architecture:** Domain defines strict transition/payload contracts; Data combines current session/native proof/inventory checks in account-first transaction; Command/WebApi bind original bytes and trusted actor/header values.
++**Tech Stack:** Existing .NET10/EF PostgreSQL/native ECDsa/SHA256/mediator/FluentValidation/xUnit/Moq/Testcontainers; no new dependencies or server crypto secrets.
++**Spec:** docs/superpowers/specs/2026-10-08-uc-39-change-vault-protection-design.md.
++
++## Global Constraints
++
++- Current active non-erased owner AND current account-wide vault handle AND old unlock proof; no login-only write.
++- Strict safe integers/GUIDs/base64url/unknown-member rejection; original UTF8 bytes only, no reconstructed signing.
++- New protection revision/slot epoch current+1; current recovery generation/four public pins preserved; fresh wrapper salts/nonces and password KDF salt.
++- Rewrap preserves account ciphertext/revision; rotate-content requires complete current inventory, account epoch/revision+1; no partial mutation.
++- Account-then-session locks/fresh statement_timestamp; exclusive proof/session expiry rechecked at consume; revocation generation+1 invalidates prior sessions/challenges.
++- Main/AF01–06 complete; full unfiltered green suite/line>=90/branch reported; pending independent approvals remain release-gated.
++
++## Review Focus
++
++- A valid-looking replacement must not substitute recovery, unlock, recipient or author identities under a password-change operation.
++- Concurrent rewrap and account edits must preserve one coherent wrapper/content revision set without partial changes.
++- A queued change whose unchanged session or challenge naturally expires during a lock wait must write nothing.
++- Complete content rotation must reject omitted/extra/foreign replacements before challenge consumption.
++- A valid proof for unlock or a reformatted raw body must never authorize a protection change.
++
++### Task 1: Strict replacement and transition contracts
++
++**Files:** Domain/Protection/ProtectionChange.cs; Domain.Tests/ProtectionChangeTests.cs; tests/TestSupport/ProtectionFixture.cs test-only fresh-material helper.
++**Interfaces:** strict `ContentReplacement(string ResourceKind,Guid ResourceId,long ExpectedRevision,EncryptedEnvelope Envelope)`; `ProtectionChange(Guid AccountId,long ExpectedProtectionRevision,long ExpectedAccountRevision,string Mode,ProtectionMaterial Material,ContentReplacement[] ContentReplacements)` with `IsValid()` and `IsValidTransition(ProtectionMaterial current)`; `ProtectionChangeRequest(Guid Actor,string AccessVerifier,Guid ChallengeId,string Proof,byte[] RawBody,ProtectionChange Change)`; `ProtectionChangeDetails(Guid AccountId,long ProtectionRevision,long KeyEpoch,long RecoveryGeneration,long AccountRevision)`; `IVaultProtectionChangeStore.ChangeAsync(ProtectionChangeRequest,CancellationToken)->Task<VaultResult<ProtectionChangeDetails>>`. New IVaultProtectionStore.ChallengeAsync overload takes actor,operation,requestHash,ct while existing overload remains usable.
++- [ ] Write unit cases: legitimate rewrap/rotation, all unsafe/missing fields, changed key roles/generation, nonincrementing/overflow slot epoch, reused visible salt/nonces; absent-types RED.
++- [ ] Implement strict records and pure shape/transition checks. Full Domain suite GREEN and commit/ledger.
++
++### Task 2: Atomic protection replacement store
++
++**Files:** Data/Protection/VaultProtectionChangeStore.cs; existing VaultProtectionStore challenge issuance overload; Data.Tests/VaultProtectionChangeStoreTests.cs.
++**Interfaces:** Task1 IVaultProtectionChangeStore/request/result. Existing IVaultProtectionStore old and new ChallengeAsync signatures. Native VaultProof.Verify with current change-protection binding and raw bytes. No schema change required.
++- [ ] Write real PostgreSQL cases for rewrap preserving ciphertext/revision and rotation replacing complete account envelope; old session invalidation; all permission/state/revision/key/inventory/proof mutations; challenge-purpose mismatch both directions; one concurrent winner; unchanged challenge/session expiry across account/session locks; queued lifecycle/policy mutations; outage/cancel/injected save rollback; observe missing-store RED.
++- [ ] Implement account-then-session locking/fresh SQL time; validate current metadata/pins/inventory; atomic challenge consumption including fresh session expiry; complete writes with revocation increment. Extend existing challenge creation to exact unlock-account/change-protection only. Full Data GREEN and commit/ledger.
++
++### Task 3: Typed change handler and protected PUT contract
++
++**Files:** Command/Protection/ChangeVaultProtectionCommand.cs/Handler.cs/Validator.cs/Output.cs; existing challenge validator/handler/maps; WebApi VaultController.cs/Startup.cs; Command.Tests/VaultProtectionChangeHandlerTests.cs; WebApi.Tests/VaultProtectionChangeHttpTests.cs; OpenAPI/docs/README.
++**Interfaces:** public command mirrors Task1 ProtectionChange six fields; internal actor/access/challenge/proof/raw set via SetContext; output Task1 confirmation five fields. Handler hashes canonical handle and calls store. Challenge operation new exact change-protection supported; outputs must match command purpose.
++- [ ] Write success/error/incomplete output/trusted context/validator/cancel handler tests; observe RED, implement, full Command GREEN.
++- [ ] Write real host main init/unlock/challenge/change/re-unlock/account-read and all AFs; absent PUT RED. Implement strict header/query/raw body binding, DI, maps200/400/401/403/404/409/503. Full WebApi GREEN.
++- [ ] Document complete inventory/password-slot vs content epochs/retry/no copied-key revocation, generate/inspect OpenAPI; README UC39 Done M02 7/9. Full unfiltered coverage/helpers/spec/OpenAPI drift/diff checks; commit/ledger.
++- [ ] One final ordinary review, one TDD correction pass for blockers, own PR closing40, all CI green, authorized merge/issueDone/archive/sync.
+diff --git a/docs/superpowers/specs/2026-10-08-uc-39-change-vault-protection-design.md b/docs/superpowers/specs/2026-10-08-uc-39-change-vault-protection-design.md
+new file mode 100644
+index 0000000..2bd3d99
+--- /dev/null
++++ b/docs/superpowers/specs/2026-10-08-uc-39-change-vault-protection-design.md
+@@ -0,0 +1,39 @@
++# UC39 Change vault protection design
++
++Issue40 implements FR-KY-06/07, BR10/12 and UC39 main flow/all AF01–06. Existing unattended authorization covers design/implementation/review/verified develop merge. Independent security/client approvals remain pending and development-deferred; release gate unchanged.
++
++## Scope and approach
++
++Use the existing owner/account protection, native old-unlock-key proof and PostgreSQL account lock. Require current account-wide vault access as well as current identity. Replace the complete password/recovery protection pair atomically. Support `rewrap` (password protection-slot epoch changes, inner content roots/epochs remain unchanged) and `rotate-content` (the current complete account content inventory is replaced in the same transaction). Separate statements/partial wrapper PATCHes would admit inconsistent recovery; a new generic encrypted inventory duplicating domain content would create synchronization hazards. Keep the authoritative existing account row as the inventory source.
++
++The current domain has account ciphertext and no profile/content/grant entities. Thus its complete rotation inventory is exactly the own account envelope and zero recipient grants; extra/foreign/missing replacements reject. Profile protection and expanded content/recipient inventories must join this invariant when their subsequent creation/sharing use cases introduce those entities. This API changes the master vault wrapper, not a nonexistent selected profile. No profile/grant implementation is invented here. Client-only inner bundle/root correspondence is validated locally using the established harness contract; the API never decrypts.
++
++## Wire contract
++
++PUT `/api/vault/protection` with strict JSON fields `accountId`, `expectedProtectionRevision`, `expectedAccountRevision`, `mode`, `material`, `contentReplacements`. Mode exactly `rewrap` or `rotate-content`. Replacement material uses UC38's six-field strict public-only contract. Each content replacement has exactly `resourceKind`, `resourceId`, `expectedRevision`, `envelope`; resource kind currently account. Rewrap requires an empty array; rotation requires exactly the own account entry, matching expected account revision and a valid content envelope whose content epoch is the current content epoch+1. Envelope bytes are client ciphertext only.
++
++Both protection wrappers must use current protection-slot epoch+1. Keep current recovery generation and all four registered public keys unchanged; password changes cannot silently change recovery identity or pinned recipient/author keys. Both wrappers require new keySalt/nonce, and password KDF salt must differ from the current one. Fresh ciphertext/context validity and preservation/replacement of inner roots remain client obligations. Protection slot epoch differs from account content epoch: rewrap never changes account content/revision; content rotation increments account content epoch and account revision atomically with the protection revision. Positive counters are safe JSON integers at most9007199254740991, overflow rejects409.
++
++Single headers `X-Cerberus-Vault-Access`, `X-Cerberus-Challenge-Id`, `X-Cerberus-Proof`. No caller actor/handle verifier/raw secrets/private JWK fields in JSON. The original bytes are captured by existing bounded strict UTF8 middleware; proof binds their SHA256 digest. No query, compressed body, BOM, duplicate/unknown/case-mismatched fields or unsupported encoding.
++
++Extend POST `/api/vault/challenges` operation to `change-protection` as well as existing `unlock-account`. Same signed iat freshness policy, actor/account scope/current slot epoch/protection revision, generation:null, 60-second exclusive expiry. Challenge creation does not authorize a mutation or issue a session; PUT requires the live account-wide handle and proof signed by the old registered unlock key. Unlock rejects change-purpose challenges and change rejects unlock-purpose challenges.
++
++Success200 returns only accountId, protectionRevision, keyEpoch (protection slot), recoveryGeneration, accountRevision. Existing sessions/challenges become stale by incrementing account revocation generation. No new handle is issued; obtain a fresh unlock after the change. Copied plaintext/old keys cannot be remotely destroyed. Lost response: GET current protection, compare intended wrappers/revision, and reload before retry; exact repeated expected revision returns409 and never replaces the winner.
++
++## Persistence and races
++
++One explicit transaction locks the own account first, then the presented own session. Recheck active/non-erased owner, policy/revocation/session scope, future issuance and exclusive expiry with statement_timestamp after locks. Match both expected revisions, complete replacement material, key pinning, fresh visible salts/nonces and inventory. Verify native purpose-bound proof against the current old unlock verifier. Consume exactly one challenge using conditional SQL which rechecks challenge AND session expiry at statement_timestamp. Write both wrappers/counters, optional complete content replacements and account revocation generation; SaveChanges/commit once. All failure paths roll back challenge consumption and every write; concurrent changes yield one complete winner. No provider call or server decrypt/sign/KDF is added.
++
++## Flow verification
++
++| Flow | Behavior and evidence |
++| --- | --- |
++| Main | Real native proof + current handle rewrap/complete rotation; new confirmation, old sessions invalid, preserved or atomically replaced content. |
++| AF01 | Strict input/material/headers/encoding/integer/salt/key/inventory rejection400, no writes/consumption. |
++| AF02 | Absent/foreign/closing/erased target or protection404, no hidden material. |
++| AF03 | Current identity failure401/provider503; missing handle401; malformed handle400; invalid/stale/profile/revoked/expired handle403; wrong/consumed/expired/purpose/body proof401. |
++| AF04 | Account/protection revisions or challenge policy/generation changed409; overflow409; concurrent changes one winner. |
++| AF05 | Real PostgreSQL outage/wrapped timeout503, cancellation, injected post-consumption save failure rolls back all, same valid request can retry. |
++| AF06 | Missing/duplicate/foreign/extra account content replacement or wrong content epoch rejects400 before any write; zero existing recipient grants, later grants must extend inventory. |
++
++Unit tests pin transition/validation/handler projection. PostgreSQL tests pin atomic replacement, account/session lock wait expiry and lifecycle/policy changes, concurrency and rollback. HTTP tests exercise init/unlock/change/re-unlock/read, main modes and all AFs. Full unfiltered suite zero failure/skips, production line>=90/report branch, helpers/spec/OpenAPI drift, one final ordinary review, all3 required CI before merge.
+diff --git a/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionCommand.cs b/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionCommand.cs
+new file mode 100644
+index 0000000..c19028b
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionCommand.cs
+@@ -0,0 +1,25 @@
++using System.Text.Json.Serialization;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Mediator.Command;
++
++namespace ArturRios.Cerberus.Command.Protection;
++
++[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
++[JsonNumberHandling(JsonNumberHandling.Strict)]
++public sealed class ChangeVaultProtectionCommand : BaseCommand
++{
++    public Guid AccountId { get; set; }
++    public long ExpectedProtectionRevision { get; set; }
++    public long ExpectedAccountRevision { get; set; }
++    public string Mode { get; set; } = null!;
++    public ProtectionMaterial Material { get; set; } = null!;
++    public ContentReplacement[] ContentReplacements { get; set; } = null!;
++    internal Guid Actor { get; private set; }
++    internal string? Access { get; private set; }
++    internal Guid ChallengeId { get; private set; }
++    internal string Proof { get; private set; } = null!;
++    internal byte[] RawBody { get; private set; } = [];
++    public ProtectionChange ToChange() => new(AccountId, ExpectedProtectionRevision, ExpectedAccountRevision, Mode, Material, ContentReplacements);
++    public void SetContext(Guid actor, string? access, Guid challengeId, string proof, byte[] rawBody)
++    { Actor = actor; Access = access; ChallengeId = challengeId; Proof = proof; RawBody = rawBody; }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionHandler.cs b/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionHandler.cs
+new file mode 100644
+index 0000000..7c44fd0
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionHandler.cs
+@@ -0,0 +1,31 @@
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Mediator.Command.Interfaces;
++using ArturRios.Output;
++using FluentValidation;
++
++namespace ArturRios.Cerberus.Command.Protection;
++
++public sealed class ChangeVaultProtectionHandler(IValidator<ChangeVaultProtectionCommand> validator, IVaultProtectionChangeStore store)
++    : ICommandHandlerAsync<ChangeVaultProtectionCommand, ChangeVaultProtectionOutput>
++{
++    public async Task<DataOutput<ChangeVaultProtectionOutput?>> HandleAsync(ChangeVaultProtectionCommand command, CancellationToken cancellationToken = default)
++    {
++        cancellationToken.ThrowIfCancellationRequested();
++        var output = DataOutput<ChangeVaultProtectionOutput?>.New;
++        if (command.Actor == Guid.Empty) return output.WithError("authentication_required");
++        if (command.Access is null) return output.WithError("vault_access_required");
++        if (!OpaqueAccessHandle.TryHash(command.Access, out var verifier)) return output.WithError("validation_failed");
++        if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
++        var result = await store.ChangeAsync(new(command.Actor, verifier, command.ChallengeId, command.Proof, command.RawBody, command.ToChange()), cancellationToken);
++        if (result.Error is not null) return output.WithError(result.Error);
++        var data = result.Data;
++        if (data is null || data.AccountId != command.AccountId || data.ProtectionRevision != command.ExpectedProtectionRevision + 1
++            || data.KeyEpoch != command.Material.PasswordWrapper.KeyEpoch || data.RecoveryGeneration != command.Material.RecoveryWrapper.Generation
++            || data.AccountRevision != command.ExpectedAccountRevision + (command.Mode == "rotate-content" ? 1 : 0)
++            || data.ProtectionRevision > ProtocolBinary.MaxInteger || data.AccountRevision > ProtocolBinary.MaxInteger)
++            return output.WithError("persistence_unavailable");
++        return output.WithData(new ChangeVaultProtectionOutput { AccountId = data.AccountId, ProtectionRevision = data.ProtectionRevision,
++            KeyEpoch = data.KeyEpoch, RecoveryGeneration = data.RecoveryGeneration, AccountRevision = data.AccountRevision }).WithMessage("protection_changed");
++    }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionOutput.cs b/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionOutput.cs
+new file mode 100644
+index 0000000..820ca62
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionOutput.cs
+@@ -0,0 +1,12 @@
++using ArturRios.Mediator.Command;
++
++namespace ArturRios.Cerberus.Command.Protection;
++
++public sealed class ChangeVaultProtectionOutput : CommandOutput
++{
++    public Guid AccountId { get; init; }
++    public long ProtectionRevision { get; init; }
++    public long KeyEpoch { get; init; }
++    public long RecoveryGeneration { get; init; }
++    public long AccountRevision { get; init; }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionValidator.cs b/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionValidator.cs
+new file mode 100644
+index 0000000..b07378e
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Protection/ChangeVaultProtectionValidator.cs
+@@ -0,0 +1,15 @@
++using ArturRios.Cerberus.Domain.Protection;
++using FluentValidation;
++
++namespace ArturRios.Cerberus.Command.Protection;
++
++public sealed class ChangeVaultProtectionValidator : AbstractValidator<ChangeVaultProtectionCommand>
++{
++    public ChangeVaultProtectionValidator()
++    {
++        RuleFor(x => x).Must(x => x.ToChange().IsValid());
++        RuleFor(x => x.ChallengeId).NotEmpty();
++        RuleFor(x => x.Proof).Must(x => ProtocolBinary.TryDecode(x, 64, out _));
++        RuleFor(x => x.RawBody).Must(x => x is { Length: > 0 and <= 1048576 });
++    }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Protection/VaultHandlers.cs b/src/Application/ArturRios.Cerberus.Command/Protection/VaultHandlers.cs
+index 009ceca..be9398c 100644
+--- a/src/Application/ArturRios.Cerberus.Command/Protection/VaultHandlers.cs
++++ b/src/Application/ArturRios.Cerberus.Command/Protection/VaultHandlers.cs
+@@ -25,25 +25,27 @@ public sealed class InitializeVaultHandler(IValidator<InitializeVaultCommand> va
+ }
+ 
+ public sealed class IssueVaultChallengeHandler(IValidator<IssueVaultChallengeCommand> validator, IVaultProtectionStore store)
+     : ICommandHandlerAsync<IssueVaultChallengeCommand, VaultChallengeOutput>
+ {
+     public async Task<DataOutput<VaultChallengeOutput?>> HandleAsync(IssueVaultChallengeCommand command, CancellationToken cancellationToken = default)
+     {
+         cancellationToken.ThrowIfCancellationRequested(); var output = DataOutput<VaultChallengeOutput?>.New;
+         if (command.Actor == Guid.Empty) return output.WithError("authentication_required");
+         if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
+-        var result = await store.ChallengeAsync(command.Actor, command.RequestHash, cancellationToken);
++        var result = command.Operation == "unlock-account"
++            ? await store.ChallengeAsync(command.Actor, command.RequestHash, cancellationToken)
++            : await store.ChallengeAsync(command.Actor, command.Operation, command.RequestHash, cancellationToken);
+         if (result.Error is not null) return output.WithError(result.Error);
+         var c = result.Data;
+         if (c is null || c.IdentityId != command.Actor || c.AccountId == Guid.Empty || c.ScopeId != c.AccountId
+-            || c.Format != "cerberus-challenge-v1" || c.Operation != "unlock-account" || c.ScopeKind != "account"
++            || c.Format != "cerberus-challenge-v1" || c.Operation != command.Operation || c.ScopeKind != "account"
+             || c.ChallengeId == Guid.Empty || c.Generation is not null || c.RequestHash != command.RequestHash
+             || c.KeyEpoch is <= 0 or > ProtocolBinary.MaxInteger || c.ProtectionRevision is <= 0 or > ProtocolBinary.MaxInteger
+             || c.IssuedAt is < 0 or > ProtocolBinary.MaxInteger - 60 || c.ExpiresAt != c.IssuedAt + 60
+             || !ProtocolBinary.TryDecode(c.Nonce, 32, out _)) return output.WithError("persistence_unavailable");
+         return output.WithData(new VaultChallengeOutput { Challenge = c }).WithMessage("challenge_issued");
+     }
+ }
+ 
+ public sealed class UnlockVaultHandler(IValidator<UnlockVaultCommand> validator, IVaultProtectionStore store)
+     : ICommandHandlerAsync<UnlockVaultCommand, VaultUnlockOutput>
+diff --git a/src/Application/ArturRios.Cerberus.Command/Protection/VaultProtectionMessages.cs b/src/Application/ArturRios.Cerberus.Command/Protection/VaultProtectionMessages.cs
+index 70a6212..6d9e2dd 100644
+--- a/src/Application/ArturRios.Cerberus.Command/Protection/VaultProtectionMessages.cs
++++ b/src/Application/ArturRios.Cerberus.Command/Protection/VaultProtectionMessages.cs
+@@ -1,12 +1,13 @@
+ namespace ArturRios.Cerberus.Command.Protection;
+ 
+ public static class VaultProtectionMessages
+ {
+     public static readonly IReadOnlyDictionary<string, int> StatusCodes = new Dictionary<string, int>
+     {
++        ["protection_changed"] = 200, ["vault_access_required"] = 401, ["vault_access_denied"] = 403,
+         ["protection_initialized"] = 201, ["challenge_issued"] = 201, ["vault_unlocked"] = 200,
+         ["validation_failed"] = 400, ["authentication_required"] = 401, ["fresh_authentication_required"] = 401,
+         ["vault_proof_rejected"] = 401, ["not_found"] = 404, ["revision_conflict"] = 409,
+         ["persistence_unavailable"] = 503, ["identity_unavailable"] = 503
+     };
+ }
+diff --git a/src/Application/ArturRios.Cerberus.Command/Protection/VaultValidators.cs b/src/Application/ArturRios.Cerberus.Command/Protection/VaultValidators.cs
+index 6677e4f..da14141 100644
+--- a/src/Application/ArturRios.Cerberus.Command/Protection/VaultValidators.cs
++++ b/src/Application/ArturRios.Cerberus.Command/Protection/VaultValidators.cs
+@@ -9,21 +9,21 @@ public sealed class InitializeVaultValidator : AbstractValidator<InitializeVault
+     {
+         RuleFor(x => x.AccountId).NotEmpty();
+         RuleFor(x => x.ExpectedAccountRevision).InclusiveBetween(1, ProtocolBinary.MaxInteger);
+         RuleFor(x => x.Material).Must(x => x?.IsValid() == true && x.PasswordWrapper.KeyEpoch == 1 && x.RecoveryWrapper.Generation == 1);
+     }
+ }
+ public sealed class IssueVaultChallengeValidator : AbstractValidator<IssueVaultChallengeCommand>
+ {
+     public IssueVaultChallengeValidator()
+     {
+-        RuleFor(x => x.Operation).Equal("unlock-account");
++        RuleFor(x => x.Operation).Must(x => x is "unlock-account" or "change-protection");
+         RuleFor(x => x.RequestHash).Must(x => ProtocolBinary.TryDecode(x, 32, out _));
+     }
+ }
+ public sealed class UnlockVaultValidator : AbstractValidator<UnlockVaultCommand>
+ {
+     public UnlockVaultValidator()
+     {
+         RuleFor(x => x.ExpectedProtectionRevision).InclusiveBetween(1, ProtocolBinary.MaxInteger);
+         RuleFor(x => x.ChallengeId).NotEmpty();
+         RuleFor(x => x.Proof).Must(x => ProtocolBinary.TryDecode(x, 64, out _));
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Protection/ProtectionChange.cs b/src/Domain/ArturRios.Cerberus.Domain/Protection/ProtectionChange.cs
+new file mode 100644
+index 0000000..0b4d5fa
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Protection/ProtectionChange.cs
+@@ -0,0 +1,42 @@
++using System.Text.Json.Serialization;
++using ArturRios.Cerberus.Domain.Accounts;
++
++namespace ArturRios.Cerberus.Domain.Protection;
++
++[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
++[JsonNumberHandling(JsonNumberHandling.Strict)]
++public sealed record ContentReplacement(string ResourceKind, Guid ResourceId, long ExpectedRevision, EncryptedEnvelope Envelope);
++
++[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
++[JsonNumberHandling(JsonNumberHandling.Strict)]
++public sealed record ProtectionChange(Guid AccountId, long ExpectedProtectionRevision, long ExpectedAccountRevision,
++    string Mode, ProtectionMaterial Material, ContentReplacement[] ContentReplacements)
++{
++    public bool IsValid() => AccountId != Guid.Empty
++        && ExpectedProtectionRevision is > 0 and <= ProtocolBinary.MaxInteger
++        && ExpectedAccountRevision is > 0 and <= ProtocolBinary.MaxInteger
++        && Material?.IsValid() == true && ContentReplacements is not null
++        && (Mode == "rewrap" ? ContentReplacements.Length == 0
++            : Mode == "rotate-content" && ContentReplacements.Length == 1 && ContentReplacements[0] is { } item
++                && item.ResourceKind == "account" && item.ResourceId == AccountId && item.ExpectedRevision == ExpectedAccountRevision
++                && item.Envelope?.IsValid() == true);
++
++    public bool IsValidTransition(ProtectionMaterial current) => IsValid() && current?.IsValid() == true
++        && current.PasswordWrapper.KeyEpoch < ProtocolBinary.MaxInteger
++        && Material.PasswordWrapper.KeyEpoch == current.PasswordWrapper.KeyEpoch + 1
++        && Material.RecoveryWrapper.Generation == current.RecoveryWrapper.Generation
++        && Material.UnlockVerifier == current.UnlockVerifier && Material.RecoveryVerifier == current.RecoveryVerifier
++        && Material.RecipientKey == current.RecipientKey && Material.AuthorKey == current.AuthorKey
++        && Material.PasswordWrapper.KeySalt != current.PasswordWrapper.KeySalt
++        && Material.PasswordWrapper.Nonce != current.PasswordWrapper.Nonce
++        && Material.PasswordWrapper.Kdf.Salt != current.PasswordWrapper.Kdf.Salt
++        && Material.RecoveryWrapper.KeySalt != current.RecoveryWrapper.KeySalt
++        && Material.RecoveryWrapper.Nonce != current.RecoveryWrapper.Nonce;
++}
++
++public sealed record ProtectionChangeRequest(Guid Actor, string AccessVerifier, Guid ChallengeId, string Proof, byte[] RawBody, ProtectionChange Change);
++public sealed record ProtectionChangeDetails(Guid AccountId, long ProtectionRevision, long KeyEpoch, long RecoveryGeneration, long AccountRevision);
++public interface IVaultProtectionChangeStore
++{
++    Task<VaultResult<ProtectionChangeDetails>> ChangeAsync(ProtectionChangeRequest request, CancellationToken cancellationToken);
++}
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Protection/VaultProtectionContracts.cs b/src/Domain/ArturRios.Cerberus.Domain/Protection/VaultProtectionContracts.cs
+index 2dac660..c77db55 100644
+--- a/src/Domain/ArturRios.Cerberus.Domain/Protection/VaultProtectionContracts.cs
++++ b/src/Domain/ArturRios.Cerberus.Domain/Protection/VaultProtectionContracts.cs
+@@ -4,20 +4,21 @@ namespace ArturRios.Cerberus.Domain.Protection;
+ 
+ public sealed record VaultResult<T>(T? Data = null, string? Error = null) where T : class;
+ public sealed record VaultProtectionDetails(Guid AccountId, long ProtectionRevision, long KeyEpoch, long RecoveryGeneration, ProtectionMaterial Material);
+ public sealed record VaultAccessDetails(Guid AccountId, string Access, DateTimeOffset IssuedAt, DateTimeOffset? ExpiresAt);
+ 
+ public interface IVaultProtectionStore
+ {
+     Task<VaultResult<VaultProtectionDetails>> InitializeAsync(Guid actor, Guid accountId, long expectedAccountRevision, ProtectionMaterial material, CancellationToken cancellationToken);
+     Task<VaultResult<VaultProtectionDetails>> ReadAsync(Guid actor, CancellationToken cancellationToken);
+     Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string requestHash, CancellationToken cancellationToken);
++    Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string operation, string requestHash, CancellationToken cancellationToken);
+     Task<VaultResult<VaultAccessDetails>> UnlockAsync(Guid actor, long expectedProtectionRevision, Guid challengeId, string proof, byte[] rawBody, CancellationToken cancellationToken);
+ }
+ 
+ public sealed class VaultProtection : Entity
+ {
+     public long AccountId { get; set; }
+     public long Revision { get; set; } = 1;
+     public long KeyEpoch { get; set; } = 1;
+     public long RecoveryGeneration { get; set; } = 1;
+     public byte[] Material { get; set; } = [];
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionChangeStore.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionChangeStore.cs
+new file mode 100644
+index 0000000..a24a582
+--- /dev/null
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionChangeStore.cs
+@@ -0,0 +1,121 @@
++using System.Data.Common;
++using System.Text.Json;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Protection;
++using Microsoft.EntityFrameworkCore;
++
++namespace ArturRios.Cerberus.Data.Protection;
++
++public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> factory) : IVaultProtectionChangeStore
++{
++    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
++    { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
++
++    public async Task<VaultResult<ProtectionChangeDetails>> ChangeAsync(ProtectionChangeRequest request, CancellationToken cancellationToken)
++    {
++        cancellationToken.ThrowIfCancellationRequested();
++        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
++        var input = request.Change;
++        if (input?.IsValid() != true) return new(Error: "validation_failed");
++        try
++        {
++            await using var db = await factory.CreateDbContextAsync(cancellationToken);
++            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
++            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", cancellationToken);
++            var a = await db.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == request.Actor)
++                .Select(x => new { x.Id, x.PublicId, x.Revision, x.State, x.PolicyRevision, x.RevocationGeneration, x.RenewalEnabled }).SingleOrDefaultAsync(cancellationToken);
++            if (a is null || a.PublicId != input.AccountId || a.State != AccountState.Active
++                || await db.TerminalErasures.AnyAsync(x => x.ResourceId == a.PublicId, cancellationToken)) return new(Error: "not_found");
++            var metadata = await db.VaultProtections.AsNoTracking().Where(x => x.AccountId == a.Id)
++                .Select(x => new { x.Id, x.Revision, x.KeyEpoch, x.RecoveryGeneration }).SingleOrDefaultAsync(cancellationToken);
++            if (metadata is null) return new(Error: "not_found");
++            if (a.Revision != input.ExpectedAccountRevision || metadata.Revision != input.ExpectedProtectionRevision
++                || a.Revision >= ProtocolBinary.MaxInteger || metadata.Revision >= ProtocolBinary.MaxInteger
++                || metadata.KeyEpoch >= ProtocolBinary.MaxInteger || a.RevocationGeneration >= ProtocolBinary.MaxInteger)
++                return new(Error: "revision_conflict");
++            if (a.PolicyRevision <= 0 || a.RevocationGeneration <= 0) return new(Error: "persistence_unavailable");
++
++            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={a.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", cancellationToken);
++            var session = await db.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.HandleVerifier == request.AccessVerifier, cancellationToken);
++            var now = await Now(db, cancellationToken);
++            bool Permitted(DateTimeOffset at) => session is not null && session.ProfileId is null && !session.Revoked
++                && session.PolicyRevision == a.PolicyRevision && session.RevocationGeneration == a.RevocationGeneration
++                && session.IssuedAt <= at && (a.RenewalEnabled ? session.ExpiresAt > at : session.ExpiresAt is null);
++            if (!Permitted(now)) return new(Error: "vault_access_denied");
++
++            var protection = await db.VaultProtections.SingleAsync(x => x.Id == metadata.Id, cancellationToken);
++            var current = JsonSerializer.Deserialize<ProtectionMaterial>(protection.Material, Json);
++            if (current?.IsValid() != true || current.PasswordWrapper.KeyEpoch != metadata.KeyEpoch
++                || current.RecoveryWrapper.Generation != metadata.RecoveryGeneration) return new(Error: "persistence_unavailable");
++            if (!input.IsValidTransition(current)) return new(Error: "validation_failed");
++            byte[]? replacement = null;
++            if (input.Mode == "rotate-content")
++            {
++                var existing = await db.Accounts.Where(x => x.Id == a.Id).Select(x => x.DetailsEnvelope).SingleAsync(cancellationToken);
++                var content = JsonSerializer.Deserialize<EncryptedEnvelope>(existing, Json);
++                if (content?.IsValid() != true) return new(Error: "persistence_unavailable");
++                if (content.KeyEpoch >= ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
++                if (input.ContentReplacements[0].Envelope.KeyEpoch != content.KeyEpoch + 1) return new(Error: "validation_failed");
++                replacement = JsonSerializer.SerializeToUtf8Bytes(input.ContentReplacements[0].Envelope, Json);
++            }
++            var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.PublicId == request.ChallengeId, cancellationToken);
++            if (row is null || row.Consumed) return new(Error: "vault_proof_rejected");
++            var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, Json) ?? throw new JsonException();
++            if (challenge.ChallengeId != row.PublicId || row.ExpiresAt != DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt)) return new(Error: "persistence_unavailable");
++            if (row.PolicyRevision != a.PolicyRevision || row.RevocationGeneration != a.RevocationGeneration
++                || challenge.ProtectionRevision != metadata.Revision || challenge.KeyEpoch != metadata.KeyEpoch) return new(Error: "revision_conflict");
++            now = await Now(db, cancellationToken);
++            if (!Permitted(now)) return new(Error: "vault_access_denied");
++            var binding = new VaultProofBinding("change-protection", request.Actor, a.PublicId, "account", a.PublicId, metadata.KeyEpoch, metadata.Revision, null);
++            if (!VaultProof.Verify(challenge, binding, request.RawBody, current.UnlockVerifier, request.Proof, now.ToUnixTimeSeconds())
++                || !MatchesSignedBody(input, request.RawBody)) return new(Error: "vault_proof_rejected");
++
++            // This is the permission/proof linearization point, using current statement
++            // time after both locks rather than transaction-start time.
++            var consumed = await db.Database.ExecuteSqlInterpolatedAsync($"""
++                UPDATE cerberus.vault_unlock_challenge SET consumed=TRUE
++                WHERE id={row.Id} AND NOT consumed AND expires_at>statement_timestamp()
++                AND EXISTS(SELECT 1 FROM cerberus.vault_access_session
++                    WHERE account_id={a.Id} AND handle_verifier={request.AccessVerifier}
++                    AND profile_id IS NULL AND NOT revoked AND policy_revision={a.PolicyRevision}
++                    AND revocation_generation={a.RevocationGeneration} AND issued_at<=statement_timestamp()
++                    AND (({a.RenewalEnabled} AND expires_at>statement_timestamp())
++                        OR (NOT {a.RenewalEnabled} AND expires_at IS NULL)))
++                """, cancellationToken);
++            if (consumed != 1) return new(Error: Permitted(await Now(db, cancellationToken)) ? "vault_proof_rejected" : "vault_access_denied");
++            protection.Material = JsonSerializer.SerializeToUtf8Bytes(input.Material, Json);
++            protection.Revision++;
++            protection.KeyEpoch = input.Material.PasswordWrapper.KeyEpoch;
++            var account = db.Accounts.Where(x => x.Id == a.Id && x.Revision == input.ExpectedAccountRevision);
++            var changed = replacement is null
++                ? await account.ExecuteUpdateAsync(set => set.SetProperty(x => x.RevocationGeneration, x => x.RevocationGeneration + 1), cancellationToken)
++                : await account.ExecuteUpdateAsync(set => set.SetProperty(x => x.RevocationGeneration, x => x.RevocationGeneration + 1)
++                    .SetProperty(x => x.DetailsEnvelope, replacement).SetProperty(x => x.Revision, x => x.Revision + 1), cancellationToken);
++            if (changed != 1) return new(Error: "revision_conflict");
++            await db.SaveChangesAsync(cancellationToken);
++            await transaction.CommitAsync(cancellationToken);
++            return new(new(a.PublicId, protection.Revision, protection.KeyEpoch, protection.RecoveryGeneration, a.Revision + (replacement is null ? 0 : 1)));
++        }
++        catch (DbUpdateConcurrencyException) { return new(Error: "revision_conflict"); }
++        catch (Exception exception) when (exception is DbException or DbUpdateException or TimeoutException or JsonException or ArgumentOutOfRangeException
++            || exception is InvalidOperationException { InnerException: DbUpdateException or DbException or TimeoutException })
++        { return new(Error: "persistence_unavailable"); }
++        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
++    }
++    private static bool MatchesSignedBody(ProtectionChange input, byte[] raw)
++    {
++        try
++        {
++            var signed = JsonSerializer.Deserialize<ProtectionChange>(raw, Json);
++            return signed is not null && signed.AccountId == input.AccountId
++                && signed.ExpectedProtectionRevision == input.ExpectedProtectionRevision
++                && signed.ExpectedAccountRevision == input.ExpectedAccountRevision && signed.Mode == input.Mode
++                && signed.Material == input.Material && signed.ContentReplacements is not null
++                && signed.ContentReplacements.SequenceEqual(input.ContentReplacements);
++        }
++        catch (JsonException) { return false; }
++    }
++    private static Task<DateTimeOffset> Now(AppDbContext db, CancellationToken ct) =>
++        db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionStore.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionStore.cs
+index 632d50e..51590e5 100644
+--- a/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionStore.cs
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Protection/VaultProtectionStore.cs
+@@ -31,34 +31,37 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
+     }
+ 
+     public Task<VaultResult<VaultProtectionDetails>> ReadAsync(Guid actor, CancellationToken cancellationToken) =>
+         Run<VaultProtectionDetails>(actor, cancellationToken, async (db, account, ct) =>
+         {
+             var row = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, ct);
+             return row is null ? new(Error: "not_found") : new(Details(account, row));
+         });
+ 
+     public Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string requestHash, CancellationToken cancellationToken)
++        => ChallengeAsync(actor, "unlock-account", requestHash, cancellationToken);
++
++    public Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string operation, string requestHash, CancellationToken cancellationToken)
+     {
+         cancellationToken.ThrowIfCancellationRequested();
+-        if (!ProtocolBinary.TryDecode(requestHash, 32, out _)) return Task.FromResult(new VaultResult<VaultProofChallenge>(Error: "validation_failed"));
++        if (operation is not ("unlock-account" or "change-protection") || !ProtocolBinary.TryDecode(requestHash, 32, out _)) return Task.FromResult(new VaultResult<VaultProofChallenge>(Error: "validation_failed"));
+         return Run<VaultProofChallenge>(actor, cancellationToken, async (db, account, ct) =>
+         {
+             var row = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, ct);
+             if (row is null) return new(Error: "not_found");
+             _ = Details(account, row);
+             if (account.PolicyRevision <= 0 || account.RevocationGeneration <= 0) return new(Error: "persistence_unavailable");
+             var now = await Now(db, ct);
+             await db.VaultUnlockChallenges.Where(x => x.AccountId == account.Id && (x.Consumed || x.ExpiresAt <= now)).ExecuteDeleteAsync(ct);
+             var issued = now.ToUnixTimeSeconds();
+             var challenge = new VaultProofChallenge("cerberus-challenge-v1", Guid.NewGuid(), ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32)),
+-                "unlock-account", actor, account.PublicId, "account", account.PublicId, row.KeyEpoch, row.Revision, null, requestHash, issued, issued + 60);
++                operation, actor, account.PublicId, "account", account.PublicId, row.KeyEpoch, row.Revision, null, requestHash, issued, issued + 60);
+             db.VaultUnlockChallenges.Add(new VaultUnlockChallenge { AccountId = account.Id, PublicId = challenge.ChallengeId,
+                 Challenge = JsonSerializer.SerializeToUtf8Bytes(challenge, Json), PolicyRevision = account.PolicyRevision,
+                 RevocationGeneration = account.RevocationGeneration, ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt) });
+             return new(challenge);
+         });
+     }
+ 
+     public Task<VaultResult<VaultAccessDetails>> UnlockAsync(Guid actor, long expectedProtectionRevision, Guid challengeId,
+         string proof, byte[] rawBody, CancellationToken cancellationToken) =>
+         Run<VaultAccessDetails>(actor, cancellationToken, async (db, account, ct) =>
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/VaultController.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/VaultController.cs
+index f970cbb..b192aea 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/VaultController.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/VaultController.cs
+@@ -22,20 +22,41 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
+     [HttpPost("protection")]
+     [ProducesResponseType(typeof(DataOutput<VaultInitializationOutput>), StatusCodes.Status201Created)]
+     public async Task<ActionResult<DataOutput<VaultInitializationOutput?>>> Initialize([FromBody] InitializeVaultCommand command, CancellationToken cancellationToken)
+     {
+         if (Request.Query.Count != 0) return Invalid();
+         command.SetActor(Actor());
+         var result = await commands.ExecuteCommandAsync<InitializeVaultCommand, VaultInitializationOutput>(command, cancellationToken);
+         return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);
+     }
+ 
++    [HttpPut("protection")]
++    [VaultProofBody]
++    [ProducesResponseType(typeof(DataOutput<ChangeVaultProtectionOutput>), StatusCodes.Status200OK)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
++    public async Task<ActionResult<DataOutput<ChangeVaultProtectionOutput?>>> Change([FromBody] ChangeVaultProtectionCommand command,
++        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess,
++        [FromHeader(Name = "X-Cerberus-Challenge-Id")] string? challengeId,
++        [FromHeader(Name = "X-Cerberus-Proof")] string? proof, CancellationToken cancellationToken)
++    {
++        var ids = Request.Headers["X-Cerberus-Challenge-Id"]; var proofs = Request.Headers["X-Cerberus-Proof"];
++        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1) return Invalid();
++        if (ids.Count == 0 || proofs.Count == 0) return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
++        challengeId = ids.ToString(); proof = proofs.ToString();
++        if (ids.Count != 1 || proofs.Count != 1 || !Guid.TryParseExact(challengeId, "D", out var id) || id == Guid.Empty
++            || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw) return Invalid();
++        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var access) ? access.ToString() : null;
++        command.SetContext(Actor(), vaultAccess, id, proof, raw);
++        var result = await commands.ExecuteCommandAsync<ChangeVaultProtectionCommand, ChangeVaultProtectionOutput>(command, cancellationToken);
++        return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);
++    }
++
+     [HttpGet("protection")]
+     [ProducesResponseType(typeof(DataOutput<VaultProtectionOutput>), StatusCodes.Status200OK)]
+     public async Task<ActionResult<DataOutput<VaultProtectionOutput?>>> Read(CancellationToken cancellationToken)
+     {
+         if (Request.Query.Count != 0 || HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true
+             || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0) return Invalid();
+         var result = await queries.ExecuteQueryAsync<GetVaultProtectionQuery, VaultProtectionOutput>(new GetVaultProtectionQuery(Actor()), cancellationToken);
+         return result.ToActionResult(statusMap: VaultProtectionQueryMessages.StatusCodes);
+     }
+ 
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+index ec586c3..227e996 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+@@ -56,20 +56,23 @@ public static class Startup
+         builder.Services.AddSingleton(options);
+         builder.Services.AddSingleton(TimeProvider.System);
+         builder.Services.AddSingleton<HeimdallTokenValidator>();
+         builder.Services.AddScoped<CommandMediator>();
+         builder.Services.AddScoped<QueryMediator>();
+         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
+         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
+         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
+         builder.Services.AddScoped<IIdentityUpdateStore, IdentityUpdateStore>();
+         builder.Services.AddScoped<IVaultProtectionStore, VaultProtectionStore>();
++        builder.Services.AddScoped<IVaultProtectionChangeStore, VaultProtectionChangeStore>();
++        builder.Services.AddScoped<IValidator<ChangeVaultProtectionCommand>, ChangeVaultProtectionValidator>();
++        builder.Services.AddScoped<ICommandHandlerAsync<ChangeVaultProtectionCommand, ChangeVaultProtectionOutput>, ChangeVaultProtectionHandler>();
+         builder.Services.AddScoped<IValidator<InitializeVaultCommand>, InitializeVaultValidator>();
+         builder.Services.AddScoped<IValidator<IssueVaultChallengeCommand>, IssueVaultChallengeValidator>();
+         builder.Services.AddScoped<IValidator<UnlockVaultCommand>, UnlockVaultValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<InitializeVaultCommand, VaultInitializationOutput>, InitializeVaultHandler>();
+         builder.Services.AddScoped<ICommandHandlerAsync<IssueVaultChallengeCommand, VaultChallengeOutput>, IssueVaultChallengeHandler>();
+         builder.Services.AddScoped<ICommandHandlerAsync<UnlockVaultCommand, VaultUnlockOutput>, UnlockVaultHandler>();
+         builder.Services.AddScoped<IQueryHandlerAsync<GetVaultProtectionQuery, VaultProtectionOutput>, GetVaultProtectionHandler>();
+         builder.Services.AddScoped<IValidator<UpdateIdentityCommand>, UpdateIdentityValidator>();
+         builder.Services.AddScoped<ICommandHandlerAsync<UpdateIdentityCommand, UpdateIdentityOutput>, UpdateIdentityHandler>();
+         builder.Services.AddScoped<IValidator<UpdateAccountCommand>, UpdateAccountValidator>();
+diff --git a/tests/Application/ArturRios.Cerberus.Command.Tests/VaultProtectionChangeHandlerTests.cs b/tests/Application/ArturRios.Cerberus.Command.Tests/VaultProtectionChangeHandlerTests.cs
+new file mode 100644
+index 0000000..af29a33
+--- /dev/null
++++ b/tests/Application/ArturRios.Cerberus.Command.Tests/VaultProtectionChangeHandlerTests.cs
+@@ -0,0 +1,90 @@
++using System.Text;
++using ArturRios.Cerberus.Command.Protection;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.TestSupport;
++using Moq;
++
++namespace ArturRios.Cerberus.Command.Tests;
++
++public class VaultProtectionChangeHandlerTests
++{
++    private static readonly Guid Actor=Guid.NewGuid();private static readonly Guid Account=Guid.NewGuid();private static readonly Guid Challenge=Guid.NewGuid();
++    private static readonly byte[] Body=Encoding.UTF8.GetBytes("{\"original\":true}");
++    private static readonly string Access=ProtectionFixture.Encode(new byte[32]);private static readonly string Proof=ProtectionFixture.Encode(new byte[64]);
++
++    [UnitTheory]
++    [InlineData("actor","authentication_required")][InlineData("missingAccess","vault_access_required")][InlineData("access","validation_failed")]
++    [InlineData("account","validation_failed")][InlineData("revision","validation_failed")][InlineData("accountRevision","validation_failed")]
++    [InlineData("mode","validation_failed")][InlineData("material","validation_failed")][InlineData("content","validation_failed")]
++    [InlineData("challenge","validation_failed")][InlineData("proof","validation_failed")][InlineData("raw","validation_failed")]
++    public async Task GivenInvalidChangeOrTrustedContext_WhenHandling_ThenRejectBeforePersistence(string invalid,string error)
++    {
++        using var client=new ProtectionFixture();var c=Command(client);
++        if(invalid=="account")c.AccountId=Guid.Empty;if(invalid=="revision")c.ExpectedProtectionRevision=0;if(invalid=="accountRevision")c.ExpectedAccountRevision=9007199254740992;
++        if(invalid=="mode")c.Mode="partial";if(invalid=="material")c.Material=null!;if(invalid=="content")c.ContentReplacements=null!;
++        c.SetContext(invalid=="actor"?Guid.Empty:Actor,invalid=="missingAccess"?null:invalid=="access"?"bad":Access,
++            invalid=="challenge"?Guid.Empty:Challenge,invalid=="proof"?"bad":Proof,invalid=="raw"?[]:Body);
++        var result=await new ChangeVaultProtectionHandler(new ChangeVaultProtectionValidator(),Strict()).HandleAsync(c);
++        Assert.Contains(error,result.Errors);Assert.Null(result.Data);
++    }
++
++    [UnitFact]
++    public async Task GivenValidChange_WhenHandling_ThenBindOriginalContextAndReturnOnlyConfirmation()
++    {
++        using var client=new ProtectionFixture();var c=Command(client);OpaqueAccessHandle.TryHash(Access,out var hash);
++        var store=new Mock<IVaultProtectionChangeStore>(MockBehavior.Strict);
++        store.Setup(x=>x.ChangeAsync(It.Is<ProtectionChangeRequest>(r=>r.Actor==Actor&&r.AccessVerifier==hash&&r.ChallengeId==Challenge
++            &&r.Proof==Proof&&r.RawBody==Body&&r.Change.AccountId==Account&&r.Change.Material==c.Material&&r.Change.ExpectedProtectionRevision==1&&r.Change.ExpectedAccountRevision==3),It.IsAny<CancellationToken>()))
++            .ReturnsAsync(new VaultResult<ProtectionChangeDetails>(new(Account,2,2,1,3)));
++        var result=await new ChangeVaultProtectionHandler(new ChangeVaultProtectionValidator(),store.Object).HandleAsync(c);
++        Assert.True(result.Success);Assert.Equal(Account,result.Data!.AccountId);Assert.Equal(2,result.Data.ProtectionRevision);Assert.Equal(3,result.Data.AccountRevision);
++        Assert.Contains("protection_changed",result.Messages);Assert.Equal(200,VaultProtectionMessages.StatusCodes["protection_changed"]);
++    }
++
++    [UnitTheory]
++    [InlineData("vault_access_denied",403)][InlineData("vault_proof_rejected",401)][InlineData("not_found",404)]
++    [InlineData("revision_conflict",409)][InlineData("persistence_unavailable",503)][InlineData("validation_failed",400)]
++    public async Task GivenFailedStore_WhenHandling_ThenMapStableErrorWithoutOutput(string error,int status)
++    {
++        using var client=new ProtectionFixture();var store=new Mock<IVaultProtectionChangeStore>();
++        store.Setup(x=>x.ChangeAsync(It.IsAny<ProtectionChangeRequest>(),It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<ProtectionChangeDetails>(Error:error));
++        var result=await new ChangeVaultProtectionHandler(new ChangeVaultProtectionValidator(),store.Object).HandleAsync(Command(client));
++        Assert.Contains(error,result.Errors);Assert.Null(result.Data);Assert.Equal(status,VaultProtectionMessages.StatusCodes[error]);
++    }
++
++    [UnitTheory]
++    [InlineData("missing")][InlineData("account")][InlineData("protection")][InlineData("epoch")][InlineData("generation")][InlineData("accountRevision")]
++    public async Task GivenIncompleteConfirmation_WhenHandling_ThenFailClosed(string invalid)
++    {
++        using var client=new ProtectionFixture();var store=new Mock<IVaultProtectionChangeStore>();
++        var data=new ProtectionChangeDetails(invalid=="account"?Guid.NewGuid():Account,invalid=="protection"?1:2,invalid=="epoch"?1:2,invalid=="generation"?2:1,invalid=="accountRevision"?4:3);
++        store.Setup(x=>x.ChangeAsync(It.IsAny<ProtectionChangeRequest>(),It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<ProtectionChangeDetails>(invalid=="missing"?null:data));
++        var result=await new ChangeVaultProtectionHandler(new ChangeVaultProtectionValidator(),store.Object).HandleAsync(Command(client));
++        Assert.Contains("persistence_unavailable",result.Errors);Assert.Null(result.Data);
++    }
++
++    [UnitTheory]
++    [InlineData("change-protection",true)][InlineData("unlock-account",false)]
++    public async Task GivenChangeChallengeRequest_WhenHandling_ThenRequireMatchingReturnedPurpose(string returned,bool success)
++    {
++        var command=new IssueVaultChallengeCommand { Operation="change-protection",RequestHash=ProtectionFixture.Encode(new byte[32]) };command.SetActor(Actor);
++        var challenge=new VaultProofChallenge("cerberus-challenge-v1",Challenge,ProtectionFixture.Encode(new byte[32]),returned,Actor,Account,"account",Account,1,1,null,command.RequestHash,1000,1060);
++        var store=new Mock<IVaultProtectionStore>(MockBehavior.Strict);store.Setup(x=>x.ChallengeAsync(Actor,"change-protection",command.RequestHash,It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<VaultProofChallenge>(challenge));
++        var result=await new IssueVaultChallengeHandler(new IssueVaultChallengeValidator(),store.Object).HandleAsync(command);
++        Assert.Equal(success,result.Success);if(success)Assert.Equal(challenge,result.Data!.Challenge);else{Assert.Null(result.Data);Assert.Contains("persistence_unavailable",result.Errors);}
++    }
++
++    [UnitFact]
++    public async Task GivenCancelledCaller_WhenChanging_ThenPropagateBeforeStore()
++    {
++        using var client=new ProtectionFixture();using var source=new CancellationTokenSource();source.Cancel();
++        await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>new ChangeVaultProtectionHandler(new ChangeVaultProtectionValidator(),Strict()).HandleAsync(Command(client),source.Token));
++    }
++    private static IVaultProtectionChangeStore Strict()=>new Mock<IVaultProtectionChangeStore>(MockBehavior.Strict).Object;
++    private static ChangeVaultProtectionCommand Command(ProtectionFixture client)
++    {
++        var c=new ChangeVaultProtectionCommand { AccountId=Account,ExpectedProtectionRevision=1,ExpectedAccountRevision=3,Mode="rewrap",Material=client.Rewrap(),ContentReplacements=[] };
++        c.SetContext(Actor,Access,Challenge,Proof,Body);return c;
++    }
++}
+diff --git a/tests/Domain/ArturRios.Cerberus.Domain.Tests/ProtectionChangeTests.cs b/tests/Domain/ArturRios.Cerberus.Domain.Tests/ProtectionChangeTests.cs
+new file mode 100644
+index 0000000..7bf942e
+--- /dev/null
++++ b/tests/Domain/ArturRios.Cerberus.Domain.Tests/ProtectionChangeTests.cs
+@@ -0,0 +1,84 @@
++using System.Text.Json;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.TestSupport;
++
++namespace ArturRios.Cerberus.Domain.Tests;
++
++public class ProtectionChangeTests
++{
++    [UnitTheory]
++    [InlineData("rewrap")][InlineData("rotate-content")]
++    public void GivenCompleteFreshReplacement_WhenValidating_ThenAcceptSupportedTransition(string mode)
++    {
++        using var client = new ProtectionFixture(); var change = Valid(client,mode);
++        Assert.True(change.IsValid()); Assert.True(change.IsValidTransition(client.Material));
++    }
++
++    [UnitTheory]
++    [InlineData("account")][InlineData("protectionRevision")][InlineData("accountRevision")][InlineData("unsafeRevision")]
++    [InlineData("mode")][InlineData("material")][InlineData("missingSet")][InlineData("extraRewrap")]
++    [InlineData("missingContent")][InlineData("duplicateContent")][InlineData("foreignContent")][InlineData("kind")]
++    [InlineData("contentRevision")][InlineData("contentEnvelope")]
++    public void GivenMalformedReplacementSet_WhenValidating_ThenRejectBeforePersistence(string invalid)
++    {
++        using var client = new ProtectionFixture();var c = Valid(client,"rotate-content");var item = c.ContentReplacements[0];
++        c = invalid switch
++        {
++            "account" => c with { AccountId = Guid.Empty }, "protectionRevision" => c with { ExpectedProtectionRevision = 0 },
++            "accountRevision" => c with { ExpectedAccountRevision = 0 }, "unsafeRevision" => c with { ExpectedProtectionRevision = 9007199254740992 },
++            "mode" => c with { Mode = "partial" }, "material" => c with { Material = null! },
++            "missingSet" => c with { ContentReplacements = null! }, "extraRewrap" => c with { Mode = "rewrap" },
++            "missingContent" => c with { ContentReplacements = [] }, "duplicateContent" => c with { ContentReplacements = [item,item] },
++            "foreignContent" => c with { ContentReplacements = [item with { ResourceId = Guid.NewGuid() }] },
++            "kind" => c with { ContentReplacements = [item with { ResourceKind = "profile" }] },
++            "contentRevision" => c with { ContentReplacements = [item with { ExpectedRevision = 2 }] },
++            "contentEnvelope" => c with { ContentReplacements = [item with { Envelope = item.Envelope with { KeyEpoch = 0 } }] }, _ => c
++        };
++        Assert.False(c.IsValid());
++    }
++
++    [UnitTheory]
++    [InlineData("unlock")][InlineData("recovery")][InlineData("recipient")][InlineData("author")][InlineData("generation")]
++    [InlineData("epoch")][InlineData("overflow")][InlineData("passwordSalt")][InlineData("passwordNonce")]
++    [InlineData("kdfSalt")][InlineData("recoverySalt")][InlineData("recoveryNonce")]
++    public void GivenKeySubstitutionOrReusedWrapperContext_WhenChanging_ThenRejectTransition(string invalid)
++    {
++        using var old = new ProtectionFixture(); using var other = new ProtectionFixture();var c=Valid(old,"rewrap");var m=c.Material;
++        m=invalid switch
++        {
++            "unlock" => m with { UnlockVerifier=other.Material.UnlockVerifier },
++            "recovery" => m with { RecoveryVerifier=other.Material.RecoveryVerifier,RecoveryWrapper=m.RecoveryWrapper with { ProofKeyFingerprint=other.Material.RecoveryVerifier.Fingerprint() } },
++            "recipient" => m with { RecipientKey=other.Material.RecipientKey }, "author" => m with { AuthorKey=other.Material.AuthorKey },
++            "generation" => m with { RecoveryWrapper=m.RecoveryWrapper with { Generation=2 } },
++            "epoch" => m with { PasswordWrapper=m.PasswordWrapper with { KeyEpoch=3 },RecoveryWrapper=m.RecoveryWrapper with { KeyEpoch=3 } },
++            "passwordSalt" => m with { PasswordWrapper=m.PasswordWrapper with { KeySalt=old.Material.PasswordWrapper.KeySalt } },
++            "passwordNonce" => m with { PasswordWrapper=m.PasswordWrapper with { Nonce=old.Material.PasswordWrapper.Nonce } },
++            "kdfSalt" => m with { PasswordWrapper=m.PasswordWrapper with { Kdf=m.PasswordWrapper.Kdf with { Salt=old.Material.PasswordWrapper.Kdf.Salt } } },
++            "recoverySalt" => m with { RecoveryWrapper=m.RecoveryWrapper with { KeySalt=old.Material.RecoveryWrapper.KeySalt } },
++            "recoveryNonce" => m with { RecoveryWrapper=m.RecoveryWrapper with { Nonce=old.Material.RecoveryWrapper.Nonce } },_=>m
++        };
++        var current=invalid=="overflow" ? old.Material with { PasswordWrapper=old.Material.PasswordWrapper with { KeyEpoch=9007199254740991 },RecoveryWrapper=old.Material.RecoveryWrapper with { KeyEpoch=9007199254740991 } } : old.Material;
++        Assert.False((c with { Material=m }).IsValidTransition(current));
++    }
++
++    [UnitTheory]
++    [InlineData("unknown")][InlineData("numericString")][InlineData("privateKey")]
++    public void GivenNoncanonicalWireReplacement_WhenParsing_ThenReject(string invalid)
++    {
++        using var client=new ProtectionFixture();var raw=JsonSerializer.Serialize(Valid(client,"rewrap"),ProtectionFixture.Json);
++        raw=invalid switch
++        {
++            "unknown"=>raw.Insert(1,"\"password\":\"secret\","),
++            "numericString"=>raw.Replace("\"expectedProtectionRevision\":1","\"expectedProtectionRevision\":\"1\""),
++            _=>raw.Replace("\"crv\":","\"d\":\"private\",\"crv\":")
++        };
++        Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<ProtectionChange>(raw,ProtectionFixture.Json));
++    }
++
++    private static ProtectionChange Valid(ProtectionFixture client,string mode)
++    {
++        var id=Guid.NewGuid();var envelope=new EncryptedEnvelope("cerberus-content-v1",2,ProtectionFixture.Encode(new byte[32]),ProtectionFixture.Encode(new byte[12]),"AQID",ProtectionFixture.Encode(new byte[16]));
++        return new(id,1,3,mode,client.Rewrap(),mode=="rewrap" ? [] : [new("account",id,3,envelope)]);
++    }
++}
+diff --git a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/VaultProtectionChangeStoreTests.cs b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/VaultProtectionChangeStoreTests.cs
+new file mode 100644
+index 0000000..40e9085
+--- /dev/null
++++ b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/VaultProtectionChangeStoreTests.cs
+@@ -0,0 +1,249 @@
++using System.Data.Common;
++using System.Security.Cryptography;
++using System.Text;
++using System.Text.Json;
++using ArturRios.Cerberus.Data.Protection;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Operations;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.TestSupport;
++using Microsoft.EntityFrameworkCore;
++using Microsoft.EntityFrameworkCore.Diagnostics;
++
++namespace ArturRios.Cerberus.Data.Tests;
++
++[Collection("PostgreSQL")]
++public class VaultProtectionChangeStoreTests(PostgresFixture fixture)
++{
++    [FunctionalTheory]
++    [InlineData("rewrap")][InlineData("rotate-content")]
++    public async Task GivenCompleteCurrentProofAndAccess_WhenChanging_ThenCommitAllAndInvalidateOldAccess(string mode)
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);var c=Change(s,client,mode);var request=await Request(s,client,c);
++        var before=await Snapshot(s);var result=await Store().ChangeAsync(request,default);
++        Assert.Null(result.Error);Assert.Equal(new ProtectionChangeDetails(s.Id,2,2,1,mode=="rewrap"?3:4),result.Data);
++        await using var db=fixture.CreateContext();var a=await db.Accounts.SingleAsync(x=>x.Id==s.InternalId);var p=await db.VaultProtections.SingleAsync(x=>x.AccountId==s.InternalId);
++        Assert.Equal(2,a.RevocationGeneration);Assert.Equal(1,a.PolicyRevision);Assert.Equal(2,p.Revision);Assert.Equal(2,p.KeyEpoch);Assert.Equal(1,p.RecoveryGeneration);
++        Assert.Equal(c.Material,JsonSerializer.Deserialize<ProtectionMaterial>(p.Material,ProtectionFixture.Json));
++        Assert.Equal(mode=="rewrap"?s.Envelope:JsonSerializer.SerializeToUtf8Bytes(c.ContentReplacements[0].Envelope,ProtectionFixture.Json),a.DetailsEnvelope);
++        Assert.True((await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==request.ChallengeId)).Consumed);
++        Assert.Equal(1,(await db.VaultAccessSessions.SingleAsync(x=>x.HandleVerifier==s.Verifier)).RevocationGeneration);
++        Assert.Equal("revision_conflict",(await Store().ChangeAsync(request,default)).Error);Assert.NotEqual(before,await Snapshot(s));
++    }
++
++    [FunctionalTheory]
++    [InlineData("missing","not_found")][InlineData("foreign","not_found")][InlineData("closing","not_found")][InlineData("erased","not_found")]
++    [InlineData("noProtection","not_found")][InlineData("staleProtection","revision_conflict")][InlineData("staleAccount","revision_conflict")]
++    [InlineData("revoked","vault_access_denied")][InlineData("profile","vault_access_denied")][InlineData("expired","vault_access_denied")]
++    [InlineData("future","vault_access_denied")][InlineData("policy","vault_access_denied")][InlineData("generation","vault_access_denied")]
++    [InlineData("missingAccess","vault_access_denied")][InlineData("noExpiry",null)][InlineData("badNullExpiry","vault_access_denied")]
++    [InlineData("overflow","revision_conflict")][InlineData("corruptMaterial","persistence_unavailable")]
++    public async Task GivenInvalidOwnerStateOrPermission_WhenChanging_ThenPreserveCompleteState(string state,string? error)
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);var c=Change(s,client);var request=await Request(s,client,c);
++        await using(var db=fixture.CreateContext())
++        {
++            var a=await db.Accounts.SingleAsync(x=>x.Id==s.InternalId);var v=await db.VaultAccessSessions.SingleAsync(x=>x.HandleVerifier==s.Verifier);
++            if(state=="closing")a.State=AccountState.ClosurePending;
++            if(state=="erased")db.TerminalErasures.Add(new TerminalErasure { ResourceId=s.Id,ResourceKind="account",DeletedAt=DateTimeOffset.UtcNow });
++            if(state=="noProtection")await db.VaultProtections.Where(x=>x.AccountId==s.InternalId).ExecuteDeleteAsync();
++            if(state=="corruptMaterial")await db.VaultProtections.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.Material,new byte[]{1,2,3}));
++            if(state=="overflow")a.RevocationGeneration=9007199254740991;
++            if(state=="revoked")v.Revoked=true;if(state=="profile")v.ProfileId=123;
++            if(state=="expired")v.ExpiresAt=DateTimeOffset.UtcNow.AddMinutes(-1);if(state=="future")v.IssuedAt=DateTimeOffset.UtcNow.AddMinutes(1);
++            if(state=="policy")v.PolicyRevision=2;if(state=="generation")v.RevocationGeneration=2;
++            if(state=="noExpiry"){a.RenewalEnabled=false;v.ExpiresAt=null;}if(state=="badNullExpiry")v.ExpiresAt=null;
++            await db.SaveChangesAsync();
++        }
++        if(state=="missing")request=request with { Actor=Guid.NewGuid() };
++        if(state=="foreign")request=request with { Change=c with { AccountId=Guid.NewGuid() } };
++        if(state=="staleProtection")request=request with { Change=c with { ExpectedProtectionRevision=2 } };
++        if(state=="staleAccount")request=request with { Change=c with { ExpectedAccountRevision=2 } };
++        if(state=="missingAccess")request=request with { AccessVerifier=new string('a',64) };
++        var before=await Snapshot(s);var result=await Store().ChangeAsync(request,default);Assert.Equal(error,result.Error);
++        if(error is not null){Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));await Unconsumed(request.ChallengeId);}
++        else Assert.Equal(2,result.Data!.ProtectionRevision);
++    }
++
++    [FunctionalTheory]
++    [InlineData("missingContent")][InlineData("duplicateContent")][InlineData("foreignContent")][InlineData("wrongEpoch")]
++    [InlineData("keySubstitution")][InlineData("generation")][InlineData("saltReuse")]
++    public async Task GivenIncompleteRotationOrUnauthorizedKeyChange_WhenChanging_ThenRejectWithoutConsumption(string invalid)
++    {
++        using var client=new ProtectionFixture();using var other=new ProtectionFixture();var s=await Setup(client);var c=Change(s,client,"rotate-content");var item=c.ContentReplacements[0];
++        c=invalid switch
++        {
++            "missingContent"=>c with { ContentReplacements=[] },"duplicateContent"=>c with { ContentReplacements=[item,item] },
++            "foreignContent"=>c with { ContentReplacements=[item with { ResourceId=Guid.NewGuid() }] },
++            "wrongEpoch"=>c with { ContentReplacements=[item with { Envelope=item.Envelope with { KeyEpoch=5 } }] },
++            "keySubstitution"=>c with { Material=c.Material with { AuthorKey=other.Material.AuthorKey } },
++            "generation"=>c with { Material=c.Material with { RecoveryWrapper=c.Material.RecoveryWrapper with { Generation=2 } } },
++            _=>c with { Material=c.Material with { PasswordWrapper=c.Material.PasswordWrapper with { Nonce=client.Material.PasswordWrapper.Nonce } } }
++        };
++        var request=await Request(s,client,c);var before=await Snapshot(s);
++        Assert.Equal("validation_failed",(await Store().ChangeAsync(request,default)).Error);Assert.Equal(before,await Snapshot(s));await Unconsumed(request.ChallengeId);
++    }
++
++    [FunctionalTheory]
++    [InlineData("wrongKey","vault_proof_rejected")][InlineData("body","vault_proof_rejected")][InlineData("purpose","vault_proof_rejected")]
++    [InlineData("consumed","vault_proof_rejected")][InlineData("expired","vault_proof_rejected")][InlineData("missing","vault_proof_rejected")]
++    [InlineData("staleChallenge","revision_conflict")]
++    public async Task GivenUnboundOrStaleProof_WhenChanging_ThenNoPartialWrites(string invalid,string error)
++    {
++        using var client=new ProtectionFixture();using var other=new ProtectionFixture();var s=await Setup(client);var request=await Request(s,client,Change(s,client),invalid=="purpose"?"unlock-account":"change-protection");
++        await using(var db=fixture.CreateContext())
++        {
++            var row=await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==request.ChallengeId);
++            if(invalid=="consumed")row.Consumed=true;
++            if(invalid=="staleChallenge")row.PolicyRevision=2;
++            if(invalid=="expired")
++            {
++                var challenge=JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge,ProtectionFixture.Json)!;
++                challenge=challenge with { IssuedAt=DateTimeOffset.UtcNow.ToUnixTimeSeconds()-60,ExpiresAt=DateTimeOffset.UtcNow.ToUnixTimeSeconds() };
++                row.Challenge=JsonSerializer.SerializeToUtf8Bytes(challenge,ProtectionFixture.Json);row.ExpiresAt=DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt);request=request with { Proof=client.Sign(challenge) };
++            }
++            await db.SaveChangesAsync();
++        }
++        if(invalid=="wrongKey")request=request with { Proof=other.Sign((await Challenge(request.ChallengeId))) };
++        if(invalid=="body")request=request with { RawBody=Encoding.UTF8.GetBytes(" "+Encoding.UTF8.GetString(request.RawBody)) };
++        if(invalid=="missing")request=request with { ChallengeId=Guid.NewGuid() };
++        var before=await Snapshot(s);Assert.Equal(error,(await Store().ChangeAsync(request,default)).Error);Assert.Equal(before,await Snapshot(s));
++    }
++
++    [FunctionalFact]
++    public async Task GivenValidProofForDifferentParsedReplacement_WhenChanging_ThenRejectWithoutMutation()
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);var request=await Request(s,client,Change(s,client));
++        request=request with { Change=request.Change with { Material=client.Rewrap() } };var before=await Snapshot(s);
++        Assert.Equal("vault_proof_rejected",(await Store().ChangeAsync(request,default)).Error);
++        Assert.Equal(before,await Snapshot(s));await Unconsumed(request.ChallengeId);
++    }
++
++    [FunctionalFact]
++    public async Task GivenChangePurposeChallenge_WhenUnlocking_ThenNeverIssueSession()
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);var raw=Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1}");
++        var c=(await new VaultProtectionStore(fixture).ChallengeAsync(s.Actor,"change-protection",ProtocolBinary.Encode(SHA256.HashData(raw)),default)).Data!;
++        var result=await new VaultProtectionStore(fixture).UnlockAsync(s.Actor,1,c.ChallengeId,client.Sign(c),raw,default);
++        Assert.Equal("vault_proof_rejected",result.Error);await Unconsumed(c.ChallengeId);
++        await using var db=fixture.CreateContext();Assert.Single(await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ToListAsync());
++    }
++
++    [FunctionalFact]
++    public async Task GivenConcurrentProtectionChanges_WhenCommitting_ThenOneCompleteWinner()
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);var a=await Request(s,client,Change(s,client));var b=await Request(s,client,Change(s,client));
++        var results=await Task.WhenAll(Store().ChangeAsync(a,default),Store().ChangeAsync(b,default));
++        Assert.Single(results,x=>x.Error is null);Assert.Equal("revision_conflict",Assert.Single(results,x=>x.Error is not null).Error);
++        await using var db=fixture.CreateContext();var p=await db.VaultProtections.SingleAsync(x=>x.AccountId==s.InternalId);
++        var winner=results[0].Error is null?a:b;Assert.Equal(winner.Change.Material,JsonSerializer.Deserialize<ProtectionMaterial>(p.Material,ProtectionFixture.Json));
++        Assert.Equal(1,await db.VaultUnlockChallenges.CountAsync(x=>x.AccountId==s.InternalId&&x.Consumed));
++    }
++
++    [FunctionalTheory]
++    [InlineData("account","session")][InlineData("session","session")][InlineData("account","challenge")]
++    public async Task GivenUnchangedDeadlineExpiringDuringLockWait_WhenChanging_ThenWriteNothing(string locked,string expiry)
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);var request=await Request(s,client,Change(s,client));
++        var deadline=DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds()+2);
++        await using(var db=fixture.CreateContext())
++        {
++            if(expiry=="session")await db.VaultAccessSessions.Where(x=>x.HandleVerifier==s.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));
++            else
++            {
++                var row=await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==request.ChallengeId);var c=JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge,ProtectionFixture.Json)! with { IssuedAt=deadline.ToUnixTimeSeconds()-60,ExpiresAt=deadline.ToUnixTimeSeconds() };
++                row.Challenge=JsonSerializer.SerializeToUtf8Bytes(c,ProtectionFixture.Json);row.ExpiresAt=deadline;await db.SaveChangesAsync();request=request with { Proof=client.Sign(c) };
++            }
++        }
++        var before=await Snapshot(s);await using var holder=fixture.CreateContext();await using var tx=await holder.Database.BeginTransactionAsync();
++        if(locked=="account")await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
++        else await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE handle_verifier={s.Verifier} FOR UPDATE");
++        var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var store=new VaultProtectionChangeStore(new Factory(fixture,new LockSignal(reached,locked)));
++        var pending=store.ChangeAsync(request,default);await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);
++        var remaining=deadline-DateTimeOffset.UtcNow;if(remaining>TimeSpan.Zero)await Task.Delay(remaining+TimeSpan.FromMilliseconds(100));
++        await tx.CommitAsync();var result=await pending;Assert.Equal(expiry=="session"?"vault_access_denied":"vault_proof_rejected",result.Error);
++        Assert.Equal(before,await Snapshot(s));await Unconsumed(request.ChallengeId);
++    }
++
++    [FunctionalTheory]
++    [InlineData("closing","not_found")][InlineData("erased","not_found")][InlineData("policy","vault_access_denied")][InlineData("accountEdit","revision_conflict")]
++    public async Task GivenLifecycleOrRevisionChangesWhileQueued_WhenChanging_ThenRecheckAfterAccountLock(string state,string error)
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);var request=await Request(s,client,Change(s,client));
++        await using var holder=fixture.CreateContext();await using var tx=await holder.Database.BeginTransactionAsync();
++        await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
++        var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var pending=new VaultProtectionChangeStore(new Factory(fixture,new LockSignal(reached,"account"))).ChangeAsync(request,default);
++        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);var a=await holder.Accounts.SingleAsync(x=>x.Id==s.InternalId);
++        if(state=="closing")a.State=AccountState.ClosurePending;if(state=="policy")a.PolicyRevision++;
++        if(state=="accountEdit"){a.Revision++;a.DetailsEnvelope=[7,8,9];}
++        if(state=="erased")holder.TerminalErasures.Add(new TerminalErasure { ResourceId=s.Id,ResourceKind="account",DeletedAt=DateTimeOffset.UtcNow });
++        await holder.SaveChangesAsync();await tx.CommitAsync();var before=await Snapshot(s);
++        Assert.Equal(error,(await pending).Error);Assert.Equal(before,await Snapshot(s));await Unconsumed(request.ChallengeId);
++    }
++
++    [FunctionalFact]
++    public async Task GivenPostConsumptionSaveFailure_WhenChanging_ThenRollbackEveryWriteAndPermitSameProofRetry()
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);var request=await Request(s,client,Change(s,client,"rotate-content"));var before=await Snapshot(s);
++        var result=await new VaultProtectionChangeStore(new Factory(fixture,new RejectWrite())).ChangeAsync(request,default);
++        Assert.Equal("persistence_unavailable",result.Error);Assert.Equal(before,await Snapshot(s));await Unconsumed(request.ChallengeId);
++        Assert.Null((await Store().ChangeAsync(request,default)).Error);
++    }
++
++    [FunctionalFact]
++    public async Task GivenUnavailableDatabaseOrCancelledCaller_WhenChanging_ThenFailClosed()
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);var r=await Request(s,client,Change(s,client));var before=await Snapshot(s);
++        var unavailable=new VaultProtectionChangeStore(new Factory(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql("Host=127.0.0.1;Port=1;Database=unavailable;Username=fixture;Password=fixture;Timeout=1").Options));
++        Assert.Equal("persistence_unavailable",(await unavailable.ChangeAsync(r,default)).Error);
++        using var source=new CancellationTokenSource();source.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>Store().ChangeAsync(r,source.Token));
++        Assert.Equal(before,await Snapshot(s));await Unconsumed(r.ChallengeId);
++    }
++
++    private VaultProtectionChangeStore Store()=>new(fixture);
++    private sealed record State(Guid Actor,Guid Id,long InternalId,string Verifier,byte[] Envelope);
++    private async Task<State> Setup(ProtectionFixture client)
++    {
++        var actor=Guid.NewGuid();var id=Guid.NewGuid();var e=new EncryptedEnvelope("cerberus-content-v1",5,ProtectionFixture.Encode(new byte[32]),ProtectionFixture.Encode(new byte[12]),"AQID",ProtectionFixture.Encode(new byte[16]));
++        var raw=JsonSerializer.SerializeToUtf8Bytes(e,ProtectionFixture.Json);await using var db=fixture.CreateContext();
++        var a=new Account { PublicId=id,HeimdallPublicId=actor,DetailsEnvelope=raw,Revision=3 };db.Accounts.Add(a);await db.SaveChangesAsync();
++        OpaqueAccessHandle.TryHash(ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(32)),out var verifier);
++        db.VaultProtections.Add(new VaultProtection { AccountId=a.Id,Material=JsonSerializer.SerializeToUtf8Bytes(client.Material,ProtectionFixture.Json) });
++        db.VaultAccessSessions.Add(new VaultAccessSession { AccountId=a.Id,HandleVerifier=verifier,IssuedAt=DateTimeOffset.UtcNow.AddMinutes(-1),ExpiresAt=DateTimeOffset.UtcNow.AddHours(1),PolicyRevision=1,RevocationGeneration=1 });
++        await db.SaveChangesAsync();return new(actor,id,a.Id,verifier,raw);
++    }
++    private static ProtectionChange Change(State s,ProtectionFixture client,string mode="rewrap")=>new(s.Id,1,3,mode,client.Rewrap(),mode=="rewrap"?[]:
++        [new("account",s.Id,3,new("cerberus-content-v1",6,ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(32)),ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(12)),"BAUG",ProtectionFixture.Encode(new byte[16])))]);
++    private async Task<ProtectionChangeRequest> Request(State s,ProtectionFixture client,ProtectionChange change,string operation="change-protection")
++    {
++        var raw=JsonSerializer.SerializeToUtf8Bytes(change,ProtectionFixture.Json);var c=(await new VaultProtectionStore(fixture).ChallengeAsync(s.Actor,operation,ProtocolBinary.Encode(SHA256.HashData(raw)),default)).Data!;
++        return new(s.Actor,s.Verifier,c.ChallengeId,client.Sign(c),raw,change);
++    }
++    private async Task<VaultProofChallenge> Challenge(Guid id)
++    { await using var db=fixture.CreateContext();return JsonSerializer.Deserialize<VaultProofChallenge>((await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==id)).Challenge,ProtectionFixture.Json)!; }
++    private async Task Unconsumed(Guid id)
++    { await using var db=fixture.CreateContext();Assert.False((await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==id)).Consumed); }
++    private async Task<string> Snapshot(State s)
++    {
++        await using var db=fixture.CreateContext();return JsonSerializer.Serialize(new { Account=await db.Accounts.AsNoTracking().SingleAsync(x=>x.Id==s.InternalId),Protection=await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==s.InternalId),Sessions=await db.VaultAccessSessions.AsNoTracking().Where(x=>x.AccountId==s.InternalId).ToListAsync() });
++    }
++    private sealed class Factory : IDbContextFactory<AppDbContext>
++    {
++        private readonly DbContextOptions<AppDbContext> options;
++        public Factory(DbContextOptions<AppDbContext> value)=>options=value;
++        public Factory(PostgresFixture f,IInterceptor interceptor)
++        {using var db=f.CreateContext();options=new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(db.Database.GetConnectionString()).AddInterceptors(interceptor).Options;}
++        public AppDbContext CreateDbContext()=>new(options);
++    }
++    private sealed class LockSignal(TaskCompletionSource reached,string locked) : DbCommandInterceptor
++    {
++        public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<int> result,CancellationToken ct=default)
++        {if(command.CommandText.Contains("FOR UPDATE",StringComparison.Ordinal)&&command.CommandText.Contains(locked=="account"?"cerberus.account":"cerberus.vault_access_session",StringComparison.Ordinal))reached.TrySetResult();return ValueTask.FromResult(result);}
++    }
++    private sealed class RejectWrite : DbCommandInterceptor
++    {
++        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<DbDataReader> result,CancellationToken ct=default)
++        {if(command.CommandText.Contains("UPDATE cerberus.vault_protection",StringComparison.Ordinal))throw new TimeoutException("synthetic protection write failure");return ValueTask.FromResult(result);}
++    }
++}
+diff --git a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs
+new file mode 100644
+index 0000000..2358860
+--- /dev/null
++++ b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/VaultProtectionChangeHttpTests.cs
+@@ -0,0 +1,198 @@
++using System.Net;
++using System.Net.Http.Json;
++using System.Security.Cryptography;
++using System.Text;
++using System.Text.Json;
++using ArturRios.Cerberus.Command.Protection;
++using ArturRios.Cerberus.Domain.Access;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Operations;
++using ArturRios.Cerberus.Domain.Protection;
++using ArturRios.Cerberus.Query.Accounts;
++using ArturRios.Cerberus.Query.Protection;
++using ArturRios.Cerberus.TestSupport;
++using ArturRios.Configuration.Enums;
++using ArturRios.Output;
++using ArturRios.Util.Test.Functional;
++using Microsoft.EntityFrameworkCore;
++
++namespace ArturRios.Cerberus.WebApi.Tests;
++
++[Collection("Registration host")]
++public class VaultProtectionChangeHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
++{
++    [FunctionalTheory]
++    [InlineData("rewrap")][InlineData("rotate-content")]
++    public async Task GivenInitializedUnlockedOwner_WhenChangingAndUnlockingAgain_ThenReturnCoherentCurrentVault(string mode)
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client,false);Authorize(RegistrationApiFixture.Token(s.Actor));
++        using(var init=await Gateway.Client.PostAsJsonAsync("/api/vault/protection",new { accountId=s.Id,expectedAccountRevision=3,material=client.Material }))Assert.Equal(HttpStatusCode.Created,init.StatusCode);
++        var access=await Unlock(client,1);var change=Change(s,client,mode);var raw=Bytes(change);var challenge=await Challenge(raw);
++        using var response=await Send(raw,challenge,client.Sign(challenge),access);Assert.Equal(HttpStatusCode.OK,response.StatusCode);Assert.True(response.Headers.CacheControl?.NoStore);
++        var confirmation=(await response.Content.ReadFromJsonAsync<DataOutput<ChangeVaultProtectionOutput>>())!.Data!;
++        Assert.Equal(s.Id,confirmation.AccountId);Assert.Equal(2,confirmation.ProtectionRevision);Assert.Equal(2,confirmation.KeyEpoch);Assert.Equal(1,confirmation.RecoveryGeneration);Assert.Equal(mode=="rewrap"?3:4,confirmation.AccountRevision);
++        var text=await response.Content.ReadAsStringAsync();Assert.DoesNotContain("material",text);Assert.DoesNotContain("vaultAccess",text);
++        using(var material=await Gateway.Client.GetAsync("/api/vault/protection"))
++        {Assert.Equal(HttpStatusCode.OK,material.StatusCode);Assert.Equal(change.Material,(await material.Content.ReadFromJsonAsync<DataOutput<VaultProtectionOutput>>())!.Data!.Material);}
++        using(var old=await Read(access))await Failure(old,HttpStatusCode.Forbidden);
++        var next=await Unlock(client,2);using(var current=await Read(next))
++        {
++            Assert.Equal(HttpStatusCode.OK,current.StatusCode);var account=(await current.Content.ReadFromJsonAsync<DataOutput<AccountOutput>>())!.Data!;
++            Assert.Equal(mode=="rewrap"?3:4,account.Revision);Assert.Equal(mode=="rewrap"?1:2,account.Details.KeyEpoch);
++        }
++        using var retry=await Send(raw,challenge,client.Sign(challenge),access);await Failure(retry,HttpStatusCode.Conflict);
++        await using var db=fixture.Context();var a=await db.Accounts.SingleAsync(x=>x.PublicId==s.Id);Assert.Equal(2,a.RevocationGeneration);
++        Assert.Equal(mode=="rewrap"?s.Envelope:Bytes(change.ContentReplacements[0].Envelope),a.DetailsEnvelope);
++    }
++
++    [FunctionalTheory]
++    [InlineData("anonymous",401)][InlineData("scope",401)][InlineData("deletedIdentity",401)][InlineData("identityUnavailable",503)]
++    [InlineData("missing",404)][InlineData("foreign",404)][InlineData("closing",404)][InlineData("erased",404)][InlineData("noProtection",404)]
++    [InlineData("staleProtection",409)][InlineData("staleAccount",409)][InlineData("revoked",403)][InlineData("profile",403)]
++    [InlineData("expired",403)][InlineData("policy",403)][InlineData("generation",403)]
++    public async Task GivenInvalidIdentityOwnerStateOrAccess_WhenChanging_ThenFailWithoutMutatingProtection(string state,int status)
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);Authorize(RegistrationApiFixture.Token(s.Actor));var change=Change(s,client);
++        if(state=="foreign")change=change with { AccountId=Guid.NewGuid() };
++        if(state=="staleProtection")change=change with { ExpectedProtectionRevision=2 };
++        if(state=="staleAccount")change=change with { ExpectedAccountRevision=2 };
++        var raw=Bytes(change);var c=await Challenge(raw);
++        await using(var db=fixture.Context())
++        {
++            var a=await db.Accounts.SingleAsync(x=>x.PublicId==s.Id);var session=await db.VaultAccessSessions.SingleAsync(x=>x.AccountId==a.Id);
++            if(state=="closing")a.State=AccountState.ClosurePending;
++            if(state=="erased")db.TerminalErasures.Add(new TerminalErasure { ResourceId=s.Id,ResourceKind="account",DeletedAt=DateTimeOffset.UtcNow });
++            if(state=="noProtection")await db.VaultProtections.Where(x=>x.AccountId==a.Id).ExecuteDeleteAsync();
++            if(state=="missing")await db.Accounts.Where(x=>x.Id==a.Id).ExecuteDeleteAsync();
++            if(state=="revoked")session.Revoked=true;if(state=="profile")session.ProfileId=123;if(state=="expired")session.ExpiresAt=DateTimeOffset.UtcNow.AddSeconds(-1);
++            if(state=="policy")session.PolicyRevision=2;if(state=="generation")session.RevocationGeneration=2;
++            await db.SaveChangesAsync();
++        }
++        if(state=="anonymous")Gateway.Client.DefaultRequestHeaders.Authorization=null;
++        if(state=="scope")Authorize(RegistrationApiFixture.Token(s.Actor,Guid.NewGuid()));
++        if(state is "deletedIdentity" or "identityUnavailable")
++        {var pair=fixture.Users.Single(x=>x.Value.Id==s.Actor);fixture.Users[pair.Key]=pair.Value with { Deleted=state=="deletedIdentity",IdentityUnavailable=state=="identityUnavailable" };}
++        var before=await Snapshot(s);using var response=await Send(raw,c,client.Sign(c),s.Access);await Failure(response,(HttpStatusCode)status);Assert.Equal(before,await Snapshot(s));
++    }
++
++    [FunctionalTheory]
++    [InlineData("unknown")][InlineData("actor")][InlineData("private")][InlineData("duplicate")][InlineData("case")][InlineData("numericString")]
++    [InlineData("missingContent")][InlineData("extraContent")][InlineData("foreignContent")][InlineData("wrongEpoch")][InlineData("keySubstitution")][InlineData("saltReuse")]
++    public async Task GivenMalformedOrIncompleteReplacement_WhenChanging_ThenReturn400WithoutConsumption(string invalid)
++    {
++        using var client=new ProtectionFixture();using var other=new ProtectionFixture();var s=await Setup(client);Authorize(RegistrationApiFixture.Token(s.Actor));var change=Change(s,client,"rotate-content");var item=change.ContentReplacements[0];
++        change=invalid switch
++        {
++            "missingContent"=>change with { ContentReplacements=[] },"extraContent"=>change with { ContentReplacements=[item,item] },
++            "foreignContent"=>change with { ContentReplacements=[item with { ResourceId=Guid.NewGuid() }] },
++            "wrongEpoch"=>change with { ContentReplacements=[item with { Envelope=item.Envelope with { KeyEpoch=1 } }] },
++            "keySubstitution"=>change with { Material=change.Material with { RecipientKey=other.Material.RecipientKey } },
++            "saltReuse"=>change with { Material=change.Material with { RecoveryWrapper=change.Material.RecoveryWrapper with { Nonce=client.Material.RecoveryWrapper.Nonce } } },_=>change
++        };
++        var text=JsonSerializer.Serialize(change,ProtectionFixture.Json);
++        text=invalid switch
++        {
++            "unknown"=>text.Insert(1,"\"password\":\"secret\","),"actor"=>text.Insert(1,"\"actor\":\""+Guid.NewGuid()+"\","),
++            "private"=>text.Replace("\"crv\":","\"d\":\"private\",\"crv\":"),"duplicate"=>text.Insert(1,"\"expectedProtectionRevision\":1,"),
++            "case"=>text.Replace("\"accountId\":","\"AccountId\":"),"numericString"=>text.Replace("\"expectedProtectionRevision\":1","\"expectedProtectionRevision\":\"1\""),_=>text
++        };
++        var raw=Encoding.UTF8.GetBytes(text);var c=await Challenge(raw);var before=await Snapshot(s);using var response=await Send(raw,c,client.Sign(c),s.Access);
++        await Failure(response,HttpStatusCode.BadRequest);Assert.Equal(before,await Snapshot(s));await Unconsumed(c.ChallengeId);
++    }
++
++    [FunctionalTheory]
++    [InlineData("missingAccess",401)][InlineData("badAccess",400)][InlineData("multipleAccess",400)]
++    [InlineData("missingProof",401)][InlineData("missingChallenge",401)][InlineData("multipleProof",400)][InlineData("badProof",400)]
++    [InlineData("badChallenge",400)][InlineData("query",400)][InlineData("gzip",400)][InlineData("bom",400)]
++    [InlineData("wrongKey",401)][InlineData("purpose",401)][InlineData("body",401)]
++    public async Task GivenInvalidHeadersEncodingOrProofBinding_WhenChanging_ThenWriteNothing(string invalid,int status)
++    {
++        using var client=new ProtectionFixture();using var other=new ProtectionFixture();var s=await Setup(client);Authorize(RegistrationApiFixture.Token(s.Actor));var raw=Bytes(Change(s,client));
++        var c=await Challenge(raw,invalid=="purpose"?"unlock-account":"change-protection");var before=await Snapshot(s);
++        if(invalid=="body")raw=Encoding.UTF8.GetBytes(" "+Encoding.UTF8.GetString(raw));if(invalid=="bom")raw=[239,187,191,..raw];
++        using var request=new HttpRequestMessage(HttpMethod.Put,"/api/vault/protection"+(invalid=="query"?"?owner=untrusted":"")) { Content=new ByteArrayContent(raw) };
++        request.Content.Headers.ContentType=new("application/json");if(invalid=="gzip")request.Content.Headers.ContentEncoding.Add("gzip");
++        if(invalid!="missingAccess")request.Headers.Add("X-Cerberus-Vault-Access",invalid=="badAccess"?"bad":s.Access);
++        if(invalid!="missingChallenge")request.Headers.Add("X-Cerberus-Challenge-Id",invalid=="badChallenge"?"bad":c.ChallengeId.ToString());
++        if(invalid!="missingProof")request.Headers.Add("X-Cerberus-Proof",invalid=="badProof"?"bad":invalid=="wrongKey"?other.Sign(c):client.Sign(c));
++        if(invalid=="multipleAccess")request.Headers.Add("X-Cerberus-Vault-Access",s.Access);if(invalid=="multipleProof")request.Headers.Add("X-Cerberus-Proof",client.Sign(c));
++        using var response=await Gateway.Client.SendAsync(request);await Failure(response,(HttpStatusCode)status);Assert.Equal(before,await Snapshot(s));await Unconsumed(c.ChallengeId);
++    }
++
++    [FunctionalFact]
++    public async Task GivenOriginalWhitespaceBody_WhenChanging_ThenVerifyWithoutReserialization()
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);Authorize(RegistrationApiFixture.Token(s.Actor));
++        var raw=Encoding.UTF8.GetBytes("\n "+JsonSerializer.Serialize(Change(s,client),ProtectionFixture.Json)+"\n");var c=await Challenge(raw);
++        using var response=await Send(raw,c,client.Sign(c),s.Access);Assert.Equal(HttpStatusCode.OK,response.StatusCode);
++    }
++
++    [FunctionalFact]
++    public async Task GivenConcurrentHttpChanges_WhenCommitting_ThenOneCompleteWinner()
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);Authorize(RegistrationApiFixture.Token(s.Actor));var a=Change(s,client);var b=Change(s,client);
++        var ar=Bytes(a);var br=Bytes(b);var ac=await Challenge(ar);var bc=await Challenge(br);
++        var responses=await Task.WhenAll(Send(ar,ac,client.Sign(ac),s.Access),Send(br,bc,client.Sign(bc),s.Access));
++        try
++        {
++            Assert.Single(responses,x=>x.StatusCode==HttpStatusCode.OK);Assert.Single(responses,x=>x.StatusCode==HttpStatusCode.Conflict);
++            await using var db=fixture.Context();var p=await db.VaultProtections.SingleAsync(x=>db.Accounts.Any(y=>y.Id==x.AccountId&&y.PublicId==s.Id));
++            Assert.Equal(responses[0].StatusCode==HttpStatusCode.OK?a.Material:b.Material,JsonSerializer.Deserialize<ProtectionMaterial>(p.Material,ProtectionFixture.Json));
++        }
++        finally{foreach(var r in responses)r.Dispose();}
++    }
++
++    [FunctionalFact]
++    public async Task GivenUnavailableProtectionPersistence_WhenChanging_ThenReturn503WithoutMutation()
++    {
++        using var client=new ProtectionFixture();var s=await Setup(client);Authorize(RegistrationApiFixture.Token(s.Actor));var raw=Bytes(Change(s,client));var c=await Challenge(raw);var before=await Snapshot(s);
++        await using var db=fixture.Context();await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.vault_protection RENAME TO fixture_change_unavailable_protection");
++        try{using var response=await Send(raw,c,client.Sign(c),s.Access);await Failure(response,HttpStatusCode.ServiceUnavailable);}
++        finally{await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.fixture_change_unavailable_protection RENAME TO vault_protection");}
++        Assert.Equal(before,await Snapshot(s));await Unconsumed(c.ChallengeId);
++    }
++
++    private sealed record State(Guid Actor,Guid Id,string Access,byte[] Envelope);
++    private async Task<State> Setup(ProtectionFixture client,bool initialize=true)
++    {
++        var actor=Guid.NewGuid();var id=Guid.NewGuid();fixture.Users[Guid.NewGuid().ToString("N")+"@example.test"]=new(actor,"fixture-password");
++        var envelope=Bytes(new EncryptedEnvelope("cerberus-content-v1",1,ProtectionFixture.Encode(new byte[32]),ProtectionFixture.Encode(new byte[12]),"AQID",ProtectionFixture.Encode(new byte[16])));
++        var access=ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(32));OpaqueAccessHandle.TryHash(access,out var verifier);
++        await using var db=fixture.Context();var a=new Account { PublicId=id,HeimdallPublicId=actor,DetailsEnvelope=envelope,Revision=3 };db.Accounts.Add(a);await db.SaveChangesAsync();
++        if(initialize)
++        {
++            db.VaultProtections.Add(new VaultProtection { AccountId=a.Id,Material=Bytes(client.Material) });
++            db.VaultAccessSessions.Add(new VaultAccessSession { AccountId=a.Id,HandleVerifier=verifier,IssuedAt=DateTimeOffset.UtcNow.AddSeconds(-1),ExpiresAt=DateTimeOffset.UtcNow.AddHours(1),PolicyRevision=1,RevocationGeneration=1 });await db.SaveChangesAsync();
++        }
++        return new(actor,id,access,envelope);
++    }
++    private static ProtectionChange Change(State s,ProtectionFixture client,string mode="rewrap")=>new(s.Id,1,3,mode,client.Rewrap(),mode=="rewrap"?[]:
++        [new("account",s.Id,3,new("cerberus-content-v1",2,ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(32)),ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(12)),"BAUG",ProtectionFixture.Encode(new byte[16])))]);
++    private static byte[] Bytes<T>(T value)=>JsonSerializer.SerializeToUtf8Bytes(value,ProtectionFixture.Json);
++    private async Task<VaultProofChallenge> Challenge(byte[] raw,string operation="change-protection")
++    {
++        using var response=await Gateway.Client.PostAsJsonAsync("/api/vault/challenges",new { operation,requestHash=ProtocolBinary.Encode(SHA256.HashData(raw)) });
++        Assert.Equal(HttpStatusCode.Created,response.StatusCode);return (await response.Content.ReadFromJsonAsync<DataOutput<VaultChallengeOutput>>())!.Data!.Challenge;
++    }
++    private async Task<string> Unlock(ProtectionFixture client,long revision)
++    {
++        var raw=Bytes(new { expectedProtectionRevision=revision });var c=await Challenge(raw,"unlock-account");
++        using var request=new HttpRequestMessage(HttpMethod.Post,"/api/vault/unlock") { Content=new ByteArrayContent(raw) };request.Content.Headers.ContentType=new("application/json");request.Headers.Add("X-Cerberus-Challenge-Id",c.ChallengeId.ToString());request.Headers.Add("X-Cerberus-Proof",client.Sign(c));
++        using var response=await Gateway.Client.SendAsync(request);Assert.Equal(HttpStatusCode.OK,response.StatusCode);return (await response.Content.ReadFromJsonAsync<DataOutput<VaultUnlockOutput>>())!.Data!.VaultAccess;
++    }
++    private async Task<HttpResponseMessage> Send(byte[] raw,VaultProofChallenge c,string proof,string access)
++    {
++        using var request=new HttpRequestMessage(HttpMethod.Put,"/api/vault/protection") { Content=new ByteArrayContent(raw) };request.Content.Headers.ContentType=new("application/json");request.Headers.Add("X-Cerberus-Vault-Access",access);request.Headers.Add("X-Cerberus-Challenge-Id",c.ChallengeId.ToString());request.Headers.Add("X-Cerberus-Proof",proof);return await Gateway.Client.SendAsync(request);
++    }
++    private async Task<HttpResponseMessage> Read(string access)
++    {using var r=new HttpRequestMessage(HttpMethod.Get,"/api/accounts/me");r.Headers.Add("X-Cerberus-Vault-Access",access);return await Gateway.Client.SendAsync(r);}
++    private async Task Unconsumed(Guid id)
++    {await using var db=fixture.Context();Assert.False((await db.VaultUnlockChallenges.SingleAsync(x=>x.PublicId==id)).Consumed);}
++    private async Task<string> Snapshot(State s)
++    {
++        await using var db=fixture.Context();var a=await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x=>x.PublicId==s.Id);
++        return JsonSerializer.Serialize(new { Account=a,Protection=a is null?null:await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==a.Id),Sessions=a is null?[]:await db.VaultAccessSessions.AsNoTracking().Where(x=>x.AccountId==a.Id).ToListAsync() });
++    }
++    private static async Task Failure(HttpResponseMessage r,HttpStatusCode status)
++    {Assert.Equal(status,r.StatusCode);Assert.True(r.Headers.CacheControl?.NoStore);using var doc=JsonDocument.Parse(await r.Content.ReadAsStringAsync());Assert.False(doc.RootElement.GetProperty("success").GetBoolean());if(doc.RootElement.TryGetProperty("data",out var data))Assert.Equal(JsonValueKind.Null,data.ValueKind);}
++}
+diff --git a/tests/TestSupport/ProtectionFixture.cs b/tests/TestSupport/ProtectionFixture.cs
+index 3ca71ae..3da3dba 100644
+--- a/tests/TestSupport/ProtectionFixture.cs
++++ b/tests/TestSupport/ProtectionFixture.cs
+@@ -22,13 +22,20 @@ public sealed class ProtectionFixture : IDisposable
+         return new("P-256", "EC", Encode(p.Q.X!), Encode(p.Q.Y!));
+     }
+     public ProtectionFixture()
+     {
+         var recovery = Public(_recovery);
+         Material = new(new("cerberus-password-wrap-v1", 1, Encode(new byte[32]), Encode(new byte[12]), "AQID", Encode(new byte[16]),
+                 new("argon2id-v1.3", 65536, 3, 4, Encode(new byte[16]))),
+             new("cerberus-recovery-wrap-v1", 1, Encode(new byte[32]), Encode(new byte[12]), "BAUG", Encode(new byte[16]), 1, recovery.Fingerprint()),
+             Public(Unlock), recovery, Public(_recipient), Public(_author));
+     }
++    public ProtectionMaterial Rewrap(long epoch = 2) => Material with
++    {
++        PasswordWrapper = Material.PasswordWrapper with { KeyEpoch = epoch, KeySalt = Encode(RandomNumberGenerator.GetBytes(32)),
++            Nonce = Encode(RandomNumberGenerator.GetBytes(12)), Ciphertext = "BwgJ", Kdf = Material.PasswordWrapper.Kdf with { Salt = Encode(RandomNumberGenerator.GetBytes(16)) } },
++        RecoveryWrapper = Material.RecoveryWrapper with { KeyEpoch = epoch, KeySalt = Encode(RandomNumberGenerator.GetBytes(32)),
++            Nonce = Encode(RandomNumberGenerator.GetBytes(12)), Ciphertext = "CgsM" }
++    };
+     public string Sign(VaultProofChallenge challenge) => Encode(Unlock.SignData(VaultProof.SigningBytes(challenge), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
+     public void Dispose() { Unlock.Dispose(); _recovery.Dispose(); _recipient.Dispose(); _author.Dispose(); }
+ }

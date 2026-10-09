@@ -1,0 +1,10 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc12-worktree/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 483 ms).
+  Restored /tmp/cerberus-uc12-worktree/src/Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj (in 481 ms).
+  Restored /tmp/cerberus-uc12-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj (in 534 ms).
+  Restored /tmp/cerberus-uc12-worktree/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 544 ms).
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc12-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc12-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc12-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+/tmp/cerberus-uc12-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileUpdateStoreTests.cs(96,13): error CS0246: The type or namespace name 'ProfileUpdateStore' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc12-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]
+/tmp/cerberus-uc12-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileUpdateStoreTests.cs(97,20): error CS0246: The type or namespace name 'ProfileUpdateInput' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc12-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]

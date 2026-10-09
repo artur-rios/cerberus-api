@@ -1,0 +1,1510 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc29-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc29-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc29-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc29-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc29-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc29-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:08.13]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenConcurrentCreationAndLostResponseRetry_WhenCreating_ThenOneWinnerAndNoSecondLinks(differentOwners: False) [FAIL]
+[xUnit.net 00:00:08.25]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenConcurrentCreationAndLostResponseRetry_WhenCreating_ThenOneWinnerAndNoSecondLinks(differentOwners: True) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenConcurrentCreationAndLostResponseRetry_WhenCreating_ThenOneWinnerAndNoSecondLinks(differentOwners: False) [782 ms]
+  Error Message:
+   Assert.Single() Failure: The collection did not contain any matching items
+Expected:   (predicate expression)
+Collection: [StatusCode: 404, ReasonPhrase: 'Not Found', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+}, StatusCode: 404, ReasonPhrase: 'Not Found', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+}]
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenConcurrentCreationAndLostResponseRetry_WhenCreating_ThenOneWinnerAndNoSecondLinks(Boolean differentOwners) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 146
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenConcurrentCreationAndLostResponseRetry_WhenCreating_ThenOneWinnerAndNoSecondLinks(differentOwners: True) [128 ms]
+  Error Message:
+   Assert.Single() Failure: The collection did not contain any matching items
+Expected:   (predicate expression)
+Collection: [StatusCode: 404, ReasonPhrase: 'Not Found', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+}, StatusCode: 404, ReasonPhrase: 'Not Found', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+}]
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenConcurrentCreationAndLostResponseRetry_WhenCreating_ThenOneWinnerAndNoSecondLinks(Boolean differentOwners) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 146
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:08.86]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "actor") [FAIL]
+[xUnit.net 00:00:08.96]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "epoch2") [FAIL]
+[xUnit.net 00:00:09.03]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "duplicateFolders") [FAIL]
+[xUnit.net 00:00:09.12]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "fractionEpoch") [FAIL]
+[xUnit.net 00:00:09.19]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "unknown") [FAIL]
+[xUnit.net 00:00:09.34]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "bom") [FAIL]
+[xUnit.net 00:00:09.45]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "duplicateRecords") [FAIL]
+[xUnit.net 00:00:09.51]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "accountId") [FAIL]
+[xUnit.net 00:00:09.57]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "name") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "actor") [605 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "epoch2") [92 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "duplicateFolders") [66 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "fractionEpoch") [89 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "unknown") [66 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "bom") [151 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "duplicateRecords") [106 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "accountId") [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "name") [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:09.63]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "invalidUtf8") [FAIL]
+[xUnit.net 00:00:09.70]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "upperFolder") [FAIL]
+[xUnit.net 00:00:09.77]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nullProfiles") [FAIL]
+[xUnit.net 00:00:09.84]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nestedCase") [FAIL]
+[xUnit.net 00:00:09.92]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "fields") [FAIL]
+[xUnit.net 00:00:09.97]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingFolderIds") [FAIL]
+[xUnit.net 00:00:10.04]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nullEnvelope") [FAIL]
+[xUnit.net 00:00:10.09]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "proof") [FAIL]
+[xUnit.net 00:00:10.14]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "zeroRecord") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "invalidUtf8") [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "upperFolder") [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nullProfiles") [71 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nestedCase") [61 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "fields") [77 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingFolderIds") [48 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nullEnvelope") [70 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "proof") [50 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "zeroRecord") [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:10.25]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "upperId") [FAIL]
+[xUnit.net 00:00:10.34]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "badSalt") [FAIL]
+[xUnit.net 00:00:10.46]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "numericFolder") [FAIL]
+[xUnit.net 00:00:10.52]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "time9Ticks") [FAIL]
+[xUnit.net 00:00:10.56]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "timeDefault") [FAIL]
+[xUnit.net 00:00:10.62]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "duplicateProfiles") [FAIL]
+[xUnit.net 00:00:10.66]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nestedMissing") [FAIL]
+[xUnit.net 00:00:10.73]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingEnvelope") [FAIL]
+[xUnit.net 00:00:10.81]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "case") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "upperId") [108 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "badSalt") [86 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "numericFolder") [116 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "time9Ticks") [58 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "timeDefault") [45 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "duplicateProfiles") [59 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nestedMissing") [37 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingEnvelope") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "case") [72 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:10.86]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nullFolders") [FAIL]
+[xUnit.net 00:00:10.93]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "zeroProfile") [FAIL]
+[xUnit.net 00:00:10.96]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "paddedNonce") [FAIL]
+[xUnit.net 00:00:11.01]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "parentFolderId") [FAIL]
+[xUnit.net 00:00:11.10]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "numericEpoch") [FAIL]
+[xUnit.net 00:00:11.16]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "emptyCiphertext") [FAIL]
+[xUnit.net 00:00:11.31]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nullRecords") [FAIL]
+[xUnit.net 00:00:11.37]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "array") [FAIL]
+[xUnit.net 00:00:11.44]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "duplicate") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nullFolders") [51 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "zeroProfile") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "paddedNonce") [32 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "parentFolderId") [45 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "numericEpoch") [83 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "emptyCiphertext") [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nullRecords") [144 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "array") [60 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "duplicate") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.49]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nestedUnknown") [FAIL]
+[xUnit.net 00:00:11.55]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "charset") [FAIL]
+[xUnit.net 00:00:11.64]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "badFormat") [FAIL]
+[xUnit.net 00:00:11.70]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "collectionIds") [FAIL]
+[xUnit.net 00:00:11.77]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "timeOffset") [FAIL]
+[xUnit.net 00:00:11.87]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "zeroFolder") [FAIL]
+[xUnit.net 00:00:11.95]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingCollectionId") [FAIL]
+[xUnit.net 00:00:12.04]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "expectedRevision") [FAIL]
+[xUnit.net 00:00:12.10]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingEditedAt") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nestedUnknown") [42 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "charset") [59 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "badFormat") [85 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "collectionIds") [60 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "timeOffset") [75 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "zeroFolder") [92 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingCollectionId") [74 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "expectedRevision") [94 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingEditedAt") [53 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.16]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "grants") [FAIL]
+[xUnit.net 00:00:12.28]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "null") [FAIL]
+[xUnit.net 00:00:12.45]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "keyWrappers") [FAIL]
+[xUnit.net 00:00:12.64]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "upperRecord") [FAIL]
+[xUnit.net 00:00:12.69]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "epoch0") [FAIL]
+[xUnit.net 00:00:12.76]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "vaultAccess") [FAIL]
+[xUnit.net 00:00:12.80]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "compactId") [FAIL]
+[xUnit.net 00:00:12.88]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "numericRecords") [FAIL]
+[xUnit.net 00:00:12.94]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "upperProfile") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "grants") [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "null") [107 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "keyWrappers") [153 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "upperRecord") [194 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "epoch0") [54 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "vaultAccess") [62 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "compactId") [43 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "numericRecords") [71 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "upperProfile") [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.00]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nestedDuplicate") [FAIL]
+[xUnit.net 00:00:13.06]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingRecordIds") [FAIL]
+[xUnit.net 00:00:13.17]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "gzip") [FAIL]
+[xUnit.net 00:00:13.22]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "numericProfiles") [FAIL]
+[xUnit.net 00:00:13.27]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "zeroId") [FAIL]
+[xUnit.net 00:00:13.44]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "badTag") [FAIL]
+[xUnit.net 00:00:13.49]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "numericId") [FAIL]
+[xUnit.net 00:00:13.54]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingProfileIds") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "nestedDuplicate") [66 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingRecordIds") [51 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "gzip") [118 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "numericProfiles") [42 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "zeroId") [52 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "badTag") [58 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "numericId") [49 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(kind: "missingProfileIds") [44 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.65]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "future", status: 403) [FAIL]
+[xUnit.net 00:00:13.77]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "expired", status: 403) [FAIL]
+[xUnit.net 00:00:13.87]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "closing", status: 404) [FAIL]
+[xUnit.net 00:00:13.93]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "selection", status: 403) [FAIL]
+[xUnit.net 00:00:14.00]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "policy", status: 403) [FAIL]
+[xUnit.net 00:00:14.06]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "revoked", status: 403) [FAIL]
+[xUnit.net 00:00:14.11]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "generation", status: 403) [FAIL]
+[xUnit.net 00:00:14.18]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "terminal", status: 404) [FAIL]
+[xUnit.net 00:00:14.27]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(kind: "terminal") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "future", status: 403) [110 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "expired", status: 403) [113 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "closing", status: 404) [101 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "selection", status: 403) [56 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "policy", status: 403) [70 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "revoked", status: 403) [58 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "generation", status: 403) [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(kind: "terminal", status: 404) [64 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(kind: "terminal") [91 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Conflict
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 139
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.42]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(kind: "active") [FAIL]
+[xUnit.net 00:00:14.47]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(kind: "trash") [FAIL]
+[xUnit.net 00:00:14.54]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(kind: "foreign") [FAIL]
+[xUnit.net 00:00:15.63]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "complete", status: 200) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(kind: "active") [149 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Conflict
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 139
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(kind: "trash") [51 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Conflict
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 139
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(kind: "foreign") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Conflict
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 139
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "complete", status: 200) [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(String mode, String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 264
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:15.86]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "typedAlias", status: 200) [FAIL]
+[xUnit.net 00:00:16.07]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "omit", status: 400) [FAIL]
+[xUnit.net 00:00:16.33]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "PerProfile", kind: "complete", status: 200) [FAIL]
+[xUnit.net 00:00:16.60]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "stale", status: 409) [FAIL]
+[xUnit.net 00:00:16.79]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "foreign", status: 400) [FAIL]
+[xUnit.net 00:00:16.91]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "extra", status: 400) [FAIL]
+[xUnit.net 00:00:16.95]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenUnavailableCollectionDependency_WhenCreating_ThenSafe503AndNoPartialState [FAIL]
+[xUnit.net 00:00:17.16]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "record", state: "trash") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "typedAlias", status: 200) [222 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(String mode, String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 264
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "omit", status: 400) [209 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(String mode, String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 264
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "PerProfile", kind: "complete", status: 200) [255 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(String mode, String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 264
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "stale", status: 409) [266 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(String mode, String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 264
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "foreign", status: 400) [194 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(String mode, String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 264
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(mode: "Master", kind: "extra", status: 400) [114 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(String mode, String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 264
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenUnavailableCollectionDependency_WhenCreating_ThenSafe503AndNoPartialState [42 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenUnavailableCollectionDependency_WhenCreating_ThenSafe503AndNoPartialState() in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 254
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenUnavailableCollectionDependency_WhenCreating_ThenSafe503AndNoPartialState() in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 255
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenUnavailableCollectionDependency_WhenCreating_ThenSafe503AndNoPartialState() in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 256
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "record", state: "trash") [201 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:17.32]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "record", state: "missing") [FAIL]
+[xUnit.net 00:00:17.48]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "record", state: "terminal") [FAIL]
+[xUnit.net 00:00:17.75]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "profile", state: "missing") [FAIL]
+[xUnit.net 00:00:17.92]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "folder", state: "trash") [FAIL]
+[xUnit.net 00:00:18.10]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "folder", state: "missing") [FAIL]
+[xUnit.net 00:00:18.29]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "profile", state: "foreign") [FAIL]
+[xUnit.net 00:00:18.45]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "folder", state: "foreign") [FAIL]
+[xUnit.net 00:00:18.59]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "record", state: "foreign") [FAIL]
+[xUnit.net 00:00:18.74]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "profile", state: "terminal") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "record", state: "missing") [163 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "record", state: "terminal") [162 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "profile", state: "missing") [260 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "folder", state: "trash") [175 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "folder", state: "missing") [177 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "profile", state: "foreign") [184 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "folder", state: "foreign") [156 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "record", state: "foreign") [139 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "profile", state: "terminal") [153 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:18.96]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "folder", state: "terminal") [FAIL]
+[xUnit.net 00:00:19.16]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "profile", state: "trash") [FAIL]
+[xUnit.net 00:00:19.19]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(kind: "pre2000") [FAIL]
+[xUnit.net 00:00:19.24]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(kind: "maximum") [FAIL]
+[xUnit.net 00:00:19.29]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(kind: "precision") [FAIL]
+[xUnit.net 00:00:19.34]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(kind: "minimum") [FAIL]
+[xUnit.net 00:00:19.47]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(kind: "pre2000Last") [FAIL]
+[xUnit.net 00:00:19.54]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(kind: "deleted", status: 401) [FAIL]
+[xUnit.net 00:00:19.59]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(kind: "unavailable", status: 503) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "folder", state: "terminal") [215 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(kind: "profile", state: "trash") [197 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(String kind, String state) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(kind: "pre2000") [37 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 221
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(kind: "maximum") [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 221
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(kind: "precision") [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 221
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(kind: "minimum") [45 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 221
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(kind: "pre2000Last") [127 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 221
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(kind: "deleted", status: 401) [73 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 130
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(kind: "unavailable", status: 503) [43 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 130
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:19.64]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(kind: "wrongScope", status: 401) [FAIL]
+[xUnit.net 00:00:19.68]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:20.09]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "multiple", status: 404) [FAIL]
+[xUnit.net 00:00:20.32]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "folder", status: 404) [FAIL]
+[xUnit.net 00:00:20.53]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "empty", status: 403) [FAIL]
+[xUnit.net 00:00:20.76]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "record", status: 404) [FAIL]
+[xUnit.net 00:00:20.95]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "other", status: 404) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(kind: "wrongScope", status: 401) [51 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 130
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(kind: "missing", status: 401) [35 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 130
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "multiple", status: 404) [415 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 80
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "folder", status: 404) [225 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 80
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "empty", status: 403) [212 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 80
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "record", status: 404) [231 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 80
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "other", status: 404) [188 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 80
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:21.19]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "recordOnlyFolder", status: 404) [FAIL]
+[xUnit.net 00:00:21.26]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "empty", status: 400) [FAIL]
+[xUnit.net 00:00:21.30]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:21.35]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "profileOverride", status: 400) [FAIL]
+[xUnit.net 00:00:21.40]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "duplicate", status: 400) [FAIL]
+[xUnit.net 00:00:21.44]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "query", status: 400) [FAIL]
+[xUnit.net 00:00:21.49]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "bad", status: 400) [FAIL]
+[xUnit.net 00:00:21.54]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(kind: "grant") [FAIL]
+[xUnit.net 00:00:21.57]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(kind: "account") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(kind: "recordOnlyFolder", status: 404) [235 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 80
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "empty", status: 400) [66 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   404
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 206
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "missing", status: 401) [45 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 212
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "profileOverride", status: 400) [43 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 212
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "duplicate", status: 400) [50 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 212
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "query", status: 400) [43 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 212
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(kind: "bad", status: 400) [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 212
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(kind: "grant") [40 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 228
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(kind: "account") [33 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 228
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:21.61]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(kind: "folder") [FAIL]
+[xUnit.net 00:00:21.66]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(kind: "record") [FAIL]
+[xUnit.net 00:00:21.72]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(kind: "profile") [FAIL]
+[xUnit.net 00:00:21.97]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(access: ReadOnly, folder: True) [FAIL]
+[xUnit.net 00:00:22.22]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(access: ReadOnly, folder: False) [FAIL]
+[xUnit.net 00:00:22.49]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(access: ReadWrite, folder: False) [FAIL]
+[xUnit.net 00:00:22.69]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(access: ReadWrite, folder: True) [FAIL]
+[xUnit.net 00:00:22.96]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "Master", route: "PR") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(kind: "folder") [37 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 228
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(kind: "record") [41 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 228
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(kind: "profile") [58 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 228
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(access: ReadOnly, folder: True) [245 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(CollectionGrantAccess access, Boolean folder) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 94
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(access: ReadOnly, folder: False) [251 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(CollectionGrantAccess access, Boolean folder) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 94
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(access: ReadWrite, folder: False) [274 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(CollectionGrantAccess access, Boolean folder) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 94
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(access: ReadWrite, folder: True) [195 ms]
+  Error Message:
+   System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.
+  Stack Trace:
+     at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)
+   at System.Text.Json.Utf8JsonReader.Read()
+   at System.Text.Json.JsonDocument.Parse(ReadOnlySpan`1 utf8JsonSpan, JsonReaderOptions readerOptions, MetadataDb& database, StackRowStack& stack)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 utf8Json, JsonReaderOptions readerOptions, Byte[] extraRentedArrayPoolBytes, PooledByteBufferWriter extraPooledByteBufferWriter, Boolean allowDuplicateProperties)
+   at System.Text.Json.JsonDocument.Parse(ReadOnlyMemory`1 json, JsonDocumentOptions options)
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 360
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(CollectionGrantAccess access, Boolean folder) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 94
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "Master", route: "PR") [264 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(String mode, String route) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 60
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:23.13]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "Master", route: "PC") [FAIL]
+[xUnit.net 00:00:23.52]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "PerProfile", route: "PF") [FAIL]
+[xUnit.net 00:00:23.74]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "PerProfile", route: "PC") [FAIL]
+[xUnit.net 00:00:24.05]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "Master", route: "PF") [FAIL]
+[xUnit.net 00:00:24.31]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "PerProfile", route: "PR") [FAIL]
+[xUnit.net 00:00:24.42]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSamePublicIdInDifferentTypedMembers_WhenCreatingCollection_ThenPersistEachIndependentKind [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "Master", route: "PC") [170 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(String mode, String route) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "PerProfile", route: "PF") [386 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(String mode, String route) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 60
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "PerProfile", route: "PC") [220 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(String mode, String route) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "Master", route: "PF") [305 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(String mode, String route) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 60
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(mode: "PerProfile", route: "PR") [262 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(String mode, String route) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 60
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSamePublicIdInDifferentTypedMembers_WhenCreatingCollection_ThenPersistEachIndependentKind [104 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenSamePublicIdInDifferentTypedMembers_WhenCreatingCollection_ThenPersistEachIndependentKind() in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 235
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:24.68]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(kind: "overlap") [FAIL]
+[xUnit.net 00:00:24.94]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(kind: "empty") [FAIL]
+[xUnit.net 00:00:25.16]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(kind: "profiles") [FAIL]
+[xUnit.net 00:00:25.40]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(kind: "mixed") [FAIL]
+[xUnit.net 00:00:25.45]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenUnmodifiedStrictBodyFixture_WhenCreating_ThenAcceptAllSixFieldsAndReturnExactMetadata [FAIL]
+[xUnit.net 00:00:25.61]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(kind: "CF") [FAIL]
+[xUnit.net 00:00:25.84]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(kind: "CR") [FAIL]
+[xUnit.net 00:00:25.99]     ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(kind: "PC") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(kind: "overlap") [259 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(kind: "empty") [259 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(kind: "profiles") [216 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(kind: "mixed") [237 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenUnmodifiedStrictBodyFixture_WhenCreating_ThenAcceptAllSixFieldsAndReturnExactMetadata [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Created
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Success[T](HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 352
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenUnmodifiedStrictBodyFixture_WhenCreating_ThenAcceptAllSixFieldsAndReturnExactMetadata() in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 166
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(kind: "CF") [158 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 245
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 246
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 247
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(kind: "CR") [225 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 245
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 246
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 247
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(kind: "PC") [147 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   NotFound
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 359
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 245
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 246
+   at ArturRios.Cerberus.WebApi.Tests.CollectionCreateHttpTests.GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(String kind) in /tmp/cerberus-uc29-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionCreateHttpTests.cs:line 247
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:   141, Passed:     1, Skipped:     0, Total:   142, Duration: 18 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

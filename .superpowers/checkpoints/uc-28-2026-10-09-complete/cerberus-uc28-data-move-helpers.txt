@@ -1,0 +1,47 @@
+    private FolderMoveStore Store()=>new(fixture);
+    private Task<VaultResult<FolderMoveDetails>> Move(ProfileSetup.State s,VaultFolder target,Guid? destination,long expected=1)=>Store().MoveAsync(new(s.Actor,s.Verifier,target.PublicId,expected,destination),default);
+    private async Task Success(VaultFolder before,VaultFolder? destination,VaultFolder? from,VaultFolder? to,VaultResult<FolderMoveDetails> result)
+    {
+        Assert.Null(result.Error);var d=Assert.IsType<FolderMoveDetails>(result.Data);Assert.Equal(before.PublicId,d.FolderId);Assert.Equal(destination?.PublicId,d.ParentFolderId);Assert.Equal(before.Revision+1,d.Revision);Assert.True(d.ServerSequence>before.ServerSequence);Assert.InRange(d.ServerSequence,1,ProtocolBinary.MaxInteger);
+        var row=await Row(before.Id);Assert.Equal(destination?.Id,row.ParentFolderId);Assert.Equal(before.Envelope,row.Envelope);Assert.Equal(before.EditedAt,row.EditedAt);Assert.Equal(before.AccountId,row.AccountId);Assert.Equal(d.Revision,row.Revision);Assert.Equal(d.ServerSequence,row.ServerSequence);Assert.NotEqual(before.ConcurrencyStamp,row.ConcurrencyStamp);Assert.Null(row.DeletedAt);Assert.Null(row.PurgeAt);
+        foreach(var parent in new[]{from,to}.OfType<VaultFolder>().DistinctBy(x=>x.Id)){
+            var current=await Row(parent.Id);var changed=before.ParentFolderId!=destination?.Id && (parent.Id==before.ParentFolderId || parent.Id==destination?.Id);Assert.Equal(parent.Revision+(changed?1:0),current.Revision);if(changed){Assert.True(current.ServerSequence>parent.ServerSequence);Assert.InRange(current.ServerSequence,1,ProtocolBinary.MaxInteger);Assert.NotEqual(parent.ConcurrencyStamp,current.ConcurrencyStamp);}else{Assert.Equal(parent.ServerSequence,current.ServerSequence);Assert.Equal(parent.ConcurrencyStamp,current.ConcurrencyStamp);}Assert.Equal(parent.Envelope,current.Envelope);Assert.Equal(parent.EditedAt,current.EditedAt);Assert.Equal(parent.ParentFolderId,current.ParentFolderId);Assert.Equal(parent.PurgeAt,current.PurgeAt);Assert.Equal(parent.DeletedAt,current.DeletedAt);
+        }
+        await using var db=fixture.CreateContext();Assert.False(await db.TrashEntries.AnyAsync(x=>x.ResourceKind=="folder" && x.ResourceId==before.PublicId));
+    }
+    private Task<VaultFolder> FolderRow(long id)=>Row(id);
+    private async Task<VaultRecord> RecordRow(long id){await using var db=fixture.CreateContext();return await db.Records.AsNoTracking().SingleAsync(x=>x.Id==id);}
+    private async Task<string> Stable(ProfileSetup.State s,params long[] ignored){var node=System.Text.Json.Nodes.JsonNode.Parse(await Snapshot(s))!.AsObject();var array=node["Folders"]!.AsArray();foreach(var row in array.ToArray())if(ignored.Contains(row!["Id"]!.GetValue<long>()))array.Remove(row);return node.ToJsonString();}
+    private static bool IsWrite(DbCommand c)=>c.CommandText.Contains("UPDATE cerberus.folder AS root");
+    private sealed class BeforeWrite:DbCommandInterceptor
+    {
+        private readonly Func<DbCommand,Task> action;private bool used;
+        public BeforeWrite(Func<Task> value):this(_=>value()){}public BeforeWrite(Func<DbCommand,Task> value)=>action=value;
+        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> result,CancellationToken ct=default){if(!used&&IsWrite(c)){used=true;await action(c);}return result;}
+    }
+    private sealed class BeforeContent(Func<Task> action):DbCommandInterceptor
+    {private bool used;private async Task Check(DbCommand c){if(!used&&c.CommandText.Contains("FROM cerberus.folder")&&c.CommandText.Contains("FOR UPDATE")){used=true;await action();}}public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default){await Check(c);return r;}public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<DbDataReader> r,CancellationToken ct=default){await Check(c);return r;}}
+    private sealed class BeforeParent(Func<Task> action):DbCommandInterceptor
+    {private bool used;public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default){if(!used&&c.CommandText.StartsWith("UPDATE cerberus.folder SET")){used=true;await action();}return r;}}
+    private sealed class PauseUpdate(Func<Task> action):DbCommandInterceptor
+    {private bool used;public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default){if(!used&&(c.CommandText.Contains("UPDATE cerberus.folder AS r")||c.CommandText.Contains("UPDATE cerberus.record AS r"))){used=true;await action();}return r;}}
+    private sealed class Fail(string stage):DbCommandInterceptor
+    {
+        public bool Triggered{get;private set;}private bool rootDone;private int parentsDone;
+        private void Check(){if(!Triggered&&(stage=="root"&&rootDone||stage=="firstParent"&&parentsDone>=1||stage=="secondParent"&&parentsDone>=2)){Triggered=true;throw new TimeoutException("controlled folder move outage after actual mutation");}}
+        public override ValueTask<int> NonQueryExecutedAsync(DbCommand c,CommandExecutedEventData d,int r,CancellationToken ct=default){if(r>0&&IsWrite(c))rootDone=true;if(r>0&&c.CommandText.StartsWith("UPDATE cerberus.folder SET"))parentsDone++;return ValueTask.FromResult(r);}
+        public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default){Check();return ValueTask.FromResult(r);}
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<DbDataReader> r,CancellationToken ct=default){Check();return ValueTask.FromResult(r);}
+    }
+    private sealed class Signal(TaskCompletionSource reached,string table):DbCommandInterceptor
+    {private void Check(DbCommand c){if(c.CommandText.Contains("cerberus."+table)&&c.CommandText.Contains("FOR "))reached.TrySetResult();}public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default){Check(c);return ValueTask.FromResult(r);}public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<DbDataReader> r,CancellationToken ct=default){Check(c);return ValueTask.FromResult(r);}}
+    private sealed class Capture(PostgresFixture fixture,bool analyze=false):DbCommandInterceptor
+    {
+        public List<string> Locks{get;}=[];public List<long[]> FolderIds{get;}=[];public List<long[]> RecordIds{get;}=[];public string? Plan{get;private set;}
+        private void Note(DbCommand c){if(c.CommandText.Contains("FOR UPDATE")||c.CommandText.Contains("FOR NO KEY UPDATE")||c.CommandText.Contains("FOR SHARE")){Locks.Add(c.CommandText);if(c.CommandText.Contains("FROM cerberus.folder")&&c.CommandText.Contains("FOR UPDATE"))FolderIds.Add(c.Parameters.Cast<NpgsqlParameter>().Select(x=>x.Value).OfType<long[]>().Single());if(c.CommandText.Contains("FROM cerberus.record")&&c.CommandText.Contains("FOR UPDATE"))RecordIds.Add(c.Parameters.Cast<NpgsqlParameter>().Select(x=>x.Value).OfType<long[]>().Single());}}
+        public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default){Note(c);return ValueTask.FromResult(r);}
+        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<DbDataReader> r,CancellationToken ct=default){Note(c);if(analyze&&Plan is null&&c.CommandText.StartsWith("WITH RECURSIVE")){await using var db=fixture.CreateContext();await db.Database.OpenConnectionAsync(ct);await using var cmd=db.Database.GetDbConnection().CreateCommand();cmd.CommandText="EXPLAIN (ANALYZE, FORMAT JSON) "+c.CommandText;foreach(var p in c.Parameters.Cast<NpgsqlParameter>())cmd.Parameters.Add(p.Clone());Plan=(string)(await cmd.ExecuteScalarAsync(ct))!;await System.IO.File.WriteAllTextAsync("/tmp/cerberus-uc28-explain.json",Plan,ct);}return r;}
+    }
+    private static IEnumerable<JsonElement> Nodes(JsonElement n){yield return n;if(n.TryGetProperty("Plans",out var ps))foreach(var p in ps.EnumerateArray())foreach(var x in Nodes(p))yield return x;}
+    private static async Task Past(DateTimeOffset deadline){var delay=deadline-DateTimeOffset.UtcNow;if(delay>TimeSpan.Zero)await Task.Delay(delay+TimeSpan.FromMilliseconds(100));}
+    private sealed class ThrowingFactory(Exception exception):IDbContextFactory<AppDbContext>{public AppDbContext CreateDbContext()=>throw exception;public Task<AppDbContext> CreateDbContextAsync(CancellationToken ct=default)=>Task.FromException<AppDbContext>(exception);}

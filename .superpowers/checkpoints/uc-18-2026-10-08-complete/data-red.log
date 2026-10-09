@@ -1,0 +1,10 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc18-worktree/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 1.06 sec).
+  Restored /tmp/cerberus-uc18-worktree/src/Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj (in 1.06 sec).
+  Restored /tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj (in 1.1 sec).
+  Restored /tmp/cerberus-uc18-worktree/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 1.19 sec).
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc18-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc18-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc18-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+/tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordReadStoreTests.cs(172,13): error CS0246: The type or namespace name 'RecordReadStore' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]
+/tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordReadStoreTests.cs(173,30): error CS0246: The type or namespace name 'RecordReadDetails' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]

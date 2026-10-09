@@ -1,4 +1,8 @@
 using ArturRios.Cerberus.Command.Folders;
+using ArturRios.Cerberus.Query.Folders;
+using System.Globalization;
+using Microsoft.AspNetCore.Http.Features;
+using ArturRios.Mediator.Query;
 using ArturRios.Cerberus.WebApi.Middleware;
 using ArturRios.Mediator.Command;
 using ArturRios.Output;
@@ -9,8 +13,43 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 
 [ApiController]
 [Route("api/folders")]
-public sealed class FoldersController(CommandMediator commands) : ControllerBase
+public sealed class FoldersController(CommandMediator commands, QueryMediator queries) : ControllerBase
 {
+    [HttpGet]
+    [ProducesResponseType(typeof(DataOutput<FolderListOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<FolderListOutput?>>> List(
+        [FromQuery] string? pageSize, [FromQuery] string? cursor,
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
+    {
+        if (Request.Query.Keys.Any(k => k is not "pageSize" and not "cursor")
+            || Request.Query.Any(p => p.Value.Count != 1)
+            || HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true
+            || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0
+            || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        int? size = null;
+        if (Request.Query.TryGetValue("pageSize", out var rawSize))
+        {
+            var text = rawSize.ToString();
+            if (!int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out var parsed)
+                || parsed <= 0 || text != parsed.ToString(CultureInfo.InvariantCulture))
+                return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+            size = parsed;
+        }
+        cursor = Request.Query.TryGetValue("cursor", out var rawCursor) ? rawCursor.ToString() : null;
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var rawAccess) ? rawAccess.ToString() : null;
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        var result = await queries.ExecuteQueryAsync<ListFoldersQuery, FolderListOutput>(new(actor, vaultAccess, size, cursor), cancellationToken);
+        return result.ToActionResult(statusMap: FolderListMessages.StatusCodes);
+    }
+
     [HttpPost]
     [VaultProofBody]
     [ProducesResponseType(typeof(DataOutput<CreateFolderOutput>), StatusCodes.Status201Created)]

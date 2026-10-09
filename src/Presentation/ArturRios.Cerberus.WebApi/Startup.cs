@@ -7,6 +7,7 @@ using ArturRios.Cerberus.Query.Records;
 using ArturRios.Cerberus.Domain.Records;
 using ArturRios.Cerberus.Data.Records;
 using ArturRios.Cerberus.Command.Folders;
+using ArturRios.Cerberus.Query.Folders;
 using ArturRios.Cerberus.Domain.Folders;
 using ArturRios.Cerberus.Data.Folders;
 using ArturRios.Cerberus.Data;
@@ -74,6 +75,9 @@ public static class Startup
         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
         builder.Services.AddScoped<IRecordCreateStore, RecordCreateStore>();
         builder.Services.AddScoped<IFolderCreateStore, FolderCreateStore>();
+        builder.Services.AddScoped<IFolderListStore, FolderListStore>();
+        builder.Services.AddSingleton<FolderListCursor>();
+        builder.Services.AddScoped<IQueryHandlerAsync<ListFoldersQuery, FolderListOutput>, ListFoldersHandler>();
         builder.Services.AddScoped<IValidator<CreateFolderCommand>, CreateFolderValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<CreateFolderCommand, CreateFolderOutput>, CreateFolderHandler>();
         builder.Services.AddScoped<IRecordListStore, RecordListStore>();

@@ -12,6 +12,12 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Encrypted folder listing (UC-24), with current owner or native recipient
+  scope, selected member descendants, hidden ancestry and record-only
+  nonexpansion, one permission snapshot and opaque high-water pagination.
+  Read-only and read/write recipients receive only included encrypted folders.
+  See the [folder list API](docs/security/folder-api.md#list-encrypted-folders-uc24).
+
 - Encrypted owned folder creation (UC-23), with current account-wide or selected
   access, direct and owned-collection parent ancestry, typed ID reservation,
   atomic profile links and immediate-parent metadata. New folders participate

@@ -98,3 +98,9 @@ with current owned/native recipient scope and only permitted profile/collection/
 references. A target-first database snapshot checks complete ancestry and all native
 contributors, with no locks or mutations. Record-only access cannot expose its container.
 Formal security/client and production release qualification remain outstanding.
+
+UC26 adds [encrypted folder content replacement](../security/folder-api.md#update-encrypted-folder-content-uc26)
+for current owner/native read-write scope. Expected revision and a final current
+permission guard preserve winning edits; read-only recipients cannot write.
+Only target ciphertext/metadata advance, with no parent/child/association changes.
+Formal security/client and durable offline release qualification remain outstanding.

@@ -12,6 +12,15 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Encrypted record lookup (UC-18) by canonical public UUID, with current selected
+  scope and native collection-grant validation. Responses include only visible
+  direct profile, parent-folder and collection references; direct record access
+  hides parents outside scope, and recipients never receive owner profile IDs.
+  One database snapshot reads only the target and its ancestry. Shared native
+  validation rejects quoted collection epochs before returning ciphertext. See the
+  [record API](docs/security/record-api.md#get-an-encrypted-record-uc18) for fields
+  and failure behavior.
+
 - Encrypted record listing (UC-17) with current account-wide/selected-profile scope,
   native recipient collection grants, direct and descendant membership, deduplicated
   keyset pages and opaque bound cursors. One database snapshot enforces permission

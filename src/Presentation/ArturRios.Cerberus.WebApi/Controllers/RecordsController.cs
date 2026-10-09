@@ -15,6 +15,29 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 [Route("api/records")]
 public sealed class RecordsController(CommandMediator commands, QueryMediator queries) : ControllerBase
 {
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(DataOutput<RecordDetailsOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<RecordDetailsOutput?>>> Get([FromRoute] string id,
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
+    {
+        if (Request.Query.Count != 0 || HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true
+            || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0
+            || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
+            || !Guid.TryParseExact(id, "D", out var recordId) || recordId == Guid.Empty || id != recordId.ToString("D"))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var rawAccess) ? rawAccess.ToString() : null;
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        var result = await queries.ExecuteQueryAsync<GetRecordQuery, RecordDetailsOutput>(new(actor, vaultAccess, recordId), cancellationToken);
+        return result.ToActionResult(statusMap: RecordReadMessages.StatusCodes);
+    }
+
     [HttpGet]
     [ProducesResponseType(typeof(DataOutput<RecordListOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]

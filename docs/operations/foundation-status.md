@@ -104,3 +104,13 @@ for current owner/native read-write scope. Expected revision and a final current
 permission guard preserve winning edits; read-only recipients cannot write.
 Only target ciphertext/metadata advance, with no parent/child/association changes.
 Formal security/client and durable offline release qualification remain outstanding.
+
+UC27 adds [recoverable owned folder cascades](../security/folder-api.md#recoverably-delete-a-folder-uc27)
+with retained opaque folders/records, typed association snapshots and one720hour
+operation/queue. Independent trash keeps its deadline; active recipient reads
+hide deleted content while grants remain active. Complete protection rotation
+includes retained members. UC48 durable inherited visibility and UC50–53 trash
+listing/restore/empty/physical expiry remain release obligations; missing trash
+handlers currently retry. Before UC35, audit implicit recipient-account FK locks
+against strong owner account writers. Shared metadata and independent formal
+security/protocol/client qualifications remain development-only deferred.

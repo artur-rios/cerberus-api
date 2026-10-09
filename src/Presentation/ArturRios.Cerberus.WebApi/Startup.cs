@@ -95,8 +95,11 @@ public static class Startup
         builder.Services.AddScoped<ICommandHandlerAsync<PermanentlyDeleteRecordCommand, PermanentlyDeleteRecordOutput>, PermanentlyDeleteRecordHandler>();
         builder.Services.AddScoped<IRetentionHandler, RecordPurgeHandler>();
         builder.Services.AddScoped<IRecordTrashStore, RecordTrashStore>();
+        builder.Services.AddScoped<IFolderTrashStore, FolderTrashStore>();
         builder.Services.AddScoped<IValidator<DeleteRecordCommand>, DeleteRecordValidator>();
+        builder.Services.AddScoped<IValidator<DeleteFolderCommand>, DeleteFolderValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<DeleteRecordCommand, DeleteRecordOutput>, DeleteRecordHandler>();
+        builder.Services.AddScoped<ICommandHandlerAsync<DeleteFolderCommand, DeleteFolderOutput>, DeleteFolderHandler>();
         builder.Services.AddScoped<IRecordUpdateStore, RecordUpdateStore>();
         builder.Services.AddScoped<IValidator<UpdateRecordCommand>, UpdateRecordValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<UpdateRecordCommand, UpdateRecordOutput>, UpdateRecordHandler>();

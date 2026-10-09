@@ -1,0 +1,66 @@
+# UC-24 List folders Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task inline. Steps use checkbox (`- [ ]`) syntax for tracking. One fresh whole-branch review after all tasks.
+
+**Goal:** Expose only currently permitted encrypted folders with scope-bound opaque keyset pagination.
+**Architecture:** Dedicated folder Domain/Query list contracts and authenticated cursor, a Data single SQL permission/ancestry/native-evidence snapshot, then GET on the existing FoldersController. Candidate admission precedes complete ancestry and pagination; every page freshly authorizes and validates all visible contributing grants.
+**Tech Stack:** Existing pinned .NET10/C#/EF Core/Npgsql/PostgreSQL/Mediator/Output/xUnit/Moq/native protocol helpers; no new dependency or schema.
+**Spec:** `docs/superpowers/specs/2026-10-09-uc-24-list-folders.md`
+
+## Global Constraints
+
+- Exactly items/nextCursor and five folder item fields folderId/revision/serverSequence/editedAt/envelope; no parent/owner/internal/profile/collection/grant/wrapper disclosure or plaintext.
+- Max safe integer9007199254740991; UTC>=10ticks/microsecond precision; default size min(50,MaxPageSize), canonical positive size<=MaxPageSize; strict single query/header/noGETbody/no-store.
+- Current selected scope/typed terminal identities, complete sameowner ancestry, hidden-before-corruption admission and ALL relevant native grant signatures/pins at one statement_timestamp snapshot before pagination; never null selected ProfileId.
+- Cursor purpose exactly cerberus-folder-list-cursor-v1, actor/hashhandle/size/after/boundary, <=2048 canonical base64url, strict authenticated JSON; no cross-resource reuse.
+- No migration, dependency, crypto algorithm, unused content parsing, native key exposure, locks or mutations. Preserve primary user work using an owned isolated /tmp worktree.
+- Main and AF01..04 covered; full unfiltered six-family tests and actual coverage >=90% production line with branch reported. Ordinary audits/corpus/OpenAPI/whitespace and exact-head required CI remain; independent formal/client approval development-only deferred.
+
+## Review Focus
+
+- A record-only collection grant or direct ProfileRecord link must not disclose its containing folder, siblings or otherwise unshared ancestors; actual CollectionFolder membership must be present in granted-folder fixtures.
+- A member leaf with hidden or cyclic owned ancestry must omit hidden candidates before grant inspection, fail503 only for needed fully active cycles, and avoid admitting unrelated deep/corrupt folder inventories.
+- A corrupt overlapping or nonpage foreign contributor must fail the entire visible response while corrupt unselected/trashed routes cannot deny unrelated permitted folders; every native signature and each distinct account pin is checked.
+- A cursor minted for another resource, actor, handle, size or key must fail400; revocation and current selected-profile lifecycle/policy/expiry must remain authoritative even for empty continuation pages.
+- A permission/member change after the single SQL snapshot must not mix authority/content; max integer/page-size, duplicate sequence and corrupt supported-time/envelope boundaries must fail safely without partial content or read mutations.
+
+### Task 1: Folder contracts, query projection and opaque cursor
+
+**Files:** Create `src/Domain/ArturRios.Cerberus.Domain/Folders/FolderListContracts.cs`; create `src/Application/ArturRios.Cerberus.Query/Folders/{ListFoldersQuery,ListFoldersHandler,FolderListOutput,FolderListCursor,FolderListMessages,FolderProjection}.cs`; test `tests/Application/ArturRios.Cerberus.Query.Tests/ListFoldersHandlerTests.cs`.
+**Interfaces:** Produces `FolderListRequest(Guid Actor,string AccessVerifier,int PageSize,long After,long? Boundary)`, `FolderListRow(Guid FolderId,long Revision,long ServerSequence,DateTimeOffset EditedAt,byte[] Envelope)`, `FolderListPage(IReadOnlyList<FolderListRow> Items,long Boundary,bool HasMore)`, `IFolderListStore.ListAsync(FolderListRequest,CancellationToken):Task<VaultResult<FolderListPage>>`; `ListFoldersQuery(Guid actor,string? access,int? pageSize,string? cursor)`; `FolderListItem` five public fields; `FolderListOutput` Items/NextCursor; cursor Encode/TryDecode of `FolderListContinuation(Guid Actor,string AccessVerifier,int PageSize,long After,long Boundary)`; `FolderListMessages.StatusCodes/SafeError`.
+
+- [ ] Write query/cursor tests first, based on behavior in ListRecordsHandlerTests. Assert literal five folder fields/items+nextCursor, hash-only store input, real caller token, allowed errors and fail-closed unknown/errorwithdata/null/oversized/nonmonotonic/boundarychanged pages. Include every native envelope/time/revision/ID boundary, null arrays/rows, duplicate IDs/sequences, default/configured/intMax size, full continuation validation. Cursor substitutions include BOTH existing RecordListCursor and ProfileListCursor, tamper/key/actor/handle/size, authenticated malformed strict JSON and invalid tuples.
+- [ ] Run `dotnet test tests/Application/ArturRios.Cerberus.Query.Tests --no-restore --filter FullyQualifiedName~ListFoldersHandlerTests > /tmp/cerberus-uc24-query-red.log 2>&1`. Expected: missing named folder contracts/query types before product implementation, not fixture typos.
+- [ ] Implement exact contracts and focused query/projection/cursor/message files. Follow existing Record list boundaries with dedicated folder types/purpose, no generic abstraction or extra public fields.
+- [ ] Run focused command to query-green.log and `dotnet test tests/Application/ArturRios.Cerberus.Query.Tests --no-restore > /tmp/cerberus-uc24-query-whole.log 2>&1`. Expected: all focused/whole Query pass, zero failures/skips; exact field/cursor/native-boundary assertions exercised.
+- [ ] Commit `feat: define folder listing contract`; audit completed whole Query log with `/tmp/cerberus-audit-test-log.py` using actual count in task-done, mark steps complete and ledger RED/GREEN evidence.
+
+### Task 2: Permission-filtered one-snapshot folder persistence read
+
+**Files:** Create `src/Infrastructure/ArturRios.Cerberus.Data/Folders/FolderListStore.cs`; test `tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderListStoreTests.cs`.
+**Interfaces:** Consumes Task1 IFolderListStore/Request/Row/Page; produces `FolderListStore(IDbContextFactory<AppDbContext>)` implementing ListAsync. Reuses unchanged CollectionGrantBinding/native helpers and existing typed schema.
+
+- [ ] Write actual PostgreSQL behavior tests before store. Owned-wide paging filters foreign/trash/typed-terminal before Take; selected direct folder+descendants deduplicates and ignores ProfileRecord; current owned collection+descendants works. Actual foreign RO/RW grant fixtures add CollectionFolder members (root and overlapping leaf), verify visible IDs/envelope and unchanged owner/recipient state, selected/unselected collection boundaries; record-only grants and otherwise unshared parent/sibling omitted.
+- [ ] Extend hidden authority/lifecycle, all native binding/signature/epoch/envelope/pin failures (including an overlapping and nonpage contributor), hidden corrupt wrappers, current actor/session/selected profile, typed cross-kind identity, ordering corruption, hidden/cyclic ancestry, current betweenpage grants/member/profile/session revocation, statement-time expiry and revoke-after-read same-snapshot cases. Add cancellation/dependency/empty/intMax safe-boundary cases. Add EXPLAIN ANALYZE candidate/ancestry assertions against 100 unrelated deep folders (selected owned leaf and native foreign member leaf); candidate itself contributes one ancestry row.
+- [ ] Run `dotnet test tests/Infrastructure/ArturRios.Cerberus.Data.Tests --no-restore --filter FullyQualifiedName~FolderListStoreTests > /tmp/cerberus-uc24-data-red.log 2>&1`. Expected: named missing FolderListStore before implementation; no fixture syntax error counted as RED.
+- [ ] Implement one recursive SQL snapshot under spec's actor/session/eligiblecollections/direct+member roots/reachable/admitted/candidates/complete self+upward ancestry/included/scoped/visible/ordering/boundary/page/evidence sequence. No ProfileRecord/CollectionRecord admission, no full unrelated ancestry walk, no writes/locks. Native all relevant contributors verified; protection pins cached per distinct account in the same snapshot, never signatures skipped. Correct current safe errors/internal timeout/caller cancellation.
+- [ ] Run focused tests to data-green.log and `dotnet test tests/Infrastructure/ArturRios.Cerberus.Data.Tests --no-restore > /tmp/cerberus-uc24-data-whole.log 2>&1`. Expected: all focused and whole Data pass, zero failures/skips; query plans and real native/snapshot boundaries inspected.
+- [ ] Commit `feat: list permitted encrypted folders`; task-done audits just-completed whole Data log with actual count and ledger exact results/rulings.
+
+### Task 3: Native HTTP endpoint, documentation and complete validation
+
+**Files:** Modify existing `src/Presentation/ArturRios.Cerberus.WebApi/Controllers/FoldersController.cs` and `src/Presentation/ArturRios.Cerberus.WebApi/Program.cs`; test `tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs`; modify `docs/security/folder-api.md`, `README.md`, `CHANGELOG.md`, `docs/requirements/Operations & Infrastructure Document.md`, `docs/operations/foundation-status.md`, generated `docs/contracts/openapi.json`.
+**Interfaces:** Consumes Task1 ListFoldersQuery/Handler/Output/Messages/Cursor and Task2 store. Produces `GET /api/folders` through QueryMediator, exact contract and explicit DI registrations.
+
+- [ ] Write actual HTTP tests before GET/DI. Adapt existing RecordListHttpTests' real host/native profile proof/shared helpers with folder-specific fixtures. Main creates folders via actual POST `/api/folders`; exact five fields and opaque envelope/no read mutations/stable boundary. Master/PerProfile selected roots/direct folders/descendants, owned collection, actual RO/RW CollectionFolder membership and member-leaf nonexposure, record-only grant/directProfileRecord negatives, overlapping/nonpage corrupt grant failures. Current permission/session/identity/provider, typed hidden ancestry/cycles, betweenpage revocation and record/profile cursor substitution. Strict canonical/unique/exact-case queries/header/noGETbody inclHTTP2/empty/unknown length/413 and safe dependency/native/time/order failures.
+- [ ] Run `dotnet test tests/Presentation/ArturRios.Cerberus.WebApi.Tests --no-restore --filter FullyQualifiedName~FolderListHttpTests > /tmp/cerberus-uc24-http-red.log 2>&1`. Expected: installed actual tests fail with missing GET405/404 instead of expected200/400/etc; unrelated fixture errors or zero matches are not RED evidence.
+- [ ] Add focused GET List action and query DI to existing controller; preserve POST. Enforce strict query/header/body/current actor before dispatch. Run focused tests to http-green.log. Expected: all installed cases pass, zero skips/failures, existing POST remains green in full suite.
+- [ ] Document current folder list visibility/cursor/error/native/client qualification contract at existing folder-api path; add ops/foundation/changelog notes, mark UC24 Done and M03 **16 / 26 closed** on feature README. Run OpenAPI write then drift and exact list route/status/item shape check. Expected: new schema/runtime shape aligned; inherited shared requiredness/nullability and empty413 metadata remain recorded release findings.
+- [ ] Run locked restore, NuGet audit, native OSV153/corpus322 four directions/36native helpers, 23 Python helpers, verify_specs, full range whitespace including additions, and `python3 scripts/coverage.py > /tmp/cerberus-uc24-coverage.log 2>&1`. Serialize all .NET/native builds. Expected: all ordinary checks pass; actual unfiltered all-six counts with zero fail/skip, Summary six production assemblies >=90 line, branch reported. Preserve primary four SHA and current base/branch clean checks.
+- [ ] Commit `feat: expose folder listing endpoint`; audit actual complete six-family log for task-done, mark all steps and ledger full evidence. This ends implementation only, not UC Done.
+
+## Post-implementation review and delivery
+
+After all three completion contracts: generate whole-branch review package from original base to testedHEAD; dispatch exactly ONE fresh gpt-6-astra fork_none reviewer with full template, this spec/plan, five verbatim focus lines, all ledger Rulings and real evidence. Regrade current effects; Critical/Important ONE TDD correction pass and fresh full suite; Minors ledger, no second reviewer. Every declined judgment becomes explicit Final Ruling with reason and cost. Include exhaustive rulings/minors in PR and retained full report.
+
+Normal push/PR into develop closes25; actual Testing; latest exact-head branch-policy/test/docker SUCCESS, fresh unchangedbase/rules0approval/MERGEABLE+CLEAN/fourSHA; normal squash --match-head-commit only. Verify remote branch absence, issue25 allnineDoD/Closed/projectDone, mergedREADME16/26/UC24Done, testedtree==freshmergeddevelop, userSHA. Hash-verify full owned evidence archive before deleting only own SDD scratch. Keep worktree/user files, then UC25issue26.

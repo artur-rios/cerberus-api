@@ -1,4 +1,4 @@
-# Encrypted record API (UC16–18)
+# Encrypted record API (UC16–19)
 
 `POST /api/records` requires a current Heimdall bearer identity and one canonical
 `X-Cerberus-Vault-Access` opaque handle. The server derives ownership from that
@@ -196,3 +196,62 @@ metadata without inspecting other records; inventory ordering integrity belongs 
 listing and synchronization. Clients must decrypt and validate content themselves.
 The existing conservative terminal-ID behavior and pending independent security/
 client approvals remain as described above; this endpoint grants no release approval.
+
+
+## Update an encrypted record (UC19)
+
+`PUT /api/records/{id}` requires a canonical lowercase nonzero UUID, current Heimdall
+identity and one canonical `X-Cerberus-Vault-Access` handle. Submit exactly the required
+`expectedRevision`, native `envelope` and UTC `editedAt`. The strict UTF-8 JSON rules
+above apply; query parameters, owner/context overrides and relationship fields are
+rejected. The server cannot inspect names, custom fields or template requirements.
+
+An owner may update currently selected or account-wide visible owned content. A
+recipient needs at least one current native read/write collection grant that includes
+the record directly or through an active folder ancestor. Selected handles also need
+that collection linked to their profile. Visible read-only content returns `403`;
+absent, foreign, unselected, revoked or hidden content returns nonrevealing `404`.
+Complete ancestry must remain active even when the record has a direct link. Every
+current contributing foreign native grant is validated; malformed relevant evidence
+fails the whole operation `503`, including a malformed read-only contribution beside
+a valid write grant. Unrelated or revoked grants are not inspected.
+
+A matching revision permits replacement at the current content epoch. Identical
+envelopes are accepted; changed envelopes require both a fresh key salt and nonce.
+Key rotation belongs to the protection flow. Edit time must meet the same minimum
+and UTC rules as creation and is floored to microseconds before storage. Older and
+equal timestamps are accepted with a matching revision; this online endpoint does
+not apply offline timestamp conflict resolution.
+
+Success is `200`, `record_updated`, with exactly `recordId`, `revision`,
+`serverSequence` and `editedAt`. The record advances one revision, receives a greater
+safe server sequence and a fresh concurrency stamp. Ownership, parent, memberships,
+profile links, parent metadata and protection material remain unchanged. No envelope,
+owner graph, grants or keys are returned. Use get to reload current encrypted content.
+
+| Status | Meaning |
+| --- | --- |
+| 400 | Invalid ID/header/query/body, unsupported native envelope, changed epoch, reused salt/nonce, or invalid revision/time |
+| 401 | Missing/invalid current identity or missing vault access |
+| 403 | Invalid/expired/revoked/stale access or selection, or visible read-only content |
+| 404 | Missing/closing/terminal actor or absent/hidden/out-of-scope target |
+| 409 | Revision mismatch/exhaustion, sequence exhaustion or new authority requiring reload |
+| 413 | Common request byte limit exceeded; response body is empty |
+| 503 | Dependency unavailable or relevant stored/native metadata or ancestry is corrupt |
+
+The transaction locks its own actor account, session and selection, then eligible
+collections and grants in public-ID order, then the target record. Account and record
+locks permit foreign-key references without allowing concurrent content/policy
+writes. It takes no foreign account/profile or folder locks. Current scope and native
+evidence are reloaded after waits; the final mutation reevaluates complete ancestry,
+current permission, lifecycle and exclusive expiry at database statement time. New
+unheld authority requires a reload. Creation and reciprocal recipient edits do not
+need each other's account locks. Owner rotation and recipient edits cannot overwrite
+a winning content revision.
+
+All responses are `no-store`. Failures roll back every content change. After a lost
+successful response, retrying the old expected revision returns `409` and preserves
+the winner; reload before retrying. Sequence gaps are valid. This endpoint neither
+changes relationships nor performs physical purge. The conservative cross-kind
+terminal-ID behavior and mandatory independent security/client release approvals
+remain as described above.

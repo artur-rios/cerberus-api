@@ -63,7 +63,7 @@ Binding plan: UC28 delivery verified; fresh isolated baseline and nine binding d
 - [x] Add strictCollectionsControllerPOST/VaultProofBody andexact3DI; runfocusedhttp-green.log. Expected allactualcasesPASS0fail0skip including validstrictfixturecontrol.
 - [x] Document exact6input/4output/currentownedselection/membervisibility/structuralbumps/atomicretry/nativeinventory/release limits; READMEDoneUC29/M03 **21 /26closed**. OpenAPIwrite+drift/shapeexact6requiredinputs/4publicoutputs/eightstatuses/retainedroutes, no fakecollectionreadoperation; inheritedsharedrequiredness/empty413 findings trackedaccurately.
 - [x] Run lockedrestore/NuGetdirect+transitive/nativeOSV153/native322x4/helpers36+23/specs/fullrangediffincludingALLnewfiles and `python3 scripts/coverage.py > /tmp/cerberus-uc29-coverage.log 2>&1`. Serialize native versus .NET; expectedfreshunfiltered6families0fail0skip/all6productionassemblies>=90line/aggregatebranchreported. Actualbaseline+newcounts/freshbase/rules/4primarySHA verified.
-- [ ] Commit `feat: expose collection creation`; task-done actualfullcoverageaudit/checkbox/ledger. ONEfreshwholebranchreview fulltemplate/specplan/fiveverbatimFocus/ALLRulings/realevidence; regradeeachdeclinedFinalRulingreasoncost; oneblockingTDDpass/fullsuite ONLYifneeded, nosecondreview/Minorsdeferred.
+- [x] Commit `feat: expose collection creation`; task-done actualfullcoverageaudit/checkbox/ledger. ONEfreshwholebranchreview fulltemplate/specplan/fiveverbatimFocus/ALLRulings/realevidence; regradeeachdeclinedFinalRulingreasoncost; oneblockingTDDpass/fullsuite ONLYifneeded, nosecondreview/Minorsdeferred.
 
 ## Delivery
 

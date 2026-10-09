@@ -619,3 +619,33 @@ children, records and associations remain unchanged. Record-only authority never
 permits a folder edit. See [folder update API](../security/folder-api.md#update-encrypted-folder-content-uc26).
 Shared OpenAPI metadata, durable synchronization and independent formal/client
 qualification remain mandatory release follow-ups.
+
+### Recoverable owned folder cascade (UC27)
+
+DELETE `/api/folders/{id}` accepts strict required `expectedRevision` and returns
+six public deletion metadata fields. A visible owned root admits its active owned
+subtree and active contained records even when selected access does not link every
+member independently. Native RO/RW recipients cannot delete; all relevant folder
+contributors are verified before403, while record-only routes remain404.
+
+Own account UPDATE serializes current owner creation/move/association/rotation;
+ordered profiles/collections precede captured folders/records/direct links. Fresh
+authority after every waiting phase and a complete root inventory guard reject
+stale scope, expiry and uncaptured growth. The root guarded write linearizes the
+atomic cascade. All members retain ciphertext/edit times/ownership, share the
+root's database UTC microsecond deletion time and exact720hour purge deadline,
+and advance counters once. Typed parent/profile/collection snapshots include
+inactive links; distinct active external parents advance once. Independent prior
+trash and typed terminal branches remain untouched. All stages roll back together,
+including operation/entries/queue; global sequence gaps are allowed.
+
+Active reads/lists hide members and remove direct associations without revoking
+grants or retracting recipient copies. One folder trash operation/many typed
+entries/one `trash/{operationId}` queue commit atomically. Current missing trash
+handlers retry; UC50–53 must implement listing/revalidated restore/empty/physical
+expiry, and UC48 durable visibility remains required. Retained members stay in
+complete native protection rotation; restore must consume old typed entries before
+re-trash and must not revive revoked grants. Strong account locking requires the
+separate implicit recipient-FK audit before UC35. Independent qualification and
+shared OpenAPI metadata remain release gates. See the
+[folder deletion API](../security/folder-api.md#recoverably-delete-a-folder-uc27).

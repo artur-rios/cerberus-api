@@ -12,6 +12,13 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Recoverable owned folder deletion (UC-27), with atomic active subtree/record
+  cascades, one 30-day deadline, retained opaque ciphertext and typed restore
+  snapshots. Earlier independent trash retains its deadline; recipient reads
+  disappear while grants remain active. Restore, physical expiry and durable
+  synchronization remain later work. See the
+  [folder deletion API](docs/security/folder-api.md#recoverably-delete-a-folder-uc27).
+
 - Encrypted folder content updates (UC-26), with current owner/native read-write
   scope, revision conflict protection, guarded permission revalidation and rollback.
   Folder organization and descendant content stay unchanged.

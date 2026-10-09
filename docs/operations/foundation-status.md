@@ -125,3 +125,13 @@ trash/deadlines stay unchanged. Current GET/list inheritance recalculates, while
 UC48 durable inherited visibility and independent client qualification remain
 release obligations. Collection-before-content locking aligns existing recipient
 editors; the implicit recipient-account FK audit remains mandatory before UC35.
+
+UC29 adds [owned encrypted collection creation](../security/collection-api.md).
+Current selected access permits only already-visible owned members; foreign native
+RO/RW content cannot become an owned collection member. Collection, typed initial
+links and each distinct directly affected profile/folder/record counter commit
+atomically. Existing opaque content, keys, grants, recipient metadata and prior
+trash remain exact. New collections enter complete native protection rotation.
+UC48 durable inherited visibility, external key provisioning/decryption, shared
+OpenAPI metadata and independent security/protocol/client release qualification
+remain obligations. The separate recipient-account FK audit remains before UC35.

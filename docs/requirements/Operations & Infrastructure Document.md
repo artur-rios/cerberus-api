@@ -461,6 +461,29 @@ sharing UC must extend this authoritative inventory before release. Selected-pro
 unlocking is UC15; changing a per-profile password remains a future protection path.
 
 
+### Encrypted record replacement (UC19)
+
+`PUT /api/records/{id}` accepts only expected revision, native encrypted envelope and
+UTC edit time under current owner or native read/write collection scope. It returns
+four public metadata fields, advances one record revision and global sequence, and
+retains ownership, relationships, parent metadata and protection material. Visible
+read-only targets return403; hidden targets404; stale revisions409 preserve the
+winner. Changed content requires the same epoch plus fresh salt and nonce; client
+timestamps do not override a revision conflict. No migration or dependency change.
+
+Own account/session/selection locks precede collection SHARE, grant SHARE and target
+record locks. Account and record use NO KEY UPDATE so implicit foreign-key KEY SHARE
+checks do not block referencing inserts. No foreign account/profile or folder locks.
+Current native evidence is reloaded after waits; full recursive ancestry and current
+permission/lifecycle/exclusive expiry are reevaluated inside the final UPDATE. New
+unheld collection/grant authority requires409/reload; malformed relevant native
+evidence503 rolls back. Reciprocal edits, concurrent folder-parent creation and owner
+rotation have real PostgreSQL regression coverage. Before public grant creation,
+audit other recipient writers' account locks against implicit foreign-key locks too.
+See the [record API](../security/record-api.md#update-an-encrypted-record-uc19) for
+strict body, timestamp, retry and error rules. Release qualification remains pending.
+
+
 ### Selected profile access (UC15)
 
 `POST /api/profiles/{id}/access/challenges` accepts a fresh signed Heimdall identity

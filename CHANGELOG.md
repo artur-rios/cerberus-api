@@ -12,6 +12,14 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Encrypted record replacement (UC-19) for current owners and native read/write
+  recipients, with optimistic revisions, immutable relationships and four-field
+  metadata responses. Database-time scope/ancestry guards, native grant validation
+  and compatible row locks preserve winners during revocation, hierarchy changes,
+  reciprocal edits, creation and owner rotation. See the
+  [record API](docs/security/record-api.md#update-an-encrypted-record-uc19) for request
+  fields, epoch/context rules and retry behavior.
+
 - Encrypted record lookup (UC-18) by canonical public UUID, with current selected
   scope and native collection-grant validation. Responses include only visible
   direct profile, parent-folder and collection references; direct record access

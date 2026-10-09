@@ -1,4 +1,4 @@
-# Encrypted record API (UC16–17)
+# Encrypted record API (UC16–18)
 
 `POST /api/records` requires a current Heimdall bearer identity and one canonical
 `X-Cerberus-Vault-Access` opaque handle. The server derives ownership from that
@@ -131,3 +131,68 @@ tables and indexes, with same-owner composite foreign keys; existing encrypted r
 and metadata remain intact. It does not introduce a collection mutation endpoint.
 The pending independent protocol/client approvals and typed-erasure obligation
 before physical purge still apply.
+
+## Get an encrypted record (UC18)
+
+`GET /api/records/{id}` requires current Heimdall identity and one canonical
+`X-Cerberus-Vault-Access` handle. The path ID must be a nonzero lowercase UUID in
+hyphenated D format. Query parameters, request bodies and transfer encoding are
+rejected. Every response uses `Cache-Control: no-store`.
+
+Success is `200` with `record_found`. Data contains exactly `recordId`, `revision`,
+`serverSequence`, `editedAt`, the native encrypted `envelope`, `profileIds`, nullable
+`folderId` and `collectionIds`. The two ID arrays are always present, distinct and
+sorted. Names, custom fields and template information remain inside the ciphertext.
+No owner/internal IDs, key material, grant blobs or private owner organization are
+returned. The five content fields follow the same strict native, safe-integer and
+UTC microsecond rules as list items.
+
+Current account-wide ownership, selected direct-record/folder routes and selected
+eligible collection routes follow the listing visibility rules. Read-only and
+read/write recipients can get only content included directly or through current
+collection-folder descendants. Every ancestor must remain active and nonterminal,
+even when a direct record link admits the record. Scope and relationship changes
+are re-evaluated on every get.
+
+The returned relationships have their own visibility boundaries:
+
+- `profileIds` contains only active, nonterminal, actor-owned **direct** profile
+  links. A selected handle sees only its selected direct link; an account-wide
+  handle sees all its direct links. A recipient always receives an empty array for
+  another owner's record. Indirect folder or collection routes do not invent links.
+- `folderId` exposes the actual parent only when that folder is itself visible.
+  An account-wide owner sees the active parent. Selected owners need a selected
+  profile-folder or linked collection-folder route covering it. Recipients need a
+  collection-folder route covering it. A direct record link alone returns a null
+  parent when the parent is outside scope.
+- `collectionIds` contains only currently eligible collections that actually
+  include the target directly or through a folder ancestor. Selected handles see
+  only eligible collections linked to that profile. Foreign references require
+  valid current native grants. Deduplication is within each kind; the same UUID
+  across resource kinds remains valid.
+
+The read uses one parameterized database statement for current account/session/
+selection, at most one potential record, its complete upward ancestry, visible
+relationships and native grant evidence. Owner and recipient protection pins are
+captured and validated once for this target, then every contributing foreign grant
+is checked against current identity, author, collection, epoch and exact grant
+revision. There are no read mutations or foreign-owner locks. A change committed
+after the statement appears on the next read.
+
+| Status | Meaning |
+| --- | --- |
+| 400 | Noncanonical ID, malformed access header, query override or request body |
+| 401 | Missing/invalid current identity or missing vault access |
+| 403 | Invalid, expired, revoked or stale access, including hidden/dangling selection |
+| 404 | Missing/closing/terminal actor or absent, foreign, unselected or hidden target |
+| 413 | Common request limit exceeded; response body is empty |
+| 503 | Identity/persistence unavailable, relevant active ancestry cycle, invalid current native evidence or corrupt visible content/metadata |
+
+Hidden content or an ancestor produces nonrevealing `404` before native corruption
+checks. Fully active cycles produce `503` only when the target has a current
+permission route. A bad relevant grant fails the entire response; no partial
+relationships or record are returned. Target lookup checks its own sequence and
+metadata without inspecting other records; inventory ordering integrity belongs to
+listing and synchronization. Clients must decrypt and validate content themselves.
+The existing conservative terminal-ID behavior and pending independent security/
+client approvals remain as described above; this endpoint grants no release approval.

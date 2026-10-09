@@ -401,6 +401,26 @@ Current permissions are re-evaluated per page; ordinary listing is not durable s
 No release approval or typed terminal-erasure repair is implied. See the
 [record API](../security/record-api.md) for the complete visibility/cursor contract.
 
+### Encrypted record lookup (UC18)
+
+`GET /api/records/{id}` retrieves one currently permitted encrypted record and only
+its visible profile, parent-folder and collection references. It uses the UC17
+membership schema without another migration. One SQL statement captures current
+session/selection, at most one target and its complete upward ancestry, references
+and native grant evidence. Protection pins are validated once per target owner and
+recipient, then every contributing foreign grant is verified. No inventory-wide
+record traversal, read writes or foreign-owner locks are needed.
+
+Direct record permission does not expose an otherwise unselected/unshared parent;
+`folderId` is null in that case. Recipients receive no owner profile references.
+Hidden targets/ancestors return `404` before native inspection; relevant fully
+active cycles or corrupt visible/native evidence fail the entire response with
+`503`. Current scope/link/grant changes appear on the next get. All responses are
+no-store. The [record API](../security/record-api.md#get-an-encrypted-record-uc18)
+documents the exact eight-field contract and error/retry boundaries. Independent
+security/client approvals and typed terminal-erasure repair remain pending under
+their existing release/purge gates.
+
 ### Profile creation and protection inventory (UC09)
 
 `POST /api/profiles` requires current Heimdall identity and a current account-wide

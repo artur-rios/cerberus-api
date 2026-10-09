@@ -1,6 +1,6 @@
 # UC18 Get Record Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 Goal: get one accessible native encrypted record with only current visible public
 relationships. Spec: docs/superpowers/specs/2026-10-08-uc-18-get-record.md.
@@ -79,7 +79,7 @@ Interfaces consumes Task1, exposes QueryMediator handler/output to Task3. No cur
 or new public owner/protection/native grant fields.
 
 - [x] Write specified failing tests, run and read expected RED before product code.
-- [ ] Implement this task, run named whole-family verification, read zero failures/skips and commit.
+- [x] Implement this task, run named whole-family verification, read zero failures/skips and commit.
 
 ### Task 3: HTTP record get and complete delivery
 
@@ -103,8 +103,8 @@ reasoncosts+minorledger/aggregate/PRbody. PushPR/verifiedTesting; exact-head lat
 SUCCESS/MERGEABLE+CLEAN/freshunchangedtestedbase normalmatchheadsquashmerge; issueclose/
 Done/9checkbox/remoteabsent/developtestedtree/primarySHA/archiveonlyownscratch. UC19next.
 
-- [ ] Write specified failing tests, run and read expected RED before product code.
-- [ ] Implement this task, run named whole-family verification, read zero failures/skips and commit.
+- [x] Write specified failing tests, run and read expected RED before product code.
+- [x] Implement this task, run named whole-family verification, read zero failures/skips and commit.
 
 Verification: Task1wholeData,Task2wholeQuery,Task3focusedHTTPthenwholeWebandfullcoverage.
 Serialize shared .NET commands. Nativecache /tmp/cerberus-protocol.fCQIq1. Just-completed

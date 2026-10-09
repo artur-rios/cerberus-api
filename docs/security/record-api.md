@@ -1,4 +1,4 @@
-# Encrypted record API (UC16–21)
+# Encrypted record API (UC16–22)
 
 `POST /api/records` requires a current Heimdall bearer identity and one canonical
 `X-Cerberus-Vault-Access` opaque handle. The server derives ownership from that
@@ -57,9 +57,10 @@ transaction can succeed. If a successful response is lost, a retry with that ID
 conflicts and preserves the original record; do not silently invent a new ID.
 
 New records participate in the complete protection-rotation inventory, including
-retained trash. The existing global terminal-ID reservation is conservative across
-resource kinds until the separately required typed-erasure repair before physical
-purge. This endpoint does not perform physical purge or repair that reservation.
+recoverable trash. UC22 reserves terminal identifiers by resource kind and public
+ID; a terminal record never hides or reserves a folder, collection, profile, account
+or grant with the same UUID. Terminal records awaiting purge are excluded from
+protection rotation. Creation itself does not perform physical purge.
 Independent protocol-security and real-client approvals remain pending and required
 before release; development tests do not constitute those approvals.
 
@@ -129,8 +130,8 @@ Apply the additive `20261008224646_CollectionMembership` migration before deploy
 listing. It creates only typed collection-record and collection-folder membership
 tables and indexes, with same-owner composite foreign keys; existing encrypted rows
 and metadata remain intact. It does not introduce a collection mutation endpoint.
-The pending independent protocol/client approvals and typed-erasure obligation
-before physical purge still apply.
+The pending independent protocol/client release approvals still apply; UC22
+provides typed record erasure and record backup replay.
 
 ## Get an encrypted record (UC18)
 
@@ -194,8 +195,8 @@ permission route. A bad relevant grant fails the entire response; no partial
 relationships or record are returned. Target lookup checks its own sequence and
 metadata without inspecting other records; inventory ordering integrity belongs to
 listing and synchronization. Clients must decrypt and validate content themselves.
-The existing conservative terminal-ID behavior and pending independent security/
-client approvals remain as described above; this endpoint grants no release approval.
+The typed terminal-ID behavior and pending independent security/client approvals
+remain as described above; this endpoint grants no release approval.
 
 
 ## Update an encrypted record (UC19)
@@ -252,9 +253,8 @@ a winning content revision.
 All responses are `no-store`. Failures roll back every content change. After a lost
 successful response, retrying the old expected revision returns `409` and preserves
 the winner; reload before retrying. Sequence gaps are valid. This endpoint neither
-changes relationships nor performs physical purge. The conservative cross-kind
-terminal-ID behavior and mandatory independent security/client release approvals
-remain as described above.
+changes relationships nor performs physical purge. Typed terminal identifiers and mandatory independent security/client release
+approvals remain as described above.
 
 
 ## Delete an encrypted record (UC20)
@@ -310,11 +310,10 @@ second operation or extending retention. Sequence gaps are valid.
 Restoration and the typed expiry handler belong to UC51 and UC53 and must ship
 before release. The existing fail-closed executor retries unavailable handlers;
 it does not claim physical purge. Restore must revalidate every retained association
-and consume or reconcile the old typed entry before a later deletion. Retained
-records remain in complete protection-rotation inventory. Physical purge also
-requires the pending resource-kind-aware terminal repair and must never turn a
-selected profile handle into account-wide access by clearing its selection. Existing
-independent protocol/client release approvals remain mandatory.
+and consume or reconcile the old typed entry before a later deletion. Recoverable records remain in complete protection-rotation inventory. UC22 provides
+typed permanent record erasure; terminal records awaiting purge are excluded.
+Never clear a selected profile handle into account-wide access. Independent
+protocol/client release approvals remain mandatory.
 
 ## Move an encrypted record (UC21)
 
@@ -380,3 +379,66 @@ corruption503. All responses use `Cache-Control: no-store`. Damaged opaque conte
 may be recoverably deleted through UC20; a move does not repair or propagate it.
 Durable synchronization of inherited visibility changes remains a later integration
 requirement. This operation does not create trash entries or physically purge data.
+
+
+## Permanently delete a record (UC22)
+
+`DELETE /api/records/{id}/permanent` requires current Heimdall identity and exactly
+one canonical `X-Cerberus-Vault-Access` handle. The path ID is a nonzero lowercase
+hyphenated UUID. Send exactly `{"expectedRevision": 1}` with the current positive
+safe integer revision. Strict UTF-8 JSON, header and request-limit rules above apply.
+All responses are `no-store`.
+
+Only the owner can permanently erase a currently visible active or trashed record.
+Current native read-only and read/write recipients both receive `403`; hidden or
+foreign trashed records return `404`. Every contributing native grant is checked
+before a visible ownership denial. The owner's encrypted content and client edit
+time need not be valid to erase it. Required revision/sequence and affected live
+parent counters must still be valid. A matching maximum safe target revision is
+accepted, because permanent deletion does not advance a live record revision.
+
+Account-wide owners may erase retained trash even after its restore window ends,
+without relying on historical associations. Selected access requires a current
+active owned profile and the restricted typed trash membership: its original
+profile link, a retained owned collection still active and attached to the current
+selection, or a retained folder whose complete current active owned ancestry is
+within the selection. A valid direct historical route does not require an unused
+old folder path. Unretained live links and foreign grants cannot widen access.
+Missing history or a hidden route returns `404`; malformed necessary history is
+`503`. Historical snapshots are never returned or reactivated.
+
+Success is `200`, `record_permanently_deleted`, with exactly `recordId` and
+`deletedAt`, the terminal-intent time at UTC microsecond precision. Success means
+the external erasure ledger has been durably flushed, the exact record ciphertext
+and direct associations have been removed, and its purge work has completed. It
+returns no content, key, live revision, sequence or trash snapshot. Live immediate
+parents and direct owned profiles/collections advance structural metadata once;
+parents already updated by recoverable deletion do not advance a second time.
+Other resources sharing the record UUID remain intact. The typed record ID stays
+reserved permanently, so recreating it returns `409`.
+
+| Status | Meaning |
+| --- | --- |
+| 400 | Invalid body, revision, UUID, header or query |
+| 401 | Missing/invalid current identity or missing vault access |
+| 403 | Invalid current access/selection or visible foreign ownership |
+| 404 | Missing, hidden, terminal or outside current permitted scope |
+| 409 | Stale revision, new unheld authority or exhausted live parent capacity |
+| 413 | Common byte limit exceeded; empty response body |
+| 503 | Identity/persistence/ledger unavailable, lost purge claim or corrupt required authority/metadata |
+
+**A `503`, cancellation or lost response after the intent commits does not undo
+permanent deletion.** The committed terminal marker immediately denies all reads,
+edits, moves, recoverable deletions and identifier reuse. Ciphertext may remain
+physically pending while the durable worker retries. Retrying the public operation
+returns `404` and does not create another intent or extend a deadline. Recoverable
+trash deletion uses the separate route without `/permanent`.
+
+The request and worker use the configured `RetentionInterval` as their claim lease.
+Every physical mutation and completion requires the exact persisted work ID, token,
+operation key, unfinished state and exclusive database-time expiry. External ledger
+flush precedes physical removal. Failed intent transactions roll back; failures
+after committed intent retain durable work for recovery. Restore replay removes
+terminal record ciphertext before traffic opens; see the [restore runbook](../operations/restore.md).
+Durable offline terminal ordering and independent protocol/client qualification
+remain required before release.

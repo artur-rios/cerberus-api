@@ -27,7 +27,7 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) 
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", cancellationToken);
             var a = await db.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == request.Actor)
                 .Select(x => new { x.Id, x.PublicId, x.State, x.PolicyRevision, x.RevocationGeneration, x.RenewalEnabled }).SingleOrDefaultAsync(cancellationToken);
-            if (a is null || a.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => x.ResourceId == a.PublicId, cancellationToken)) return new(Error: "not_found");
+            if (a is null || a.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == a.PublicId), cancellationToken)) return new(Error: "not_found");
             var now = await Now(db, cancellationToken);
             if (!Fresh(request.IdentityIssuedAt, now)) return new(Error: "fresh_authentication_required");
             var stored = await db.VaultRecoveryOperations.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.IdempotencyKey == input.IdempotencyKey, cancellationToken);

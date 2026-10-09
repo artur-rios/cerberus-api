@@ -30,7 +30,17 @@ public sealed class FileErasureLedger : IErasureLedger
     {
         if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException("Durable ledger requires the approved Linux host.");
         Validate(entry);
-        var destination = Path.Combine(_directory, entry.ResourceId.ToString("N") + ".json");
+        var legacy = Path.Combine(_directory, entry.ResourceId.ToString("N") + ".json");
+        if (File.Exists(legacy))
+        {
+            var original = await ReadEntryAsync(legacy, cancellationToken);
+            if (original.ResourceKind == entry.ResourceKind)
+            {
+                SyncDirectory();
+                return;
+            }
+        }
+        var destination = Path.Combine(_directory, entry.ResourceKind + "-" + entry.ResourceId.ToString("N") + ".json");
         var temporary = Path.Combine(_directory, Guid.NewGuid().ToString("N") + ".tmp");
         try
         {
@@ -81,15 +91,16 @@ public sealed class FileErasureLedger : IErasureLedger
         catch (JsonException) { throw new InvalidDataException("Invalid ledger record."); }
         if (entry is null) throw new InvalidDataException("Invalid ledger record.");
         Validate(entry);
-        if (Path.GetFileNameWithoutExtension(path) != entry.ResourceId.ToString("N"))
+        var filename = Path.GetFileNameWithoutExtension(path);
+        if (filename != entry.ResourceId.ToString("N") && filename != entry.ResourceKind + "-" + entry.ResourceId.ToString("N"))
             throw new InvalidDataException("Ledger identifier does not match its record.");
         return entry;
     }
 
     private static void Validate(ErasureEntry entry)
     {
-        if (entry.ResourceId == Guid.Empty || entry.DeletedAt.Offset != TimeSpan.Zero || entry.DeletedAt < DateTimeOffset.UnixEpoch
-            || entry.ResourceKind is not ("account" or "profile" or "record" or "folder" or "collection"))
+        if (!TerminalResourceIdentity.IsValid(entry.ResourceKind, entry.ResourceId)
+            || entry.DeletedAt.Offset != TimeSpan.Zero || entry.DeletedAt < DateTimeOffset.UnixEpoch)
             throw new InvalidDataException("Invalid ledger record.");
     }
 

@@ -16,7 +16,7 @@ public sealed class AccountUpdateStore(IDbContextFactory<AppDbContext> factory) 
             // Null selects PostgreSQL's current statement/transaction time. The
             // standalone UPDATE must not reuse an older request-time timestamp.
             IQueryable<Account> AuthorizedAt(DateTimeOffset? at) => owned.Where(a => a.State == AccountState.Active
-                && !context.TerminalErasures.Any(e => e.ResourceId == a.PublicId)
+                && !context.TerminalErasures.Any(e => (e.ResourceKind == "account" && e.ResourceId == a.PublicId))
                 && context.VaultAccessSessions.Any(s => s.AccountId == a.Id && s.HandleVerifier == request.Verifier
                     && s.ProfileId == null && !s.Revoked && s.IssuedAt <= (at ?? DateTimeOffset.UtcNow)
                     && s.PolicyRevision > 0 && s.RevocationGeneration > 0
@@ -27,7 +27,7 @@ public sealed class AccountUpdateStore(IDbContextFactory<AppDbContext> factory) 
             var snapshot = await owned.Select(a => new
             {
                 a.PublicId, a.Revision, a.State,
-                Erased = context.TerminalErasures.Any(e => e.ResourceId == a.PublicId),
+                Erased = context.TerminalErasures.Any(e => (e.ResourceKind == "account" && e.ResourceId == a.PublicId)),
                 Allowed = permitted.Any(p => p.Id == a.Id)
             }).SingleOrDefaultAsync(cancellationToken);
             if (snapshot is null || snapshot.State != AccountState.Active || snapshot.Erased) return new(Error: "not_found");

@@ -36,18 +36,18 @@ public sealed partial class ProfileAccessStore:IProfileAccessStore
                     AND c.policy_revision={account.PolicyRevision} AND c.revocation_generation={account.RevocationGeneration}
                     AND EXISTS(SELECT 1 FROM cerberus.account a WHERE a.id=c.account_id AND a.heimdall_public_id={request.Actor}
                         AND a.state={AccountState.Active} AND a.policy_revision=c.policy_revision AND a.revocation_generation=c.revocation_generation
-                        AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id))
+                        AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id)))
                     AND EXISTS(SELECT 1 FROM cerberus.profile p WHERE p.id={profile.Id} AND p.account_id=c.account_id
                         AND p.public_id={request.ProfileId} AND p.revision={request.ExpectedRevision} AND p.deleted_at IS NULL
-                        AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id))
+                        AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id)))
                 """,token);
             if(consumed!=1)
             {
-                if(await db.TerminalErasures.AnyAsync(x=>x.ResourceId==account.PublicId || x.ResourceId==profile.PublicId,token))return new(Error:"not_found");
+                if(await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "account" && x.ResourceId == account.PublicId) || (x.ResourceKind == "profile" && x.ResourceId == profile.PublicId),token))return new(Error:"not_found");
                 return new(Error:"vault_proof_rejected");
             }
             var visible=db.Profiles.AsNoTracking().Where(p=>p.Id==profile.Id && p.AccountId==account.Id && p.DeletedAt==null
-                && p.Revision==request.ExpectedRevision && !db.TerminalErasures.Any(e=>e.ResourceId==p.PublicId || e.ResourceId==account.PublicId));
+                && p.Revision==request.ExpectedRevision && !db.TerminalErasures.Any(e=>(e.ResourceKind == "profile" && e.ResourceId == p.PublicId) || (e.ResourceKind == "account" && e.ResourceId == account.PublicId)));
             var projected=await ProfileProjectionQuery.Select(db,visible).SingleOrDefaultAsync(token);
             if(projected is null)return new(Error:"not_found");
             var context=new ProfileAccessContext(projected.ProfileId,projected.Revision,projected.ServerSequence,projected.EditedAt,

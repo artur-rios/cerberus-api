@@ -30,7 +30,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
             var a = await db.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == request.Actor)
                 .Select(x => new { x.Id, x.PublicId, x.Revision, x.State, x.PolicyRevision, x.RevocationGeneration, x.RenewalEnabled }).SingleOrDefaultAsync(cancellationToken);
             if (a is null || a.PublicId != input.AccountId || a.State != AccountState.Active
-                || await db.TerminalErasures.AnyAsync(x => x.ResourceId == a.PublicId, cancellationToken)) return new(Error: "not_found");
+                || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == a.PublicId), cancellationToken)) return new(Error: "not_found");
             var metadata = await db.VaultProtections.AsNoTracking().Where(x => x.AccountId == a.Id)
                 .Select(x => new { x.Id, x.Revision, x.KeyEpoch, x.RecoveryGeneration }).SingleOrDefaultAsync(cancellationToken);
             if (metadata is null) return new(Error: "not_found");
@@ -71,7 +71,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 var profiles = await db.Profiles.Where(x => x.AccountId == a.Id).ToListAsync(cancellationToken);
                 // Collections precede grants in the shared cross-owner lock order. The
                 // account lock serializes creation/edits of the owned inventory.
-                var records=await db.Records.Where(x=>x.AccountId==a.Id).ToListAsync(cancellationToken);
+                var records=await db.Records.Where(x=>x.AccountId==a.Id && !db.TerminalErasures.Any(e=>e.ResourceKind=="record" && e.ResourceId==x.PublicId)).ToListAsync(cancellationToken);
                 var folders=await db.Folders.Where(x=>x.AccountId==a.Id).ToListAsync(cancellationToken);
                 var collections=await db.Collections.FromSqlInterpolated($"SELECT c.* FROM cerberus.collection c WHERE c.account_id={a.Id} ORDER BY c.public_id FOR UPDATE").ToListAsync(cancellationToken);
                 if (input.ContentReplacements.Length != profiles.Count + records.Count + folders.Count + collections.Count + 1) return new(Error: "validation_failed");

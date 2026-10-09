@@ -19,16 +19,16 @@ public sealed class ProfileListStore(IDbContextFactory<AppDbContext> factory) : 
             var sessions = from s in db.VaultAccessSessions
                 join a in db.Accounts on s.AccountId equals a.Id
                 where a.HeimdallPublicId == request.Actor && a.State == AccountState.Active
-                    && !db.TerminalErasures.Any(e => e.ResourceId == a.PublicId)
+                    && !db.TerminalErasures.Any(e => (e.ResourceKind == "account" && e.ResourceId == a.PublicId))
                     && s.HandleVerifier == request.AccessVerifier && !s.Revoked
                     && s.IssuedAt <= DateTimeOffset.UtcNow && s.PolicyRevision > 0 && s.RevocationGeneration > 0
                     && s.PolicyRevision == a.PolicyRevision && s.RevocationGeneration == a.RevocationGeneration
                     && (a.RenewalEnabled ? s.ExpiresAt > DateTimeOffset.UtcNow : s.ExpiresAt == null)
                     && (s.ProfileId == null || db.Profiles.Any(p => p.Id == s.ProfileId && p.AccountId == a.Id
-                        && p.DeletedAt == null && !db.TerminalErasures.Any(e => e.ResourceId == p.PublicId)))
+                        && p.DeletedAt == null && !db.TerminalErasures.Any(e => (e.ResourceKind == "profile" && e.ResourceId == p.PublicId))))
                 select s;
             var visible = db.Profiles.AsNoTracking().Where(p => p.DeletedAt == null
-                && !db.TerminalErasures.Any(e => e.ResourceId == p.PublicId)
+                && !db.TerminalErasures.Any(e => (e.ResourceKind == "profile" && e.ResourceId == p.PublicId))
                 && sessions.Any(s => s.AccountId == p.AccountId && (s.ProfileId == null || s.ProfileId == p.Id)));
             var page = visible.Where(p => p.ServerSequence > request.After
                     && p.ServerSequence <= (request.Boundary ?? visible.Max(x => (long?)x.ServerSequence) ?? 0))
@@ -37,7 +37,7 @@ public sealed class ProfileListStore(IDbContextFactory<AppDbContext> factory) : 
             var result = await db.Accounts.AsNoTracking().Where(a => a.HeimdallPublicId == request.Actor)
                 .Select(a => new
                 {
-                    a.State, Erased = db.TerminalErasures.Any(e => e.ResourceId == a.PublicId),
+                    a.State, Erased = db.TerminalErasures.Any(e => (e.ResourceKind == "account" && e.ResourceId == a.PublicId)),
                     Allowed = sessions.Any(),
                     // Validate the permitted inventory before keyset filtering: zero
                     // values disappear at After=0, and equal values can straddle pages.

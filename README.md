@@ -85,7 +85,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | --- | --- | --- | --- | --- |
 | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
 | [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 9 / 9 closed |
-| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 13 / 26 closed |
+| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 14 / 26 closed |
 | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
 | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
 | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
@@ -129,7 +129,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [#20](https://github.com/artur-rios/cerberus-api/issues/20) | UC-19 — Update record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-19-update-record) | Done |
 | [#21](https://github.com/artur-rios/cerberus-api/issues/21) | UC-20 — Delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-20-delete-record) | Done |
 | [#22](https://github.com/artur-rios/cerberus-api/issues/22) | UC-21 — Move record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-21-move-record) | Done |
-| [#23](https://github.com/artur-rios/cerberus-api/issues/23) | UC-22 — Permanently delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-22-permanently-delete-record) | Todo |
+| [#23](https://github.com/artur-rios/cerberus-api/issues/23) | UC-22 — Permanently delete record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-22-permanently-delete-record) | Done |
 | [#24](https://github.com/artur-rios/cerberus-api/issues/24) | UC-23 — Create folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-23-create-folder) | Todo |
 | [#25](https://github.com/artur-rios/cerberus-api/issues/25) | UC-24 — List folders | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-24-list-folders) | Todo |
 | [#26](https://github.com/artur-rios/cerberus-api/issues/26) | UC-25 — Get folder | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-25-get-folder) | Todo |

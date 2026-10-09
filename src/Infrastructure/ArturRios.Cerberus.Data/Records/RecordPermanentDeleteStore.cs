@@ -1,4 +1,9 @@
 using System.Data.Common;
+using System.ComponentModel.DataAnnotations.Schema;
+using ArturRios.Cerberus.Data.Erasure;
+using ArturRios.Cerberus.Data.Operations;
+using ArturRios.Cerberus.Shared.Configuration;
+using ArturRios.Cerberus.Shared.Operations;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ArturRios.Cerberus.Data.Resources;
@@ -14,18 +19,36 @@ using Npgsql;
 using NpgsqlTypes;
 namespace ArturRios.Cerberus.Data.Records;
 
-public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory):IRecordTrashStore
+public sealed class RecordPermanentDeleteStore(IDbContextFactory<AppDbContext> factory, IErasureLedger ledger, CerberusOptions options, TimeProvider clock):IRecordPermanentDeleteStore
 {
     private static readonly JsonSerializerOptions Json=new(JsonSerializerDefaults.Web)
     {PropertyNameCaseInsensitive=false,AllowDuplicateProperties=false,NumberHandling=JsonNumberHandling.Strict};
 
-    public async Task<VaultResult<RecordTrashDetails>> TrashAsync(RecordTrashRequest request,CancellationToken ct)
+    public async Task<VaultResult<RecordPermanentDeleteDetails>> DeleteAsync(RecordPermanentDeleteRequest request,CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         if(request.Actor==Guid.Empty)return new(Error:"authentication_required");
         if(request.RecordId==Guid.Empty || !Safe(request.ExpectedRevision))return new(Error:"validation_failed");
         try
         {
+            var result=await CommitIntentAsync(request,ct);
+            if(result.Error is not null)return new(Error:result.Error);
+            var intent=result.Data!;
+            var workStore=new RetentionWorkStore(factory);
+            var claim=await workStore.TryClaimAsync(intent.WorkId,clock.GetUtcNow(),TimeSpan.Parse(options.RetentionInterval ?? throw new InvalidOperationException("Retention lease is not configured.")),ct);
+            if(claim is null)return new(Error:"persistence_unavailable");
+            await new RecordPurgeHandler(factory,ledger).ExecuteAsync(claim,ct);
+            if(!await workStore.TryCompleteAsync(claim,clock.GetUtcNow(),ct))return new(Error:"persistence_unavailable");
+            return new(intent.Details);
+        }
+        catch(PostgresException e) when(e.SqlState=="2200H"){return new(Error:"revision_conflict");}
+        catch(OperationCanceledException) when(!ct.IsCancellationRequested){return new(Error:"persistence_unavailable");}
+        catch(Exception e) when(e is DbException or DbUpdateException or TimeoutException or JsonException or FormatException
+            or IOException or InvalidOperationException){return new(Error:"persistence_unavailable");}
+    }
+    private sealed record Intent(RecordPermanentDeleteDetails Details,Guid WorkId);
+    private async Task<VaultResult<Intent>> CommitIntentAsync(RecordPermanentDeleteRequest request,CancellationToken ct)
+    {
             await using var db=await factory.CreateDbContextAsync(ct);
             await using var tx=await db.Database.BeginTransactionAsync(ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR NO KEY UPDATE",ct);
@@ -72,42 +95,36 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory):IR
             var actualCollections=await db.CollectionRecords.Where(x=>x.RecordId==item.Id && x.AccountId==account.Id).Select(x=>x.CollectionId).ToArrayAsync(ct);
             var heldProfiles=profiles.Select(x=>x.Id).ToArray();var heldCollections=collections.Select(x=>x.Id).ToArray();
             if(original.FolderId!=originalFolder || actualProfiles.Except(heldProfiles).Any() || actualCollections.Except(heldCollections).Any())return new(Error:"revision_conflict");
-            if(!Safe(original.Revision) || !Safe(original.ServerSequence) || original.EditedAt.Offset!=TimeSpan.Zero
-                || original.EditedAt.Ticks<10 || original.EditedAt.Ticks%10!=0 || original.PurgeAt is not null)return new(Error:"persistence_unavailable");
-            if(original.Revision!=request.ExpectedRevision || original.Revision==ProtocolBinary.MaxInteger
-                || await db.TrashEntries.AnyAsync(x=>x.ResourceKind=="record" && x.ResourceId==request.RecordId,ct))return new(Error:"revision_conflict");
+            if(!Safe(original.Revision) || !Safe(original.ServerSequence))return new(Error:"persistence_unavailable");
+            if(original.Revision!=request.ExpectedRevision)return new(Error:"revision_conflict");
             var activeProfiles=new List<Profile>();var activeCollections=new List<VaultCollection>();
             foreach(var p in profiles.Where(x=>actualProfiles.Contains(x.Id)))
                 if(p.DeletedAt is null && !await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "profile" && x.ResourceId == p.PublicId),ct))activeProfiles.Add(p);
             foreach(var c in collections.Where(x=>actualCollections.Contains(x.Id)))
                 if(c.DeletedAt is null && !await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "collection" && x.ResourceId == c.PublicId),ct))activeCollections.Add(c);
+            if(original.DeletedAt is not null){activeProfiles.Clear();activeCollections.Clear();}
             var parents=activeProfiles.Select(x=>new Parent("profile",x.Id,x.Revision,x.ServerSequence))
                 .Concat(activeCollections.Select(x=>new Parent("collection",x.Id,x.Revision,x.ServerSequence))).ToList();
-            if(folder is not null)parents.Add(new("folder",folder.Id,folder.Revision,folder.ServerSequence));
+            if(original.DeletedAt is null && folder is not null)parents.Add(new("folder",folder.Id,folder.Revision,folder.ServerSequence));
             if(parents.Any(x=>!Safe(x.Revision) || !Safe(x.Sequence)))return new(Error:"persistence_unavailable");
             if(parents.Any(x=>x.Revision==ProtocolBinary.MaxInteger))return new(Error:"revision_conflict");
-            var snapshot=new RecordAssociationSnapshot(folder?.PublicId,
-                profiles.Where(x=>actualProfiles.Contains(x.Id)).Select(x=>x.PublicId).Order().ToArray(),
-                collections.Where(x=>actualCollections.Contains(x.Id)).Select(x=>x.PublicId).Order().ToArray());
-            var parameters=Parameters(request).Concat(new object[]{new NpgsqlParameter("expected",request.ExpectedRevision),
+            var parameters=Parameters(request,current.History).Concat(new object[]{new NpgsqlParameter("expected",request.ExpectedRevision),
                 new NpgsqlParameter("previous_sequence",original.ServerSequence),new NpgsqlParameter("original",original.Envelope),
                 new NpgsqlParameter("parent",NpgsqlDbType.Bigint){Value=(object?)originalFolder??DBNull.Value},
                 new NpgsqlParameter("profiles",heldProfiles),new NpgsqlParameter("collections",heldCollections),new NpgsqlParameter("stamp",Guid.NewGuid())}).ToArray();
             var changed=await db.Database.ExecuteSqlRawAsync(Authority+"""
-                UPDATE cerberus.record AS r SET deleted_at=statement_timestamp(),purge_at=statement_timestamp()+interval '720 hours',
-                  folder_id=NULL,revision=r.revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp=@stamp
+                UPDATE cerberus.record AS r SET deleted_at=COALESCE(r.deleted_at,statement_timestamp()),
+                  folder_id=NULL,concurrency_stamp=@stamp
                 FROM visible v CROSS JOIN session s WHERE r.id=v.id AND r.account_id=s.account_id AND r.public_id=@target
                   AND r.revision=@expected AND v.revision=@expected AND v.server_sequence=@previous_sequence AND v.envelope=@original
-                  AND v.folder_id IS NOT DISTINCT FROM @parent AND r.purge_at IS NULL
+                  AND v.folder_id IS NOT DISTINCT FROM @parent
                   AND NOT EXISTS(SELECT FROM cerberus.profile_record pr WHERE pr.record_id=r.id AND NOT(pr.profile_id=ANY(@profiles)))
                   AND NOT EXISTS(SELECT FROM cerberus.collection_record cr WHERE cr.record_id=r.id AND NOT(cr.collection_id=ANY(@collections)))
                 """,parameters,ct);
             if(changed!=1)return new(Error:StateError(await SnapshotAsync(db,request,ct))??"revision_conflict");
             var row=await db.Records.AsNoTracking().SingleAsync(x=>x.Id==original.Id,ct);
-            if(row.Revision!=original.Revision+1 || !Safe(row.ServerSequence) || row.ServerSequence<=original.ServerSequence
-                || row.DeletedAt is null || row.DeletedAt.Value.Ticks<10 || row.DeletedAt.Value.Offset!=TimeSpan.Zero || row.DeletedAt.Value.Ticks%10!=0
-                || row.PurgeAt is null || row.PurgeAt.Value.Offset!=TimeSpan.Zero || row.PurgeAt-row.DeletedAt!=TimeSpan.FromDays(30)
-                || row.FolderId is not null || row.AccountId!=original.AccountId || row.EditedAt!=original.EditedAt
+            if(row.Revision!=original.Revision || row.ServerSequence!=original.ServerSequence
+                || row.DeletedAt is null || row.FolderId is not null || row.AccountId!=original.AccountId
                 || !row.Envelope.AsSpan().SequenceEqual(original.Envelope))return new(Error:"persistence_unavailable");
             await db.ProfileRecords.Where(x=>x.RecordId==original.Id).ExecuteDeleteAsync(ct);
             await db.CollectionRecords.Where(x=>x.RecordId==original.Id).ExecuteDeleteAsync(ct);
@@ -115,19 +132,14 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory):IR
             {
                 error=await BumpAsync(db,account.Id,parent,ct);if(error is not null)return new(Error:error);
             }
-            var operation=new TrashOperation{AccountId=account.Id,RootResourceKind="record",RootResourceId=row.PublicId,
-                DeletedAt=row.DeletedAt.Value,PurgeAt=row.PurgeAt.Value};
-            db.TrashOperations.Add(operation);await db.SaveChangesAsync(ct);
-            db.TrashEntries.Add(new(){OperationId=operation.Id,ResourceKind="record",ResourceId=row.PublicId,AssociationSnapshot=JsonSerializer.SerializeToUtf8Bytes(snapshot,Json)});
-            db.RetentionWorkItems.Add(new RetentionWorkItem{OperationKey="trash/"+operation.PublicId,DueAt=operation.PurgeAt});
+            await db.TrashEntries.Where(x=>x.ResourceKind=="record" && x.ResourceId==request.RecordId).ExecuteDeleteAsync(ct);
+            var now=await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
+            db.TerminalErasures.Add(new(){ResourceKind="record",ResourceId=row.PublicId,DeletedAt=now});
+            var work=new RetentionWorkItem{OperationKey="record-purge/"+row.PublicId.ToString("D"),DueAt=now};
+            db.RetentionWorkItems.Add(work);
             await db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
-            return new(new(row.PublicId,operation.PublicId,row.Revision,row.ServerSequence,operation.DeletedAt,operation.PurgeAt));
-        }
-        catch(PostgresException e) when(e.SqlState=="2200H"){return new(Error:"revision_conflict");}
-        catch(OperationCanceledException) when(!ct.IsCancellationRequested){return new(Error:"persistence_unavailable");}
-        catch(Exception e) when(e is DbException or DbUpdateException or TimeoutException or JsonException or FormatException
-            || e is InvalidOperationException {InnerException:DbException or DbUpdateException or TimeoutException}){return new(Error:"persistence_unavailable");}
+            return new(new(new(row.PublicId,now),work.PublicId));
     }
     private sealed record Parent(string Kind,long Id,long Revision,long Sequence);
     private sealed class ParentMetadata{public long Revision{get;set;}public long ServerSequence{get;set;}}
@@ -156,15 +168,53 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory):IR
             new(){PublicId=g.CollectionId,KeyEpoch=g.CollectionEpoch,Envelope=Convert.FromHexString(g.CollectionEnvelope)},p.OwnerId,p.RecipientIdentity,owner!,recipient!));
     }
     private static VaultProtection? Pins(string? material,long? revision,long? epoch,long? generation)=>material is null || revision is null || epoch is null || generation is null?null:new(){Material=Convert.FromHexString(material),Revision=revision.Value,KeyEpoch=epoch.Value,RecoveryGeneration=generation.Value};
-    private static object[] Parameters(RecordTrashRequest r)=>[new NpgsqlParameter("actor",r.Actor),new NpgsqlParameter("verifier",r.AccessVerifier),new NpgsqlParameter("target",r.RecordId),new NpgsqlParameter("active",(object)(int)AccountState.Active),new NpgsqlParameter("grant_active",(object)(int)CollectionGrantState.Active),new NpgsqlParameter("read_only",(object)(int)CollectionGrantAccess.ReadOnly),new NpgsqlParameter("read_write",(object)(int)CollectionGrantAccess.ReadWrite),new NpgsqlParameter("max",ProtocolBinary.MaxInteger)];
-    private static async Task<Snapshot> SnapshotAsync(AppDbContext db,RecordTrashRequest request,CancellationToken ct)
+    private sealed record History(byte[]? Bytes,Guid? Folder,Guid[] Profiles,Guid[] Collections)
     {
-        var rows=await db.Database.SqlQueryRaw<Snapshot>(Authority+SnapshotSelect,Parameters(request)).ToListAsync(ct);
-        return rows.Single();
+        internal static readonly History Empty=new(null,null,[],[]);
     }
-    private sealed record Item(Guid RecordId,long Id,long AccountId,long Revision,long Sequence,DateTimeOffset EditedAt,string Envelope);
+    private sealed class HistoryRow{public bool Needed{get;set;}public byte[]? Bytes{get;set;}}
+    private static object[] BaseParameters(RecordPermanentDeleteRequest r)=>[new NpgsqlParameter("actor",r.Actor),new NpgsqlParameter("verifier",r.AccessVerifier),new NpgsqlParameter("target",r.RecordId),new NpgsqlParameter("active",(object)(int)AccountState.Active),new NpgsqlParameter("grant_active",(object)(int)CollectionGrantState.Active),new NpgsqlParameter("read_only",(object)(int)CollectionGrantAccess.ReadOnly),new NpgsqlParameter("read_write",(object)(int)CollectionGrantAccess.ReadWrite),new NpgsqlParameter("max",ProtocolBinary.MaxInteger)];
+    private static object[] Parameters(RecordPermanentDeleteRequest r,History history)=>BaseParameters(r).Concat(new object[]{
+        new NpgsqlParameter("history_bytes",NpgsqlDbType.Bytea){Value=(object?)history.Bytes??DBNull.Value},
+        new NpgsqlParameter("history_folder",NpgsqlDbType.Uuid){Value=(object?)history.Folder??DBNull.Value},
+        new NpgsqlParameter("history_profiles",history.Profiles),new NpgsqlParameter("history_collections",history.Collections)}).ToArray();
+    private static async Task<Snapshot> SnapshotAsync(AppDbContext db,RecordPermanentDeleteRequest request,CancellationToken ct)
+    {
+        var prefix=Authority[..Authority.IndexOf(", history AS",StringComparison.Ordinal)].Replace("WITH RECURSIVE","WITH",StringComparison.Ordinal);
+        var historySql=prefix+"""
+            SELECT EXISTS(SELECT FROM cerberus.record r CROSS JOIN session s
+                WHERE r.public_id=@target AND r.account_id=s.account_id AND r.deleted_at IS NOT NULL AND s.profile_id IS NOT NULL
+                  AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_kind='record' AND e.resource_id=r.public_id)) AS needed,
+              (SELECT e.association_snapshot FROM cerberus.trash_entry e JOIN cerberus.trash_operation o ON o.id=e.operation_id
+                JOIN cerberus.record r ON r.public_id=e.resource_id CROSS JOIN session s
+                WHERE e.resource_kind='record' AND e.resource_id=@target AND o.account_id=s.account_id AND r.account_id=s.account_id
+                  AND r.deleted_at IS NOT NULL AND s.profile_id IS NOT NULL
+                  AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure t WHERE t.resource_kind='record' AND t.resource_id=r.public_id)) AS bytes
+            """;
+        var historyRow=(await db.Database.SqlQueryRaw<HistoryRow>(historySql,BaseParameters(request)).ToListAsync(ct)).Single();
+        var history=History.Empty;
+        if(historyRow.Needed && historyRow.Bytes is not null)
+        {
+            using var json=JsonDocument.Parse(historyRow.Bytes);
+            var root=json.RootElement;
+            if(root.ValueKind!=JsonValueKind.Object)throw new JsonException("Invalid retained associations.");
+            var properties=root.EnumerateObject().ToArray();
+            if(properties.Length!=3 || properties.Select(x=>x.Name).Distinct().Count()!=3
+                || !root.TryGetProperty("folderId",out var folder) || !root.TryGetProperty("profileIds",out var profiles)
+                || !root.TryGetProperty("collectionIds",out var collections))throw new JsonException("Invalid retained associations.");
+            static Guid Id(JsonElement e)=>e.ValueKind==JsonValueKind.String && Guid.TryParseExact(e.GetString(),"D",out var id)
+                && id!=Guid.Empty && e.GetString()==id.ToString("D")?id:throw new JsonException("Invalid retained identity.");
+            static Guid[] Ids(JsonElement e){if(e.ValueKind!=JsonValueKind.Array)throw new JsonException("Invalid retained associations.");
+                var ids=e.EnumerateArray().Select(Id).ToArray();if(ids.Distinct().Count()!=ids.Length)throw new JsonException("Invalid retained associations.");return ids;}
+            history=new(historyRow.Bytes,folder.ValueKind==JsonValueKind.Null?null:Id(folder),Ids(profiles),Ids(collections));
+        }
+        var rows=await db.Database.SqlQueryRaw<Snapshot>(Authority+SnapshotSelect,Parameters(request,history)).ToListAsync(ct);
+        var snapshot=rows.Single();snapshot.History=history;return snapshot;
+    }
+    private sealed record Item(Guid RecordId,long Id,long AccountId);
     private sealed class Snapshot
     {
+        [NotMapped] public History History{get;set;}=History.Empty;
         public bool ActorActive{get;set;}public bool Allowed{get;set;}public bool CorruptAncestry{get;set;}public bool Writable{get;set;}
         public string? Item{get;set;}public long[] Collections{get;set;}=[];public long[] GrantsIds{get;set;}=[];
         public string Grants{get;set;}="[]";public string? Protection{get;set;}
@@ -174,10 +224,9 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory):IR
     private const string SnapshotSelect="""
         SELECT EXISTS(SELECT FROM actor a WHERE a.state=@active AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id))) AS actor_active,
           EXISTS(SELECT FROM session) AS allowed,EXISTS(SELECT FROM writable) AS writable,
-          EXISTS(SELECT FROM scoped r JOIN ancestry t ON t.record_id=r.id WHERE t.cycle
+          EXISTS(SELECT FROM scoped r JOIN ancestry t ON t.record_id=r.id WHERE t.cycle AND NOT r.history_direct
             AND NOT EXISTS(SELECT FROM ancestry hidden WHERE hidden.record_id=r.id AND hidden.hidden)) AS corrupt_ancestry,
-          (SELECT jsonb_build_object('recordId',r.public_id,'id',r.id,'accountId',r.account_id,'revision',r.revision,
-            'sequence',r.server_sequence,'editedAt',r.edited_at,'envelope',encode(r.envelope,'hex'))::text FROM visible r) AS item,
+          (SELECT jsonb_build_object('recordId',r.public_id,'id',r.id,'accountId',r.account_id)::text FROM visible r) AS item,
           ARRAY(SELECT DISTINCT i.collection_id FROM included i JOIN visible r ON r.id=i.record_id) AS collections,
           ARRAY(SELECT grant_id FROM relevant_grants) AS grants_ids,
           (SELECT jsonb_build_object('ownerId',owner.public_id,'recipientIdentity',a.heimdall_public_id,
@@ -205,6 +254,11 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory):IR
                               AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile p
                                   WHERE p.id=s.profile_id AND p.account_id=a.id AND p.deleted_at IS NULL
                                     AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id))))
+                        ), history AS (
+                            SELECT e.association_snapshot FROM cerberus.trash_entry e
+                            JOIN cerberus.trash_operation o ON o.id=e.operation_id CROSS JOIN session s
+                            WHERE e.resource_kind='record' AND e.resource_id=@target AND o.account_id=s.account_id
+                              AND s.profile_id IS NOT NULL AND e.association_snapshot=@history_bytes
                         ), collections AS (
                             SELECT c.*,g.id grant_id FROM cerberus.collection c
                             JOIN cerberus.account owner ON owner.id=c.account_id CROSS JOIN session s
@@ -218,15 +272,21 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory):IR
                               AND (c.account_id=s.account_id OR g.id IS NOT NULL)
                               AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile_collection pc WHERE pc.profile_id=s.profile_id AND pc.collection_id=c.id))
                         ), candidates AS MATERIALIZED (
-                            SELECT r.* FROM cerberus.record r JOIN cerberus.account owner ON owner.id=r.account_id CROSS JOIN session s
+                            SELECT r.*,
+                                CASE WHEN r.deleted_at IS NULL THEN r.folder_id ELSE
+                                  (SELECT f.id FROM cerberus.folder f WHERE f.account_id=r.account_id AND f.public_id=@history_folder) END scope_folder_id,
+                                (r.deleted_at IS NOT NULL AND r.account_id=s.account_id AND EXISTS(SELECT FROM history)
+                                  AND (EXISTS(SELECT FROM cerberus.profile p WHERE p.id=s.profile_id AND p.public_id=ANY(@history_profiles))
+                                    OR EXISTS(SELECT FROM collections c WHERE c.account_id=s.account_id AND c.public_id=ANY(@history_collections)))) history_direct
+                            FROM cerberus.record r JOIN cerberus.account owner ON owner.id=r.account_id CROSS JOIN session s
                             WHERE r.public_id=@target AND owner.state=@active
                               AND (r.account_id=s.account_id OR EXISTS(SELECT FROM collections c WHERE c.account_id=r.account_id))
-                              AND r.deleted_at IS NULL
+                              AND (r.deleted_at IS NULL OR (r.account_id=s.account_id AND (s.profile_id IS NULL OR EXISTS(SELECT FROM history))))
                               AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='record' AND e.resource_id=r.public_id) OR (e.resource_kind='account' AND e.resource_id=owner.public_id))
                         ), ancestry AS (
                             SELECT r.id record_id,r.account_id,f.id,f.parent_folder_id,ARRAY[f.id] path,false cycle,
                                 (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))) hidden
-                            FROM candidates r JOIN cerberus.folder f ON f.id=r.folder_id AND f.account_id=r.account_id
+                            FROM candidates r JOIN cerberus.folder f ON f.id=r.scope_folder_id AND f.account_id=r.account_id
                             UNION ALL
                             SELECT t.record_id,t.account_id,f.id,f.parent_folder_id,t.path||f.id,f.id=ANY(t.path),
                                 t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))
@@ -234,20 +294,21 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory):IR
                             WHERE NOT t.cycle
                         ), included AS (
                             SELECT r.id record_id,c.id collection_id,c.grant_id FROM candidates r JOIN collections c ON c.account_id=r.account_id
-                            WHERE EXISTS(SELECT FROM cerberus.collection_record cr WHERE cr.collection_id=c.id AND cr.record_id=r.id AND cr.account_id=r.account_id)
+                            WHERE (r.deleted_at IS NOT NULL AND r.account_id=c.account_id AND EXISTS(SELECT FROM history) AND c.public_id=ANY(@history_collections))
+                               OR (r.deleted_at IS NULL AND EXISTS(SELECT FROM cerberus.collection_record cr WHERE cr.collection_id=c.id AND cr.record_id=r.id AND cr.account_id=r.account_id))
                                OR EXISTS(SELECT FROM cerberus.collection_folder cf JOIN ancestry t ON t.id=cf.folder_id
                                    WHERE cf.collection_id=c.id AND cf.account_id=r.account_id AND t.record_id=r.id)
                         ), scoped AS (
                             SELECT r.* FROM candidates r CROSS JOIN session s WHERE
-                              (r.account_id=s.account_id AND (s.profile_id IS NULL
-                                OR EXISTS(SELECT FROM cerberus.profile_record pr WHERE pr.profile_id=s.profile_id AND pr.account_id=s.account_id AND pr.record_id=r.id)
+                              (r.account_id=s.account_id AND (s.profile_id IS NULL OR r.history_direct
+                                OR (r.deleted_at IS NULL AND EXISTS(SELECT FROM cerberus.profile_record pr WHERE pr.profile_id=s.profile_id AND pr.account_id=s.account_id AND pr.record_id=r.id))
                                 OR EXISTS(SELECT FROM cerberus.profile_folder pf JOIN ancestry t ON t.id=pf.folder_id
                                     WHERE pf.profile_id=s.profile_id AND pf.account_id=s.account_id AND t.record_id=r.id)))
                               OR EXISTS(SELECT FROM included i WHERE i.record_id=r.id)
                         ), visible AS (
                             SELECT r.* FROM scoped r WHERE
-                              NOT EXISTS(SELECT FROM ancestry t WHERE t.record_id=r.id AND (t.hidden OR t.cycle))
-                              AND (r.folder_id IS NULL OR EXISTS(SELECT FROM ancestry t WHERE t.record_id=r.id AND t.parent_folder_id IS NULL))
+                              r.history_direct OR (NOT EXISTS(SELECT FROM ancestry t WHERE t.record_id=r.id AND (t.hidden OR t.cycle))
+                              AND (r.scope_folder_id IS NULL OR EXISTS(SELECT FROM ancestry t WHERE t.record_id=r.id AND t.parent_folder_id IS NULL)))
                         ), relevant_grants AS (
                             SELECT DISTINCT i.grant_id FROM included i JOIN visible r ON r.id=i.record_id CROSS JOIN session s
                             WHERE r.account_id<>s.account_id AND i.grant_id IS NOT NULL

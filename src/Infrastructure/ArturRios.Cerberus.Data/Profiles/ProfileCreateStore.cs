@@ -25,7 +25,7 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE",cancellationToken);
             var account=await db.Accounts.AsNoTracking().Where(x=>x.HeimdallPublicId==request.Actor)
                 .Select(x=>new{x.Id,x.PublicId,x.State,x.PolicyRevision,x.RevocationGeneration,x.RenewalEnabled}).SingleOrDefaultAsync(cancellationToken);
-            if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>x.ResourceId==account.PublicId,cancellationToken))return new(Error:"not_found");
+            if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "account" && x.ResourceId == account.PublicId),cancellationToken))return new(Error:"not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE",cancellationToken);
             async Task<bool> Permitted()
             {
@@ -45,7 +45,7 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
             if(!await Permitted())return new(Error:"vault_access_denied");
             if(resolved.Error is not null)return new(Error:resolved.Error);
             if(await db.Profiles.AnyAsync(x=>x.PublicId==input.ProfileId,cancellationToken)
-                || await db.TerminalErasures.AnyAsync(x=>x.ResourceId==input.ProfileId,cancellationToken))return new(Error:"revision_conflict");
+                || await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "profile" && x.ResourceId == input.ProfileId),cancellationToken))return new(Error:"revision_conflict");
             if(!await ProfileVerifierIsolation.IsUniqueAsync(db,account.Id,input.KeyWrappers.UnlockVerifier,null,cancellationToken))return new(Error:"validation_failed");
             var envelope=JsonSerializer.SerializeToUtf8Bytes(input.Envelope,Json);var wrappers=JsonSerializer.SerializeToUtf8Bytes(input.KeyWrappers,Json);
             // Normalize before binding: provider truncation is relative to its 2000 epoch.
@@ -61,19 +61,19 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
                 AND (({account.RenewalEnabled} AND expires_at>statement_timestamp())
                     OR (NOT {account.RenewalEnabled} AND expires_at IS NULL))
                 AND EXISTS(SELECT 1 FROM cerberus.account a WHERE a.id={account.Id} AND a.state={AccountState.Active}
-                    AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id))
+                    AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id)))
                     AND (SELECT count(*) FROM cerberus.record r WHERE r.public_id=ANY({input.RecordIds}) AND r.account_id={account.Id} AND r.deleted_at IS NULL
-                        AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=r.public_id))=cardinality({input.RecordIds})
+                        AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='record' AND e.resource_id=r.public_id)))=cardinality({input.RecordIds})
                     AND (SELECT count(*) FROM cerberus.folder f WHERE f.public_id=ANY({input.FolderIds}) AND f.account_id={account.Id} AND f.deleted_at IS NULL
-                        AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id))=cardinality({input.FolderIds})
+                        AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id)))=cardinality({input.FolderIds})
                     AND (SELECT count(*) FROM cerberus.collection c JOIN cerberus.account o ON o.id=c.account_id
                         WHERE c.public_id=ANY({input.CollectionIds}) AND c.deleted_at IS NULL AND o.state={AccountState.Active}
-                        AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=c.public_id OR e.resource_id=o.public_id)
+                        AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='collection' AND e.resource_id=c.public_id) OR (e.resource_kind='account' AND e.resource_id=o.public_id))
                         AND (c.account_id={account.Id} OR EXISTS(SELECT 1 FROM cerberus.collection_grant g WHERE g.collection_id=c.id
                             AND g.recipient_account_id={account.Id} AND g.state={CollectionGrantState.Active}
                             AND (g.access={CollectionGrantAccess.ReadOnly} OR g.access={CollectionGrantAccess.ReadWrite})
                             AND g.revision>0 AND g.revision<={ProtocolBinary.MaxInteger}
-                            AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=g.public_id))))=cardinality({input.CollectionIds})
+                            AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='grant' AND e.resource_id=g.public_id)))))=cardinality({input.CollectionIds})
                 """,cancellationToken);
             if(inserted!=1)return new(Error:await Permitted()?"not_found":"vault_access_denied");
             var profile=await db.Profiles.AsNoTracking().SingleAsync(x=>x.PublicId==input.ProfileId,cancellationToken);

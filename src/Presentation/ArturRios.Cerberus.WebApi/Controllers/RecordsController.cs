@@ -40,6 +40,31 @@ public sealed class RecordsController(CommandMediator commands, QueryMediator qu
         return result.ToActionResult(statusMap: MoveRecordMessages.StatusCodes);
     }
 
+    [HttpDelete("{id}/permanent")]
+    [VaultProofBody]
+    [ProducesResponseType(typeof(DataOutput<PermanentlyDeleteRecordOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<PermanentlyDeleteRecordOutput?>>> PermanentlyDelete([FromRoute] string id,
+        [FromBody] PermanentlyDeleteRecordCommand command, [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess,
+        CancellationToken cancellationToken)
+    {
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
+            || !Guid.TryParseExact(id, "D", out var recordId) || recordId == Guid.Empty || id != recordId.ToString("D"))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
+        command.SetContext(actor, vaultAccess, recordId);
+        var result = await commands.ExecuteCommandAsync<PermanentlyDeleteRecordCommand, PermanentlyDeleteRecordOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: PermanentlyDeleteRecordMessages.StatusCodes);
+    }
+
     [HttpDelete("{id}")]
     [VaultProofBody]
     [ProducesResponseType(typeof(DataOutput<DeleteRecordOutput>), StatusCodes.Status200OK)]

@@ -13,7 +13,7 @@ internal static class ProfileProjectionQuery
         var collections=ProfileAssociationVisibility.Collections(db);
         var grants=db.CollectionGrants.Where(g=>g.State==CollectionGrantState.Active
             && (g.Access==CollectionGrantAccess.ReadOnly || g.Access==CollectionGrantAccess.ReadWrite)
-            && g.Revision>0 && g.Revision<=ProtocolBinary.MaxInteger && !db.TerminalErasures.Any(e=>e.ResourceId==g.PublicId));
+            && g.Revision>0 && g.Revision<=ProtocolBinary.MaxInteger && !db.TerminalErasures.Any(e=>(e.ResourceKind == "grant" && e.ResourceId == g.PublicId)));
         // Three correlated scalar aggregates avoid multiplying the independent link sets.
         return profiles.Select(p=>new ProfileListRow(p.PublicId,p.Revision,p.ServerSequence,p.EditedAt,p.Envelope,p.KeyWrappers)
         {

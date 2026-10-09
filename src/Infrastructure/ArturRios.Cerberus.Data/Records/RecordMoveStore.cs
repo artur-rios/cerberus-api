@@ -27,7 +27,7 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory):IRe
             await using var tx=await db.Database.BeginTransactionAsync(ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR NO KEY UPDATE",ct);
             var account=await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x=>x.HeimdallPublicId==request.Actor,ct);
-            if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>x.ResourceId==account.PublicId,ct))return new(Error:"not_found");
+            if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "account" && x.ResourceId == account.PublicId),ct))return new(Error:"not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE",ct);
             var initial=await SnapshotAsync(db,request,ct);var error=StateError(initial,account.Id);
             if(error is not null)return new(Error:error);
@@ -106,7 +106,7 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory):IRe
                 if(await db.Database.ExecuteSqlInterpolatedAsync($"""
                     UPDATE cerberus.folder SET revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={Guid.NewGuid()}
                     WHERE id={parent.Id} AND account_id={account.Id} AND revision={parent.Revision} AND server_sequence={parent.ServerSequence}
-                      AND deleted_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=cerberus.folder.public_id)
+                      AND deleted_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=cerberus.folder.public_id))
                     """,ct)!=1)return new(Error:"revision_conflict");
                 var now=await db.Folders.AsNoTracking().SingleAsync(x=>x.Id==parent.Id,ct);
                 if(now.Revision!=parent.Revision+1 || !Safe(now.ServerSequence) || now.ServerSequence<=parent.ServerSequence)return new(Error:"persistence_unavailable");
@@ -181,7 +181,7 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory):IRe
     private sealed record GrantEvidence(Guid CollectionId,long CollectionEpoch,string CollectionEnvelope,Guid GrantId,long GrantRevision,string GrantEnvelope);
     private sealed record ProtectionEvidence(Guid OwnerId,Guid RecipientIdentity,string? OwnerMaterial,long? OwnerRevision,long? OwnerEpoch,long? OwnerGeneration,string? RecipientMaterial,long? RecipientRevision,long? RecipientEpoch,long? RecipientGeneration);
     private const string SourceSelect="""
-        SELECT EXISTS(SELECT FROM actor a WHERE a.state=@active AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id)) AS actor_active,
+        SELECT EXISTS(SELECT FROM actor a WHERE a.state=@active AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id))) AS actor_active,
           EXISTS(SELECT FROM session) AS allowed,EXISTS(SELECT FROM writable) AS writable,
           EXISTS(SELECT FROM scoped r JOIN ancestry t ON t.record_id=r.id WHERE t.cycle
             AND NOT EXISTS(SELECT FROM ancestry hidden WHERE hidden.record_id=r.id AND hidden.hidden)) AS corrupt_ancestry,
@@ -215,7 +215,7 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory):IRe
                         ), session AS (
                             SELECT s.* FROM cerberus.vault_access_session s JOIN actor a ON a.id=s.account_id
                             WHERE a.state=@active
-                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id)
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id))
                               AND s.handle_verifier=@verifier AND NOT s.revoked
                               AND s.policy_revision>0 AND s.revocation_generation>0
                               AND s.policy_revision=a.policy_revision AND s.revocation_generation=a.revocation_generation
@@ -223,7 +223,7 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory):IRe
                               AND CASE WHEN a.renewal_enabled THEN s.expires_at>statement_timestamp() ELSE s.expires_at IS NULL END
                               AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile p
                                   WHERE p.id=s.profile_id AND p.account_id=a.id AND p.deleted_at IS NULL
-                                    AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id)))
+                                    AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id))))
                         ), collections AS (
                             SELECT c.*,g.id grant_id FROM cerberus.collection c
                             JOIN cerberus.account owner ON owner.id=c.account_id CROSS JOIN session s
@@ -231,9 +231,9 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory):IRe
                               AND g.state=@grant_active
                               AND g.access IN (@read_only,@read_write)
                               AND g.revision>0 AND g.revision<=@max
-                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=g.public_id)
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='grant' AND e.resource_id=g.public_id))
                             WHERE owner.state=@active AND c.deleted_at IS NULL
-                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=owner.public_id OR e.resource_id=c.public_id)
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=owner.public_id) OR (e.resource_kind='collection' AND e.resource_id=c.public_id))
                               AND (c.account_id=s.account_id OR g.id IS NOT NULL)
                               AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile_collection pc WHERE pc.profile_id=s.profile_id AND pc.collection_id=c.id))
                         ), candidates AS MATERIALIZED (
@@ -241,14 +241,14 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory):IRe
                             WHERE r.public_id=@target AND owner.state=@active
                               AND (r.account_id=s.account_id OR EXISTS(SELECT FROM collections c WHERE c.account_id=r.account_id))
                               AND r.deleted_at IS NULL
-                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=r.public_id OR e.resource_id=owner.public_id)
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='record' AND e.resource_id=r.public_id) OR (e.resource_kind='account' AND e.resource_id=owner.public_id))
                         ), ancestry AS (
                             SELECT r.id record_id,r.account_id,f.id,f.parent_folder_id,ARRAY[f.id] path,false cycle,
-                                (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)) hidden
+                                (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))) hidden
                             FROM candidates r JOIN cerberus.folder f ON f.id=r.folder_id AND f.account_id=r.account_id
                             UNION ALL
                             SELECT t.record_id,t.account_id,f.id,f.parent_folder_id,t.path||f.id,f.id=ANY(t.path),
-                                t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
+                                t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))
                             FROM ancestry t JOIN cerberus.folder f ON f.id=t.parent_folder_id AND f.account_id=t.account_id
                             WHERE NOT t.cycle
                         ), included AS (
@@ -281,17 +281,17 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory):IRe
         , own_collections AS (
             SELECT c.* FROM cerberus.collection c CROSS JOIN actor a
             WHERE c.account_id=a.id AND a.state=@active AND c.deleted_at IS NULL
-              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=c.public_id)
+              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='collection' AND e.resource_id=c.public_id))
         ), destination_candidate AS MATERIALIZED (
             SELECT f.* FROM cerberus.folder f CROSS JOIN actor a
             WHERE f.public_id=@destination AND f.account_id=a.id
         ), destination_ancestry AS (
             SELECT f.id,f.account_id,f.parent_folder_id,ARRAY[f.id] path,false cycle,
-              (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)) hidden
+              (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))) hidden
             FROM destination_candidate f
             UNION ALL
             SELECT f.id,f.account_id,f.parent_folder_id,t.path||f.id,f.id=ANY(t.path),
-              t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
+              t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))
             FROM destination_ancestry t JOIN cerberus.folder f ON f.id=t.parent_folder_id AND f.account_id=t.account_id WHERE NOT t.cycle
         ), destination_collections AS (
             SELECT c.id FROM own_collections c WHERE EXISTS(SELECT FROM cerberus.collection_folder cf
@@ -315,7 +315,7 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory):IRe
               OR EXISTS(SELECT FROM destination_collections dc WHERE dc.id=c.id)
         ), own_profiles AS (
             SELECT p.* FROM cerberus.profile p CROSS JOIN actor a WHERE p.account_id=a.id AND p.deleted_at IS NULL
-              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id)
+              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id))
         ), source_profiles AS (
             SELECT p.id FROM own_profiles p JOIN visible r ON r.account_id=p.account_id
             WHERE EXISTS(SELECT FROM cerberus.profile_record pr WHERE pr.profile_id=p.id AND pr.record_id=r.id AND pr.account_id=p.account_id)
@@ -339,7 +339,7 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory):IRe
             SELECT g.* FROM cerberus.collection_grant g JOIN result_collections c ON c.id=g.collection_id
             JOIN cerberus.account recipient ON recipient.id=g.recipient_account_id
             WHERE g.state=@grant_active AND g.access IN (@read_only,@read_write) AND recipient.state=@active
-              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=g.public_id OR e.resource_id=recipient.public_id)
+              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='grant' AND e.resource_id=g.public_id) OR (e.resource_kind='account' AND e.resource_id=recipient.public_id))
         ), native_result AS (
             SELECT COALESCE(jsonb_agg(jsonb_build_object('collectionId',c.public_id,'collectionEpoch',c.key_epoch,'collectionEnvelope',encode(c.envelope,'hex'),
               'grantId',g.public_id,'grantRevision',g.revision,'grantEnvelope',encode(g.recipient_key_envelope,'hex'),

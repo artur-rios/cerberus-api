@@ -92,5 +92,5 @@ public sealed class RegistrationStore(IDbContextFactory<AppDbContext> factory) :
     private static Task LockAsync(AppDbContext context, long identityLock, CancellationToken cancellationToken) =>
         context.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock({identityLock})", cancellationToken);
     private static Task<bool> ErasedAsync(AppDbContext context, Guid accountId, CancellationToken cancellationToken) =>
-        context.TerminalErasures.AnyAsync(x => x.ResourceId == accountId, cancellationToken);
+        context.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == accountId), cancellationToken);
 }

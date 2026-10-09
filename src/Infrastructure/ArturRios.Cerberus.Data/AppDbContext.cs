@@ -101,8 +101,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
         work.HasIndex(x => x.OperationKey).IsUnique();
         work.Property(x => x.OperationKey).HasMaxLength(128).IsRequired();
         var erasure = modelBuilder.Entity<TerminalErasure>();
-        erasure.ToTable("terminal_erasure");
-        erasure.HasIndex(x => x.ResourceId).IsUnique();
+        erasure.ToTable("terminal_erasure", table => table.HasCheckConstraint("ck_terminal_erasure_kind",
+            "resource_kind IN ('account','profile','record','folder','collection','grant')"));
+        erasure.HasIndex(x => new { x.ResourceKind, x.ResourceId }).IsUnique();
         erasure.Property(x => x.ResourceKind).HasMaxLength(16).IsRequired();
     }
 }

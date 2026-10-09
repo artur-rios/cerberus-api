@@ -113,7 +113,7 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
                 .Select(x => new AccountView(x.Id, x.PublicId, x.Revision, x.State, x.RenewalEnabled, x.RenewalInterval, x.PolicyRevision, x.RevocationGeneration))
                 .SingleOrDefaultAsync(cancellationToken);
             if (account is null || account.State != AccountState.Active
-                || await db.TerminalErasures.AnyAsync(x => x.ResourceId == account.PublicId, cancellationToken)) return new(Error: "not_found");
+                || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), cancellationToken)) return new(Error: "not_found");
             var result = await execute(db, account, cancellationToken);
             if (result.Error is not null) return result;
             await db.SaveChangesAsync(cancellationToken);

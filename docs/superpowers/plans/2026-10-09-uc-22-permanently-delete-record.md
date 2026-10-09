@@ -57,7 +57,7 @@ with actual kinds. No physical purge code in this task.
 existing ReapplyAsync(ErasureEntry,CT) typed; File ledger new kind-GUIDN filenames
 with valid legacy GUIDN reads; unique(kind,id)/supported6-kind constraint.
 
-- [ ] Write tests before product: same GUID two-kind DB entries and independent
+- [x] Write tests before product: same GUID two-kind DB entries and independent
   lookup; invalid kind/ID rejects; concurrent same-kind earliest entry; typed new
   files and legacy readable/samekind retry/crosskind writes/corruption; actual old
   migration upgrade preserving rows and failing invalid kind closed. Real current
@@ -65,7 +65,7 @@ with valid legacy GUIDN reads; unique(kind,id)/supported6-kind constraint.
   kind erasure but own-kind still denies; native grant/collection/owner collisions
   preserve sharing. Update typed interface tests, run focused RED (missing signature
   plus observable collision failures before product changes).
-- [ ] Implement smallest typed schema/interface/ledger/predicate repair; manually
+- [x] Implement smallest typed schema/interface/ledger/predicate repair; manually
   inspect every compound predicate/kind mapping. Focused GREEN then whole Data;
   record actual output zero failures/skips. Commit `fix: scope terminal erasures by
   resource kind`; task-done audits fresh completed wholeData log. Expected exit0.

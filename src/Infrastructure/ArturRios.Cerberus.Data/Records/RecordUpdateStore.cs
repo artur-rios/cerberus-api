@@ -25,7 +25,7 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory):I
             await using var tx=await db.Database.BeginTransactionAsync(ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR NO KEY UPDATE",ct);
             var account=await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x=>x.HeimdallPublicId==request.Actor,ct);
-            if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>x.ResourceId==account.PublicId,ct))return new(Error:"not_found");
+            if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "account" && x.ResourceId == account.PublicId),ct))return new(Error:"not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE",ct);
             var session=await db.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==account.Id && x.HandleVerifier==request.AccessVerifier,ct);
             if(session?.ProfileId is not null)
@@ -40,12 +40,12 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory):I
             // leaf-to-root; complete current ancestry is instead recomputed INSIDE the write.
             var collections=await db.Collections.FromSqlInterpolated($"""
                 SELECT c.* FROM cerberus.collection c WHERE c.account_id={target.AccountId} AND c.deleted_at IS NULL
-                  AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=c.public_id)
+                  AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='collection' AND e.resource_id=c.public_id))
                   AND (c.account_id={account.Id} OR EXISTS(SELECT FROM cerberus.collection_grant g
                     WHERE g.collection_id=c.id AND g.recipient_account_id={account.Id} AND g.state={CollectionGrantState.Active}
                       AND g.access IN ({CollectionGrantAccess.ReadOnly},{CollectionGrantAccess.ReadWrite})
                       AND g.revision>0 AND g.revision<={ProtocolBinary.MaxInteger}
-                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=g.public_id)))
+                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='grant' AND e.resource_id=g.public_id))))
                   AND ({selection}=0 OR EXISTS(SELECT FROM cerberus.profile_collection pc WHERE pc.profile_id={selection} AND pc.collection_id=c.id))
                 ORDER BY c.public_id FOR SHARE
                 """).AsNoTracking().ToListAsync(ct);
@@ -125,7 +125,7 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory):I
     private sealed record GrantEvidence(Guid CollectionId,long CollectionEpoch,string CollectionEnvelope,Guid GrantId,long GrantRevision,string GrantEnvelope);
     private sealed record ProtectionEvidence(Guid OwnerId,Guid RecipientIdentity,string? OwnerMaterial,long? OwnerRevision,long? OwnerEpoch,long? OwnerGeneration,string? RecipientMaterial,long? RecipientRevision,long? RecipientEpoch,long? RecipientGeneration);
     private const string SnapshotSelect="""
-        SELECT EXISTS(SELECT FROM actor a WHERE a.state=@active AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id)) AS actor_active,
+        SELECT EXISTS(SELECT FROM actor a WHERE a.state=@active AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id))) AS actor_active,
           EXISTS(SELECT FROM session) AS allowed,EXISTS(SELECT FROM writable) AS writable,
           EXISTS(SELECT FROM scoped r JOIN ancestry t ON t.record_id=r.id WHERE t.cycle
             AND NOT EXISTS(SELECT FROM ancestry hidden WHERE hidden.record_id=r.id AND hidden.hidden)) AS corrupt_ancestry,
@@ -149,7 +149,7 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory):I
                         ), session AS (
                             SELECT s.* FROM cerberus.vault_access_session s JOIN actor a ON a.id=s.account_id
                             WHERE a.state=@active
-                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id)
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id))
                               AND s.handle_verifier=@verifier AND NOT s.revoked
                               AND s.policy_revision>0 AND s.revocation_generation>0
                               AND s.policy_revision=a.policy_revision AND s.revocation_generation=a.revocation_generation
@@ -157,7 +157,7 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory):I
                               AND CASE WHEN a.renewal_enabled THEN s.expires_at>statement_timestamp() ELSE s.expires_at IS NULL END
                               AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile p
                                   WHERE p.id=s.profile_id AND p.account_id=a.id AND p.deleted_at IS NULL
-                                    AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id)))
+                                    AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id))))
                         ), collections AS (
                             SELECT c.*,g.id grant_id FROM cerberus.collection c
                             JOIN cerberus.account owner ON owner.id=c.account_id CROSS JOIN session s
@@ -165,9 +165,9 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory):I
                               AND g.state=@grant_active
                               AND g.access IN (@read_only,@read_write)
                               AND g.revision>0 AND g.revision<=@max
-                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=g.public_id)
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='grant' AND e.resource_id=g.public_id))
                             WHERE owner.state=@active AND c.deleted_at IS NULL
-                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=owner.public_id OR e.resource_id=c.public_id)
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=owner.public_id) OR (e.resource_kind='collection' AND e.resource_id=c.public_id))
                               AND (c.account_id=s.account_id OR g.id IS NOT NULL)
                               AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile_collection pc WHERE pc.profile_id=s.profile_id AND pc.collection_id=c.id))
                         ), candidates AS MATERIALIZED (
@@ -175,14 +175,14 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory):I
                             WHERE r.public_id=@target AND owner.state=@active
                               AND (r.account_id=s.account_id OR EXISTS(SELECT FROM collections c WHERE c.account_id=r.account_id))
                               AND r.deleted_at IS NULL
-                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=r.public_id OR e.resource_id=owner.public_id)
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='record' AND e.resource_id=r.public_id) OR (e.resource_kind='account' AND e.resource_id=owner.public_id))
                         ), ancestry AS (
                             SELECT r.id record_id,r.account_id,f.id,f.parent_folder_id,ARRAY[f.id] path,false cycle,
-                                (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)) hidden
+                                (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))) hidden
                             FROM candidates r JOIN cerberus.folder f ON f.id=r.folder_id AND f.account_id=r.account_id
                             UNION ALL
                             SELECT t.record_id,t.account_id,f.id,f.parent_folder_id,t.path||f.id,f.id=ANY(t.path),
-                                t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
+                                t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))
                             FROM ancestry t JOIN cerberus.folder f ON f.id=t.parent_folder_id AND f.account_id=t.account_id
                             WHERE NOT t.cycle
                         ), included AS (

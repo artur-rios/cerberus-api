@@ -32,7 +32,7 @@ public sealed class IdentityUpdateStore(IDbContextFactory<AppDbContext> factory)
                   WHEN NOT EXISTS (
                     SELECT 1 FROM cerberus.account AS a
                     WHERE a.heimdall_public_id = {identityId} AND a.state = {(int)AccountState.Active}
-                      AND NOT EXISTS (SELECT 1 FROM cerberus.terminal_erasure AS e WHERE e.resource_id = a.public_id)
+                      AND NOT EXISTS (SELECT 1 FROM cerberus.terminal_erasure AS e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id))
                   ) THEN 404
                   WHEN NOT EXISTS (
                     SELECT 1 FROM cerberus.vault_access_session AS s

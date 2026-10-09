@@ -36,10 +36,10 @@ public sealed partial class ProfileAccessStore(IDbContextFactory<AppDbContext> f
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={actor} FOR UPDATE",ct);
             var account=await db.Accounts.AsNoTracking().Where(x=>x.HeimdallPublicId==actor)
                 .Select(x=>new AccountView(x.Id,x.PublicId,x.State,x.PolicyRevision,x.RevocationGeneration,x.RenewalEnabled,x.RenewalInterval)).SingleOrDefaultAsync(ct);
-            if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>x.ResourceId==account.PublicId,ct))return new(Error:"not_found");
+            if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "account" && x.ResourceId == account.PublicId),ct))return new(Error:"not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.profile WHERE account_id={account.Id} AND public_id={profileId} FOR UPDATE",ct);
             var profile=await db.Profiles.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==account.Id && x.PublicId==profileId,ct);
-            if(profile is null || profile.DeletedAt is not null || await db.TerminalErasures.AnyAsync(x=>x.ResourceId==profile.PublicId,ct))return new(Error:"not_found");
+            if(profile is null || profile.DeletedAt is not null || await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "profile" && x.ResourceId == profile.PublicId),ct))return new(Error:"not_found");
             if(profile.Revision is <=0 or >ProtocolBinary.MaxInteger || profile.ServerSequence is <=0 or >ProtocolBinary.MaxInteger)return new(Error:"persistence_unavailable");
             if(profile.Revision!=expectedRevision)return new(Error:"revision_conflict");
             if(account.PolicyRevision is <=0 or >ProtocolBinary.MaxInteger || account.RevocationGeneration is <=0 or >ProtocolBinary.MaxInteger

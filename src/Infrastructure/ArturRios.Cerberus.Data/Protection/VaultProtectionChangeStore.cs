@@ -30,7 +30,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
             var a = await db.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == request.Actor)
                 .Select(x => new { x.Id, x.PublicId, x.Revision, x.State, x.PolicyRevision, x.RevocationGeneration, x.RenewalEnabled }).SingleOrDefaultAsync(cancellationToken);
             if (a is null || a.PublicId != input.AccountId || a.State != AccountState.Active
-                || await db.TerminalErasures.AnyAsync(x => x.ResourceId == a.PublicId, cancellationToken)) return new(Error: "not_found");
+                || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == a.PublicId), cancellationToken)) return new(Error: "not_found");
             var metadata = await db.VaultProtections.AsNoTracking().Where(x => x.AccountId == a.Id)
                 .Select(x => new { x.Id, x.Revision, x.KeyEpoch, x.RecoveryGeneration }).SingleOrDefaultAsync(cancellationToken);
             if (metadata is null) return new(Error: "not_found");

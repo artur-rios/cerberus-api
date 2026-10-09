@@ -26,7 +26,7 @@ public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) :
             await using var tx = await db.Database.BeginTransactionAsync(ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", ct);
             var account = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.HeimdallPublicId == request.Actor, ct);
-            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => x.ResourceId == account.PublicId, ct))
+            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), ct))
                 return new(Error: "not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
             var session = await db.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.HandleVerifier == request.AccessVerifier, ct);
@@ -37,7 +37,7 @@ public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) :
                     && session.PolicyRevision == account.PolicyRevision && session.RevocationGeneration == account.RevocationGeneration
                     && session.IssuedAt <= now && (account.RenewalEnabled ? session.ExpiresAt > now : session.ExpiresAt is null)
                     && (session.ProfileId is null || await db.Profiles.AnyAsync(p => p.Id == session.ProfileId && p.AccountId == account.Id
-                        && p.DeletedAt == null && !db.TerminalErasures.Any(e => e.ResourceId == p.PublicId), ct));
+                        && p.DeletedAt == null && !db.TerminalErasures.Any(e => (e.ResourceKind == "profile" && e.ResourceId == p.PublicId)), ct));
             }
             if (!await Permitted()) return new(Error: "vault_access_denied");
             if (session!.ProfileId is not null && input.ProfileIds.Length == 0) return new(Error: "vault_access_denied");
@@ -47,7 +47,7 @@ public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) :
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.profile WHERE account_id={account.Id} AND public_id={id} FOR UPDATE", ct);
                 if (!await Permitted()) return new(Error: "vault_access_denied");
                 var profile = await db.Profiles.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.PublicId == id, ct);
-                if (profile is null || profile.DeletedAt is not null || await db.TerminalErasures.AnyAsync(x => x.ResourceId == profile.PublicId, ct)
+                if (profile is null || profile.DeletedAt is not null || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "profile" && x.ResourceId == profile.PublicId), ct)
                     || session.ProfileId is not null && (input.ProfileIds.Length != 1 || session.ProfileId != profile.Id))
                     return new(Error: "not_found");
                 profiles.Add(profile);
@@ -64,7 +64,7 @@ public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) :
                     await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.folder WHERE account_id={account.Id} AND id={folder.Id} FOR UPDATE", ct);
                     if (!await Permitted()) return new(Error: "vault_access_denied");
                     folder = await db.Folders.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.Id == folder.Id, ct);
-                    if (folder is null || folder.DeletedAt is not null || await db.TerminalErasures.AnyAsync(x => x.ResourceId == folder.PublicId, ct))
+                    if (folder is null || folder.DeletedAt is not null || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "folder" && x.ResourceId == folder.PublicId), ct))
                         return new(Error: "not_found");
                     folders.Add(folder);
                     if (folder.ParentFolderId is null) break;
@@ -87,7 +87,7 @@ public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) :
                 if (!Safe(parent.Revision) || !Safe(parent.ServerSequence)) return new(Error: "persistence_unavailable");
                 if (parent.Revision == ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
             }
-            if (await db.Records.AnyAsync(x => x.PublicId == input.RecordId, ct) || await db.TerminalErasures.AnyAsync(x => x.ResourceId == input.RecordId, ct))
+            if (await db.Records.AnyAsync(x => x.PublicId == input.RecordId, ct) || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "record" && x.ResourceId == input.RecordId), ct))
                 return new(Error: "revision_conflict");
             var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
             var editedAt = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
@@ -100,24 +100,24 @@ public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) :
                 SELECT {input.RecordId},a.id,{envelope},1,{editedAt},{parentId},{Guid.NewGuid()}
                 FROM cerberus.account a JOIN cerberus.vault_access_session s ON s.account_id=a.id
                 WHERE a.id={account.Id} AND a.heimdall_public_id={request.Actor} AND a.state={AccountState.Active}
-                    AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id OR e.resource_id={input.RecordId})
+                    AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id) OR (e.resource_kind='record' AND e.resource_id={input.RecordId}))
                     AND s.handle_verifier={request.AccessVerifier} AND NOT s.revoked AND s.policy_revision>0 AND s.revocation_generation>0
                     AND s.policy_revision=a.policy_revision AND s.revocation_generation=a.revocation_generation AND s.issued_at<=statement_timestamp()
                     AND ((a.renewal_enabled AND s.expires_at>statement_timestamp()) OR (NOT a.renewal_enabled AND s.expires_at IS NULL))
                     AND (s.profile_id IS NULL OR (cardinality({input.ProfileIds})=1 AND EXISTS(
                         SELECT 1 FROM cerberus.profile p WHERE p.id=s.profile_id AND p.account_id=a.id AND p.public_id=ANY({input.ProfileIds})
-                        AND p.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id))
+                        AND p.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id)))
                         AND (cardinality({folderIds})=0 OR EXISTS(SELECT 1 FROM cerberus.profile_folder pf
                             WHERE pf.account_id=a.id AND pf.profile_id=s.profile_id AND pf.folder_id=ANY({folderIds})))))
                     AND (SELECT count(*) FROM cerberus.profile p WHERE p.account_id=a.id AND p.public_id=ANY({input.ProfileIds})
-                        AND p.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id))=cardinality({input.ProfileIds})
+                        AND p.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id)))=cardinality({input.ProfileIds})
                     AND (SELECT count(*) FROM cerberus.folder f WHERE f.account_id=a.id AND f.id=ANY({folderIds})
-                        AND f.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id))=cardinality({folderIds})
+                        AND f.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id)))=cardinality({folderIds})
                 """, ct);
             if (inserted != 1)
             {
                 if (!await Permitted()) return new(Error: "vault_access_denied");
-                if (await db.TerminalErasures.AnyAsync(x => x.ResourceId == input.RecordId, ct)) return new(Error: "revision_conflict");
+                if (await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "record" && x.ResourceId == input.RecordId), ct)) return new(Error: "revision_conflict");
                 return new(Error: "not_found");
             }
             var record = await db.Records.AsNoTracking().SingleAsync(x => x.PublicId == input.RecordId, ct);

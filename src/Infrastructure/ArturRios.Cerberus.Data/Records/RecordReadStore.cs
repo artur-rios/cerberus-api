@@ -31,7 +31,7 @@ public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : I
                 ), session AS (
                     SELECT s.* FROM cerberus.vault_access_session s JOIN actor a ON a.id=s.account_id
                     WHERE a.state={(int)AccountState.Active}
-                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id)
+                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id))
                       AND s.handle_verifier={request.AccessVerifier} AND NOT s.revoked
                       AND s.policy_revision>0 AND s.revocation_generation>0
                       AND s.policy_revision=a.policy_revision AND s.revocation_generation=a.revocation_generation
@@ -39,7 +39,7 @@ public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : I
                       AND CASE WHEN a.renewal_enabled THEN s.expires_at>statement_timestamp() ELSE s.expires_at IS NULL END
                       AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile p
                           WHERE p.id=s.profile_id AND p.account_id=a.id AND p.deleted_at IS NULL
-                            AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id)))
+                            AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id))))
                 ), collections AS (
                     SELECT c.*,g.id grant_id FROM cerberus.collection c
                     JOIN cerberus.account owner ON owner.id=c.account_id CROSS JOIN session s
@@ -47,9 +47,9 @@ public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : I
                       AND g.state={(int)CollectionGrantState.Active}
                       AND g.access IN ({(int)CollectionGrantAccess.ReadOnly},{(int)CollectionGrantAccess.ReadWrite})
                       AND g.revision>0 AND g.revision<={ProtocolBinary.MaxInteger}
-                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=g.public_id)
+                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='grant' AND e.resource_id=g.public_id))
                     WHERE owner.state={(int)AccountState.Active} AND c.deleted_at IS NULL
-                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=owner.public_id OR e.resource_id=c.public_id)
+                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=owner.public_id) OR (e.resource_kind='collection' AND e.resource_id=c.public_id))
                       AND (c.account_id=s.account_id OR g.id IS NOT NULL)
                       AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile_collection pc WHERE pc.profile_id=s.profile_id AND pc.collection_id=c.id))
                 ), candidates AS MATERIALIZED (
@@ -57,14 +57,14 @@ public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : I
                     WHERE r.public_id={request.RecordId} AND owner.state={(int)AccountState.Active}
                       AND (r.account_id=s.account_id OR EXISTS(SELECT FROM collections c WHERE c.account_id=r.account_id))
                       AND r.deleted_at IS NULL
-                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=r.public_id OR e.resource_id=owner.public_id)
+                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='record' AND e.resource_id=r.public_id) OR (e.resource_kind='account' AND e.resource_id=owner.public_id))
                 ), ancestry AS (
                     SELECT r.id record_id,r.account_id,f.id,f.parent_folder_id,ARRAY[f.id] path,false cycle,
-                        (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)) hidden
+                        (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))) hidden
                     FROM candidates r JOIN cerberus.folder f ON f.id=r.folder_id AND f.account_id=r.account_id
                     UNION ALL
                     SELECT t.record_id,t.account_id,f.id,f.parent_folder_id,t.path||f.id,f.id=ANY(t.path),
-                        t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
+                        t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=f.public_id))
                     FROM ancestry t JOIN cerberus.folder f ON f.id=t.parent_folder_id AND f.account_id=t.account_id
                     WHERE NOT t.cycle
                 ), included AS (
@@ -88,7 +88,7 @@ public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : I
                     WHERE r.account_id<>s.account_id AND i.grant_id IS NOT NULL
                 )
                 SELECT EXISTS(SELECT FROM actor a WHERE a.state={(int)AccountState.Active}
-                    AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=a.public_id)) AS actor_active,
+                    AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='account' AND e.resource_id=a.public_id))) AS actor_active,
                     EXISTS(SELECT FROM session) AS allowed,
                     EXISTS(SELECT FROM scoped r JOIN ancestry t ON t.record_id=r.id WHERE t.cycle
                         AND NOT EXISTS(SELECT FROM ancestry hidden WHERE hidden.record_id=r.id AND hidden.hidden)) AS corrupt_ancestry,
@@ -99,7 +99,7 @@ public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : I
                             FROM cerberus.profile_record pr JOIN cerberus.profile p ON p.id=pr.profile_id AND p.account_id=pr.account_id CROSS JOIN session s
                             WHERE pr.record_id=r.id AND pr.account_id=r.account_id AND p.account_id=s.account_id
                               AND (s.profile_id IS NULL OR s.profile_id=p.id) AND p.deleted_at IS NULL
-                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id)),'[]'::jsonb),
+                              AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id))),'[]'::jsonb),
                         'folderId',CASE WHEN r.folder_id IS NOT NULL AND EXISTS(SELECT FROM session s WHERE
                             (r.account_id=s.account_id AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile_folder pf JOIN ancestry t ON t.id=pf.folder_id
                                 WHERE pf.account_id=s.account_id AND pf.profile_id=s.profile_id AND t.record_id=r.id)))

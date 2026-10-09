@@ -12,6 +12,12 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Encrypted owned folder creation (UC-23), with current account-wide or selected
+  access, direct and owned-collection parent ancestry, typed ID reservation,
+  atomic profile links and immediate-parent metadata. New folders participate
+  in complete protection rotation and can contain records immediately. See the
+  [folder creation API](docs/security/folder-api.md).
+
 - Permanent owned record erasure (UC-22), with current active/trash scope, typed
   terminal IDs, durable intent and fenced purge recovery. Success follows ledger
   flush and physical removal; failures after intent keep deletion irreversible.

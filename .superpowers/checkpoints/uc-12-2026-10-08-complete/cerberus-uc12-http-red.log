@@ -1,0 +1,517 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc12-worktree/src/Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj (in 860 ms).
+  Restored /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj (in 857 ms).
+  Restored /tmp/cerberus-uc12-worktree/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 856 ms).
+  4 of 7 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc12-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc12-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc12-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc12-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc12-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc12-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:12.91]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "%20abcdefab-1234-4321-abcd-123456789abc") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "%20abcdefab-1234-4321-abcd-123456789abc") [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(String id) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.02]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "bad") [FAIL]
+[xUnit.net 00:00:13.08]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "{abcdefab-1234-4321-abcd-123456789abc}") [FAIL]
+[xUnit.net 00:00:13.14]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "abcdefab12344321abcd123456789abc") [FAIL]
+[xUnit.net 00:00:13.22]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "ABCDEFAB-1234-4321-ABCD-123456789ABC") [FAIL]
+[xUnit.net 00:00:13.31]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "00000000-0000-0000-0000-000000000000") [FAIL]
+[xUnit.net 00:00:14.01]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "time") [FAIL]
+[xUnit.net 00:00:14.33]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "empty") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "bad") [111 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(String id) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "{abcdefab-1234-4321-abcd-123456789abc}") [60 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(String id) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "abcdefab12344321abcd123456789abc") [52 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(String id) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "ABCDEFAB-1234-4321-ABCD-123456789ABC") [73 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(String id) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(id: "00000000-0000-0000-0000-000000000000") [82 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenMalformedOrNoncanonicalPath_WhenUpdating_Then400(String id) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 43
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "time") [698 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "empty") [319 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.83]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "owner") [FAIL]
+[xUnit.net 00:00:15.14]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "wrapper") [FAIL]
+[xUnit.net 00:00:15.25]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "duplicate") [FAIL]
+[xUnit.net 00:00:15.46]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "unknown") [FAIL]
+[xUnit.net 00:00:15.73]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "numeric") [FAIL]
+[xUnit.net 00:00:15.96]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "null") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "owner") [489 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "wrapper") [302 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "duplicate") [108 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "unknown") [203 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "numeric") [267 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "null") [213 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:16.14]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "offset") [FAIL]
+[xUnit.net 00:00:16.33]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "profile") [FAIL]
+[xUnit.net 00:00:16.71]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "revision") [FAIL]
+[xUnit.net 00:00:17.25]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "epoch") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "offset") [186 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "profile") [171 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "revision") [378 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "epoch") [520 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:17.98]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "envelope") [FAIL]
+[xUnit.net 00:00:18.16]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "missing", status: 404) [FAIL]
+[xUnit.net 00:00:18.37]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "selection", status: 403) [FAIL]
+[xUnit.net 00:00:18.51]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "erased", status: 404) [FAIL]
+[xUnit.net 00:00:18.65]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "policy", status: 403) [FAIL]
+[xUnit.net 00:00:18.83]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "closing", status: 404) [FAIL]
+[xUnit.net 00:00:18.97]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "expired", status: 403) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(kind: "envelope") [676 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidOrForgedBody_WhenUpdating_Then400AndUnchanged(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "missing", status: 404) [188 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 67
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "selection", status: 403) [208 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 67
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "erased", status: 404) [142 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 67
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "policy", status: 403) [132 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 67
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "closing", status: 404) [168 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 67
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "expired", status: 403) [142 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 67
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:19.32]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "revoked", status: 403) [FAIL]
+[xUnit.net 00:00:19.59]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "generation", status: 403) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "revoked", status: 403) [348 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 67
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(kind: "generation", status: 403) [263 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidCurrentAccountOrSession_WhenUpdating_ThenDenyUnchanged(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 67
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:20.56]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenSubmicrosecondClientTime_WhenUpdating_Then200WithStoredNormalizedTime(submitted: "1999-12-31T23:59:59.9999999Z", expected: "1999-12-31T23:59:59.9999990Z") [FAIL]
+[xUnit.net 00:00:20.75]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenSubmicrosecondClientTime_WhenUpdating_Then200WithStoredNormalizedTime(submitted: "2000-01-01T00:00:00Z", expected: "2000-01-01T00:00:00Z") [FAIL]
+[xUnit.net 00:00:20.95]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenSubmicrosecondClientTime_WhenUpdating_Then200WithStoredNormalizedTime(submitted: "2000-01-01T00:00:00.0000009Z", expected: "2000-01-01T00:00:00Z") [FAIL]
+[xUnit.net 00:00:21.18]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:21.37]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(kind: "query", status: 400) [FAIL]
+[xUnit.net 00:00:21.52]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(kind: "duplicate", status: 400) [FAIL]
+[xUnit.net 00:00:21.72]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(kind: "malformed", status: 400) [FAIL]
+[xUnit.net 00:00:22.00]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenOwnedProfile_WhenUpdating_ThenAdvanceOpaqueContentAndReturnOnlyMetadata(mode: "Master") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenSubmicrosecondClientTime_WhenUpdating_Then200WithStoredNormalizedTime(submitted: "1999-12-31T23:59:59.9999999Z", expected: "1999-12-31T23:59:59.9999990Z") [200 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Profile(HttpResponseMessage response) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 85
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenSubmicrosecondClientTime_WhenUpdating_Then200WithStoredNormalizedTime(String submitted, String expected) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenSubmicrosecondClientTime_WhenUpdating_Then200WithStoredNormalizedTime(submitted: "2000-01-01T00:00:00Z", expected: "2000-01-01T00:00:00Z") [180 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Profile(HttpResponseMessage response) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 85
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenSubmicrosecondClientTime_WhenUpdating_Then200WithStoredNormalizedTime(String submitted, String expected) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenSubmicrosecondClientTime_WhenUpdating_Then200WithStoredNormalizedTime(submitted: "2000-01-01T00:00:00.0000009Z", expected: "2000-01-01T00:00:00Z") [199 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Profile(HttpResponseMessage response) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 85
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenSubmicrosecondClientTime_WhenUpdating_Then200WithStoredNormalizedTime(String submitted, String expected) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(kind: "missing", status: 401) [217 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(kind: "query", status: 400) [179 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(kind: "duplicate", status: 400) [154 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 46
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(kind: "malformed", status: 400) [195 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenInvalidQueryOrAccess_WhenUpdating_ThenRejectWithoutChanges(String kind, Int32 status) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 46
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:22.26]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenOwnedProfile_WhenUpdating_ThenAdvanceOpaqueContentAndReturnOnlyMetadata(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:22.57]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenUnavailableProfileTable_WhenUpdating_Then503Unchanged [FAIL]
+[xUnit.net 00:00:22.79]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(kind: "foreign") [FAIL]
+[xUnit.net 00:00:22.94]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(kind: "missing") [FAIL]
+[xUnit.net 00:00:23.13]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(kind: "erased") [FAIL]
+[xUnit.net 00:00:23.30]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(kind: "trash") [FAIL]
+[xUnit.net 00:00:23.49]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenValidSelectedSession_WhenUpdating_ThenSelectionSucceedsAndOtherOwnProfile404(otherTarget: False) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenOwnedProfile_WhenUpdating_ThenAdvanceOpaqueContentAndReturnOnlyMetadata(mode: "Master") [251 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Profile(HttpResponseMessage response) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 85
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenOwnedProfile_WhenUpdating_ThenAdvanceOpaqueContentAndReturnOnlyMetadata(String mode) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 26
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenOwnedProfile_WhenUpdating_ThenAdvanceOpaqueContentAndReturnOnlyMetadata(mode: "PerProfile") [270 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Profile(HttpResponseMessage response) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 85
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenOwnedProfile_WhenUpdating_ThenAdvanceOpaqueContentAndReturnOnlyMetadata(String mode) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 26
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenUnavailableProfileTable_WhenUpdating_Then503Unchanged [303 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenUnavailableProfileTable_WhenUpdating_Then503Unchanged() in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 73
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenUnavailableProfileTable_WhenUpdating_Then503Unchanged() in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 73
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenUnavailableProfileTable_WhenUpdating_Then503Unchanged() in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(kind: "foreign") [218 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(kind: "missing") [138 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(kind: "erased") [176 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(kind: "trash") [172 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenHiddenOrAbsentProfile_WhenUpdating_ThenSameNonrevealing404(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenValidSelectedSession_WhenUpdating_ThenSelectionSucceedsAndOtherOwnProfile404(otherTarget: False) [182 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Profile(HttpResponseMessage response) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 85
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenValidSelectedSession_WhenUpdating_ThenSelectionSucceedsAndOtherOwnProfile404(Boolean otherTarget) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 38
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:23.80]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenValidSelectedSession_WhenUpdating_ThenSelectionSucceedsAndOtherOwnProfile404(otherTarget: True) [FAIL]
+[xUnit.net 00:00:24.02]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(kind: "envelope") [FAIL]
+[xUnit.net 00:00:24.20]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(kind: "recipient") [FAIL]
+[xUnit.net 00:00:24.40]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(kind: "revision") [FAIL]
+[xUnit.net 00:00:24.52]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(kind: "sequence") [FAIL]
+[xUnit.net 00:00:24.65]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenRawEmptyAccess_WhenUpdating_Then400 [FAIL]
+[xUnit.net 00:00:24.93]     ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenConcurrentEditsAndLostResponseRetry_WhenUpdating_ThenOneWinnerAnd409PreservesState [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenValidSelectedSession_WhenUpdating_ThenSelectionSucceedsAndOtherOwnProfile404(otherTarget: True) [315 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenValidSelectedSession_WhenUpdating_ThenSelectionSucceedsAndOtherOwnProfile404(Boolean otherTarget) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 38
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(kind: "envelope") [202 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 70
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(kind: "recipient") [185 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 70
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(kind: "revision") [189 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 70
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(kind: "sequence") [122 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.Failure(HttpResponseMessage response, Int32 status, String error) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 87
+   at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenCorruptStoredVisibleMetadata_WhenUpdating_Then503WithoutPartialData(String kind) in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 70
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenRawEmptyAccess_WhenUpdating_Then400 [125 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   405
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenRawEmptyAccess_WhenUpdating_Then400() in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 49
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenConcurrentEditsAndLostResponseRetry_WhenUpdating_ThenOneWinnerAnd409PreservesState [276 ms]
+  Error Message:
+   Assert.Single() Failure: The collection did not contain any matching items
+Expected:   (predicate expression)
+Collection: [StatusCode: 405, ReasonPhrase: 'Method Not Allowed', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+  Allow: GET
+}, StatusCode: 405, ReasonPhrase: 'Method Not Allowed', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Cache-Control: no-store
+  Allow: GET
+}]
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileUpdateHttpTests.GivenConcurrentEditsAndLostResponseRetry_WhenUpdating_ThenOneWinnerAnd409PreservesState() in /tmp/cerberus-uc12-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    49, Passed:     4, Skipped:     0, Total:    53, Duration: 13 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

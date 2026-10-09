@@ -1,0 +1,16 @@
+Found 6 coverage file(s)
+REPORTGENERATOR_LICENSE is not set; generating with the free version
+$ reportgenerator -reports:/tmp/cerberus-uc02-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/c4210653-21bb-480f-8d64-12ecd777338e/coverage.cobertura.xml;/tmp/cerberus-uc02-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/12ea15ec-f033-40b3-ba65-de7d91a2fbf2/coverage.cobertura.xml;/tmp/cerberus-uc02-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/1210e072-b5c4-47a1-9eba-6cbffb8a567f/coverage.cobertura.xml;/tmp/cerberus-uc02-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/202407ff-7924-4057-ae79-8389a060a7a7/coverage.cobertura.xml;/tmp/cerberus-uc02-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/e27d6bad-ecbf-42ab-946c-59a0e71643df/coverage.cobertura.xml;/tmp/cerberus-uc02-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/4af6f57c-5712-417b-996c-a34b21f65d24/coverage.cobertura.xml -targetdir:/tmp/cerberus-uc02-worktree/docs/coverage-report -reporttypes:Html;JsonSummary -assemblyfilters:+ArturRios.Cerberus.*;-*.Tests -title:Cerberus API
+2026-10-08T12:27:06: Arguments
+2026-10-08T12:27:06:  -reports:/tmp/cerberus-uc02-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/c4210653-21bb-480f-8d64-12ecd777338e/coverage.cobertura.xml;/tmp/cerberus-uc02-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/12ea15ec-f033-40b3-ba65-de7d91a2fbf2/coverage.cobertura.xml;/tmp/cerberus-uc02-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/1210e072-b5c4-47a1-9eba-6cbffb8a567f/coverage.cobertura.xml;/tmp/cerberus-uc02-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/202407ff-7924-4057-ae79-8389a060a7a7/coverage.cobertura.xml;/tmp/cerberus-uc02-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/e27d6bad-ecbf-42ab-946c-59a0e71643df/coverage.cobertura.xml;/tmp/cerberus-uc02-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/4af6f57c-5712-417b-996c-a34b21f65d24/coverage.cobertura.xml
+2026-10-08T12:27:06:  -targetdir:/tmp/cerberus-uc02-worktree/docs/coverage-report
+2026-10-08T12:27:06:  -reporttypes:Html;JsonSummary
+2026-10-08T12:27:06:  -assemblyfilters:+ArturRios.Cerberus.*;-*.Tests
+2026-10-08T12:27:06:  -title:Cerberus API
+2026-10-08T12:27:06: Writing report file '/tmp/cerberus-uc02-worktree/docs/coverage-report/index.html'
+2026-10-08T12:27:06: Writing report file '/tmp/cerberus-uc02-worktree/docs/coverage-report/Summary.json'
+2026-10-08T12:27:06: Report generation took 0.3 seconds
+
+Report written to /tmp/cerberus-uc02-worktree/docs/coverage-report
+Line coverage 96.1% (minimum 90.0%)
+Open the HTML report at: /tmp/cerberus-uc02-worktree/docs/coverage-report/index.html

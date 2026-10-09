@@ -1,0 +1,52 @@
+from pathlib import Path
+import json,subprocess
+w=Path('/tmp/cerberus-uc27-worktree');p=w/'.superpowers/sdd/2026-10-09-uc-27-delete-folder/progress.md';s=p.read_text();assert 'Final: Ruling:' not in s
+report=Path('/tmp/cerberus-uc27-final-review.md').read_text();assert 'None identified.' in report and 'None identified for the current development implementation.' in report
+lines=[x[2:] for x in report.split('## Declined to judge\n',1)[1].split('## Assessment',1)[0].splitlines() if x.startswith('- ')];assert len(lines)==20,len(lines)
+judgments=[
+('Independent formal','Current concrete ownership/native/lifecycle checks stand; explicit development-only deferral leaves formal independent approval mandatory before release','latent protocol/security flaws still need independent qualification'),
+('Real external-client','Actual native HTTP confirms server behavior; external deployed clients/DELETE-body handling and generated SDKs still need explicit release qualification','integration/decryption errors can remain undiscovered outside repository fixtures'),
+('Completed trash listing','One durable operation/entries/queue commits; missing handler retries and UC50–53 remain mandatory physical retention/restore work','ciphertext can remain stored beyond the logical deadline until later handlers ship'),
+('Authorization and conflict','Snapshots grant no permission; UC51 must revalidate memberships/typed identity and consume old entries before re-trash','an incorrect future restore could revive removed access or reuse old deadlines'),
+('Durable offline','Active server reads/lists hide the cascade now; UC48 durable inherited events and clients enforcing cached revocation remain separate release gates','offline copies or incremental visibility removals can remain stale'),
+('Future grant-creation','Current writers were reviewed and raced; BEFOREUC35 implicit recipient-account FK audit is mandatory before adding grant creation','a future FK/order cycle could deadlock account and collection writers'),
+('Arbitrary future','Only current writer contract and guarded boundary are supported; later/out-of-band topology/terminal writers must preserve it and be audited','unaudited writers can invalidate captured inventory or terminal behavior'),
+('Cancellation of an already','Fresh current authority at the guarded root write authorizes one atomic transaction under held locks; expiry afterward does not cancel it','a user may observe completion after the handle naturally expires'),
+('Owner cascade effects','FR-FD06/BR22 explicitly cascade all active contained owned items once a selected owner root is admitted; documented other sharing is removed from active views','owners can affect records or descendants linked to other profiles/views'),
+('Repair or decryption','Recoverable deletion retains even damaged opaque bytes; ciphertext repair/decryption is a client concern, not a deletion precondition','retained damaged content may remain unreadable after restoration'),
+('Rejection of a foreign','Every relevant overlapping native contributor must validate; selected scope excludes unrelated routes and visible foreign deletion remains denied','a corrupt overlapping RO route can turn otherwise valid visible denial into503'),
+('Automatic repair of active','Existing typed entry on an active item yields409 without mutation; restore must reconcile old retention membership explicitly','stale restored entries require intervention before another deletion'),
+('Production-scale','Actual EXPLAIN root1/selfancestry3 among200unrelatedfolders and exact held structuralIDs bounds unrelated work; no supported load target or throughput certification exists','large cascades can impose memory/latency/lock contention and need measured limits'),
+('Corrupt ancestry','Same-owner relational integrity/current SQL guards are reviewed; no disabled-integrity fixture or automatic corruption repair is claimed','arbitrary database corruption can require operational repair or stronger qualification'),
+('PostgreSQL sequence','Each changed committed row has a safe sequence greater than its own previous one; nontransactional rollback gaps are allowed','clients incorrectly assuming contiguous global sequences can mis-handle gaps'),
+('Injected failure after','Actual fault tests cover successful earlier graph/operation/entry work followed by queue-command failure BEFORE its insert; no after-successful-queue or commit-ack injection is claimed','commit-ack uncertainty remains an unexercised boundary despite atomic transaction semantics/lost-retry behavior'),
+('Missing nullable metadata','Successful200 requires nonnull validated six-field data; wrapper nullable metadata is not an independent null-success defect here, while M2 required-field metadata remains deferred','generated client conventions can still need shared schema improvements'),
+('Prior outside-diff','The named UC25/23/22/21 findings retain their archived dispositions and are not changed here; concrete new UC27 effects were reviewed','existing maintenance/fixture/classification issues remain until their own followups'),
+('Locked-restore/audit','Actual ordinary lockedrestore/audits/native322x4/helpers/specs support development evidence; version-based OSV is not native OS/runtime correctness certification','unlisted runtime vulnerabilities or library defects can survive those checks'),
+('Remote exact-head','Executor will separately verify freshbase/rules0approvals/latestexactHEAD3CI/normalmatchheadsquash/issue9DoD/projectDone/remoteabsence/testedtree/primarySHA before completion','remote changes or missed delivery checks would invalidate local integration claims'),
+]
+assert len(judgments)==len(lines)
+final=[]
+for line,(prefix,decision,cost) in zip(lines,judgments):
+ assert line.startswith(prefix),(prefix,line)
+ final.append(f'Final: Ruling: {line} — {decision} — cost if wrong: {cost}.')
+minors=[
+'Final: minor (deferred): M1 FolderTrashStore.cs:63/131/168–170 external active profile/collection/rootparent inventory omits PurgeAt consistency; no normal current writer creates this state, deadline/authority unchanged. Add purge field/check and actual three-parent rollback cases in defensive follow-up.',
+'Final: minor (deferred): M2 docs/contracts/openapi.json:781/788/6426 optional vault header/body and missing six-output required list contradict strict runtime; fix shared generated schema before client release.',
+'Final: minor (deferred): M3 docs/contracts/openapi.json:928 advertises ProblemDetails for actual empty413; fix shared body metadata before client release.',
+]
+s+='\nFinal: severity assessment M1 narrow corrupt external-state consistency gap preserves deadline and authority/no normal writer trigger; M2/M3 generated-client metadata defects are shared release followups. All three remain Minor by actual effect; no Critical/Important/no blocking fix pass/no second reviewer.\n'+'\n'.join(final+minors)+'\nFinal review: ONE /root/uc27_final_review gpt-6-astra freshfork read-only complete; ready for authorized develop integration subject to exact-headCI/delivery; no product fixes after actual fresh6110PASS.\n';p.write_text(s)
+rulings=[x for x in s.splitlines() if 'Ruling:' in x];assert len(rulings)==32
+v=json.loads(Path('/tmp/cerberus-uc27-validation.json').read_text());body=Path('/tmp/cerberus-uc27-pr-body-draft.md').read_text();validation='\n'.join([
+f"- Fresh unfiltered **{v['tests']} PASS, zero failures/skips**: "+', '.join(f'{k} {n}' for k,n in v['families'].items())+'.',
+f"- Actual production coverage **{v['line']}% line / {v['branch']}% aggregate branch**, all six assemblies at least90%line.",
+'- Focused Command75/Data147/nativeHTTP108; actual missing contract/store RED before products and103 missingDELETE405 +5sharedmiddleware passes before route/DI; first actual HTTP108GREEN. Data test-only helper/analyzer/EXPLAIN decimal-parser corrections are distinguished from product regressions.',
+'- Actual owner create/move/association/rotation and native recipient folder/record edits, every named lock-phase expiry/finalroot typed changes, captured existing-row inventory growth, complete retained rotation include/omit, prior actual independent deletions and fullgraph rollback/cleanretry assertions pass.',
+'- Actual EXPLAIN root1/selfancestry3 among200unrelatedfolders and exact parent/root/child heldIDs; no productionload certification. Queue-command fault proves rollback of earlier graph/operation/entries, not an injected post-successful-queue/commit-ack fault.',
+'- Lockedrestore/direct+transitiveNuGet/nativeOSV153zero/nativecorpus322×4/nativehelpers36/Pythonhelpers23/specs107FR55UC29BR/OpenAPIwrite+drift+shape/rangewhitespace pass.',
+'- ONE fresh whole-branch review found no blockers; all20 declined judgments have explicit final reason/cost rulings and all3Minors are retained below. Required latestexactHEAD branch-policy/test/docker remain the delivery gate.',
+])
+body=body.replace('{{VALIDATION}}',validation).replace('{{RULINGS}}','\n\n'.join('- '+x for x in rulings)).replace('{{MINORS}}','\n\n'.join('- '+x for x in minors));assert '{{' not in body and all(x in body for x in rulings+minors);Path('/tmp/cerberus-uc27-pr-body.md').write_text(body);Path('/tmp/cerberus-uc27-rulings.txt').write_text('\n'.join(rulings+minors)+'\n')
+p=Path('/root/repositories/cerberus-api/.superpowers/checkpoints/open-issues-2026-10-08.json');d=json.loads(p.read_text());x=next(x for x in d['useCases'] if x['id']=='UC-27');x.update({'status':'verified','reviewVerdict':'ready_for_development_merge','rulingCount':32,'deferredMinorCount':3,'currentTask':'normalpush/PR/testing/exactCI delivery pending'});d['resumeInstruction']='UC27 ONEreviewcomplete noCritical/Important;3Minors deferred externalPurge/sharedrequiredness/413; ALL20declined FinalRulings+12initial=32 reasoncost ledger+PRbody+aggregate. Clean testedHEAD5bff5e8 fresh6110PASS98.4line91.9branch. Normal push/PRdevelop closes28/Testing then exactHEAD3CI/freshbase/rules0approvals/matchHEADsquash/actualissue9DoD/Done/remoteabsent/testedtree/allownedarchiveSHA beforeonlyUC27SDDcleanup. No .NET/review active.';p.write_text(json.dumps(d,indent=2)+'\n')
+p=Path('/root/repositories/cerberus-api/.superpowers/checkpoints/batch-review-decisions-2026-10-08.md');a=p.read_text();assert final[0] not in a;p.write_text(a+'\n## UC27 final ordinary review and dispositions\n\n'+'\n\n'.join(final+minors)+'\n')
+print('ONE final review regraded:32ALLrulings/3Minors exhaustive ledger+PRbody+aggregate; no product fix/re-review.')

@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc39-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Release/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Domain.Tests -> /tmp/cerberus-uc39-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Release/net10.0/ArturRios.Cerberus.Domain.Tests.dll
+Test run for /tmp/cerberus-uc39-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Release/net10.0/ArturRios.Cerberus.Domain.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   122, Skipped:     0, Total:   122, Duration: 190 ms - ArturRios.Cerberus.Domain.Tests.dll (net10.0)

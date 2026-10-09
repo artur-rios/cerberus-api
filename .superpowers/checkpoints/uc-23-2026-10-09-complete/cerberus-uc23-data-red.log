@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc23-worktree/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 331 ms).
+  Restored /tmp/cerberus-uc23-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj (in 345 ms).
+  Restored /tmp/cerberus-uc23-worktree/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 489 ms).
+  1 of 4 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc23-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc23-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc23-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+/tmp/cerberus-uc23-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderCreateStoreTests.cs(4,31): error CS0234: The type or namespace name 'Folders' does not exist in the namespace 'ArturRios.Cerberus.Data' (are you missing an assembly reference?) [/tmp/cerberus-uc23-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]
+/tmp/cerberus-uc23-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderCreateStoreTests.cs(206,13): error CS0246: The type or namespace name 'FolderCreateStore' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc23-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]
+/tmp/cerberus-uc23-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderCreateStoreTests.cs(207,20): error CS0246: The type or namespace name 'FolderCreateStore' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc23-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]

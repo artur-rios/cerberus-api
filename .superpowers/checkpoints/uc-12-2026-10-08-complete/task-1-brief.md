@@ -1,0 +1,9 @@
+### Task 1: Atomic profile content update
+
+**Files:** Create src/Domain/ArturRios.Cerberus.Domain/Profiles/ProfileUpdateContracts.cs, src/Infrastructure/ArturRios.Cerberus.Data/Profiles/ProfileUpdateStore.cs, tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileUpdateStoreTests.cs; modify VaultProtectionChangeStore.cs and profile rotation regression tests.
+**Interfaces:** Produces ProfileUpdateInput(long ExpectedRevision,EncryptedEnvelope Envelope,DateTimeOffset EditedAt).IsValid(), ProfileUpdateRequest(Guid Actor,string AccessVerifier,Guid ProfileId,ProfileUpdateInput Input), IProfileUpdateStore.UpdateAsync(request,ct)->VaultResult<ProfileCreateDetails>. Existing ProfileCreateDetails metadata reused.
+- [ ] Write real PG tests: two modes exact opaque update/repeated revision2→3 with immutable wrappers/account/session; all hidden/currentaccount/session states and selected valid/escape/dangling/foreign/trash/erased; stale/concurrent/retry; invalidinput/epoch/storage/counters; before/at/post2000 literal timestamp; expiry3locklocations and prewrite; rollback/outage/cancel/exhaustion. Run focused; expected missing-store compile failure.
+- [ ] Implement strict input and account→session→profile locks, current auth/visibility then revision/native stored metadata. Final parameterized UPDATE uses statement_timestamp and expectedrevision; nextval global sequence. Fetch/check returned metadata beforecommit; map failures/rollback.
+- [ ] Add regression for native complete rotation after content update; existing wrapper grantRevision <=profile.Revision, verify exact signed wrapper revision, while replacement binds new profile.Revision+1. Run whole Data family; expected all pass zero skips. Commit.
+**Completion:** main/AF01–05 persistence proven, no partial state or forbidden wrapper change.
+

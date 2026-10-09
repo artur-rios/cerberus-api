@@ -1,0 +1,10 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc23-worktree/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 314 ms).
+  Restored /tmp/cerberus-uc23-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj (in 314 ms).
+  2 of 4 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc23-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc23-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc23-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+/tmp/cerberus-uc23-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/FolderCreateHandlerTests.cs(3,34): error CS0234: The type or namespace name 'Folders' does not exist in the namespace 'ArturRios.Cerberus.Command' (are you missing an assembly reference?) [/tmp/cerberus-uc23-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj]
+/tmp/cerberus-uc23-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/FolderCreateHandlerTests.cs(74,13): error CS0246: The type or namespace name 'CreateFolderCommand' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc23-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj]
+/tmp/cerberus-uc23-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/FolderCreateHandlerTests.cs(76,20): error CS0246: The type or namespace name 'CreateFolderHandler' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc23-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj]

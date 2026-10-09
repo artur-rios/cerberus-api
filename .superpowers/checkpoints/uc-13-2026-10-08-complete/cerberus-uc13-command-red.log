@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc13-worktree/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 1.13 sec).
+  Restored /tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj (in 1.13 sec).
+  2 of 4 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc13-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc13-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc13-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+/tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/DeleteProfileHandlerTests.cs(34,13): error CS0246: The type or namespace name 'DeleteProfileCommand' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj]
+/tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/DeleteProfileHandlerTests.cs(35,20): error CS0246: The type or namespace name 'DeleteProfileHandler' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc13-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj]

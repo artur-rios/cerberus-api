@@ -1,0 +1,49 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc17-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:09.09]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: False, terminal: False) [FAIL]
+[xUnit.net 00:00:09.17]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: True, terminal: False) [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: False, terminal: False) [1 s]
+  Error Message:
+   Assert.Null() Failure: Value is not null
+Expected: null
+Actual:   "persistence_unavailable"
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(Boolean selected, Boolean terminal) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 109
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: True, terminal: False) [83 ms]
+  Error Message:
+   Assert.Null() Failure: Value is not null
+Expected: null
+Actual:   "persistence_unavailable"
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(Boolean selected, Boolean terminal) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 109
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:09.29]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: True, terminal: True) [FAIL]
+[xUnit.net 00:00:09.34]     ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: False, terminal: True) [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: True, terminal: True) [115 ms]
+  Error Message:
+   Assert.Null() Failure: Value is not null
+Expected: null
+Actual:   "persistence_unavailable"
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(Boolean selected, Boolean terminal) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 109
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(selected: False, terminal: True) [48 ms]
+  Error Message:
+   Assert.Null() Failure: Value is not null
+Expected: null
+Actual:   "persistence_unavailable"
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordListStoreTests.GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(Boolean selected, Boolean terminal) in /tmp/cerberus-uc17-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs:line 109
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     4, Passed:     0, Skipped:     0, Total:     4, Duration: 1 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)

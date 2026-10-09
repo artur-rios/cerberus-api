@@ -1,0 +1,12 @@
+...
+Line coverage 89.9% is below the 90.0% minimum.
+Open /tmp/cerberus-coverage-test-a0pzu152 to see which classes carry the gap.
+....................
+----------------------------------------------------------------------
+Ran 23 tests in 0.034s
+
+OK
+Found 1 coverage file(s)
+REPORTGENERATOR_LICENSE is not set; generating with the free version
+Line coverage 90.0% (minimum 90.0%)
+Line coverage 94.7% (minimum 90.0%)

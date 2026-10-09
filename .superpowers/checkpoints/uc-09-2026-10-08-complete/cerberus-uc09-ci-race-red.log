@@ -1,0 +1,40 @@
+test_GivenBenchmarkOutputOrResultGrowth_WhenMeasured_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenBenchmarkOutputOrResultGrowth_WhenMeasured_ThenStoppedBeforeFurtherWork) ... ok
+test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup (test_process_limits.ProcessLimitTests.test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup) ... 
+  test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup (test_process_limits.ProcessLimitTests.test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup) (exception='FileNotFoundError') ... ERROR
+  test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup (test_process_limits.ProcessLimitTests.test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup) (exception='ProcessLookupError') ... ERROR
+test_GivenExcessChildOutput_WhenRunning_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenExcessChildOutput_WhenRunning_ThenStoppedBeforeFurtherWork) ... ok
+test_GivenGrowingResultFile_WhenInvoked_ThenStoppedBeforeFurtherWork (test_process_limits.ProcessLimitTests.test_GivenGrowingResultFile_WhenInvoked_ThenStoppedBeforeFurtherWork) ... ok
+test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped (test_process_limits.ProcessLimitTests.test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped) ... ok
+
+======================================================================
+ERROR: test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup (test_process_limits.ProcessLimitTests.test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup) (exception='FileNotFoundError')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cerberus-uc09-worktree/tools/protocol-harness/tests/test_process_limits.py", line 71, in test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup
+    self.test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/tmp/cerberus-uc09-worktree/tools/protocol-harness/tests/test_process_limits.py", line 50, in test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped
+    while status.exists() and status.read_text().split()[2]!='Z' and time.monotonic()<deadline:
+                              ~~~~~~~~~~~~~~~~^^
+  File "/tmp/cerberus-uc09-worktree/tools/protocol-harness/tests/test_process_limits.py", line 68, in read
+    raise exception('descendant already reaped')
+FileNotFoundError: descendant already reaped
+
+======================================================================
+ERROR: test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup (test_process_limits.ProcessLimitTests.test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup) (exception='ProcessLookupError')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cerberus-uc09-worktree/tools/protocol-harness/tests/test_process_limits.py", line 71, in test_GivenDescendantDisappearsDuringInspection_WhenCheckingTimeout_ThenAcceptTerminatedGroup
+    self.test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/tmp/cerberus-uc09-worktree/tools/protocol-harness/tests/test_process_limits.py", line 50, in test_GivenTimedOutChildWithDescendant_WhenRunning_ThenWholeGroupStopped
+    while status.exists() and status.read_text().split()[2]!='Z' and time.monotonic()<deadline:
+                              ~~~~~~~~~~~~~~~~^^
+  File "/tmp/cerberus-uc09-worktree/tools/protocol-harness/tests/test_process_limits.py", line 68, in read
+    raise exception('descendant already reaped')
+ProcessLookupError: descendant already reaped
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.276s
+
+FAILED (errors=2)

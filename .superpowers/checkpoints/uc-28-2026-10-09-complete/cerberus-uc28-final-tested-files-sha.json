@@ -1,0 +1,23 @@
+{
+  "CHANGELOG.md": "2301770dfc9e46c12520c65a835bec2515d256ae8cdbc11682c2ccde62b00a12",
+  "README.md": "8796e42aa15620aae2ad3184771ff91838cbb17d24f58d1086d320cad7aa21e8",
+  "docs/contracts/openapi.json": "f998c18fc96ffe4101e3aa928f493d903d2ec58781f7dc51c858ceace02d8001",
+  "docs/operations/foundation-status.md": "904a0e776074d0e684da70acaf8044e02848fa3077f0888d5881873b9eac1403",
+  "docs/requirements/Operations & Infrastructure Document.md": "838f79ba742cc45eb371be8601c7f74bfc9fc1797f8ea914056ce887f4bd6592",
+  "docs/security/folder-api.md": "16e9acf8190cd09a1586ee1dec605193e3281cb9627e9565ffedadc3032e91e0",
+  "docs/superpowers/plans/2026-10-09-uc-28-move-folder.md": "dad3b6027d6a74fc11d56c7beee4cba6e10f44fcac62b785c55e94e57ea410f2",
+  "docs/superpowers/specs/2026-10-09-uc-28-move-folder.md": "18f332a9e0be2ec30d6580e1e3103e7fdb6f502b7c102eeb9c3f31e378611932",
+  "src/Application/ArturRios.Cerberus.Command/Folders/MoveFolderCommand.cs": "8b997a6549b2fb99cfdd6266a49863b50c96c8fb5f59c2413bde89b6c9a08fd5",
+  "src/Application/ArturRios.Cerberus.Command/Folders/MoveFolderHandler.cs": "38218c807b5a5d41d76f7b476fe99607f5e354dcff2c106ccb125fb4cb0176aa",
+  "src/Application/ArturRios.Cerberus.Command/Folders/MoveFolderMessages.cs": "6ad5d725b2a92c2f5aed733616642ed2306cb0230f5b60f1f501fedadfdd04e8",
+  "src/Application/ArturRios.Cerberus.Command/Folders/MoveFolderOutput.cs": "05e4507706133e7b577c9751c8334cc995fb982d74acd68db081bf58cfd28f3a",
+  "src/Application/ArturRios.Cerberus.Command/Folders/MoveFolderValidator.cs": "daa54d1356260942a6bf0b4a168d2836b6a4aaf0cbdbf79fd4c8c0d7db4cb15b",
+  "src/Domain/ArturRios.Cerberus.Domain/Folders/FolderMoveContracts.cs": "c23a33bc5c5af13d7b66384be5160d47a1751c1ec6751c2f7e8465c84cc26a10",
+  "src/Infrastructure/ArturRios.Cerberus.Data/Folders/FolderMoveStore.cs": "ef97565d3deab4dc27f5b9e1bbc6403b716195e6180094e2843186461394ee57",
+  "src/Presentation/ArturRios.Cerberus.WebApi/Controllers/FoldersController.cs": "2780193f7d3627fb09c5f93950e4f6e8d12d318e8f0be5fae740dc5d16c4920c",
+  "src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs": "2128913c6347bf63eb9078a42622367dcba14f01a5f98e149705e2b94bad6319",
+  "tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj": "f2d18372615fd47ca67d0c7e209fc978d62b9cbdb9acaebab9149ffa1b53f6e0",
+  "tests/Application/ArturRios.Cerberus.Command.Tests/MoveFolderHandlerTests.cs": "b7b4da0827f52eb1e8c39c642e8b4b34bee379889fe06d319b381adb4a9753d6",
+  "tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderMoveStoreTests.cs": "739a6fc61e43e274189ee713fe82b8d59cb2ab034521b270962cafebc69def1d",
+  "tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderMoveHttpTests.cs": "a4d4f98f733454057030b29813c6b526f6e50bbf564f1f7f3b7a9156d9e7987a"
+}

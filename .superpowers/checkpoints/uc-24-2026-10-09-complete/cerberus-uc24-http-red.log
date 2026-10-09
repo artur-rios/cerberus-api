@@ -1,0 +1,866 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc24-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc24-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc24-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc24-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc24-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc24-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:10.44]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(kind: "http2") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(kind: "http2") [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   405
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 96
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:10.54]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(kind: "empty") [FAIL]
+[xUnit.net 00:00:10.62]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "revoked", status: 403) [FAIL]
+[xUnit.net 00:00:10.70]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "policy", status: 403) [FAIL]
+[xUnit.net 00:00:10.77]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "future", status: 403) [FAIL]
+[xUnit.net 00:00:10.85]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "generation", status: 403) [FAIL]
+[xUnit.net 00:00:11.04]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "terminal", status: 404) [FAIL]
+[xUnit.net 00:00:11.09]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "expired", status: 403) [FAIL]
+[xUnit.net 00:00:11.17]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "closing", status: 404) [FAIL]
+[xUnit.net 00:00:11.22]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "missing", status: 404) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(kind: "empty") [100 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   405
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 96
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "revoked", status: 403) [79 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "policy", status: 403) [73 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "future", status: 403) [71 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "generation", status: 403) [75 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "terminal", status: 404) [183 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "expired", status: 403) [54 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "closing", status: 404) [75 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "missing", status: 404) [54 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.29]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "dangling", status: 403) [FAIL]
+[xUnit.net 00:00:11.94]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "epoch") [FAIL]
+[xUnit.net 00:00:12.18]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "wrapper") [FAIL]
+[xUnit.net 00:00:12.36]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "pins") [FAIL]
+[xUnit.net 00:00:12.49]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenHttpCreatedOwnedFolders_WhenPaging_ThenReturnExactOpaqueShapeAndStableHighwaterWithoutMutation [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "dangling", status: 403) [69 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 123
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "epoch") [648 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 165
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "wrapper") [233 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 165
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "pins") [177 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 165
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenHttpCreatedOwnedFolders_WhenPaging_ThenReturnExactOpaqueShapeAndStableHighwaterWithoutMutation [127 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenHttpCreatedOwnedFolders_WhenPaging_ThenReturnExactOpaqueShapeAndStableHighwaterWithoutMutation() in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.02]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "session") [FAIL]
+[xUnit.net 00:00:13.22]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "member") [FAIL]
+[xUnit.net 00:00:13.47]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "profileCollection") [FAIL]
+[xUnit.net 00:00:13.69]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "grant") [FAIL]
+[xUnit.net 00:00:13.73]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "body", status: 400) [FAIL]
+[xUnit.net 00:00:13.81]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:13.85]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "transfer", status: 400) [FAIL]
+[xUnit.net 00:00:13.90]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "bad", status: 400) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "session") [534 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 56
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "member") [199 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 56
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "profileCollection") [243 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 56
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "grant") [224 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 56
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "body", status: 400) [40 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 86
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "missing", status: 401) [38 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 86
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "transfer", status: 400) [37 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 86
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "bad", status: 400) [46 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 86
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.94]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [FAIL]
+[xUnit.net 00:00:14.19]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(kind: "terminal") [FAIL]
+[xUnit.net 00:00:14.38]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(kind: "trash") [FAIL]
+[xUnit.net 00:00:14.70]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "profile") [FAIL]
+[xUnit.net 00:00:14.80]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "record") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [41 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 86
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(kind: "terminal") [252 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 161
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(kind: "trash") [183 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 161
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "profile") [78 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 198
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "record") [100 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 198
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.91]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "account") [FAIL]
+[xUnit.net 00:00:15.00]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "grant") [FAIL]
+[xUnit.net 00:00:15.09]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "folder") [FAIL]
+[xUnit.net 00:00:15.20]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "collection") [FAIL]
+[xUnit.net 00:00:15.29]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "access") [FAIL]
+[xUnit.net 00:00:15.38]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "actor") [FAIL]
+[xUnit.net 00:00:15.45]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "size") [FAIL]
+[xUnit.net 00:00:15.56]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "tamper") [FAIL]
+[xUnit.net 00:00:15.97]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenFreshNativeSelectedHandle_WhenListingFolders_ThenResolveDirectAndDescendantScopeWithoutOtherProfileLeakage(mode: "Master") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "account") [108 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 198
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "grant") [85 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 198
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "folder") [86 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 198
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(kind: "collection") [115 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSameUuidTerminalKind_WhenListing_ThenOnlyFolderMarkerOmitsFolder(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 198
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "access") [85 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 130
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "actor") [81 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 130
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "size") [74 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 130
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "tamper") [109 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 130
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenFreshNativeSelectedHandle_WhenListingFolders_ThenResolveDirectAndDescendantScopeWithoutOtherProfileLeakage(mode: "Master") [411 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenFreshNativeSelectedHandle_WhenListingFolders_ThenResolveDirectAndDescendantScopeWithoutOtherProfileLeakage(String mode) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:16.25]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenFreshNativeSelectedHandle_WhenListingFolders_ThenResolveDirectAndDescendantScopeWithoutOtherProfileLeakage(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:16.69]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeSelectedRecordOnlyProfile_WhenListingFolders_ThenDoNotExposeContainingFolder(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:17.04]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeSelectedRecordOnlyProfile_WhenListingFolders_ThenDoNotExposeContainingFolder(mode: "Master") [FAIL]
+[xUnit.net 00:00:17.10]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?search=secret") [FAIL]
+[xUnit.net 00:00:17.14]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=%201") [FAIL]
+[xUnit.net 00:00:17.18]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=") [FAIL]
+[xUnit.net 00:00:17.24]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=01") [FAIL]
+[xUnit.net 00:00:17.28]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=0") [FAIL]
+[xUnit.net 00:00:17.32]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=a&cursor=b") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenFreshNativeSelectedHandle_WhenListingFolders_ThenResolveDirectAndDescendantScopeWithoutOtherProfileLeakage(mode: "PerProfile") [274 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenFreshNativeSelectedHandle_WhenListingFolders_ThenResolveDirectAndDescendantScopeWithoutOtherProfileLeakage(String mode) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeSelectedRecordOnlyProfile_WhenListingFolders_ThenDoNotExposeContainingFolder(mode: "PerProfile") [435 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeSelectedRecordOnlyProfile_WhenListingFolders_ThenDoNotExposeContainingFolder(String mode) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 186
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeSelectedRecordOnlyProfile_WhenListingFolders_ThenDoNotExposeContainingFolder(mode: "Master") [351 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeSelectedRecordOnlyProfile_WhenListingFolders_ThenDoNotExposeContainingFolder(String mode) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 186
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?search=secret") [62 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=%201") [31 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=") [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=01") [53 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=0") [43 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=a&cursor=b") [42 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:17.37]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=bad") [FAIL]
+[xUnit.net 00:00:17.40]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=-1") [FAIL]
+[xUnit.net 00:00:17.44]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=101") [FAIL]
+[xUnit.net 00:00:17.49]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?profileId=00000000-0000-0000-0000-000000000001") [FAIL]
+[xUnit.net 00:00:17.52]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=2147483648") [FAIL]
+[xUnit.net 00:00:17.56]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=+1") [FAIL]
+[xUnit.net 00:00:17.60]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=1.0") [FAIL]
+[xUnit.net 00:00:17.64]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?PageSize=1") [FAIL]
+[xUnit.net 00:00:17.68]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=1&pageSize=2") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=bad") [42 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=-1") [34 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=101") [31 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?profileId=00000000-0000-0000-0000-000000000001") [55 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=2147483648") [29 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=+1") [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=1.0") [34 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?PageSize=1") [37 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=1&pageSize=2") [40 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:17.71]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=") [FAIL]
+[xUnit.net 00:00:17.80]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "unavailable") [FAIL]
+[xUnit.net 00:00:17.90]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "revision") [FAIL]
+[xUnit.net 00:00:18.03]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "zero") [FAIL]
+[xUnit.net 00:00:18.13]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "duplicate") [FAIL]
+[xUnit.net 00:00:18.22]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "time") [FAIL]
+[xUnit.net 00:00:18.30]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "envelope") [FAIL]
+[xUnit.net 00:00:18.61]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(access: ReadWrite, selected: True) [FAIL]
+[xUnit.net 00:00:18.78]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(access: ReadWrite, selected: False) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=") [31 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 74
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "unavailable") [92 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 151
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 152
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 153
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "revision") [99 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 151
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 152
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 153
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "zero") [123 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 151
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 152
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 153
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "duplicate") [98 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 151
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 152
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 153
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "time") [90 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 151
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 152
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 153
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "envelope") [79 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 151
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 152
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 153
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(access: ReadWrite, selected: True) [308 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 177
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(access: ReadWrite, selected: False) [163 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 177
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:19.03]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(access: ReadOnly, selected: True) [FAIL]
+[xUnit.net 00:00:19.21]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(access: ReadOnly, selected: False) [FAIL]
+[xUnit.net 00:00:19.41]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludeOnlyMemberFolderAndDescendants(mode: "Master") [FAIL]
+[xUnit.net 00:00:19.61]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludeOnlyMemberFolderAndDescendants(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:19.74]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptOverlappingOrNonpageGrant_WhenListing_Then503WithoutOwnedOrSharedPartialContent(nonpage: True) [FAIL]
+[xUnit.net 00:00:19.89]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptOverlappingOrNonpageGrant_WhenListing_Then503WithoutOwnedOrSharedPartialContent(nonpage: False) [FAIL]
+[xUnit.net 00:00:20.19]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(access: ReadOnly, selected: True) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(access: ReadOnly, selected: True) [253 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 177
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(access: ReadOnly, selected: False) [177 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeGrantedFolderRootAndOverlappingLeaf_WhenListing_ThenDoNotExposeUnsharedParentOrSibling(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 177
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludeOnlyMemberFolderAndDescendants(mode: "Master") [190 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludeOnlyMemberFolderAndDescendants(String mode) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 180
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludeOnlyMemberFolderAndDescendants(String mode) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 180
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludeOnlyMemberFolderAndDescendants(mode: "PerProfile") [202 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludeOnlyMemberFolderAndDescendants(String mode) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 180
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSelectedOwnedCollection_WhenListing_ThenIncludeOnlyMemberFolderAndDescendants(String mode) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 180
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptOverlappingOrNonpageGrant_WhenListing_Then503WithoutOwnedOrSharedPartialContent(nonpage: True) [123 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptOverlappingOrNonpageGrant_WhenListing_Then503WithoutOwnedOrSharedPartialContent(Boolean nonpage) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 192
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptOverlappingOrNonpageGrant_WhenListing_Then503WithoutOwnedOrSharedPartialContent(nonpage: False) [151 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenCorruptOverlappingOrNonpageGrant_WhenListing_Then503WithoutOwnedOrSharedPartialContent(Boolean nonpage) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 192
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(access: ReadOnly, selected: True) [295 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 183
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:20.58]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(access: ReadOnly, selected: False) [FAIL]
+[xUnit.net 00:00:20.77]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(access: ReadWrite, selected: False) [FAIL]
+[xUnit.net 00:00:21.12]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(access: ReadWrite, selected: True) [FAIL]
+[xUnit.net 00:00:21.23]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "trash") [FAIL]
+[xUnit.net 00:00:21.33]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "owner") [FAIL]
+[xUnit.net 00:00:21.45]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "terminal") [FAIL]
+[xUnit.net 00:00:21.57]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(selected: False, hidden: False) [FAIL]
+[xUnit.net 00:00:21.78]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(selected: False, hidden: True) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(access: ReadOnly, selected: False) [397 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 183
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(access: ReadWrite, selected: False) [183 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 183
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(access: ReadWrite, selected: True) [343 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenNativeRecordOnlyGrant_WhenListingFolders_ThenOmitContainingFolderAndUnusedCorruptGrant(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 183
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "trash") [116 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 169
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "owner") [92 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 169
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "terminal") [126 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 169
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(selected: False, hidden: False) [108 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(Boolean selected, Boolean hidden) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 195
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(selected: False, hidden: True) [210 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(Boolean selected, Boolean hidden) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 195
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:22.05]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(selected: True, hidden: False) [FAIL]
+[xUnit.net 00:00:22.33]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(selected: True, hidden: True) [FAIL]
+[xUnit.net 00:00:22.46]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRealOtherResourceCursor_WhenListingFolders_ThenRejectItsPurpose(kind: "record") [FAIL]
+[xUnit.net 00:00:22.76]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRealOtherResourceCursor_WhenListingFolders_ThenRejectItsPurpose(kind: "profile") [FAIL]
+[xUnit.net 00:00:22.79]     ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenEmptyOwnedInventory_WhenListing_Then200EmptyPageWithoutCursor [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(selected: True, hidden: False) [263 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(Boolean selected, Boolean hidden) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 195
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(selected: True, hidden: True) [281 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenVisibleCycleOrHiddenCyclicAncestor_WhenListing_ThenFailOnlyForRelevantVisibleCorruption(Boolean selected, Boolean hidden) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 195
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRealOtherResourceCursor_WhenListingFolders_ThenRejectItsPurpose(kind: "record") [130 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRealOtherResourceCursor_WhenListingFolders_ThenRejectItsPurpose(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 189
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRealOtherResourceCursor_WhenListingFolders_ThenRejectItsPurpose(kind: "profile") [297 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 221
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenRealOtherResourceCursor_WhenListingFolders_ThenRejectItsPurpose(String kind) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 189
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenEmptyOwnedInventory_WhenListing_Then200EmptyPageWithoutCursor [30 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.FolderListHttpTests.GivenEmptyOwnedInventory_WhenListing_Then200EmptyPageWithoutCursor() in /tmp/cerberus-uc24-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderListHttpTests.cs:line 158
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    84, Passed:     5, Skipped:     0, Total:    89, Duration: 14 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

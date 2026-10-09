@@ -1,0 +1,6 @@
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:  1071, Skipped:     0, Total:  1071, Duration: 2 m 44 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)
+ledger: Task 1: complete (commits 2122823..2122823, tests: dotnet test tests/Infrastructure/ArturRios.Cerberus.Data.Tests --no-restore --logger 'console;verbosity=minimal' → Passed!  - Failed:     0, Passed:  1071, Skipped:     0, Total:  1071, Duration: 2 m 44 s - ArturRios.Cerberus.Data.Tests.dll (net10.0))

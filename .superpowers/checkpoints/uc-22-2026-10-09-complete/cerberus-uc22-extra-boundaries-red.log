@@ -1,0 +1,4 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc22-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc22-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc22-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+/tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordPermanentDeleteMatrixTests.cs(103,45): error CS0117: 'ProfileCollection' does not contain a definition for 'AccountId' [/tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]

@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc12-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj (in 513 ms).
+  Restored /tmp/cerberus-uc12-worktree/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 507 ms).
+  2 of 4 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc12-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc12-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc12-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+/tmp/cerberus-uc12-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/UpdateProfileHandlerTests.cs(30,13): error CS0246: The type or namespace name 'UpdateProfileCommand' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc12-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj]
+/tmp/cerberus-uc12-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/UpdateProfileHandlerTests.cs(31,20): error CS0246: The type or namespace name 'UpdateProfileHandler' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc12-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj]

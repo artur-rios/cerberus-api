@@ -1,0 +1,30 @@
+{
+  "accessHeaderRequired": false,
+  "requestBodyRequired": false,
+  "inputRequiredFields": [
+    "editedAt",
+    "envelope",
+    "expectedRevision"
+  ],
+  "outputRequiredFields": [],
+  "response413": {
+    "description": "Content Too Large",
+    "content": {
+      "text/plain": {
+        "schema": {
+          "$ref": "#/components/schemas/ProblemDetails"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ProblemDetails"
+        }
+      },
+      "text/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ProblemDetails"
+        }
+      }
+    }
+  }
+}

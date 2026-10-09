@@ -1,0 +1,4 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc28-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc28-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc28-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+/tmp/cerberus-uc28-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/FolderMoveStoreTests.cs(337,13): error CS0246: The type or namespace name 'FolderMoveStore' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc28-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]

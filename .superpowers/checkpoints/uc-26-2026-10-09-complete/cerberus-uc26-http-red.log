@@ -1,0 +1,1014 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc26-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc26-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc26-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc26-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc26-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc26-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:07.78]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "braced") [FAIL]
+[xUnit.net 00:00:07.84]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "urn") [FAIL]
+[xUnit.net 00:00:07.91]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "zero") [FAIL]
+[xUnit.net 00:00:07.95]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "bad") [FAIL]
+[xUnit.net 00:00:08.00]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "compact") [FAIL]
+[xUnit.net 00:00:08.04]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "uppercase") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "braced") [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "urn") [60 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "zero") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "bad") [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "compact") [41 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(kind: "uppercase") [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNoncanonicalRoute_WhenReplacing_Then400WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 52
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:08.92]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadOnly, selected: False, folderRoute: False) [FAIL]
+[xUnit.net 00:00:09.16]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: False, folderRoute: False) [FAIL]
+[xUnit.net 00:00:09.63]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: True, folderRoute: True) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadOnly, selected: False, folderRoute: False) [863 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: False, folderRoute: False) [240 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: True, folderRoute: True) [471 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:09.90]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: True, folderRoute: False) [FAIL]
+[xUnit.net 00:00:10.06]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: False, folderRoute: True) [FAIL]
+[xUnit.net 00:00:10.26]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadOnly, selected: True, folderRoute: True) [FAIL]
+[xUnit.net 00:00:10.38]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "revision") [FAIL]
+[xUnit.net 00:00:10.44]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "envelope") [FAIL]
+[xUnit.net 00:00:10.51]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "sequence") [FAIL]
+[xUnit.net 00:00:10.57]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "outage") [FAIL]
+[xUnit.net 00:00:10.64]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "offset") [FAIL]
+[xUnit.net 00:00:10.70]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "case") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: True, folderRoute: False) [273 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadWrite, selected: False, folderRoute: True) [152 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(access: ReadOnly, selected: True, folderRoute: True) [204 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, Boolean selected, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 41
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "revision") [110 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "envelope") [64 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "sequence") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(kind: "outage") [61 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenReplacing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "offset") [60 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "case") [65 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:10.76]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "numericEpoch") [FAIL]
+[xUnit.net 00:00:10.83]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "time") [FAIL]
+[xUnit.net 00:00:10.92]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "nonceReuse") [FAIL]
+[xUnit.net 00:00:10.98]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "name") [FAIL]
+[xUnit.net 00:00:11.06]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "epoch") [FAIL]
+[xUnit.net 00:00:11.14]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "record") [FAIL]
+[xUnit.net 00:00:11.22]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingRevision") [FAIL]
+[xUnit.net 00:00:11.28]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "duplicate") [FAIL]
+[xUnit.net 00:00:11.35]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "profile") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "numericEpoch") [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "time") [72 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "nonceReuse") [82 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "name") [64 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "epoch") [78 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "record") [77 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingRevision") [70 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "duplicate") [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "profile") [70 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.42]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "folder") [FAIL]
+[xUnit.net 00:00:11.50]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "owner") [FAIL]
+[xUnit.net 00:00:11.56]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "unsafeRevision") [FAIL]
+[xUnit.net 00:00:11.63]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingEnvelope") [FAIL]
+[xUnit.net 00:00:11.69]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "unknown") [FAIL]
+[xUnit.net 00:00:11.76]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "format") [FAIL]
+[xUnit.net 00:00:11.83]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "numericRevision") [FAIL]
+[xUnit.net 00:00:11.93]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "parent") [FAIL]
+[xUnit.net 00:00:11.99]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "null") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "folder") [66 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "owner") [84 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "unsafeRevision") [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingEnvelope") [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "unknown") [61 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "format") [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "numericRevision") [71 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "parent") [99 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "null") [60 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.05]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "collection") [FAIL]
+[xUnit.net 00:00:12.11]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "revision") [FAIL]
+[xUnit.net 00:00:12.17]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingTime") [FAIL]
+[xUnit.net 00:00:12.22]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "saltReuse") [FAIL]
+[xUnit.net 00:00:12.30]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "empty") [FAIL]
+[xUnit.net 00:00:12.37]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 9, status: 400) [FAIL]
+[xUnit.net 00:00:12.43]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 10, status: 200) [FAIL]
+[xUnit.net 00:00:12.50]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 1, status: 400) [FAIL]
+[xUnit.net 00:00:12.55]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRawEmptyAccessHeader_WhenReplacing_Then400 [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "collection") [56 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "revision") [61 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "missingTime") [58 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "saltReuse") [51 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(kind: "empty") [77 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 9, status: 400) [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(Int64 ticks, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 88
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 10, status: 200) [52 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(Int64 ticks, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 88
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(ticks: 1, status: 400) [72 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenTimestampAtStorageMinimum_WhenReplacing_ThenRejectUnrepresentableAndPreserveGetContract(Int64 ticks, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 88
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRawEmptyAccessHeader_WhenReplacing_Then400 [48 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   405
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRawEmptyAccessHeader_WhenReplacing_Then400() in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 67
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.63]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "pins") [FAIL]
+[xUnit.net 00:00:12.72]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "numericString") [FAIL]
+[xUnit.net 00:00:12.79]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "signature") [FAIL]
+[xUnit.net 00:00:12.99]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(mode: "PerProfile", folderRoute: True) [FAIL]
+[xUnit.net 00:00:13.17]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(mode: "PerProfile", folderRoute: False) [FAIL]
+[xUnit.net 00:00:13.41]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(mode: "Master", folderRoute: True) [FAIL]
+[xUnit.net 00:00:13.58]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(mode: "wide", folderRoute: False) [FAIL]
+[xUnit.net 00:00:13.77]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(mode: "Master", folderRoute: False) [FAIL]
+[xUnit.net 00:00:14.02]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(kind: "sibling", selected: True) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "pins") [81 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 79
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "numericString") [86 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 79
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(kind: "signature") [67 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenRelevantMalformedNativeAuthority_WhenReplacing_Then503WithoutAnyContentChange(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 79
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(mode: "PerProfile", folderRoute: True) [194 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(String mode, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(mode: "PerProfile", folderRoute: False) [180 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(String mode, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(mode: "Master", folderRoute: True) [237 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(String mode, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(mode: "wide", folderRoute: False) [172 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(String mode, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(mode: "Master", folderRoute: False) [188 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyFolderContentAndFourMetadataFieldsChange(String mode, Boolean folderRoute) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 34
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(kind: "sibling", selected: True) [243 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(String kind, Boolean selected) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.14]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(kind: "sibling", selected: False) [FAIL]
+[xUnit.net 00:00:14.26]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(kind: "parent", selected: False) [FAIL]
+[xUnit.net 00:00:14.50]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(kind: "parent", selected: True) [FAIL]
+[xUnit.net 00:00:14.57]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "policy", status: 403) [FAIL]
+[xUnit.net 00:00:14.64]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "terminal", status: 404) [FAIL]
+[xUnit.net 00:00:14.70]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "revoked", status: 403) [FAIL]
+[xUnit.net 00:00:14.77]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "expired", status: 403) [FAIL]
+[xUnit.net 00:00:14.83]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "future", status: 403) [FAIL]
+[xUnit.net 00:00:14.91]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "generation", status: 403) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(kind: "sibling", selected: False) [120 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(String kind, Boolean selected) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(kind: "parent", selected: False) [120 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(String kind, Boolean selected) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(kind: "parent", selected: True) [234 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenNativeMemberLeafWriteGrant_WhenReplacingUnsharedParentOrSibling_Then404AndNoChanges(String kind, Boolean selected) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 115
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "policy", status: 403) [68 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "terminal", status: 404) [65 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "revoked", status: 403) [62 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "expired", status: 403) [69 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "future", status: 403) [61 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "generation", status: 403) [74 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.98]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "closing", status: 404) [FAIL]
+[xUnit.net 00:00:15.05]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "dangling", status: 403) [FAIL]
+[xUnit.net 00:00:15.23]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "charset", status: 400) [FAIL]
+[xUnit.net 00:00:15.29]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [FAIL]
+[xUnit.net 00:00:15.34]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "utf8", status: 400) [FAIL]
+[xUnit.net 00:00:15.41]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "compression", status: 400) [FAIL]
+[xUnit.net 00:00:15.47]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "bad", status: 400) [FAIL]
+[xUnit.net 00:00:15.55]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "bom", status: 400) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "closing", status: 404) [73 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(kind: "dangling", status: 403) [64 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidCurrentActorState_WhenReplacing_ThenNoMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 73
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "charset", status: 400) [97 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [50 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "utf8", status: 400) [58 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "compression", status: 400) [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "bad", status: 400) [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "bom", status: 400) [72 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:15.63]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "query", status: 400) [FAIL]
+[xUnit.net 00:00:15.69]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:16.44]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:16.65]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "wide") [FAIL]
+[xUnit.net 00:00:16.77]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "wide") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "query", status: 400) [82 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(kind: "missing", status: 401) [59 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 63
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "PerProfile") [376 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 98
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "wide") [208 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 98
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "wide") [124 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 98
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:17.03]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "Master") [FAIL]
+[xUnit.net 00:00:17.29]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:17.53]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "Master") [FAIL]
+[xUnit.net 00:00:17.62]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "foreign") [FAIL]
+[xUnit.net 00:00:17.79]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "unselected") [FAIL]
+[xUnit.net 00:00:17.88]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "missing") [FAIL]
+[xUnit.net 00:00:17.96]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "revoked") [FAIL]
+[xUnit.net 00:00:18.05]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "ownerClosing") [FAIL]
+[xUnit.net 00:00:18.15]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "ancestorTrash") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: "Master") [258 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 98
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "PerProfile") [246 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 98
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: "Master") [243 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenActualNativeRecordOnlyGrant_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 98
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "foreign") [90 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "unselected") [168 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "missing") [79 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "revoked") [80 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "ownerClosing") [94 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "ancestorTrash") [90 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:18.23]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "folderTerminal") [FAIL]
+[xUnit.net 00:00:18.30]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "folderTrash") [FAIL]
+[xUnit.net 00:00:18.47]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptOverlappingContributor_WhenReplacing_ThenSelectedValidRouteSucceedsAndWideFailsWholeResponse(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:18.66]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptOverlappingContributor_WhenReplacing_ThenSelectedValidRouteSucceedsAndWideFailsWholeResponse(mode: "Master") [FAIL]
+[xUnit.net 00:00:18.76]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "grant", status: 404) [FAIL]
+[xUnit.net 00:00:18.91]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "downgrade", status: 403) [FAIL]
+[xUnit.net 00:00:19.02]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "move", status: 404) [FAIL]
+[xUnit.net 00:00:19.16]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "member", status: 404) [FAIL]
+[xUnit.net 00:00:19.22]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenLostSuccessRetryAndStaleRevision_WhenReplacing_Then409PreservesWinner [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "folderTerminal") [79 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(kind: "folderTrash") [73 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 48
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptOverlappingContributor_WhenReplacing_ThenSelectedValidRouteSucceedsAndWideFailsWholeResponse(mode: "PerProfile") [171 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptOverlappingContributor_WhenReplacing_ThenSelectedValidRouteSucceedsAndWideFailsWholeResponse(String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 121
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptOverlappingContributor_WhenReplacing_ThenSelectedValidRouteSucceedsAndWideFailsWholeResponse(mode: "Master") [182 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCorruptOverlappingContributor_WhenReplacing_ThenSelectedValidRouteSucceedsAndWideFailsWholeResponse(String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 121
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "grant", status: 404) [99 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 76
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "downgrade", status: 403) [148 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 76
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "move", status: 404) [112 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 76
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(kind: "member", status: 404) [139 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenCommittedSharedRelationshipChange_WhenReplacing_ThenCurrentPermissionWins(String kind, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 76
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenLostSuccessRetryAndStaleRevision_WhenReplacing_Then409PreservesWinner [57 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenLostSuccessRetryAndStaleRevision_WhenReplacing_Then409PreservesWinner() in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 85
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:19.39]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedProfileBecomesHidden_WhenReplacing_Then403WithoutNullingOrWideningSelection(kind: "profileTrash") [FAIL]
+[xUnit.net 00:00:19.54]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedProfileBecomesHidden_WhenReplacing_Then403WithoutNullingOrWideningSelection(kind: "profileTerminal") [FAIL]
+[xUnit.net 00:00:19.77]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedDirectRecordOnly_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:20.02]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedDirectRecordOnly_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(mode: "Master") [FAIL]
+[xUnit.net 00:00:20.17]     ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenFolderWithActualChildAndRecord_WhenReplacingContent_ThenOnlyTargetMetadataChanges [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedProfileBecomesHidden_WhenReplacing_Then403WithoutNullingOrWideningSelection(kind: "profileTrash") [168 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedProfileBecomesHidden_WhenReplacing_Then403WithoutNullingOrWideningSelection(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 129
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedProfileBecomesHidden_WhenReplacing_Then403WithoutNullingOrWideningSelection(kind: "profileTerminal") [154 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedProfileBecomesHidden_WhenReplacing_Then403WithoutNullingOrWideningSelection(String kind) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 129
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedDirectRecordOnly_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(mode: "PerProfile") [227 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedDirectRecordOnly_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 107
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedDirectRecordOnly_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 107
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedDirectRecordOnly_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(mode: "Master") [241 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 173
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedDirectRecordOnly_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 107
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenSelectedDirectRecordOnly_WhenReplacingContainingFolder_Then404AfterSuccessfulRecordGet(String mode) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 107
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenFolderWithActualChildAndRecord_WhenReplacingContent_ThenOnlyTargetMetadataChanges [142 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 171
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenFolderWithActualChildAndRecord_WhenReplacingContent_ThenOnlyTargetMetadataChanges() in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 135
+   at ArturRios.Cerberus.WebApi.Tests.FolderUpdateHttpTests.GivenFolderWithActualChildAndRecord_WhenReplacingContent_ThenOnlyTargetMetadataChanges() in /tmp/cerberus-uc26-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderUpdateHttpTests.cs:line 135
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    99, Passed:     5, Skipped:     0, Total:   104, Duration: 13 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

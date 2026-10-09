@@ -47,8 +47,9 @@ Start with the initial context, then the normative formal requirements.
 
 ## Installation
 
-The foundation branch contains the .NET 10 solution. Use an SDK accepted by `global.json`
-and a Docker-compatible runtime for functional tests. Starting the development host requires
+The `develop` branch contains the .NET 10 solution; `main` holds only the specifications until the
+first release. Use an SDK accepted by `global.json` and a Docker-compatible runtime for functional
+tests. Starting the development host requires
 explicit database, Heimdall and operational configuration; no production defaults are supplied.
 The container is a development artifact, not a release-ready vault API.
 See [operational settings](docs/operations/proposed-beta-settings.md), the nonsecret
@@ -70,44 +71,16 @@ dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi
 
 Clone the repository with `git clone https://github.com/artur-rios/cerberus-api.git`.
 
-## Testing
-
-Follow [Testing Specification](docs/requirements/Testing%20Specification%20Document.md).
-From the repository root:
-
-```bash
-dotnet test src/ArturRios.Cerberus.sln --filter "Category=Unit"
-dotnet test src/ArturRios.Cerberus.sln --filter "Category=Functional"
-dotnet test src/ArturRios.Cerberus.sln --collect:"XPlat Code Coverage"
-python3 -m unittest discover -s scripts -p 'test_*.py'
-python3 scripts/verify_specs.py
-python3 scripts/openapi.py
-dotnet tool install --global dotnet-reportgenerator-globaltool
-python3 scripts/coverage.py
-python3 scripts/vulnerabilities.py
-docker build -t cerberus-api:local .
-```
-
-Current functional tests use disposable PostgreSQL containers and an in-memory HTTP host.
-Every implemented use case must ship with main/alternative-flow tests. The required merged
-line-coverage floor is 90%; branch coverage must be reported before foundation approval.
-`python3 scripts/verify_protocol.py` intentionally fails while the review record is pending.
-CI requires it for use-case branches, promotion to `main` and version-tag releases. Never
-begin dependent encryption/recovery work without actual security/client review evidence.
-After reviewing a deliberate API contract change, run `python3 scripts/openapi.py --write`
-and commit its result. The foundation's empty contract is intentional: no business routes
-exist yet. OpenAPI generation starts no server and requires no deployment credentials.
-
 ## Roadmap
 
 Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
 Each use case has one issue; the foundation issue comes first. Every milestone depends on
-Foundation, with dependencies only on earlier milestones. Counts below are the snapshot at
-creation; GitHub milestone pages show live progress. No due dates or labels were assigned.
+Foundation, with dependencies only on earlier milestones. Counts below were last updated when the
+foundation merged; GitHub milestone pages show live progress. No due dates or labels were assigned.
 
 | Milestone | Delivers | Depends on | Issues | Status |
 | --- | --- | --- | --- | --- |
-| [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 0 / 1 closed |
+| [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
 | [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 0 / 9 closed |
 | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 0 / 26 closed |
 | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
@@ -202,14 +175,11 @@ creation; GitHub milestone pages show live progress. No due dates or labels were
 | [#55](https://github.com/artur-rios/cerberus-api/issues/55) | UC-54 — Export account data | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-54-export-account-data) | Todo |
 | [#56](https://github.com/artur-rios/cerberus-api/issues/56) | UC-55 — Check API health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-55-check-api-health) | Todo |
 
+## Changelog
+
+Notable changes in each release are recorded in [CHANGELOG.md](./CHANGELOG.md).
+
 ## Contributing
 
-One use case = one issue = one branch = one pull request. Use
-`feature/uc-##-use-case-name` from `develop`, with human approval at the documented stage
-boundaries by default. Unattended transitions require explicit scoped authorization.
-Read [Development Workflow](docs/requirements/Development%20Workflow%20Document.md).
-
-Before implementing encrypted contracts, complete the security/interoperability protocol
-review. Before deploying the beta, select/pin stable dependencies, configure explicit retention
-and limits, verify erasure-preserving restore and complete the documented privacy controls.
-These are recorded decisions/gates, not assertions that implementation or compliance is complete.
+Building from source, running the tests, the delivery workflow and its review gates, the branching
+model and the release process are described in [CONTRIBUTING.md](./CONTRIBUTING.md).

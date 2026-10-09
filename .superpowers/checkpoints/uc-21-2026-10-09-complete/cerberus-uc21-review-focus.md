@@ -1,0 +1,8 @@
+## Review Focus
+
+- Mixed direct and inherited routes across multiple profiles and collections must not let a selected owner broaden existing content by moving into an already-visible folder; Task1 effective-set subset/overlap matrix and Task3 actual selected-handle get/list visibility tests pin this, while review checks combinations beyond the named rows.
+- A committed destination-ancestor change or newly contributing earlier collection/grant after lock discovery must not authorize an unvalidated scope; Task1 before-final reparent/hidden/cycle/new-unheld races and analyzed source/destination query plans exercise the guard, while review checks multi-parent combinations.
+- Creation, profile association, recipient edits, owner rotation and recoverable trash must not deadlock on explicit or implicit FK locks or lose an expected-revision winner; Task1 controlled actual-store races and ordered lock trace cover current writers, while future writer assumptions remain explicit.
+- Foreign recipient pin changes after native validation must not leave a newly inherited route accepted using stale evidence, without foreign-account locks; Task1 current native-evidence changes before the guarded write and native RO/RW/overlapping-grant matrix test this, and review distinguishes signature validation from actual client decryption.
+- No-op moves, lost-response retries and faults after either immediate parent update must preserve exact ciphertext/clienttime/direct links and atomic metadata; Task1 fault/counter/regression/no-op/retry assertions and Task2 malformed-result/Task3 exact four-field HTTP checks exercise this.
+

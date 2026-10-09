@@ -1,0 +1,1 @@
+{"feed": "https://api.osv.dev/v1/querybatch", "findings": [], "limitations": "Version-based OSV snapshot, not proof of library correctness; native runtime/OS vulnerabilities require separate review.", "lockSha256": "1e9a47097b9a2a8ee17855c5cc75b71b7b01d8fae86a8b248eb7d2805e969bab", "queriedPackages": 153, "scannedAtUtc": "2026-10-09T13:37:35.627971+00:00", "status": "pass"}

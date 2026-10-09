@@ -1,0 +1,105 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 6d1ab0e..777ea56 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -16,7 +16,8 @@ development into `develop` only; it is still required before any release.
+   scope and native collection-grant validation. Responses include only visible
+   direct profile, parent-folder and collection references; direct record access
+   hides parents outside scope, and recipients never receive owner profile IDs.
+-  One database snapshot reads only the target and its ancestry. See the
++  One database snapshot reads only the target and its ancestry. Shared native
++  validation rejects quoted collection epochs before returning ciphertext. See the
+   [record API](docs/security/record-api.md#get-an-encrypted-record-uc18) for fields
+   and failure behavior.
+ 
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Resources/CollectionGrantBinding.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Resources/CollectionGrantBinding.cs
+index e1ce30f..6ef7d0e 100644
+--- a/src/Infrastructure/ArturRios.Cerberus.Data/Resources/CollectionGrantBinding.cs
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Resources/CollectionGrantBinding.cs
+@@ -1,4 +1,5 @@
+ using System.Text.Json;
++using System.Text.Json.Serialization;
+ using ArturRios.Cerberus.Domain.Accounts;
+ using ArturRios.Cerberus.Domain.Protection;
+ using ArturRios.Cerberus.Domain.Resources;
+@@ -6,7 +7,7 @@ namespace ArturRios.Cerberus.Data.Resources;
+ 
+ internal static class CollectionGrantBinding
+ {
+-    private static readonly JsonSerializerOptions Json=new(JsonSerializerDefaults.Web){PropertyNameCaseInsensitive=false,AllowDuplicateProperties=false};
++    private static readonly JsonSerializerOptions Json=new(JsonSerializerDefaults.Web){PropertyNameCaseInsensitive=false,AllowDuplicateProperties=false,NumberHandling=JsonNumberHandling.Strict};
+     internal static bool TryReadPins(VaultProtection? row,out ProtectionMaterial? pins)
+     {
+         pins=null;
+diff --git a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs
+index 41fd8f1..6896dfe 100644
+--- a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs
++++ b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs
+@@ -47,11 +47,11 @@ public class RecordListStoreTests(PostgresFixture fixture, ITestOutputHelper out
+         await using(var db=fixture.CreateContext()){var g=await db.CollectionGrants.SingleAsync(x=>x.Id==grant.Id);g.RecipientKeyEnvelope="bad"u8.ToArray();if(kind=="revoked")g.State=CollectionGrantState.Revoked;if(kind=="wrongRecipient")g.RecipientAccountId=foreign.InternalId;if(kind=="unknownAccess")g.Access=(CollectionGrantAccess)99;if(kind=="zeroRevision")g.Revision=0;if(kind=="unsafeRevision")g.Revision=ProtocolBinary.MaxInteger+1;if(kind=="collectionTrash")await db.Collections.Where(x=>x.Id==items.Collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.DeletedAt,DateTimeOffset.UtcNow));if(kind=="ownerClosing")await db.Accounts.Where(x=>x.Id==foreign.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(a=>a.State,AccountState.ClosurePending));if(kind=="recordTrash")await db.Records.Where(x=>x.Id==included.Id).ExecuteUpdateAsync(x=>x.SetProperty(r=>r.DeletedAt,DateTimeOffset.UtcNow));if(kind=="ancestorTrash")await db.Folders.Where(x=>x.Id==items.Folder.Id).ExecuteUpdateAsync(x=>x.SetProperty(f=>f.DeletedAt,DateTimeOffset.UtcNow));if(kind.EndsWith("Terminal",StringComparison.Ordinal))db.TerminalErasures.Add(new(){ResourceId=kind=="grantTerminal"?grant.PublicId:kind=="collectionTerminal"?items.Collection.PublicId:kind=="ownerTerminal"?foreign.AccountId:kind=="recordTerminal"?included.PublicId:items.Folder.PublicId,ResourceKind="fixture",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}
+         var r=await List(s,1);Assert.Null(r.Error);Assert.Empty(r.Data!.Items);Assert.False(r.Data.HasMore);Assert.Equal(0,r.Data.Boundary);
+     }
+-    [FunctionalTheory][InlineData("blob")][InlineData("signature")][InlineData("owner")][InlineData("collection")][InlineData("grant")][InlineData("recipient")][InlineData("revision")][InlineData("epoch")][InlineData("collectionEnvelope")][InlineData("ownerPins")][InlineData("recipientPins")][InlineData("missingOwnerPins")][InlineData("missingRecipientPins")]
++    [FunctionalTheory][InlineData("blob")][InlineData("signature")][InlineData("owner")][InlineData("collection")][InlineData("grant")][InlineData("recipient")][InlineData("revision")][InlineData("epoch")][InlineData("collectionEnvelope")][InlineData("ownerPins")][InlineData("recipientPins")][InlineData("missingOwnerPins")][InlineData("missingRecipientPins")][InlineData("collectionNumericString")]
+     public async Task GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutPartialContent(string kind)
+     {
+         using var owner=new ProtectionFixture();using var recipient=new ProtectionFixture();var foreign=await ProfileSetup.Create(fixture,owner);var s=await ProfileSetup.Create(fixture,recipient);var items=await AssociationSetup.Items(fixture,foreign);var grant=await AssociationSetup.Grant(fixture,foreign,owner,s,recipient,items.Collection);await Members(foreign,items.Collection,[items.Record.Id],[]);await Record(s);
+-        await using(var db=fixture.CreateContext()){var g=await db.CollectionGrants.SingleAsync(x=>x.Id==grant.Id);if(kind=="blob")g.RecipientKeyEnvelope="bad"u8.ToArray();if(kind is "owner" or "collection" or "grant" or "recipient")g.RecipientKeyEnvelope=Bytes(owner.WrapGrant(kind=="owner"?Guid.NewGuid():foreign.AccountId,kind=="collection"?Guid.NewGuid():items.Collection.PublicId,kind=="grant"?Guid.NewGuid():grant.PublicId,kind=="recipient"?Guid.NewGuid():s.Actor,recipient.Material.RecipientKey));if(kind=="signature"){var wrapper=JsonSerializer.Deserialize<RecipientEnvelope>(g.RecipientKeyEnvelope,ProtectionFixture.Json)!;ProtocolBinary.TryDecode(wrapper.Signature,null,out var bytes);bytes[0]^=1;g.RecipientKeyEnvelope=Bytes(wrapper with{Signature=ProtocolBinary.Encode(bytes)});}if(kind=="revision")g.Revision=2;if(kind=="epoch")await db.Collections.Where(x=>x.Id==items.Collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.KeyEpoch,2));if(kind=="collectionEnvelope")await db.Collections.Where(x=>x.Id==items.Collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.Envelope,"bad"u8.ToArray()));if(kind is "ownerPins" or "recipientPins")await db.VaultProtections.Where(x=>x.AccountId==(kind=="ownerPins"?foreign.InternalId:s.InternalId)).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.Material,"bad"u8.ToArray()));if(kind is "missingOwnerPins" or "missingRecipientPins")await db.VaultProtections.Where(x=>x.AccountId==(kind=="missingOwnerPins"?foreign.InternalId:s.InternalId)).ExecuteDeleteAsync();await db.SaveChangesAsync();}
++        await using(var db=fixture.CreateContext()){var g=await db.CollectionGrants.SingleAsync(x=>x.Id==grant.Id);if(kind=="blob")g.RecipientKeyEnvelope="bad"u8.ToArray();if(kind is "owner" or "collection" or "grant" or "recipient")g.RecipientKeyEnvelope=Bytes(owner.WrapGrant(kind=="owner"?Guid.NewGuid():foreign.AccountId,kind=="collection"?Guid.NewGuid():items.Collection.PublicId,kind=="grant"?Guid.NewGuid():grant.PublicId,kind=="recipient"?Guid.NewGuid():s.Actor,recipient.Material.RecipientKey));if(kind=="signature"){var wrapper=JsonSerializer.Deserialize<RecipientEnvelope>(g.RecipientKeyEnvelope,ProtectionFixture.Json)!;ProtocolBinary.TryDecode(wrapper.Signature,null,out var bytes);bytes[0]^=1;g.RecipientKeyEnvelope=Bytes(wrapper with{Signature=ProtocolBinary.Encode(bytes)});}if(kind=="revision")g.Revision=2;if(kind=="epoch")await db.Collections.Where(x=>x.Id==items.Collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.KeyEpoch,2));if(kind=="collectionNumericString")await db.Collections.Where(x=>x.Id==items.Collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.Envelope,System.Text.Encoding.UTF8.GetBytes(System.Text.Encoding.UTF8.GetString(items.Collection.Envelope).Replace("\"keyEpoch\":1","\"keyEpoch\":\"1\""))));if(kind=="collectionEnvelope")await db.Collections.Where(x=>x.Id==items.Collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.Envelope,"bad"u8.ToArray()));if(kind is "ownerPins" or "recipientPins")await db.VaultProtections.Where(x=>x.AccountId==(kind=="ownerPins"?foreign.InternalId:s.InternalId)).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.Material,"bad"u8.ToArray()));if(kind is "missingOwnerPins" or "missingRecipientPins")await db.VaultProtections.Where(x=>x.AccountId==(kind=="missingOwnerPins"?foreign.InternalId:s.InternalId)).ExecuteDeleteAsync();await db.SaveChangesAsync();}
+         var before=await Snapshot(s);var foreignBefore=await Snapshot(foreign);var r=await List(s,1);Assert.Equal("persistence_unavailable",r.Error);Assert.Null(r.Data);Assert.Equal(before,await Snapshot(s));Assert.Equal(foreignBefore,await Snapshot(foreign));
+     }
+     [FunctionalFact]
+diff --git a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordReadStoreTests.cs b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordReadStoreTests.cs
+index 961628e..5766a5e 100644
+--- a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordReadStoreTests.cs
++++ b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordReadStoreTests.cs
+@@ -192,6 +192,33 @@ public class RecordReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
+         await using(var db=fixture.CreateContext()){var p=await db.VaultProtections.SingleAsync(x=>x.AccountId==(ownerPins?foreign.InternalId:s.InternalId));if(kind=="epoch")p.KeyEpoch++;if(kind=="generation")p.RecoveryGeneration++;if(kind=="zeroRevision")p.Revision=0;if(kind=="unsafeRevision")p.Revision=ProtocolBinary.MaxInteger+1;await db.SaveChangesAsync();}
+         var r=await Read(s,a.Record.PublicId);Assert.Equal("persistence_unavailable",r.Error);Assert.Null(r.Data);
+     }
++    [FunctionalTheory]
++    [InlineData("numericString",false,"visible")][InlineData("numericString",true,"visible")]
++    [InlineData("unknown",false,"visible")][InlineData("unknown",true,"visible")]
++    [InlineData("duplicate",false,"visible")][InlineData("duplicate",true,"visible")]
++    [InlineData("case",false,"visible")][InlineData("case",true,"visible")]
++    [InlineData("numericString",true,"unselected")][InlineData("numericString",false,"ancestorTrash")]
++    [InlineData("numericString",true,"revoked")][InlineData("numericString",false,"recordTrash")]
++    public async Task GivenAlternateStoredCollectionEnvelopeShape_WhenGettingSharedTarget_ThenRejectRelevantEvidenceButKeepHiddenTargetsNonrevealing(string shape,bool selected,string visibility)
++    {
++        using var owner=new ProtectionFixture();using var recipient=new ProtectionFixture();using var key=new ProtectionFixture();
++        var foreign=await ProfileSetup.Create(fixture,owner);var s=await ProfileSetup.Create(fixture,recipient);var a=await AssociationSetup.Items(fixture,foreign);var target=await Record(foreign,a.Folder.Id);
++        await Members(foreign,a.Collection,[target.Id],[]);var grant=await AssociationSetup.Grant(fixture,foreign,owner,s,recipient,a.Collection);
++        var p=await Profile(s,recipient,key,collections:visibility=="unselected"?[]:[a.Collection.PublicId]);var request=selected?s with{Verifier=await Selected(s,p.Id)}:s;
++        var original=System.Text.Encoding.UTF8.GetString(a.Collection.Envelope);var malformed=shape switch{
++            "numericString"=>original.Replace("\"keyEpoch\":1","\"keyEpoch\":\"1\""),
++            "unknown"=>original.Replace("{","{\"secret\":1,"),"duplicate"=>original.Replace("{","{\"keyEpoch\":1,"),_=>original.Replace("\"format\"","\"Format\"")};
++        Assert.NotEqual(original,malformed);
++        await using(var db=fixture.CreateContext())
++        {
++            await db.Collections.Where(x=>x.Id==a.Collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.Envelope,System.Text.Encoding.UTF8.GetBytes(malformed)));
++            if(visibility=="ancestorTrash")await db.Folders.Where(x=>x.Id==a.Folder.Id).ExecuteUpdateAsync(x=>x.SetProperty(f=>f.DeletedAt,DateTimeOffset.UtcNow));
++            if(visibility=="recordTrash")await db.Records.Where(x=>x.Id==target.Id).ExecuteUpdateAsync(x=>x.SetProperty(r=>r.DeletedAt,DateTimeOffset.UtcNow));
++            if(visibility=="revoked")await db.CollectionGrants.Where(x=>x.Id==grant.Id).ExecuteUpdateAsync(x=>x.SetProperty(g=>g.State,CollectionGrantState.Revoked));
++        }
++        var before=await Snapshot(s);var ownerBefore=await Snapshot(foreign);var result=await Read(request,target.PublicId);
++        Assert.Equal(visibility=="visible"?"persistence_unavailable":"not_found",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));Assert.Equal(ownerBefore,await Snapshot(foreign));
++    }
+     private RecordReadStore Store()=>new(fixture);
+     private Task<VaultResult<RecordReadDetails>> Read(ProfileSetup.State s,Guid target)=>Store().ReadAsync(new(s.Actor,s.Verifier,target),default);
+     private async Task<VaultRecord> Record(ProfileSetup.State s,long? folder=null){var row=new VaultRecord{PublicId=Guid.NewGuid(),AccountId=s.InternalId,FolderId=folder,Envelope=Bytes(ProfileSetup.Envelope()),EditedAt=DateTimeOffset.UnixEpoch};await using var db=fixture.CreateContext();db.Records.Add(row);await db.SaveChangesAsync();return row;}
+diff --git a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs
+index b8f8a23..7f9f34b 100644
+--- a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs
++++ b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordReadHttpTests.cs
+@@ -139,9 +139,9 @@ public class RecordReadHttpTests(RegistrationApiFixture fixture) : WebApiTest<Pr
+     {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(owner);var p=await Profile(s,owner,scoped);await Create(s,[p.PublicId]);var selected=s with{Access=await Open(s,p,scoped)};await using(var db=fixture.Context()){if(kind=="trash")await db.Profiles.Where(x=>x.Id==p.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.DeletedAt,DateTimeOffset.UtcNow));else{db.TerminalErasures.Add(new(){ResourceId=p.PublicId,ResourceKind="profile",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}}var before=await Snapshot(s);using var response=await Read(selected,"/api/records/11111111-1111-1111-1111-111111111111");await Failure(response,403,"vault_access_denied");Assert.Equal(before,await Snapshot(s));}
+ 
+ 
+-    [FunctionalTheory][InlineData("wrapper")][InlineData("pins")][InlineData("epoch")]
++    [FunctionalTheory][InlineData("wrapper")][InlineData("pins")][InlineData("epoch")][InlineData("numericString")]
+     public async Task GivenCorruptRelevantNativeGrant_WhenGetting_Then503WithoutAnyPayload(string kind)
+-    {using var owner=new ProtectionFixture();using var recipient=new ProtectionFixture();var foreign=await Setup(owner);var s=await Setup(recipient);var shared=await Create(foreign);await Create(s);var(collection,grant)=await Share(foreign,owner,s,recipient,CollectionGrantAccess.ReadOnly,[shared.RecordId],[]);await using(var db=fixture.Context()){if(kind=="wrapper")await db.CollectionGrants.Where(x=>x.Id==grant.Id).ExecuteUpdateAsync(x=>x.SetProperty(g=>g.RecipientKeyEnvelope,new byte[]{1}));if(kind=="pins")await db.VaultProtections.Where(x=>x.AccountId==foreign.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.Material,new byte[]{1}));if(kind=="epoch")await db.Collections.Where(x=>x.Id==collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.KeyEpoch,2));}var before=await Snapshot(s);var ownerBefore=await Snapshot(foreign);using var response=await Read(s,"/api/records/"+shared.RecordId);await Failure(response,503,"persistence_unavailable");Assert.Equal(before,await Snapshot(s));Assert.Equal(ownerBefore,await Snapshot(foreign));}
++    {using var owner=new ProtectionFixture();using var recipient=new ProtectionFixture();var foreign=await Setup(owner);var s=await Setup(recipient);var shared=await Create(foreign);await Create(s);var(collection,grant)=await Share(foreign,owner,s,recipient,CollectionGrantAccess.ReadOnly,[shared.RecordId],[]);await using(var db=fixture.Context()){if(kind=="numericString")await db.Collections.Where(x=>x.Id==collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.Envelope,Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(collection.Envelope).Replace("\"keyEpoch\":1","\"keyEpoch\":\"1\""))));if(kind=="wrapper")await db.CollectionGrants.Where(x=>x.Id==grant.Id).ExecuteUpdateAsync(x=>x.SetProperty(g=>g.RecipientKeyEnvelope,new byte[]{1}));if(kind=="pins")await db.VaultProtections.Where(x=>x.AccountId==foreign.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.Material,new byte[]{1}));if(kind=="epoch")await db.Collections.Where(x=>x.Id==collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.KeyEpoch,2));}var before=await Snapshot(s);var ownerBefore=await Snapshot(foreign);using var response=await Read(s,"/api/records/"+shared.RecordId);await Failure(response,503,"persistence_unavailable");Assert.Equal(before,await Snapshot(s));Assert.Equal(ownerBefore,await Snapshot(foreign));}
+ 
+ 
+     [FunctionalTheory][InlineData("trash")][InlineData("terminal")][InlineData("owner")]

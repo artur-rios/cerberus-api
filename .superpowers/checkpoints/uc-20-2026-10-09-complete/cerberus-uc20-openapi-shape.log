@@ -1,0 +1,1 @@
+PASS actual generated DELETE path:1 required bodyfield/6outputfields/8statuses. Existing generator limitations observed:header/body/outputrequiredness and actualempty413 modeledProblemDetails. Retained release cleanup; runtime strictness provenHTTP99.

@@ -1,0 +1,52 @@
+{
+  "useCase": "UC-20",
+  "issue": 21,
+  "pr": 81,
+  "testedHead": "67042c4632936dcb73ee170e00ea10e061a1a2a5",
+  "mergeCommit": "a59310da31ea48e3561d8bd2507f6ca62b5ae44d",
+  "definitionOfDone": [
+    {
+      "item": "Own isolated feature branch from freshly verified develop",
+      "passed": true
+    },
+    {
+      "item": "Main and all AF01..05 implemented/verified",
+      "passed": true
+    },
+    {
+      "item": "Unit/Data/actual native HTTP tests at correct layers",
+      "passed": true
+    },
+    {
+      "item": "Fullunfiltered3878PASS zero fail-skip98.3line91.7branch, sixassemblies>=90line, allotherchecks",
+      "passed": true
+    },
+    {
+      "item": "Ownership/native/sharing/opaquecontent retained; independentformalreleasegatepending",
+      "passed": true
+    },
+    {
+      "item": "ONEfreshordinaryreview0blocking +latestexacthead3CI SUCCESS +normalmatchheadsquash under explicitauthorization",
+      "passed": true
+    },
+    {
+      "item": "Actualremotebranchabsent",
+      "passed": true
+    },
+    {
+      "item": "Actualissue21Closed/nineDoDchecked/projectDone",
+      "passed": true
+    },
+    {
+      "item": "MergedREADME UC20Done/M03 twelve",
+      "passed": true
+    }
+  ],
+  "developTreeEqualsTestedHead": true,
+  "primaryFourSha256Unchanged": true,
+  "rulings": 20,
+  "deferredMinors": 2,
+  "tests": 3878,
+  "lineCoverage": 98.3,
+  "branchCoverage": 91.7
+}

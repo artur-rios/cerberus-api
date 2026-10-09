@@ -1,0 +1,159 @@
+diff --git a/docs/requirements/Operations & Infrastructure Document.md b/docs/requirements/Operations & Infrastructure Document.md
+index 2ac8b06..e8e9f75 100644
+--- a/docs/requirements/Operations & Infrastructure Document.md	
++++ b/docs/requirements/Operations & Infrastructure Document.md	
+@@ -390,6 +390,8 @@ foreign keys; the migration preserves existing ciphertext and metadata. Public
+ collection mutation remains its separate use case. Listing uses one read-only SQL
+ snapshot for current session and selected scope, full folder ancestry, native
+ recipient grant evidence, permitted sequence integrity, highwater and bounded page.
++Current permitted direct/member/descendant routes bound record admission before
++complete ancestry is traversed.
+ Grant/public-pin evidence stays internal; output contains only five encrypted record
+ fields and an opaque continuation. Hidden ancestry omits content before corruption
+ checks; fully active relevant cycles or invalid relevant native grants fail `503`.
+diff --git a/docs/security/record-api.md b/docs/security/record-api.md
+index 8a33802..dfdc4b8 100644
+--- a/docs/security/record-api.md
++++ b/docs/security/record-api.md
+@@ -94,6 +94,8 @@ fails `503`; a hidden ancestor takes precedence and omits that content.
+ 
+ One PostgreSQL statement captures current account/session/selection authority,
+ folder ancestry, permitted inventory, native grant evidence, boundary and page.
++Traversal starts from current permitted routes and then validates complete ancestry
++for the candidate records.
+ Relevant foreign grants must bind the current collection envelope and epoch, grant
+ ID/revision, owner author pin and recipient identity/key pin. Corrupt relevant native
+ evidence fails the whole response `503`, including any otherwise valid owned items;
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs
+index cc058d8..b171e8f 100644
+--- a/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Records/RecordListStore.cs
+@@ -25,6 +25,9 @@ public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : I
+             await using var db = await factory.CreateDbContextAsync(ct);
+             // One statement captures authorization, complete ancestry, permitted inventory,
+             // grant signatures/pins, and the page. Never re-read authority after this snapshot.
++            // Admit only current own/direct/member/descendant routes before walking full ancestry.
++            // Recursive UNION visits each permitted folder once and terminates overlapping/cyclic
++            // descendant routes; complete upward paths then diagnose only relevant active cycles.
+             var snapshots = await db.Database.SqlQuery<Snapshot>($"""
+                 WITH RECURSIVE actor AS (
+                     SELECT a.* FROM cerberus.account a WHERE a.heimdall_public_id={request.Actor}
+@@ -40,20 +43,6 @@ public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : I
+                       AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile p
+                           WHERE p.id=s.profile_id AND p.account_id=a.id AND p.deleted_at IS NULL
+                             AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=p.public_id)))
+-                ), candidates AS (
+-                    SELECT r.* FROM cerberus.record r JOIN cerberus.account owner ON owner.id=r.account_id
+-                    WHERE EXISTS(SELECT FROM session) AND owner.state={(int)AccountState.Active}
+-                      AND r.deleted_at IS NULL
+-                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=r.public_id OR e.resource_id=owner.public_id)
+-                ), ancestry AS (
+-                    SELECT r.id record_id,r.account_id,f.id,f.parent_folder_id,ARRAY[f.id] path,false cycle,
+-                        (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)) hidden
+-                    FROM candidates r JOIN cerberus.folder f ON f.id=r.folder_id AND f.account_id=r.account_id
+-                    UNION ALL
+-                    SELECT t.record_id,t.account_id,f.id,f.parent_folder_id,t.path||f.id,f.id=ANY(t.path),
+-                        t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
+-                    FROM ancestry t JOIN cerberus.folder f ON f.id=t.parent_folder_id AND f.account_id=t.account_id
+-                    WHERE NOT t.cycle
+                 ), collections AS (
+                     SELECT c.*,g.id grant_id FROM cerberus.collection c
+                     JOIN cerberus.account owner ON owner.id=c.account_id CROSS JOIN session s
+@@ -66,6 +55,41 @@ public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : I
+                       AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=owner.public_id OR e.resource_id=c.public_id)
+                       AND (c.account_id=s.account_id OR g.id IS NOT NULL)
+                       AND (s.profile_id IS NULL OR EXISTS(SELECT FROM cerberus.profile_collection pc WHERE pc.profile_id=s.profile_id AND pc.collection_id=c.id))
++                ), roots AS (
++                    SELECT pf.account_id,pf.folder_id id FROM cerberus.profile_folder pf JOIN session s
++                        ON pf.account_id=s.account_id AND pf.profile_id=s.profile_id
++                    UNION
++                    SELECT cf.account_id,cf.folder_id FROM cerberus.collection_folder cf JOIN collections c
++                        ON cf.collection_id=c.id AND cf.account_id=c.account_id
++                ), reachable(account_id,id) AS (
++                    SELECT f.account_id,f.id FROM roots root JOIN cerberus.folder f ON f.account_id=root.account_id AND f.id=root.id
++                    WHERE f.deleted_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
++                    UNION
++                    SELECT f.account_id,f.id FROM reachable parent JOIN cerberus.folder f
++                        ON f.account_id=parent.account_id AND f.parent_folder_id=parent.id
++                    WHERE f.deleted_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
++                ), admitted AS (
++                    SELECT r.id record_id FROM session s JOIN cerberus.record r ON r.account_id=s.account_id WHERE s.profile_id IS NULL
++                    UNION
++                    SELECT pr.record_id FROM session s JOIN cerberus.profile_record pr ON pr.account_id=s.account_id AND pr.profile_id=s.profile_id
++                    UNION
++                    SELECT cr.record_id FROM collections c JOIN cerberus.collection_record cr ON cr.collection_id=c.id AND cr.account_id=c.account_id
++                    UNION
++                    SELECT r.id FROM reachable f JOIN cerberus.record r ON r.account_id=f.account_id AND r.folder_id=f.id
++                ), candidates AS (
++                    SELECT r.* FROM admitted i JOIN cerberus.record r ON r.id=i.record_id JOIN cerberus.account owner ON owner.id=r.account_id
++                    WHERE owner.state={(int)AccountState.Active}
++                      AND r.deleted_at IS NULL
++                      AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=r.public_id OR e.resource_id=owner.public_id)
++                ), ancestry AS (
++                    SELECT r.id record_id,r.account_id,f.id,f.parent_folder_id,ARRAY[f.id] path,false cycle,
++                        (f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)) hidden
++                    FROM candidates r JOIN cerberus.folder f ON f.id=r.folder_id AND f.account_id=r.account_id
++                    UNION ALL
++                    SELECT t.record_id,t.account_id,f.id,f.parent_folder_id,t.path||f.id,f.id=ANY(t.path),
++                        t.hidden OR f.deleted_at IS NOT NULL OR EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_id=f.public_id)
++                    FROM ancestry t JOIN cerberus.folder f ON f.id=t.parent_folder_id AND f.account_id=t.account_id
++                    WHERE NOT t.cycle
+                 ), included AS (
+                     SELECT r.id record_id,c.id collection_id,c.grant_id FROM candidates r JOIN collections c ON c.account_id=r.account_id
+                     WHERE EXISTS(SELECT FROM cerberus.collection_record cr WHERE cr.collection_id=c.id AND cr.record_id=r.id AND cr.account_id=r.account_id)
+diff --git a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs
+index 369796b..41fd8f1 100644
+--- a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs
++++ b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordListStoreTests.cs
+@@ -1,6 +1,8 @@
+ using System.Data.Common;
+ using System.Security.Cryptography;
+ using System.Text.Json;
++using Npgsql;
++using Xunit.Abstractions;
+ using ArturRios.Cerberus.Data.Records;
+ using ArturRios.Cerberus.Data.Profiles;
+ using ArturRios.Cerberus.Domain.Accounts;
+@@ -15,7 +17,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
+ namespace ArturRios.Cerberus.Data.Tests;
+ 
+ [Collection("PostgreSQL")]
+-public class RecordListStoreTests(PostgresFixture fixture)
++public class RecordListStoreTests(PostgresFixture fixture, ITestOutputHelper output)
+ {
+     [FunctionalFact]
+     public async Task GivenForeignTrashAndTerminalRows_WhenPaging_ThenFilterBeforeTakeAndKeepInitialBoundary()
+@@ -108,6 +110,33 @@ public class RecordListStoreTests(PostgresFixture fixture)
+     public async Task GivenHiddenAncestorAndCycle_WhenListing_ThenOmitBeforeInspectingCorruption(bool selected,bool terminal)
+     {using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var root=await Folder(s);var child=await Folder(s,root.Id);var hidden=await Record(s,child.Id);var visible=await Record(s);var p=await Profile(s,owner,scoped,[hidden.PublicId,visible.PublicId],[root.PublicId]);await using(var db=fixture.CreateContext()){await db.Folders.Where(x=>x.Id==root.Id).ExecuteUpdateAsync(x=>x.SetProperty(f=>f.ParentFolderId,child.Id).SetProperty(f=>f.DeletedAt,terminal?(DateTimeOffset?)null:DateTimeOffset.UtcNow));if(terminal){db.TerminalErasures.Add(new(){ResourceId=root.PublicId,ResourceKind="folder",DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}}var r=await List(selected?s with{Verifier=await Selected(s,p.Id)}:s);Assert.Null(r.Error);Assert.Equal(visible.PublicId,Assert.Single(r.Data!.Items).RecordId);}
+ 
++    [FunctionalTheory][InlineData(false,true,false)][InlineData(true,true,false)][InlineData(true,false,false)][InlineData(true,true,true)]
++    public async Task GivenUnrelatedDeepFolderInventory_WhenListingOnePermittedRecord_ThenDoNotAdmitOrTraverseUnrelatedRows(bool selected,bool foreign,bool shared)
++    {
++        using var owner=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);
++        var unrelated=foreign?await ProfileSetup.Create(fixture,owner):s;var visible=await Record(shared?unrelated:s);Guid[] collections=[];
++        if(shared){var resources=await AssociationSetup.Items(fixture,unrelated);await AssociationSetup.Grant(fixture,unrelated,owner,s,owner,resources.Collection);await Members(unrelated,resources.Collection,[visible.Id],[]);collections=[resources.Collection.PublicId];}
++        var p=await Profile(s,owner,scoped,shared?[]:[visible.PublicId],collections:collections);
++        long? parent=null;for(var depth=0;depth<100;depth++){var folder=await Folder(unrelated,parent);await Record(unrelated,folder.Id);parent=folder.Id;}
++        var capture=new CapturePlan();var store=new RecordListStore(new ProfileSetup.Factory(fixture,capture));
++        var result=await store.ListAsync(new(s.Actor,selected?await Selected(s,p.Id):s.Verifier,1,0,null),default);
++        Assert.Null(result.Error);Assert.Equal(visible.PublicId,Assert.Single(result.Data!.Items).RecordId);Assert.False(result.Data.HasMore);Assert.Equal(1,capture.Readers);
++        await using var db=fixture.CreateContext();await db.Database.OpenConnectionAsync();await using var command=db.Database.GetDbConnection().CreateCommand();
++        command.CommandText="EXPLAIN (ANALYZE, FORMAT JSON) "+capture.Sql;foreach(var parameter in capture.Parameters)command.Parameters.Add(parameter.Clone());
++        using var plan=JsonDocument.Parse((string)(await command.ExecuteScalarAsync())!);output.WriteLine(plan.RootElement.GetRawText());
++        static IEnumerable<JsonElement> Nodes(JsonElement node){yield return node;if(node.TryGetProperty("Plans",out var children))foreach(var child in children.EnumerateArray())foreach(var descendant in Nodes(child))yield return descendant;}
++        var nodes=Nodes(plan.RootElement[0].GetProperty("Plan")).ToArray();
++        var candidates=Assert.Single(nodes,x=>x.TryGetProperty("Subplan Name",out var name)&&name.GetString()=="CTE candidates");
++        var ancestry=Assert.Single(nodes,x=>x.TryGetProperty("Subplan Name",out var name)&&name.GetString()=="CTE ancestry");
++        Assert.Equal(1d,candidates.GetProperty("Actual Rows").GetDouble());Assert.Equal(0d,ancestry.GetProperty("Actual Rows").GetDouble());
++    }
++    private sealed class CapturePlan:DbCommandInterceptor
++    {
++        public int Readers{get;private set;}public string Sql{get;private set;}="";public NpgsqlParameter[] Parameters{get;private set;}=[];
++        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<DbDataReader> result,CancellationToken ct=default)
++        {Readers++;Sql=command.CommandText;Parameters=command.Parameters.Cast<NpgsqlParameter>().Select(x=>x.Clone()).ToArray();return ValueTask.FromResult(result);}
++    }
++
+     private RecordListStore Store()=>new(fixture);
+     private Task<VaultResult<RecordListPage>> List(ProfileSetup.State s,int size=100,long after=0,long? boundary=null)=>Store().ListAsync(new(s.Actor,s.Verifier,size,after,boundary),default);
+     private async Task<VaultRecord> Record(ProfileSetup.State s,long? folder=null){var row=new VaultRecord{PublicId=Guid.NewGuid(),AccountId=s.InternalId,FolderId=folder,Envelope=Bytes(ProfileSetup.Envelope()),EditedAt=DateTimeOffset.UnixEpoch};await using var db=fixture.CreateContext();db.Records.Add(row);await db.SaveChangesAsync();return row;}

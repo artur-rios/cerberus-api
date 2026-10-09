@@ -1,0 +1,20 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc18-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc18-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc18-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:16.49]     ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenSamePublicGuidAcrossResourceKinds_WhenGetting_ThenKeepTypedVisibleReferences [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenSamePublicGuidAcrossResourceKinds_WhenGetting_ThenKeepTypedVisibleReferences [36 ms]
+  Error Message:
+   Assert.Null() Failure: Value is not null
+Expected: null
+Actual:   "validation_failed"
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenSamePublicGuidAcrossResourceKinds_WhenGetting_ThenKeepTypedVisibleReferences() in /tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordReadStoreTests.cs:line 178
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:    97, Skipped:     0, Total:    98, Duration: 10 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)

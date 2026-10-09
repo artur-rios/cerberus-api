@@ -1,0 +1,46 @@
+{
+  "tests": 4596,
+  "families": {
+    "Domain": 313,
+    "Shared": 125,
+    "Command": 783,
+    "Query": 259,
+    "Data": 1634,
+    "WebApi": 1482
+  },
+  "line": 98.4,
+  "branch": 91.7,
+  "assemblies": [
+    {
+      "name": "ArturRios.Cerberus.Command",
+      "line": 100,
+      "branch": 97.8
+    },
+    {
+      "name": "ArturRios.Cerberus.Data",
+      "line": 98.4,
+      "branch": 88
+    },
+    {
+      "name": "ArturRios.Cerberus.Domain",
+      "line": 99.3,
+      "branch": 96.2
+    },
+    {
+      "name": "ArturRios.Cerberus.Query",
+      "line": 100,
+      "branch": 97.8
+    },
+    {
+      "name": "ArturRios.Cerberus.Shared",
+      "line": 97.2,
+      "branch": 88
+    },
+    {
+      "name": "ArturRios.Cerberus.WebApi",
+      "line": 95.1,
+      "branch": 89.6
+    }
+  ],
+  "log": "/tmp/cerberus-uc22-coverage.log"
+}

@@ -1,0 +1,14 @@
+{
+  "pr": 87,
+  "testedHead": "612c5b8de98a76f615d49f61e2883b0693d30c30",
+  "freshBase": "9aa8e51e7ee39a78294d072f36e17833306a856c",
+  "checks": {
+    "branch-policy": "SUCCESS",
+    "docker": "SUCCESS",
+    "test": "SUCCESS"
+  },
+  "mergeable": "MERGEABLE",
+  "mergeStateStatus": "CLEAN",
+  "humanApprovalsRequired": 0,
+  "primaryFourSHAUnchanged": true
+}

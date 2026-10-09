@@ -1,0 +1,32 @@
+$ dotnet list /tmp/cerberus-uc19-worktree/src/ArturRios.Cerberus.sln package --vulnerable --include-transitive
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc19-worktree/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 624 ms).
+  Restored /tmp/cerberus-uc19-worktree/src/Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj (in 624 ms).
+  Restored /tmp/cerberus-uc19-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ArturRios.Cerberus.Query.Tests.csproj (in 626 ms).
+  Restored /tmp/cerberus-uc19-worktree/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 625 ms).
+  Restored /tmp/cerberus-uc19-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj (in 624 ms).
+  Restored /tmp/cerberus-uc19-worktree/src/Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj (in 626 ms).
+  Restored /tmp/cerberus-uc19-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj (in 625 ms).
+  Restored /tmp/cerberus-uc19-worktree/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 709 ms).
+  Restored /tmp/cerberus-uc19-worktree/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 76 ms).
+  Restored /tmp/cerberus-uc19-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj (in 28 ms).
+  Restored /tmp/cerberus-uc19-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/ArturRios.Cerberus.Shared.Tests.csproj (in 19 ms).
+  Restored /tmp/cerberus-uc19-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/ArturRios.Cerberus.Domain.Tests.csproj (in 98 ms).
+
+The following sources were used:
+   https://api.nuget.org/v3/index.json
+
+The given project `ArturRios.Cerberus.Domain` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.Command` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.Shared` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.Query` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.Data` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.WebApi` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.Domain.Tests` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.Command.Tests` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.Query.Tests` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.Shared.Tests` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.Data.Tests` has no vulnerable packages given the current sources.
+The given project `ArturRios.Cerberus.WebApi.Tests` has no vulnerable packages given the current sources.
+
+No known vulnerabilities in any dependency, direct or transitive.

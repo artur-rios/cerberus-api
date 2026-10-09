@@ -1,0 +1,42 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc22-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc22-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc22-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc22-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v4.0.0+05679a7ab5 (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.15]   Discovering: ArturRios.Cerberus.Data.Tests
+[xUnit.net 00:00:00.44]   Discovered:  ArturRios.Cerberus.Data.Tests
+[xUnit.net 00:00:00.47]   Starting:    ArturRios.Cerberus.Data.Tests
+[testcontainers.org 00:00:00.14] Connected to Docker:
+  Host: unix:///var/run/docker.sock
+  Server Version: 29.8.2
+  Kernel Version: 7.0.0-34-generic
+  API Version: 1.56
+  Operating System: Ubuntu 26.04.1 LTS
+  Total Memory: 31.34 GB
+[testcontainers.org 00:00:00.45] Docker container 60141e5c4a58 created
+[testcontainers.org 00:00:00.49] Start Docker container 60141e5c4a58
+[testcontainers.org 00:00:00.65] Wait for Docker container 60141e5c4a58 to complete readiness checks
+[testcontainers.org 00:00:01.68] Docker container 60141e5c4a58 ready
+[testcontainers.org 00:00:01.84] Docker container 434580a11cc8 created
+[testcontainers.org 00:00:01.84] Start Docker container 434580a11cc8
+[testcontainers.org 00:00:01.97] Wait for Docker container 434580a11cc8 to complete readiness checks
+[testcontainers.org 00:00:01.98] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 434580a11cc8
+[testcontainers.org 00:00:03.04] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 434580a11cc8
+[testcontainers.org 00:00:04.07] Execute "pg_isready --host localhost --dbname postgres --username postgres" at Docker container 434580a11cc8
+[testcontainers.org 00:00:04.11] Docker container 434580a11cc8 ready
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(afterLock: True) [2 s]
+[testcontainers.org 00:00:09.00] Delete Docker container 434580a11cc8
+[xUnit.net 00:00:09.78]   Finished:    ArturRios.Cerberus.Data.Tests
+  Passed ArturRios.Cerberus.Data.Tests.RecordPurgeHandlerTests.GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(afterLock: False) [59 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(link: "collection") [685 ms]
+  Passed ArturRios.Cerberus.Data.Tests.RecordPermanentDeleteStoreTests.GivenTrashedTargetHasUnretainedLiveLink_WhenDeletingUnderSelectedProfile_ThenLiveLinkCannotWidenRestrictedHistory(link: "profile") [133 ms]
+
+Test Run Successful.
+Total tests: 4
+     Passed: 4
+ Total time: 10.2455 Seconds

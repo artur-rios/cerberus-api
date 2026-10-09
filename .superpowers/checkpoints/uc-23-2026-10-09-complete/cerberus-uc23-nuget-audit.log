@@ -1,0 +1,2 @@
+$ dotnet list /tmp/cerberus-uc23-worktree/src/ArturRios.Cerberus.sln package --vulnerable --include-transitive
+No known vulnerabilities in any dependency, direct or transitive.

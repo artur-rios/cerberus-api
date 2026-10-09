@@ -1,0 +1,12 @@
+{
+  "status": "preliminary_self_review_pass",
+  "bindingGate": "pending actualUC28delivery/freshcheckout/docreload",
+  "flows": "main+AF01..05/FRCL01/BR05+06",
+  "tasks": 3,
+  "checkboxSteps": 21,
+  "reviewFocus": 5,
+  "rulings": 15,
+  "specBytes": 12427,
+  "planBytes": 14300,
+  "noRuntimeImplementation": true
+}

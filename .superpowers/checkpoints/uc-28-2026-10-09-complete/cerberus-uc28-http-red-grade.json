@@ -1,0 +1,2272 @@
+[
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenDamagedOwnedRoot_WhenMoving_Then503RetainsAllOpaqueBytes [1 s]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenDamagedOwnedRoot_WhenMoving_Then503RetainsAllOpaqueBytes",
+      "Failure",
+      "cs",
+      "GivenDamagedOwnedRoot_WhenMoving_Then503RetainsAllOpaqueBytes",
+      "cs",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: \"child\", status: 400) [353 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: \"cycle\", status: 503) [202 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: \"deep\", status: 400) [209 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: \"foreign\", status: 404) [195 ms]",
+    "status": null,
+    "frames": [
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: \"self\", status: 400) [162 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: \"trash\", status: 404) [161 ms]",
+    "status": null,
+    "frames": [
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation(kind: \"missing\", status: 404) [186 ms]",
+    "status": null,
+    "frames": [
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentDestination_WhenMovingStaleRevision_ThenCurrentTopologyWinsWithoutMutation",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"collectionIds\") [129 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"numericString\") [81 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"fraction\") [118 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"folderBad\") [92 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"vaultAccess\") [118 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"cascade\") [131 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"duplicateRevision\") [69 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"trashOperationId\") [96 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"folderZero\") [119 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"unknown\") [186 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"purgeAt\") [113 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"folderNumeric\") [183 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"null\") [121 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"keyWrappers\") [107 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"missingRevision\") [86 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"unsafe\") [92 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"profileIds\") [114 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"folderId\") [57 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"folderCompact\") [92 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"fields\") [95 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"missingFolder\") [68 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"duplicateFolder\") [78 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"name\") [103 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"recordId\") [119 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"envelope\") [111 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"empty\") [97 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"editedAt\") [93 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"folderUppercase\") [131 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"overflow\") [87 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"negative\") [83 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"array\") [107 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"nullRevision\") [104 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"actor\") [126 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"caseRevision\") [106 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"caseFolder\") [134 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"ownerId\") [121 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"zero\") [202 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation(kind: \"deletedAt\") [117 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenStrictOrForgedMoveBody_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"Master\", route: \"toRoot\") [1 s]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"Master\", route: \"between\") [477 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"wide\", route: \"toRoot\") [215 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"wide\", route: \"same\") [231 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"PerProfile\", route: \"toRoot\") [222 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"PerProfile\", route: \"same\") [285 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"Master\", route: \"same\") [385 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"PerProfile\", route: \"between\") [333 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"wide\", route: \"fromRoot\") [237 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"wide\", route: \"between\") [300 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance(mode: \"wide\", route: \"rootNoop\") [221 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "Success",
+      "cs",
+      "GivenRealCreatedMixedSubtreeAndNativeCurrentOwnedScope_WhenMoving_ThenExactFourFieldsAndOnlyChangedImmediateParentsAdvance",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: \"dangling\", status: 403) [136 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "cs",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: \"closing\", status: 404) [116 ms]",
+    "status": null,
+    "frames": [
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: \"revoked\", status: 403) [95 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: \"terminal\", status: 404) [117 ms]",
+    "status": null,
+    "frames": [
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: \"expired\", status: 403) [123 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: \"generation\", status: 403) [188 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: \"future\", status: 403) [142 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation(kind: \"policy\", status: 403) [114 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentActorState_WhenMoving_ThenNoMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: \"bom\", status: 400) [123 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: \"compression\", status: 400) [76 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "cs",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: \"bad\", status: 400) [96 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: \"missing\", status: 401) [80 ms]",
+    "status": [
+      "Unauthorized",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Unauthorized\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: \"query\", status: 400) [71 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: \"duplicate\", status: 400) [63 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: \"charset\", status: 400) [86 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation(kind: \"utf8\", status: 400) [77 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "Failure",
+      "cs",
+      "GivenInvalidTransportOrAccess_WhenMoving_ThenRejectWithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: \"downgrade\", status: 403) [257 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "Failure",
+      "cs",
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: \"move\", status: 404) [131 ms]",
+    "status": null,
+    "frames": [
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "Failure",
+      "cs",
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "cs",
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: \"member\", status: 404) [131 ms]",
+    "status": null,
+    "frames": [
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "Failure",
+      "cs",
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins(kind: \"grant\", status: 404) [144 ms]",
+    "status": null,
+    "frames": [
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "Failure",
+      "cs",
+      "GivenCommittedSharedRelationshipChange_WhenMoving_ThenCurrentPermissionWins",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: \"PerProfile\", kind: \"collection\", existing: True) [378 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "Success",
+      "cs",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: \"Master\", kind: \"profile\", existing: False) [617 ms]",
+    "status": null,
+    "frames": [
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "Failure",
+      "cs",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "cs",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: \"PerProfile\", kind: \"collection\", existing: False) [506 ms]",
+    "status": null,
+    "frames": [
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "Failure",
+      "cs",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: \"Master\", kind: \"profile\", existing: True) [341 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "Success",
+      "cs",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: \"PerProfile\", kind: \"profile\", existing: False) [382 ms]",
+    "status": null,
+    "frames": [
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "Failure",
+      "cs",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap(mode: \"Master\", kind: \"collection\", existing: False) [271 ms]",
+    "status": null,
+    "frames": [
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "Failure",
+      "cs",
+      "GivenSourceAndDestinationVisibleWithNewInheritedScope_WhenSelectedMoving_ThenRejectExpansionWithFullSnapshotOrAllowExistingOverlap",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(kind: \"lostSuccess\") [64 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner",
+      "Success",
+      "cs",
+      "GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner",
+      "cs",
+      "GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner",
+      "GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner",
+      "GivenRawEmptyAccessHeader_WhenMoving_Then400"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(kind: \"trashWinner\") [308 ms]",
+    "status": null,
+    "frames": [
+      "GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner",
+      "Failure",
+      "cs",
+      "GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner(kind: \"putWinner\") [250 ms]",
+    "status": [
+      "Conflict",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner",
+      "Failure",
+      "cs",
+      "GivenActualCommittedWinner_WhenMovingOldRevision_ThenConflictOrCurrent404PreservesTheWinner",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Conflict\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRawEmptyAccessHeader_WhenMoving_Then400 [579 ms]",
+    "status": [
+      "400",
+      "404"
+    ],
+    "frames": [
+      "GivenRawEmptyAccessHeader_WhenMoving_Then400",
+      "GivenRawEmptyAccessHeader_WhenMoving_Then400",
+      "cs",
+      "GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: 400\nActual:   404"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation(mode: \"Master\") [1 s]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation",
+      "cs",
+      "GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation(mode: \"PerProfile\") [1 s]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenCorruptOverlappingContributor_WhenMoving_ThenSelectedValidRoute403AndWide503WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: \"PerProfile\") [829 ms]",
+    "status": null,
+    "frames": [
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "Failure",
+      "cs",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "cs",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: \"Master\") [491 ms]",
+    "status": null,
+    "frames": [
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "Failure",
+      "cs",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: \"PerProfile\") [494 ms]",
+    "status": null,
+    "frames": [
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "Failure",
+      "cs",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: \"Master\") [474 ms]",
+    "status": null,
+    "frames": [
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "Failure",
+      "cs",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadWrite, mode: \"wide\") [281 ms]",
+    "status": null,
+    "frames": [
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "Failure",
+      "cs",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "cs",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(access: ReadOnly, mode: \"wide\") [233 ms]",
+    "status": null,
+    "frames": [
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "Failure",
+      "cs",
+      "GivenActualNativeRecordOnlyGrant_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: \"signature\", route: \"destination\") [324 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "Failure",
+      "cs",
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: \"pins\", route: \"destination\") [272 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "Failure",
+      "cs",
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: \"signature\", route: \"record\") [316 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "Failure",
+      "cs",
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "cs",
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: \"signature\", route: \"child\") [416 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "Failure",
+      "cs",
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload(kind: \"missing\", route: \"destination\") [196 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "Failure",
+      "cs",
+      "GivenMissingOrMalformedRequiredNativeResultBinding_WhenMoving_Then503AndNoPartialGraphOrPayload",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: \"bad\") [38 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: \"zero\") [41 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: \"braced\") [68 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: \"urn\") [42 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: \"compact\") [79 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation(kind: \"uppercase\") [92 ms]",
+    "status": [
+      "BadRequest",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenNoncanonicalRoute_WhenMoving_Then400WithoutMutation",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: BadRequest\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: \"parent\", selected: True) [477 ms]",
+    "status": null,
+    "frames": [
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "Failure",
+      "cs",
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "cs",
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection",
+      "GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection",
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: \"sibling\", selected: True) [216 ms]",
+    "status": null,
+    "frames": [
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "Failure",
+      "cs",
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: \"parent\", selected: False) [156 ms]",
+    "status": null,
+    "frames": [
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "Failure",
+      "cs",
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges(kind: \"sibling\", selected: False) [216 ms]",
+    "status": null,
+    "frames": [
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "Failure",
+      "cs",
+      "GivenNativeMemberLeafWriteGrant_WhenMovingUnsharedParentOrSibling_Then404AndNoChanges",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection(kind: \"profileTrash\") [366 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection",
+      "Failure",
+      "cs",
+      "GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection(kind: \"profileTerminal\") [250 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection",
+      "Failure",
+      "cs",
+      "GivenSelectedProfileBecomesHidden_WhenMoving_Then403WithoutNullingOrWideningSelection",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: \"missing\", status: 401) [96 ms]",
+    "status": [
+      "Unauthorized",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Unauthorized\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: \"deleted\", status: 401) [105 ms]",
+    "status": [
+      "Unauthorized",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Unauthorized\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: \"unavailable\", status: 503) [61 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "cs",
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence(kind: \"scope\", status: 401) [71 ms]",
+    "status": [
+      "Unauthorized",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "Failure",
+      "cs",
+      "GivenInvalidCurrentIdentity_WhenMoving_ThenRejectWithoutPersistence",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Unauthorized\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(kind: \"sequence\") [73 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "Failure",
+      "cs",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "cs",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "cs",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(kind: \"outage\") [62 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "Failure",
+      "cs",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "cs",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "cs",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload(kind: \"revision\") [85 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "Failure",
+      "cs",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "cs",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "cs",
+      "GivenCorruptVisibleTargetOrUnavailableDatabase_WhenMoving_Then503WithoutPartialPayload",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadOnly, mode: \"Master\") [264 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "Failure",
+      "cs",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadWrite, mode: \"wide\") [158 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "Failure",
+      "cs",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadWrite, mode: \"PerProfile\") [239 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "Failure",
+      "cs",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadOnly, mode: \"wide\") [165 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "Failure",
+      "cs",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadWrite, mode: \"Master\") [274 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "Failure",
+      "cs",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "cs",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange",
+      "GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange",
+      "GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode(access: ReadOnly, mode: \"PerProfile\") [270 ms]",
+    "status": [
+      "Forbidden",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "Failure",
+      "cs",
+      "GivenActualNativeForeignFolderScope_WhenMovingStaleDamagedCipher_Then403ForEveryRecipientMode",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: Forbidden\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(kind: \"signature\") [123 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange",
+      "Failure",
+      "cs",
+      "GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(kind: \"pins\") [81 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange",
+      "Failure",
+      "cs",
+      "GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange(kind: \"numericString\") [105 ms]",
+    "status": [
+      "ServiceUnavailable",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange",
+      "Failure",
+      "cs",
+      "GivenRelevantMalformedNativeAuthority_WhenMoving_Then503WithoutAnyContentChange",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: ServiceUnavailable\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: \"foreign\") [115 ms]",
+    "status": null,
+    "frames": [
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: \"missing\") [102 ms]",
+    "status": null,
+    "frames": [
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: \"folderTrash\") [80 ms]",
+    "status": null,
+    "frames": [
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: \"folderTerminal\") [108 ms]",
+    "status": null,
+    "frames": [
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: \"unselected\") [148 ms]",
+    "status": null,
+    "frames": [
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "cs",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: \"ancestorTrash\") [85 ms]",
+    "status": null,
+    "frames": [
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: \"revoked\") [80 ms]",
+    "status": null,
+    "frames": [
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation(kind: \"ownerClosing\") [89 ms]",
+    "status": null,
+    "frames": [
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "Failure",
+      "cs",
+      "GivenHiddenTargetWithBadCipherAndStaleRevision_WhenMoving_ThenNonrevealing404WithoutMutation",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadOnly, mode: \"wide\") [414 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "Success",
+      "cs",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadOnly, mode: \"Master\") [617 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "Success",
+      "cs",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "cs",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadWrite, mode: \"PerProfile\") [541 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "Success",
+      "cs",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadWrite, mode: \"wide\") [401 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "Success",
+      "cs",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadWrite, mode: \"Master\") [500 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "Success",
+      "cs",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "cs",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain(access: ReadOnly, mode: \"PerProfile\") [589 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "Success",
+      "cs",
+      "GivenNativeRecipientsWithOldNewAndDirectSubtreeRoutes_WhenOwnerMoves_ThenCurrentGetAndListChangeWhileKeysAndDirectLinksRemain",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(mode: \"PerProfile\") [356 ms]",
+    "status": null,
+    "frames": [
+      "GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "Failure",
+      "cs",
+      "GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "cs",
+      "GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "cs"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet(mode: \"Master\") [302 ms]",
+    "status": null,
+    "frames": [
+      "GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "Failure",
+      "cs",
+      "GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "cs",
+      "GivenSelectedDirectRecordOnly_WhenMovingContainingFolder_Then404AfterSuccessfulRecordGet",
+      "cs",
+      "GivenActualIndependentRecordAndChildTrash_WhenMovingActiveAncestor_ThenOriginalDeadlinesAndSnapshotsRemain",
+      "GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain",
+      "GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain"
+    ],
+    "message": "System.Text.Json.JsonReaderException : The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0."
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenActualIndependentRecordAndChildTrash_WhenMovingActiveAncestor_ThenOriginalDeadlinesAndSnapshotsRemain [703 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenActualIndependentRecordAndChildTrash_WhenMovingActiveAncestor_ThenOriginalDeadlinesAndSnapshotsRemain",
+      "Success",
+      "cs",
+      "GivenActualIndependentRecordAndChildTrash_WhenMovingActiveAncestor_ThenOriginalDeadlinesAndSnapshotsRemain",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain(mode: \"PerProfile\") [519 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain",
+      "Success",
+      "cs",
+      "GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain",
+      "cs",
+      "GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  },
+  {
+    "case": "ArturRios.Cerberus.WebApi.Tests.FolderMoveHttpTests.GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain(mode: \"Master\") [607 ms]",
+    "status": [
+      "OK",
+      "NotFound"
+    ],
+    "frames": [
+      "GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain",
+      "Success",
+      "cs",
+      "GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain",
+      "cs",
+      "GivenNativeSelectedOwnedCollectionCommonAncestor_WhenMoving_ThenInheritedScopeAndAllOpaqueWrappersRemain",
+      "cs"
+    ],
+    "message": "Assert.Equal() Failure: Values differ\nExpected: OK\nActual:   NotFound"
+  }
+]

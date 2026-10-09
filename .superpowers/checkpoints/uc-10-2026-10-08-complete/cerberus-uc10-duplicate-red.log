@@ -1,0 +1,52 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc10-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc10-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc10-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc10-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc10-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc10-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:10.09]     ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(corrupt: "duplicate") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(corrupt: "duplicate") [2 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   OK
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.Failure(HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 101
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 86
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 86
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 87
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:10.34]     ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(corrupt: "zero") [FAIL]
+[xUnit.net 00:00:11.17]     ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(corrupt: "recipient") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(corrupt: "zero") [234 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   OK
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.Failure(HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 101
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 86
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 86
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 87
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(corrupt: "recipient") [275 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   OK
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.Failure(HttpResponseMessage response, Int32 status) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 101
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 86
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 86
+   at ArturRios.Cerberus.WebApi.Tests.ProfileListHttpTests.GivenUnavailableOrCorruptProfileStorage_WhenListing_Then503WithoutPartialPayload(String corrupt) in /tmp/cerberus-uc10-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ProfileListHttpTests.cs:line 87
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     3, Passed:     2, Skipped:     0, Total:     5, Duration: 3 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

@@ -1,0 +1,10 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc01-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Release/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc01-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Release/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Shared.Tests -> /tmp/cerberus-uc01-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Release/net10.0/ArturRios.Cerberus.Shared.Tests.dll
+Test run for /tmp/cerberus-uc01-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Release/net10.0/ArturRios.Cerberus.Shared.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    73, Skipped:     0, Total:    73, Duration: 344 ms - ArturRios.Cerberus.Shared.Tests.dll (net10.0)

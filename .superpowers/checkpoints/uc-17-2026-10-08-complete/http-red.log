@@ -1,0 +1,649 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 316 ms).
+  Restored /tmp/cerberus-uc17-worktree/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 316 ms).
+  Restored /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj (in 316 ms).
+  4 of 7 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc17-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc17-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc17-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:11.54]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "terminal") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "terminal") [2 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 195
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.68]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "owner") [FAIL]
+[xUnit.net 00:00:11.88]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "trash") [FAIL]
+[xUnit.net 00:00:11.91]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?search=secret") [FAIL]
+[xUnit.net 00:00:11.97]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=%201") [FAIL]
+[xUnit.net 00:00:12.02]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=01") [FAIL]
+[xUnit.net 00:00:12.06]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?profileId=00000000-0000-0000-0000-000000000001") [FAIL]
+[xUnit.net 00:00:12.14]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=") [FAIL]
+[xUnit.net 00:00:12.20]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?PageSize=1") [FAIL]
+[xUnit.net 00:00:12.28]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=1.0") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "owner") [143 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 195
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(kind: "trash") [190 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSharedContentBecomesHidden_WhenListing_ThenOmitBeforeNativeInspection(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 195
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?search=secret") [31 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=%201") [55 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=01") [48 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?profileId=00000000-0000-0000-0000-000000000001") [41 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=") [78 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?PageSize=1") [58 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=1.0") [72 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.32]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=-1") [FAIL]
+[xUnit.net 00:00:12.35]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=0") [FAIL]
+[xUnit.net 00:00:12.40]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=+1") [FAIL]
+[xUnit.net 00:00:12.47]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=") [FAIL]
+[xUnit.net 00:00:12.52]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=1&pageSize=2") [FAIL]
+[xUnit.net 00:00:12.59]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=bad") [FAIL]
+[xUnit.net 00:00:12.64]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=101") [FAIL]
+[xUnit.net 00:00:12.69]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=2147483648") [FAIL]
+[xUnit.net 00:00:12.77]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=a&cursor=b") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=-1") [38 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=0") [38 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=+1") [48 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=") [64 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=1&pageSize=2") [44 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=bad") [69 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=101") [53 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?pageSize=2147483648") [44 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(query: "?cursor=a&cursor=b") [79 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedOrUnknownQuery_WhenListing_Then400WithoutMutation(String query) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 100
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.03]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "envelope") [FAIL]
+[xUnit.net 00:00:13.25]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "duplicate") [FAIL]
+[xUnit.net 00:00:13.36]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "revision") [FAIL]
+[xUnit.net 00:00:13.55]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "zero") [FAIL]
+[xUnit.net 00:00:13.65]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "unavailable") [FAIL]
+[xUnit.net 00:00:13.80]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "time") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "envelope") [251 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 177
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 178
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 179
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "duplicate") [223 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 177
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 178
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 179
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "revision") [100 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 177
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 178
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 179
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "zero") [191 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 177
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 178
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 179
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "unavailable") [102 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 177
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 178
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 179
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(kind: "time") [141 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 177
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 178
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 179
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.48]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "grant") [FAIL]
+[xUnit.net 00:00:14.70]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "profileCollection") [FAIL]
+[xUnit.net 00:00:14.86]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "session") [FAIL]
+[xUnit.net 00:00:15.10]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "member") [FAIL]
+[xUnit.net 00:00:15.26]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(access: ReadWrite, selected: False) [FAIL]
+[xUnit.net 00:00:15.56]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(access: ReadOnly, selected: True) [FAIL]
+[xUnit.net 00:00:15.72]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(access: ReadOnly, selected: False) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "grant") [676 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "profileCollection") [226 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "session") [158 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(kind: "member") [239 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 82
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(access: ReadWrite, selected: False) [161 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 69
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(access: ReadOnly, selected: True) [295 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 69
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(access: ReadOnly, selected: False) [156 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 69
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:15.96]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(access: ReadWrite, selected: True) [FAIL]
+[xUnit.net 00:00:16.01]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "size") [FAIL]
+[xUnit.net 00:00:16.10]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "tamper") [FAIL]
+[xUnit.net 00:00:16.16]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "actor") [FAIL]
+[xUnit.net 00:00:16.24]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "access") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(access: ReadWrite, selected: True) [241 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenNativeRecipientCollectionGrant_WhenListing_ThenIncludeDirectAndDescendantMembershipOnceWithinCurrentScope(CollectionGrantAccess access, Boolean selected) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 69
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "size") [51 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 156
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "tamper") [87 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 156
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "actor") [59 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 156
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(kind: "access") [71 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCursorSubstitution_WhenContinuing_Then400(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 156
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:16.73]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenFreshNativeSelectedHandle_WhenListing_ThenResolveDirectAndDynamicFolderScopeWithoutOtherProfileLeakage(mode: "PerProfile") [FAIL]
+[xUnit.net 00:00:17.02]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenFreshNativeSelectedHandle_WhenListing_ThenResolveDirectAndDynamicFolderScopeWithoutOtherProfileLeakage(mode: "Master") [FAIL]
+[xUnit.net 00:00:17.09]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "missing", status: 404) [FAIL]
+[xUnit.net 00:00:17.14]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "generation", status: 403) [FAIL]
+[xUnit.net 00:00:17.19]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "terminal", status: 404) [FAIL]
+[xUnit.net 00:00:17.23]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "policy", status: 403) [FAIL]
+[xUnit.net 00:00:17.29]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "dangling", status: 403) [FAIL]
+[xUnit.net 00:00:17.36]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "closing", status: 404) [FAIL]
+[xUnit.net 00:00:17.43]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "expired", status: 403) [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenFreshNativeSelectedHandle_WhenListing_ThenResolveDirectAndDynamicFolderScopeWithoutOtherProfileLeakage(mode: "PerProfile") [311 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenFreshNativeSelectedHandle_WhenListing_ThenResolveDirectAndDynamicFolderScopeWithoutOtherProfileLeakage(String mode) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenFreshNativeSelectedHandle_WhenListing_ThenResolveDirectAndDynamicFolderScopeWithoutOtherProfileLeakage(mode: "Master") [285 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenFreshNativeSelectedHandle_WhenListing_ThenResolveDirectAndDynamicFolderScopeWithoutOtherProfileLeakage(String mode) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 55
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "missing", status: 404) [66 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "generation", status: 403) [49 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "terminal", status: 404) [52 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "policy", status: 403) [36 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "dangling", status: 403) [59 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "closing", status: 404) [66 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "expired", status: 403) [73 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:17.48]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "future", status: 403) [FAIL]
+[xUnit.net 00:00:17.53]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "revoked", status: 403) [FAIL]
+[xUnit.net 00:00:17.57]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [FAIL]
+[xUnit.net 00:00:17.61]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "transfer", status: 400) [FAIL]
+[xUnit.net 00:00:17.75]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "missing", status: 401) [FAIL]
+[xUnit.net 00:00:17.80]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "body", status: 400) [FAIL]
+[xUnit.net 00:00:17.84]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "bad", status: 400) [FAIL]
+[xUnit.net 00:00:17.98]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "wrapper") [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "future", status: 403) [48 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(kind: "revoked", status: 403) [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 149
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "duplicate", status: 400) [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 112
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "transfer", status: 400) [39 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 112
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "missing", status: 401) [75 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Unauthorized
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 112
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "body", status: 400) [47 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 112
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(kind: "bad", status: 400) [41 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: BadRequest
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(String kind, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 112
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "wrapper") [131 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 191
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:18.16]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "epoch") [FAIL]
+[xUnit.net 00:00:18.27]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "pins") [FAIL]
+[xUnit.net 00:00:18.30]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenEmptyOwnedInventory_WhenListing_Then200EmptyPageWithoutCursor [FAIL]
+[xUnit.net 00:00:18.35]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(kind: "http2") [FAIL]
+[xUnit.net 00:00:18.41]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(kind: "empty") [FAIL]
+[xUnit.net 00:00:18.61]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(kind: "terminal") [FAIL]
+[xUnit.net 00:00:18.86]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(kind: "trash") [FAIL]
+[xUnit.net 00:00:19.02]     ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenHttpCreatedOwnedRecords_WhenPaging_ThenReturnExactOpaqueShapeAndStableHighwaterWithoutMutation [FAIL]
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "epoch") [180 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 191
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(kind: "pins") [108 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: ServiceUnavailable
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenCorruptRelevantNativeGrant_WhenListing_Then503WithoutAnyOwnedOrSharedPayload(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 191
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenEmptyOwnedInventory_WhenListing_Then200EmptyPageWithoutCursor [30 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenEmptyOwnedInventory_WhenListing_Then200EmptyPageWithoutCursor() in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 184
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(kind: "http2") [53 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   405
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 122
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(kind: "empty") [56 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 400
+Actual:   405
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 122
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(kind: "terminal") [196 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 187
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(kind: "trash") [248 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Failure(HttpResponseMessage r, Int32 status, String error) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 219
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenSelectedProfileBecomesHidden_WhenListing_Then403WithoutMutation(String kind) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 187
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenHttpCreatedOwnedRecords_WhenPaging_ThenReturnExactOpaqueShapeAndStableHighwaterWithoutMutation [156 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OK
+Actual:   MethodNotAllowed
+  Stack Trace:
+     at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.Success[T](HttpResponseMessage r, Int32 status) in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 217
+   at ArturRios.Cerberus.WebApi.Tests.RecordListHttpTests.GivenHttpCreatedOwnedRecords_WhenPaging_ThenReturnExactOpaqueShapeAndStableHighwaterWithoutMutation() in /tmp/cerberus-uc17-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordListHttpTests.cs:line 38
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    62, Passed:     5, Skipped:     0, Total:    67, Duration: 9 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

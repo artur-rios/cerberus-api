@@ -1,0 +1,1 @@
+{"query": "mutation($input:UpdateProjectV2ItemFieldValueInput!){updateProjectV2ItemFieldValue(input:$input){projectV2Item{id}}}", "variables": {"input": {"projectId": "PVT_kwHOAgOUtM4BmFmu", "itemId": "PVTI_lAHOAgOUtM4BmFmuzg_LyfU", "fieldId": "PVTSSF_lAHOAgOUtM4BmFmuzhkv-AQ", "value": {"singleSelectOptionId": "47fc9ee4"}}}}

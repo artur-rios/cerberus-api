@@ -214,10 +214,11 @@ compliance. Primary obligations are in
 CI on pushes/PRs restores and builds the solution, runs separate unit/functional steps, merges
 coverage and enforces its floor, and validates published API contracts. A failing required
 check blocks merge. Use protected `develop` for feature/fix PRs and protected `main` for release PRs,
-following the [contribution policy](../../CONTRIBUTING.md). The initial documentation-only
-CI validates specifications. After scaffolding, it also runs vulnerability checks,
-unit/functional tests, merged coverage enforcement and a Docker build. The required
-`deploy/production` check on `main` requires the deployment integration to be provisioned. No scheduled issue labels or due dates are invented.
+following the [contribution policy](../../CONTRIBUTING.md). CI validates the specifications and,
+since the foundation scaffold, also runs vulnerability checks, unit/functional tests, merged
+coverage enforcement and a Docker build. The required `deploy/production` check on `main` requires
+the deployment integration to be provisioned: Cerberus is not yet registered in yggdrasil's
+`catalog.yaml` and has no `Jenkinsfile`. No scheduled issue labels or due dates are invented.
 
 After approval, package the API with the stable runtime and deploy to the Ubuntu VPS through
 the operator's controlled delivery path. Validate configuration, apply migrations through an

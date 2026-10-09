@@ -1,0 +1,10 @@
+{
+  "status": "paused",
+  "completedIssue": 30,
+  "nextIssueNotStarted": 31,
+  "merged": 30,
+  "remaining": 25,
+  "ownedSddRemovedAfterVerifiedArchive": true,
+  "primaryFourSHAUnchanged": true,
+  "checkpointNormalization": "Two historical status complete entries count as delivered; no past implementation or remote state changed."
+}

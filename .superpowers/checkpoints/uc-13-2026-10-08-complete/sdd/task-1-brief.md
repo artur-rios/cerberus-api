@@ -1,0 +1,9 @@
+### Task 1: Durable atomic profile trash
+
+**Files:** Create src/Domain/ArturRios.Cerberus.Domain/Trash/{TrashOperation,TrashEntry,ProfileAssociationSnapshot}.cs, src/Domain/ArturRios.Cerberus.Domain/Profiles/ProfileTrashContracts.cs, src/Infrastructure/ArturRios.Cerberus.Data/Profiles/ProfileTrashStore.cs, EF migration; modify Data/AppDbContext.cs; create tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileTrashStoreTests.cs.
+**Interfaces:** Produces ProfileTrashRequest(Guid Actor,string AccessVerifier,Guid ProfileId,long ExpectedRevision), ProfileTrashDetails(Guid ProfileId,Guid TrashOperationId,long Revision,long ServerSequence,DateTimeOffset DeletedAt,DateTimeOffset PurgeAt), IProfileTrashStore.TrashAsync(request,ct)->VaultResult<ProfileTrashDetails>; TrashOperation/TrashEntry durable typed membership; ProfileAssociationSnapshot(Guid[]RecordIds,Guid[]FolderIds,Guid[]CollectionIds).
+- [ ] Write realPG tests for owned bothmodes: exact retained opaque bytes/EditedAt and newrevision/sequence, durable operation/entry/empty snapshot/exact30days/queue, selectedsessionsrevoked while unrelated/accountwide survive/read-list omit. Hidden/currentaccount/session/scope states, stale/edit/delete/retry races; expiryaccount/session/profile locks inclstalerevision and prewrite; rollback postwrite/entry/queue, outage/cancel/counterexhaustion/invalidinternal. Runfocused; expected missing-store/type compile failure.
+- [ ] Implement schema/entities and generate reviewed migration. Implement account→session→profile locks and fresh postlockcheck, currentpredicate UPDATE using statement_timestamp and720hour interval. Validate result ordering then persist operation/entry/queue and revoke ownedselectedsessions in same transaction; no envelope decrypt/replace or irreversibleerasure.
+- [ ] Run wholeDatafamily including migration/rotation regressions; expected all pass0skip. Commit.
+**Completion:** main/AF01–05 persistence and schema proven, no partialstate.
+

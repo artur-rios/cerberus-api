@@ -1,0 +1,91 @@
+A visible owned folder can now be recoverably deleted with its active descendants and contained records. `DELETE /api/folders/{id}` requires current identity/vault access and exactly `expectedRevision`, returning six deletion metadata fields. Every member retains opaque ciphertext and shares one 30-day deadline. Independently trashed items retain their own deadlines. Native RO/RW recipients cannot delete; selected owner access admits the root cascade, including directly shared records.
+
+The transaction captures the complete active subtree and stored associations, serializes current owner writers, orders collection/content locks and rechecks authority after waits. One guarded root write authorizes an atomic cascade; all member, link, parent, trash-entry and queue faults roll back together. Typed snapshots preserve original public parent/profile/collection IDs; distinct active external parents advance once. Recipient active reads disappear while grants remain active. No schema, dependency or cryptographic algorithm change.
+
+Closes #28.
+
+## Validation
+
+- Fresh unfiltered **6110 PASS, zero failures/skips**: Domain 361, Shared 125, Query 411, Data 2245, Command 987, WebApi 1981.
+- Actual production coverage **98.4% line / 91.9% aggregate branch**, all six assemblies at least90%line.
+- Focused Command75/Data147/nativeHTTP108; actual missing contract/store RED before products and103 missingDELETE405 +5sharedmiddleware passes before route/DI; first actual HTTP108GREEN. Data test-only helper/analyzer/EXPLAIN decimal-parser corrections are distinguished from product regressions.
+- Actual owner create/move/association/rotation and native recipient folder/record edits, every named lock-phase expiry/finalroot typed changes, captured existing-row inventory growth, complete retained rotation include/omit, prior actual independent deletions and fullgraph rollback/cleanretry assertions pass.
+- Actual EXPLAIN root1/selfancestry3 among200unrelatedfolders and exact parent/root/child heldIDs; no productionload certification. Queue-command fault proves rollback of earlier graph/operation/entries, not an injected post-successful-queue/commit-ack fault.
+- Lockedrestore/direct+transitiveNuGet/nativeOSV153zero/nativecorpus322×4/nativehelpers36/Pythonhelpers23/specs107FR55UC29BR/OpenAPIwrite+drift+shape/rangewhitespace pass.
+- ONE fresh whole-branch review found no blockers; all20 declined judgments have explicit final reason/cost rulings and all3Minors are retained below. Required latestexactHEAD branch-policy/test/docker remain the delivery gate.
+
+## Rulings I made
+
+- Ruling: Reuse freshly verified UC26 baseline a03bf90 — merged tree equals tested612c5b8 with5780 freshpasses/exactCI; final newcheckout fullsuite still mandatory — cost if wrong: environment differences need fresh full verification.
+
+- Ruling: One expectedRevision input and six public trash metadata outputs — established recoverable record contract; no new signed challenge beyond current identity/access — cost if wrong: clients need separate trash/detail calls and protocol qualification before release.
+
+- Ruling: Owner-visible root admits explicit active owned subtree cascade — FR-FD-06/BR22 includes contained records even shared elsewhere; selected root scope does not require each descendant independently linked — cost if wrong: owners must understand cascade effects across other views.
+
+- Ruling: Strong own account UPDATE serializes current same-owner topology and FK insertion — all current owned writers lock the actor account before content; collections-before-content aligns foreign edits — cost if wrong: strong lock adds contention and future writers require separate audit including BEFOREUC35 implicit recipient FK.
+
+- Ruling: Folder-only PF/CF authority with every relevant foreign native contributor verified before403 — PR/CR cannot authorize containers; no foreign locks or owned ciphertext parsing for denial — cost if wrong: corrupt overlapping foreign evidence yields503 and record-only clients lack container navigation.
+
+- Ruling: Capture complete active subtree and all stored direct associations including inactive links — sorted typed snapshots plus original parent IDs support later revalidated restoration; reload/full guard rejects uncaptured changes — cost if wrong: large cascades add inventory work and harmless changes may require retry.
+
+- Ruling: Preserve independent trash/terminal identities and reject old typed entries on active items — real previous store deletions detach items and retain original operation deadlines; typed GUID aliases never conflate kinds — cost if wrong: UC51 must consume old entries/revalidate links before re-trash.
+
+- Ruling: Root guarded write is atomic cascade authorization linearization — fresh statement-time authority after waits starts one transaction-wide cascade using actual root timestamps — cost if wrong: expiry after linearization does not cancel an already authorized atomic operation; future out-of-band writers must preserve boundary.
+
+- Ruling: Retain damaged owned opaque envelopes without parsing or decryption — recoverable trash should remove access even to damaged ciphertext; structural counters/time/purge still fail closed — cost if wrong: damaged content may remain undecryptable until clients repair it.
+
+- Ruling: Bump each distinct active external profile/collection/rootparent once — direct associations detach; unchanged ancestors/recipient profiles and subtree folders get no second structural bump — cost if wrong: clients depend on later durable inherited visibility synchronization.
+
+- Ruling: One folder operation/many typed entries/one720hour queue, physical purge and restore later — existing retention executor retries missing handler; UC51/53 and UC48 remain explicit release gates — cost if wrong: retained ciphertext/sync remain incomplete until these flows are implemented.
+
+- Ruling: Independent security/protocol/client qualification remains development-only deferred — explicit user scope keeps ordinary one review/native/tests/CI and release gates intact — cost if wrong: latent security/client defects still require independent qualification.
+
+- Final: Ruling: Independent formal security, protocol and cryptographic certification — explicitly deferred for development by the user; this review judges current concrete implementation effects and is not that independent certification. — Current concrete ownership/native/lifecycle checks stand; explicit development-only deferral leaves formal independent approval mandatory before release — cost if wrong: latent protocol/security flaws still need independent qualification.
+
+- Final: Ruling: Real external-client operability, including a deployed client's handling of DELETE bodies and generated SDKs — explicitly deferred; native in-repository HTTP tests are evidence for this server boundary, not external-client approval. M2/M3 remain actual reviewed metadata findings. — Actual native HTTP confirms server behavior; external deployed clients/DELETE-body handling and generated SDKs still need explicit release qualification — cost if wrong: integration/decryption errors can remain undiscovered outside repository fixtures.
+
+- Final: Ruling: Completed trash listing, restoration, emptying and physical purge after the 720-hour deadline — UC50–53 are expressly later work; current queue insertion and retry-on-missing-handler behavior must not be represented as completed physical retention enforcement. — One durable operation/entries/queue commits; missing handler retries and UC50–53 remain mandatory physical retention/restore work — cost if wrong: ciphertext can remain stored beyond the logical deadline until later handlers ship.
+
+- Final: Ruling: Authorization and conflict policy of a future restore implementation — retained snapshots are evidence only; membership must be revalidated and old typed entries consumed under UC51. No restore endpoint is implemented here. — Snapshots grant no permission; UC51 must revalidate memberships/typed identity and consume old entries before re-trash — cost if wrong: an incorrect future restore could revive removed access or reuse old deadlines.
+
+- Final: Ruling: Durable offline/inherited-visibility synchronization and recipient copies already cached outside the service — UC48 is a later gate; active server reads/lists hide the cascade, but this change cannot retract already-held copies. — Active server reads/lists hide the cascade now; UC48 durable inherited events and clients enforcing cached revocation remain separate release gates — cost if wrong: offline copies or incremental visibility removals can remain stale.
+
+- Final: Ruling: Future grant-creation implicit recipient-account FK behavior, especially UC35 — no such new writer is added in this diff; the explicit before-UC35 audit is required before extending current lock-order conclusions. — Current writers were reviewed and raced; BEFOREUC35 implicit recipient-account FK audit is mandatory before adding grant creation — cost if wrong: a future FK/order cycle could deadlock account and collection writers.
+
+- Final: Ruling: Arbitrary future or out-of-band writers that ignore the account/structural locking contract, including terminal lifecycle changes after authorization linearization — current guarded behavior and injected races were reviewed; universal safety for unaudited writers cannot be certified by this branch. — Only current writer contract and guarded boundary are supported; later/out-of-band topology/terminal writers must preserve it and be audited — cost if wrong: unaudited writers can invalidate captured inventory or terminal behavior.
+
+- Final: Ruling: Cancellation of an already authorized atomic cascade solely because its access handle expires after the guarded root write — the explicitly chosen transaction authorization boundary permits completion; this is not stale authority at the root write. — Fresh current authority at the guarded root write authorizes one atomic transaction under held locks; expiry afterward does not cancel it — cost if wrong: a user may observe completion after the handle naturally expires.
+
+- Final: Ruling: Owner cascade effects on descendants lacking individual profile links and records shared elsewhere — explicitly intended and documented owner operation; I did not redefine selected root admission as a per-descendant permission requirement. — FR-FD06/BR22 explicitly cascade all active contained owned items once a selected owner root is admitted; documented other sharing is removed from active views — cost if wrong: owners can affect records or descendants linked to other profiles/views.
+
+- Final: Ruling: Repair or decryption of damaged owned ciphertext — intentionally outside recoverable deletion; byte preservation is checked, and unreadable content does not need to become decryptable to be trashed. — Recoverable deletion retains even damaged opaque bytes; ciphertext repair/decryption is a client concern, not a deletion precondition — cost if wrong: retained damaged content may remain unreadable after restoration.
+
+- Final: Ruling: Rejection of a foreign deletion request because one relevant overlapping native contributor is corrupt even if another is valid — explicit fail-closed policy, with selected-scope isolation verified; not downgraded to successful visibility proof through the other route. — Every relevant overlapping native contributor must validate; selected scope excludes unrelated routes and visible foreign deletion remains denied — cost if wrong: a corrupt overlapping RO route can turn otherwise valid visible denial into503.
+
+- Final: Ruling: Automatic repair of active resources with old typed trash entries — deliberate 409 prevents reusing retention identity/deadlines; reconciliation belongs to restore, not this deletion transaction. — Existing typed entry on an active item yields409 without mutation; restore must reconcile old retention membership explicitly — cost if wrong: stale restored entries require intervention before another deletion.
+
+- Final: Ruling: Production-scale latency, memory consumption and contention for very large cascades — per-item writes and repeated complete inventory materialization are visible costs; retained EXPLAIN evidence bounds unrelated traversal/locks only and is not a production load qualification. No measured failure at supported production scale was supplied. — Actual EXPLAIN root1/selfancestry3 among200unrelatedfolders and exact held structuralIDs bounds unrelated work; no supported load target or throughput certification exists — cost if wrong: large cascades can impose memory/latency/lock contention and need measured limits.
+
+- Final: Ruling: Corrupt ancestry created by disabling relational integrity or arbitrary database tampering beyond the supplied fixtures — SQL/schema defensive guards were inspected; no integrity-bypass runtime fixture or universal corruption-repair claim is made. — Same-owner relational integrity/current SQL guards are reviewed; no disabled-integrity fixture or automatic corruption repair is claimed — cost if wrong: arbitrary database corruption can require operational repair or stronger qualification.
+
+- Final: Ruling: PostgreSQL sequence gaps after a rolled-back operation — expected nontransactional sequence behavior; safety requires each committed changed row to advance, not gap-free global numbering. — Each changed committed row has a safe sequence greater than its own previous one; nontransactional rollback gaps are allowed — cost if wrong: clients incorrectly assuming contiguous global sequences can mis-handle gaps.
+
+- Final: Ruling: Injected failure after successful retention queue insertion or during commit acknowledgement — the supplied fault helper does not establish that particular injection point. Its queue-command failure still demonstrates rollback of earlier graph/operation/entry writes; ordinary transaction semantics are present, with no concrete incomplete-commit defect identified. — Actual fault tests cover successful earlier graph/operation/entry work followed by queue-command failure BEFORE its insert; no after-successful-queue or commit-ack injection is claimed — cost if wrong: commit-ack uncertainty remains an unexercised boundary despite atomic transaction semantics/lost-retry behavior.
+
+- Final: Ruling: Missing nullable metadata on the 200 success wrapper's `data` reference — considered separately from M2; this handler only returns 200 after non-null metadata validation, so I found no null-success behavior that makes that annotation independently wrong for this endpoint. Required success fields remain M2. — Successful200 requires nonnull validated six-field data; wrapper nullable metadata is not an independent null-success defect here, while M2 required-field metadata remains deferred — cost if wrong: generated client conventions can still need shared schema improvements.
+
+- Final: Ruling: Prior outside-diff UC25 query constructor naming, UC23 narrowed grant/post-parent fault fixtures, UC22 permission-outage 500 and UC21 formatting follow-ups — these are not introduced or modified by this branch; no new finding is inferred merely from their presence in the review prompt. — The named UC25/23/22/21 findings retain their archived dispositions and are not changed here; concrete new UC27 effects were reviewed — cost if wrong: existing maintenance/fixture/classification issues remain until their own followups.
+
+- Final: Ruling: Locked-restore/audit/native corpus/helper/spec tooling as independent proof of dependency or native runtime correctness — retained results provide ordinary development evidence; a version-based OSV result and local suite do not certify native OS/runtime security. — Actual ordinary lockedrestore/audits/native322x4/helpers/specs support development evidence; version-based OSV is not native OS/runtime correctness certification — cost if wrong: unlisted runtime vulnerabilities or library defects can survive those checks.
+
+- Final: Ruling: Remote exact-head CI, approvals/rules, mergeability, issue/project closure and final integration state — delivery remains the executor's later gate; this read-only review intentionally made no GitHub calls and does not certify those states. — Executor will separately verify freshbase/rules0approvals/latestexactHEAD3CI/normalmatchheadsquash/issue9DoD/projectDone/remoteabsence/testedtree/primarySHA before completion — cost if wrong: remote changes or missed delivery checks would invalidate local integration claims.
+
+## Deferred minors
+
+- Final: minor (deferred): M1 FolderTrashStore.cs:63/131/168–170 external active profile/collection/rootparent inventory omits PurgeAt consistency; no normal current writer creates this state, deadline/authority unchanged. Add purge field/check and actual three-parent rollback cases in defensive follow-up.
+
+- Final: minor (deferred): M2 docs/contracts/openapi.json:781/788/6426 optional vault header/body and missing six-output required list contradict strict runtime; fix shared generated schema before client release.
+
+- Final: minor (deferred): M3 docs/contracts/openapi.json:928 advertises ProblemDetails for actual empty413; fix shared body metadata before client release.
+
+Independent formal security/protocol and external-client qualifications remain development-only deferred under the owner's instruction; release gates remain mandatory. Current missing trash handlers retry. UC50–53 listing/restore/empty/physical expiry and UC48 durable inherited visibility remain later obligations. Future grant writers require the separate implicit recipient-account FK audit before UC35.

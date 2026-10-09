@@ -1,0 +1,1 @@
+{"query": "query($id:ID!){node(id:$id){...on Issue{number projectItems(first:20){nodes{id project{id title} fieldValueByName(name:\"Status\"){...on ProjectV2ItemFieldSingleSelectValue{name}}}}}}}", "variables": {"id": "I_kwDOU_vxQ88AAAABVpqA4A"}}

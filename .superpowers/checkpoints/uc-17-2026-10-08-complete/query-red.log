@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj (in 335 ms).
+  Restored /tmp/cerberus-uc17-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ArturRios.Cerberus.Query.Tests.csproj (in 337 ms).
+  2 of 4 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc17-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc17-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+/tmp/cerberus-uc17-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ListRecordsHandlerTests.cs(8,32): error CS0234: The type or namespace name 'Records' does not exist in the namespace 'ArturRios.Cerberus.Query' (are you missing an assembly reference?) [/tmp/cerberus-uc17-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ArturRios.Cerberus.Query.Tests.csproj]
+/tmp/cerberus-uc17-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ListRecordsHandlerTests.cs(213,20): error CS0246: The type or namespace name 'ListRecordsHandler' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc17-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/ArturRios.Cerberus.Query.Tests.csproj]

@@ -1,0 +1,54 @@
+{
+  "tests": 7005,
+  "counts": {
+    "Domain": 361,
+    "Shared": 125,
+    "Query": 411,
+    "Command": 1174,
+    "Data": 2662,
+    "WebApi": 2272
+  },
+  "lineCoverage": 98.4,
+  "branchCoverage": 91.9,
+  "assemblies": [
+    {
+      "name": "ArturRios.Cerberus.Command",
+      "coverage": 100,
+      "branchcoverage": 97.7
+    },
+    {
+      "name": "ArturRios.Cerberus.Data",
+      "coverage": 98.4,
+      "branchcoverage": 88.5
+    },
+    {
+      "name": "ArturRios.Cerberus.Domain",
+      "coverage": 99.3,
+      "branchcoverage": 96.4
+    },
+    {
+      "name": "ArturRios.Cerberus.Query",
+      "coverage": 100,
+      "branchcoverage": 98.5
+    },
+    {
+      "name": "ArturRios.Cerberus.Shared",
+      "coverage": 97.2,
+      "branchcoverage": 88
+    },
+    {
+      "name": "ArturRios.Cerberus.WebApi",
+      "coverage": 94.9,
+      "branchcoverage": 89.2
+    }
+  ],
+  "freshXML": {
+    "tests/Application/ArturRios.Cerberus.Shared.Tests/TestResults/03768576-0d84-4df7-a45a-28e73dfc4101/coverage.cobertura.xml": "502dda8754360695587d1c067b6c75c2ae0f7bc21e17b0a730185ab21b5dc878",
+    "tests/Application/ArturRios.Cerberus.Query.Tests/TestResults/3a53b8ea-9816-4a02-8856-cefac2012a73/coverage.cobertura.xml": "632d8ccec7417b769e18686c991f24a28d8f54783cae064bcdef1be5225093de",
+    "tests/Application/ArturRios.Cerberus.Command.Tests/TestResults/87811d0c-8102-4a39-8352-ae3b99a4e395/coverage.cobertura.xml": "a845f726d0fc121a0ed63d541af57bc2888b3d8487f85c93399f526ea810400e",
+    "tests/Domain/ArturRios.Cerberus.Domain.Tests/TestResults/c62030a2-eb75-43c0-8739-27689d2aca0f/coverage.cobertura.xml": "a03f4237c85ed86047847a4d79ed210c254155884155a75946818485bd76d019",
+    "tests/Infrastructure/ArturRios.Cerberus.Data.Tests/TestResults/efc5aab6-cfd1-492d-b2a2-783830480552/coverage.cobertura.xml": "e4a2caa9e45d19d7677998825f4dbc006e10de75c0ba11af8d3871d18d329e2a",
+    "tests/Presentation/ArturRios.Cerberus.WebApi.Tests/TestResults/6710ed60-6e27-4f93-a919-39e164566c92/coverage.cobertura.xml": "bae5878a559bc6f638cb5f5681294b56fedbfae2a75c15a0939ff29006745a62"
+  },
+  "sourceFilesUnchanged": 576
+}

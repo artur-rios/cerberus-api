@@ -1,0 +1,46 @@
+{
+  "route": "DELETE /api/records/{id}/permanent",
+  "inputFields": [
+    "expectedRevision"
+  ],
+  "outputFields": [
+    "recordId",
+    "deletedAt"
+  ],
+  "statuses": [
+    "200",
+    "400",
+    "401",
+    "403",
+    "404",
+    "409",
+    "413",
+    "503"
+  ],
+  "requestBodyRequired": false,
+  "inputRequired": [
+    "expectedRevision"
+  ],
+  "outputRequired": [],
+  "vaultHeaderRequired": [
+    false
+  ],
+  "oversizeContent": {
+    "text/plain": {
+      "schema": {
+        "$ref": "#/components/schemas/ProblemDetails"
+      }
+    },
+    "application/json": {
+      "schema": {
+        "$ref": "#/components/schemas/ProblemDetails"
+      }
+    },
+    "text/json": {
+      "schema": {
+        "$ref": "#/components/schemas/ProblemDetails"
+      }
+    }
+  },
+  "sharedMetadataMinorsRetained": true
+}

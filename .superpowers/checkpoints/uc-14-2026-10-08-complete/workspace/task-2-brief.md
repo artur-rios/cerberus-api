@@ -1,0 +1,8 @@
+### Task 2: Atomic association admission and replacement
+
+**Files:** Create Data/Profiles/{ProfileAssociationVisibility,ProfileAssociationResolver,ProfileAssociationStore}.cs; tests/Data/.../ProfileAssociationStoreTests.cs.
+**Interfaces:** Consumes Task1 models/contracts; produces ProfileAssociationVisibility.Records/Folders/Collections(db,accountId) IQueryable, ProfileAssociationResolver.ResolveAsync(db,accountId,actor,records,folders,collections,ct)->resolved internal IDs/error with deterministic collection/grant SHARE locks and native pin validation; ProfileAssociationStore.SetAsync.
+- [ ] Write realPG tests owned/sharedReadOnly/sharedReadWrite/nonempty replacements, multi-profile sets/empty clears, immutable resource/profile bytes/time/owners, selectedscope subset/clear success, new own/shared identifier addition404 without scope expansion, currentaccount/session failures, hidden requested kind/owner/trash/terminal/closing owner/revoked grant, malformednativegrant503, stale/edit/delete/retry races, account/session/profile/collection/grant expiry waits and prewrite expiry, concurrentgrantchange, rollback postmetadata/linkwrite, unsafe/exhausted counters/cancellation/outage. Runfocused; expected missingstore RED.
+- [ ] Implement resolver/current native binding and fresh lock-time checks; final raw UPDATE statement_timestamp, selected-session original-membership subset guard and all requested visibility counts, transaction link replacement/newrev/seq. Refuse hidden IDs before writes and preserve winning state. Run wholeData; expected allpass0skip. Commit.
+**Completion:** Main and AF01–05 persistence verified, no partial or unauthorized membership.
+

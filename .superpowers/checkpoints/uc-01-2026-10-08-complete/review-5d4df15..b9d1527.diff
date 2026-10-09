@@ -1,0 +1,2688 @@
+# Review package: 5d4df15..HEAD
+
+## Commits
+b9d1527 feat: expose resilient account registration
+0270591 feat: reconcile registrations in PostgreSQL
+dfe8c75 Merge remote-tracking branch 'origin/develop' into feature/uc-01-register-account
+226f8d2 feat: prove and reconcile scoped registration
+fba800d feat: validate encrypted account registration
+0fa7fd5 docs: plan resilient account registration
+
+## Files changed
+ README.md                                          |  21 +-
+ docs/contracts/openapi.json                        | 347 ++++++++++++++++++++-
+ .../plans/2026-10-08-uc-01-register-account.md     |  70 +++++
+ .../2026-10-08-uc-01-register-account-design.md    |  53 ++++
+ .../Accounts/AccountMessages.cs                    |  13 +
+ .../Accounts/RegisterAccountCommand.cs             |  16 +
+ .../Accounts/RegisterAccountHandler.cs             |  56 ++++
+ .../Accounts/RegisterAccountOutput.cs              |  11 +
+ .../Accounts/RegisterAccountValidator.cs           |  23 ++
+ .../Identity/HeimdallClient.cs                     |  54 +++-
+ .../Identity/HeimdallContracts.cs                  |   3 +
+ .../ArturRios.Cerberus.Domain/Accounts/Account.cs  |  20 ++
+ .../Accounts/EncryptedEnvelope.cs                  |  24 ++
+ .../Accounts/RegistrationContracts.cs              |  13 +
+ .../Accounts/RegistrationOperation.cs              |  11 +
+ .../Accounts/RegistrationStore.cs                  |  96 ++++++
+ .../ArturRios.Cerberus.Data/AppDbContext.cs        |  13 +
+ .../20261008114913_AccountRegistration.Designer.cs | 237 ++++++++++++++
+ .../20261008114913_AccountRegistration.cs          |  91 ++++++
+ .../Migrations/AppDbContextModelSnapshot.cs        | 113 +++++++
+ .../ContractRegistration.cs                        |   3 +-
+ .../Controllers/AccountController.cs               |  36 +++
+ .../ArturRios.Cerberus.WebApi/Startup.cs           |  11 +-
+ .../RegisterAccountHandlerTests.cs                 | 102 ++++++
+ .../RegisterAccountValidatorTests.cs               |  59 ++++
+ .../RegistrationIdentityTests.cs                   | 167 ++++++++++
+ .../EncryptedEnvelopeTests.cs                      |  57 ++++
+ .../RegistrationStoreTests.cs                      | 203 ++++++++++++
+ .../RegistrationApiFixture.cs                      | 115 +++++++
+ .../RegistrationHttpTests.cs                       | 171 ++++++++++
+ 30 files changed, 2191 insertions(+), 18 deletions(-)
+
+## Diff
+diff --git a/README.md b/README.md
+index a9a4f61..1561028 100644
+--- a/README.md
++++ b/README.md
+@@ -1,19 +1,20 @@
+ # Cerberus API
+ 
+ An end-to-end encrypted vault API for credentials, passwords, notes and custom sensitive
+ records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
+ handles identity, and authorized clients encrypt/decrypt locally.
+ 
+-> **Status:** foundation infrastructure implemented; all 55 business use cases remain unimplemented. The host
+-> exposes no business endpoints. Independent protocol review and actual deployment provisioning remain
+-> required decisions. See [foundation status](docs/operations/foundation-status.md).
++> **Status:** foundation infrastructure and UC-01 account registration implemented; 54 business
++> use cases remain. Independent protocol review is explicitly deferred for development and
++> remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
++> and [foundation status](docs/operations/foundation-status.md).
+ 
+ ## Planned capabilities
+ 
+ - Distinct Cerberus accounts and vault profiles integrated with Heimdall identity.
+ - Named custom/template records, nested folders and multi-profile collections.
+ - Read-only/read/write collection sharing and explicit software secret grants.
+ - Client-held keys, one-time refreshable recovery and profile-specific protection.
+ - Latest-edit synchronization and configurable offline renewal: initially 24 hours, editable or disabled.
+ - Recoverable 30-day trash/account closure, immediate purge, privacy export and operational health.
+ 
+@@ -85,55 +86,55 @@ python3 scripts/openapi.py
+ dotnet tool install --global dotnet-reportgenerator-globaltool
+ python3 scripts/coverage.py
+ python3 scripts/vulnerabilities.py
+ docker build -t cerberus-api:local .
+ ```
+ 
+ Current functional tests use disposable PostgreSQL containers and an in-memory HTTP host.
+ Every implemented use case must ship with main/alternative-flow tests. The required merged
+ line-coverage floor is 90%; branch coverage must be reported before foundation approval.
+ `python3 scripts/verify_protocol.py` intentionally fails while the review record is pending.
+-CI requires it for use-case branches, promotion to `main` and version-tag releases. Never
+-begin dependent encryption/recovery work without actual security/client review evidence.
++CI requires it for promotion to `main` and version-tag releases. The owner explicitly
++deferred independent review for development into `develop`; actual approval remains pending.
+ After reviewing a deliberate API contract change, run `python3 scripts/openapi.py --write`
+-and commit its result. The foundation's empty contract is intentional: no business routes
+-exist yet. OpenAPI generation starts no server and requires no deployment credentials.
++and commit its result. OpenAPI includes each implemented business route. Generation starts
++no server and requires no deployment credentials.
+ 
+ ## Roadmap
+ 
+ Track delivery on the public [Cerberus API project](https://github.com/users/artur-rios/projects/15).
+ Each use case has one issue; the foundation issue comes first. Every milestone depends on
+ Foundation, with dependencies only on earlier milestones. Counts below are the snapshot at
+ creation; GitHub milestone pages show live progress. No due dates or labels were assigned.
+ 
+ | Milestone | Delivers | Depends on | Issues | Status |
+ | --- | --- | --- | --- | --- |
+-| [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 0 / 1 closed |
+-| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 0 / 9 closed |
++| [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
++| [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 1 / 9 closed |
+ | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 0 / 26 closed |
+ | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
+ | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
+ | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
+ 
+ ## Backlog
+ 
+ ### M-01 — Foundation
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+ | [#1](https://github.com/artur-rios/cerberus-api/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) | Done |
+ 
+ ### M-02 — Account identity and vault protection
+ 
+ | Issue | Work | Spec | Status |
+ | --- | --- | --- | --- |
+-| [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Todo |
++| [#2](https://github.com/artur-rios/cerberus-api/issues/2) | UC-01 — Register account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-01-register-account) | Done |
+ | [#3](https://github.com/artur-rios/cerberus-api/issues/3) | UC-02 — Authenticate | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-02-authenticate) | Todo |
+ | [#4](https://github.com/artur-rios/cerberus-api/issues/4) | UC-03 — Get account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-03-get-account) | Todo |
+ | [#5](https://github.com/artur-rios/cerberus-api/issues/5) | UC-04 — Update account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-04-update-account) | Todo |
+ | [#6](https://github.com/artur-rios/cerberus-api/issues/6) | UC-05 — Update identity details | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-05-update-identity-details) | Todo |
+ | [#39](https://github.com/artur-rios/cerberus-api/issues/39) | UC-38 — Initialize vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-38-initialize-vault-protection) | Todo |
+ | [#40](https://github.com/artur-rios/cerberus-api/issues/40) | UC-39 — Change vault protection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-39-change-vault-protection) | Todo |
+ | [#41](https://github.com/artur-rios/cerberus-api/issues/41) | UC-40 — Recover vault access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-40-recover-vault-access) | Todo |
+ | [#42](https://github.com/artur-rios/cerberus-api/issues/42) | UC-41 — Refresh recovery key | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-41-refresh-recovery-key) | Todo |
+ 
+ ### M-03 — Organized vault
+diff --git a/docs/contracts/openapi.json b/docs/contracts/openapi.json
+index fe1eebd..51fbb81 100644
+--- a/docs/contracts/openapi.json
++++ b/docs/contracts/openapi.json
+@@ -1,10 +1,351 @@
+ {
+   "openapi": "3.0.4",
+   "info": {
+     "title": "Cerberus API",
+-    "description": "Foundation only. Business endpoints are added by their reviewed use cases.",
++    "description": "Cerberus encrypted vault API. Identity authentication and vault access are separate.",
+     "version": "v1"
+   },
+-  "paths": {},
+-  "components": {}
++  "paths": {
++    "/api/accounts": {
++      "post": {
++        "tags": [
++          "Account"
++        ],
++        "requestBody": {
++          "content": {
++            "application/json": {
++              "schema": {
++                "$ref": "#/components/schemas/RegisterAccountCommand"
++              }
++            },
++            "text/json": {
++              "schema": {
++                "$ref": "#/components/schemas/RegisterAccountCommand"
++              }
++            },
++            "application/*+json": {
++              "schema": {
++                "$ref": "#/components/schemas/RegisterAccountCommand"
++              }
++            }
++          }
++        },
++        "responses": {
++          "201": {
++            "description": "Created",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/RegisterAccountOutputDataOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/RegisterAccountOutputDataOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/RegisterAccountOutputDataOutput"
++                }
++              }
++            }
++          },
++          "200": {
++            "description": "OK",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/RegisterAccountOutputDataOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/RegisterAccountOutputDataOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/RegisterAccountOutputDataOutput"
++                }
++              }
++            }
++          },
++          "400": {
++            "description": "Bad Request",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "401": {
++            "description": "Unauthorized",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "403": {
++            "description": "Forbidden",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "404": {
++            "description": "Not Found",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "409": {
++            "description": "Conflict",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          },
++          "503": {
++            "description": "Service Unavailable",
++            "content": {
++              "text/plain": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              },
++              "text/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/ProcessOutput"
++                }
++              }
++            }
++          }
++        }
++      }
++    }
++  },
++  "components": {
++    "schemas": {
++      "EncryptedEnvelope": {
++        "type": "object",
++        "properties": {
++          "format": {
++            "type": "string",
++            "nullable": true
++          },
++          "keyEpoch": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "nonce": {
++            "type": "string",
++            "nullable": true
++          },
++          "ciphertext": {
++            "type": "string",
++            "nullable": true
++          },
++          "tag": {
++            "type": "string",
++            "nullable": true
++          }
++        },
++        "additionalProperties": false
++      },
++      "HeimdallRegistration": {
++        "type": "object",
++        "properties": {
++          "name": {
++            "type": "string",
++            "nullable": true
++          },
++          "email": {
++            "type": "string",
++            "nullable": true
++          },
++          "password": {
++            "type": "string",
++            "nullable": true
++          }
++        },
++        "additionalProperties": false
++      },
++      "ProcessOutput": {
++        "type": "object",
++        "properties": {
++          "messages": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "errors": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "timestamp": {
++            "type": "string",
++            "format": "date-time"
++          },
++          "success": {
++            "type": "boolean",
++            "readOnly": true
++          }
++        },
++        "additionalProperties": false
++      },
++      "RegisterAccountCommand": {
++        "type": "object",
++        "properties": {
++          "accountId": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "idempotencyKey": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "identity": {
++            "$ref": "#/components/schemas/HeimdallRegistration"
++          },
++          "details": {
++            "$ref": "#/components/schemas/EncryptedEnvelope"
++          }
++        },
++        "additionalProperties": false
++      },
++      "RegisterAccountOutput": {
++        "type": "object",
++        "properties": {
++          "id": {
++            "type": "string",
++            "format": "uuid"
++          },
++          "revision": {
++            "type": "integer",
++            "format": "int64"
++          },
++          "onboardingState": {
++            "type": "string",
++            "nullable": true
++          },
++          "replayed": {
++            "type": "boolean"
++          }
++        },
++        "additionalProperties": false
++      },
++      "RegisterAccountOutputDataOutput": {
++        "type": "object",
++        "properties": {
++          "messages": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "errors": {
++            "type": "array",
++            "items": {
++              "type": "string"
++            },
++            "nullable": true
++          },
++          "timestamp": {
++            "type": "string",
++            "format": "date-time"
++          },
++          "success": {
++            "type": "boolean",
++            "readOnly": true
++          },
++          "data": {
++            "$ref": "#/components/schemas/RegisterAccountOutput"
++          }
++        },
++        "additionalProperties": false
++      }
++    }
++  },
++  "tags": [
++    {
++      "name": "Account"
++    }
++  ]
+ }
+diff --git a/docs/superpowers/plans/2026-10-08-uc-01-register-account.md b/docs/superpowers/plans/2026-10-08-uc-01-register-account.md
+new file mode 100644
+index 0000000..2228ace
+--- /dev/null
++++ b/docs/superpowers/plans/2026-10-08-uc-01-register-account.md
+@@ -0,0 +1,70 @@
++# UC-01 Register Account Implementation Plan
++
++> **For agentic workers:** Use superpowers:executing-plans to implement this plan inline. The existing batch authorization replaces per-stage human approvals with verifications.
++
++**Goal:** Implement issue #2, including every registration failure and reconciliation flow.
++
++**Architecture:** Domain owns encrypted envelope validation and registration-store contracts; Command validates and dispatches registration; Shared establishes a proved scoped Heimdall identity; Data performs durable PostgreSQL reconciliation; WebApi exposes the command through the mediator.
++
++**Tech Stack:** Existing pinned .NET, EF Core/PostgreSQL, ArturRios.Mediator/Output, FluentValidation, xUnit/Moq and Testcontainers.
++
++**Spec:** `docs/superpowers/specs/2026-10-08-uc-01-register-account-design.md` and UC-01 in the Use Case Specification; FR-AC-01–04 all exist.
++
++## Global Constraints
++
++- Preserve client-held keys, ciphertext, public GUID boundaries and no-store responses.
++- One use case, branch, issue and PR into develop; required CI gates every merge.
++- Full unfiltered suite and at least 90% merged production line coverage; report branch coverage.
++- Do not persist, log or return identity credentials, usable vault keys or internal IDs.
++- Independent review is explicitly deferred for development only; keep actual approval pending.
++
++## Review Focus
++
++- A lost upstream response must reconcile using actual ownership proof, not email.
++- Concurrent requests and changed operation input must preserve the winning account.
++- Unknown fields and noncanonical envelope encodings must fail before side effects.
++- Identity outages and pending MFA must never fall through to account creation.
++- A completed retry must not disclose account context without current identity proof.
++
++### Task 1: Validate encrypted registration input
++
++**Files:** Domain `Accounts/EncryptedEnvelope.cs`; Command `Accounts/RegisterAccountCommand.cs`, `RegisterAccountValidator.cs`; mirrored Domain/Command tests.
++
++**Interfaces:** `EncryptedEnvelope.IsValid()`; `RegisterAccountCommand : BaseCommand` with account/operation GUIDs, identity registration input and encrypted details; `RegisterAccountValidator : AbstractValidator<RegisterAccountCommand>`.
++
++- [ ] Write literal valid/invalid envelope and registration validation tests, including unknown JSON members, canonical encoding, exact nonce/tag lengths, invalid identifiers and credential shape.
++- [ ] Run the new tests; expected missing behavior fails before implementation.
++- [ ] Implement strict metadata validation without decrypting content and validator rules matching Heimdall's name/email/password contract.
++- [ ] Run Domain and Command tests; expected all pass. Commit the verified task.
++
++### Task 2: Establish proved scoped identity
++
++**Files:** Shared `Identity/HeimdallClient.cs`, `HeimdallContracts.cs`; Domain `Accounts/RegistrationContracts.cs`; Shared fixture tests.
++
++**Interfaces:** `IHeimdallClient.EstablishRegistrationIdentityAsync(HeimdallRegistration registration, string? proofToken, CancellationToken cancellationToken)` returns `RegistrationIdentity`; `IRegistrationStore.RegisterAsync(RegistrationRequest request, Func<CancellationToken, Task<RegistrationIdentity>> establishIdentity, CancellationToken cancellationToken)` returns `RegistrationResult`.
++
++- [ ] Add HTTP fixtures for new creation, proved existing login, explicit proof, MFA, duplicate email, malformed/denied/unavailable response and lost-create-response retry. Observe expected failures.
++- [ ] Implement typed outcomes; only rejected login permits constrained creation. Revalidate all existing identity proofs and preserve original adapter contracts.
++- [ ] Run the complete Shared suite; expected all pass. Commit.
++
++### Task 3: Persist and reconcile registrations
++
++**Files:** Domain `Accounts/Account.cs`, `RegistrationOperation.cs`; Data `Accounts/RegistrationStore.cs`, `AppDbContext.cs`, generated migration; Data registration tests; Command `Accounts/RegisterAccountHandler.cs` and handler tests.
++
++**Interfaces:** Implement `IRegistrationStore` using real PostgreSQL; `RegisterAccountHandler : ICommandHandlerAsync<RegisterAccountCommand, RegisterAccountOutput>` returns `DataOutput<RegisterAccountOutput?>`.
++
++- [ ] Add PostgreSQL tests for preserved ciphertext, unique identity/account/operation constraints, changed-input conflicts, concurrent attempts, terminal identifiers, and failure after upstream creation followed by retry. Observe failures.
++- [ ] Implement a durable pending-operation transaction followed by serialized identity establishment and atomic account binding. Key input fingerprints with the configured server secret; store no credentials.
++- [ ] Add handler tests for input denial, status mapping and dependency unavailability; observe failures, then implement handler and output.
++- [ ] Run Data and Command suites; expected all pass. Commit migration and implementation.
++
++### Task 4: Deliver HTTP registration
++
++**Files:** WebApi `Controllers/AccountController.cs`, `Startup.cs`; WebApi registration functional tests with controlled HTTP Heimdall and real PostgreSQL; `docs/contracts/openapi.json`; README UC-01 row.
++
++**Interfaces:** Anonymous `POST /api/accounts` passes optional bearer proof through the command mediator; stable DataOutput statuses 200/201/400/401/403/404/409/503.
++
++- [ ] Write real-host success and every AF test, including no-store, credentials redaction, persisted ciphertext and pending-operation retry. Observe failures, then implement route/DI/status map.
++- [ ] Generate and inspect OpenAPI with `python3 scripts/openapi.py --write`; mark only UC-01 done in branch README.
++- [ ] Run `dotnet test src/ArturRios.Cerberus.sln --configuration Release --logger trx` unfiltered, `python3 scripts/coverage.py`, helper/spec/OpenAPI checks and applicable dependency/harness checks. Expected zero failures/skips and coverage at least 90%.
++- [ ] Perform one fresh whole-branch code review; fix important findings with observed red/green tests. Push/open PR closing #2, require green CI, merge, close issue, delete feature branch and sync base under batch authorization.
+diff --git a/docs/superpowers/specs/2026-10-08-uc-01-register-account-design.md b/docs/superpowers/specs/2026-10-08-uc-01-register-account-design.md
+new file mode 100644
+index 0000000..1d37709
+--- /dev/null
++++ b/docs/superpowers/specs/2026-10-08-uc-01-register-account-design.md
+@@ -0,0 +1,53 @@
++# UC-01 account registration design
++
++Implement issue #2 and FR-AC-01 through FR-AC-04 through `POST /api/accounts`.
++The existing unattended batch authorization covers design, implementation, verified
++merges and issue closeout. The owner's 2026-10-08 instruction defers independent
++protocol review for development; it does not claim review approval or authorize release.
++
++The request contains a client-chosen account GUID, operation GUID, encrypted details
++envelope and Heimdall name/email/password registration input. Optional bearer identity
++proof is accepted only after signature/scope and current identity revalidation. The
++API never accepts a caller-selected Heimdall identity GUID. Unknown JSON members,
++malformed canonical base64url, unsupported envelope format, invalid nonce/tag sizes,
++nonpositive epoch and missing identifiers produce 400 without any writes.
++
++A command handler validates with FluentValidation, fingerprints the operation input
++using a server-keyed HMAC and calls a Domain registration-store interface. Persisted
++registration operations contain public identifiers, opaque envelope bytes and keyed
++fingerprints only. Identity credentials remain transient. PostgreSQL transactions
++serialize attempts for the same normalized scoped email, persist the pending operation
++before calling Heimdall, and atomically bind the identity and account after success.
++Unique constraints cover operation GUID, account GUID and identity GUID. Terminally
++erased identifiers cannot be reused. Identical completed retries require fresh proof
++and return the original public account result; changed input or an already-bound
++identity conflicts without replacing ciphertext.
++
++Heimdall establishment first accepts an explicitly supplied valid current user token,
++or performs scoped login using the submitted identity credentials. A completed login
++is revalidated and proves an existing identity; a two-factor challenge requires
++completion before linking. A rejected login permits constrained scoped creation;
++an unavailable or malformed login never triggers creation. A timed-out creation
++leaves a durable pending operation. On retry, scoped login reconciles a successful
++upstream create whose response was lost. A duplicate-email creation conflict requires
++identity proof rather than linking by email. No Cerberus identity token or vault
++session is issued by registration.
++
++Responses use the first-party DataOutput envelope and stable error/status mapping.
++Success returns only the public account GUID, revision and `protection_required`
++onboarding state. 201 means created; 200 means an identical completed retry.
++
++| Flow | Observable behavior and verification |
++| --- | --- |
++| Main | One real PostgreSQL account linked to the trusted Heimdall identity; opaque envelope preserved; no vault keys or internal ID returned. |
++| AF-01 | Validator and HTTP tests reject malformed/unknown input before persistence or dependency calls. |
++| AF-02 | Missing scope or terminal account identifier returns nonrevealing 404. |
++| AF-03 | Invalid identity proof, pending MFA or denied service authority returns 401/403 without account creation. |
++| AF-04 | Identity and database outages return redacted retryable 503; winning state is preserved. |
++| AF-05 | Failure after upstream creation leaves pending local operation; retry proves identity and commits one account without a second create. |
++| AF-06 | Existing identity requires validated current proof; different operations cannot create two accounts for it. |
++
++Alternatives considered: storing identity credentials to replay upstream requests
++would violate the storage boundary; email-only lookup would not prove ownership;
++an in-memory idempotency cache would lose reconciliation after a restart. Durable
++PostgreSQL operation records plus actual identity proof satisfy those requirements.
+diff --git a/src/Application/ArturRios.Cerberus.Command/Accounts/AccountMessages.cs b/src/Application/ArturRios.Cerberus.Command/Accounts/AccountMessages.cs
+new file mode 100644
+index 0000000..77b992b
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Accounts/AccountMessages.cs
+@@ -0,0 +1,13 @@
++namespace ArturRios.Cerberus.Command.Accounts;
++
++public static class AccountMessages
++{
++    public static readonly IReadOnlyDictionary<string, int> StatusCodes = new Dictionary<string, int>
++    {
++        ["account_registered"] = 201, ["account_registration_replayed"] = 200,
++        ["validation_failed"] = 400, ["identity_proof_required"] = 401,
++        ["authentication_required"] = 401, ["registration_forbidden"] = 403,
++        ["not_found"] = 404, ["registration_conflict"] = 409,
++        ["identity_unavailable"] = 503, ["persistence_unavailable"] = 503
++    };
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountCommand.cs b/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountCommand.cs
+new file mode 100644
+index 0000000..0b27d17
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountCommand.cs
+@@ -0,0 +1,16 @@
++using System.Text.Json.Serialization;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Shared.Identity;
++using ArturRios.Mediator.Command;
++
++namespace ArturRios.Cerberus.Command.Accounts;
++
++[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
++public sealed class RegisterAccountCommand : BaseCommand
++{
++    public Guid AccountId { get; set; }
++    public Guid IdempotencyKey { get; set; }
++    public HeimdallRegistration Identity { get; set; } = null!;
++    public EncryptedEnvelope Details { get; set; } = null!;
++    [JsonIgnore] public string? IdentityToken { get; set; }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountHandler.cs b/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountHandler.cs
+new file mode 100644
+index 0000000..a08e67a
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountHandler.cs
+@@ -0,0 +1,56 @@
++using System.Buffers.Binary;
++using System.Security.Cryptography;
++using System.Text;
++using System.Text.Json;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Shared.Configuration;
++using ArturRios.Cerberus.Shared.Identity;
++using ArturRios.Mediator.Command.Interfaces;
++using ArturRios.Output;
++using FluentValidation;
++
++namespace ArturRios.Cerberus.Command.Accounts;
++
++public sealed class RegisterAccountHandler(IValidator<RegisterAccountCommand> validator, IRegistrationStore store,
++    IHeimdallClient identity, CerberusOptions options) : ICommandHandlerAsync<RegisterAccountCommand, RegisterAccountOutput>
++{
++    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
++
++    public async Task<DataOutput<RegisterAccountOutput?>> HandleAsync(RegisterAccountCommand command, CancellationToken cancellationToken = default)
++    {
++        var output = DataOutput<RegisterAccountOutput?>.New;
++        if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
++        var key = Encoding.UTF8.GetBytes(options.AuthValidationSecret!);
++        var input = JsonSerializer.SerializeToUtf8Bytes(new object[]
++        {
++            "cerberus-registration-input-v1", options.HeimdallScopeId, command.AccountId,
++            command.IdempotencyKey, command.Identity, command.Details
++        }, Json);
++        RegistrationRequest request;
++        try
++        {
++            var fingerprint = Convert.ToHexStringLower(HMACSHA256.HashData(key, input));
++            var address = JsonSerializer.SerializeToUtf8Bytes(new[]
++            {
++                "cerberus-registration-lock-v1", options.HeimdallScopeId.ToString("D"), command.Identity.Email.Trim().ToLowerInvariant()
++            });
++            try
++            {
++                var identityLock = BinaryPrimitives.ReadInt64BigEndian(HMACSHA256.HashData(key, address));
++                request = new(command.IdempotencyKey, command.AccountId,
++                    JsonSerializer.SerializeToUtf8Bytes(command.Details, Json), fingerprint, identityLock);
++            }
++            finally { CryptographicOperations.ZeroMemory(address); }
++        }
++        finally
++        {
++            CryptographicOperations.ZeroMemory(input);
++            CryptographicOperations.ZeroMemory(key);
++        }
++        var result = await store.RegisterAsync(request,
++            token => identity.EstablishRegistrationIdentityAsync(command.Identity, command.IdentityToken, token), cancellationToken);
++        if (result.Error is not null) return output.WithError(result.Error);
++        return output.WithData(new RegisterAccountOutput { Id = result.AccountId!.Value, Revision = result.Revision, Replayed = result.Replayed })
++            .WithMessage(result.Replayed ? "account_registration_replayed" : "account_registered");
++    }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountOutput.cs b/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountOutput.cs
+new file mode 100644
+index 0000000..5902512
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountOutput.cs
+@@ -0,0 +1,11 @@
++using ArturRios.Mediator.Command;
++
++namespace ArturRios.Cerberus.Command.Accounts;
++
++public sealed class RegisterAccountOutput : CommandOutput
++{
++    public Guid Id { get; set; }
++    public long Revision { get; set; }
++    public string OnboardingState { get; set; } = "protection_required";
++    public bool Replayed { get; set; }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountValidator.cs b/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountValidator.cs
+new file mode 100644
+index 0000000..610db54
+--- /dev/null
++++ b/src/Application/ArturRios.Cerberus.Command/Accounts/RegisterAccountValidator.cs
+@@ -0,0 +1,23 @@
++using FluentValidation;
++
++namespace ArturRios.Cerberus.Command.Accounts;
++
++public sealed class RegisterAccountValidator : AbstractValidator<RegisterAccountCommand>
++{
++    public RegisterAccountValidator()
++    {
++        RuleFor(x => x.AccountId).NotEmpty().WithMessage("validation_failed");
++        RuleFor(x => x.IdempotencyKey).NotEmpty().WithMessage("validation_failed");
++        RuleFor(x => x.Details).Must(x => x is not null && x.IsValid()).WithMessage("validation_failed");
++        RuleFor(x => x.Identity).NotNull().WithMessage("validation_failed");
++        When(x => x.Identity is not null, () =>
++        {
++            RuleFor(x => x.Identity.Name).NotEmpty().WithMessage("validation_failed")
++                .MaximumLength(200).WithMessage("validation_failed");
++            RuleFor(x => x.Identity.Email).NotEmpty().WithMessage("validation_failed")
++                .EmailAddress().WithMessage("validation_failed");
++            RuleFor(x => x.Identity.Password).NotEmpty().WithMessage("validation_failed")
++                .MinimumLength(8).WithMessage("validation_failed");
++        });
++    }
++}
+diff --git a/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.cs b/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.cs
+index b64abc1..c379ea0 100644
+--- a/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.cs
++++ b/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallClient.cs
+@@ -1,21 +1,69 @@
+ using ArturRios.Cerberus.Shared.Configuration;
++using ArturRios.Cerberus.Domain.Accounts;
++using System.Net;
+ using System.Net.Http.Headers;
+ using System.Net.Http.Json;
+ using System.Text.Json;
+ using System.Text.Json.Serialization;
+ 
+ namespace ArturRios.Cerberus.Shared.Identity;
+ 
+ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, HeimdallTokenValidator tokens) : IHeimdallClient
+ {
+     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
++
++    public async Task<RegistrationIdentity> EstablishRegistrationIdentityAsync(
++        HeimdallRegistration registration, string? proofToken, CancellationToken cancellationToken)
++    {
++        if (await tokens.ValidateServiceAsync(options.HeimdallServiceCredential ?? string.Empty) is null)
++            return new(RegistrationIdentityStatus.Forbidden);
++        if (proofToken is null)
++        {
++            var loginResponse = await SendAsync(HttpMethod.Post, "/api/auth/login",
++                new { registration.Email, registration.Password, scopeId = options.HeimdallScopeId }, null, cancellationToken);
++            if (loginResponse.Data is not null)
++            {
++                var login = await ParseLoginAsync(loginResponse.Data, challengeCompletion: false);
++                if (login is null) return new(RegistrationIdentityStatus.Unavailable);
++                if (login.RequiresTwoFactor) return new(RegistrationIdentityStatus.Denied);
++                proofToken = login.Token;
++            }
++            else if (loginResponse.HttpStatus == HttpStatusCode.Unauthorized)
++            {
++                var creation = await SendAsync(HttpMethod.Post, $"/api/scopes/{options.HeimdallScopeId:D}/persons",
++                    registration, options.HeimdallServiceCredential, cancellationToken);
++                var person = ParsePerson(creation.Data, requireDeletionState: false);
++                if (person is { Role: 3, IsDeleted: false } && person.ScopeId == options.HeimdallScopeId)
++                    return new(RegistrationIdentityStatus.Verified, person.Id);
++                return new(creation.HttpStatus switch
++                {
++                    HttpStatusCode.Conflict => RegistrationIdentityStatus.Denied,
++                    HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => RegistrationIdentityStatus.Forbidden,
++                    HttpStatusCode.NotFound => RegistrationIdentityStatus.NotFound,
++                    _ => RegistrationIdentityStatus.Unavailable
++                });
++            }
++            else return new(loginResponse.HttpStatus == HttpStatusCode.Forbidden
++                ? RegistrationIdentityStatus.Forbidden : RegistrationIdentityStatus.Unavailable);
++        }
++
++        var principal = await tokens.ValidateAsync(proofToken ?? string.Empty);
++        if (principal is null) return new(RegistrationIdentityStatus.Denied);
++        var current = await RevalidateAsync(proofToken!, cancellationToken);
++        return current switch
++        {
++            HeimdallAuthorization.Authorized => new(RegistrationIdentityStatus.Verified, Guid.Parse(principal.FindFirst("id")!.Value)),
++            HeimdallAuthorization.Denied => new(RegistrationIdentityStatus.Denied),
++            _ => new(RegistrationIdentityStatus.Unavailable)
++        };
++    }
+     public async Task<bool> VerifyScopeAsync(CancellationToken cancellationToken)
+     {
+         var credential = options.HeimdallServiceCredential!;
+         var principal = await tokens.ValidateServiceAsync(credential);
+         if (principal is null) return false;
+         var id = Guid.Parse(principal.FindFirst("id")!.Value);
+         var data = (await SendAsync(HttpMethod.Get, $"/api/scopes/{options.HeimdallScopeId:D}", null, credential, cancellationToken)).Data;
+         if (data is null) return false;
+         ScopeSnapshot? scope;
+         try { scope = data.Value.Deserialize<ScopeSnapshot>(Json); }
+@@ -85,41 +133,41 @@ public sealed class HeimdallClient(HttpClient client, CerberusOptions options, H
+     {
+         if (data is null || (requireDeletionState && !data.Value.TryGetProperty("isDeleted", out _))) return null;
+         try
+         {
+             var person = data.Value.Deserialize<HeimdallPerson>(Json);
+             return person?.Id != Guid.Empty ? person : null;
+         }
+         catch (JsonException) { return null; }
+     }
+ 
+-    private sealed record DependencyResponse(JsonElement? Data, HeimdallAuthorization Status);
++    private sealed record DependencyResponse(JsonElement? Data, HeimdallAuthorization Status, HttpStatusCode? HttpStatus = null);
+     private static readonly DependencyResponse Unavailable = new(null, HeimdallAuthorization.Unavailable);
+     private static readonly DependencyResponse Denied = new(null, HeimdallAuthorization.Denied);
+ 
+     private async Task<DependencyResponse> SendAsync(HttpMethod method, string route, object? body, string? bearer, CancellationToken cancellationToken)
+     {
+         cancellationToken.ThrowIfCancellationRequested();
+         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+         var limit = TimeSpan.FromSeconds(10);
+         timeout.CancelAfter(client.Timeout > TimeSpan.Zero && client.Timeout < limit ? client.Timeout : limit);
+         var dependencyToken = timeout.Token;
+         using var request = new HttpRequestMessage(method, route);
+         if (body is not null) request.Content = JsonContent.Create(body, options: Json);
+         if (bearer is not null) request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
+         try
+         {
+             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, dependencyToken);
+             if (response.StatusCode is System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.NotFound)
+-                return Denied;
++                return Denied with { HttpStatus = response.StatusCode };
+             if (!response.IsSuccessStatusCode || response.Content.Headers.ContentType?.MediaType != "application/json"
+-                || response.Content.Headers.ContentLength > options.MaxRequestBytes) return Unavailable;
++                || response.Content.Headers.ContentLength > options.MaxRequestBytes) return Unavailable with { HttpStatus = response.StatusCode };
+             await using var stream = await response.Content.ReadAsStreamAsync(dependencyToken);
+             using var buffer = new MemoryStream();
+             var block = new byte[4096];
+             int read;
+             while ((read = await stream.ReadAsync(block, dependencyToken)) != 0)
+             {
+                 if (buffer.Length > options.MaxRequestBytes - read) return Unavailable;
+                 await buffer.WriteAsync(block.AsMemory(0, read), dependencyToken);
+             }
+             using var document = JsonDocument.Parse(buffer.ToArray());
+diff --git a/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallContracts.cs b/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallContracts.cs
+index dd2c4d2..4fa9205 100644
+--- a/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallContracts.cs
++++ b/src/Application/ArturRios.Cerberus.Shared/Identity/HeimdallContracts.cs
+@@ -1,17 +1,20 @@
+ namespace ArturRios.Cerberus.Shared.Identity;
+ 
+ public sealed record HeimdallLogin(string? Token, DateTimeOffset? ExpiresAt, bool? EmailVerified,
+     bool RequiresTwoFactor, string? ChallengeToken, IReadOnlyList<string>? AvailableMethods);
+ public sealed record HeimdallPerson(Guid Id, Guid? ScopeId, int Role, bool IsDeleted, IReadOnlyList<Guid>? OwnedScopeIds);
++[System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
+ public sealed record HeimdallRegistration(string Name, string Email, string Password);
+ 
+ public interface IHeimdallClient
+ {
++    Task<ArturRios.Cerberus.Domain.Accounts.RegistrationIdentity> EstablishRegistrationIdentityAsync(
++        HeimdallRegistration registration, string? proofToken, CancellationToken cancellationToken);
+     Task<HeimdallLogin?> LoginAsync(string email, string password, CancellationToken cancellationToken);
+     Task<HeimdallLogin?> CompleteChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken);
+     Task<HeimdallPerson?> RegisterAsync(HeimdallRegistration registration, CancellationToken cancellationToken);
+     Task<HeimdallAuthorization> RevalidateAsync(string token, CancellationToken cancellationToken);
+     Task<bool> VerifyScopeAsync(CancellationToken cancellationToken);
+ }
+ 
+ public enum HeimdallAuthorization { Unavailable, Denied, Authorized }
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Accounts/Account.cs b/src/Domain/ArturRios.Cerberus.Domain/Accounts/Account.cs
+new file mode 100644
+index 0000000..a054456
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Accounts/Account.cs
+@@ -0,0 +1,20 @@
++using ArturRios.Data.Relational.Core.Entities;
++
++namespace ArturRios.Cerberus.Domain.Accounts;
++
++public enum AccountState { Active, ClosurePending }
++
++public sealed class Account : VersionedEntity
++{
++    public Guid PublicId { get; set; }
++    public Guid HeimdallPublicId { get; set; }
++    public byte[] DetailsEnvelope { get; set; } = [];
++    public long Revision { get; set; } = 1;
++    public AccountState State { get; set; }
++    public DateTimeOffset? ClosureRequestedAt { get; set; }
++    public DateTimeOffset? ClosurePurgeAt { get; set; }
++    public bool RenewalEnabled { get; set; } = true;
++    public TimeSpan? RenewalInterval { get; set; } = TimeSpan.FromHours(24);
++    public long PolicyRevision { get; set; } = 1;
++    public long RevocationGeneration { get; set; } = 1;
++}
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Accounts/EncryptedEnvelope.cs b/src/Domain/ArturRios.Cerberus.Domain/Accounts/EncryptedEnvelope.cs
+new file mode 100644
+index 0000000..c958ab5
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Accounts/EncryptedEnvelope.cs
+@@ -0,0 +1,24 @@
++using System.Text.Json.Serialization;
++
++namespace ArturRios.Cerberus.Domain.Accounts;
++
++[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
++public sealed record EncryptedEnvelope(string Format, long KeyEpoch, string Nonce, string Ciphertext, string Tag)
++{
++    public bool IsValid() => Format == "cerberus-aes256gcm-v1" && KeyEpoch > 0
++        && Nonce is { Length: 16 } && Canonical(Nonce, 12)
++        && Tag is { Length: 22 } && Canonical(Tag, 16) && Canonical(Ciphertext, null);
++
++    private static bool Canonical(string? value, int? size)
++    {
++        if (string.IsNullOrEmpty(value) || value.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not '-' and not '_'))
++            return false;
++        try
++        {
++            var bytes = Convert.FromBase64String(value.Replace('-', '+').Replace('_', '/') + new string('=', (4 - value.Length % 4) % 4));
++            return bytes.Length > 0 && (size is null || bytes.Length == size)
++                && Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_') == value;
++        }
++        catch (FormatException) { return false; }
++    }
++}
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Accounts/RegistrationContracts.cs b/src/Domain/ArturRios.Cerberus.Domain/Accounts/RegistrationContracts.cs
+new file mode 100644
+index 0000000..9c4f9a7
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Accounts/RegistrationContracts.cs
+@@ -0,0 +1,13 @@
++namespace ArturRios.Cerberus.Domain.Accounts;
++
++public enum RegistrationIdentityStatus { Verified, Denied, Forbidden, NotFound, Unavailable }
++public sealed record RegistrationIdentity(RegistrationIdentityStatus Status, Guid? IdentityId = null);
++public sealed record RegistrationRequest(Guid OperationId, Guid AccountId, byte[] DetailsEnvelope,
++    string RequestFingerprint, long IdentityLock);
++public sealed record RegistrationResult(Guid? AccountId = null, long Revision = 0, bool Replayed = false, string? Error = null);
++
++public interface IRegistrationStore
++{
++    Task<RegistrationResult> RegisterAsync(RegistrationRequest request,
++        Func<CancellationToken, Task<RegistrationIdentity>> establishIdentity, CancellationToken cancellationToken);
++}
+diff --git a/src/Domain/ArturRios.Cerberus.Domain/Accounts/RegistrationOperation.cs b/src/Domain/ArturRios.Cerberus.Domain/Accounts/RegistrationOperation.cs
+new file mode 100644
+index 0000000..650dd07
+--- /dev/null
++++ b/src/Domain/ArturRios.Cerberus.Domain/Accounts/RegistrationOperation.cs
+@@ -0,0 +1,11 @@
++using ArturRios.Data.Relational.Core.Entities;
++
++namespace ArturRios.Cerberus.Domain.Accounts;
++
++public sealed class RegistrationOperation : Entity
++{
++    public Guid OperationId { get; set; }
++    public Guid AccountPublicId { get; set; }
++    public string RequestFingerprint { get; set; } = string.Empty;
++    public Guid? CompletedIdentityId { get; set; }
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Accounts/RegistrationStore.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Accounts/RegistrationStore.cs
+new file mode 100644
+index 0000000..9cc0498
+--- /dev/null
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Accounts/RegistrationStore.cs
+@@ -0,0 +1,96 @@
++using System.Data.Common;
++using ArturRios.Cerberus.Domain.Accounts;
++using Microsoft.EntityFrameworkCore;
++using Npgsql;
++
++namespace ArturRios.Cerberus.Data.Accounts;
++
++public sealed class RegistrationStore(IDbContextFactory<AppDbContext> factory) : IRegistrationStore
++{
++    public async Task<RegistrationResult> RegisterAsync(RegistrationRequest request,
++        Func<CancellationToken, Task<RegistrationIdentity>> establishIdentity, CancellationToken cancellationToken)
++    {
++        try
++        {
++            await using var context = await factory.CreateDbContextAsync(cancellationToken);
++            // Commit the operation before the external side effect. A later rollback must
++            // leave enough metadata to reconcile using the client's resubmitted credentials.
++            await using (var prepare = await context.Database.BeginTransactionAsync(cancellationToken))
++            {
++                await LockAsync(context, request.IdentityLock, cancellationToken);
++                if (await ErasedAsync(context, request.AccountId, cancellationToken)) return new(Error: "not_found");
++                var existing = await context.RegistrationOperations.SingleOrDefaultAsync(x => x.OperationId == request.OperationId, cancellationToken);
++                if (existing is not null && (existing.RequestFingerprint != request.RequestFingerprint || existing.AccountPublicId != request.AccountId))
++                    return new(Error: "registration_conflict");
++                if (existing is null)
++                {
++                    context.RegistrationOperations.Add(new RegistrationOperation
++                    {
++                        OperationId = request.OperationId, AccountPublicId = request.AccountId,
++                        RequestFingerprint = request.RequestFingerprint
++                    });
++                    await context.SaveChangesAsync(cancellationToken);
++                }
++                await prepare.CommitAsync(cancellationToken);
++            }
++            context.ChangeTracker.Clear();
++            return await CompleteAsync(context, request, establishIdentity, cancellationToken);
++        }
++        catch (DbUpdateConcurrencyException) { return new(Error: "registration_conflict"); }
++        catch (DbUpdateException exception) when (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } duplicate)
++        {
++            return new(Error: duplicate.ConstraintName == "ix_account_public_id" ? "not_found" : "registration_conflict");
++        }
++        catch (DbUpdateException) { return new(Error: "persistence_unavailable"); }
++        catch (DbException) { return new(Error: "persistence_unavailable"); }
++        // Npgsql's non-retrying EF strategy wraps transient provider errors.
++        // Surface the retryable outcome without replaying the external side effect.
++        catch (InvalidOperationException exception) when (exception.InnerException is DbUpdateException or DbException or TimeoutException)
++        { return new(Error: "persistence_unavailable"); }
++        catch (TimeoutException) { return new(Error: "persistence_unavailable"); }
++        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
++    }
++
++    private static async Task<RegistrationResult> CompleteAsync(AppDbContext context, RegistrationRequest request,
++        Func<CancellationToken, Task<RegistrationIdentity>> establishIdentity, CancellationToken cancellationToken)
++    {
++        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
++        await LockAsync(context, request.IdentityLock, cancellationToken);
++        var operations = await context.RegistrationOperations.FromSqlInterpolated(
++            $"SELECT * FROM cerberus.registration_operation WHERE operation_id = {request.OperationId} FOR UPDATE").ToListAsync(cancellationToken);
++        var operation = operations.Single();
++        if (await ErasedAsync(context, request.AccountId, cancellationToken)) return new(Error: "not_found");
++        var identity = await establishIdentity(cancellationToken);
++        if (identity.Status != RegistrationIdentityStatus.Verified)
++            return new(Error: identity.Status switch
++            {
++                RegistrationIdentityStatus.Denied => "identity_proof_required",
++                RegistrationIdentityStatus.Forbidden => "registration_forbidden",
++                RegistrationIdentityStatus.NotFound => "not_found",
++                _ => "identity_unavailable"
++            });
++        if (identity.IdentityId is null || identity.IdentityId == Guid.Empty) return new(Error: "identity_unavailable");
++        if (operation.CompletedIdentityId is not null && operation.CompletedIdentityId != identity.IdentityId) return new(Error: "not_found");
++        if (await ErasedAsync(context, request.AccountId, cancellationToken)) return new(Error: "not_found");
++        var account = await context.Accounts.SingleOrDefaultAsync(x => x.HeimdallPublicId == identity.IdentityId, cancellationToken);
++        if (account is not null)
++        {
++            if (operation.CompletedIdentityId is null || account.PublicId != request.AccountId) return new(Error: "registration_conflict");
++            if (account.State != AccountState.Active) return new(Error: "authentication_required");
++            return new(account.PublicId, 1, Replayed: true);
++        }
++        // A completed operation whose account has disappeared must never recreate it.
++        if (operation.CompletedIdentityId is not null || await context.Accounts.AnyAsync(x => x.PublicId == request.AccountId, cancellationToken))
++            return new(Error: "not_found");
++        context.Accounts.Add(new Account { PublicId = request.AccountId, HeimdallPublicId = identity.IdentityId.Value, DetailsEnvelope = request.DetailsEnvelope });
++        operation.CompletedIdentityId = identity.IdentityId;
++        await context.SaveChangesAsync(cancellationToken);
++        await transaction.CommitAsync(cancellationToken);
++        return new(request.AccountId, 1);
++    }
++
++    private static Task LockAsync(AppDbContext context, long identityLock, CancellationToken cancellationToken) =>
++        context.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock({identityLock})", cancellationToken);
++    private static Task<bool> ErasedAsync(AppDbContext context, Guid accountId, CancellationToken cancellationToken) =>
++        context.TerminalErasures.AnyAsync(x => x.ResourceId == accountId, cancellationToken);
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/AppDbContext.cs b/src/Infrastructure/ArturRios.Cerberus.Data/AppDbContext.cs
+index 9519120..7372ac4 100644
+--- a/src/Infrastructure/ArturRios.Cerberus.Data/AppDbContext.cs
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/AppDbContext.cs
+@@ -1,27 +1,40 @@
+ using ArturRios.Cerberus.Domain.Operations;
++using ArturRios.Cerberus.Domain.Accounts;
+ using ArturRios.Data.Relational.Core.Configuration;
+ using Microsoft.EntityFrameworkCore;
+ 
+ namespace ArturRios.Cerberus.Data;
+ 
+ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseDbContext(options)
+ {
++    public DbSet<Account> Accounts => Set<Account>();
++    public DbSet<RegistrationOperation> RegistrationOperations => Set<RegistrationOperation>();
+     public DbSet<RetentionWorkItem> RetentionWorkItems => Set<RetentionWorkItem>();
+     public DbSet<TerminalErasure> TerminalErasures => Set<TerminalErasure>();
+ 
+     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
+         optionsBuilder.UseSnakeCaseNamingConvention().EnableDetailedErrors(false).EnableSensitiveDataLogging(false);
+ 
+     protected override void OnModelCreating(ModelBuilder modelBuilder)
+     {
+         modelBuilder.HasDefaultSchema("cerberus");
++        var account = modelBuilder.Entity<Account>();
++        account.ToTable("account");
++        account.HasIndex(x => x.PublicId).IsUnique();
++        account.HasIndex(x => x.HeimdallPublicId).IsUnique();
++        account.Property(x => x.DetailsEnvelope).IsRequired();
++        account.Property(x => x.Revision).IsConcurrencyToken();
++        var registration = modelBuilder.Entity<RegistrationOperation>();
++        registration.ToTable("registration_operation");
++        registration.HasIndex(x => x.OperationId).IsUnique();
++        registration.Property(x => x.RequestFingerprint).HasMaxLength(64).IsRequired();
+         var work = modelBuilder.Entity<RetentionWorkItem>();
+         work.ToTable("retention_work_item");
+         work.HasIndex(x => x.PublicId).IsUnique();
+         work.HasIndex(x => x.OperationKey).IsUnique();
+         work.Property(x => x.OperationKey).HasMaxLength(128).IsRequired();
+         var erasure = modelBuilder.Entity<TerminalErasure>();
+         erasure.ToTable("terminal_erasure");
+         erasure.HasIndex(x => x.ResourceId).IsUnique();
+         erasure.Property(x => x.ResourceKind).HasMaxLength(16).IsRequired();
+     }
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008114913_AccountRegistration.Designer.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008114913_AccountRegistration.Designer.cs
+new file mode 100644
+index 0000000..733c70b
+--- /dev/null
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008114913_AccountRegistration.Designer.cs
+@@ -0,0 +1,237 @@
++﻿// <auto-generated />
++using System;
++using ArturRios.Cerberus.Data;
++using Microsoft.EntityFrameworkCore;
++using Microsoft.EntityFrameworkCore.Infrastructure;
++using Microsoft.EntityFrameworkCore.Migrations;
++using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
++using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
++
++#nullable disable
++
++namespace ArturRios.Cerberus.Data.Migrations
++{
++    [DbContext(typeof(AppDbContext))]
++    [Migration("20261008114913_AccountRegistration")]
++    partial class AccountRegistration
++    {
++        /// <inheritdoc />
++        protected override void BuildTargetModel(ModelBuilder modelBuilder)
++        {
++#pragma warning disable 612, 618
++            modelBuilder
++                .HasDefaultSchema("cerberus")
++                .HasAnnotation("ProductVersion", "10.0.12")
++                .HasAnnotation("Relational:MaxIdentifierLength", 63);
++
++            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Accounts.Account", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<DateTimeOffset?>("ClosurePurgeAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("closure_purge_at");
++
++                    b.Property<DateTimeOffset?>("ClosureRequestedAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("closure_requested_at");
++
++                    b.Property<Guid>("ConcurrencyStamp")
++                        .IsConcurrencyToken()
++                        .HasColumnType("uuid")
++                        .HasColumnName("concurrency_stamp");
++
++                    b.Property<byte[]>("DetailsEnvelope")
++                        .IsRequired()
++                        .HasColumnType("bytea")
++                        .HasColumnName("details_envelope");
++
++                    b.Property<Guid>("HeimdallPublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("heimdall_public_id");
++
++                    b.Property<long>("PolicyRevision")
++                        .HasColumnType("bigint")
++                        .HasColumnName("policy_revision");
++
++                    b.Property<Guid>("PublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("public_id");
++
++                    b.Property<bool>("RenewalEnabled")
++                        .HasColumnType("boolean")
++                        .HasColumnName("renewal_enabled");
++
++                    b.Property<TimeSpan?>("RenewalInterval")
++                        .HasColumnType("interval")
++                        .HasColumnName("renewal_interval");
++
++                    b.Property<long>("Revision")
++                        .IsConcurrencyToken()
++                        .HasColumnType("bigint")
++                        .HasColumnName("revision");
++
++                    b.Property<long>("RevocationGeneration")
++                        .HasColumnType("bigint")
++                        .HasColumnName("revocation_generation");
++
++                    b.Property<int>("State")
++                        .HasColumnType("integer")
++                        .HasColumnName("state");
++
++                    b.HasKey("Id")
++                        .HasName("pk_account");
++
++                    b.HasIndex("HeimdallPublicId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_account_heimdall_public_id");
++
++                    b.HasIndex("PublicId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_account_public_id");
++
++                    b.ToTable("account", "cerberus");
++                });
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Accounts.RegistrationOperation", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<Guid>("AccountPublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("account_public_id");
++
++                    b.Property<Guid?>("CompletedIdentityId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("completed_identity_id");
++
++                    b.Property<Guid>("OperationId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("operation_id");
++
++                    b.Property<string>("RequestFingerprint")
++                        .IsRequired()
++                        .HasMaxLength(64)
++                        .HasColumnType("character varying(64)")
++                        .HasColumnName("request_fingerprint");
++
++                    b.HasKey("Id")
++                        .HasName("pk_registration_operation");
++
++                    b.HasIndex("OperationId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_registration_operation_operation_id");
++
++                    b.ToTable("registration_operation", "cerberus");
++                });
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Operations.RetentionWorkItem", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<int>("Attempts")
++                        .HasColumnType("integer")
++                        .HasColumnName("attempts");
++
++                    b.Property<DateTimeOffset?>("ClaimExpiresAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("claim_expires_at");
++
++                    b.Property<Guid?>("ClaimToken")
++                        .HasColumnType("uuid")
++                        .HasColumnName("claim_token");
++
++                    b.Property<DateTimeOffset?>("CompletedAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("completed_at");
++
++                    b.Property<Guid>("ConcurrencyStamp")
++                        .IsConcurrencyToken()
++                        .HasColumnType("uuid")
++                        .HasColumnName("concurrency_stamp");
++
++                    b.Property<DateTimeOffset>("DueAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("due_at");
++
++                    b.Property<string>("OperationKey")
++                        .IsRequired()
++                        .HasMaxLength(128)
++                        .HasColumnType("character varying(128)")
++                        .HasColumnName("operation_key");
++
++                    b.Property<Guid>("PublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("public_id");
++
++                    b.HasKey("Id")
++                        .HasName("pk_retention_work_item");
++
++                    b.HasIndex("OperationKey")
++                        .IsUnique()
++                        .HasDatabaseName("ix_retention_work_item_operation_key");
++
++                    b.HasIndex("PublicId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_retention_work_item_public_id");
++
++                    b.ToTable("retention_work_item", "cerberus");
++                });
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Operations.TerminalErasure", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<DateTimeOffset>("DeletedAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("deleted_at");
++
++                    b.Property<Guid>("ResourceId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("resource_id");
++
++                    b.Property<string>("ResourceKind")
++                        .IsRequired()
++                        .HasMaxLength(16)
++                        .HasColumnType("character varying(16)")
++                        .HasColumnName("resource_kind");
++
++                    b.HasKey("Id")
++                        .HasName("pk_terminal_erasure");
++
++                    b.HasIndex("ResourceId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_terminal_erasure_resource_id");
++
++                    b.ToTable("terminal_erasure", "cerberus");
++                });
++#pragma warning restore 612, 618
++        }
++    }
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008114913_AccountRegistration.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008114913_AccountRegistration.cs
+new file mode 100644
+index 0000000..466003f
+--- /dev/null
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/20261008114913_AccountRegistration.cs
+@@ -0,0 +1,91 @@
++﻿using System;
++using Microsoft.EntityFrameworkCore.Migrations;
++using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
++
++#nullable disable
++
++namespace ArturRios.Cerberus.Data.Migrations
++{
++    /// <inheritdoc />
++    public partial class AccountRegistration : Migration
++    {
++        /// <inheritdoc />
++        protected override void Up(MigrationBuilder migrationBuilder)
++        {
++            migrationBuilder.CreateTable(
++                name: "account",
++                schema: "cerberus",
++                columns: table => new
++                {
++                    id = table.Column<long>(type: "bigint", nullable: false)
++                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
++                    public_id = table.Column<Guid>(type: "uuid", nullable: false),
++                    heimdall_public_id = table.Column<Guid>(type: "uuid", nullable: false),
++                    details_envelope = table.Column<byte[]>(type: "bytea", nullable: false),
++                    revision = table.Column<long>(type: "bigint", nullable: false),
++                    state = table.Column<int>(type: "integer", nullable: false),
++                    closure_requested_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
++                    closure_purge_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
++                    renewal_enabled = table.Column<bool>(type: "boolean", nullable: false),
++                    renewal_interval = table.Column<TimeSpan>(type: "interval", nullable: true),
++                    policy_revision = table.Column<long>(type: "bigint", nullable: false),
++                    revocation_generation = table.Column<long>(type: "bigint", nullable: false),
++                    concurrency_stamp = table.Column<Guid>(type: "uuid", nullable: false)
++                },
++                constraints: table =>
++                {
++                    table.PrimaryKey("pk_account", x => x.id);
++                });
++
++            migrationBuilder.CreateTable(
++                name: "registration_operation",
++                schema: "cerberus",
++                columns: table => new
++                {
++                    id = table.Column<long>(type: "bigint", nullable: false)
++                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
++                    operation_id = table.Column<Guid>(type: "uuid", nullable: false),
++                    account_public_id = table.Column<Guid>(type: "uuid", nullable: false),
++                    request_fingerprint = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
++                    completed_identity_id = table.Column<Guid>(type: "uuid", nullable: true)
++                },
++                constraints: table =>
++                {
++                    table.PrimaryKey("pk_registration_operation", x => x.id);
++                });
++
++            migrationBuilder.CreateIndex(
++                name: "ix_account_heimdall_public_id",
++                schema: "cerberus",
++                table: "account",
++                column: "heimdall_public_id",
++                unique: true);
++
++            migrationBuilder.CreateIndex(
++                name: "ix_account_public_id",
++                schema: "cerberus",
++                table: "account",
++                column: "public_id",
++                unique: true);
++
++            migrationBuilder.CreateIndex(
++                name: "ix_registration_operation_operation_id",
++                schema: "cerberus",
++                table: "registration_operation",
++                column: "operation_id",
++                unique: true);
++        }
++
++        /// <inheritdoc />
++        protected override void Down(MigrationBuilder migrationBuilder)
++        {
++            migrationBuilder.DropTable(
++                name: "account",
++                schema: "cerberus");
++
++            migrationBuilder.DropTable(
++                name: "registration_operation",
++                schema: "cerberus");
++        }
++    }
++}
+diff --git a/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/AppDbContextModelSnapshot.cs b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/AppDbContextModelSnapshot.cs
+index 4b5d6f2..e72b4ee 100644
+--- a/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/AppDbContextModelSnapshot.cs
++++ b/src/Infrastructure/ArturRios.Cerberus.Data/Migrations/AppDbContextModelSnapshot.cs
+@@ -16,20 +16,133 @@ namespace ArturRios.Cerberus.Data.Migrations
+         protected override void BuildModel(ModelBuilder modelBuilder)
+         {
+ #pragma warning disable 612, 618
+             modelBuilder
+                 .HasDefaultSchema("cerberus")
+                 .HasAnnotation("ProductVersion", "10.0.12")
+                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
+ 
+             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+ 
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Accounts.Account", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<DateTimeOffset?>("ClosurePurgeAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("closure_purge_at");
++
++                    b.Property<DateTimeOffset?>("ClosureRequestedAt")
++                        .HasColumnType("timestamp with time zone")
++                        .HasColumnName("closure_requested_at");
++
++                    b.Property<Guid>("ConcurrencyStamp")
++                        .IsConcurrencyToken()
++                        .HasColumnType("uuid")
++                        .HasColumnName("concurrency_stamp");
++
++                    b.Property<byte[]>("DetailsEnvelope")
++                        .IsRequired()
++                        .HasColumnType("bytea")
++                        .HasColumnName("details_envelope");
++
++                    b.Property<Guid>("HeimdallPublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("heimdall_public_id");
++
++                    b.Property<long>("PolicyRevision")
++                        .HasColumnType("bigint")
++                        .HasColumnName("policy_revision");
++
++                    b.Property<Guid>("PublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("public_id");
++
++                    b.Property<bool>("RenewalEnabled")
++                        .HasColumnType("boolean")
++                        .HasColumnName("renewal_enabled");
++
++                    b.Property<TimeSpan?>("RenewalInterval")
++                        .HasColumnType("interval")
++                        .HasColumnName("renewal_interval");
++
++                    b.Property<long>("Revision")
++                        .IsConcurrencyToken()
++                        .HasColumnType("bigint")
++                        .HasColumnName("revision");
++
++                    b.Property<long>("RevocationGeneration")
++                        .HasColumnType("bigint")
++                        .HasColumnName("revocation_generation");
++
++                    b.Property<int>("State")
++                        .HasColumnType("integer")
++                        .HasColumnName("state");
++
++                    b.HasKey("Id")
++                        .HasName("pk_account");
++
++                    b.HasIndex("HeimdallPublicId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_account_heimdall_public_id");
++
++                    b.HasIndex("PublicId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_account_public_id");
++
++                    b.ToTable("account", "cerberus");
++                });
++
++            modelBuilder.Entity("ArturRios.Cerberus.Domain.Accounts.RegistrationOperation", b =>
++                {
++                    b.Property<long>("Id")
++                        .ValueGeneratedOnAdd()
++                        .HasColumnType("bigint")
++                        .HasColumnName("id")
++                        .HasColumnOrder(1);
++
++                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
++
++                    b.Property<Guid>("AccountPublicId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("account_public_id");
++
++                    b.Property<Guid?>("CompletedIdentityId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("completed_identity_id");
++
++                    b.Property<Guid>("OperationId")
++                        .HasColumnType("uuid")
++                        .HasColumnName("operation_id");
++
++                    b.Property<string>("RequestFingerprint")
++                        .IsRequired()
++                        .HasMaxLength(64)
++                        .HasColumnType("character varying(64)")
++                        .HasColumnName("request_fingerprint");
++
++                    b.HasKey("Id")
++                        .HasName("pk_registration_operation");
++
++                    b.HasIndex("OperationId")
++                        .IsUnique()
++                        .HasDatabaseName("ix_registration_operation_operation_id");
++
++                    b.ToTable("registration_operation", "cerberus");
++                });
++
+             modelBuilder.Entity("ArturRios.Cerberus.Domain.Operations.RetentionWorkItem", b =>
+                 {
+                     b.Property<long>("Id")
+                         .ValueGeneratedOnAdd()
+                         .HasColumnType("bigint")
+                         .HasColumnName("id")
+                         .HasColumnOrder(1);
+ 
+                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+ 
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/ContractRegistration.cs b/src/Presentation/ArturRios.Cerberus.WebApi/ContractRegistration.cs
+index e750018..3e36ce7 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/ContractRegistration.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/ContractRegistration.cs
+@@ -2,22 +2,23 @@ using ArturRios.Output;
+ using Microsoft.AspNetCore.Mvc;
+ using Microsoft.OpenApi;
+ 
+ namespace ArturRios.Cerberus.WebApi;
+ 
+ public static class ContractRegistration
+ {
+     public static IServiceCollection AddCerberusContracts(this IServiceCollection services)
+     {
+         services.AddControllers().AddApplicationPart(typeof(Program).Assembly)
++            .AddJsonOptions(options => options.JsonSerializerOptions.AllowDuplicateProperties = false)
+             .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = _ =>
+                 new BadRequestObjectResult(ProcessOutput.New.WithError("validation_failed")));
+         services.AddEndpointsApiExplorer();
+         services.AddSwaggerGen(options => options.SwaggerDoc("v1", new OpenApiInfo
+         {
+             Title = "Cerberus API",
+             Version = "v1",
+-            Description = "Foundation only. Business endpoints are added by their reviewed use cases."
++            Description = "Cerberus encrypted vault API. Identity authentication and vault access are separate."
+         }));
+         return services;
+     }
+ }
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/AccountController.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/AccountController.cs
+new file mode 100644
+index 0000000..0497953
+--- /dev/null
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Controllers/AccountController.cs
+@@ -0,0 +1,36 @@
++using ArturRios.Cerberus.Command.Accounts;
++using ArturRios.Mediator.Command;
++using ArturRios.Output;
++using ArturRios.Util.WebApi.AspNetCore;
++using Microsoft.AspNetCore.Authorization;
++using Microsoft.AspNetCore.Mvc;
++
++namespace ArturRios.Cerberus.WebApi.Controllers;
++
++[ApiController]
++[Route("api/accounts")]
++public sealed class AccountController(CommandMediator commands) : ControllerBase
++{
++    [HttpPost]
++    [AllowAnonymous]
++    [ProducesResponseType(typeof(DataOutput<RegisterAccountOutput>), StatusCodes.Status201Created)]
++    [ProducesResponseType(typeof(DataOutput<RegisterAccountOutput>), StatusCodes.Status200OK)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
++    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
++    public async Task<ActionResult<DataOutput<RegisterAccountOutput?>>> Register(
++        [FromBody] RegisterAccountCommand command, CancellationToken cancellationToken)
++    {
++        var authorization = Request.Headers.Authorization;
++        if (authorization.Count != 0)
++        {
++            var header = authorization.Count == 1 ? authorization[0] : null;
++            command.IdentityToken = header?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true ? header[7..] : string.Empty;
++        }
++        var result = await commands.ExecuteCommandAsync<RegisterAccountCommand, RegisterAccountOutput>(command, cancellationToken);
++        return result.ToActionResult(statusMap: AccountMessages.StatusCodes);
++    }
++}
+diff --git a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+index 27b0107..deced65 100644
+--- a/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
++++ b/src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs
+@@ -1,11 +1,17 @@
+ using ArturRios.Cerberus.Data;
++using ArturRios.Cerberus.Data.Accounts;
++using ArturRios.Cerberus.Command.Accounts;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Mediator.Command;
++using ArturRios.Mediator.Command.Interfaces;
++using FluentValidation;
+ using ArturRios.Cerberus.Data.Configuration;
+ using ArturRios.Cerberus.Data.Erasure;
+ using ArturRios.Cerberus.Data.Operations;
+ using ArturRios.Cerberus.Domain.Operations;
+ using ArturRios.Cerberus.Shared.Configuration;
+ using ArturRios.Cerberus.Shared.Identity;
+ using ArturRios.Cerberus.Shared.Operations;
+ using ArturRios.Cerberus.WebApi.Configuration;
+ using ArturRios.Cerberus.WebApi.Middleware;
+ using ArturRios.Cerberus.WebApi.Operations;
+@@ -32,20 +38,24 @@ public static class Startup
+         builder.Logging.ClearProviders();
+         builder.Services.AddSerilog(configuration => configuration.MinimumLevel.Information().Enrich.FromLogContext()
+             // Framework/HTTP/EF events can carry URLs, identifiers and exception payloads.
+             // Only our deliberately redacted events enter the production sink.
+             .Filter.ByIncludingOnly(log => log.Properties.TryGetValue("SourceContext", out var source)
+                 && source is ScalarValue { Value: string category } && category.StartsWith("ArturRios.Cerberus.", StringComparison.Ordinal))
+             .WriteTo.Console(new JsonFormatter()));
+         builder.Services.AddSingleton(options);
+         builder.Services.AddSingleton(TimeProvider.System);
+         builder.Services.AddSingleton<HeimdallTokenValidator>();
++        builder.Services.AddScoped<CommandMediator>();
++        builder.Services.AddScoped<IValidator<RegisterAccountCommand>, RegisterAccountValidator>();
++        builder.Services.AddScoped<ICommandHandlerAsync<RegisterAccountCommand, RegisterAccountOutput>, RegisterAccountHandler>();
++        builder.Services.AddScoped<IRegistrationStore, RegistrationStore>();
+         builder.Services.AddDbContextFactory<AppDbContext>(configuration => configuration.UseNpgsql(options.ConnectionString));
+         builder.Services.AddHttpClient<IHeimdallClient, HeimdallClient>(client =>
+             {
+                 client.BaseAddress = new Uri(options.HeimdallBaseUrl!);
+                 client.Timeout = TimeSpan.FromSeconds(10);
+             })
+             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false })
+             .RemoveAllLoggers();
+         var ledger = new FileErasureLedger(options.ErasureLedgerPath!);
+         builder.Services.AddSingleton<IErasureLedger>(ledger);
+@@ -60,14 +70,13 @@ public static class Startup
+         builder.Services.AddCerberusContracts();
+ 
+         var application = builder.Build();
+         application.UseMiddleware<NoStoreMiddleware>();
+         application.UseMiddleware<SafeFailureMiddleware>();
+         application.UseMiddleware<RequestLimitMiddleware>(options.MaxRequestBytes);
+         application.UseRouting();
+         if (options.RestoreRequired == true) application.UseMiddleware<RestoreBarrierMiddleware>();
+         application.UseMiddleware<ProtectedEndpointMiddleware>();
+         application.MapControllers();
+-        // No business routes are exposed until their reviewed use-case implementation exists.
+         return application;
+     }
+ }
+diff --git a/tests/Application/ArturRios.Cerberus.Command.Tests/RegisterAccountHandlerTests.cs b/tests/Application/ArturRios.Cerberus.Command.Tests/RegisterAccountHandlerTests.cs
+new file mode 100644
+index 0000000..f9a9fe7
+--- /dev/null
++++ b/tests/Application/ArturRios.Cerberus.Command.Tests/RegisterAccountHandlerTests.cs
+@@ -0,0 +1,102 @@
++using ArturRios.Cerberus.Command.Accounts;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Shared.Configuration;
++using ArturRios.Cerberus.Shared.Identity;
++using Moq;
++
++namespace ArturRios.Cerberus.Command.Tests;
++
++public class RegisterAccountHandlerTests
++{
++    [UnitFact]
++    public async Task GivenValidRegistration_WhenHandling_ThenStoreOpaqueInputWithKeyedFingerprints()
++    {
++        var command = RegisterAccountValidatorTests.Valid();
++        RegistrationRequest? captured = null;
++        var store = new Mock<IRegistrationStore>(MockBehavior.Strict);
++        store.Setup(x => x.RegisterAsync(It.IsAny<RegistrationRequest>(), It.IsAny<Func<CancellationToken, Task<RegistrationIdentity>>>(), It.IsAny<CancellationToken>()))
++            .Returns<RegistrationRequest, Func<CancellationToken, Task<RegistrationIdentity>>, CancellationToken>((request, _, _) =>
++            {
++                captured = request;
++                return Task.FromResult(new RegistrationResult(request.AccountId, 1));
++            });
++        var result = await Handler(store.Object).HandleAsync(command);
++        Assert.True(result.Success);
++        Assert.Equal(command.AccountId, result.Data!.Id);
++        Assert.Equal("protection_required", result.Data.OnboardingState);
++        Assert.Equal(1, result.Data.Revision);
++        Assert.NotNull(captured);
++        Assert.Equal(command.IdempotencyKey, captured.OperationId);
++        Assert.DoesNotContain(command.Identity.Password, System.Text.Encoding.UTF8.GetString(captured.DetailsEnvelope));
++        Assert.DoesNotContain(command.Identity.Email, captured.RequestFingerprint);
++        Assert.Equal(64, captured.RequestFingerprint.Length);
++    }
++
++    [UnitFact]
++    public async Task GivenInvalidInput_WhenHandling_ThenRejectBeforePersistence()
++    {
++        var command = RegisterAccountValidatorTests.Valid();
++        command.AccountId = Guid.Empty;
++        var result = await Handler(new Mock<IRegistrationStore>(MockBehavior.Strict).Object).HandleAsync(command);
++        Assert.False(result.Success);
++        Assert.Contains("validation_failed", result.Errors);
++        Assert.Null(result.Data);
++    }
++
++    [UnitTheory]
++    [InlineData("identity_proof_required")]
++    [InlineData("registration_forbidden")]
++    [InlineData("not_found")]
++    [InlineData("registration_conflict")]
++    [InlineData("identity_unavailable")]
++    [InlineData("persistence_unavailable")]
++    public async Task GivenRegistrationFailure_WhenHandling_ThenReturnStableErrorWithoutAccountData(string error)
++    {
++        var store = new Mock<IRegistrationStore>();
++        store.Setup(x => x.RegisterAsync(It.IsAny<RegistrationRequest>(), It.IsAny<Func<CancellationToken, Task<RegistrationIdentity>>>(), It.IsAny<CancellationToken>()))
++            .ReturnsAsync(new RegistrationResult(Error: error));
++        var result = await Handler(store.Object).HandleAsync(RegisterAccountValidatorTests.Valid());
++        Assert.False(result.Success);
++        Assert.Contains(error, result.Errors);
++        Assert.Null(result.Data);
++    }
++
++    [UnitFact]
++    public async Task GivenCompletedRetry_WhenHandling_ThenReturnOriginalOutcomeAsReplay()
++    {
++        var command = RegisterAccountValidatorTests.Valid();
++        var store = new Mock<IRegistrationStore>();
++        store.Setup(x => x.RegisterAsync(It.IsAny<RegistrationRequest>(), It.IsAny<Func<CancellationToken, Task<RegistrationIdentity>>>(), It.IsAny<CancellationToken>()))
++            .ReturnsAsync(new RegistrationResult(command.AccountId, 1, Replayed: true));
++        var result = await Handler(store.Object).HandleAsync(command);
++        Assert.True(result.Success);
++        Assert.True(result.Data!.Replayed);
++        Assert.Contains("account_registration_replayed", result.Messages);
++    }
++
++    [UnitFact]
++    public async Task GivenChangedCredentialsOrServerKey_WhenFingerprinting_ThenRejectReplayEquivalence()
++    {
++        var command = RegisterAccountValidatorTests.Valid();
++        var requests = new List<RegistrationRequest>();
++        var store = new Mock<IRegistrationStore>();
++        store.Setup(x => x.RegisterAsync(It.IsAny<RegistrationRequest>(), It.IsAny<Func<CancellationToken, Task<RegistrationIdentity>>>(), It.IsAny<CancellationToken>()))
++            .Returns<RegistrationRequest, Func<CancellationToken, Task<RegistrationIdentity>>, CancellationToken>((request, _, _) =>
++            {
++                requests.Add(request);
++                return Task.FromResult(new RegistrationResult(request.AccountId, 1));
++            });
++        await Handler(store.Object).HandleAsync(command);
++        await Handler(store.Object).HandleAsync(command);
++        Assert.Equal(requests[0].RequestFingerprint, requests[1].RequestFingerprint);
++        command.Identity = command.Identity with { Password = "different-fixture-password" };
++        await Handler(store.Object).HandleAsync(command);
++        await Handler(store.Object, "another-server-secret-at-least-32-characters").HandleAsync(command);
++        Assert.NotEqual(requests[0].RequestFingerprint, requests[2].RequestFingerprint);
++        Assert.NotEqual(requests[2].RequestFingerprint, requests[3].RequestFingerprint);
++    }
++
++    private static RegisterAccountHandler Handler(IRegistrationStore store, string secret = "fixture-server-secret-at-least-32-characters") =>
++        new(new RegisterAccountValidator(), store, new Mock<IHeimdallClient>(MockBehavior.Strict).Object,
++            new CerberusOptions { AuthValidationSecret = secret, HeimdallScopeId = Guid.Parse("527a1001-8ef5-4c9b-a565-111111111111") });
++}
+diff --git a/tests/Application/ArturRios.Cerberus.Command.Tests/RegisterAccountValidatorTests.cs b/tests/Application/ArturRios.Cerberus.Command.Tests/RegisterAccountValidatorTests.cs
+new file mode 100644
+index 0000000..14507be
+--- /dev/null
++++ b/tests/Application/ArturRios.Cerberus.Command.Tests/RegisterAccountValidatorTests.cs
+@@ -0,0 +1,59 @@
++using System.Text.Json;
++using ArturRios.Cerberus.Command.Accounts;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Shared.Identity;
++
++namespace ArturRios.Cerberus.Command.Tests;
++
++public class RegisterAccountValidatorTests
++{
++    [UnitFact]
++    public void GivenValidRegistration_WhenValidating_ThenAccept()
++    {
++        Assert.True(new RegisterAccountValidator().Validate(Valid()).IsValid);
++    }
++
++    [UnitTheory]
++    [InlineData("account")]
++    [InlineData("operation")]
++    [InlineData("identity")]
++    [InlineData("details")]
++    [InlineData("name")]
++    [InlineData("longName")]
++    [InlineData("email")]
++    [InlineData("password")]
++    [InlineData("format")]
++    public void GivenInvalidVisibleInput_WhenValidating_ThenRejectWithStableCode(string field)
++    {
++        var command = Valid();
++        switch (field)
++        {
++            case "account": command.AccountId = Guid.Empty; break;
++            case "operation": command.IdempotencyKey = Guid.Empty; break;
++            case "identity": command.Identity = null!; break;
++            case "details": command.Details = null!; break;
++            case "name": command.Identity = command.Identity with { Name = " " }; break;
++            case "longName": command.Identity = command.Identity with { Name = new string('x', 201) }; break;
++            case "email": command.Identity = command.Identity with { Email = "not-an-email" }; break;
++            case "password": command.Identity = command.Identity with { Password = "short" }; break;
++            case "format": command.Details = command.Details with { Format = "unsupported" }; break;
++        }
++        var result = new RegisterAccountValidator().Validate(command);
++        Assert.False(result.IsValid);
++        Assert.All(result.Errors, error => Assert.Equal("validation_failed", error.ErrorMessage));
++    }
++
++    [UnitFact]
++    public void GivenCallerSelectedIdentityId_WhenDeserializing_ThenReject()
++    {
++        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RegisterAccountCommand>(
++            "{\"heimdallPublicId\":\"527a1001-8ef5-4c9b-a565-222222222222\"}", new JsonSerializerOptions(JsonSerializerDefaults.Web)));
++    }
++
++    internal static RegisterAccountCommand Valid() => new()
++    {
++        AccountId = Guid.NewGuid(), IdempotencyKey = Guid.NewGuid(),
++        Identity = new HeimdallRegistration("Fixture Owner", "fixture@example.test", "fixture-password"),
++        Details = new EncryptedEnvelope("cerberus-aes256gcm-v1", 1, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA")
++    };
++}
+diff --git a/tests/Application/ArturRios.Cerberus.Shared.Tests/RegistrationIdentityTests.cs b/tests/Application/ArturRios.Cerberus.Shared.Tests/RegistrationIdentityTests.cs
+new file mode 100644
+index 0000000..71ddb1a
+--- /dev/null
++++ b/tests/Application/ArturRios.Cerberus.Shared.Tests/RegistrationIdentityTests.cs
+@@ -0,0 +1,167 @@
++using System.Net;
++using System.Text;
++using System.Text.Json;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Shared.Configuration;
++using ArturRios.Cerberus.Shared.Identity;
++using ArturRios.Jwt;
++
++namespace ArturRios.Cerberus.Shared.Tests;
++
++public class RegistrationIdentityTests
++{
++    private static readonly Guid Identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
++    private static readonly HeimdallRegistration Input = new("Fixture Owner", "fixture@example.test", "fixture-password");
++
++    [UnitFact]
++    public async Task GivenNewIdentity_WhenRegistering_ThenCreateOnlyInConfiguredScope()
++    {
++        var options = Options();
++        var calls = new List<string>();
++        using var transport = Transport(request =>
++        {
++            calls.Add(request.RequestUri!.AbsolutePath);
++            if (calls.Count == 1) return Status(401);
++            Assert.Equal(options.HeimdallServiceCredential, request.Headers.Authorization?.Parameter);
++            return Person(options);
++        }, options);
++        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, null, default);
++        Assert.Equal(RegistrationIdentityStatus.Verified, result.Status);
++        Assert.Equal(Identity, result.IdentityId);
++        Assert.Equal(new[] { "/api/auth/login", $"/api/scopes/{options.HeimdallScopeId:D}/persons" }, calls);
++    }
++
++    [UnitTheory]
++    [InlineData(false)]
++    [InlineData(true)]
++    public async Task GivenExistingIdentityProof_WhenRegistering_ThenRevalidateWithoutCreating(bool explicitProof)
++    {
++        var options = Options();
++        using var transport = Transport(request => request.RequestUri!.AbsolutePath switch
++        {
++            "/api/auth/login" when !explicitProof => Login(options),
++            "/api/persons/527a1001-8ef5-4c9b-a565-222222222222" => Person(options),
++            _ => throw new InvalidOperationException("An existing proved identity must not be created again.")
++        }, options);
++        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, explicitProof ? Token(options) : null, default);
++        Assert.Equal(RegistrationIdentityStatus.Verified, result.Status);
++        Assert.Equal(Identity, result.IdentityId);
++    }
++
++    [UnitTheory]
++    [InlineData(503)]
++    [InlineData(200)]
++    public async Task GivenUnavailableOrMalformedLogin_WhenRegistering_ThenDoNotCreate(int status)
++    {
++        var options = Options();
++        using var transport = Transport(request =>
++        {
++            Assert.Equal("/api/auth/login", request.RequestUri!.AbsolutePath);
++            return Status(status);
++        }, options);
++        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, null, default);
++        Assert.Equal(RegistrationIdentityStatus.Unavailable, result.Status);
++        Assert.Null(result.IdentityId);
++    }
++
++    [UnitFact]
++    public async Task GivenPendingMfa_WhenRegistering_ThenRequireCompletedIdentityProof()
++    {
++        var options = Options();
++        using var transport = Transport(request =>
++        {
++            Assert.Equal("/api/auth/login", request.RequestUri!.AbsolutePath);
++            return Envelope(new { requiresTwoFactor = true, challengeToken = "fixture-challenge", availableMethods = new[] { "App" } });
++        }, options);
++        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, null, default);
++        Assert.Equal(RegistrationIdentityStatus.Denied, result.Status);
++        Assert.Null(result.IdentityId);
++    }
++
++    [UnitTheory]
++    [InlineData(409, RegistrationIdentityStatus.Denied)]
++    [InlineData(401, RegistrationIdentityStatus.Forbidden)]
++    [InlineData(403, RegistrationIdentityStatus.Forbidden)]
++    [InlineData(404, RegistrationIdentityStatus.NotFound)]
++    [InlineData(503, RegistrationIdentityStatus.Unavailable)]
++    public async Task GivenCreationRejection_WhenRegistering_ThenDoNotInferIdentityFromEmail(int status, RegistrationIdentityStatus expected)
++    {
++        var options = Options();
++        using var transport = Transport(request => request.RequestUri!.AbsolutePath == "/api/auth/login" ? Status(401) : Status(status), options);
++        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, null, default);
++        Assert.Equal(expected, result.Status);
++        Assert.Null(result.IdentityId);
++    }
++
++    [UnitTheory]
++    [InlineData(0)]
++    [InlineData(1)]
++    [InlineData(2)]
++    public async Task GivenInvalidCreationIdentity_WhenRegistering_ThenReject(int invalid)
++    {
++        var options = Options();
++        using var transport = Transport(request => request.RequestUri!.AbsolutePath == "/api/auth/login" ? Status(401) :
++            Envelope(new { id = Identity, scopeId = invalid == 0 ? Guid.NewGuid() : options.HeimdallScopeId, role = invalid == 1 ? 2 : 3, isDeleted = invalid == 2 }), options);
++        Assert.Equal(RegistrationIdentityStatus.Unavailable,
++            (await Client(transport, options).EstablishRegistrationIdentityAsync(Input, null, default)).Status);
++    }
++
++    [UnitTheory]
++    [InlineData(false)]
++    [InlineData(true)]
++    public async Task GivenInvalidServiceOrIdentityProof_WhenRegistering_ThenDenyWithoutFallback(bool invalidService)
++    {
++        var options = Options();
++        if (invalidService) options.HeimdallServiceCredential = "invalid-service-proof";
++        using var transport = Transport(_ => throw new InvalidOperationException("No fallback may send credentials."), options);
++        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, invalidService ? null : "invalid-user-proof", default);
++        Assert.Equal(invalidService ? RegistrationIdentityStatus.Forbidden : RegistrationIdentityStatus.Denied, result.Status);
++    }
++
++    [UnitFact]
++    public async Task GivenLostCreationResponse_WhenRetrying_ThenProveExistingIdentityWithoutSecondCreation()
++    {
++        var options = Options();
++        var created = false;
++        var creations = 0;
++        using var transport = Transport(request =>
++        {
++            var path = request.RequestUri!.AbsolutePath;
++            if (path == "/api/auth/login") return created ? Login(options) : Status(401);
++            if (path == $"/api/persons/{Identity:D}") return Person(options);
++            creations++;
++            created = true;
++            throw new TaskCanceledException("Simulate response lost after upstream commit.");
++        }, options);
++        var client = Client(transport, options);
++        Assert.Equal(RegistrationIdentityStatus.Unavailable, (await client.EstablishRegistrationIdentityAsync(Input, null, default)).Status);
++        var retry = await client.EstablishRegistrationIdentityAsync(Input, null, default);
++        Assert.Equal(RegistrationIdentityStatus.Verified, retry.Status);
++        Assert.Equal(Identity, retry.IdentityId);
++        Assert.Equal(1, creations);
++    }
++
++    private static CerberusOptions Options()
++    {
++        var options = CerberusOptionsValidatorTests.ValidOptions();
++        options.HeimdallServiceCredential = Token(options, service: true);
++        return options;
++    }
++    private static string Token(CerberusOptions options, bool service = false) => new JwtHandler().CreateToken(
++        new JwtConfiguration(60, options.AuthIssuer!, options.AuthAudience!, options.AuthValidationSecret!,
++            service ? new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = "2", ["ownedScopeIds"] = options.HeimdallScopeId.ToString() }
++            : new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = "3", ["scopeId"] = options.HeimdallScopeId.ToString() }));
++    private static HttpResponseMessage Login(CerberusOptions options) => Envelope(new { token = Token(options), expiresAt = DateTimeOffset.UtcNow.AddMinutes(5), emailVerified = true, requiresTwoFactor = false });
++    private static HttpResponseMessage Person(CerberusOptions options) => Envelope(new { id = Identity, scopeId = options.HeimdallScopeId, role = 3, isDeleted = false });
++    private static HttpResponseMessage Envelope(object data) => new(HttpStatusCode.OK)
++    { Content = new StringContent(JsonSerializer.Serialize(new { success = true, errors = Array.Empty<string>(), data }), Encoding.UTF8, "application/json") };
++    private static HttpResponseMessage Status(int status) => new((HttpStatusCode)status)
++    { Content = new StringContent("upstream-sensitive-body", Encoding.UTF8, "application/json") };
++    private static HttpClient Transport(Func<HttpRequestMessage, HttpResponseMessage> response, CerberusOptions options) =>
++        new(new Handler(response)) { BaseAddress = new Uri(options.HeimdallBaseUrl!) };
++    private static HeimdallClient Client(HttpClient transport, CerberusOptions options) => new(transport, options, new HeimdallTokenValidator(options));
++    private sealed class Handler(Func<HttpRequestMessage, HttpResponseMessage> response) : HttpMessageHandler
++    {
++        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => Task.FromResult(response(request));
++    }
++}
+diff --git a/tests/Domain/ArturRios.Cerberus.Domain.Tests/EncryptedEnvelopeTests.cs b/tests/Domain/ArturRios.Cerberus.Domain.Tests/EncryptedEnvelopeTests.cs
+new file mode 100644
+index 0000000..ccd1041
+--- /dev/null
++++ b/tests/Domain/ArturRios.Cerberus.Domain.Tests/EncryptedEnvelopeTests.cs
+@@ -0,0 +1,57 @@
++using System.Text.Json;
++using ArturRios.Cerberus.Domain.Accounts;
++
++namespace ArturRios.Cerberus.Domain.Tests;
++
++public class EncryptedEnvelopeTests
++{
++    [UnitFact]
++    public void GivenCanonicalOpaqueEnvelope_WhenValidating_ThenAcceptWithoutDecrypting()
++    {
++        var envelope = Valid();
++        Assert.True(envelope.IsValid());
++        Assert.Equal("AQID", envelope.Ciphertext);
++    }
++
++    [UnitTheory]
++    [InlineData("format", "unknown")]
++    [InlineData("epoch", "0")]
++    [InlineData("epoch", "-1")]
++    [InlineData("nonce", "AAAAAAAAAAAAAAA")]
++    [InlineData("nonce", "AAAAAAAAAAAAAAAAAA")]
++    [InlineData("nonce", "AAAAAAAAAAAAAAAA=")]
++    [InlineData("tag", "AAAAAAAAAAAAAAAAAAAAAA==")]
++    [InlineData("tag", "AAAAAAAAAAAAAAAAAAAAAB")]
++    [InlineData("tag", "AAAAAAAAAAAAAAAAAAAA")]
++    [InlineData("ciphertext", "")]
++    [InlineData("ciphertext", "AB")]
++    [InlineData("ciphertext", "AQID\n")]
++    [InlineData("ciphertext", "AQ+D")]
++    [InlineData("ciphertext", "A")]
++    public void GivenInvalidMetadata_WhenValidating_ThenReject(string field, string value)
++    {
++        var envelope = Valid();
++        envelope = field switch
++        {
++            "format" => envelope with { Format = value },
++            "epoch" => envelope with { KeyEpoch = long.Parse(value) },
++            "nonce" => envelope with { Nonce = value },
++            "tag" => envelope with { Tag = value },
++            _ => envelope with { Ciphertext = value }
++        };
++        Assert.False(envelope.IsValid());
++    }
++
++    [UnitTheory]
++    [InlineData("privateKey")]
++    [InlineData("plaintext")]
++    [InlineData("ownerId")]
++    public void GivenUnknownEnvelopeMember_WhenDeserializing_ThenReject(string member)
++    {
++        var json = "{\"format\":\"cerberus-aes256gcm-v1\",\"keyEpoch\":1,\"nonce\":\"AAAAAAAAAAAAAAAA\",\"ciphertext\":\"AQID\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA\",\"" + member + "\":\"forbidden\"}";
++        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<EncryptedEnvelope>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
++    }
++
++    private static EncryptedEnvelope Valid() => new("cerberus-aes256gcm-v1", 1,
++        "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA");
++}
+diff --git a/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RegistrationStoreTests.cs b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RegistrationStoreTests.cs
+new file mode 100644
+index 0000000..0988457
+--- /dev/null
++++ b/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RegistrationStoreTests.cs
+@@ -0,0 +1,203 @@
++using ArturRios.Cerberus.Data.Accounts;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Domain.Operations;
++using Microsoft.EntityFrameworkCore;
++using Microsoft.EntityFrameworkCore.Diagnostics;
++using Npgsql;
++
++namespace ArturRios.Cerberus.Data.Tests;
++
++[Collection("PostgreSQL")]
++public class RegistrationStoreTests(PostgresFixture fixture)
++{
++    [FunctionalFact]
++    public async Task GivenNewRegistration_WhenBinding_ThenPersistOpaqueContentAndUniquePublicIdentity()
++    {
++        var request = Request();
++        var identity = Guid.NewGuid();
++        var result = await Store().RegisterAsync(request, _ => Verified(identity), default);
++        Assert.Null(result.Error);
++        Assert.False(result.Replayed);
++        Assert.Equal(request.AccountId, result.AccountId);
++        Assert.Equal(1, result.Revision);
++        await using var context = fixture.CreateContext();
++        var account = await context.Accounts.SingleAsync(x => x.PublicId == request.AccountId);
++        Assert.Equal(identity, account.HeimdallPublicId);
++        Assert.Equal(request.DetailsEnvelope, account.DetailsEnvelope);
++        Assert.Equal(AccountState.Active, account.State);
++        Assert.True(account.RenewalEnabled);
++        Assert.Equal(TimeSpan.FromHours(24), account.RenewalInterval);
++        var operation = await context.RegistrationOperations.SingleAsync(x => x.OperationId == request.OperationId);
++        Assert.Equal(identity, operation.CompletedIdentityId);
++    }
++
++    [FunctionalFact]
++    public async Task GivenCompletedOperation_WhenRetrying_ThenRequireCurrentProofAndPreserveOutcome()
++    {
++        var request = Request();
++        var identity = Guid.NewGuid();
++        var original = await Store().RegisterAsync(request, _ => Verified(identity), default);
++        var denied = await Store().RegisterAsync(request, _ => Task.FromResult(new RegistrationIdentity(RegistrationIdentityStatus.Denied)), default);
++        Assert.Equal("identity_proof_required", denied.Error);
++        Assert.Null(denied.AccountId);
++        var retry = await Store().RegisterAsync(request, _ => Verified(identity), default);
++        Assert.True(retry.Replayed);
++        Assert.Equal(original.AccountId, retry.AccountId);
++        Assert.Equal(original.Revision, retry.Revision);
++        await using var context = fixture.CreateContext();
++        Assert.Equal(request.DetailsEnvelope, (await context.Accounts.SingleAsync(x => x.PublicId == request.AccountId)).DetailsEnvelope);
++    }
++
++    [FunctionalFact]
++    public async Task GivenChangedOperationInput_WhenRetrying_ThenPreserveWinningCiphertext()
++    {
++        var request = Request();
++        var identity = Guid.NewGuid();
++        await Store().RegisterAsync(request, _ => Verified(identity), default);
++        var result = await Store().RegisterAsync(request with { RequestFingerprint = new string('b', 64), DetailsEnvelope = [9, 9] },
++            _ => throw new InvalidOperationException("Changed input must fail before the dependency call."), default);
++        Assert.Equal("registration_conflict", result.Error);
++        await using var context = fixture.CreateContext();
++        Assert.Equal(request.DetailsEnvelope, (await context.Accounts.SingleAsync(x => x.PublicId == request.AccountId)).DetailsEnvelope);
++    }
++
++    [FunctionalFact]
++    public async Task GivenConcurrentIdenticalRequests_WhenRegistering_ThenCommitOneAccount()
++    {
++        var request = Request();
++        var identity = Guid.NewGuid();
++        var results = await Task.WhenAll(Enumerable.Range(0, 8).Select(_ => Store().RegisterAsync(request, _ => Verified(identity), default)));
++        Assert.All(results, result => Assert.Null(result.Error));
++        Assert.Single(results, result => !result.Replayed);
++        Assert.All(results, result => Assert.Equal(request.AccountId, result.AccountId));
++        await using var context = fixture.CreateContext();
++        Assert.Equal(1, await context.Accounts.CountAsync(x => x.HeimdallPublicId == identity));
++        Assert.Equal(1, await context.RegistrationOperations.CountAsync(x => x.OperationId == request.OperationId));
++    }
++
++    [FunctionalFact]
++    public async Task GivenConcurrentDifferentOperationsForIdentity_WhenRegistering_ThenKeepOnlyWinningAccount()
++    {
++        var first = Request();
++        var second = Request() with { IdentityLock = first.IdentityLock };
++        var identity = Guid.NewGuid();
++        var results = await Task.WhenAll(new[] { first, second }.Select(request => Store().RegisterAsync(request, _ => Verified(identity), default)));
++        Assert.Single(results, result => result.Error is null);
++        Assert.Single(results, result => result.Error == "registration_conflict");
++        await using var context = fixture.CreateContext();
++        Assert.Equal(1, await context.Accounts.CountAsync(x => x.HeimdallPublicId == identity));
++    }
++
++    [FunctionalFact]
++    public async Task GivenOtherIdentityUsingAccountGuid_WhenRegistering_ThenHideExistingAccount()
++    {
++        var request = Request();
++        await Store().RegisterAsync(request, _ => Verified(Guid.NewGuid()), default);
++        var result = await Store().RegisterAsync(Request() with { AccountId = request.AccountId }, _ => Verified(Guid.NewGuid()), default);
++        Assert.Equal("not_found", result.Error);
++        Assert.Null(result.AccountId);
++    }
++
++    [FunctionalFact]
++    public async Task GivenErasedPublicIdentifier_WhenRegistering_ThenRejectWithoutCallingIdentity()
++    {
++        var request = Request();
++        await using (var context = fixture.CreateContext())
++        {
++            context.TerminalErasures.Add(new TerminalErasure { ResourceId = request.AccountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
++            await context.SaveChangesAsync();
++        }
++        var result = await Store().RegisterAsync(request, _ => throw new InvalidOperationException("Erased identifiers cannot be recreated."), default);
++        Assert.Equal("not_found", result.Error);
++        await using var after = fixture.CreateContext();
++        Assert.False(await after.Accounts.AnyAsync(x => x.PublicId == request.AccountId));
++    }
++
++    [FunctionalTheory]
++    [InlineData(RegistrationIdentityStatus.Denied, "identity_proof_required")]
++    [InlineData(RegistrationIdentityStatus.Forbidden, "registration_forbidden")]
++    [InlineData(RegistrationIdentityStatus.NotFound, "not_found")]
++    [InlineData(RegistrationIdentityStatus.Unavailable, "identity_unavailable")]
++    public async Task GivenIdentityFailure_WhenRegistering_ThenCreateNoAccount(RegistrationIdentityStatus status, string expected)
++    {
++        var request = Request();
++        var result = await Store().RegisterAsync(request, _ => Task.FromResult(new RegistrationIdentity(status)), default);
++        Assert.Equal(expected, result.Error);
++        await using var context = fixture.CreateContext();
++        Assert.False(await context.Accounts.AnyAsync(x => x.PublicId == request.AccountId));
++    }
++
++    [FunctionalFact]
++    public async Task GivenIdentityOutage_WhenRetrying_ThenResumeDurablePendingOperation()
++    {
++        var request = Request();
++        var identity = Guid.NewGuid();
++        Assert.Equal("identity_unavailable", (await Store().RegisterAsync(request,
++            _ => Task.FromResult(new RegistrationIdentity(RegistrationIdentityStatus.Unavailable)), default)).Error);
++        await using (var context = fixture.CreateContext())
++        {
++            Assert.Null((await context.RegistrationOperations.SingleAsync(x => x.OperationId == request.OperationId)).CompletedIdentityId);
++            Assert.False(await context.Accounts.AnyAsync(x => x.PublicId == request.AccountId));
++        }
++        Assert.Null((await Store().RegisterAsync(request, _ => Verified(identity), default)).Error);
++    }
++
++    [FunctionalFact]
++    public async Task GivenLocalFailureAfterUpstreamSuccess_WhenRetrying_ThenBindPendingOperationOnce()
++    {
++        var request = Request();
++        var identity = Guid.NewGuid();
++        var failed = await new RegistrationStore(new FaultFactory(fixture, new FailAccountSave())).RegisterAsync(request, _ => Verified(identity), default);
++        Assert.Equal("persistence_unavailable", failed.Error);
++        await using (var context = fixture.CreateContext())
++        {
++            Assert.False(await context.Accounts.AnyAsync(x => x.PublicId == request.AccountId));
++            Assert.Null((await context.RegistrationOperations.SingleAsync(x => x.OperationId == request.OperationId)).CompletedIdentityId);
++        }
++        var resumed = await Store().RegisterAsync(request, _ => Verified(identity), default);
++        Assert.Null(resumed.Error);
++        var retry = await Store().RegisterAsync(request, _ => Verified(identity), default);
++        Assert.True(retry.Replayed);
++        await using var after = fixture.CreateContext();
++        Assert.Equal(1, await after.Accounts.CountAsync(x => x.HeimdallPublicId == identity));
++    }
++
++    private RegistrationStore Store() => new(fixture);
++    [FunctionalFact]
++    public async Task GivenPostgresConnectionFailureAfterIdentitySuccess_WhenRegistering_ThenLeaveRetryableOperation()
++    {
++        var request = Request();
++        await using var setup = fixture.CreateContext();
++        await setup.Database.ExecuteSqlRawAsync("CREATE TABLE cerberus.fixture_failed_registration (public_id uuid NOT NULL); CREATE FUNCTION cerberus.fail_registration() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF EXISTS (SELECT 1 FROM cerberus.fixture_failed_registration WHERE public_id = NEW.public_id) THEN RAISE EXCEPTION 'synthetic persistence outage' USING ERRCODE = '08006'; END IF; RETURN NEW; END $$; CREATE TRIGGER fail_registration BEFORE INSERT ON cerberus.account FOR EACH ROW EXECUTE FUNCTION cerberus.fail_registration();");
++        await setup.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.fixture_failed_registration VALUES ({request.AccountId})");
++        try
++        {
++            var result = await Store().RegisterAsync(request, _ => Verified(Guid.NewGuid()), default);
++            Assert.Equal("persistence_unavailable", result.Error);
++        }
++        finally
++        {
++            await setup.Database.ExecuteSqlRawAsync("DROP TRIGGER fail_registration ON cerberus.account; DROP FUNCTION cerberus.fail_registration(); DROP TABLE cerberus.fixture_failed_registration;");
++        }
++    }
++    private static Task<RegistrationIdentity> Verified(Guid id) => Task.FromResult(new RegistrationIdentity(RegistrationIdentityStatus.Verified, id));
++    private static RegistrationRequest Request() => new(Guid.NewGuid(), Guid.NewGuid(), [1, 2, 3, 4], new string('a', 64), Random.Shared.NextInt64());
++
++    private sealed class FaultFactory(PostgresFixture source, SaveChangesInterceptor interceptor) : IDbContextFactory<AppDbContext>
++    {
++        public AppDbContext CreateDbContext()
++        {
++            using var context = source.CreateContext();
++            return new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(context.Database.GetConnectionString()).AddInterceptors(interceptor).Options);
++        }
++    }
++    private sealed class FailAccountSave : SaveChangesInterceptor
++    {
++        public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
++        {
++            if (eventData.Context!.ChangeTracker.Entries<Account>().Any(x => x.State == EntityState.Added))
++                throw new DbUpdateException("Synthetic local failure after upstream success.", new NpgsqlException("fixture"));
++            return base.SavingChangesAsync(eventData, result, cancellationToken);
++        }
++    }
++}
+diff --git a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationApiFixture.cs b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationApiFixture.cs
+new file mode 100644
+index 0000000..b844ef6
+--- /dev/null
++++ b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationApiFixture.cs
+@@ -0,0 +1,115 @@
++using System.Collections.Concurrent;
++using ArturRios.Cerberus.Data;
++using ArturRios.Cerberus.Shared.Identity;
++using ArturRios.Jwt;
++using Microsoft.AspNetCore.Builder;
++using Microsoft.AspNetCore.Hosting.Server;
++using Microsoft.AspNetCore.Hosting.Server.Features;
++using Microsoft.AspNetCore.Http;
++using Microsoft.EntityFrameworkCore;
++using Microsoft.Extensions.DependencyInjection;
++using Microsoft.Extensions.Logging;
++using Testcontainers.PostgreSql;
++
++namespace ArturRios.Cerberus.WebApi.Tests;
++
++public sealed class RegistrationApiFixture : IAsyncLifetime
++{
++    public static readonly Guid Scope = Guid.Parse("527a1001-8ef5-4c9b-a565-111111111111");
++    private const string Secret = "fixture-only-signing-key-32-characters";
++    private readonly string _serviceToken = ServiceToken();
++    private readonly PostgreSqlContainer _database = new PostgreSqlBuilder("postgres:18.6-alpine").Build();
++    private readonly Dictionary<string, string?> _previous = new();
++    private WebApplication _identity = null!;
++    private string _ledger = null!;
++    public ConcurrentDictionary<string, User> Users { get; } = new(StringComparer.OrdinalIgnoreCase);
++    public sealed record User(Guid Id, string Password, bool Mfa = false);
++
++    public async Task InitializeAsync()
++    {
++        await _database.StartAsync();
++        await using (var context = Context()) await context.Database.MigrateAsync();
++        var builder = WebApplication.CreateSlimBuilder();
++        builder.Logging.ClearProviders();
++        _identity = builder.Build();
++        _identity.Urls.Add("http://127.0.0.1:0");
++        _identity.MapPost("/api/auth/login", (LoginInput input) =>
++        {
++            if (input.Email.StartsWith("unavailable-", StringComparison.Ordinal)) return Results.StatusCode(503);
++            if (input.ScopeId != Scope || !Users.TryGetValue(input.Email, out var user) || input.Password != user.Password)
++                return Results.StatusCode(401);
++            return user.Mfa
++                ? Envelope(new { requiresTwoFactor = true, challengeToken = "fixture-challenge", availableMethods = new[] { "App" } })
++                : Envelope(new { requiresTwoFactor = false, token = Token(user.Id), expiresAt = DateTimeOffset.UtcNow.AddMinutes(5), emailVerified = true });
++        });
++        _identity.MapPost("/api/scopes/{scope:guid}/persons", (Guid scope, HeimdallRegistration input, HttpContext request) =>
++        {
++            if (scope != Scope || input.Email.StartsWith("missing-", StringComparison.Ordinal)) return Results.StatusCode(404);
++            if (input.Email.StartsWith("forbidden-", StringComparison.Ordinal)) return Results.StatusCode(403);
++            if (request.Request.Headers.Authorization != "Bearer " + _serviceToken) return Results.StatusCode(403);
++            var user = new User(Guid.NewGuid(), input.Password);
++            return Users.TryAdd(input.Email, user) ? Person(user) : Results.StatusCode(409);
++        });
++        _identity.MapGet("/api/persons/{id:guid}", (Guid id) =>
++        {
++            var user = Users.Values.SingleOrDefault(x => x.Id == id);
++            return user is null ? Results.StatusCode(404) : Person(user);
++        });
++        await _identity.StartAsync();
++        var address = _identity.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.Single();
++        _ledger = Directory.CreateTempSubdirectory("cerberus-registration-ledger-").FullName;
++        var values = new Dictionary<string, string>
++        {
++            ["ASPNETCORE_ENVIRONMENT"] = "local",
++            ["CERBERUS_DATA_CONNECTIONSTRING"] = _database.GetConnectionString(),
++            ["CERBERUS_DATA_DATABASETYPE"] = "PostgreSql",
++            ["CERBERUS_HEIMDALL_BASE_URL"] = address,
++            ["CERBERUS_HEIMDALL_SCOPE_ID"] = Scope.ToString(),
++            ["CERBERUS_HEIMDALL_SERVICE_CREDENTIAL"] = _serviceToken,
++            ["CERBERUS_AUTH_ISSUER"] = "fixture-issuer", ["CERBERUS_AUTH_AUDIENCE"] = "fixture-audience",
++            ["CERBERUS_AUTH_VALIDATION_SECRET"] = Secret,
++            ["CERBERUS_BACKUP_RETENTION"] = "7.00:00:00", ["CERBERUS_LOG_RETENTION"] = "7.00:00:00",
++            ["CERBERUS_SYNC_RETENTION"] = "30.00:00:00", ["CERBERUS_RETENTION_INTERVAL"] = "00:05:00",
++            ["CERBERUS_BACKUP_PATH"] = "/srv/cerberus/backups", ["CERBERUS_ERASURE_LEDGER_PATH"] = _ledger,
++            ["CERBERUS_MAX_REQUEST_BYTES"] = "65536", ["CERBERUS_MAX_PAGE_SIZE"] = "100",
++            ["CERBERUS_RESTORE_REQUIRED"] = "false"
++        };
++        foreach (var (key, value) in values)
++        {
++            _previous[key] = Environment.GetEnvironmentVariable(key);
++            Environment.SetEnvironmentVariable(key, value);
++        }
++    }
++
++    public AppDbContext Context() => new(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(_database.GetConnectionString()).Options);
++    public Task StopDatabaseAsync() => _database.StopAsync();
++    public Task StartDatabaseAsync() => _database.StartAsync();
++    public async Task RejectAccountInsertAsync(Guid accountId)
++    {
++        await using var context = Context();
++        await context.Database.ExecuteSqlRawAsync("CREATE TABLE cerberus.fixture_reject_account (public_id uuid NOT NULL); CREATE FUNCTION cerberus.reject_fixture_account() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF EXISTS (SELECT 1 FROM cerberus.fixture_reject_account WHERE public_id = NEW.public_id) THEN RAISE EXCEPTION 'synthetic persistence outage' USING ERRCODE = '08006'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_fixture_account BEFORE INSERT ON cerberus.account FOR EACH ROW EXECUTE FUNCTION cerberus.reject_fixture_account();");
++        await context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.fixture_reject_account (public_id) VALUES ({accountId})");
++    }
++    public async Task AllowAccountInsertAsync()
++    {
++        await using var context = Context();
++        await context.Database.ExecuteSqlRawAsync("DROP TRIGGER IF EXISTS reject_fixture_account ON cerberus.account; DROP FUNCTION IF EXISTS cerberus.reject_fixture_account(); DROP TABLE IF EXISTS cerberus.fixture_reject_account;");
++    }
++    public async Task DisposeAsync()
++    {
++        await _identity.DisposeAsync();
++        await _database.DisposeAsync();
++        foreach (var (key, value) in _previous) Environment.SetEnvironmentVariable(key, value);
++        Directory.Delete(_ledger, recursive: true);
++    }
++    public static string Token(Guid id) => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,
++        new Dictionary<string, string> { ["id"] = id.ToString(), ["roleId"] = "3", ["scopeId"] = Scope.ToString() }));
++    private static string ServiceToken() => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,
++        new Dictionary<string, string> { ["id"] = Guid.Parse("527a1001-8ef5-4c9b-a565-333333333333").ToString(), ["roleId"] = "2", ["ownedScopeIds"] = Scope.ToString() }));
++    private static IResult Person(User user) => Envelope(new { id = user.Id, name = "Fixture Owner", email = "fixture@example.test", role = 3, scopeId = Scope, isDeleted = false, emailVerified = true, twoFactorEnabled = user.Mfa, ownedScopeIds = Array.Empty<Guid>() });
++    private static IResult Envelope(object data) => Results.Json(new { success = true, errors = Array.Empty<string>(), messages = Array.Empty<string>(), data });
++    private sealed record LoginInput(string Email, string Password, Guid ScopeId);
++}
++
++[CollectionDefinition("Registration host", DisableParallelization = true)]
++public sealed class RegistrationHostCollection : ICollectionFixture<RegistrationApiFixture>;
+diff --git a/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs
+new file mode 100644
+index 0000000..ba9d1cd
+--- /dev/null
++++ b/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RegistrationHttpTests.cs
+@@ -0,0 +1,171 @@
++using System.Net;
++using System.Net.Http.Json;
++using System.Text.Json;
++using System.Text.Json.Nodes;
++using ArturRios.Cerberus.Command.Accounts;
++using ArturRios.Cerberus.Domain.Accounts;
++using ArturRios.Cerberus.Shared.Identity;
++using ArturRios.Configuration.Enums;
++using ArturRios.Output;
++using ArturRios.Util.Test.Functional;
++using Microsoft.EntityFrameworkCore;
++
++namespace ArturRios.Cerberus.WebApi.Tests;
++
++[Collection("Registration host")]
++public class RegistrationHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
++{
++    [FunctionalFact]
++    public async Task GivenNewAccount_WhenPostingRegistration_ThenBindIdentityAndPreserveCiphertextWithoutKeys()
++    {
++        var command = Request();
++        using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", command);
++        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
++        Assert.True(response.Headers.CacheControl?.NoStore);
++        var body = await response.Content.ReadFromJsonAsync<DataOutput<RegisterAccountOutput>>();
++        Assert.True(body!.Success);
++        Assert.Equal(command.AccountId, body.Data!.Id);
++        Assert.Equal("protection_required", body.Data.OnboardingState);
++        var raw = await response.Content.ReadAsStringAsync();
++        Assert.DoesNotContain(command.Identity.Password, raw);
++        Assert.DoesNotContain(command.Identity.Email, raw);
++        Assert.DoesNotContain("heimdallPublicId", raw);
++        await using var context = fixture.Context();
++        var account = await context.Accounts.SingleAsync(x => x.PublicId == command.AccountId);
++        Assert.Equal(fixture.Users[command.Identity.Email].Id, account.HeimdallPublicId);
++        Assert.Equal(command.Details, JsonSerializer.Deserialize<EncryptedEnvelope>(account.DetailsEnvelope, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
++    }
++
++    [FunctionalTheory]
++    [InlineData("ownerId")]
++    [InlineData("vaultPassword")]
++    [InlineData("badEnvelope")]
++    [InlineData("missingGuid")]
++    public async Task GivenMalformedOrUnknownInput_WhenPosting_ThenRejectBeforeIdentityCreation(string invalid)
++    {
++        var command = Request();
++        var node = JsonSerializer.SerializeToNode(command, new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
++        if (invalid == "badEnvelope") node["details"]!["nonce"] = "bad";
++        else if (invalid == "missingGuid") node["accountId"] = Guid.Empty.ToString();
++        else node[invalid] = "untrusted";
++        using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", node);
++        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
++        Assert.False(fixture.Users.ContainsKey(command.Identity.Email));
++        await using var context = fixture.Context();
++        Assert.False(await context.Accounts.AnyAsync(x => x.PublicId == command.AccountId));
++    }
++
++    [FunctionalTheory]
++    [InlineData("unavailable", HttpStatusCode.ServiceUnavailable)]
++    [InlineData("missing", HttpStatusCode.NotFound)]
++    [InlineData("forbidden", HttpStatusCode.Forbidden)]
++    public async Task GivenRequiredIdentityFailure_WhenPosting_ThenFailClosedWithStableRedactedOutcome(string prefix, HttpStatusCode expected)
++    {
++        var command = Request(prefix);
++        using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", command);
++        Assert.Equal(expected, response.StatusCode);
++        Assert.True(response.Headers.CacheControl?.NoStore);
++        var raw = await response.Content.ReadAsStringAsync();
++        Assert.DoesNotContain(command.Identity.Password, raw);
++        Assert.DoesNotContain(command.Identity.Email, raw);
++        await using var context = fixture.Context();
++        Assert.False(await context.Accounts.AnyAsync(x => x.PublicId == command.AccountId));
++    }
++
++    [FunctionalFact]
++    public async Task GivenExistingIdentityWithoutOwnershipProof_WhenPosting_ThenNeverLinkByEmail()
++    {
++        var command = Request();
++        fixture.Users[command.Identity.Email] = new(Guid.NewGuid(), "other-fixture-password");
++        using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", command);
++        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
++        await using var context = fixture.Context();
++        Assert.False(await context.Accounts.AnyAsync(x => x.PublicId == command.AccountId));
++    }
++
++    [FunctionalFact]
++    public async Task GivenPendingMfa_WhenPosting_ThenRequireCompletionBeforeBinding()
++    {
++        var command = Request();
++        fixture.Users[command.Identity.Email] = new(Guid.NewGuid(), command.Identity.Password, Mfa: true);
++        using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", command);
++        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
++        await using var context = fixture.Context();
++        Assert.False(await context.Accounts.AnyAsync(x => x.PublicId == command.AccountId));
++    }
++
++    [FunctionalFact]
++    public async Task GivenExistingIdentityWithCompletedProof_WhenPosting_ThenBindOnlyProvedIdentity()
++    {
++        var command = Request();
++        var identity = new RegistrationApiFixture.User(Guid.NewGuid(), "other-fixture-password", Mfa: true);
++        fixture.Users[command.Identity.Email] = identity;
++        Authorize(RegistrationApiFixture.Token(identity.Id));
++        using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", command);
++        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
++        await using var context = fixture.Context();
++        Assert.Equal(identity.Id, (await context.Accounts.SingleAsync(x => x.PublicId == command.AccountId)).HeimdallPublicId);
++    }
++
++    [FunctionalFact]
++    public async Task GivenLocalPersistenceFailureAfterIdentityCreation_WhenRetrying_ThenReconcileWithoutDuplicateIdentity()
++    {
++        var command = Request();
++        await fixture.RejectAccountInsertAsync(command.AccountId);
++        try
++        {
++            using var failed = await Gateway.Client.PostAsJsonAsync("/api/accounts", command);
++            Assert.Equal(HttpStatusCode.ServiceUnavailable, failed.StatusCode);
++            Assert.True(fixture.Users.ContainsKey(command.Identity.Email));
++            await using var pending = fixture.Context();
++            Assert.Null((await pending.RegistrationOperations.SingleAsync(x => x.OperationId == command.IdempotencyKey)).CompletedIdentityId);
++            Assert.False(await pending.Accounts.AnyAsync(x => x.PublicId == command.AccountId));
++        }
++        finally { await fixture.AllowAccountInsertAsync(); }
++        var originalIdentity = fixture.Users[command.Identity.Email].Id;
++        using var resumed = await Gateway.Client.PostAsJsonAsync("/api/accounts", command);
++        Assert.Equal(HttpStatusCode.Created, resumed.StatusCode);
++        using var replay = await Gateway.Client.PostAsJsonAsync("/api/accounts", command);
++        Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
++        Assert.Equal(originalIdentity, fixture.Users[command.Identity.Email].Id);
++        await using var after = fixture.Context();
++        Assert.Equal(1, await after.Accounts.CountAsync(x => x.HeimdallPublicId == originalIdentity));
++    }
++
++    [FunctionalFact]
++    public async Task GivenConcurrentIdenticalRegistration_WhenPosting_ThenReturnOneCreatedOutcomeAndIdempotentReplays()
++    {
++        var command = Request();
++        var responses = await Task.WhenAll(Enumerable.Range(0, 6).Select(_ => Gateway.Client.PostAsJsonAsync("/api/accounts", command)));
++        try
++        {
++            Assert.Single(responses, response => response.StatusCode == HttpStatusCode.Created);
++            Assert.Equal(5, responses.Count(response => response.StatusCode == HttpStatusCode.OK));
++            await using var context = fixture.Context();
++            Assert.Equal(1, await context.Accounts.CountAsync(x => x.PublicId == command.AccountId));
++        }
++        finally { foreach (var response in responses) response.Dispose(); }
++    }
++
++    private static RegisterAccountCommand Request(string prefix = "owner") => new()
++    {
++        AccountId = Guid.NewGuid(), IdempotencyKey = Guid.NewGuid(),
++        Identity = new HeimdallRegistration("Fixture Owner", prefix + "-" + Guid.NewGuid().ToString("N") + "@example.test", "fixture-password"),
++        Details = new EncryptedEnvelope("cerberus-aes256gcm-v1", 1, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA")
++    };
++
++    [FunctionalTheory]
++    [InlineData("accountId")]
++    [InlineData("nonce")]
++    [InlineData("password")]
++    public async Task GivenDuplicateJsonMembers_WhenPosting_ThenRejectBeforeSideEffects(string member)
++    {
++        var command = Request();
++        var value = member switch { "accountId" => command.AccountId.ToString(), "nonce" => command.Details.Nonce, _ => command.Identity.Password };
++        var raw = JsonSerializer.Serialize(command, new JsonSerializerOptions(JsonSerializerDefaults.Web));
++        raw = raw.Replace("\"" + member + "\":", "\"" + member + "\":\"" + value + "\",\"" + member + "\":");
++        using var response = await Gateway.Client.PostAsync("/api/accounts", new StringContent(raw, System.Text.Encoding.UTF8, "application/json"));
++        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
++        Assert.False(fixture.Users.ContainsKey(command.Identity.Email));
++    }
++}

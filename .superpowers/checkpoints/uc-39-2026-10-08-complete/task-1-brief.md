@@ -1,0 +1,7 @@
+### Task 1: Strict replacement and transition contracts
+
+**Files:** Domain/Protection/ProtectionChange.cs; Domain.Tests/ProtectionChangeTests.cs; tests/TestSupport/ProtectionFixture.cs test-only fresh-material helper.
+**Interfaces:** strict `ContentReplacement(string ResourceKind,Guid ResourceId,long ExpectedRevision,EncryptedEnvelope Envelope)`; `ProtectionChange(Guid AccountId,long ExpectedProtectionRevision,long ExpectedAccountRevision,string Mode,ProtectionMaterial Material,ContentReplacement[] ContentReplacements)` with `IsValid()` and `IsValidTransition(ProtectionMaterial current)`; `ProtectionChangeRequest(Guid Actor,string AccessVerifier,Guid ChallengeId,string Proof,byte[] RawBody,ProtectionChange Change)`; `ProtectionChangeDetails(Guid AccountId,long ProtectionRevision,long KeyEpoch,long RecoveryGeneration,long AccountRevision)`; `IVaultProtectionChangeStore.ChangeAsync(ProtectionChangeRequest,CancellationToken)->Task<VaultResult<ProtectionChangeDetails>>`. New IVaultProtectionStore.ChallengeAsync overload takes actor,operation,requestHash,ct while existing overload remains usable.
+- [ ] Write unit cases: legitimate rewrap/rotation, all unsafe/missing fields, changed key roles/generation, nonincrementing/overflow slot epoch, reused visible salt/nonces; absent-types RED.
+- [ ] Implement strict records and pure shape/transition checks. Full Domain suite GREEN and commit/ledger.
+

@@ -1,0 +1,78 @@
+{
+  "path": "/api/records/{id}",
+  "fields": [
+    "collectionIds",
+    "editedAt",
+    "envelope",
+    "folderId",
+    "profileIds",
+    "recordId",
+    "revision",
+    "serverSequence"
+  ],
+  "statuses": [
+    "200",
+    "400",
+    "401",
+    "403",
+    "404",
+    "413",
+    "503"
+  ],
+  "parameters": [
+    {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+        "type": "string"
+      }
+    },
+    {
+      "name": "X-Cerberus-Vault-Access",
+      "in": "header",
+      "schema": {
+        "type": "string"
+      }
+    }
+  ],
+  "knownSharedGeneratorMinors": {
+    "headerRequiredMissing": true,
+    "outputRequired": [
+      "envelope"
+    ],
+    "profileIdsSchema": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "nullable": true
+    },
+    "collectionIdsSchema": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "nullable": true
+    },
+    "empty413AdvertisedAsProblemDetails": {
+      "text/plain": {
+        "schema": {
+          "$ref": "#/components/schemas/ProblemDetails"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ProblemDetails"
+        }
+      },
+      "text/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ProblemDetails"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "tests": 6559,
+  "counts": {
+    "Domain": 361,
+    "Shared": 125,
+    "Query": 411,
+    "Command": 1076,
+    "Data": 2456,
+    "WebApi": 2130
+  },
+  "lineCoverage": 98.4,
+  "branchCoverage": 92,
+  "assemblies": [
+    {
+      "name": "ArturRios.Cerberus.Command",
+      "coverage": 100,
+      "branchcoverage": 97.6
+    },
+    {
+      "name": "ArturRios.Cerberus.Data",
+      "coverage": 98.5,
+      "branchcoverage": 88.7
+    },
+    {
+      "name": "ArturRios.Cerberus.Domain",
+      "coverage": 99.3,
+      "branchcoverage": 96.4
+    },
+    {
+      "name": "ArturRios.Cerberus.Query",
+      "coverage": 100,
+      "branchcoverage": 98.5
+    },
+    {
+      "name": "ArturRios.Cerberus.Shared",
+      "coverage": 97.2,
+      "branchcoverage": 88
+    },
+    {
+      "name": "ArturRios.Cerberus.WebApi",
+      "coverage": 94.9,
+      "branchcoverage": 89.3
+    }
+  ]
+}

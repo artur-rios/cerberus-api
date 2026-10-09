@@ -1,0 +1,22 @@
+{
+  "status": "draft self-review pass; fresh checkout reload/Gate1 still pending",
+  "requirements": [
+    "FR-FD-07",
+    "FR-FD-08",
+    "BR-07"
+  ],
+  "flows": "main+AF01..06; explicitAF06 current native result bindings",
+  "tasks": 3,
+  "focusConditions": 5,
+  "interfaces": "Domain/Command\u2192Data\u2192HTTP exact names/signatures agree",
+  "scope": "one folder move, no services/schema/dependencies/crypto changes",
+  "rulingsToRecord": [
+    "Required nullable parent+revision/four output/no-op root only",
+    "Owner-visible root structural move with every active contained typed member per-item selected profile+collection subset",
+    "Current valid result-native collection recipient envelopes; no usable key/decryption claim, before-release client qualification",
+    "Strong own account/all captured members stable collection-before-content order/no foreign account/upward chain; beforeUC35 FK audit",
+    "No invented descendant/profile/collection structural bumps; active GET/list immediate, UC48 durable events later",
+    "Source/hidden/scope/native/current-wait precedence and statement-time final root atomic boundary",
+    "FreshUC27 tested merge6110 baseline reuse plus final new-checkout unfiltered6families mandatory"
+  ]
+}

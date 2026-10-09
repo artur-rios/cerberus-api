@@ -1,0 +1,18 @@
+Test run for /tmp/cerberus-uc19-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:37.38]     ArturRios.Cerberus.Data.Tests.RecordUpdateStoreTests.GivenNewNativeAuthorityImmediatelyBeforeWrite_WhenUpdating_ThenConflictRatherThanUseUnheldGrant [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordUpdateStoreTests.GivenNewNativeAuthorityImmediatelyBeforeWrite_WhenUpdating_ThenConflictRatherThanUseUnheldGrant [31 s]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "revision_conflict"
+Actual:   "persistence_unavailable"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordUpdateStoreTests.GivenNewNativeAuthorityImmediatelyBeforeWrite_WhenUpdating_ThenConflictRatherThanUseUnheldGrant() in /tmp/cerberus-uc19-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordUpdateStoreTests.cs:line 135
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 31 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)

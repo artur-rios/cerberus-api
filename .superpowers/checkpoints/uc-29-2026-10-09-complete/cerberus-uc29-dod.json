@@ -1,0 +1,43 @@
+{
+  "useCase": "UC-29",
+  "issue": 30,
+  "pr": 90,
+  "testedHead": "e9c9116a02625b19763d6797534b8ce51a810e8a",
+  "mergeCommit": "2668b4a605e315307190da350016b9adf46efb9e",
+  "checks": {
+    "branch-policy": "SUCCESS",
+    "docker": "SUCCESS",
+    "test": "SUCCESS"
+  },
+  "tests": 7005,
+  "failed": 0,
+  "skipped": 0,
+  "lineCoverage": 98.4,
+  "branchCoverage": 91.9,
+  "projectStatus": "Done",
+  "issueStatus": "CLOSED",
+  "definitionOfDoneChecked": 9,
+  "remoteBranchAbsent": true,
+  "mergedTreeEqualsTestedTree": true,
+  "primaryFourSHAUnchanged": true,
+  "ordinaryReviews": 1,
+  "criticalImportantFindings": 0,
+  "rulings": 27,
+  "inheritedMinors": 2,
+  "pauseBefore": {
+    "useCase": "UC-30",
+    "issue": 31
+  },
+  "developmentOnlyDeferrals": "Independent security/protocol/client qualification; release gates retained",
+  "definitionOfDone": [
+    "Own feature branch from freshly verified develop",
+    "Main flow and AF01..05 mapped and implemented: Gate2",
+    "Command98, Data206, HTTP142 focused plus six full families",
+    "Fresh7005/7005; six assemblies >=90 line; exact-head required CI success",
+    "Ordinary review/native suites/authority/ownership/atomicity/rotation verified; formal release qualification deferred by owner",
+    "Sole whole-branch review; normal exact-head squash under explicit unattended authorization",
+    "Remote feature branch absent; worktree retained",
+    "Issue30 CLOSED; actual project item Done",
+    "Merged README UC29 Done; M03 21/26 closed"
+  ]
+}

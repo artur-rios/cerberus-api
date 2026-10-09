@@ -1,0 +1,11 @@
+87|account|AccessShareLock|t
+87|account|RowShareLock|t
+87|collection_grant|AccessShareLock|t
+87|collection_grant|RowShareLock|t
+87|collection_record|AccessShareLock|t
+87|record|AccessShareLock|t
+87|record|RowShareLock|t
+88|collection_record|RowExclusiveLock|t
+88|record|AccessShareLock|t
+88|record|RowShareLock|t
+88|transactionid|ShareLock|f

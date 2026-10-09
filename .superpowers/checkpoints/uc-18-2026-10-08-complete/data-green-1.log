@@ -1,0 +1,44 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc18-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc18-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc18-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:08.53]     ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenNativeSharedRecordWithPrivateOwnerOrganization_WhenGetting_ThenReturnOnlyIncludedRecipientReferences(access: ReadWrite, route: "direct", selected: True) [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenNativeSharedRecordWithPrivateOwnerOrganization_WhenGetting_ThenReturnOnlyIncludedRecipientReferences(access: ReadWrite, route: "direct", selected: True) [633 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+                                  ↓ (pos 2583)
+Expected: ···"oked":false,"Id":33}],"Records":[],"Folde"···
+Actual:   ···"oked":false,"Id":33},{"HandleVerifier":"d"···
+                                  ↑ (pos 2583)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenNativeSharedRecordWithPrivateOwnerOrganization_WhenGetting_ThenReturnOnlyIncludedRecipientReferences(CollectionGrantAccess access, String route, Boolean selected) in /tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordReadStoreTests.cs:line 66
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:08.68]     ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenNativeSharedRecordWithPrivateOwnerOrganization_WhenGetting_ThenReturnOnlyIncludedRecipientReferences(access: ReadOnly, route: "both", selected: True) [FAIL]
+[xUnit.net 00:00:09.15]     ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenNativeSharedRecordWithPrivateOwnerOrganization_WhenGetting_ThenReturnOnlyIncludedRecipientReferences(access: ReadWrite, route: "folder", selected: True) [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenNativeSharedRecordWithPrivateOwnerOrganization_WhenGetting_ThenReturnOnlyIncludedRecipientReferences(access: ReadOnly, route: "both", selected: True) [158 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+                                  ↓ (pos 2583)
+Expected: ···"oked":false,"Id":36}],"Records":[],"Folde"···
+Actual:   ···"oked":false,"Id":36},{"HandleVerifier":"b"···
+                                  ↑ (pos 2583)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenNativeSharedRecordWithPrivateOwnerOrganization_WhenGetting_ThenReturnOnlyIncludedRecipientReferences(CollectionGrantAccess access, String route, Boolean selected) in /tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordReadStoreTests.cs:line 66
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenNativeSharedRecordWithPrivateOwnerOrganization_WhenGetting_ThenReturnOnlyIncludedRecipientReferences(access: ReadWrite, route: "folder", selected: True) [192 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+                                  ↓ (pos 2583)
+Expected: ···"oked":false,"Id":41}],"Records":[],"Folde"···
+Actual:   ···"oked":false,"Id":41},{"HandleVerifier":"4"···
+                                  ↑ (pos 2583)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.RecordReadStoreTests.GivenNativeSharedRecordWithPrivateOwnerOrganization_WhenGetting_ThenReturnOnlyIncludedRecipientReferences(CollectionGrantAccess access, String route, Boolean selected) in /tmp/cerberus-uc18-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordReadStoreTests.cs:line 66
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     3, Passed:    84, Skipped:     0, Total:    87, Duration: 9 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)

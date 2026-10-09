@@ -1,0 +1,8 @@
+### Task 1: Typed resources, grants and membership schema
+
+**Files:** Create Domain/Resources/{VaultRecord,VaultFolder,VaultCollection,CollectionGrant,ProfileRecord,ProfileFolder,ProfileCollection}.cs and Domain/Profiles/ProfileAssociationContracts.cs; modify Data/AppDbContext.cs with focused Configuration/ResourceModel.cs; migration; tests/Domain/.../ProfileAssociationInputTests.cs and tests/Infrastructure/.../ProfileAssociationSchemaTests.cs.
+**Interfaces:** ProfileAssociationInput(long ExpectedRevision,Guid[]RecordIds,Guid[]FolderIds,Guid[]CollectionIds).IsValid(); ProfileAssociationRequest(Guid Actor,string AccessVerifier,Guid ProfileId,ProfileAssociationInput Input); ProfileAssociationDetails(Guid ProfileId,long Revision,long ServerSequence,Guid[]RecordIds,Guid[]FolderIds,Guid[]CollectionIds); IProfileAssociationStore.SetAsync(request,ct)->VaultResult<ProfileAssociationDetails>. Resources common owned fields, Folder.ParentFolderId/Record.FolderId?, Collection.KeyEpoch, Grant.PublicId/CollectionId/RecipientAccountId/Access(ReadOnly,ReadWrite)/State(Active,Revoked)/Revision/RecipientKeyEnvelope. Link composite keys and direct same-owner FKs.
+- [ ] Write input boundary tests and realPG schema tests: distinct typed IDs (sameGUID across kinds valid), null/duplicate/zero arrays invalid, safe revision; actual multiple-profile links, reject direct foreign owner, duplicate links/current grant pair, foreign parent refs; migration. Runfocused; expected missingtype compile RED.
+- [ ] Implement exact models/config/migration; no getter tests or speculative endpoints. Run wholeDomain and wholeData; expected allpass0skip. Commit.
+**Completion:** Typed persistence enforces ownership/cardinality and supports later tasks.
+

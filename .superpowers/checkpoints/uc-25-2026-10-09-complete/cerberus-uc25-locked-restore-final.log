@@ -1,0 +1,8 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc25-worktree/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 290 ms).
+  Restored /tmp/cerberus-uc25-worktree/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 349 ms).
+  Restored /tmp/cerberus-uc25-worktree/src/Application/ArturRios.Cerberus.Query/ArturRios.Cerberus.Query.csproj (in 349 ms).
+  Restored /tmp/cerberus-uc25-worktree/src/Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj (in 345 ms).
+  Restored /tmp/cerberus-uc25-worktree/src/Presentation/ArturRios.Cerberus.WebApi/ArturRios.Cerberus.WebApi.csproj (in 369 ms).
+  Restored /tmp/cerberus-uc25-worktree/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 433 ms).
+  6 of 12 projects are up-to-date for restore.

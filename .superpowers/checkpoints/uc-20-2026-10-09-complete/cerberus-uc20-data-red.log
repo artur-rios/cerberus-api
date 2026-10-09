@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc20-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj (in 433 ms).
+  Restored /tmp/cerberus-uc20-worktree/src/Domain/ArturRios.Cerberus.Domain/ArturRios.Cerberus.Domain.csproj (in 433 ms).
+  Restored /tmp/cerberus-uc20-worktree/src/Application/ArturRios.Cerberus.Shared/ArturRios.Cerberus.Shared.csproj (in 432 ms).
+  Restored /tmp/cerberus-uc20-worktree/src/Infrastructure/ArturRios.Cerberus.Data/ArturRios.Cerberus.Data.csproj (in 452 ms).
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc20-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc20-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc20-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+/tmp/cerberus-uc20-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordTrashStoreTests.cs(159,13): error CS0246: The type or namespace name 'RecordTrashStore' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc20-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]
+/tmp/cerberus-uc20-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordTrashStoreTests.cs(160,30): error CS0246: The type or namespace name 'RecordTrashDetails' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc20-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]
+/tmp/cerberus-uc20-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/RecordTrashStoreTests.cs(161,84): error CS0246: The type or namespace name 'RecordTrashDetails' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc20-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj]

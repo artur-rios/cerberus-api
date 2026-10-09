@@ -1,0 +1,16 @@
+from pathlib import Path
+import re
+s=Path('/tmp/cerberus-uc22-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/RecordCreateHttpTests.cs').read_text()
+s=s.replace('Command.Records','Command.Folders').replace('Domain.Records','Domain.Folders').replace('RecordCreate','FolderCreate').replace('CreateRecord','CreateFolder')
+s=re.sub(r'\bRecordId\b','NewFolderId',s);s=re.sub(r'\bFolderId\b','ParentFolderId',s);s=s.replace('NewFolderId','FolderId')
+s=s.replace('recordId','newFolderId').replace('folderId','parentFolderId').replace('newFolderId','folderId')
+s=s.replace('RecordIds','FolderIds').replace('ProfileRecords','ProfileFolders').replace('db.Records','db.Folders')
+s=s.replace('cerberus.profile_record','cerberus.profile_folder').replace('cerberus.record','cerberus.folder').replace('fixture_unavailable_record','fixture_unavailable_folder').replace('reject_http_record_fixture','reject_http_folder_fixture')
+s=s.replace('"record",input.FolderId','"folder",input.FolderId').replace('ResourceKind="record"','ResourceKind="folder"')
+s=s.replace('/api/records','/api/folders').replace('record_created','folder_created').replace('Record','Folder').replace('record','folder')
+s=s.replace('Assert.Equal(input.FolderId,Assert.Single(detail.FolderIds));','Assert.Contains(input.FolderId,detail.FolderIds);Assert.Equal(new[]{root.PublicId,input.FolderId}.Order(),detail.FolderIds.Order());')
+s=s.replace('Folders=await db.Folders.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync(),Profiles=', 'Records=await db.Records.AsNoTracking().Where(x=>x.AccountId==s.InternalId).OrderBy(x=>x.Id).ToArrayAsync(),Profiles=')
+s=s.replace('"emptyFolder",','"emptyFolder","selfParent",').replace('if(kind=="emptyFolder")body["parentFolderId"]=Guid.Empty;', 'if(kind=="emptyFolder")body["parentFolderId"]=Guid.Empty;if(kind=="selfParent")body["parentFolderId"]=input.FolderId;')
+s=s.replace('[InlineData("pre2000")]', '[InlineData("pre2000")][InlineData("maximum")]').replace('EditedAt=kind=="minimum"?new(10,TimeSpan.Zero):','EditedAt=kind=="maximum"?DateTimeOffset.MaxValue:kind=="minimum"?new(10,TimeSpan.Zero):')
+Path('/tmp/cerberus-uc23-http-tests.cs').write_text(s)
+print('Prepared HTTP behavioral draft with actual selected native access and rotation inventory checks.')

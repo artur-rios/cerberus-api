@@ -1,0 +1,15 @@
+### Task 3: Native DELETE integration and fresh whole-branch validation
+
+**Files:** Modify FoldersController.cs/Startup.cs in `src/Presentation/ArturRios.Cerberus.WebApi`; test `tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderTrashHttpTests.cs`; modify `docs/security/folder-api.md`, README.md, CHANGELOG.md, `docs/requirements/Operations & Infrastructure Document.md`, `docs/operations/foundation-status.md`, generated `docs/contracts/openapi.json`.
+**Interfaces:** DELETE consumes Task1 DeleteFolderCommand/Handler/Validator/Output/Messages and Task2 IFolderTrashStore/FolderTrashStore; three explicit Startup registrations. Existing POST/list/GET/PUT stay functional.
+
+- [ ] Write native HTTP tests before route/DI: actual POST folders+records and native Master/PerProfile selection; complete cascade exact six output/one operation/timestamps/typed snapshots/cipher preserve/parentbumps; independently trashed items; actual native RO/RW/record-only/privateparent denial and corrupt contributor503; recipient folder/record GET/list disappear with direct shares unchanged. Strict body/path/header/query/transport/forged cascade overrides/no-store/currentidentity/expiry/selection/stale/lostretry/necessarycorruption/outage. ReviewFocus1..5 HTTP boundaries.
+- [ ] Run focused FolderTrashHttpTests to http-red.log. Expected installed missing DELETE route405 after all actual prerequisites succeed; shared middleware cases may already pass.
+- [ ] Add focused [HttpDelete("{id}")]/[VaultProofBody] action matching RecordsController.Delete plus store/validator/handler DI; focused http-green.log all pass.
+- [ ] Update folder-api/currentcascade/retention/restore/sync limits docs; READMEUC27Done/M03 **19 / 26 closed**; OpenAPIwrite+drift/exactexpectedRevision/sixoutput/statuses+retainedroutes. Shared schema Minors retained accurately.
+- [ ] Run lockedrestore/NuGetdirect+transitive/nativeOSV153/nocorpusregression322x4/nativehelpers36/Pythonhelpers23/specs/rangewhitespace including alladdedfiles and `python3 scripts/coverage.py > /tmp/cerberus-uc27-coverage.log 2>&1`. Serialize .NET/native; expected unfiltered sixfamilies zerofail/skip, actual sixassemblies>=90line and aggregatebranch reported, freshbase/rules/primarySHA preserved.
+- [ ] Commit `feat: expose recoverable folder deletion`; task-done actual coverage audit/checkbox/ledger. Mandatory sole whole-branch review and delivery follow implementation completion: package originalbase..testedHEAD/fulltemplate/spec/plan/fiveverbatimFocus/ALLRulings/real evidence; one blocking TDD correction pass if needed/fullsuite, Minors deferred/no secondreview/all declined FinalRulings reason+cost.
+
+## Delivery
+
+Exhaustive all rulings/minors PRbody/archive. Normalpush/PRdevelop closes28/projectTesting; latestexactHEADbranch-policy/test/dockerSUCCESS/freshbase/rules0approvals/MERGEABLE+CLEAN/primarySHA; normal matchHEAD squash. Actualissue28Closed9DoD/Done/remoteabsent/mergedREADME19of26/testedtree; hashverifyALLownarchive beforeonlyownSDDcleanup. Retain userfiles/worktrees; UC28issue29 next.

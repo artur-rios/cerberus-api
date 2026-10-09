@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "nativeCoordinates": 153,
+  "nativeCases": 322,
+  "directions": 4,
+  "nativeHelpers": 36,
+  "pythonHelpers": 23,
+  "FRs": 107,
+  "UCs": 55,
+  "BRs": 29,
+  "lockedRestore": true,
+  "openapiDrift": false,
+  "openapiShape": "6 required input/4 output/8 statuses/all baselineoperations unchanged",
+  "dependencyFindings": 0,
+  "baseUnchanged": true
+}

@@ -1,0 +1,26 @@
+{
+  "focused": 206,
+  "checks": {
+    "main": true,
+    "AF01": true,
+    "AF02": true,
+    "AF03": true,
+    "AF04": true,
+    "AF05": true,
+    "7ActualMutationFaults": true,
+    "currentWritersBothOrders": true,
+    "rotation": true,
+    "nativeRecipients": true,
+    "completeInventory": true,
+    "rewrap": true,
+    "priorActualTrash": true,
+    "EXPLAINbounded": true,
+    "CallerCt": true
+  },
+  "files": {
+    "src/Infrastructure/ArturRios.Cerberus.Data/Collections/CollectionCreateStore.cs": "1ce580c9a6a5878d510e4ad004fde5dddb5b7bb545fd934f118780a131263010",
+    "tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionCreateStoreTests.cs": "0339c0c33609180f740536ae22dd0a6fe901445cd43d7a8626eec68310d6e5a5"
+  },
+  "actualExplainPath": "/tmp/cerberus-uc29-explain.json",
+  "structuralRegression": "12RED/6controls then18GREEN"
+}

@@ -1,0 +1,46 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc14-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc14-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc14-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc14-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc14-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:09.63]     ArturRios.Cerberus.Data.Tests.ProfileAssociationStoreTests.GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollection_ThenNotFoundWithoutChangingProfileOrLinks(kind: "ownerPins") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.ProfileAssociationStoreTests.GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollection_ThenNotFoundWithoutChangingProfileOrLinks(kind: "ownerPins") [1 s]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "not_found"
+Actual:   "persistence_unavailable"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.ProfileAssociationStoreTests.GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollection_ThenNotFoundWithoutChangingProfileOrLinks(String kind) in /tmp/cerberus-uc14-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileAssociationStoreTests.cs:line 99
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:09.85]     ArturRios.Cerberus.Data.Tests.ProfileAssociationStoreTests.GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollection_ThenNotFoundWithoutChangingProfileOrLinks(kind: "grant") [FAIL]
+[xUnit.net 00:00:10.09]     ArturRios.Cerberus.Data.Tests.ProfileAssociationStoreTests.GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollection_ThenNotFoundWithoutChangingProfileOrLinks(kind: "recipientPins") [FAIL]
+  Failed ArturRios.Cerberus.Data.Tests.ProfileAssociationStoreTests.GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollection_ThenNotFoundWithoutChangingProfileOrLinks(kind: "grant") [210 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "not_found"
+Actual:   "persistence_unavailable"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.ProfileAssociationStoreTests.GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollection_ThenNotFoundWithoutChangingProfileOrLinks(String kind) in /tmp/cerberus-uc14-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileAssociationStoreTests.cs:line 99
+--- End of stack trace from previous location ---
+  Failed ArturRios.Cerberus.Data.Tests.ProfileAssociationStoreTests.GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollection_ThenNotFoundWithoutChangingProfileOrLinks(kind: "recipientPins") [242 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "not_found"
+Actual:   "persistence_unavailable"
+           ↑ (pos 0)
+  Stack Trace:
+     at ArturRios.Cerberus.Data.Tests.ProfileAssociationStoreTests.GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollection_ThenNotFoundWithoutChangingProfileOrLinks(String kind) in /tmp/cerberus-uc14-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ProfileAssociationStoreTests.cs:line 99
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     3, Passed:     0, Skipped:     0, Total:     3, Duration: 2 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)

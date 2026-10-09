@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/cerberus-uc20-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj (in 360 ms).
+  Restored /tmp/cerberus-uc20-worktree/src/Application/ArturRios.Cerberus.Command/ArturRios.Cerberus.Command.csproj (in 359 ms).
+  2 of 4 projects are up-to-date for restore.
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc20-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc20-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc20-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+/tmp/cerberus-uc20-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/DeleteRecordHandlerTests.cs(44,13): error CS0246: The type or namespace name 'DeleteRecordCommand' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc20-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj]
+/tmp/cerberus-uc20-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/DeleteRecordHandlerTests.cs(46,20): error CS0246: The type or namespace name 'DeleteRecordHandler' could not be found (are you missing a using directive or an assembly reference?) [/tmp/cerberus-uc20-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj]

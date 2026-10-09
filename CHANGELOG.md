@@ -12,6 +12,12 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owned folder moves (UC-28) with atomic root/immediate-parent metadata,
+  per-member selected scope checks, cycle rejection and current native recipient
+  bindings. Encrypted subtree content and direct links remain unchanged; current
+  GET/list inheritance changes immediately. Durable synchronization remains later
+  work. See the [folder move API](docs/security/folder-api.md#move-a-folder-uc28).
+
 - Recoverable owned folder deletion (UC-27), with atomic active subtree/record
   cascades, one 30-day deadline, retained opaque ciphertext and typed restore
   snapshots. Earlier independent trash retains its deadline; recipient reads

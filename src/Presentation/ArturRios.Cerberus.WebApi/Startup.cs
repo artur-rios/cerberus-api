@@ -77,6 +77,9 @@ public static class Startup
         builder.Services.AddScoped<IFolderCreateStore, FolderCreateStore>();
         builder.Services.AddScoped<IFolderListStore, FolderListStore>();
         builder.Services.AddScoped<IFolderReadStore, FolderReadStore>();
+        builder.Services.AddScoped<IFolderMoveStore, FolderMoveStore>();
+        builder.Services.AddScoped<IValidator<MoveFolderCommand>, MoveFolderValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<MoveFolderCommand, MoveFolderOutput>, MoveFolderHandler>();
         builder.Services.AddScoped<IFolderUpdateStore, FolderUpdateStore>();
         builder.Services.AddScoped<IValidator<UpdateFolderCommand>, UpdateFolderValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<UpdateFolderCommand, UpdateFolderOutput>, UpdateFolderHandler>();

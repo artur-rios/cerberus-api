@@ -571,3 +571,25 @@ kind and prove same-GUID different-kind survival. Never clear a selected profile
 reference to null and thereby broaden a handle. Independent protocol/security and
 real-client approvals remain deferred for development only. See the
 [record API](../security/record-api.md#move-an-encrypted-record-uc21).
+
+
+### Folder listing (UC24)
+
+GET `/api/folders` uses one permission/content/native-evidence SQL snapshot.
+Current owned/selected/native recipient member-folder admission occurs before
+complete self/upward ancestry and pagination. Hidden ancestry omits folders;
+fully active relevant cycles, duplicate/unsafe visible ordering and corrupt
+contributing native evidence fail503 with no partial payload. Reads do not lock
+or mutate resources. Record-only grants and profile-record links never widen
+folder visibility, and member leaves do not expose unshared ancestors/siblings.
+
+Configure `MaxPageSize` and share the dedicated `RegistrationFingerprintKey`
+among replicas. Key rotation invalidates folder cursors400; clients restart.
+Current grant/link/selection/session policy and database statement-time expiry
+are rechecked per page. Permission changes after the statement affect the next
+request. Distinct account pins are parsed once per snapshot; all visible foreign
+grant signatures remain mandatory even beyond the current page. Candidate/ancestry
+query plans are checked with unrelated deep inventories; no production workload
+certification or durable offline synchronization is implied. Independent formal
+security/client approval remains a mandatory release prerequisite. See the
+[folder list contract](../security/folder-api.md#list-encrypted-folders-uc24).

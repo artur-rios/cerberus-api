@@ -85,3 +85,10 @@ existing folder schema and complete protection inventory. Parent ancestry and
 current selected authority are checked again at the guarded insert; partial
 folder/link/parent writes roll back together. Independent protocol/security and
 real-client qualification remain deferred for development only.
+
+UC24 adds [encrypted folder listing](../security/folder-api.md#list-encrypted-folders-uc24)
+with native RO/RW member-folder descendants and current selected-profile scope.
+One SQL snapshot admits permitted folders before ancestry, native evidence and
+pagination; record-only authority cannot expose a containing folder. Reads are
+no-store and make no mutations. Independent security/client and production
+qualification remain outstanding release gates.

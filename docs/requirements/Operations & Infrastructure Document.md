@@ -507,3 +507,33 @@ endpoint is added. Future profile protection changes/restore must preserve isola
 and revoke affected handles. Physical purge MUST revoke/delete selected sessions
 or retain nonnull stale ProfileId metadata; NEVER clear it to null (account-wide scope).
 Independent protocol/client review remains a release prerequisite.
+
+
+### Recoverable record deletion (UC20)
+
+`DELETE /api/records/{id}` accepts only the current expected revision under current
+owned scope and returns six public trash metadata fields. Current native foreign
+RO and RW access cannot delete. The atomic transaction retains unchanged opaque
+ciphertext and client edit time for 720 hours, snapshots all stored direct typed
+associations including inactive ones, detaches the folder and direct record links,
+and advances affected active immediate owned parent structural metadata. Selected
+profile handles stay valid. Lost-success retry returns404 without extending expiry.
+
+Own account NO KEY UPDATE and session UPDATE precede ordered owned profiles and
+collections NO KEY UPDATE, immediate folder NO KEY UPDATE, record UPDATE and typed
+association row UPDATE. Current scope is reloaded after waits and complete ancestry,
+lifecycle and exclusive expiry are guarded at database statement time. New unheld
+parents return409; failures roll back record, links, parents, trash and queue writes.
+No foreign account/profile/resource locks, schema or dependency changes are added.
+Damaged opaque owned content can be trashed without decryption; corrupt required
+structural or relevant native authority metadata fails closed.
+
+One typed trash operation/entry and `trash/{operationId}` retention item commit with
+the mutation. The existing executor fails closed and retries an unavailable handler.
+UC51 must implement association-revalidated restoration and consume/reconcile the
+old typed entry before re-trash; UC53 must implement typed expiry before release.
+Retained records remain mandatory in protection-rotation inventory. Before ANY
+physical purge, repair cross-kind terminal GUID handling and preserve selected
+session isolation: never clear selected ProfileId to null. See the
+[record API](../security/record-api.md#delete-an-encrypted-record-uc20). Independent
+protocol/client qualification remains a release prerequisite.

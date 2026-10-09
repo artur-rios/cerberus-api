@@ -54,14 +54,14 @@
 **Files:** Create src/Application/ArturRios.Cerberus.Command/Folders/CreateFolderCommand.cs, CreateFolderValidator.cs, CreateFolderHandler.cs, CreateFolderOutput.cs, FolderCreateMessages.cs and tests/Application/ArturRios.Cerberus.Command.Tests/FolderCreateHandlerTests.cs.
 **Interfaces:** Consume Task1/CreateAsync store; expose CreateFolderCommand.SetContext(Guid actor,string? access), ToInput(), Handler with IValidator<CreateFolderCommand>/IFolderCreateStore, exact four-field CreateFolderOutput. Task4 consumes these classes and status map.
 
-- [ ] Write command tests BEFORE product: strict required4/optionalparent, forged context/plaintext rejection, input/self-parent validation, trusted actor/current opaque handle hash/cancellation, safe error allowlist, known statuses, null/error-with-data/wrongid/revision/unsafe-sequence/offset/default/not-floored-or-mismatched-time output rejection. Valid initial revision1 and exact floorµs returns folder_created201/four fields.
-- [ ] Run focused command tests; Expected: missing command/handler compile RED.
-- [ ] Implement command/validator/handler/messages/output. Missing actor401, missing handle401, invalid hash/input400; store receives verifier only, caller ct unchanged. Any malformed result safely503 with no payload. Status map includes identity_unavailable503.
-- [ ] Run focused then whole Command family; Expected: zero failures/skips. Commit `feat: validate folder creation requests`; task-done audit fresh whole-family result.
+- [x] Write command tests BEFORE product: strict required4/optionalparent, forged context/plaintext rejection, input/self-parent validation, trusted actor/current opaque handle hash/cancellation, safe error allowlist, known statuses, null/error-with-data/wrongid/revision/unsafe-sequence/offset/default/not-floored-or-mismatched-time output rejection. Valid initial revision1 and exact floorµs returns folder_created201/four fields.
+- [x] Run focused command tests; Expected: missing command/handler compile RED.
+- [x] Implement command/validator/handler/messages/output. Missing actor401, missing handle401, invalid hash/input400; store receives verifier only, caller ct unchanged. Any malformed result safely503 with no payload. Status map includes identity_unavailable503.
+- [x] Run focused then whole Command family; Expected: zero failures/skips. Commit `feat: validate folder creation requests`; task-done audit fresh whole-family result.
 
 ### Task 4: Actual HTTP and delivery
 
-**Files:** Create src/Presentation/ArturRios.Cerberus.WebApi/Controllers/FoldersController.cs and tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderCreateHttpTests.cs; modify Startup DI, README, CHANGELOG, docs/contracts/openapi.json; create docs/content/api/folders.md and relevant focused operations documentation.
+**Files:** Create src/Presentation/ArturRios.Cerberus.WebApi/Controllers/FoldersController.cs and tests/Presentation/ArturRios.Cerberus.WebApi.Tests/FolderCreateHttpTests.cs; modify Startup DI, README, CHANGELOG, docs/contracts/openapi.json; create docs/security/folder-api.md and relevant focused operations documentation.
 **Interfaces:** POST /api/folders consumes Task3 command with current actor/access context and VaultProofBody; explicit validator/handler/store DI. Output/statuses exactly as spec.
 
 - [ ] Write actual native/Heimdall/PostgreSQL HTTP tests BEFORE route: account-wide encrypted root/multiple profiles/parent, actual UC15 selected Master/PerProfile root/direct/descendant/own-collection parent, foreign RO/RW404, strict required/body/identifiers/transport/query/header/no-store/current identity/session/lifecycle, concurrent duplicate winning state and rollback retry, min/pre2000/max times, typed collisions and direct profile get/list projection.

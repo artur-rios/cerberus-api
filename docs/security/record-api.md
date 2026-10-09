@@ -255,3 +255,63 @@ the winner; reload before retrying. Sequence gaps are valid. This endpoint neith
 changes relationships nor performs physical purge. The conservative cross-kind
 terminal-ID behavior and mandatory independent security/client release approvals
 remain as described above.
+
+
+## Delete an encrypted record (UC20)
+
+`DELETE /api/records/{id}` requires a canonical lowercase nonzero UUID, current
+Heimdall identity and one canonical `X-Cerberus-Vault-Access` handle. Send exactly
+`{"expectedRevision": 1}` with the current positive safe integer revision. The
+strict UTF-8 JSON rules above apply; query parameters, ciphertext, timestamps,
+relationships and server context are rejected.
+
+Only the current owner may delete a currently visible record. Current native
+read-only and read/write recipients both receive `403`, before revision or target
+content checks. Every relevant current foreign grant is still validated. Hidden,
+unselected, revoked or trashed records return nonrevealing `404`. Complete active
+ancestry is required even for a direct link. Damaged owned opaque ciphertext can
+be trashed without parsing or decrypting it; the bytes and original client edit
+time remain unchanged for later recovery.
+
+Success is `200`, `record_deleted`, with exactly `recordId`, `trashOperationId`,
+`revision`, `serverSequence`, `deletedAt` and `purgeAt`. The record advances one
+revision and global sequence, receives a fresh concurrency stamp, and is retained
+for exactly 720 hours from database statement time. Both timestamps use UTC
+microseconds. No ciphertext, owner graph, grants, keys or access handle is returned.
+
+The transaction snapshots all stored direct owned profile and collection links,
+including inactive links, and the original immediate folder. It detaches the folder
+and removes direct record links atomically. Only affected active owned direct
+profiles, direct collections and the immediate folder advance structural metadata;
+their ciphertext, client edit time, key wrappers and epochs are preserved. Ancestors,
+recipient profiles, other graph links and unrelated records remain unchanged.
+Selected profile access stays valid, while get/list exclude the deleted record.
+
+| Status | Meaning |
+| --- | --- |
+| 400 | Invalid ID/header/query/body or missing/invalid expected revision |
+| 401 | Missing/invalid current identity or missing vault access |
+| 403 | Invalid/expired/revoked/stale access or selection, or visible foreign record |
+| 404 | Missing/closing/terminal actor or absent/hidden/out-of-scope/trashed target |
+| 409 | Revision/sequence conflict or exhaustion, new unheld parent, or conflicting old typed trash entry |
+| 413 | Common request byte limit exceeded; response body is empty |
+| 503 | Dependency unavailable or relevant native/ancestry/structural metadata is corrupt |
+
+All responses are `no-store`. Own account and session locks precede ordered owned
+profile and collection locks, the immediate folder, the target record and existing
+typed association rows. Parent locks permit foreign-key references; the target lock
+stabilizes new references. Current scope is reloaded after waits, and the final
+statement reevaluates complete ancestry, lifecycle and exclusive expiry. New unheld
+parents require reload. No foreign account/profile/resource locks are acquired.
+All content, association, parent, trash operation, entry and queue writes roll back
+together on failure. After a lost success, retry returns `404` without creating a
+second operation or extending retention. Sequence gaps are valid.
+
+Restoration and the typed expiry handler belong to UC51 and UC53 and must ship
+before release. The existing fail-closed executor retries unavailable handlers;
+it does not claim physical purge. Restore must revalidate every retained association
+and consume or reconcile the old typed entry before a later deletion. Retained
+records remain in complete protection-rotation inventory. Physical purge also
+requires the pending resource-kind-aware terminal repair and must never turn a
+selected profile handle into account-wide access by clearing its selection. Existing
+independent protocol/client release approvals remain mandatory.

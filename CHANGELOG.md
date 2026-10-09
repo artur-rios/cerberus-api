@@ -12,6 +12,13 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Recoverable owned record deletion (UC-20), with exact revision checks, unchanged
+  retained ciphertext, restricted association snapshots and a 720-hour deadline.
+  Atomic link removal and immediate parent metadata updates hide the record while
+  preserving selected access. Native recipients cannot delete, and retries cannot
+  extend retention. Restoration and typed expiry remain later release prerequisites.
+  See the [record API](docs/security/record-api.md#delete-an-encrypted-record-uc20).
+
 - Encrypted record replacement (UC-19) for current owners and native read/write
   recipients, with optimistic revisions, immutable relationships and four-field
   metadata responses. Database-time scope/ancestry guards, native grant validation

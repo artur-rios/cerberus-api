@@ -71,7 +71,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 var profiles = await db.Profiles.Where(x => x.AccountId == a.Id).ToListAsync(cancellationToken);
                 // Collections precede grants in the shared cross-owner lock order. The
                 // account lock serializes creation/edits of the owned inventory.
-                var records=await db.Records.Where(x=>x.AccountId==a.Id).ToListAsync(cancellationToken);
+                var records=await db.Records.Where(x=>x.AccountId==a.Id && !db.TerminalErasures.Any(e=>e.ResourceKind=="record" && e.ResourceId==x.PublicId)).ToListAsync(cancellationToken);
                 var folders=await db.Folders.Where(x=>x.AccountId==a.Id).ToListAsync(cancellationToken);
                 var collections=await db.Collections.FromSqlInterpolated($"SELECT c.* FROM cerberus.collection c WHERE c.account_id={a.Id} ORDER BY c.public_id FOR UPDATE").ToListAsync(cancellationToken);
                 if (input.ContentReplacements.Length != profiles.Count + records.Count + folders.Count + collections.Count + 1) return new(Error: "validation_failed");

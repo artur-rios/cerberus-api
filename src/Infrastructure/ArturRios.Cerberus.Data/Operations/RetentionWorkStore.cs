@@ -37,6 +37,20 @@ public sealed class RetentionWorkStore(IDbContextFactory<AppDbContext> factory) 
             $"SELECT * FROM cerberus.retention_work_item WHERE public_id = {claim.WorkId} FOR UPDATE")
             .ToListAsync(cancellationToken);
         var work = rows.SingleOrDefault();
+        if(work is not null && work.OperationKey.StartsWith("record-purge/",StringComparison.Ordinal))
+        {
+            if(work.OperationKey!=claim.OperationKey || claim.Token==Guid.Empty || now.Offset!=TimeSpan.Zero)return false;
+            // The caller's clock cannot extend a purge lease. This statement starts
+            // after the persisted claim-row wait and checks current database expiry.
+            var changed=await context.Database.ExecuteSqlInterpolatedAsync($"""
+                UPDATE cerberus.retention_work_item SET completed_at=statement_timestamp(),concurrency_stamp={Guid.NewGuid()}
+                WHERE public_id={claim.WorkId} AND operation_key={claim.OperationKey} AND claim_token={claim.Token}
+                  AND completed_at IS NULL AND claim_expires_at>statement_timestamp()
+                """,cancellationToken);
+            if(changed!=1)return false;
+            await transaction.CommitAsync(cancellationToken);
+            return true;
+        }
         if (work is null || work.OperationKey != claim.OperationKey
             || !work.TryComplete(claim.Token, now)) return false;
         await context.SaveChangesAsync(cancellationToken);

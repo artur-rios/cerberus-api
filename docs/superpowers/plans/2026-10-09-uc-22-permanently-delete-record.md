@@ -78,16 +78,23 @@ or ErasureLedgerTests or RestoreReconcilerTests. No untyped predicate remains.
 
 **Files:** New Domain Records/RecordPermanentDeleteContracts.cs; Data Records/
 RecordPermanentDeleteStore.cs, Erasure/RecordPurgeHandler.cs, Erasure/RecordErasure.cs;
-modify TerminalErasureStore record replay. New Data RecordPermanentDeleteStoreTests.cs
-and RecordPurgeHandlerTests.cs/restore cases. Reuse existing retention schema.
+modify TerminalErasureStore record replay and Operations/RetentionWorkStore.cs
+record-purge completion to use fresh database time after claim-row waits. New Data RecordPermanentDeleteStoreTests.cs
+and RecordPurgeHandlerTests.cs/restore cases. Modify Protection/VaultProtectionChangeStore.cs
+to omit typed terminal records awaiting purge from rotation inventory while retaining
+recoverable trash. Reuse existing retention schema.
 **Interfaces:** RecordPermanentDeleteRequest(Guid Actor,string AccessVerifier,
 Guid RecordId,long ExpectedRevision); RecordPermanentDeleteDetails(Guid RecordId,
 DateTimeOffset DeletedAt); IRecordPermanentDeleteStore.DeleteAsync(request,CT)
 returns VaultResult<details>. RecordPurgeHandler implements IRetentionHandler Kind
 "record-purge"; common record erasure removes only exact typed data, fenced by
 current claim for workers, operator-gated restore replay before traffic for restore.
+Store constructor consumes IDbContextFactory<AppDbContext>, IErasureLedger,
+CerberusOptions and TimeProvider; immediate request claims use the explicitly
+configured RetentionInterval as lease, matching the existing worker. Handler
+constructor consumes factory and ledger; persisted database claim expiry governs.
 
-- [ ] Write RED tests all main/AF/current owner/native/selected active+trash scope,
+- [x] Write RED tests all main/AF/current owner/native/selected active+trash scope,
   malformed restricted snapshot/no content parse, safe/stale/max revisions/parent
   capacities, typed collision survival, structural bumps exactly once, no selection
   nulling; locks/expiry/final current scope, newly unheld authority, current actual
@@ -99,7 +106,7 @@ current claim for workers, operator-gated restore replay before traffic for rest
   Actual backup before deletion then restore/replay removes record but same-GUID
   other-kind survives and corrupt ledger/DB keeps gate closed. Expected missing
   contracts/store/handler compile RED before product.
-- [ ] Add minimal contracts/store/finalizer/replay; focused GREEN then wholeData
+- [x] Add minimal contracts/store/finalizer/replay; focused GREEN then wholeData
   zero failures/skips, inspect real races/faults/ledger/backup evidence. Commit
   `feat: permanently erase owned records`; task-done audits fresh wholeData log.
 

@@ -12,6 +12,11 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Encrypted folder detail (UC-25), with current owner or native recipient scope,
+  selected folder ancestry and only visible direct profile, effective collection
+  and independently permitted parent references from one permission snapshot.
+  See the [folder detail API](docs/security/folder-api.md#get-an-encrypted-folder-uc25).
+
 - Encrypted folder listing (UC-24), with current owner or native recipient
   scope, selected member descendants, hidden ancestry and record-only
   nonexpansion, one permission snapshot and opaque high-water pagination.

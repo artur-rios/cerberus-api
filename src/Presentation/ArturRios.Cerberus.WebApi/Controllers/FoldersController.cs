@@ -15,6 +15,29 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 [Route("api/folders")]
 public sealed class FoldersController(CommandMediator commands, QueryMediator queries) : ControllerBase
 {
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(DataOutput<FolderDetailsOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<FolderDetailsOutput?>>> Get([FromRoute] string id,
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
+    {
+        if (Request.Query.Count != 0 || HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true
+            || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0
+            || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
+            || !Guid.TryParseExact(id, "D", out var folderId) || folderId == Guid.Empty || id != folderId.ToString("D"))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var rawAccess) ? rawAccess.ToString() : null;
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        var result = await queries.ExecuteQueryAsync<GetFolderQuery, FolderDetailsOutput>(new(actor, vaultAccess, folderId), cancellationToken);
+        return result.ToActionResult(statusMap: FolderReadMessages.StatusCodes);
+    }
+
     [HttpGet]
     [ProducesResponseType(typeof(DataOutput<FolderListOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]

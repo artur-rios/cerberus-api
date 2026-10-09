@@ -92,3 +92,9 @@ One SQL snapshot admits permitted folders before ancestry, native evidence and
 pagination; record-only authority cannot expose a containing folder. Reads are
 no-store and make no mutations. Independent security/client and production
 qualification remain outstanding release gates.
+
+UC25 adds [encrypted folder detail](../security/folder-api.md#get-an-encrypted-folder-uc25)
+with current owned/native recipient scope and only permitted profile/collection/parent
+references. A target-first database snapshot checks complete ancestry and all native
+contributors, with no locks or mutations. Record-only access cannot expose its container.
+Formal security/client and production release qualification remain outstanding.

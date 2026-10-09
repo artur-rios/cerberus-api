@@ -12,6 +12,14 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owned record folder moves (UC-21) preserve ciphertext, identity, client time and
+  direct links while atomically updating record and changed immediate parent
+  metadata. Selected moves retain or narrow effective profile/collection scope;
+  native recipient visibility follows current ancestry, with current resulting
+  native envelopes and pin evidence revalidated. No-op/retry and concurrent
+  edit/trash/rotation behavior remain optimistic and fail closed. See the
+  [record API](docs/security/record-api.md#move-an-encrypted-record-uc21).
+
 - Recoverable owned record deletion (UC-20), with exact revision checks, unchanged
   retained ciphertext, restricted association snapshots and a 720-hour deadline.
   Atomic link removal and immediate parent metadata updates hide the record while

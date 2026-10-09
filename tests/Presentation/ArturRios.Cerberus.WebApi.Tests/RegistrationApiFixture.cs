@@ -161,7 +161,8 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
     }
     public static string Token(Guid id, Guid? scope = null) => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,
         new Dictionary<string, string> { ["id"] = id.ToString(), ["roleId"] = "3", ["scopeId"] = (scope ?? Scope).ToString() }));
-    private static string ServiceToken() => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,
+    // The shared fixture outlives a minute; request identity tokens remain short-lived.
+    private static string ServiceToken() => new JwtHandler().CreateToken(new JwtConfiguration(3600, "fixture-issuer", "fixture-audience", Secret,
         new Dictionary<string, string> { ["id"] = Guid.Parse("527a1001-8ef5-4c9b-a565-333333333333").ToString(), ["roleId"] = "2", ["ownedScopeIds"] = Scope.ToString() }));
     private static IResult Person(User user) => Envelope(new { id = user.Id, name = user.Name, email = user.Email, role = 3, scopeId = Scope, isDeleted = user.Deleted, emailVerified = user.EmailVerified, twoFactorEnabled = user.Mfa, ownedScopeIds = Array.Empty<Guid>() });
     private static IResult Envelope(object data) => Results.Json(new { success = true, errors = Array.Empty<string>(), messages = Array.Empty<string>(), data });

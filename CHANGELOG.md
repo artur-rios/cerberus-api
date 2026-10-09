@@ -12,6 +12,12 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owned encrypted collection creation (UC-29), with current selected scope,
+  initial profile/folder/record links and atomic structural metadata updates.
+  Native complete protection rotation includes new collections; recipient
+  membership cannot transfer ownership. See the
+  [collection create API](docs/security/collection-api.md#create-a-collection-uc29).
+
 - Owned folder moves (UC-28) with atomic root/immediate-parent metadata,
   per-member selected scope checks, cycle rejection and current native recipient
   bindings. Encrypted subtree content and direct links remain unchanged; current

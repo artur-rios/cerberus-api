@@ -683,3 +683,39 @@ visibility and recipient offline removal delivery; recipients can retain prior c
 External key provisioning/decryption, shared OpenAPI metadata and independent
 security/protocol/client approval remain release gates. See the
 [folder move API](../security/folder-api.md#move-a-folder-uc28).
+
+### Owned collection creation (UC29)
+
+POST `/api/collections` accepts exactly required `collectionId`, `envelope`,
+`editedAt`, `profileIds`, `recordIds`, `folderIds`. Current identity establishes
+ownership. Initial native epoch1, canonical typed UUIDs and UTC microsecond edit
+time follow existing creation boundaries. Output is201 `collection_created` with
+exactly collectionId/revision1/safe serverSequence/normalized editedAt. No plaintext,
+owner override, grant, usable key or extra proof input is accepted.
+
+Account-wide access supports empty/multiple-profile membership. Selected access
+requires exactly its current profile and only already-visible owned folders/records,
+through direct typed links, folder ancestry or selected owned collections. Record-only
+routes cannot admit a folder. Foreign native RO/RW member content404 even after a
+successful GET. Hidden/incomplete ancestry404 precedes structural inspection;
+relevant active cycles503 and unrelated corruption cannot probe unrelated scope.
+
+Own account/session UPDATE, ordered requested/selected profiles NO KEY UPDATE,
+ordered effective owned collections NO KEY UPDATE, requested folders UPDATE and
+requested records UPDATE precede atomic counted PC/CF/CR batches and distinct direct
+structural bumps. Current authority is checked after every wait and at the guarded
+INSERT authorization boundary. Valid changed captured/unheld scope409; current
+permission loss retains404/403 precedence. No foreign or upward-chain locks.
+Collection, links and metadata commit once or roll back fully after actual mutations;
+opaque bytes/time/parents/protection/grants/recipient state/prior trash stay exact.
+Natural expiry after guarded admission can complete under held locks. Safe counter
+exhaustion409, required corruption/regressed sequence503 and sequence gaps are allowed.
+
+Native complete retained rotation includes newly created collections and current
+profile/folder/record revisions; omitted/extra/foreign/stale replacements reject
+before proof consumption, and rewrap preserves content/links. Current GET/list
+inheritance changes immediately, while UC48 durable delivery remains later work.
+Before UC35, audit implicit recipient-account FK locks against strong owner writers.
+Shared OpenAPI metadata, independent security/protocol approval and external-client
+key provisioning/decryption remain release obligations. See the
+[collection create API](../security/collection-api.md).

@@ -442,3 +442,6 @@ after committed intent retain durable work for recovery. Restore replay removes
 terminal record ciphertext before traffic opens; see the [restore runbook](../operations/restore.md).
 Durable offline terminal ordering and independent protocol/client qualification
 remain required before release.
+
+Create new owned parents with the [folder creation API](folder-api.md). A new folder
+linked to the selected profile can contain newly created records immediately.

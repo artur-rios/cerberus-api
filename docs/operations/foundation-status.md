@@ -79,3 +79,9 @@ claimed. Real client payload/device measurements belong to protocol review and l
 
 No dependent use case can start until the foundation Definition of Done is met. The per-issue
 plan is [the backlog implementation plan](../superpowers/plans/2026-10-07-cerberus-backlog.md).
+
+UC23 adds [encrypted owned folder creation](../security/folder-api.md) using the
+existing folder schema and complete protection inventory. Parent ancestry and
+current selected authority are checked again at the guarded insert; partial
+folder/link/parent writes roll back together. Independent protocol/security and
+real-client qualification remain deferred for development only.

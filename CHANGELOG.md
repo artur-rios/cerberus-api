@@ -12,6 +12,11 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Encrypted folder content updates (UC-26), with current owner/native read-write
+  scope, revision conflict protection, guarded permission revalidation and rollback.
+  Folder organization and descendant content stay unchanged.
+  See the [folder update API](docs/security/folder-api.md#update-encrypted-folder-content-uc26).
+
 - Encrypted folder detail (UC-25), with current owner or native recipient scope,
   selected folder ancestry and only visible direct profile, effective collection
   and independently permitted parent references from one permission snapshot.

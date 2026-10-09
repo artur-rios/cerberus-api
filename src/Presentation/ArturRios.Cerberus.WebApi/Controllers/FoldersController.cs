@@ -15,6 +15,31 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 [Route("api/folders")]
 public sealed class FoldersController(CommandMediator commands, QueryMediator queries) : ControllerBase
 {
+    [HttpPut("{id}")]
+    [VaultProofBody]
+    [ProducesResponseType(typeof(DataOutput<UpdateFolderOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<UpdateFolderOutput?>>> Update([FromRoute] string id,
+        [FromBody] UpdateFolderCommand command, [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess,
+        CancellationToken cancellationToken)
+    {
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
+            || !Guid.TryParseExact(id, "D", out var folderId) || folderId == Guid.Empty || id != folderId.ToString("D"))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
+        command.SetContext(actor, vaultAccess, folderId);
+        var result = await commands.ExecuteCommandAsync<UpdateFolderCommand, UpdateFolderOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: FolderUpdateMessages.StatusCodes);
+    }
+
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(DataOutput<FolderDetailsOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]

@@ -605,3 +605,17 @@ no mutation. Hidden/incomplete targets stay404; needed corruption/dependencies f
 See [folder detail API](../security/folder-api.md#get-an-encrypted-folder-uc25).
 Shared OpenAPI metadata, independent formal security/protocol and real-client/production
 qualification remain outstanding release gates.
+
+### Folder content update (UC26)
+
+PUT `/api/folders/{id}` uses current identity/vault access and strict replacement
+JSON with expected revision. Own account/session/selection, ordered eligible
+collections/grants and target-folder locks precede a final current recursive
+write-authority guard. No foreign account/profile or ancestor lock chain is taken.
+Read-only scope denies403, hidden targets404, stale/new unheld authority409 and
+necessary corruption/dependency failures503. Post-write faults roll back row changes;
+sequence gaps are allowed. Only target content and metadata change; organization,
+children, records and associations remain unchanged. Record-only authority never
+permits a folder edit. See [folder update API](../security/folder-api.md#update-encrypted-folder-content-uc26).
+Shared OpenAPI metadata, durable synchronization and independent formal/client
+qualification remain mandatory release follow-ups.

@@ -75,6 +75,10 @@ public static class Startup
         builder.Services.AddScoped<IRecordMoveStore, RecordMoveStore>();
         builder.Services.AddScoped<IValidator<MoveRecordCommand>, MoveRecordValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<MoveRecordCommand, MoveRecordOutput>, MoveRecordHandler>();
+        builder.Services.AddScoped<IRecordPermanentDeleteStore, RecordPermanentDeleteStore>();
+        builder.Services.AddScoped<IValidator<PermanentlyDeleteRecordCommand>, PermanentlyDeleteRecordValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<PermanentlyDeleteRecordCommand, PermanentlyDeleteRecordOutput>, PermanentlyDeleteRecordHandler>();
+        builder.Services.AddScoped<IRetentionHandler, RecordPurgeHandler>();
         builder.Services.AddScoped<IRecordTrashStore, RecordTrashStore>();
         builder.Services.AddScoped<IValidator<DeleteRecordCommand>, DeleteRecordValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<DeleteRecordCommand, DeleteRecordOutput>, DeleteRecordHandler>();

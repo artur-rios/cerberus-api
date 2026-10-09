@@ -12,6 +12,14 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Permanent owned record erasure (UC-22), with current active/trash scope, typed
+  terminal IDs, durable intent and fenced purge recovery. Success follows ledger
+  flush and physical removal; failures after intent keep deletion irreversible.
+  Backup replay removes record ciphertext before traffic and preserves other kinds
+  sharing its UUID. Terminal records leave rotation inventory while recoverable
+  trash remains. See the [record API](docs/security/record-api.md#permanently-delete-a-record-uc22)
+  and [restore runbook](docs/operations/restore.md#typed-permanent-record-erasure-uc22).
+
 - Owned record folder moves (UC-21) preserve ciphertext, identity, client time and
   direct links while atomically updating record and changed immediate parent
   metadata. Selected moves retain or narrow effective profile/collection scope;

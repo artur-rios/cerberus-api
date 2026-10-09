@@ -76,8 +76,10 @@ public static class Startup
         builder.Services.AddScoped<IRecordCreateStore, RecordCreateStore>();
         builder.Services.AddScoped<IFolderCreateStore, FolderCreateStore>();
         builder.Services.AddScoped<IFolderListStore, FolderListStore>();
+        builder.Services.AddScoped<IFolderReadStore, FolderReadStore>();
         builder.Services.AddSingleton<FolderListCursor>();
         builder.Services.AddScoped<IQueryHandlerAsync<ListFoldersQuery, FolderListOutput>, ListFoldersHandler>();
+        builder.Services.AddScoped<IQueryHandlerAsync<GetFolderQuery, FolderDetailsOutput>, GetFolderHandler>();
         builder.Services.AddScoped<IValidator<CreateFolderCommand>, CreateFolderValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<CreateFolderCommand, CreateFolderOutput>, CreateFolderHandler>();
         builder.Services.AddScoped<IRecordListStore, RecordListStore>();

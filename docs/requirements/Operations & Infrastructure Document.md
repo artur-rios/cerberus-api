@@ -593,3 +593,15 @@ query plans are checked with unrelated deep inventories; no production workload
 certification or durable offline synchronization is implied. Independent formal
 security/client approval remains a mandatory release prerequisite. See the
 [folder list contract](../security/folder-api.md#list-encrypted-folders-uc24).
+
+### Folder detail (UC25)
+
+GET `/api/folders/{id}` requires current identity and vault access, canonical public ID,
+no query override or GET body, and returns only eight encrypted metadata/visible-reference
+fields. One target-first SQL snapshot revalidates current selection, complete owned
+ancestry and all relevant foreign native bindings before exposing references; record-only
+authority never exposes a folder. Reads are no-store, take no resource locks and make
+no mutation. Hidden/incomplete targets stay404; needed corruption/dependencies fail503.
+See [folder detail API](../security/folder-api.md#get-an-encrypted-folder-uc25).
+Shared OpenAPI metadata, independent formal security/protocol and real-client/production
+qualification remain outstanding release gates.

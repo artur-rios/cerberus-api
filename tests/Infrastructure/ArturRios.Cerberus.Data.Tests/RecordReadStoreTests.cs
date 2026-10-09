@@ -192,6 +192,33 @@ public class RecordReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         await using(var db=fixture.CreateContext()){var p=await db.VaultProtections.SingleAsync(x=>x.AccountId==(ownerPins?foreign.InternalId:s.InternalId));if(kind=="epoch")p.KeyEpoch++;if(kind=="generation")p.RecoveryGeneration++;if(kind=="zeroRevision")p.Revision=0;if(kind=="unsafeRevision")p.Revision=ProtocolBinary.MaxInteger+1;await db.SaveChangesAsync();}
         var r=await Read(s,a.Record.PublicId);Assert.Equal("persistence_unavailable",r.Error);Assert.Null(r.Data);
     }
+    [FunctionalTheory]
+    [InlineData("numericString",false,"visible")][InlineData("numericString",true,"visible")]
+    [InlineData("unknown",false,"visible")][InlineData("unknown",true,"visible")]
+    [InlineData("duplicate",false,"visible")][InlineData("duplicate",true,"visible")]
+    [InlineData("case",false,"visible")][InlineData("case",true,"visible")]
+    [InlineData("numericString",true,"unselected")][InlineData("numericString",false,"ancestorTrash")]
+    [InlineData("numericString",true,"revoked")][InlineData("numericString",false,"recordTrash")]
+    public async Task GivenAlternateStoredCollectionEnvelopeShape_WhenGettingSharedTarget_ThenRejectRelevantEvidenceButKeepHiddenTargetsNonrevealing(string shape,bool selected,string visibility)
+    {
+        using var owner=new ProtectionFixture();using var recipient=new ProtectionFixture();using var key=new ProtectionFixture();
+        var foreign=await ProfileSetup.Create(fixture,owner);var s=await ProfileSetup.Create(fixture,recipient);var a=await AssociationSetup.Items(fixture,foreign);var target=await Record(foreign,a.Folder.Id);
+        await Members(foreign,a.Collection,[target.Id],[]);var grant=await AssociationSetup.Grant(fixture,foreign,owner,s,recipient,a.Collection);
+        var p=await Profile(s,recipient,key,collections:visibility=="unselected"?[]:[a.Collection.PublicId]);var request=selected?s with{Verifier=await Selected(s,p.Id)}:s;
+        var original=System.Text.Encoding.UTF8.GetString(a.Collection.Envelope);var malformed=shape switch{
+            "numericString"=>original.Replace("\"keyEpoch\":1","\"keyEpoch\":\"1\""),
+            "unknown"=>original.Replace("{","{\"secret\":1,"),"duplicate"=>original.Replace("{","{\"keyEpoch\":1,"),_=>original.Replace("\"format\"","\"Format\"")};
+        Assert.NotEqual(original,malformed);
+        await using(var db=fixture.CreateContext())
+        {
+            await db.Collections.Where(x=>x.Id==a.Collection.Id).ExecuteUpdateAsync(x=>x.SetProperty(c=>c.Envelope,System.Text.Encoding.UTF8.GetBytes(malformed)));
+            if(visibility=="ancestorTrash")await db.Folders.Where(x=>x.Id==a.Folder.Id).ExecuteUpdateAsync(x=>x.SetProperty(f=>f.DeletedAt,DateTimeOffset.UtcNow));
+            if(visibility=="recordTrash")await db.Records.Where(x=>x.Id==target.Id).ExecuteUpdateAsync(x=>x.SetProperty(r=>r.DeletedAt,DateTimeOffset.UtcNow));
+            if(visibility=="revoked")await db.CollectionGrants.Where(x=>x.Id==grant.Id).ExecuteUpdateAsync(x=>x.SetProperty(g=>g.State,CollectionGrantState.Revoked));
+        }
+        var before=await Snapshot(s);var ownerBefore=await Snapshot(foreign);var result=await Read(request,target.PublicId);
+        Assert.Equal(visibility=="visible"?"persistence_unavailable":"not_found",result.Error);Assert.Null(result.Data);Assert.Equal(before,await Snapshot(s));Assert.Equal(ownerBefore,await Snapshot(foreign));
+    }
     private RecordReadStore Store()=>new(fixture);
     private Task<VaultResult<RecordReadDetails>> Read(ProfileSetup.State s,Guid target)=>Store().ReadAsync(new(s.Actor,s.Verifier,target),default);
     private async Task<VaultRecord> Record(ProfileSetup.State s,long? folder=null){var row=new VaultRecord{PublicId=Guid.NewGuid(),AccountId=s.InternalId,FolderId=folder,Envelope=Bytes(ProfileSetup.Envelope()),EditedAt=DateTimeOffset.UnixEpoch};await using var db=fixture.CreateContext();db.Records.Add(row);await db.SaveChangesAsync();return row;}

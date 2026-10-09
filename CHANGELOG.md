@@ -16,7 +16,8 @@ development into `develop` only; it is still required before any release.
   scope and native collection-grant validation. Responses include only visible
   direct profile, parent-folder and collection references; direct record access
   hides parents outside scope, and recipients never receive owner profile IDs.
-  One database snapshot reads only the target and its ancestry. See the
+  One database snapshot reads only the target and its ancestry. Shared native
+  validation rejects quoted collection epochs before returning ciphertext. See the
   [record API](docs/security/record-api.md#get-an-encrypted-record-uc18) for fields
   and failure behavior.
 

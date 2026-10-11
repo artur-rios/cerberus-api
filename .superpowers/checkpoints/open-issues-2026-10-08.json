@@ -1,7 +1,7 @@
 {
-  "checkedAt": "2026-10-09",
+  "checkedAt": "2026-10-11",
   "request": "Now, implement all open issues",
-  "status": "paused",
+  "status": "verified_awaiting_delivery",
   "existingBatchAuthorization": "docs/superpowers/plans/2026-10-07-cerberus-backlog.md",
   "baseBranch": "develop",
   "steps": [
@@ -20,11 +20,11 @@
     },
     {
       "step": "Implement each use case",
-      "status": "paused_by_user_after_issue30"
+      "status": "in_progress_issue31_only"
     },
     {
       "step": "Report completed use cases",
-      "status": "30 use cases merged, closed, Done; pause before UC30 issue31"
+      "status": "30 use cases previously delivered; UC30/#31 verified locally, exact-head CI and remote closeout pending"
     },
     {
       "step": "Report batch blocker",
@@ -1275,7 +1275,26 @@
         "title": "UC-30 \u2014 List collections",
         "url": "https://github.com/artur-rios/cerberus-api/issues/31"
       },
-      "status": "not_started"
+      "status": "verified_awaiting_delivery",
+      "worktree": "/tmp/cerberus-uc30-worktree",
+      "branch": "feature/uc-30-list-collections",
+      "ledger": "/tmp/cerberus-uc30-worktree/.superpowers/sdd/2026-10-11-uc-30-list-collections/progress.md",
+      "head": "2c4bca6e8368be7ce1a3b607366558d644dab099",
+      "focusedTests": 263,
+      "localVerification": {
+        "fullTests": 7268,
+        "failed": 0,
+        "skipped": 0,
+        "focusedTests": 263,
+        "lineCoverage": 98.4,
+        "branchCoverage": 92.1,
+        "allSixAssemblyLineGatesPassed": true,
+        "sourceManifestEntries": 484,
+        "taskReview": "no Critical/Important",
+        "wholeBranchReview": "no Critical/Important",
+        "exactHeadCI": "pending",
+        "categorySuites": "required in exact-head CI; not yet claimed passed"
+      }
     },
     {
       "id": "UC-31",
@@ -1644,7 +1663,7 @@
     "docs/requirements/Operations & Infrastructure Document.md": "81024f0962d9d6eddeedfe450231ddba403a31799358b0bfac220245b6368f8b",
     "CHANGELOG.md": "be6f4973ea26f238bd6752381979d283c5a25ca4a9fa5df319a449d2e5878746"
   },
-  "requiredToResume": "Paused by user after UC29 issue30 PR90 merged 2668b4a605e315307190da350016b9adf46efb9e. Thirty use cases done,25 remain. Do not start UC30 issue31 until user resumes. Then freshly load issue/specifications and verify develop before new design/branch/TDD. Existing authorization and development-only deferral persist; all release and ordinary verification gates remain.",
+  "requiredToResume": "First inspect issue31/collection-list PR and uc-30-2026-10-11-delivery receipt: do not repeat delivered work. If not delivered, complete scoped doc review, exact-head CI and ordinary closeout for issue31 only. Stop after delivery; UC31 is outside scope.",
   "reviewDeferral": {
     "instruction": "Skip the independent security and client-operability checks for now and keep going",
     "pr": 59,
@@ -1654,10 +1673,10 @@
     "state": "MERGED",
     "url": "https://github.com/artur-rios/cerberus-api/pull/59"
   },
-  "currentUseCase": "UC-29",
-  "currentWorktree": "/tmp/cerberus-uc29-worktree",
-  "currentBranch": "feature/uc-29-create-collection",
-  "currentLedger": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete/sdd-evidence/progress.md",
+  "currentUseCase": "UC-30",
+  "currentWorktree": "/tmp/cerberus-uc30-worktree",
+  "currentBranch": "feature/uc-30-list-collections",
+  "currentLedger": "/tmp/cerberus-uc30-worktree/.superpowers/sdd/2026-10-11-uc-30-list-collections/progress.md",
   "deferredMinorFindings": [
     {
       "useCase": "UC-02",
@@ -1789,6 +1808,15 @@
       ],
       "followUp": "Shared generated OpenAPI requiredness/wrapper/empty413 metadata before external-client release",
       "evidence": "PR90 full27Rulings/2Minors; archived sole review"
+    },
+    {
+      "useCase": "UC-30",
+      "findings": [
+        "Added security tests use compressed formatting; format in follow-up.",
+        "Add explicit visible native-evidence corruption beyond a carried highwater regression; current whole-visible evidence SQL is correct."
+      ],
+      "followUp": "Nonblocking regression/maintainability improvements; inherited shared OpenAPI and independent client/security release gates remain.",
+      "evidence": ".superpowers/checkpoints/uc-30-2026-10-11-verified/final-review.md"
     }
   ],
   "remoteApprovalBlock": {
@@ -1853,7 +1881,7 @@
     },
     "Before UC35 publicgrant creation, audit implicit PostgreSQL recipient-account FK KEY SHARE against existing recipient-owned writers that hold account FOR UPDATE (e.g. profile associations). UC19 uses NO KEY UPDATE on actor account/record, proven newauthority regression; global lock-order rules must account for implicit FK locks too."
   ],
-  "resumeInstruction": "Paused by user after UC29 issue30 PR90 merged 2668b4a605e315307190da350016b9adf46efb9e. Thirty use cases done,25 remain. Do not start UC30 issue31 until user resumes. Then freshly load issue/specifications and verify develop before new design/branch/TDD. Existing authorization and development-only deferral persist; all release and ordinary verification gates remain.",
+  "resumeInstruction": "First inspect issue31/collection-list PR and uc-30-2026-10-11-delivery receipt: do not repeat delivered work. If not delivered, complete scoped doc review, exact-head CI and ordinary closeout for issue31 only. Stop after delivery; UC31 is outside scope.",
   "nextUseCase": "UC-30",
   "resolvedStops": [
     {
@@ -1876,26 +1904,58 @@
       }
     }
   ],
-  "currentTask": "UC29 issue30 complete; user-requested pause before UC30 issue31",
-  "head": "e9c9116a02625b19763d6797534b8ce51a810e8a",
-  "worktree": "/tmp/cerberus-uc29-worktree",
-  "branch": "feature/uc-29-create-collection",
-  "ledger": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete/sdd-evidence/progress.md",
-  "currentHead": "e9c9116a02625b19763d6797534b8ce51a810e8a",
+  "currentTask": "UC30 fresh unfiltered local suite/coverage and both code reviews passed; category suites in exact-head CI, scoped doc review and remote closeout remain",
+  "head": "2c4bca6e8368be7ce1a3b607366558d644dab099",
+  "worktree": "/tmp/cerberus-uc30-worktree",
+  "branch": "feature/uc-30-list-collections",
+  "ledger": "/tmp/cerberus-uc30-worktree/.superpowers/sdd/2026-10-11-uc-30-list-collections/progress.md",
+  "currentHead": "2c4bca6e8368be7ce1a3b607366558d644dab099",
   "nextUseCasePreparation": {
-    "id": "UC-30",
-    "issue": 31,
-    "status": "not_started; preliminary read-only exploration only",
+    "id": "UC-31",
+    "issue": 32,
+    "status": "not_started; outside current user scope",
     "needsFreshCheckoutSpecReload": true
   },
-  "task2Evidence": {
+  "pauseRequestedAfterCurrentIssue": false,
+  "pauseAfterIssue": null,
+  "pauseInstruction": "Historical pause after issue30 lifted by the user on 2026-10-11 for issue31 only.",
+  "lastCompletedUseCase": "UC-29",
+  "nextIssue": 31,
+  "archiveVerification": {
+    "path": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete",
+    "files": 112,
+    "sha256Verified": true,
+    "ownedSddRemoved": "/tmp/cerberus-uc29-worktree/.superpowers/sdd/2026-10-09-uc-29-create-collection"
+  },
+  "lastSavedAt": "2026-10-11T19:17:44.224352+00:00",
+  "resumeNote": "/root/repositories/cerberus-api/.superpowers/checkpoints/RESUME.md",
+  "resumeNoteSha256": "43e6c271c4bdab020a3e570e0fea498b89ae6f296067364b9ecbbfefd3f41e3c",
+  "stateSavedForLater": true,
+  "checkpointCommitRequested": true,
+  "checkpointCommitBranch": "feature/uc-30-list-collections",
+  "primaryWorkspaceAfterDocsIntegrationSha256": {
+    "CONTRIBUTING.md": "30a75ea95ac689f6aa8bbed5368bc2abe982dfc911083312213f6a66da672865",
+    "README.md": "cf4e908e53e08cf5e02a42c011f74163c31c406750dcfa3e24a16deff9184911",
+    "docs/requirements/Operations & Infrastructure Document.md": "b44c3dce3930ab8e262ee9917515ebe6e41b497331ecaa67141f26fc7c472934",
+    "CHANGELOG.md": "388fb815c02381c7e6d724f9e5cb27a36c98ca5ce0505c5724b9fa8e68b5c2d3"
+  },
+  "documentationIntegration": {
+    "originalCommit": "04db423538c3dcaea869ce8680a7d5295115c756",
+    "developBase": "2668b4a605e315307190da350016b9adf46efb9e",
+    "authorization": "User: Open a pull request for this branch and merge it after CI is green",
+    "batchRemainsPaused": false,
+    "resumeNextIssue": 31,
+    "historicalPause": "Docs PR91 did not resume the batch; the user resumed on2026-10-11 for UC30/#31 only."
+  },
+  "executionScope": "User: Merge all unmerged branches, clear merged branches locally and on remote and implement the next open issue. Resume earlier delivery authorization for UC30/#31 only; do not start another issue.",
+  "historicalUC29Task2Evidence": {
     "path": "/tmp/cerberus-uc29-task2-focused-evidence.json",
     "focused": 206,
     "wholeLog": "/tmp/cerberus-uc29-data-whole.log",
     "audit": "/tmp/cerberus-uc29-verify-task2.py",
     "wholeResult": "PASS2662/0fail/0skip"
   },
-  "task3Evidence": {
+  "historicalUC29Task3Evidence": {
     "httpFocus": 142,
     "httpRedFailed": 141,
     "httpRedAlreadyPass": 1,
@@ -1927,35 +1987,13 @@
       "test": "SUCCESS"
     }
   },
-  "pauseRequestedAfterCurrentIssue": true,
-  "pauseAfterIssue": 30,
-  "pauseInstruction": "User: Pause after finishing the current issue. Complete UC29 issue30 PR90 CI/merge/nineDoD/projectDone/archive closeout; then pause before UC30 issue31 implementation. No further issue starts.",
-  "lastCompletedUseCase": "UC-29",
-  "nextIssue": 31,
-  "pauseReason": "User: Pause after finishing the current issue",
-  "archiveVerification": {
-    "path": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete",
-    "files": 112,
+  "previousPauseReason": "User: Pause after finishing the current issue",
+  "historicalCheckpointCommitBranch": "feature/changelog-and-contributing",
+  "uc30ArchiveVerification": {
+    "path": ".superpowers/checkpoints/uc-30-2026-10-11-verified",
+    "files": 32,
     "sha256Verified": true,
-    "ownedSddRemoved": "/tmp/cerberus-uc29-worktree/.superpowers/sdd/2026-10-09-uc-29-create-collection"
+    "ownedSddRemoved": false
   },
-  "lastSavedAt": "2026-10-09T17:02:06.536115+00:00",
-  "resumeNote": "/root/repositories/cerberus-api/.superpowers/checkpoints/RESUME.md",
-  "resumeNoteSha256": "002e868691a55bae9df72b81ab1d5dae0f38a0fc927fdd5733c5a2e7111da773",
-  "stateSavedForLater": true,
-  "checkpointCommitRequested": true,
-  "checkpointCommitBranch": "feature/changelog-and-contributing",
-  "primaryWorkspaceAfterDocsIntegrationSha256": {
-    "CONTRIBUTING.md": "30a75ea95ac689f6aa8bbed5368bc2abe982dfc911083312213f6a66da672865",
-    "README.md": "cf4e908e53e08cf5e02a42c011f74163c31c406750dcfa3e24a16deff9184911",
-    "docs/requirements/Operations & Infrastructure Document.md": "b44c3dce3930ab8e262ee9917515ebe6e41b497331ecaa67141f26fc7c472934",
-    "CHANGELOG.md": "388fb815c02381c7e6d724f9e5cb27a36c98ca5ce0505c5724b9fa8e68b5c2d3"
-  },
-  "documentationIntegration": {
-    "originalCommit": "04db423538c3dcaea869ce8680a7d5295115c756",
-    "developBase": "2668b4a605e315307190da350016b9adf46efb9e",
-    "authorization": "User: Open a pull request for this branch and merge it after CI is green",
-    "batchRemainsPaused": true,
-    "resumeNextIssue": 31
-  }
+  "deliveryReceiptPath": ".superpowers/checkpoints/uc-30-2026-10-11-delivery"
 }

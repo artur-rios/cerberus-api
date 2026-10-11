@@ -1,34 +1,38 @@
-# Resume the open-issues batch
+# UC-30 verified; delivery gates remain
 
-The batch is paused at the user's request after finishing the current issue. Do not start another issue until the user asks to resume.
+The user resumed the existing unattended authorization on 2026-10-11 for the next
+open issue only, after requesting branch merges and cleanup. Do not start UC31/#32
+as part of this scope.
 
 ## Current state
 
-- Repository: `artur-rios/cerberus-api`; delivery base: `develop`.
-- Thirty use cases delivered; 25 remain.
-- Last delivery: UC-29 Create collection, issue #30, PR #90.
-- Merge commit: `2668b4a605e315307190da350016b9adf46efb9e`.
-- Tested delivery commit: `e9c9116a02625b19763d6797534b8ce51a810e8a`.
-- Issue #30 is closed, all nine Definition of Done checks are completed, and the project item is Done. The remote feature branch is deleted; the worktree is retained.
-- The merged tree equals the tested tree. Required branch-policy, test and docker checks passed on the exact delivery commit.
-- Fresh unfiltered verification: 7,005 passed, zero failures or skips; 98.4% line and 91.9% branch coverage. All six production assemblies meet the 90% line gate.
-- One whole-branch review completed with no Critical or Important findings. All 27 rulings and two inherited Minor dispositions are archived.
+- Delivery base: develop at ef869fd when UC30 started.
+- All existing 33 local feature tips matched already-merged PR heads; their merge
+  commits are reachable from origin/develop. Remote feature branches were already
+  absent. Local refs deleted; clean linked worktrees retained detached at their tips.
+- Primary workspace is now clean develop, matching origin/develop.
+- UC30/#31 Testing on feature/uc-30-list-collections in /tmp/cerberus-uc30-worktree.
+- Design/plan committed at 1d01abd; implementation committed at 2c4bca6 under SDD for its one
+  coupled read operation. Focused263 and fresh unfiltered7268 tests pass with zero
+  failures/skips; production line coverage98.4%, branch92.1%, every assembly >=90%.
+  Both scoped task and whole-branch reviews found no Critical/Important.
+  Separate Unit/Functional category runs remain required in exact-head CI, alongside
+  its complete suite/coverage. Normal develop merge and issue/project/branch closeout
+  remain delivery gates. README Done is prepared to land with that merge.
+- Ledger: /tmp/cerberus-uc30-worktree/.superpowers/sdd/2026-10-11-uc-30-list-collections/progress.md.
 
-## Where to continue
+## Execution scope
 
-Next: **UC-30 List collections, issue #31**, which has not started. Preliminary read-only exploration is not an accepted design or implementation plan. No UC30 branch, worktree, production code, tests, design, plan or project transition was created.
+Earlier explicit authorization covers design/implementation/testing transitions,
+feature pushes, PR creation and ordinary merge into develop after required checks,
+issue/project/README closeout and delivered feature branch deletion. This request
+resumes that workflow for UC30 only. No admin merge, force push, self-approval,
+disabled tests, production deployment or main/tag/release authorization.
 
-On a later explicit resume:
-
-1. Read `open-issues-2026-10-08.json`, `batch-paused-2026-10-09.md`, and `batch-review-decisions-2026-10-08.md` in this directory.
-2. Read applicable repository instructions and the batch/workflow skills. Reload issue #31 and its requirements and use-case specification from the current repository; do not reuse preliminary assumptions.
-3. Fetch and verify the current `develop` state. Use a separate UC30 worktree/branch, preserving the primary workspace and earlier worktrees.
-4. Follow the authorized per-issue design, test-first implementation, full verification, ordinary review, exact-head CI, normal merge and nine-check closeout process. Do not repeat UC29 implementation or review.
-5. Update the existing checkpoint and aggregate review dispositions as each issue finishes.
-
-The earlier user authorization to implement all open issues, push feature branches, open and normally merge verified PRs into develop, close issues, update project status and delete delivered remote branches remains recorded. The pause remains active until the user resumes. Do not request the same authorization again.
-
-The user deferred **independent security and client-operability qualification for development only**. Ordinary review, native protocol suites, dependency audits, full tests, coverage and required CI remain mandatory. Main/tag/release approval gates remain in effect. Do not use admin merges, force pushes, self-approval or disabled tests.
+Complete main and all four AFs; fresh full unfiltered six-family tests and coverage,
+ordinary code review, native corpus/suites, dependency audits, helper/spec/OpenAPI
+checks, exact-head branch-policy/test/docker CI, normal merge and nine-check closeout.
+Independent security/client-operability review remains deferred only for development.
 
 ## Preserved obligations
 
@@ -43,12 +47,34 @@ Read the aggregate dispositions for the full history. In particular:
 - UC48 must implement durable inherited visibility and offline removals. Current reads and structural counters do not fulfill that requirement.
 - UC50–53 must implement restoration and physical expiry, preserving earlier trash deadlines and revalidating authority without reviving revoked grants. Missing handlers that retry are not completed behavior.
 
-## Workspace and evidence
+## Historical workspace and evidence
 
-The primary workspace remains on the user's `feature/changelog-and-contributing` branch. After pausing, the user explicitly requested a commit of `CONTRIBUTING.md`, `README.md`, `docs/requirements/Operations & Infrastructure Document.md`, `CHANGELOG.md`, and the saved `.superpowers/` state, followed by a PR and merge after green CI. The original local versions are preserved in commit `04db423538c3dcaea869ce8680a7d5295115c756`. This branch was then updated from current `develop` to retain all delivered code, backlog status, changelog entries and development-only review deferral. The README status now records 30 delivered use cases and 25 remaining. Original documentation SHA256 values are historical; `primaryWorkspaceAfterDocsIntegrationSha256` in the active JSON checkpoint records the reconciled versions. Check Git status on resume rather than assuming the earlier uncommitted state still applies. Preserve the current contents and user's branch; do not reset or switch the primary workspace as part of batch work.
+The primary workspace previously used feature/changelog-and-contributing. Its
+original documentation and saved-state work was merged by PR91. Original versions
+remain in commit 04db423538c3dcaea869ce8680a7d5295115c756. The user explicitly requested
+merge/cleanup on 2026-10-11; all 33 local feature tips were verified against merged
+PRs before deleting refs, and linked worktree contents were retained detached.
+Primary develop was fast-forwarded to origin/develop. Do not treat historical
+checkpoint branch names or document hashes as instructions to restore stale work.
 
-UC29 retained worktree: `/tmp/cerberus-uc29-worktree`, local branch `feature/uc-29-create-collection`. Its owned SDD directory was removed only after archiving and SHA256 verification. Do not remove sibling worktrees, SDD directories or unrelated caches.
+UC29 retained worktree /tmp/cerberus-uc29-worktree is detached at its original tip.
+Its earlier SDD directory was removed only after archiving and SHA256 verification.
+Do not remove sibling worktrees, SDD directories or unrelated caches.
 
-Durable evidence: `uc-29-2026-10-09-complete/` in this directory, with 112 SHA256-verified files, all six coverage XML inputs, coverage summary, full review, ledger, task evidence, remote delivery proof and paused snapshot. Verify `sha256-manifest.json` before relying on the archive. The active checkpoint and this resume note may be newer than the archived snapshot; prefer the active checkpoint for current batch state.
+UC29 historical durable evidence remains in uc-29-2026-10-09-complete/, with 112
+SHA256-verified files, all six coverage XML inputs, coverage summary, full review,
+ledger, task evidence, remote delivery proof and paused snapshot. Prefer active
+checkpoint state over archived snapshots when deciding where to resume.
 
-Historical UC14 and UC15 checkpoint statuses use `complete`; count these as delivered alongside `done`.
+Historical UC14/UC15 checkpoint statuses use complete; count these as delivered
+alongside done. UC30 verified local evidence is archived in uc-30-2026-10-11-verified/ with a
+SHA256 manifest, six coverage XML inputs, full summary, reviews and tested-source
+manifest. Two nonblocking follow-ups remain: added test formatting and explicit
+corrupt native evidence beyond a carried highwater.
+
+Before repeating delivery, inspect GitHub issue31/its collection-list PR and the
+local delivery receipt at .superpowers/checkpoints/uc-30-2026-10-11-delivery/.
+The receipt is written after actual remote merge/closeout; this committed snapshot
+truthfully records pre-delivery verification. Remove only this plan's owned SDD
+directory after verifying the archive and completing its review; retain worktrees.
+After UC30 delivery, stop: UC31/#32 is not authorized by this request.

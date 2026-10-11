@@ -1,0 +1,332 @@
+{
+  "branches": [
+    {
+      "branch": "feature/changelog-and-contributing",
+      "sha": "286dddaa5acf4771774b9aee1360d663f5b61dce",
+      "pr": 91,
+      "merge_sha": "ef869fdff3b4eab3f0e69056e5aafb78b8fa789c"
+    },
+    {
+      "branch": "feature/defer-development-protocol-review",
+      "sha": "eda371971ac373efe504b086cef361840e7202b9",
+      "pr": 59,
+      "merge_sha": "5d4df1521b8f150603e988625e595e6e9eb43f54"
+    },
+    {
+      "branch": "feature/protocol-harness-design",
+      "sha": "82d33e6cdbfbe7451cc5ec7bda1d207406f095bf",
+      "pr": 58,
+      "merge_sha": "ac5fb7b94edcb67053fffbc6255a615e14340a7d"
+    },
+    {
+      "branch": "feature/uc-01-register-account",
+      "sha": "8374c6a6e4496002f578139c661459bbad237edb",
+      "pr": 60,
+      "merge_sha": "6f9c21c842cf09bba2125e2b6fe974ac9353fbdd"
+    },
+    {
+      "branch": "feature/uc-02-authenticate",
+      "sha": "7b46c9e0885a7b3aa30f02e47375d70785f03e42",
+      "pr": 61,
+      "merge_sha": "b6196f07a48dc172b96f5d4bfc3e02c5790da92d"
+    },
+    {
+      "branch": "feature/uc-03-get-account",
+      "sha": "a9493512f8844c68da0b0673572e9f5d95f1728c",
+      "pr": 62,
+      "merge_sha": "c2da6b02214184a48387601b916930c4710cfd0e"
+    },
+    {
+      "branch": "feature/uc-04-update-account",
+      "sha": "80253d55b67912720f1194ee3ca231890aa0ee7c",
+      "pr": 63,
+      "merge_sha": "5a7b5896ce493a7bb60044cf6fe3dabbf8d158fb"
+    },
+    {
+      "branch": "feature/uc-05-update-identity-details",
+      "sha": "68c3a3bdf73277d2ec3bd53f9b0e1dbbe8e65a0c",
+      "pr": 64,
+      "merge_sha": "2b281dd315314b1b4770172b61236dfbf00addd2"
+    },
+    {
+      "branch": "feature/uc-09-create-profile",
+      "sha": "053335ee52a2829133ca5008fd99bfaaf91ac9c7",
+      "pr": 69,
+      "merge_sha": "d521230b6833571e8d8e3ec93db8a6eb4d5a41ad"
+    },
+    {
+      "branch": "feature/uc-10-list-profiles",
+      "sha": "64595a09a569694cb7fea859e02de8528cb75df7",
+      "pr": 70,
+      "merge_sha": "be431f2a376be2e7ba3d67ade50aadb4b02fcfcd"
+    },
+    {
+      "branch": "feature/uc-11-get-profile",
+      "sha": "976cea4b902ec486a9cefea519721349b9feb802",
+      "pr": 71,
+      "merge_sha": "55f4969261c422f201074c64bba434ad4860dd9d"
+    },
+    {
+      "branch": "feature/uc-12-update-profile",
+      "sha": "348dbc0f31901c38789180c6e233fa4f4f8a93e2",
+      "pr": 73,
+      "merge_sha": "2069753cbf0029bdfb109bc0bc6f0ec080ca58fe"
+    },
+    {
+      "branch": "feature/uc-13-delete-profile",
+      "sha": "0647dc566c4a8cdaea54f15b0d07aa0c5659107d",
+      "pr": 74,
+      "merge_sha": "105ef8623976d03c4804ee975a1c72914669bffe"
+    },
+    {
+      "branch": "feature/uc-14-set-profile-associations",
+      "sha": "74ef1cb10d59973bd24f441b8efef77c6601fc2e",
+      "pr": 75,
+      "merge_sha": "17299f22197b43dd5b009401ea4b9c38103ac35f"
+    },
+    {
+      "branch": "feature/uc-15-open-profile-access",
+      "sha": "479781d583a9ec8c8ec1637357905b9526e94220",
+      "pr": 76,
+      "merge_sha": "bdaebcb7e197bb497c2892c053de89b6bab4dc0d"
+    },
+    {
+      "branch": "feature/uc-16-create-record",
+      "sha": "860dc86885e7b2eb5167e33ef2d0b2ee857cc176",
+      "pr": 77,
+      "merge_sha": "26ec7e217cdd881dc83a5c886f8b6872b398a26b"
+    },
+    {
+      "branch": "feature/uc-17-list-records",
+      "sha": "c7c6382a999afa50a811acd039874d21daa8d037",
+      "pr": 78,
+      "merge_sha": "cdd89ab3df2cab6f0dda9969c0f5155b85f59dc6"
+    },
+    {
+      "branch": "feature/uc-18-get-record",
+      "sha": "cba728815e3cdeec9994e0f61c863a6119ad2e11",
+      "pr": 79,
+      "merge_sha": "15cf4fac7bfa7db2552df5618e0f4a236c0fd5b1"
+    },
+    {
+      "branch": "feature/uc-19-update-record",
+      "sha": "0fc261bedce02663454e2dae163ff9c63c7cd1b2",
+      "pr": 80,
+      "merge_sha": "1713397fea3deb4ae9d30119e493997eb7943514"
+    },
+    {
+      "branch": "feature/uc-20-delete-record",
+      "sha": "67042c4632936dcb73ee170e00ea10e061a1a2a5",
+      "pr": 81,
+      "merge_sha": "a59310da31ea48e3561d8bd2507f6ca62b5ae44d"
+    },
+    {
+      "branch": "feature/uc-21-move-record",
+      "sha": "1c6e9adfddc075716dc0fdda9a01cb58fa6e7746",
+      "pr": 82,
+      "merge_sha": "5c994f6f5626c83cb332cb5170d93907cd8e10ef"
+    },
+    {
+      "branch": "feature/uc-22-permanently-delete-record",
+      "sha": "cc2b8bb1983950ec45e8f2c7e0252d9e88e2dd88",
+      "pr": 83,
+      "merge_sha": "d72d92072eaba28509597c545f4833a8ef58faa6"
+    },
+    {
+      "branch": "feature/uc-23-create-folder",
+      "sha": "3bf6b37c211447cfc74ca277defa75910bcae7ec",
+      "pr": 84,
+      "merge_sha": "fc4bda98a88eef28851486cd404537da663f227e"
+    },
+    {
+      "branch": "feature/uc-24-list-folders",
+      "sha": "484d7b80e0c79b114959c507c019e639f64ba291",
+      "pr": 85,
+      "merge_sha": "955ca9db39753d27fda5cf2637f6e3970cfd6a1b"
+    },
+    {
+      "branch": "feature/uc-25-get-folder",
+      "sha": "36f93bc185fac8c8e31d47956216146101ad9c1d",
+      "pr": 86,
+      "merge_sha": "9aa8e51e7ee39a78294d072f36e17833306a856c"
+    },
+    {
+      "branch": "feature/uc-26-update-folder",
+      "sha": "612c5b8de98a76f615d49f61e2883b0693d30c30",
+      "pr": 87,
+      "merge_sha": "a03bf90a99bc6310e5a8b11841203363fa0a7c8b"
+    },
+    {
+      "branch": "feature/uc-27-delete-folder",
+      "sha": "5bff5e8fd68ba90596588f2d326ca360f8f2910c",
+      "pr": 88,
+      "merge_sha": "5c5615935786da2ecc8d82b447fbb6d99d85c481"
+    },
+    {
+      "branch": "feature/uc-28-move-folder",
+      "sha": "d1b5fa73449135a298d87534e0fcdbba8630bfb6",
+      "pr": 89,
+      "merge_sha": "886cf84fc8deb44388f2a804de3f79197276f81a"
+    },
+    {
+      "branch": "feature/uc-29-create-collection",
+      "sha": "e9c9116a02625b19763d6797534b8ce51a810e8a",
+      "pr": 90,
+      "merge_sha": "2668b4a605e315307190da350016b9adf46efb9e"
+    },
+    {
+      "branch": "feature/uc-38-initialize-vault-protection",
+      "sha": "f02874975aadecfdd18ef5dad350acfde5c04b3d",
+      "pr": 65,
+      "merge_sha": "96f6000a85c9bad6f668a80fdd2810609fd19d70"
+    },
+    {
+      "branch": "feature/uc-39-change-vault-protection",
+      "sha": "528aeb4b4239e682f75768d4be2ee25f6c3d4e1c",
+      "pr": 66,
+      "merge_sha": "911819afaeb5553b2502cda0392342c2c3a283c7"
+    },
+    {
+      "branch": "feature/uc-40-recover-vault-access",
+      "sha": "b19403851486232eecee42a720019301357aa4e0",
+      "pr": 67,
+      "merge_sha": "f04744c28299818e19e5ffad49fc63f4c9d2845a"
+    },
+    {
+      "branch": "feature/uc-41-refresh-recovery-key",
+      "sha": "a86a969ea005d10bd6fc002f5e15809fcf2765ea",
+      "pr": 68,
+      "merge_sha": "7953ae0fa364d78841b1c472034bd96c64109fea"
+    }
+  ],
+  "worktrees": [
+    {
+      "path": "/root/repositories/cerberus-api",
+      "branch": "refs/heads/feature/changelog-and-contributing"
+    },
+    {
+      "path": "/tmp/cerberus-foundation-worktree",
+      "branch": "refs/heads/feature/defer-development-protocol-review"
+    },
+    {
+      "path": "/tmp/cerberus-uc01-worktree",
+      "branch": "refs/heads/feature/uc-01-register-account"
+    },
+    {
+      "path": "/tmp/cerberus-uc02-worktree",
+      "branch": "refs/heads/feature/uc-02-authenticate"
+    },
+    {
+      "path": "/tmp/cerberus-uc03-worktree",
+      "branch": "refs/heads/feature/uc-03-get-account"
+    },
+    {
+      "path": "/tmp/cerberus-uc04-worktree",
+      "branch": "refs/heads/feature/uc-04-update-account"
+    },
+    {
+      "path": "/tmp/cerberus-uc05-worktree",
+      "branch": "refs/heads/feature/uc-05-update-identity-details"
+    },
+    {
+      "path": "/tmp/cerberus-uc09-worktree",
+      "branch": "refs/heads/feature/uc-09-create-profile"
+    },
+    {
+      "path": "/tmp/cerberus-uc10-worktree",
+      "branch": "refs/heads/feature/uc-10-list-profiles"
+    },
+    {
+      "path": "/tmp/cerberus-uc11-worktree",
+      "branch": "refs/heads/feature/uc-11-get-profile"
+    },
+    {
+      "path": "/tmp/cerberus-uc12-worktree",
+      "branch": "refs/heads/feature/uc-12-update-profile"
+    },
+    {
+      "path": "/tmp/cerberus-uc13-worktree",
+      "branch": "refs/heads/feature/uc-13-delete-profile"
+    },
+    {
+      "path": "/tmp/cerberus-uc14-worktree",
+      "branch": "refs/heads/feature/uc-14-set-profile-associations"
+    },
+    {
+      "path": "/tmp/cerberus-uc15-worktree",
+      "branch": "refs/heads/feature/uc-15-open-profile-access"
+    },
+    {
+      "path": "/tmp/cerberus-uc16-worktree",
+      "branch": "refs/heads/feature/uc-16-create-record"
+    },
+    {
+      "path": "/tmp/cerberus-uc17-worktree",
+      "branch": "refs/heads/feature/uc-17-list-records"
+    },
+    {
+      "path": "/tmp/cerberus-uc18-worktree",
+      "branch": "refs/heads/feature/uc-18-get-record"
+    },
+    {
+      "path": "/tmp/cerberus-uc19-worktree",
+      "branch": "refs/heads/feature/uc-19-update-record"
+    },
+    {
+      "path": "/tmp/cerberus-uc20-worktree",
+      "branch": "refs/heads/feature/uc-20-delete-record"
+    },
+    {
+      "path": "/tmp/cerberus-uc21-worktree",
+      "branch": "refs/heads/feature/uc-21-move-record"
+    },
+    {
+      "path": "/tmp/cerberus-uc22-worktree",
+      "branch": "refs/heads/feature/uc-22-permanently-delete-record"
+    },
+    {
+      "path": "/tmp/cerberus-uc23-worktree",
+      "branch": "refs/heads/feature/uc-23-create-folder"
+    },
+    {
+      "path": "/tmp/cerberus-uc24-worktree",
+      "branch": "refs/heads/feature/uc-24-list-folders"
+    },
+    {
+      "path": "/tmp/cerberus-uc25-worktree",
+      "branch": "refs/heads/feature/uc-25-get-folder"
+    },
+    {
+      "path": "/tmp/cerberus-uc26-worktree",
+      "branch": "refs/heads/feature/uc-26-update-folder"
+    },
+    {
+      "path": "/tmp/cerberus-uc27-worktree",
+      "branch": "refs/heads/feature/uc-27-delete-folder"
+    },
+    {
+      "path": "/tmp/cerberus-uc28-worktree",
+      "branch": "refs/heads/feature/uc-28-move-folder"
+    },
+    {
+      "path": "/tmp/cerberus-uc29-worktree",
+      "branch": "refs/heads/feature/uc-29-create-collection"
+    },
+    {
+      "path": "/tmp/cerberus-uc38-worktree",
+      "branch": "refs/heads/feature/uc-38-initialize-vault-protection"
+    },
+    {
+      "path": "/tmp/cerberus-uc39-worktree",
+      "branch": "refs/heads/feature/uc-39-change-vault-protection"
+    },
+    {
+      "path": "/tmp/cerberus-uc40-worktree",
+      "branch": "refs/heads/feature/uc-40-recover-vault-access"
+    },
+    {
+      "path": "/tmp/cerberus-uc41-worktree",
+      "branch": "refs/heads/feature/uc-41-refresh-recovery-key"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+using ArturRios.Cerberus.Query.Collections;
 using ArturRios.Cerberus.Command.Collections;
 using ArturRios.Cerberus.Domain.Collections;
 using ArturRios.Cerberus.Data.Collections;
@@ -78,6 +79,9 @@ public static class Startup
         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
         builder.Services.AddScoped<IRecordCreateStore, RecordCreateStore>();
         builder.Services.AddScoped<ICollectionCreateStore, CollectionCreateStore>();
+        builder.Services.AddScoped<ICollectionListStore, CollectionListStore>();
+        builder.Services.AddSingleton<CollectionListCursor>();
+        builder.Services.AddScoped<IQueryHandlerAsync<ListCollectionsQuery, CollectionListOutput>, ListCollectionsHandler>();
         builder.Services.AddScoped<IValidator<CreateCollectionCommand>, CreateCollectionValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<CreateCollectionCommand, CreateCollectionOutput>, CreateCollectionHandler>();
         builder.Services.AddScoped<IFolderCreateStore, FolderCreateStore>();

@@ -20,4 +20,61 @@ Collection identity is reserved within the collection kind. Other resource kinds
 
 New collections enter the complete retained owned protection-rotation inventory immediately. Actual native Master and PerProfile rotations include the new collection and current linked content/profile revisions. Omitted, extra, foreign or stale replacements reject before proof consumption. Successful rotation preserves client edit times and typed relationships, advances the collection epoch and revokes old selected access. Rewrapping preserves content and links.
 
-Existing profile/folder/record GET and list operations recalculate current initial membership and inherited visibility with hidden-reference filtering. Collection listing/detail/update/deletion and membership replacement belong to UC30–34. UC48 must provide durable inherited visibility and offline removals. External key provisioning and authenticated client decryption, shared OpenAPI requiredness/wrapper/empty-413 metadata, and independent security/protocol/client qualification remain release obligations. The owner's development-only review deferral leaves main/tag/release gates intact.
+Existing profile/folder/record GET and list operations recalculate current initial membership and inherited visibility with hidden-reference filtering. Collection detail/update/deletion and membership replacement belong to UC31–34. UC48 must provide durable inherited visibility and offline removals. External key provisioning and authenticated client decryption, shared OpenAPI requiredness/wrapper/empty-413 metadata, and independent security/protocol/client qualification remain release obligations. The owner's development-only review deferral leaves main/tag/release gates intact.
+
+## List collections (UC30)
+
+`GET /api/collections` returns current permitted encrypted collections. Send current
+Heimdall authentication and exactly one `X-Cerberus-Vault-Access` header. Only
+canonical `pageSize` and an opaque `cursor` are accepted; repeated or unknown query
+keys, selected-profile overrides, repeated/malformed headers and any request body
+return 400 `validation_failed`. Omit `pageSize` to use the smaller of 50 and the
+configured maximum; an explicit size must be positive and at most that maximum.
+All responses use `Cache-Control: no-store`, including failures.
+
+Success is 200 `collections_found`. The data object has exactly `items` and
+nullable `nextCursor`. Each item has exactly `collectionId`, `revision`,
+`serverSequence`, `editedAt`, and `envelope`. The envelope remains opaque native
+`cerberus-content-v1` ciphertext. Stored key epoch is checked against its envelope
+but is not an additional item field. Internal IDs, owner or recipient identities,
+profile/member inventories, grants and protection material are absent.
+
+Account-wide access admits active owned collections and active native read-only or
+read-write recipient grants. Selected access additionally requires an exact
+current profile/collection link. Direct profile/folder or profile/record links,
+collection content membership, and folder ancestry cannot imply collection
+permission. Collections, owners and grants in trash, closure, revocation or their
+typed terminal state are omitted before pagination. A terminal marker for another
+resource kind with the same UUID does not hide a collection. Listing changes no
+resource, relationship, ciphertext, edit time or authority state.
+
+One PostgreSQL statement captures the current actor/account, session policy and
+revocation generation, statement-time expiry, selected owned active profile,
+visible collection inventory, native grant evidence and page. Every currently
+visible foreign collection requires a valid native envelope and epoch, signed
+recipient wrapper and grant revision, and current owner/recipient protection
+pins. Evidence for visible foreign collections is validated even outside the
+returned page or carried highwater window; malformed/missing required evidence
+fails the whole request without partial data. Hidden and out-of-selection evidence
+cannot poison a page. No subsequent authority read, foreign lock, content traversal
+or scope widening occurs.
+
+Items are ordered by positive unique safe `serverSequence` after permission
+filtering. The first page captures the maximum currently visible sequence. The
+cursor carries that highwater boundary and binds actor, access verifier, page size
+and last sequence with authenticated encryption under a collection-only purpose.
+Folder, record and profile cursors, modified cursors and substituted context
+return 400. Continuations reapply current permissions and retain the original
+boundary, excluding later inserts. This is not a frozen multi-request snapshot:
+revocations or removed profile links can remove items, and edits can move them
+past the boundary. A terminal page has `nextCursor: null`; a valid empty scope is
+200 with an empty `items` array.
+
+Missing or current-rejected identity and missing access return 401. Expired,
+revoked, stale-policy or invalid selected-profile access returns 403
+`vault_access_denied`. Unknown or inactive acting accounts return 404 `not_found`.
+Visible corrupt native evidence, ordering, projection or unavailable persistence
+returns 503 `persistence_unavailable`; an unavailable current identity dependency
+returns 503 `identity_unavailable`. Errors disclose no private dependency detail or
+success data. Shared oversized transport still returns an empty 413. Caller
+cancellation propagates; internal dependency cancellation fails as 503.

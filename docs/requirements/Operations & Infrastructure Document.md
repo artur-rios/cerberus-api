@@ -719,3 +719,23 @@ Before UC35, audit implicit recipient-account FK locks against strong owner writ
 Shared OpenAPI metadata, independent security/protocol approval and external-client
 key provisioning/decryption remain release obligations. See the
 [collection create API](../security/collection-api.md).
+
+### Encrypted collection listing (UC30)
+
+GET `/api/collections` uses one read-only PostgreSQL statement for current
+account/session/selected-profile authority, active owned or native RO/RW collection
+visibility, grant evidence, sequence integrity, highwater and page. Selected access
+requires an exact profile-collection link; direct record/folder access cannot admit
+an unrelated collection. Typed terminal markers and current lifecycle/grant checks
+omit hidden collections before pagination. Required visible native evidence and
+malformed returned ciphertext/metadata fail closed with503.
+
+The response exposes only five encrypted collection fields and a nullable opaque
+continuation, with no-store caching. Configure `MaxPageSize` and share the durable
+`RegistrationFingerprintKey` across replicas. Its rotation invalidates cursors
+with400; clients restart listing. A cursor is bound to identity, access verifier,
+page size and collection-specific purpose. It bounds new sequence numbers while
+reapplying current permissions; it is not durable synchronization or a frozen
+multi-request snapshot. Reads acquire no foreign account/profile locks and mutate
+no collection, membership or protection data. See the
+[collection API](../security/collection-api.md).

@@ -1,0 +1,42 @@
+Test run for /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Query.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Test run for /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /tmp/cerberus-uc30-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /tmp/cerberus-uc30-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Test run for /tmp/cerberus-uc30-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+VSTest version 18.0.2 (x64)
+Starting test execution, please wait...
+
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+VSTest version 18.0.2 (x64)
+Test run for /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll (.NETCoreApp,Version=v10.0)
+
+A total of 1 test files matched the specified pattern.
+VSTest version 18.0.2 (x64)
+Starting test execution, please wait...
+
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   411, Skipped:     0, Total:   411, Duration: 1 s - ArturRios.Cerberus.Query.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   125, Skipped:     0, Total:   125, Duration: 1 s - ArturRios.Cerberus.Shared.Tests.dll (net10.0)
+No test matches the given testcase filter `Category=Unit` in /tmp/cerberus-uc30-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+
+
+Passed!  - Failed:     0, Passed:   361, Skipped:     0, Total:   361, Duration: 667 ms - ArturRios.Cerberus.Domain.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    33, Skipped:     0, Total:    33, Duration: 467 ms - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  1174, Skipped:     0, Total:  1174, Duration: 1 s - ArturRios.Cerberus.Command.Tests.dll (net10.0)

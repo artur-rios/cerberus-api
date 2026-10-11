@@ -1,4 +1,4 @@
-# UC-30 delivery in progress
+# UC-30 verified; delivery gates remain
 
 The user resumed the existing unattended authorization on 2026-10-11 for the next
 open issue only, after requesting branch merges and cleanup. Do not start UC31/#32
@@ -12,9 +12,13 @@ as part of this scope.
   absent. Local refs deleted; clean linked worktrees retained detached at their tips.
 - Primary workspace is now clean develop, matching origin/develop.
 - UC30/#31 Testing on feature/uc-30-list-collections in /tmp/cerberus-uc30-worktree.
-- Design/plan committed at 1d01abd; implementation committed at2c4bca6 under SDD for its one
-  coupled read operation. Query101/Data91/HTTP71 focused tests pass; full
-  verification/review/CI are pending. Do not infer completion from these focused runs.
+- Design/plan committed at 1d01abd; implementation committed at 2c4bca6 under SDD for its one
+  coupled read operation. Focused263 and fresh unfiltered7268 tests pass with zero
+  failures/skips; production line coverage98.4%, branch92.1%, every assembly >=90%.
+  Both scoped task and whole-branch reviews found no Critical/Important.
+  Separate Unit/Functional category runs remain required in exact-head CI, alongside
+  its complete suite/coverage. Normal develop merge and issue/project/branch closeout
+  remain delivery gates. README Done is prepared to land with that merge.
 - Ledger: /tmp/cerberus-uc30-worktree/.superpowers/sdd/2026-10-11-uc-30-list-collections/progress.md.
 
 ## Execution scope
@@ -43,12 +47,34 @@ Read the aggregate dispositions for the full history. In particular:
 - UC48 must implement durable inherited visibility and offline removals. Current reads and structural counters do not fulfill that requirement.
 - UC50–53 must implement restoration and physical expiry, preserving earlier trash deadlines and revalidating authority without reviving revoked grants. Missing handlers that retry are not completed behavior.
 
-## Workspace and evidence
+## Historical workspace and evidence
 
-The primary workspace remains on the user's `feature/changelog-and-contributing` branch. After pausing, the user explicitly requested a commit of `CONTRIBUTING.md`, `README.md`, `docs/requirements/Operations & Infrastructure Document.md`, `CHANGELOG.md`, and the saved `.superpowers/` state, followed by a PR and merge after green CI. The original local versions are preserved in commit `04db423538c3dcaea869ce8680a7d5295115c756`. This branch was then updated from current `develop` to retain all delivered code, backlog status, changelog entries and development-only review deferral. The README status now records 30 delivered use cases and 25 remaining. Original documentation SHA256 values are historical; `primaryWorkspaceAfterDocsIntegrationSha256` in the active JSON checkpoint records the reconciled versions. Check Git status on resume rather than assuming the earlier uncommitted state still applies. Preserve the current contents and user's branch; do not reset or switch the primary workspace as part of batch work.
+The primary workspace previously used feature/changelog-and-contributing. Its
+original documentation and saved-state work was merged by PR91. Original versions
+remain in commit 04db423538c3dcaea869ce8680a7d5295115c756. The user explicitly requested
+merge/cleanup on 2026-10-11; all 33 local feature tips were verified against merged
+PRs before deleting refs, and linked worktree contents were retained detached.
+Primary develop was fast-forwarded to origin/develop. Do not treat historical
+checkpoint branch names or document hashes as instructions to restore stale work.
 
-UC29 retained worktree: `/tmp/cerberus-uc29-worktree`, local branch `feature/uc-29-create-collection`. Its owned SDD directory was removed only after archiving and SHA256 verification. Do not remove sibling worktrees, SDD directories or unrelated caches.
+UC29 retained worktree /tmp/cerberus-uc29-worktree is detached at its original tip.
+Its earlier SDD directory was removed only after archiving and SHA256 verification.
+Do not remove sibling worktrees, SDD directories or unrelated caches.
 
-Durable evidence: `uc-29-2026-10-09-complete/` in this directory, with 112 SHA256-verified files, all six coverage XML inputs, coverage summary, full review, ledger, task evidence, remote delivery proof and paused snapshot. Verify `sha256-manifest.json` before relying on the archive. The active checkpoint and this resume note may be newer than the archived snapshot; prefer the active checkpoint for current batch state.
+UC29 historical durable evidence remains in uc-29-2026-10-09-complete/, with 112
+SHA256-verified files, all six coverage XML inputs, coverage summary, full review,
+ledger, task evidence, remote delivery proof and paused snapshot. Prefer active
+checkpoint state over archived snapshots when deciding where to resume.
 
-Historical UC14 and UC15 checkpoint statuses use `complete`; count these as delivered alongside `done`.
+Historical UC14/UC15 checkpoint statuses use complete; count these as delivered
+alongside done. UC30 verified local evidence is archived in uc-30-2026-10-11-verified/ with a
+SHA256 manifest, six coverage XML inputs, full summary, reviews and tested-source
+manifest. Two nonblocking follow-ups remain: added test formatting and explicit
+corrupt native evidence beyond a carried highwater.
+
+Before repeating delivery, inspect GitHub issue31/its collection-list PR and the
+local delivery receipt at .superpowers/checkpoints/uc-30-2026-10-11-delivery/.
+The receipt is written after actual remote merge/closeout; this committed snapshot
+truthfully records pre-delivery verification. Remove only this plan's owned SDD
+directory after verifying the archive and completing its review; retain worktrees.
+After UC30 delivery, stop: UC31/#32 is not authorized by this request.

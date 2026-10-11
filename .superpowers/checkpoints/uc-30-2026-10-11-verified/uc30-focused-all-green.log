@@ -1,0 +1,54 @@
+  ArturRios.Cerberus.Domain -> /tmp/cerberus-uc30-worktree/src/Domain/ArturRios.Cerberus.Domain/bin/Debug/net10.0/ArturRios.Cerberus.Domain.dll
+  ArturRios.Cerberus.Domain.Tests -> /tmp/cerberus-uc30-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll
+Test run for /tmp/cerberus-uc30-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `FullyQualifiedName~ListCollectionsHandlerTests|FullyQualifiedName~CollectionListStoreTests|FullyQualifiedName~CollectionListHttpTests` in /tmp/cerberus-uc30-worktree/tests/Domain/ArturRios.Cerberus.Domain.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Domain.Tests.dll
+
+  ArturRios.Cerberus.Shared -> /tmp/cerberus-uc30-worktree/src/Application/ArturRios.Cerberus.Shared/bin/Debug/net10.0/ArturRios.Cerberus.Shared.dll
+  ArturRios.Cerberus.Command -> /tmp/cerberus-uc30-worktree/src/Application/ArturRios.Cerberus.Command/bin/Debug/net10.0/ArturRios.Cerberus.Command.dll
+  ArturRios.Cerberus.Command.Tests -> /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll
+Test run for /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `FullyQualifiedName~ListCollectionsHandlerTests|FullyQualifiedName~CollectionListStoreTests|FullyQualifiedName~CollectionListHttpTests` in /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Command.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Command.Tests.dll
+
+  ArturRios.Cerberus.Query -> /tmp/cerberus-uc30-worktree/src/Application/ArturRios.Cerberus.Query/bin/Debug/net10.0/ArturRios.Cerberus.Query.dll
+  ArturRios.Cerberus.Query.Tests -> /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Query.Tests.dll
+Test run for /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Query.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Query.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   101, Skipped:     0, Total:   101, Duration: 410 ms - ArturRios.Cerberus.Query.Tests.dll (net10.0)
+  ArturRios.Cerberus.Shared.Tests -> /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll
+Test run for /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `FullyQualifiedName~ListCollectionsHandlerTests|FullyQualifiedName~CollectionListStoreTests|FullyQualifiedName~CollectionListHttpTests` in /tmp/cerberus-uc30-worktree/tests/Application/ArturRios.Cerberus.Shared.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Shared.Tests.dll
+
+  ArturRios.Cerberus.Data -> /tmp/cerberus-uc30-worktree/src/Infrastructure/ArturRios.Cerberus.Data/bin/Debug/net10.0/ArturRios.Cerberus.Data.dll
+  ArturRios.Cerberus.Data.Tests -> /tmp/cerberus-uc30-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll
+Test run for /tmp/cerberus-uc30-worktree/tests/Infrastructure/ArturRios.Cerberus.Data.Tests/bin/Debug/net10.0/ArturRios.Cerberus.Data.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    91, Skipped:     0, Total:    91, Duration: 17 s - ArturRios.Cerberus.Data.Tests.dll (net10.0)
+  ArturRios.Cerberus.WebApi -> /tmp/cerberus-uc30-worktree/src/Presentation/ArturRios.Cerberus.WebApi/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.dll
+  ArturRios.Cerberus.WebApi.Tests -> /tmp/cerberus-uc30-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll
+Test run for /tmp/cerberus-uc30-worktree/tests/Presentation/ArturRios.Cerberus.WebApi.Tests/bin/Debug/net10.0/ArturRios.Cerberus.WebApi.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    71, Skipped:     0, Total:    71, Duration: 23 s - ArturRios.Cerberus.WebApi.Tests.dll (net10.0)

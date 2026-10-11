@@ -1,7 +1,7 @@
 {
-  "checkedAt": "2026-10-09",
+  "checkedAt": "2026-10-11",
   "request": "Now, implement all open issues",
-  "status": "paused",
+  "status": "testing",
   "existingBatchAuthorization": "docs/superpowers/plans/2026-10-07-cerberus-backlog.md",
   "baseBranch": "develop",
   "steps": [
@@ -20,7 +20,7 @@
     },
     {
       "step": "Implement each use case",
-      "status": "paused_by_user_after_issue30"
+      "status": "in_progress_issue31_only"
     },
     {
       "step": "Report completed use cases",
@@ -1275,7 +1275,12 @@
         "title": "UC-30 \u2014 List collections",
         "url": "https://github.com/artur-rios/cerberus-api/issues/31"
       },
-      "status": "not_started"
+      "status": "testing",
+      "worktree": "/tmp/cerberus-uc30-worktree",
+      "branch": "feature/uc-30-list-collections",
+      "ledger": "/tmp/cerberus-uc30-worktree/.superpowers/sdd/2026-10-11-uc-30-list-collections/progress.md",
+      "head": "2c4bca6e8368be7ce1a3b607366558d644dab099",
+      "focusedTests": 263
     },
     {
       "id": "UC-31",
@@ -1644,7 +1649,7 @@
     "docs/requirements/Operations & Infrastructure Document.md": "81024f0962d9d6eddeedfe450231ddba403a31799358b0bfac220245b6368f8b",
     "CHANGELOG.md": "be6f4973ea26f238bd6752381979d283c5a25ca4a9fa5df319a449d2e5878746"
   },
-  "requiredToResume": "Paused by user after UC29 issue30 PR90 merged 2668b4a605e315307190da350016b9adf46efb9e. Thirty use cases done,25 remain. Do not start UC30 issue31 until user resumes. Then freshly load issue/specifications and verify develop before new design/branch/TDD. Existing authorization and development-only deferral persist; all release and ordinary verification gates remain.",
+  "requiredToResume": "UC30 is currently in progress in its isolated worktree. Check ledger and git before repeating work; complete review, fresh verification, exact-head CI and closeout for issue31 only.",
   "reviewDeferral": {
     "instruction": "Skip the independent security and client-operability checks for now and keep going",
     "pr": 59,
@@ -1654,10 +1659,10 @@
     "state": "MERGED",
     "url": "https://github.com/artur-rios/cerberus-api/pull/59"
   },
-  "currentUseCase": "UC-29",
-  "currentWorktree": "/tmp/cerberus-uc29-worktree",
-  "currentBranch": "feature/uc-29-create-collection",
-  "currentLedger": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete/sdd-evidence/progress.md",
+  "currentUseCase": "UC-30",
+  "currentWorktree": "/tmp/cerberus-uc30-worktree",
+  "currentBranch": "feature/uc-30-list-collections",
+  "currentLedger": "/tmp/cerberus-uc30-worktree/.superpowers/sdd/2026-10-11-uc-30-list-collections/progress.md",
   "deferredMinorFindings": [
     {
       "useCase": "UC-02",
@@ -1853,7 +1858,7 @@
     },
     "Before UC35 publicgrant creation, audit implicit PostgreSQL recipient-account FK KEY SHARE against existing recipient-owned writers that hold account FOR UPDATE (e.g. profile associations). UC19 uses NO KEY UPDATE on actor account/record, proven newauthority regression; global lock-order rules must account for implicit FK locks too."
   ],
-  "resumeInstruction": "Paused by user after UC29 issue30 PR90 merged 2668b4a605e315307190da350016b9adf46efb9e. Thirty use cases done,25 remain. Do not start UC30 issue31 until user resumes. Then freshly load issue/specifications and verify develop before new design/branch/TDD. Existing authorization and development-only deferral persist; all release and ordinary verification gates remain.",
+  "resumeInstruction": "UC30 is currently in progress in its isolated worktree. Check ledger and git before repeating work; complete review, fresh verification, exact-head CI and closeout for issue31 only.",
   "nextUseCase": "UC-30",
   "resolvedStops": [
     {
@@ -1876,12 +1881,12 @@
       }
     }
   ],
-  "currentTask": "UC29 issue30 complete; user-requested pause before UC30 issue31",
-  "head": "e9c9116a02625b19763d6797534b8ce51a810e8a",
-  "worktree": "/tmp/cerberus-uc29-worktree",
-  "branch": "feature/uc-29-create-collection",
-  "ledger": "/root/repositories/cerberus-api/.superpowers/checkpoints/uc-29-2026-10-09-complete/sdd-evidence/progress.md",
-  "currentHead": "e9c9116a02625b19763d6797534b8ce51a810e8a",
+  "currentTask": "UC30 feature2c4bca6 focused263 pass; full fresh coverage and independent task review in progress",
+  "head": "2c4bca6e8368be7ce1a3b607366558d644dab099",
+  "worktree": "/tmp/cerberus-uc30-worktree",
+  "branch": "feature/uc-30-list-collections",
+  "ledger": "/tmp/cerberus-uc30-worktree/.superpowers/sdd/2026-10-11-uc-30-list-collections/progress.md",
+  "currentHead": "2c4bca6e8368be7ce1a3b607366558d644dab099",
   "nextUseCasePreparation": {
     "id": "UC-30",
     "issue": 31,
@@ -1927,9 +1932,9 @@
       "test": "SUCCESS"
     }
   },
-  "pauseRequestedAfterCurrentIssue": true,
-  "pauseAfterIssue": 30,
-  "pauseInstruction": "User: Pause after finishing the current issue. Complete UC29 issue30 PR90 CI/merge/nineDoD/projectDone/archive closeout; then pause before UC30 issue31 implementation. No further issue starts.",
+  "pauseRequestedAfterCurrentIssue": false,
+  "pauseAfterIssue": null,
+  "pauseInstruction": "Historical pause after issue30 lifted by the user on 2026-10-11 for issue31 only.",
   "lastCompletedUseCase": "UC-29",
   "nextIssue": 31,
   "pauseReason": "User: Pause after finishing the current issue",
@@ -1939,7 +1944,7 @@
     "sha256Verified": true,
     "ownedSddRemoved": "/tmp/cerberus-uc29-worktree/.superpowers/sdd/2026-10-09-uc-29-create-collection"
   },
-  "lastSavedAt": "2026-10-09T17:02:06.536115+00:00",
+  "lastSavedAt": "2026-10-11T18:55:29.361180+00:00",
   "resumeNote": "/root/repositories/cerberus-api/.superpowers/checkpoints/RESUME.md",
   "resumeNoteSha256": "002e868691a55bae9df72b81ab1d5dae0f38a0fc927fdd5733c5a2e7111da773",
   "stateSavedForLater": true,
@@ -1957,5 +1962,6 @@
     "authorization": "User: Open a pull request for this branch and merge it after CI is green",
     "batchRemainsPaused": true,
     "resumeNextIssue": 31
-  }
+  },
+  "executionScope": "User: Merge all unmerged branches, clear merged branches locally and on remote and implement the next open issue. Resume earlier delivery authorization for UC30/#31 only; do not start another issue."
 }

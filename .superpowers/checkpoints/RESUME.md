@@ -1,34 +1,34 @@
-# Resume the open-issues batch
+# UC-30 delivery in progress
 
-The batch is paused at the user's request after finishing the current issue. Do not start another issue until the user asks to resume.
+The user resumed the existing unattended authorization on 2026-10-11 for the next
+open issue only, after requesting branch merges and cleanup. Do not start UC31/#32
+as part of this scope.
 
 ## Current state
 
-- Repository: `artur-rios/cerberus-api`; delivery base: `develop`.
-- Thirty use cases delivered; 25 remain.
-- Last delivery: UC-29 Create collection, issue #30, PR #90.
-- Merge commit: `2668b4a605e315307190da350016b9adf46efb9e`.
-- Tested delivery commit: `e9c9116a02625b19763d6797534b8ce51a810e8a`.
-- Issue #30 is closed, all nine Definition of Done checks are completed, and the project item is Done. The remote feature branch is deleted; the worktree is retained.
-- The merged tree equals the tested tree. Required branch-policy, test and docker checks passed on the exact delivery commit.
-- Fresh unfiltered verification: 7,005 passed, zero failures or skips; 98.4% line and 91.9% branch coverage. All six production assemblies meet the 90% line gate.
-- One whole-branch review completed with no Critical or Important findings. All 27 rulings and two inherited Minor dispositions are archived.
+- Delivery base: develop at ef869fd when UC30 started.
+- All existing 33 local feature tips matched already-merged PR heads; their merge
+  commits are reachable from origin/develop. Remote feature branches were already
+  absent. Local refs deleted; clean linked worktrees retained detached at their tips.
+- Primary workspace is now clean develop, matching origin/develop.
+- UC30/#31 Testing on feature/uc-30-list-collections in /tmp/cerberus-uc30-worktree.
+- Design/plan committed at 1d01abd; implementation committed at2c4bca6 under SDD for its one
+  coupled read operation. Query101/Data91/HTTP71 focused tests pass; full
+  verification/review/CI are pending. Do not infer completion from these focused runs.
+- Ledger: /tmp/cerberus-uc30-worktree/.superpowers/sdd/2026-10-11-uc-30-list-collections/progress.md.
 
-## Where to continue
+## Execution scope
 
-Next: **UC-30 List collections, issue #31**, which has not started. Preliminary read-only exploration is not an accepted design or implementation plan. No UC30 branch, worktree, production code, tests, design, plan or project transition was created.
+Earlier explicit authorization covers design/implementation/testing transitions,
+feature pushes, PR creation and ordinary merge into develop after required checks,
+issue/project/README closeout and delivered feature branch deletion. This request
+resumes that workflow for UC30 only. No admin merge, force push, self-approval,
+disabled tests, production deployment or main/tag/release authorization.
 
-On a later explicit resume:
-
-1. Read `open-issues-2026-10-08.json`, `batch-paused-2026-10-09.md`, and `batch-review-decisions-2026-10-08.md` in this directory.
-2. Read applicable repository instructions and the batch/workflow skills. Reload issue #31 and its requirements and use-case specification from the current repository; do not reuse preliminary assumptions.
-3. Fetch and verify the current `develop` state. Use a separate UC30 worktree/branch, preserving the primary workspace and earlier worktrees.
-4. Follow the authorized per-issue design, test-first implementation, full verification, ordinary review, exact-head CI, normal merge and nine-check closeout process. Do not repeat UC29 implementation or review.
-5. Update the existing checkpoint and aggregate review dispositions as each issue finishes.
-
-The earlier user authorization to implement all open issues, push feature branches, open and normally merge verified PRs into develop, close issues, update project status and delete delivered remote branches remains recorded. The pause remains active until the user resumes. Do not request the same authorization again.
-
-The user deferred **independent security and client-operability qualification for development only**. Ordinary review, native protocol suites, dependency audits, full tests, coverage and required CI remain mandatory. Main/tag/release approval gates remain in effect. Do not use admin merges, force pushes, self-approval or disabled tests.
+Complete main and all four AFs; fresh full unfiltered six-family tests and coverage,
+ordinary code review, native corpus/suites, dependency audits, helper/spec/OpenAPI
+checks, exact-head branch-policy/test/docker CI, normal merge and nine-check closeout.
+Independent security/client-operability review remains deferred only for development.
 
 ## Preserved obligations
 

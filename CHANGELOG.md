@@ -12,6 +12,11 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Encrypted collection listing (UC-30), with current ownership/native recipient
+  grants, exact selected-profile scope and bounded encrypted continuations.
+  Permissions are reapplied before pagination; listing preserves stored data.
+  See the [collection API](docs/security/collection-api.md).
+
 - Owned encrypted collection creation (UC-29), with current selected scope,
   initial profile/folder/record links and atomic structural metadata updates.
   Native complete protection rotation includes new collections; recipient

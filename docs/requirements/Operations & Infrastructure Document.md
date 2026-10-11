@@ -739,3 +739,23 @@ reapplying current permissions; it is not durable synchronization or a frozen
 multi-request snapshot. Reads acquire no foreign account/profile locks and mutate
 no collection, membership or protection data. See the
 [collection API](../security/collection-api.md).
+
+### Encrypted collection detail (UC31)
+
+GET `/api/collections/{id}` uses one target-first read-only PostgreSQL statement
+for current actor/session/selected-profile authority, owner or native RO/RW target
+admission, direct typed members, relevant upward ancestry and target grant proof.
+Selected access requires the exact profile-collection link even when a member's
+own detail GET succeeds. Only active actor-owned direct profile IDs are returned;
+record/folder arrays preserve explicit overlap without expanding descendants.
+Hidden or incomplete members are omitted. Relevant active cycles, required native
+evidence and invalid target projection fail with503 and no partial data. Unrelated
+corruption cannot deny the target. Owned projection validation stays in Query.
+
+Strict canonical route/header/no-query/no-body transport includes unknown-length
+HTTP/2; the shared empty413 and no-store responses remain in effect. Actual UC29
+POST, Master/PerProfile access and native RO/RW HTTP fixtures exercise this boundary,
+including current removal/revocation and no mutation. Database evidence verifies
+the single coherent snapshot, bounded ancestry and absence of explicit locks.
+Independent security/protocol and external-client qualification remain release
+obligations. See the [collection detail API](../security/collection-api.md#get-an-encrypted-collection-uc31).

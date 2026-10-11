@@ -135,3 +135,13 @@ trash remain exact. New collections enter complete native protection rotation.
 UC48 durable inherited visibility, external key provisioning/decryption, shared
 OpenAPI metadata and independent security/protocol/client release qualification
 remain obligations. The separate recipient-account FK audit remains before UC35.
+
+UC31 adds [encrypted collection detail](../security/collection-api.md#get-an-encrypted-collection-uc31)
+with exact selected-profile collection admission, current native RO/RW bindings,
+actor-only profiles and sorted direct typed members. One target-first read-only
+snapshot walks only relevant upward ancestry, preserves explicit overlapping
+membership and omits hidden/incomplete members without descendant expansion.
+Required native, ancestry or projection corruption fails without partial output;
+unrelated corruption stays isolated. Actual creation/access HTTP flows cover strict
+transport, current permission removal and no mutation. Independent security/protocol
+and external-client qualification remain release obligations.

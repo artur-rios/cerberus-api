@@ -44,7 +44,7 @@
 - [x] Task 2 review
 - [x] Task 3 - HTTP/docs/OpenAPI/full verification
 - [x] Task 3 review
-- [ ] Whole-branch review
+- [x] Whole-branch review
 - [ ] Exact-head delivery and closeout
 
 ## Review findings and evidence
@@ -343,3 +343,36 @@ CI head/base and merge audit here as the work advances.
 - Task 3 review is complete after this single accepted correction. Whole-branch
   review and exact-head delivery/closeout remain unchecked under parent control.
   No push or delivery action occurred.
+
+### Whole-branch independent review
+
+- Reviewer model/effort: GPT-6 Astra, ultra. Exact reviewed range:
+  `e6ea84cebd166d897fa5613f3e2c3ab7171f213a..6554b45674f8c93336e0016d7b85ab90b8b42704`.
+- Findings: Critical 0, Important 0, Minor 2; accepted and delivery-ready from
+  the implementation/review perspective. The two nonblocking observations are
+  the Task 2 test-strength notes already retained above: some same-pair/writer
+  outcome tests do not themselves prove a database wait, and the bounded-query
+  assertion proves one target result rather than bounded executor work. Existing
+  stronger FK/canonical-order tests prove actual blocking, and static review
+  confirms current member/ancestry queries originate from the single target.
+- Confirmed all five design priorities: ordered dual-account `FOR UPDATE` before
+  later locks; owner-only wide/exact-selected authority with native-validated
+  visible-foreign denial; current pin/identity/epoch/grant/revision binding;
+  conflict-preserving initial/regrant lifecycle; and exactly one grant mutation
+  with complete direct roots, no profile leakage and atomic rollback.
+- Independently reran Command 120/120, Data 127/127 and HTTP 105/105 with zero
+  failures/skips. Specification validation and base-to-head whitespace passed;
+  the tracked tree remained clean at the reviewed head.
+- Independently audited all six retained TRX files: 9,039 passed, zero
+  failures/skips. Raw coverage recomputed to 98.5% line (15,398/15,627) and
+  92.3% branch (6,670/7,220), with all six production assemblies above 90% line.
+  All 634 full-run, 93 native-source and 17 native-evidence hashes matched.
+  Native Java 173, Python 142, helpers 36, repository helpers 23 and the 322-case
+  four-direction corpus passed; locked restore, build, dependency audit and
+  OpenAPI drift evidence support the exact reviewed sources.
+- The Task 3 correction was independently re-reviewed at
+  `6554b45674f8c93336e0016d7b85ab90b8b42704` with Critical 0, Important 0,
+  Minor 0. README totals are 36 implemented / 19 remaining, matching 55 business
+  rows. No unresolved task-review correction remains.
+- Exact-head GitHub/CI delivery is still pending and parent-controlled. Independent
+  protocol/security/client approval remains the documented release gate.

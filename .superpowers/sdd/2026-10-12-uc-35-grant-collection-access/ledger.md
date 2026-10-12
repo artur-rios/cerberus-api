@@ -38,8 +38,8 @@
 
 ## Task status
 
-- [x] Task 1 — Domain and application contract
-- [ ] Task 1 review
+- [x] Task 1 - Domain and application contract (`e33b1a0d810575df69c3e972e41e28d520c02c4e`)
+- [x] Task 1 review
 - [ ] Task 2 — PostgreSQL store and concurrency
 - [ ] Task 2 review
 - [ ] Task 3 — HTTP/docs/OpenAPI/full verification
@@ -95,4 +95,18 @@ CI head/base and merge audit here as the work advances.
   belong to Task 3; external-client qualification remains the release gate.
 - Verification: focused and full Linux runs above, self-review of all changed
   files, and working/staged whitespace checks passed before commit.
+
+### Task 1 independent review
+
+- Reviewer model/effort: GPT-6 Astra, ultra.
+- Exact range: `97b3040..e33b1a0d810575df69c3e972e41e28d520c02c4e`.
+- Findings: Critical 0, Important 0, Minor 0; accepted.
+- Independent focused rerun: 120 passed, zero failures/skips.
+- Confirmed exact five-field input, required explicit-null handling, safe revision
+  arithmetic, strict access/envelope/grant agreement, trusted-context exclusion,
+  authentication/access precedence, cancellation, safe error allowlist, malformed
+  store-output rejection and exact sorted six-field output without sensitive data.
+- Authority, native pins/signatures, ordered account locking, grant lifecycle,
+  ancestry and atomic rollback remain intentionally scoped to Task 2. Transport
+  and route behavior remain scoped to Task 3.
 

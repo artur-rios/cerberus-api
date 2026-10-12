@@ -43,7 +43,7 @@
 - [x] Task 2 - PostgreSQL store and concurrency
 - [x] Task 2 review
 - [x] Task 3 - HTTP/docs/OpenAPI/full verification
-- [ ] Task 3 review
+- [x] Task 3 review
 - [ ] Whole-branch review
 - [ ] Exact-head delivery and closeout
 
@@ -327,3 +327,17 @@ CI head/base and merge audit here as the work advances.
   client approval, external recipient-key discovery/decryptability qualification,
   and later UC36/37/48 behavior. Native and .NET tests establish server behavior,
   not client decryptability or production qualification.
+
+### Task 3 review correction
+
+- Reviewed Task 3 head: `ed7dcba7a8d69c2a5eca0de2d64eb4a8446554b4`.
+- Accepted finding: the README headline retained stale totals of 33 implemented
+  and 22 remaining business use cases despite the updated backlog tracker.
+  Corrected the headline to 36 implemented and 19 remaining, matching the
+  business-use-case rows (the separate foundation row is excluded).
+- Verification: README tracker counts are 36 Done and 19 Todo; exact diff review
+  and `git diff --check` passed. Only README and this tracked ledger changed;
+  no feature behavior changed or additional runtime tests were needed.
+- Task 3 review is complete after this single accepted correction. Whole-branch
+  review and exact-head delivery/closeout remain unchecked under parent control.
+  No push or delivery action occurred.

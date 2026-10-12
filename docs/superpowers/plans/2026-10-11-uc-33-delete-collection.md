@@ -97,35 +97,35 @@ create
 **Interfaces:** Consume Task 1 contracts/snapshot and existing `TrashOperation`,
 `TrashEntry`, `RetentionWorkItem`, collection authority and `CollectionGrantBinding`.
 
-- [ ] Write PostgreSQL tests first for wide/selected owner success, exact lifecycle
+- [x] Write PostgreSQL tests first for wide/selected owner success, exact lifecycle
   metadata, unchanged collection bytes/time/epoch/owner, unchanged underlying
   records/folders and direct links, sorted complete snapshots, PC/CF/CR removal,
   distinct active owned resource bumps, one operation/entry/queue and retained
   inactive links without inactive bumps.
-- [ ] Cover active grant revocation/revision increments, already-revoked preservation,
+- [x] Cover active grant revocation/revision increments, already-revoked preservation,
   unchanged wrapper/recipient/access, recipient GET/list disappearance, foreign
   profile link removal without profile mutation, no recipient session revocation,
   and retained collection participation in complete protection rotation.
-- [ ] Cover native valid RO/RW visible `403`, hidden/unselected/revoked `404`, malformed
+- [x] Cover native valid RO/RW visible `403`, hidden/unselected/revoked `404`, malformed
   relevant evidence `503`, unrelated corruption ignored, account/session/selection/
   lifecycle precedence, damaged owned opaque bytes, counters/times/purge fields,
   stale/max revisions, existing typed entries and sequence exhaustion.
-- [ ] Add exactly-one-winner/lost-retry tests, lock-wait expiry at every phase,
+- [x] Add exactly-one-winner/lost-retry tests, lock-wait expiry at every phase,
   membership/grant growth/removal, final-guard lifecycle/selection changes, and
   actual CollectionUpdateStore/CollectionCreateStore/ProfileAssociationStore/
   VaultProtectionChangeStore/recipient RecordUpdateStore and FolderUpdateStore
   interleavings in both relevant orders. Explain one target among 100 unrelated
   collections and assert no unrelated or foreign authority locks.
-- [ ] Add stage-specific faults after collection write, each association family,
+- [x] Add stage-specific faults after collection write, each association family,
   resource bumps, grant revocation, operation, entry and queue; compare complete
   before/after state, verify clean retry, database outage/internal cancellation and
   caller cancellation behavior.
-- [ ] Run focused Data tests and capture the expected missing-store RED result.
-- [ ] Implement ordered locking, current reload, owner/foreign classification,
+- [x] Run focused Data tests and capture the expected missing-store RED result.
+- [x] Implement ordered locking, current reload, owner/foreign classification,
   stored validation, captured inventory comparison, guarded lifecycle mutation,
   membership snapshot/removal, active owned resource bumps, grant revocation and
   generic trash rows with post-write verification and rollback-safe errors.
-- [ ] Run focused green and the entire Data test project with zero failures/skips.
+- [x] Run focused green and the entire Data test project with zero failures/skips.
 - [ ] Commit `feat: trash owned collections`; record evidence and obtain a separate
   task review before Task 3.
 

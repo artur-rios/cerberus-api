@@ -79,7 +79,7 @@ review. The final reviewer is fresh and receives the full base-to-head package.
 
 ### Task 2
 
-- Status: implemented and verified; ready for the separate Task 2 review.
+- Status: implemented, verified, committed and independently approved.
 - Task base: `5db2213e64661e7afaf59535cdd44ba9ff3639fa`
   (`docs: record collection contract review`).
 - Scope: `CollectionTrashStore.cs`, `CollectionTrashStoreTests.cs`, this ledger and
@@ -138,11 +138,15 @@ review. The final reviewer is fresh and receives the full base-to-head package.
   Full output: `task-2-data-linux.log`.
 - Whitespace: `git diff --cached --check` exited 0 after removing two extra EOF
   blank lines. Only the four authorized Task 2 files are staged.
-- Commit message: `feat: trash owned collections`; the task reviewer records the
-  resulting SHA and review outcome after this commit.
+- Commit: `765d476c568f85fab641c997d31069349048cda0`
+  (`feat: trash owned collections`).
+- Independent review: approved `5db2213..765d476`; Critical 0, Important 0,
+  Minor 0. Reviewer confirmed all five review-focus statements, current authority
+  precedence, graph/lock safety, grant revocation, retained content and staged
+  rollback evidence.
 - Task 2 design rulings: none; the implementation follows the four approved design
   rulings, including fresh harmless-disappearance classification. Deferred minors:
-  none. Blockers: none. Independent task review remains pending.
+  none. Blockers: none.
 
 ### Task 3
 

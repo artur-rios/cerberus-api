@@ -126,7 +126,7 @@ create
   membership snapshot/removal, active owned resource bumps, grant revocation and
   generic trash rows with post-write verification and rollback-safe errors.
 - [x] Run focused green and the entire Data test project with zero failures/skips.
-- [ ] Commit `feat: trash owned collections`; record evidence and obtain a separate
+- [x] Commit `feat: trash owned collections`; record evidence and obtain a separate
   task review before Task 3.
 
 ### Task 3: DELETE integration, documentation and full verification

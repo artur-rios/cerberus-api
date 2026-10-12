@@ -157,7 +157,7 @@ receives the task base/head diff and test evidence; the final reviewer is fresh.
 
 ### Task 3
 
-- Status: implementation and full verification complete; separate Task 3 review pending.
+- Status: implemented, fully verified, committed and independently approved.
 - Base: `49546bb`. Read complete design, plan, preceding ledger and Tasks 1/2
   production contracts/store. Kept the assigned existing feature checkout and
   parent-controlled task lifecycle/`ledger.md` established by Task 1.
@@ -266,9 +266,16 @@ receives the task base/head diff and test evidence; the final reviewer is fresh.
   Task 3 implementation: complete (base `49546bb`; commit
   `feat: expose collection membership replacement`; evidence above).
 - No Task 3 behavior was consciously deferred; no Task 1/2 runtime change was
-  needed. Separate Task 3 and whole-branch reviews, publishing/PR/CI/merge and the
-  pre-UC35 audit remain parent-controlled later steps. Nothing was pushed and no
-  project item was moved to Testing.
+  needed. Publishing/PR/CI/merge and the pre-UC35 audit remain parent-controlled
+  later steps. Nothing was pushed and no project item was moved to Testing.
+- Independent Task 3 review: approved exact range `49546bb..c41f5cc`; Critical 0,
+  Important 0, Minor 0; no correction pass required. Reviewer independently rebuilt
+  and ran 117 focused Linux HTTP tests, confirmed the preserved full container exit,
+  source/test/OpenAPI hashes, 8,687-test log, coverage, native/dependency/spec/OpenAPI
+  evidence, whitespace and clean worktree. Final whole-branch review may start.
+- Reviewer treats README UC34 Done/M03 26/26 as intended post-delivery branch state;
+  remote issue/project/PR/CI/merge/branch cleanup remain pending. Generated OpenAPI
+  limitations, external-client qualification and the pre-UC35 audit remain explicit.
 
 ### Final review and delivery
 

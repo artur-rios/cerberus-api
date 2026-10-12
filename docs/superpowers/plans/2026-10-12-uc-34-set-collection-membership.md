@@ -106,7 +106,7 @@ OpenAPI.
   OpenAPI drift, whitespace, and a fresh unfiltered six-family coverage run. Require
   zero failures/skips and at least 90% line coverage for every production assembly.
 - [x] Commit `feat: expose collection membership replacement`; update the ledger.
-- [ ] Obtain a separate Task 3 review.
+- [x] Obtain a separate Task 3 review.
 
 ## Final review and delivery
 

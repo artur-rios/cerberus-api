@@ -97,3 +97,14 @@ Ignored evidence logs in this ledger's directory:
 | `cerberus-uc37-task1-final-green.log` | `8484469be916721567b80ceda1ad923ddf5803631e4549b7a6cb03c392176ae9` |
 
 Task review is dispatched by the controller after this implementer's handoff; no Task 2 work was begun.
+
+## Task 1 review acceptance
+
+- Reviewed exact range: `327168a46910988f47dbe87c6c10c439e855f439..81fef2fe7f0aff59d7d43d1f7d5dc6ff25b0e867`.
+- Fresh reviewer result: zero Critical, zero Important and one accepted Minor finding; Task 1 is ready to proceed.
+- Independent focused verification: 75 passed, zero failed/skipped, exit 0, using a disposable offline Docker container with Release, locked restore and warnings as errors.
+- Evidence reconciliation: all 15 recorded source/runner/probe/log hashes matched; RED counts were 2 executable behavior failures and 10 typed `CS0246` diagnostics; retained GREEN counts were 75, 1,753 and 1,753 with no failures/skips or build warnings/errors.
+- Accepted Minor: the success fixture in `RevokeCollectionAccessHandlerTests` captures the last store request/token but does not assert exactly one store invocation. The current handler invokes the state-changing store once and the reviewer found no production defect. This nonblocking mutation-strengthening opportunity is retained for later test maintenance rather than expanding Task 1 after acceptance.
+- Declined as correctly out of Task 1: database authority/classification/locking/atomicity/races, HTTP/DI/transport and online revocation behavior, documentation/OpenAPI, repository-wide/native/audit gates, client key rotation/copied-material destruction/UC-48 delivery and independent release approval.
+
+Task 1: complete - implementation commit `81fef2fe7f0aff59d7d43d1f7d5dc6ff25b0e867` accepted after fresh exact-range review; no blocking findings.

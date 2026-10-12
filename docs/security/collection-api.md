@@ -20,7 +20,7 @@ Collection identity is reserved within the collection kind. Other resource kinds
 
 New collections enter the complete retained owned protection-rotation inventory immediately. Actual native Master and PerProfile rotations include the new collection and current linked content/profile revisions. Omitted, extra, foreign or stale replacements reject before proof consumption. Successful rotation preserves client edit times and typed relationships, advances the collection epoch and revokes old selected access. Rewrapping preserves content and links.
 
-Existing profile/folder/record GET and list operations recalculate current initial membership and inherited visibility with hidden-reference filtering. Collection update/deletion and membership replacement belong to UC32–34. UC48 must provide durable inherited visibility and offline removals. External key provisioning and authenticated client decryption, shared OpenAPI requiredness/wrapper/empty-413 metadata, and independent security/protocol/client qualification remain release obligations. The owner's development-only review deferral leaves main/tag/release gates intact.
+Existing profile/folder/record GET and list operations recalculate current initial membership and inherited visibility with hidden-reference filtering. Collection updates are described below; deletion and membership replacement belong to UC33–34. UC48 must provide durable inherited visibility and offline removals. External key provisioning and authenticated client decryption, shared OpenAPI requiredness/wrapper/empty-413 metadata, and independent security/protocol/client qualification remain release obligations. The owner's development-only review deferral leaves main/tag/release gates intact.
 
 ## List collections (UC30)
 
@@ -133,3 +133,77 @@ projection corruption returns 503 `persistence_unavailable` without partial data
 Unavailable current identity returns 503 `identity_unavailable`. Caller cancellation
 propagates; internal dependency cancellation becomes a safe 503. Independent
 security/protocol and external-client qualification remain release gates.
+
+## Update an owned collection (UC32)
+
+`PUT /api/collections/{id}` replaces one active owned collection's encrypted
+envelope. Send current Heimdall authentication, exactly one canonical
+`X-Cerberus-Vault-Access` header, a lowercase dashed nonzero UUID path and bounded
+strict UTF-8 JSON. No query parameters are accepted. All responses, including
+failures, use `Cache-Control: no-store`; shared oversized input returns an empty 413.
+
+The body contains exactly three required fields: `expectedRevision`, `envelope`
+and `editedAt`. Revision must be a positive safe integer no greater than
+`9007199254740991`. The envelope must be strict `cerberus-content-v1` and retain
+the stored key epoch. If the envelope changes, both its `keySalt` and `nonce`
+must be fresh. An identical envelope is permitted for a metadata edit.
+`editedAt` must be UTC and at least `0001-01-01T00:00:00.000001Z`; it is floored
+to PostgreSQL microseconds, including dates before 2000. Older and equal client
+timestamps are accepted: expected revision controls concurrency.
+
+Unknown, duplicate, case-forged or missing fields, numeric strings, invalid
+envelopes, reused salt or nonce, changed epoch, malformed IDs/access headers,
+compressed bodies, BOMs and invalid UTF-8 return 400 `validation_failed`.
+Collection ID, owner, key epoch outside the envelope, profiles, records, folders,
+grants and recipient wrappers cannot be supplied as additional body fields.
+
+Success is 200 `collection_updated`. The data object contains exactly
+`collectionId`, `revision`, `serverSequence` and normalized `editedAt`.
+The ID matches the target; revision advances by one and server sequence becomes
+a greater positive safe integer. Ciphertext, internal IDs, ownership, associations,
+grants, protection pins, wrappers and usable keys are absent from this response.
+GET detail returns the updated envelope and the preserved visible relationships.
+
+Account-wide owner access admits any active owned collection. Selected Master or
+PerProfile access requires the exact current `ProfileCollection` link; a removed
+selection never widens to account-wide access. Collection updates are owner-only:
+even a current native read/write recipient receives 403 `vault_access_denied`.
+For a visible foreign target, the single relevant signed grant, revision,
+collection identity/epoch/envelope, recipient identity and current protection pins
+are verified before that denial. Corrupt required native evidence returns 503.
+Hidden, revoked or unselected foreign targets return 404 without inspecting
+irrelevant evidence or revealing revision/ciphertext corruption. Owner updates
+do not inspect grants; native grant binding excludes collection ciphertext and
+the epoch cannot change here.
+
+Only the target envelope, edit time, revision, server sequence and concurrency
+stamp change. Ownership, public ID, key epoch, deletion/purge state, all profile
+and content memberships, grants, recipient wrappers and related resource metadata
+remain exact. Updating does not rotate keys or replace membership.
+
+The transaction locks the actor account, session, selected profile when present,
+and admitted target collection in that order. It does not lock foreign authority
+or unrelated collections. Authority is reloaded after waits and reasserted in
+the guarded UPDATE alongside the expected revision, previous sequence/envelope
+and unchanged epoch. Current access or lifecycle loss wins over stale revision.
+Protection rotation serializes through the owner's account lock. A successful
+row is reloaded and verified before commit; a post-write failure rolls back.
+
+Missing identity returns 401 `authentication_required`; missing access returns
+401 `vault_access_required`. Inactive/terminal actors and missing, hidden or
+inactive targets/owners return 404 `not_found`. Invalid current sessions or
+selections and valid visible foreign targets return 403 `vault_access_denied`.
+Stale or exhausted revision, winning concurrent edits, newly unheld authority
+or exhausted global sequence return 409 `revision_conflict`. Required persisted
+metadata/native corruption, outage, timeout, internal cancellation or failed
+post-write verification return 503 `persistence_unavailable`. Unavailable current
+identity returns 503 `identity_unavailable`; caller cancellation propagates.
+Every failure preserves collection data and relationships.
+
+Two same-revision requests have exactly one winner. Retrying a lost success with
+the old revision returns 409 and preserves that winner; reload current permitted
+metadata before retrying. PostgreSQL sequence gaps after rollback are permitted.
+Generated OpenAPI includes the route and request/response models, but shared
+requiredness, output-wrapper and empty-413 schema limitations remain. Actual HTTP
+tests enforce the exact runtime shapes. Independent security/protocol review and
+external client decryption/qualification remain release gates.

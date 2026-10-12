@@ -73,4 +73,3 @@
 - [ ] Push `feature/uc-32-update-collection`, open one PR into `develop` closing issue 33, attach it to this chat and move the project item to Testing.
 - [ ] Wait for required `branch-policy`, `test` and `docker` checks on the exact delivered head. Require success, mergeable/clean state and no base drift; perform a normal match-head squash merge without admin bypass or force and delete the feature branch.
 - [ ] Verify issue 33 closed, project/README Done, nine Definition-of-Done items, remote/local feature branch absent, fresh `develop` tree equals the tested merge tree, all primary user files preserved and the worktree clean before UC-33.
-

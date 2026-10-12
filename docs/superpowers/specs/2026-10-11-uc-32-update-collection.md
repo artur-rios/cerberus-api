@@ -124,4 +124,3 @@ Performance and integration:
 1. Collection envelope updates are owner-only even for active read/write recipients. If this interpretation is wrong, a follow-up must deliberately introduce recipient write authorization and its races; no current data is lost.
 2. A visible foreign target's single relevant native grant is verified before the owner-only `403`. If this precedence is wrong, a small store/error-order correction is required; mutation semantics remain unchanged.
 3. Owner updates do not inspect or rewrite grants because native grant binding excludes collection ciphertext and key epoch cannot change here. If later protocol review binds ciphertext bytes, UC-32 must be expanded into a coordinated client-supplied grant replacement operation before release.
-

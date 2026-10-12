@@ -12,6 +12,13 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owner-only encrypted collection updates (UC-32), with strict expected-revision
+  requests, fixed key epoch and fresh salt/nonce for changed envelopes. Updates
+  return four metadata fields and preserve memberships, grants and recipient
+  wrappers. Current native RO/RW recipients receive 403 after proof validation;
+  hidden targets remain 404. Authority changes and concurrent updates fail safely.
+  See the [collection update API](docs/security/collection-api.md#update-an-owned-collection-uc32).
+
 - Encrypted collection detail (UC-31), with current owner/native recipient scope,
   exact selected-profile admission, actor-only profiles and sorted direct typed
   members from one read-only permission snapshot. Relevant native, projection and

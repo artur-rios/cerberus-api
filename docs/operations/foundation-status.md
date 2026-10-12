@@ -197,7 +197,7 @@ rechecked after waits and at the guarded mutation. One grant row and its exact
 direct-member output commit or roll back together, without collection/member or
 recipient protection/profile/session changes. HTTP integration proves strict
 transport, selected-profile isolation, regrant and immediate recipient GET/list
-visibility. UC37 revocation, UC48 durable offline
+visibility. UC37 revocation is recorded below; UC48 durable offline
 visibility, authenticated recipient-key discovery/client decryptability, shared
 OpenAPI metadata and independent security/protocol approval remain separate
 obligations. The linked API contract records conflict and clean-retry guidance.
@@ -212,7 +212,30 @@ native pins and stored grant evidence are rechecked before replacement. HTTP tes
 prove old wide/selected recipient handles become stale, real fresh unlocks retain
 read visibility, read-write permits member content edits and read-only rejects
 them without mutation. Selection remains exact; revoked grants require POST
-regrant. This is online account-wide handle invalidation. UC37 explicit revocation,
-UC48 durable offline changes, external key discovery/decryptability, shared
+regrant. This is online account-wide handle invalidation. UC37 explicit revocation
+is recorded below. UC48 durable offline changes, external key discovery/decryptability, shared
 OpenAPI metadata and independent security/protocol/client approval remain separate
 release obligations.
+
+UC37 adds [owner-only collection access revocation](../security/collection-api.md#revoke-collection-access-uc37).
+The strict DELETE action consumes the current grant revision and returns only
+collection ID, grant ID and the advanced revision. One guarded PostgreSQL statement
+revokes the active grant, erases its stored recipient wrapper and increments the
+recipient account generation exactly once. Canonical account-pair locks serialize
+adjacent lifecycle, protection, session and sharing writers. Post-write checks
+reject partial or collateral mutations; failures roll back and permit clean retry.
+The owner reduction path does not depend on parsing the old recipient wrapper.
+Current visible foreign administration still requires valid native authority
+before denial; hidden targets remain nonrevealing.
+
+Real HTTP/native integration covers read-only and read-write grants, wide and
+selected owner/recipient handles, pre-revocation permissions, stale old handles,
+fresh-unlock absence, denied direct/inherited member writes and unrelated owned
+data survival. Existing selected profile links are retained but inert. An explicit
+UC35 regrant at the revoked revision requires a new native envelope and restores
+only the profile scope already linked. Generation invalidation is account-wide:
+even handles used for unrelated owned data must be unlocked again. Revocation
+cannot destroy copied roots, ciphertext or plaintext, does not perform client key
+rotation, and does not implement UC48 durable offline permission delivery. Shared
+generated OpenAPI metadata limits and independent protocol/security/client review
+remain release obligations.

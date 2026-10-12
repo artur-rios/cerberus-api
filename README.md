@@ -4,7 +4,7 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** foundation infrastructure and 37 business use cases implemented; 18 business
+> **Status:** foundation infrastructure and 38 business use cases implemented; 17 business
 > use cases remain. Independent protocol review is explicitly deferred for development and
 > remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
 > and [foundation status](docs/operations/foundation-status.md).
@@ -150,7 +150,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | --- | --- | --- | --- |
 | [#36](https://github.com/artur-rios/cerberus-api/issues/36) | UC-35 — Grant collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-35-grant-collection-access) | Done |
 | [#37](https://github.com/artur-rios/cerberus-api/issues/37) | UC-36 — Change collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-36-change-collection-access) | Done |
-| [#38](https://github.com/artur-rios/cerberus-api/issues/38) | UC-37 — Revoke collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-37-revoke-collection-access) | Todo |
+| [#38](https://github.com/artur-rios/cerberus-api/issues/38) | UC-37 — Revoke collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-37-revoke-collection-access) | Done |
 | [#43](https://github.com/artur-rios/cerberus-api/issues/43) | UC-42 — Grant software access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-42-grant-software-access) | Todo |
 | [#44](https://github.com/artur-rios/cerberus-api/issues/44) | UC-43 — Retrieve software secrets | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-43-retrieve-software-secrets) | Todo |
 | [#45](https://github.com/artur-rios/cerberus-api/issues/45) | UC-44 — Revoke software access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-44-revoke-software-access) | Todo |

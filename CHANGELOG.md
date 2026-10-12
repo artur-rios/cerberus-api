@@ -12,6 +12,15 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owner-only collection access revocation (UC-37) with an exact active-grant
+  revision check, wrapper erasure and one atomic recipient-generation increment.
+  Old wide and selected handles become stale; fresh access excludes the revoked
+  collection and inherited members. Retained profile links stay inert until an
+  explicit UC-35 regrant with a new native envelope. Strict DELETE transport,
+  three-field output, rollback and clean retry are verified. Online revocation
+  does not recall copied keys; client rotation and UC-48 offline delivery remain
+  separate. See the [collection revocation API](docs/security/collection-api.md#revoke-collection-access-uc37).
+
 - Owner-only collection permission changes (UC-36) with an exact active-grant
   revision check and mandatory next-revision native recipient envelope. The
   permission update and recipient account revocation-generation increment commit

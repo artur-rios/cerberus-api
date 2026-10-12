@@ -26,7 +26,7 @@ The ignored `progress.md` is the short-lived SDD recovery map; this force-added 
 ## Task status
 
 - Task 1: COMPLETE - Domain and application revocation contract; 75 focused and 1,753 complete Command tests passed.
-- Task 2: CORRECTED - REVIEW PENDING - Atomic PostgreSQL revocation writer; correction verified with 130 focused and 3,820 complete Data tests passed on PostgreSQL 18.6.
+- Task 2: COMPLETE - Corrected atomic PostgreSQL revocation writer accepted after fresh full-range re-review; 130 focused and 3,820 complete Data tests passed on PostgreSQL 18.6.
 - Task 3: TODO - HTTP route, integration, documentation and exhaustive verification.
 - Task 4: TODO - Whole-branch review and exact-head delivery.
 
@@ -295,3 +295,15 @@ Fresh image inspection confirms SDK image ID `sha256:e70cdb7f80b0348f5cb85f19a8f
 Final focused EXPLAIN JSON hashes: zero unrelated sets `8e6f1abb1959db8d734db9cddb1810c3a1c3f552554b21c56e83d446f4de8c2f`; 24 unrelated sets `fe87c4bf4e52afda69891264d93ba2b4d46f8480348e648ee105dd928a9ce8ce`. These plans are retained in the focused GREEN log; their passing structural row-bound assertions are unchanged.
 
 The TDD, writing-good-tests and verification-before-completion skills governed the correction. Mental mutation check (not an automated mutation engine): restoring either blanket classification fails real trigger and artificial cases; partial rollback fails exact fixture snapshots; missing successful grant/generation mutation fails literal retry assertions; collateral changes fail stable snapshots. Existing legitimate conflict tests remain GREEN. Verification covers the full Data project, not HTTP/native/crypto/security/release qualification; all earlier scope limitations remain in force. Ignored report/progress/logs are excluded from the correction commit.
+
+## Task 2 corrected review acceptance
+
+- Re-reviewed exact full Task 2 range: `ad5dd3878e95b4bf58ddfef7e4d1478917e769a2..1c9921a9a768e31f99b37aece48519846134743f`.
+- Fresh reviewer result: zero Critical, zero Important and zero Minor findings requiring action; Task 2 is ready to proceed.
+- The prior blocking SQLSTATE finding is resolved: UC-37 has no blanket conflict mapping, explicit legitimate conflicts remain intact, and both `23505` and `2200H` on both atomic update sides return `persistence_unavailable`, roll back exactly and permit a clean retry.
+- Independent exact-source focused verification: 130 passed, zero failed/skipped, exit 0, PostgreSQL 18.6, with no build diagnostics.
+- Evidence reconciliation: correction RED was 124 passed / 6 intended failures; corrected focused was 130 passed; full Data was 3,820 passed. All current source/runner/log/ledger hashes and both retained EXPLAIN JSON hashes matched; structural plans retained one target, path-grant and recipient row with 0 and 24 unrelated sets.
+- Complete re-review reconfirmed malformed owner-wrapper reduction, foreign native `403`/hidden `404`/corrupt `503`, canonical lock order and rechecks, guarded atomic mutation, trigger rollback, exact post-write scope, real blocker evidence and the intentional adjacent UC-36 hidden / UC-37 conflict asymmetry.
+- Correctly deferred: HTTP/DI/online authorization integration, public documentation/OpenAPI, repository-wide/native/audit/CI gates, performance benchmarks, arbitrary out-of-graph triggers, unchanged adjacent SQLSTATE mappings, client key rotation/copied-material destruction/UC-48 and independent release approval.
+
+Task 2: complete - implementation `11d3d4a4c0f9a929c169800f68ec2f0d9cb62f02` plus correction `1c9921a9a768e31f99b37aece48519846134743f` accepted after fresh full-range re-review; no remaining findings.

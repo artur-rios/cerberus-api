@@ -185,4 +185,3 @@ wrapper and media-type limitations remain documented until their common fix.
 5. One grant mutation and the exact no-profile visibility projection commit or
    roll back together without changing ownership, collection/member metadata or
    either account's protection graph.
-

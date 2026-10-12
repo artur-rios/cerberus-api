@@ -95,4 +95,3 @@ collection authority conventions. No migration or new dependency.
    and remote branches are gone, and `develop` equals `origin/develop`.
 5. Save the completion checkpoint, preserve the tracked ledger, clean only ignored
    UC-35 scratch artifacts, and continue the authorized sequential batch.
-

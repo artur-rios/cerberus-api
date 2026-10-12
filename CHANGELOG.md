@@ -12,6 +12,15 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owner-only collection access grants (UC-35) with strict initial creation and
+  explicit same-identity revoked regrant, native recipient-envelope binding and
+  read-only/read-write access. Ordered owner/recipient account locking prevents
+  reciprocal foreign-key deadlocks. One grant row commits with an exact direct
+  record/folder visibility projection; recipient profiles and collection/member
+  metadata remain unchanged. Current recipient GET/list visibility, selected
+  isolation, safe HTTP errors and rollback are verified. See the
+  [collection grant API](docs/security/collection-api.md#grant-collection-access-uc35).
+
 - Owner-only atomic collection membership replacement (UC-34), with exact typed
   member sets and a same-epoch envelope for the client key manifest. Selected access cannot
   expand its current visibility. Every active native grant validates and keeps

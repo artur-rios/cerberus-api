@@ -42,7 +42,7 @@
 - [x] Task 1 review
 - [x] Task 2 - PostgreSQL store and concurrency
 - [x] Task 2 review
-- [ ] Task 3 — HTTP/docs/OpenAPI/full verification
+- [x] Task 3 - HTTP/docs/OpenAPI/full verification
 - [ ] Task 3 review
 - [ ] Whole-branch review
 - [ ] Exact-head delivery and closeout
@@ -198,3 +198,132 @@ CI head/base and merge audit here as the work advances.
   binding, insert/reactivation conflict rules, one-row mutation, direct-root
   ancestry projection, final saved-row guard, rollback and cancellation.
 
+### Task 3 implementation and verification
+
+- Base: `694362b678829b57305e3eb21eabf0622b465af4`. Applied test-driven
+  development and verification-before-completion. Read the binding design/plan,
+  ledger, accepted Task 1/2 code/tests and adjacent HTTP, strict-body, DI,
+  documentation and OpenAPI patterns. No repository `AGENTS.md` was present.
+- Executable behavioral RED preceded the production edit. Invocation:
+  `wsl.exe -d Ubuntu -- bash
+  /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-35-grant-collection-access/task-3-linux.sh
+  cerberus-uc35-task3-red`. The new HTTP suite compiled and ran against real
+  PostgreSQL 18.6: 104 failed / 1 passed / 105 total, zero skips, exit 1.
+  Success cases expected 201 and received the absent route's empty 404; error
+  cases exposed the same missing endpoint. Only shared oversized transport
+  already passed. Raw evidence: `cerberus-uc35-task3-red.log`.
+- Minimal production edit: one POST controller action reusing `VaultProofBody`,
+  canonical route/no-query/single-header checks, trusted actor/path context and
+  the accepted handler's status map; scoped grant store/validator/handler DI.
+  No Task 1/2 implementation, lock protocol, schema or dependency changed.
+- Focused GREEN: the same runner with `cerberus-uc35-task3-green`, exit 0,
+  105/105 passed, zero failures/skips. Tests are unchanged from RED. The suite
+  proves initial RO/RW wide/selected Master/PerProfile grant creation, exact
+  six-field sorted direct roots, real current collection/record/folder GET/list
+  visibility including future descendants, no profile/key leakage, and unchanged
+  collection/member/account/protection/session/profile state. Selected recipients
+  stay isolated until their own actual profile-association HTTP operation.
+- HTTP alternatives include protected recipients without sessions/profiles,
+  explicit same-ID revoked regrant with opaque corrupt-old-envelope replacement,
+  preserved row identity and once-only revision, active/stale/wrong-ID/terminal
+  conflicts, native-validated foreign RO/RW denial and corrupt-evidence 503,
+  owner/collection/epoch/identity/pin/signature/grant/revision binding failures,
+  current actor/recipient lifecycle and session state, strict five-field required
+  nullable-CAS JSON, canonical IDs, media/UTF-8/BOM/compression/header/query
+  rejection, identity errors, no-store and empty 413. Real post-insert/reactivation
+  trigger faults and database outage prove atomic rollback and clean retry.
+- Generated OpenAPI using the actual application generator. The Windows sandbox
+  attempt exited 1 before useful diagnostics; the authorized native invocation
+  succeeded. Only the new route and its three schemas changed. Request required
+  properties and nullable expected revision are represented; shared broader media,
+  output requiredness/nullability/wrapper and empty-413 limitations remain explicit.
+- Updated collection API, foundation status, changelog and README UC35/M04
+  progress. README Done/1-of-6 is the intended merged feature state; remote issue
+  and project state are untouched. Completed-FK-audit references replace old
+  pending reminders within these updated documents. Removed only a trailing blank
+  EOF line from each inherited design/plan for the original-base whitespace gate.
+- Full matrix runner: `task-3-full.sh cerberus-uc35-task3-full2`, with a fresh
+  disposable source copy, read-only checkout/NuGet fallback cache, actual Docker
+  PostgreSQL fixtures and unfiltered Release `dotnet test` with TRX plus XPlat
+  coverage. Its initial attempt (`cerberus-uc35-task3-full`) failed before restore
+  because a login shell replaced the image SDK PATH; using a non-login shell
+  preserves the configured runtime. No product/test change was needed.
+- Locked solution restore, live direct/transitive NuGet audit (zero known
+  vulnerabilities), Release build (zero warnings/errors), 23 Python helper tests,
+  specifications and generated OpenAPI drift all passed in the full runner.
+  Final documentation specification validation was rerun directly through WSL:
+  13 Markdown files, 7 template structures, 107 FRs/55 UCs, 12 features, 29 BRs,
+  6 milestones and 56 backlog entries. Full Web family passed 2,832/2,832 with
+  zero failures/skips in 3m30s; full-suite/coverage evidence follows.
+- Native verification ran independently in a fresh disposable Python 3.14.8 /
+  Temurin 25.0.4.1+1 / Maven 3.10.0 environment with fresh hash-locked wheel and
+  Maven downloads and a dedicated fresh dependency cache. Maven: 173/173;
+  Python: 142/142; native helpers: 36/36; repository helpers: 23/23; no failures,
+  errors or skips. Committed corpus: 322 cases in all four directions, passed.
+  Live OSV audit at `2026-10-12T07:24:05.231501+00:00`: 153 package coordinates,
+  zero findings, lock SHA-256
+  `1e9a47097b9a2a8ee17855c5cc75b71b7b01d8fae86a8b248eb7d2805e969bab`.
+- Native evidence: `native-results.md`, `native-summary.json`, raw `native-*.log`,
+  JUnit XML and source manifest beside this ledger; reproducible commands are in
+  `native-run.sh` and `native-in-container.sh`. The first native attempt stopped
+  before tests on Windows CRLF in `mvnw`. Only the disposable copy was normalized:
+  44 corpus-provenance files had to equal committed LF hashes, and the wrapper
+  separately matched committed Git blob `bd8896bf2217b46faa0291585e01ac1a3441a958`
+  / qualified SHA-256
+  `cae96cef89ebea3531221f4ae17c23cf8edf67d00eae8306d4186ae1bbed4d02`.
+  Repository protocol bytes stayed exact. The complete test/audit runner then
+  exited 1 only in its final evidence summarizer because buffered helper
+  diagnostics followed unittest's OK line. Corrected evidence validation against
+  that preserved snapshot exited 0; passed tests were not rerun or hidden.
+- Native corpus result SHA-256:
+  `f9a06769d2bd7e2022ed7ff123ef0f4b5740e903d53ceedce07bc6e82ace636e`;
+  OSV evidence SHA-256:
+  `f38d5a1a7e3a8636f8ebd5fc0ea50959edd112063f6afb74558f12a01ac6b64a`.
+  Native snapshot is preserved as `cerberus-uc35-native-evidence:latest`.
+  OSV is a dated package-version observation, not runtime/OS security approval.
+  `verify_protocol.py` remains the expected exit 1 with exactly
+  `BLOCKED: Protocol security and client review is pending.`
+- Exact 634-file source/test/helper/tool/OpenAPI hash manifest matched the
+  worktree with zero mismatches. Controller SHA-256:
+  `9342b1e1436238cf5b11ee8d42e27052275e600e54b84d40b85d17a13ec487b3`;
+  Startup: `77829684bbc521c76b129537339d541903b4f3816ae1ef9e9fbc5e0330c19121`;
+  HTTP tests: `8dac5052682b9077aded4c6273e9c7f196c8e59e48a58622c5a5dd701a55e85d`;
+  OpenAPI: `46ff9407b12009e9b4140acb5e5fcfc5d196efb1c910bc6baf3d3dd53165e011`.
+- Authoritative full command completed with exit 0:
+  `wsl.exe -d Ubuntu -- bash
+  /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-35-grant-collection-access/task-3-full.sh
+  cerberus-uc35-task3-full2`. The unfiltered Release test command was
+  `dotnet test src/ArturRios.Cerberus.sln --configuration Release --no-build
+  --logger trx --collect:"XPlat Code Coverage"`. All 9,039 tests passed, zero
+  failures/skips: Command 1,557; Query 606; Shared 125; Domain 361; Data 3,558
+  (8m11s); WebApi 2,832 (3m30s). All six fresh TRX/Cobertura artifacts are saved
+  in `cerberus-uc35-task3-full2-test-results.tar.gz`.
+- ReportGenerator 5.5.11 merged the six fresh collectors at
+  `2026-10-12T07:32:48Z`: line 98.5% (15,398/15,627), branch 92.3%
+  (6,670/7,220). Exact six-production-assembly inventory and individual 90%
+  floors passed: Command 1,178/1,178 (100%); Query 580/580 (100%); Shared
+  311/321 (96.88%); Domain 500/503 (99.40%); Data 12,086/12,258 (98.60%);
+  WebApi 743/787 (94.41%). Counts reflect the Release build; reference native
+  harness code and foreign/test assemblies are excluded from production coverage.
+- OpenAPI shape check passed the exact 201/400/401/403/404/409/413/503 statuses,
+  exact five required input fields with nullable `expectedRevision`, and exact
+  six output properties. Complete OpenAPI drift passed independently. Runtime:
+  .NET SDK 10.0.401, .NET/ASP.NET 10.0.12, Debian 12 Linux x64, PostgreSQL
+  18.6-alpine. Independent release-approval gate was again the expected exit 1.
+- Full-suite log SHA-256:
+  `aa3e1cf1e00f45f46d553f7d95a294726e1efbcb48547d5a8a9a05f87c1e61e4`;
+  coverage summary:
+  `4fd795fe905774132a4479e5a950f776a4568ffb1b61c927f399d66b38a26380`;
+  634-file source manifest:
+  `0d99fe73e6213b922c8289e779a5ca4df16ef02aa51aeba65d5b6c8897857d06`.
+- Self-reviewed the exact controller/DI, new HTTP tests, generated OpenAPI and
+  document diff. Working, staged and original-base whitespace gates passed.
+  Task 3 implementation is complete; commit subject:
+  `feat: expose collection access grants`. Task 3 independent review,
+  whole-branch review, exact-head CI and delivery remain unchecked and under
+  parent control. No push, PR, issue/project mutation, merge or closure occurred.
+- No requested Task 3 behavior was deferred. Remaining limitations are the
+  explicitly documented shared generated metadata, independent protocol/security/
+  client approval, external recipient-key discovery/decryptability qualification,
+  and later UC36/37/48 behavior. Native and .NET tests establish server behavior,
+  not client decryptability or production qualification.

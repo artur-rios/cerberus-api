@@ -471,3 +471,98 @@ and removals; copied plaintext or roots cannot be recalled. Shared generated
 OpenAPI requiredness, wrapper, media-type and empty-413 schema limitations remain
 documented; actual HTTP tests enforce the runtime contract. Independent
 security/protocol and external-client qualification remain release gates.
+
+## Change collection access (UC36)
+
+`PUT /api/collections/{id}/grants/{grantId}` changes one current active grant
+between `read-only` and `read-write`. Send current Heimdall authentication,
+exactly one canonical `X-Cerberus-Vault-Access` handle and canonical lowercase
+dashed nonzero collection and grant UUIDs. No query parameters are accepted.
+The bounded body is strict UTF-8 JSON with parsed media type exactly
+`application/json`, case-insensitively, optionally with a valid UTF-8 charset.
+Compression, BOMs, invalid UTF-8 and alternate JSON media types are rejected.
+Every response is no-store; oversized input returns an empty 413.
+
+The body has exactly three required properties: `expectedRevision`, `access`
+and `keyEnvelope`. The revision is a positive safe integer strictly below
+`9007199254740991`. Access is exactly `read-only` or `read-write` and must
+differ from the current grant. Missing, duplicate, unknown or case-forged fields,
+numeric strings and caller-supplied actor, recipient, profile or path context
+return 400 `validation_failed`.
+
+A replacement native `cerberus-recipient-wrap-v1` envelope is mandatory because
+the signature binds the grant revision. It binds the path grant at
+`expectedRevision + 1`, the current owner account and author pin, resource kind
+`collection`, path collection ID and current key epoch, and the existing
+recipient's Heimdall identity and current recipient pin. Wrong caller binding,
+stale keys/pins or an invalid signature returns 400. The existing active grant
+must also validate against current native protection; this operation cannot
+repair corrupt stored authority. The server never decrypts or generates a root.
+
+Success is 200 `collection_access_changed`, with exactly `collectionId`,
+`grantId`, `revision`, `access`, `recordIds` and `folderIds`. Revision
+advances once. The arrays remain sorted unique direct active same-owner roots
+with complete active same-owner ancestry. Inherited descendants resolve
+dynamically through GET/list and are not fabricated as direct roots. No account
+or recipient identity, profile or internal ID, envelope, protection material,
+revocation generation or usable key is returned.
+
+Only a current owner can change access. Wide owner access admits the active
+owned collection. Selected Master or PerProfile access additionally requires the
+exact selected profile's current collection link; selection is never widened.
+Visible foreign RO/RW administration returns 403 only after the one relevant
+native grant, collection and current protection pins validate. Relevant corruption
+returns 503. Hidden, revoked, unselected or absent foreign targets return
+nonrevealing 404 without inspecting the requested grant.
+
+The path must identify the current active nonterminal grant of this exact owned
+collection. Missing, revoked, terminal or cross-collection grants return 404.
+Only POST regrant revives revoked grants. The recipient must remain distinct,
+active, nonterminal and protected; closing, missing, terminal or unprotected
+recipients return 404. Malformed present protection, collection/grant native
+evidence, invalid stored access or unsafe persisted counters return 503
+`persistence_unavailable`. Stale expected revision, same-access no-op, exhausted
+revision/generation, concurrent winner or changed captured state returns 409
+`revision_conflict`. Reload current permitted state before retrying.
+
+Every committed change increments the recipient account's revocation generation
+exactly once. The current schema has no narrower per-grant session generation,
+so **all existing recipient vault handles**, both wide and selected, become
+stale and return 403. A fresh account unlock or selected-profile access challenge
+issues a current handle. Reads/lists retain the permitted direct and inherited
+visibility; member content writes then permit read-write and reject read-only.
+Recipient selection and profile links remain exact. Permission changes neither
+grant collection administration to recipients nor create profile associations.
+
+The transaction captures target authority before resolving the exact grant, then
+locks owner and recipient accounts together in public-UUID order with
+`FOR UPDATE`. Actor session, selected owned profile, target collection and exact
+grant follow. Current authority and captured state are checked again after waits.
+Current protection is parsed after both account locks. One guarded statement is
+the authorization boundary and atomically replaces grant access/envelope/stamp,
+advances grant revision and increments recipient generation. Natural owner-session
+expiry after this statement does not reverse an authorized result.
+
+Only the grant row and recipient generation change. Collection revision,
+sequence, envelope and memberships; recipient account revision, policy, identity,
+protection and lifecycle; and all session/profile/content rows remain exact.
+Saved grant, generation and direct-root projection are verified before commit.
+Any write or post-write failure rolls back both mutations; a clean retry can
+succeed. Same-grant, reciprocal, lifecycle/protection and recipient-session
+issuance races are verified with real PostgreSQL blocking evidence.
+
+Missing/current-rejected identity returns 401 `authentication_required`; missing
+access returns 401 `vault_access_required`. Invalid current access or visible
+foreign administration returns 403 `vault_access_denied`. Required stored
+corruption, database failure, internal timeout or post-write verification failure
+returns 503 `persistence_unavailable`; unavailable current identity returns
+503 `identity_unavailable`. Authentication/access and hidden-target decisions
+precede caller revision and replacement-envelope binding. Errors carry no success
+data or private dependency details. Caller cancellation propagates.
+
+Account-wide generation invalidation provides online enforcement. UC37 owns
+explicit grant revocation and UC48 owns durable offline permission/addition/removal
+delivery; copied plaintext or roots cannot be recalled. Authenticated recipient-key
+discovery, external client decryptability and independent security/protocol/client
+approval remain release gates. Shared generated OpenAPI requiredness, wrapper,
+media-type and empty-413 limitations remain; HTTP tests enforce the runtime shape.

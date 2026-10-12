@@ -12,6 +12,12 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Encrypted collection detail (UC-31), with current owner/native recipient scope,
+  exact selected-profile admission, actor-only profiles and sorted direct typed
+  members from one read-only permission snapshot. Relevant native, projection and
+  ancestry corruption fail without payload; unrelated corruption is isolated.
+  See the [collection detail API](docs/security/collection-api.md#get-an-encrypted-collection-uc31).
+
 - Encrypted collection listing (UC-30), with current ownership/native recipient
   grants, exact selected-profile scope and bounded encrypted continuations.
   Permissions are reapplied before pagination; listing preserves stored data.

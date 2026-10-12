@@ -80,6 +80,8 @@ public static class Startup
         builder.Services.AddScoped<IRecordCreateStore, RecordCreateStore>();
         builder.Services.AddScoped<ICollectionCreateStore, CollectionCreateStore>();
         builder.Services.AddScoped<ICollectionListStore, CollectionListStore>();
+        builder.Services.AddScoped<ICollectionReadStore, CollectionReadStore>();
+        builder.Services.AddScoped<IQueryHandlerAsync<GetCollectionQuery, CollectionDetailsOutput>, GetCollectionHandler>();
         builder.Services.AddSingleton<CollectionListCursor>();
         builder.Services.AddScoped<IQueryHandlerAsync<ListCollectionsQuery, CollectionListOutput>, ListCollectionsHandler>();
         builder.Services.AddScoped<IValidator<CreateCollectionCommand>, CreateCollectionValidator>();

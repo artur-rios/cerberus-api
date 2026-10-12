@@ -20,7 +20,7 @@ Collection identity is reserved within the collection kind. Other resource kinds
 
 New collections enter the complete retained owned protection-rotation inventory immediately. Actual native Master and PerProfile rotations include the new collection and current linked content/profile revisions. Omitted, extra, foreign or stale replacements reject before proof consumption. Successful rotation preserves client edit times and typed relationships, advances the collection epoch and revokes old selected access. Rewrapping preserves content and links.
 
-Existing profile/folder/record GET and list operations recalculate current initial membership and inherited visibility with hidden-reference filtering. Collection detail/update/deletion and membership replacement belong to UC31–34. UC48 must provide durable inherited visibility and offline removals. External key provisioning and authenticated client decryption, shared OpenAPI requiredness/wrapper/empty-413 metadata, and independent security/protocol/client qualification remain release obligations. The owner's development-only review deferral leaves main/tag/release gates intact.
+Existing profile/folder/record GET and list operations recalculate current initial membership and inherited visibility with hidden-reference filtering. Collection update/deletion and membership replacement belong to UC32–34. UC48 must provide durable inherited visibility and offline removals. External key provisioning and authenticated client decryption, shared OpenAPI requiredness/wrapper/empty-413 metadata, and independent security/protocol/client qualification remain release obligations. The owner's development-only review deferral leaves main/tag/release gates intact.
 
 ## List collections (UC30)
 
@@ -78,3 +78,58 @@ returns 503 `persistence_unavailable`; an unavailable current identity dependenc
 returns 503 `identity_unavailable`. Errors disclose no private dependency detail or
 success data. Shared oversized transport still returns an empty 413. Caller
 cancellation propagates; internal dependency cancellation fails as 503.
+
+## Get an encrypted collection (UC31)
+
+`GET /api/collections/{id}` retrieves one currently permitted collection. The ID
+must be a nonzero canonical lowercase dashed UUID. Send current Heimdall identity
+and exactly one `X-Cerberus-Vault-Access` header. No query parameter or request
+body is accepted, including transfer-encoded or unknown-length HTTP/2 bodies.
+Duplicate, malformed or empty access headers return 400 `validation_failed`.
+Every response is `Cache-Control: no-store`; shared oversized transport returns
+an empty 413.
+
+Success is 200 `collection_found`. The data object has exactly `collectionId`,
+`revision`, `serverSequence`, `editedAt`, `envelope`, `profileIds`, `recordIds`,
+and `folderIds`. The ciphertext envelope is unchanged native
+`cerberus-content-v1`; its epoch must match the stored epoch. Revision and sequence
+are positive safe integers, and edit time is nondefault UTC at microsecond
+precision. The complete projection is validated before any payload is returned.
+Stored epoch, internal IDs, owner/recipient identities, grants, key wrappers,
+protection pins and usable keys are absent.
+
+Account-wide access admits an owned collection or a current native read-only or
+read/write recipient grant. Selected Master or PerProfile access additionally
+requires that exact profile's current `ProfileCollection` link. Access to a
+record, folder or descendant never grants access to its containing collection.
+The next request observes session, selection, grant and relationship removals.
+
+Relationship arrays are nonnull, unique within each resource kind and sorted by
+public UUID. The same UUID can independently identify a profile, record and folder.
+`profileIds` contains only the actor's active directly linked profiles; selected
+access returns only the selected profile. A recipient never receives the owner's
+or another recipient's profile identifiers. `recordIds` and `folderIds` contain
+only direct active same-owner members with complete active same-owner ancestry.
+An explicitly linked record remains present when it also descends from a directly
+linked folder. Descendants and private containers are not added. Hidden, terminal
+or incomplete-ancestry members are omitted, including when all arrays become
+empty. Member ciphertext and ordering metadata are not parsed to return an ID.
+
+One target-first PostgreSQL statement captures current account/session authority,
+statement-time expiry, selected profile, target, direct links, relevant upward
+ancestry and target-native evidence. It acquires no explicit locks and changes no
+state. Fully active cycles affecting direct members fail safely; unrelated trees
+and collections are not traversed. A foreign target requires current signed grant
+binding, envelope/epoch and owner/recipient protection pins. Only that target's
+native evidence is inspected. Owned projection validation remains in the query
+layer. This server admission does not provision keys or certify client decryption.
+
+Missing/current-rejected identity returns 401 `authentication_required`; missing
+access returns 401 `vault_access_required`. Invalid transport returns 400,
+current denied access returns 403 `vault_access_denied`, and missing/inactive
+actors or missing, hidden, foreign, unselected or revoked targets return
+nonrevealing 404 `not_found`. Required persistence, native-evidence, ancestry or
+projection corruption returns 503 `persistence_unavailable` without partial data.
+Unavailable current identity returns 503 `identity_unavailable`. Caller cancellation
+propagates; internal dependency cancellation becomes a safe 503. Independent
+security/protocol and external-client qualification remain release gates.

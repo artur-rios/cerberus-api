@@ -68,24 +68,24 @@ under `src/Application/ArturRios.Cerberus.Command/Collections`; create
 create
 `tests/Infrastructure/ArturRios.Cerberus.Data.Tests/CollectionMembershipStoreTests.cs`.
 
-- [ ] Write real PostgreSQL tests first for wide/selected success, direct typed
+- [x] Write real PostgreSQL tests first for wide/selected success, direct typed
   overlaps, retained/promoted effective members, multi-collection preservation,
   exact envelope/link/result metadata and symmetric-difference bumps.
-- [ ] Cover foreign/missing/trashed/terminal/incomplete ancestry, selected private
+- [x] Cover foreign/missing/trashed/terminal/incomplete ancestry, selected private
   expansion, record-only container denial, cycles, stale/max counters and precedence.
-- [ ] Cover every active native grant, overlapping recipients, malformed required
+- [x] Cover every active native grant, overlapping recipients, malformed required
   wrappers/pins, revoked/unrelated evidence, recipient current visibility, unchanged
   wrapper bytes/revisions and retained rotation inventory.
-- [ ] Cover concurrent collection update/delete/protection rotation, profile
+- [x] Cover concurrent collection update/delete/protection rotation, profile
   association, record/folder move/trash/update and graph/grant growth in both relevant
   orders; assert stable locks, final guards and bounded query shape.
-- [ ] Inject faults after target write, each association delete/insert family and
+- [x] Inject faults after target write, each association delete/insert family and
   every structural bump; prove full rollback, clean retry, outage/internal versus
   caller cancellation and exactly one same-revision winner.
-- [ ] Capture missing-store RED, implement the transaction, then run focused and
+- [x] Capture missing-store RED, implement the transaction, then run focused and
   complete Data tests with zero failures/skips.
-- [ ] Commit `feat: replace collection memberships`; update the ledger and obtain a
-  separate task review before Task 3.
+- [x] Commit `feat: replace collection memberships`; update the ledger.
+- [ ] Obtain a separate Task 2 review before Task 3.
 
 ### Task 3: HTTP, documentation and complete verification
 

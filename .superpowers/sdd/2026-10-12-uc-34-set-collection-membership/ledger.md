@@ -56,7 +56,97 @@ receives the task base/head diff and test evidence; the final reviewer is fresh.
 
 ### Task 2
 
-- Status: pending.
+- Status: implemented and verified; base `ca6b92b`; independent review pending.
+- Test-first RED: focused Data compilation after correcting test-only move request
+  argument order and EF analyzer syntax failed solely with 14 CS0246 references
+  to absent `CollectionMembershipStore`. Raw evidence: `task-2-red.log` in this
+  workspace. Production store did not exist at this point.
+- Continuing Task 1's ledger filename/parent-controlled lifecycle ruling.
+- Initial focused run: 172/173 passed. The remaining test's synthetic grant insert
+  omitted the required `concurrency_stamp`; correcting the fixture produced the
+  expected graph-growth conflict without changing production behavior.
+- Additional behavioral RED: three tests demonstrated skipped evidence for an
+  active grant with a missing recipient, and late mutation of an already-verified
+  collection/member. `task-2-projection-red.log`: 3 failed, 13 passed. The store now
+  verifies native evidence cardinality and final target/member projections.
+- Focused GREEN before final concurrency additions: 193/193, zero failures/skips.
+- Focused GREEN before lifecycle clarification (Linux): 199/199, zero failures/skips in 28 seconds, using
+  `docker exec -w /work cerberus-uc34-task2-data dotnet test
+  tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj
+  --no-build --no-restore --filter FullyQualifiedName~CollectionMembershipStoreTests
+  --verbosity minimal`. Raw evidence: `task-2-focused-linux.log`.
+- Lifecycle behavioral RED: retained requested folders/records and their required
+  active ancestors with nonnull purge deadlines were incorrectly accepted in wide
+  and selected scope. `task-2-lifecycle-red.log`: 8 failed, 1 passed (hidden private
+  member remained nonrevealing 404). Added only the missing active-null-purge
+  validation; untouched ancestor counters/timestamps are still not parsed.
+- Task 2: Ruling: active-null-purge consistency applies to every requested direct
+  member, including retained members, and required active ancestry used for
+  admission - parent clarified the required structural-corruption invariant -
+  cost if wrong: a contradictory active-but-scheduled-for-purge row is rejected
+  with 503 instead of treated as a valid membership route. Hidden admission still
+  wins with nonrevealing 404.
+- Missing-projection behavioral RED: actual post-write deletion of the target,
+  changed folder/record, or an already-verified folder escaped as an unhandled
+  `InvalidOperationException`. `task-2-missing-projection-red.log`: 4 failed,
+  0 passed. Replaced only the relevant projection reads with `SingleOrDefaultAsync`
+  and explicit null-to-503 checks; no broad exception catch was added. Parent
+  confirmed this belongs to the existing post-write verification/rollback contract.
+- Coverage: wide/selected typed overlap, inherited promotion, exact whole-owner
+  graph normalization, independent collection preservation, recipient GET/list
+  effects through overlapping grants, malformed native bindings/pins, current
+  authority and hidden-before-stale precedence, complete/invalid ancestry, all
+  nine lock phases, both orders of actual owner collection/profile/content writers,
+  native recipient edits and native protection rotation; grant FK growth in both
+  orders, final graph/evidence guards, expiry at the linearization point, bounded
+  target EXPLAIN among 100 unrelated collections, all nine actual mutation-stage
+  failures, late projection faults, sequence exhaustion/regression after target
+  write, clean retry and exactly one same-revision winner.
+- Windows full-project attempt is diagnostic, not authoritative: existing durable
+  ledger/restore/permanent-erasure tests require Linux. A simultaneous focused
+  rebuild also met the Windows testhost's xunit DLL file lock. No production or
+  test configuration was weakened; Linux verification runs from a disposable copy.
+  Stopped only the verified diagnostic Windows testhost after 12m36s; its partial
+  aborted result was 2,725 passed / 259 failed / 0 skipped, 2,984 executed, exit 1
+  (`task-2-data.log`). Initial failures are the explicit unsupported-platform
+  exception; the run later also reported synthetic-link/persistence failures
+  across existing and new tests. Their exact Windows-only cascade was not pursued
+  after the supported Linux suite passed. These are not passing evidence.
+- Task 2: Ruling: use the established Linux runner for complete Data verification
+  rather than treating Windows-only filesystem failures as product regressions -
+  FileErasureLedger explicitly requires the approved Linux host, and UC33 used this
+  runner - cost if wrong: Windows-specific behavior would need a separate supported
+  platform qualification, which this Linux service does not currently promise.
+- Full Linux command: `wsl.exe -d Ubuntu -- bash
+  /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-34-set-collection-membership/task-2-linux.sh`.
+  Script uses SDK 10.0, host Docker socket/network, disabled Ryuk, read-only source
+  and NuGet fallback cache, disposable `/work`, excludes old bin/obj/TestResults,
+  and restores then runs the unfiltered Data project. Raw log:
+  `task-2-data-linux.log`: 3,418/3,418 passed, zero failures/skips in 8m19s.
+  That earlier runner then exited 127 because adding optional runner arguments
+  while its shell was running shifted Bash's post-Docker file offset. No tests
+  failed; the stable-runner final refresh below remains the authoritative gate.
+- Lifecycle-refreshed Linux command adds container name `cerberus-uc34-task2-final`
+  to that runner, after the lifecycle correction. Raw full log:
+  `task-2-data-linux-final.log`: 3,427/3,427 passed, zero failures/skips in 8m04s,
+  exit 0. Focused verification from its exact
+  built snapshot uses the focused command above with this final container name;
+  raw log `task-2-focused-linux-final.log`: 208/208 passed, zero failures/skips in
+  29 seconds, exit 0. This includes all nine lifecycle regressions.
+- Final post-write-projection refresh uses container `cerberus-uc34-task2-complete`
+  with the same stable runner. Full raw log: `task-2-data-linux-complete.log`,
+  3,431/3,431 passed, zero failures/skips in 8m06s, exit 0; exact-built-snapshot focused log:
+  `task-2-focused-linux-complete.log`: 212/212 passed, zero failures/skips in
+  29 seconds, exit 0. This includes all four missing-projection regressions.
+- Final snapshot/workspace SHA-256 equality checked: store
+  `20f7a2038bdf0164f5af32d928942e4aab50c2fbc9ca37c1a2828980d323324f`, tests
+  `b6b8171c0b03d20c6ff001e562147ea9ba55c2df684e050367b17687ff4ed936`.
+- Exact production/test/plan/ledger diff inspected; staged and working
+  `git diff --check` passed. Task commit: `feat: replace collection memberships`.
+- No Task 2 coverage consciously deferred. HTTP/DI/OpenAPI/documentation and fresh
+  six-family coverage/native audits belong to Task 3; independent external-client
+  decryptability/protocol qualification remains a release gate. The separate Task 2
+  review must approve this commit before Task 3 begins.
 
 ### Task 3
 

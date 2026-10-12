@@ -17,6 +17,7 @@ public sealed class VaultProofBodyMiddleware(RequestDelegate next)
         if (context.GetEndpoint()?.Metadata.GetMetadata<VaultProofBodyAttribute>() is null) { await next(context); return; }
         if (context.Request.Headers.ContentEncoding.Count != 0
             || !MediaTypeHeaderValue.TryParse(context.Request.ContentType, out var contentType)
+            || !string.Equals(contentType.MediaType, "application/json", StringComparison.OrdinalIgnoreCase)
             || contentType.CharSet is { } charset && !string.Equals(charset.Trim('"'), "utf-8", StringComparison.OrdinalIgnoreCase))
         { await Invalid(context); return; }
         // The outer BoundedRequestStream enforces the configured aggregate limit.

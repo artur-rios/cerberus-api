@@ -213,7 +213,8 @@ external client decryption/qualification remain release gates.
 `DELETE /api/collections/{id}` trashes one currently visible owned collection
 for exactly 720 hours. Send current Heimdall authentication, one canonical
 `X-Cerberus-Vault-Access` header, a lowercase dashed nonzero UUID path and bounded
-strict UTF-8 JSON containing exactly `{"expectedRevision":1}`. The required
+strict UTF-8 JSON with media type `application/json` (case-insensitive, optionally
+with a UTF-8 charset), containing exactly `{"expectedRevision":1}`. The required
 revision is a positive integer at most `9007199254740991`. Query parameters,
 unknown/duplicate/case-forged fields, numeric strings, ownership, membership,
 grants, wrappers, ciphertext and lifecycle overrides are rejected. Non-JSON,
@@ -278,6 +279,8 @@ the deadline.
 UC50–53 trash listing, restoration, emptying and physical expiry remain later work;
 missing collection retention handlers currently retry. A restored collection must
 reconcile its old typed entry before another trash operation. The generated OpenAPI
-includes this route and models; shared requiredness, output-wrapper and empty-413
-schema limitations remain, with actual HTTP tests enforcing the runtime contract.
+includes this route and models; shared advertised media-type, requiredness,
+output-wrapper and empty-413 schema limitations remain, with actual HTTP tests
+enforcing the runtime contract. Formatter-advertised `text/json` and
+`application/*+json` request types are rejected at runtime.
 Independent security/protocol and external-client qualification remain release gates.

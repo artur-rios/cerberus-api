@@ -150,7 +150,8 @@ review. The final reviewer is fresh and receives the full base-to-head package.
 
 ### Task 3
 
-- Status: implemented, verified and committed; independent task review pending.
+- Status: implemented, verified and committed; the Important task-review finding
+  is addressed by the single blocking TDD correction pass below.
 - Task base: `3e85238` (`docs: record collection trash review`).
 - Scope: collection DELETE action, explicit store/validator/handler registration,
   `CollectionTrashHttpTests.cs`, collection API/security and foundation operations
@@ -233,6 +234,78 @@ review. The final reviewer is fresh and receives the full base-to-head package.
 - Commit subject: `feat: expose collection trash endpoint`. The separate task
   review and final whole-branch review remain the coordinator's next steps.
 - Task 3 design rulings: none. Deferred minors: none. Implementation blockers: none.
+
+### Task 3 — single blocking correction pass
+
+- Review finding (Important): syntactically valid unsupported media types bypassed
+  `VaultProofBodyMiddleware` and reached MVC. At least `text/plain` and
+  `application/xml` returned 415 instead of the required 400
+  `validation_failed`. The coordinator authorized this one blocking TDD fix pass;
+  no second Task 3 review will be dispatched.
+- Correction base: `7fad2b1c91c4ef0d5595c00dc7af29c3aa124c8b`.
+- Tests written before implementation: four unsupported media types sent with valid
+  DELETE JSON to an owned collection carrying profile/folder/record memberships and
+  a native recipient grant. Each requires 400 `validation_failed`, no-store and
+  unchanged complete owner/recipient snapshots. Three controls retain supported
+  case-insensitive JSON media types and optional unquoted/quoted UTF-8 charsets.
+- Genuine RED:
+  `dotnet test tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj --filter MediaType --verbosity minimal`
+  in disposable Linux exited 1: **7 discovered, 4 failed, 3 passed, 0 skipped**.
+  `text/plain`/`application/xml` returned **415**; `text/json` and
+  `application/problem+json` returned **200** and performed the deletion.
+  The three supported JSON controls passed. Log: `task-3-media-red.log`.
+- Minimal correction: one case-insensitive comparison of parsed
+  `contentType.MediaType` with `application/json` before body handling/MVC.
+  Existing optional UTF-8 charset checks and exact original body handling remain.
+  Collection API documentation now states the accepted media type and truthfully
+  records that generated formatter media-type advertisements remain broader than
+  runtime acceptance; generated OpenAPI is unchanged.
+- Focused GREEN: `--filter FullyQualifiedName~CollectionTrashHttpTests` exited 0,
+  **99 passed, 0 failed, 0 skipped**, 13 seconds.
+  Log: `task-3-media-green.log`.
+- Related shared GREEN: filter selecting `VaultProtectionHttpTests`,
+  `NoStoreMiddlewareTests`, `RequestLimitMiddlewareTests` and
+  `SafeFailureMiddlewareTests` exited 0: **60 passed, 0 failed, 0 skipped**,
+  5 seconds. This includes proof verification against original request bytes,
+  malformed UTF-8/BOM/compression rejection and signed unlock flows.
+  Log: `task-3-media-shared-green.log`.
+- Separate whole Web GREEN:
+  `dotnet test tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj --no-build --verbosity minimal`
+  exited 0: **2,610 passed, 0 failed, 0 skipped**, 3m06s.
+  Log: `task-3-media-web-green.log`. All existing proof-body endpoint suites ran.
+- Fresh locked restore, .NET dependency scan (no known direct/transitive
+  vulnerabilities), OpenAPI drift and specification validation passed after this
+  correction. Logs: `task-3-media-locked-restore.log`,
+  `task-3-media-dependencies.log`, `task-3-media-openapi-drift.log`,
+  `task-3-media-specs.log`.
+- Fresh full unfiltered GREEN:
+  `dotnet test src/ArturRios.Cerberus.sln --collect:"XPlat Code Coverage" --logger trx --verbosity minimal`
+  exited 0 in the disposable Linux harness: **8,248 passed, 0 failed, 0 skipped**.
+  Exact family counts: Domain **361**, Shared **125**, Query **606**, Command
+  **1,327**, Data **3,219** (7m25s), WebApi **2,610** (2m59s). No compiler warnings
+  or errors. Log: `task-3-media-full-tests.log`; all six fresh TRX totals were checked.
+- Fresh merged production coverage is **98.4% line (15,489/15,729)** and
+  **92.4% branch (6,140/6,644)**, from six new collectors; test/foreign assemblies
+  excluded. Every production assembly exceeds the required 90% line threshold.
+  Evidence: `media-coverage/Summary.json`, `task-3-media-coverage-summary.log`
+  and `task-3-media-reportgenerator.log`.
+
+  | Production assembly | Line coverage | Branch coverage |
+  | --- | --- | --- |
+  | Command | 100% (1,090/1,090) | 98.0% (1,037/1,058) |
+  | Data | 98.5% (12,113/12,296) | 89.2% (2,795/3,130) |
+  | Domain | 99.3% (496/499) | 96.5% (670/694) |
+  | Query | 100% (623/623) | 98.8% (714/722) |
+  | Shared | 97.2% (355/365) | 88.0% (317/360) |
+  | WebApi | 94.8% (812/856) | 89.2% (607/680) |
+
+- Correction scope: `VaultProofBodyMiddleware.cs`, `CollectionTrashHttpTests.cs`,
+  `docs/security/collection-api.md`, this plan's checkboxes and ledger.
+  Full original-base whitespace check exited 0; staged whitespace is checked
+  immediately before commit `fix: reject unsupported proof media types`.
+- The one blocking correction pass is complete. No second Task 3 review was
+  performed; final whole-branch review/delivery remain with the coordinator.
+- Correction rulings: none. Deferred minors: none. Implementation blockers: none.
 
 ### Final review and delivery
 

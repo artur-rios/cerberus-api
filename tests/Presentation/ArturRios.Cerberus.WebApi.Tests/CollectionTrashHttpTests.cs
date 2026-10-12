@@ -257,6 +257,40 @@ public class CollectionTrashHttpTests(RegistrationApiFixture fixture) : WebApiTe
     {
         using var owner=new ProtectionFixture();var s=await Setup(owner);var target=await Create(s);var before=await Snapshot(s);var raw=kind=="oversized"?Encoding.UTF8.GetBytes(new string(' ',65537)):kind=="utf8"?new byte[]{0xc3,0x28}:Bytes(new { expectedRevision = 1 });if(kind=="bom")raw=new byte[]{239,187,191}.Concat(raw).ToArray();using var req=Delete(s,"/api/collections/"+target.CollectionId+(kind=="query"?"?ownerId=secret":""),raw);if(kind=="missing")req.Headers.Remove("X-Cerberus-Vault-Access");if(kind=="bad"){req.Headers.Remove("X-Cerberus-Vault-Access");req.Headers.Add("X-Cerberus-Vault-Access","bad");}if(kind=="duplicate")req.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access",s.Access);if(kind=="compression")req.Content!.Headers.ContentEncoding.Add("gzip");if(kind=="charset")req.Content!.Headers.ContentType!.CharSet="utf-16";using var r=await Gateway.Client.SendAsync(req);await Failure(r,status);Assert.Equal(before,await Snapshot(s));
     }
+    [FunctionalTheory]
+    [InlineData("text/plain")][InlineData("application/xml")]
+    [InlineData("text/json")][InlineData("application/problem+json")]
+    public async Task GivenUnsupportedMediaType_WhenTrashing_Then400AndCompleteGraphRemainsUnchanged(string mediaType)
+    {
+        using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var key = new ProtectionFixture();
+        var s = await Setup(owner); var other = await Setup(recipient);
+        var folder = await Folder(s); var record = await Record(s, folder.Id);
+        var profile = await Profile(s, owner, key, folder, records: [record.PublicId]);
+        var target = await Create(s, [profile.PublicId], [record.PublicId], [folder.PublicId]);
+        await Grant(s, owner, other, recipient, target.CollectionId, CollectionGrantAccess.ReadWrite);
+        var ownerBefore = await Snapshot(s); var recipientBefore = await Snapshot(other);
+        using var request = Delete(s, "/api/collections/" + target.CollectionId, Bytes(new { expectedRevision = 1 }));
+        request.Content!.Headers.ContentType = new(mediaType);
+        using var response = await Gateway.Client.SendAsync(request);
+        await Failure(response, 400, "validation_failed");
+        Assert.Equal(ownerBefore, await Snapshot(s)); Assert.Equal(recipientBefore, await Snapshot(other));
+    }
+
+    [FunctionalTheory]
+    [InlineData("Application/Json")]
+    [InlineData("application/json; charset=UTF-8")]
+    [InlineData("APPLICATION/JSON; charset=\"utf-8\"")]
+    public async Task GivenJsonMediaTypeWithSupportedCaseOrCharset_WhenTrashing_ThenDeleteSucceeds(string contentType)
+    {
+        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s);
+        await using var db = fixture.Context();
+        var original = await db.Collections.AsNoTracking().SingleAsync(x => x.PublicId == target.CollectionId);
+        using var request = Delete(s, "/api/collections/" + target.CollectionId, Bytes(new { expectedRevision = 1 }));
+        request.Content!.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(contentType);
+        using var response = await Gateway.Client.SendAsync(request);
+        await Trashed(s, original, await Success<DeleteCollectionOutput>(response, 200));
+    }
+
     [FunctionalFact]
     public async Task GivenRawEmptyAccessHeader_WhenTrashing_Then400()
     {using var owner=new ProtectionFixture();var s=await Setup(owner);using var host=new WebApplicationFactory<Program>();var raw=Bytes(new { expectedRevision = 1 });var context=await host.Server.SendAsync(c=>{c.Request.Method="DELETE";c.Request.Path="/api/collections/"+Guid.NewGuid();c.Request.Headers.Authorization="Bearer "+RegistrationApiFixture.Token(s.Actor);c.Request.Headers["X-Cerberus-Vault-Access"]="";c.Request.ContentType="application/json";c.Request.ContentLength=raw.Length;c.Request.Body=new MemoryStream(raw);});Assert.Equal(400,context.Response.StatusCode);Assert.Contains("no-store",context.Response.Headers.CacheControl.ToString());}

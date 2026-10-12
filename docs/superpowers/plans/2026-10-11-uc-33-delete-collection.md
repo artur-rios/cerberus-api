@@ -158,7 +158,13 @@ explicitly. Existing create/list/detail/update endpoints remain unchanged.
   a fresh unfiltered six-family test/coverage run. Require zero failures/skips and
   every production assembly at least 90% line coverage; report branch coverage.
 - [x] Commit `feat: expose collection trash endpoint`; record all evidence.
-- [ ] Obtain a separate Task 3 review before the final whole-branch review.
+- [x] Obtain a separate Task 3 review before the final whole-branch review.
+- [x] Reproduce the Important unsupported media-type finding with HTTP RED tests;
+  require parsed `application/json` in the shared proof-body middleware and verify
+  the corrected route and relevant middleware/proof flows.
+- [x] Complete the single blocking correction pass with whole Web and fresh
+  six-family coverage, OpenAPI/spec/whitespace evidence, then commit
+  `fix: reject unsupported proof media types`. No second Task 3 review.
 
 ## Final review and delivery
 

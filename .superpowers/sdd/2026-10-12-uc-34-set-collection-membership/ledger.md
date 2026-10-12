@@ -56,7 +56,8 @@ receives the task base/head diff and test evidence; the final reviewer is fresh.
 
 ### Task 2
 
-- Status: implemented and verified; base `ca6b92b`; independent review pending.
+- Status: implemented, verified, committed and independently approved; base
+  `ca6b92b`; task commit `8121dc6`.
 - Test-first RED: focused Data compilation after correcting test-only move request
   argument order and EF analyzer syntax failed solely with 14 CS0246 references
   to absent `CollectionMembershipStore`. Raw evidence: `task-2-red.log` in this
@@ -145,8 +146,14 @@ receives the task base/head diff and test evidence; the final reviewer is fresh.
   `git diff --check` passed. Task commit: `feat: replace collection memberships`.
 - No Task 2 coverage consciously deferred. HTTP/DI/OpenAPI/documentation and fresh
   six-family coverage/native audits belong to Task 3; independent external-client
-  decryptability/protocol qualification remains a release gate. The separate Task 2
-  review must approve this commit before Task 3 begins.
+  decryptability/protocol qualification remains a release gate.
+- Independent review: approved exact range `ca6b92b..8121dc6`; Critical 0,
+  Important 0, Minor 0. Reviewer independently rebuilt and reran 212 focused Linux
+  tests, confirmed the 3,431-test full log, exact snapshot hashes, whitespace and a
+  clean worktree. All five review focuses and AF-01 through AF-06 were approved.
+- Reviewer declined HTTP/DI/OpenAPI/transport, fresh six-family/audit/delivery gates,
+  external-client qualification, UC-48 offline events and the explicit pre-UC35
+  recipient-account FK audit as correctly belonging to later work.
 
 ### Task 3
 

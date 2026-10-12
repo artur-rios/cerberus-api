@@ -85,7 +85,7 @@ create
 - [x] Capture missing-store RED, implement the transaction, then run focused and
   complete Data tests with zero failures/skips.
 - [x] Commit `feat: replace collection memberships`; update the ledger.
-- [ ] Obtain a separate Task 2 review before Task 3.
+- [x] Obtain a separate Task 2 review before Task 3.
 
 ### Task 3: HTTP, documentation and complete verification
 

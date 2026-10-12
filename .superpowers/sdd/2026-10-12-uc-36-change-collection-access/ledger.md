@@ -38,7 +38,7 @@
 - [x] Task 2 review
 - [x] Task 3 - HTTP/docs/OpenAPI/full verification
 - [x] Task 3 review
-- [ ] Whole-branch review
+- [x] Whole-branch review
 - [ ] Exact-head delivery and closeout
 
 ## Review findings and evidence
@@ -516,3 +516,31 @@ Final complete-run SHA-256 values:
   metadata limitations remained documented. README independently counted
   **37 Done / 18 Todo**. Exact reviewed head, working tree and whitespace checks
   were clean. Independent protocol/security/client approval remains external.
+
+### Whole-branch independent review (2026-10-12)
+
+- Reviewer inspected exact range
+  `e9f58936eab3723ad82dfe06f44c7667585bb284..892bb244268ca9baeecab0371df3adddbf2d3c81`
+  as a release-readiness gate against the complete design, plan, task reviews,
+  implementation, tests, documentation and generated contract.
+- Result: delivery-ready with **0 Critical, 0 Important and 0 Minor** findings;
+  no accepted minor or unresolved task-review finding remains.
+- All five binding invariants were independently accepted: canonical strong
+  account-pair locking and adjacent-writer compatibility; owner-only authority
+  with target-first native-validated foreign denial; current and replacement
+  native bindings; conflict-preserving active-grant lifecycle; and exact atomic
+  grant-CAS plus recipient-generation mutation with post-write verification and
+  rollback.
+- Fresh independent read-only-source runs passed Command **121**, real PostgreSQL
+  Data **132** and HTTP **114**—**367 total**, zero failures/skips, each exit 0.
+- Retained evidence independently reconciled **9,406** passes, raw coverage
+  **15,624/15,857 lines (98.5%)** and **6,893/7,466 branches (92.3%)**, every
+  production assembly's 90% line floor, native counts/corpus, audits, manifests
+  and hashes. Historical failed verification attempts and corrections were
+  accurately disclosed.
+- Route/DI, strict contracts, cancellation, no-store, documentation/tracker and
+  generated OpenAPI aligned; no schema/dependency change entered the branch.
+  External protocol/security/client approval, external decryptability and
+  UC-37/UC-48 follow-on work remain documented non-merge obligations.
+- Reviewed head and worktree remained unchanged and clean; range whitespace
+  check passed. No repository or GitHub state was changed by the reviewer.

@@ -28,7 +28,7 @@ The ignored `progress.md` is the short-lived SDD recovery map; this force-added 
 - Task 1: COMPLETE - Domain and application revocation contract; 75 focused and 1,753 complete Command tests passed.
 - Task 2: COMPLETE - Corrected atomic PostgreSQL revocation writer accepted after fresh full-range re-review; 130 focused and 3,820 complete Data tests passed on PostgreSQL 18.6.
 - Task 3: COMPLETE - strict HTTP revocation, documentation and exhaustive gates accepted after fresh exact-range review; 90 focused / 9,701 full tests passed.
-- Task 4: TODO - Whole-branch review and exact-head delivery.
+- Task 4: REVIEW ACCEPTED - DELIVERY PENDING - whole-branch review accepted; exact delivery-head verification, Testing transition, PR, CI and merge remain.
 
 ## Task 1 implementation evidence
 
@@ -472,3 +472,17 @@ Limitations remain explicit: copied roots, ciphertext and plaintext cannot be re
 - Correctly deferred: actual client rotation/copied-material destruction/UC-48, external-client decryptability and independent protocol/security approval, production load/deployment/OS qualification, and Task 4 whole-branch/exact-head delivery.
 
 Task 3: complete - implementation commit `6ef9fa149505356f6f37ed7a799158311587effc` accepted after fresh exact-range review; no blocking findings.
+
+## Whole-branch review acceptance
+
+- Reviewed exact range: `fa51a67849738c153e7f5cb3b1cdf97316e8944e..53d2ea938f770c204cb0c83e8df86dcfcd6f440e`; local `develop` and `origin/develop` both equalled the base.
+- Reviewed feature tree: `5acfb61758a06997a2fce12d497c0c1eaf9cf233`.
+- Fresh whole-branch result: zero Critical, zero Important and one previously accepted Minor finding; implementation is accepted for delivery gates.
+- Accepted Minor: the isolated Task 1 success fixture records the last store request/token without asserting exactly one invocation. Production invokes the store once and real integration remains green; retain this nonblocking test-strengthening item for later maintenance.
+- Independent exact-source focused reruns: Command 75, PostgreSQL Data 130 and HTTP 90 passed with zero failures/skips, Release, locked restore and warnings as errors. Database suites used real PostgreSQL.
+- Retained evidence independently reconciled to 9,701 passing tests, 15,829/16,066 covered lines (98.5%), 7,106/7,712 covered branches (92.1%) and every production assembly above 90% line coverage.
+- Both 662-file source manifests, all eight deliverable hashes, 38 evidence-manifest entries and 66 ledger-table digests matched, including historical correction/EOF variants. EXPLAIN bounds, native Java 173, Python 142, helpers 36, repository helpers 23, corpus 322 in four directions, NuGet zero known findings and live OSV 153/0 reconciled.
+- The review reconfirmed all five binding security/authorization/atomicity/online-revocation focuses, strict transport and secrecy, adjacent-writer compatibility, narrow generated OpenAPI, accurate 38 Done / 17 Todo documentation and absence of schema/dependency/cryptographic changes.
+- Correctly deferred release obligations: client key rotation/copied-material destruction/UC-48, authenticated recipient-key discovery/external decryptability, independent protocol/security/client approval, production load/deployment/OS qualification and automated mutation-engine completeness.
+
+Whole-branch review: accepted - no blocking findings. Delivery remains conditional on a clean committed review record, fresh exact-delivery-head full verification, unchanged base/head, required exact-head CI, normal squash merge and closure audits.

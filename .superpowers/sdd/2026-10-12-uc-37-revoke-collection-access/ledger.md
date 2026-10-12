@@ -26,7 +26,7 @@ The ignored `progress.md` is the short-lived SDD recovery map; this force-added 
 ## Task status
 
 - Task 1: COMPLETE - Domain and application revocation contract; 75 focused and 1,753 complete Command tests passed.
-- Task 2: COMPLETE - Atomic PostgreSQL revocation writer; 125 focused and 3,815 complete Data tests passed.
+- Task 2: CORRECTED - REVIEW PENDING - Atomic PostgreSQL revocation writer; correction verified with 130 focused and 3,820 complete Data tests passed on PostgreSQL 18.6.
 - Task 3: TODO - HTTP route, integration, documentation and exhaustive verification.
 - Task 4: TODO - Whole-branch review and exact-head delivery.
 
@@ -239,3 +239,59 @@ The staged whitespace check found two extra LF bytes at each new file's EOF. Onl
 | `cerberus-uc37-task2-store-red.log` | `0b73c8a3df1f2266e4be7e1d29494938eda467b7ccc2c0c77d298b188ab73ca8` |
 
 Task 2 implementation is complete. Fresh task review is the controller's next step; Task 3 has not begun. This task verifies the complete Data project, not the repository-wide HTTP/native/audit/coverage gates reserved for later tasks.
+
+## Task 2 blocking review correction evidence
+
+Status: **CORRECTED - REVIEW PENDING**. Fresh controller re-review is required before Task 3. Earlier implementation evidence above is preserved.
+
+Correction base: `11d3d4a4c0f9a929c169800f68ec2f0d9cb62f02`; branch `feature/uc-37-revoke-collection-access`. Correction head is the commit containing this audit entry; its exact SHA is retained in ignored `task-2-correction-report.md` after commit.
+
+- Verified finding: UC-37 blanket-mapped PostgreSQL SQLSTATE `23505` and `2200H` to `revision_conflict`. Revocation changes no unique key and consumes no sequence. Legitimate stale/exhausted conflicts are already explicit, so trigger/storage faults with those states must return `persistence_unavailable`.
+- Tests first: add four real PostgreSQL trigger cases for both SQLSTATEs on both grant-revision and recipient-generation atomic update sides. Add recipient profile/link, collection members and another collection/grant as collateral. Every case requires null failure data, exact full fixture rollback, exact snapshot preservation after trigger removal and successful retry to revision 2/generation 2 with revoked state, cleared wrapper, fresh stamp and unchanged collateral.
+- Update the artificial exception theory to require `persistence_unavailable` for `23505` and add `2200H` with that same expected safe error.
+- Meaningful RED on unchanged baseline production: 130 total, 124 passed, 6 failed, 0 skipped, exit 1. Exactly the four trigger cases and the two artificial mapping cases failed on expected `persistence_unavailable` versus actual `revision_conflict`. No compilation/fixture failure or build warning/error. Production SHA-256 at RED remained `5ab8bcbf73a2ffecea8e5becb54694eb48f7ebc100a69b344b209e1ec42d1c0b`.
+- Minimal production fix after observed RED: remove only UC-37's one blanket `PostgresException` conflict catch so both SQLSTATEs use its existing persistence handler. Preserve every explicit legitimate conflict check, authorization statement, rollback guard and adjacent behavior.
+- Fresh focused GREEN: 130 passed, 0 failed/skipped, exit 0, on exact final production/test bytes. All four real trigger cases and both artificial cases passed, together with existing stale/max/captured-wait conflict and concurrency cases.
+- Fresh complete unfiltered Data GREEN: 3,820 passed, 0 failed/skipped, exit 0, Release, locked restore, warnings as errors. Individual `Passed` line counts agree with both GREEN summaries, and neither GREEN log contains build warnings/errors.
+- Scope: exactly the revocation production file, its main test file and this ledger. UC-35/UC-36, Task 1, the concurrency file, schema, HTTP, DI and public documentation are unchanged. No Task 3 work or subagent dispatch. No applicable AGENTS.md was found.
+
+### Exact correction commands and runtime
+
+From `D:\Repositories\cerberus-api`:
+
+```text
+wsl.exe -d Ubuntu -- bash /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-37-revoke-collection-access/task-2-linux.sh cerberus-uc37-task2-correction-red focused
+wsl.exe -d Ubuntu -- bash /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-37-revoke-collection-access/task-2-linux.sh cerberus-uc37-task2-correction-focused-green focused
+wsl.exe -d Ubuntu -- bash /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-37-revoke-collection-access/task-2-linux.sh cerberus-uc37-task2-correction-data-green full
+wsl.exe -d Ubuntu -- docker image inspect mcr.microsoft.com/dotnet/sdk:10.0 postgres:18.6-alpine --format '{{.RepoTags}} {{.Id}}'
+```
+
+Unchanged runner inner commands:
+
+```text
+dotnet restore tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj --locked-mode --ignore-failed-sources -p:NuGetAudit=false -p:TreatWarningsAsErrors=true
+dotnet test tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj --no-restore -c Release -p:TreatWarningsAsErrors=true --filter FullyQualifiedName~CollectionGrantRevocationStoreTests --logger "console;verbosity=detailed"
+dotnet test tests/Infrastructure/ArturRios.Cerberus.Data.Tests/ArturRios.Cerberus.Data.Tests.csproj --no-restore -c Release -p:TreatWarningsAsErrors=true --logger "console;verbosity=normal"
+```
+
+The first host RED attempt under default sandbox permissions failed before harness/test execution with WSL `E_ACCESSDENIED`, exit 1, and created no runner log. The identical command with approved escalation executed the meaningful RED. There were no correction compile or PostgreSQL fixture failures. PowerShell's startup `InitializeDefaultDrives` message and Git's future LF-to-CRLF advisory are host messages, not test build diagnostics.
+
+The runner uses fresh disposable SDK containers, read-only source/cache mounts and isolated source copies excluding `.git`, `.superpowers`, `bin` and `obj`; host networking/Docker socket support actual Testcontainers PostgreSQL. NuGet audit is disabled, so no online vulnerability audit is claimed.
+
+Fresh image inspection confirms SDK image ID `sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317` (`mcr.microsoft.com/dotnet/sdk:10.0`) and PostgreSQL image ID `sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873` (`postgres:18.6-alpine`). The focused tests query actual PostgreSQL version `18.6` twice. Fresh logs confirm .NET runtime 10.0.12; the unchanged image's SDK 10.0.401 is recorded in earlier evidence.
+
+### Correction SHA-256 hashes
+
+| File | SHA-256 |
+|---|---|
+| Corrected `CollectionGrantRevocationStore.cs` | `7cd73f4b9d2fb20d5a88e31c3a4c375fca3a6658932f43cbb2ea7a0341b90994` |
+| `CollectionGrantRevocationStoreTests.cs` at RED and both GREEN runs | `3f4fee61658b43f2ef656d439e9735cd4388edebb8087532284d4c635af40ba1` |
+| Unchanged `CollectionGrantRevocationStoreConcurrencyTests.cs` | `fb5608655f32229087a5c03ca30722a3c01765b40c2afc46e556ae42298037a8` |
+| Unchanged `task-2-linux.sh` | `8b969b4840873c170413954b677b40de01fd4e8377bc128e170b4d53c290cab8` |
+| `cerberus-uc37-task2-correction-red.log` | `bd4ddcb24b40823c1046b978dad07e63141f3253961eb40c3dd96d1b2a081ea1` |
+| `cerberus-uc37-task2-correction-focused-green.log` | `e65a9dd069f6b4a8b3c9f8b8674d217acedb889d842ca37329aca886d9d94977` |
+| `cerberus-uc37-task2-correction-data-green.log` | `6e02135b73b294478d25972d14f0fec57cb3bca297d2166bd7784d758da5861c` |
+
+Final focused EXPLAIN JSON hashes: zero unrelated sets `8e6f1abb1959db8d734db9cddb1810c3a1c3f552554b21c56e83d446f4de8c2f`; 24 unrelated sets `fe87c4bf4e52afda69891264d93ba2b4d46f8480348e648ee105dd928a9ce8ce`. These plans are retained in the focused GREEN log; their passing structural row-bound assertions are unchanged.
+
+The TDD, writing-good-tests and verification-before-completion skills governed the correction. Mental mutation check (not an automated mutation engine): restoring either blanket classification fails real trigger and artificial cases; partial rollback fails exact fixture snapshots; missing successful grant/generation mutation fails literal retry assertions; collateral changes fail stable snapshots. Existing legitimate conflict tests remain GREEN. Verification covers the full Data project, not HTTP/native/crypto/security/release qualification; all earlier scope limitations remain in force. Ignored report/progress/logs are excluded from the correction commit.

@@ -148,6 +148,39 @@ public partial class CollectionGrantRevocationStoreTests(PostgresFixture fixture
         var result = await Revoke(s); Assert.Null(result.Error); Assert.Equal(ProtocolBinary.MaxInteger, result.Data!.Revision); Assert.Equal(ProtocolBinary.MaxInteger, await Generation(s));
     }
 
+    // Break: classifying trigger/storage SQLSTATEs as optimistic conflicts or committing either atomic side.
+    [FunctionalTheory][InlineData(true, "23505")][InlineData(false, "23505")]
+    [InlineData(true, "2200H")][InlineData(false, "2200H")]
+    public async Task GivenStorageSqlStateInsideEitherAtomicUpdate_WhenRevoking_Then503AndExactRollbackBeforeCleanRetry(bool grant, string sqlState)
+    {
+        using var s = await Setup(); await Members(s);
+        var profile = await AssociationSetup.Profile(fixture, s.Recipient, s.RecipientKey);
+        await Sql("INSERT INTO cerberus.profile_collection(profile_id,collection_id) VALUES({0},{1})", profile, s.Items.Collection.Id);
+        var other = await AssociationSetup.Items(fixture, s.Owner);
+        await AssociationSetup.Grant(fixture, s.Owner, s.OwnerKey, s.Recipient, s.RecipientKey, other.Collection);
+        var before = await All(s); var stable = await Stable(s);
+        var name = "uc37_storage_" + Guid.NewGuid().ToString("N");
+        var table = grant ? "collection_grant" : "account"; var column = grant ? "revision" : "revocation_generation";
+        await Sql("CREATE FUNCTION cerberus." + name + "() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN "
+            + "RAISE EXCEPTION 'controlled storage failure' USING ERRCODE='" + sqlState + "'; END $$; CREATE TRIGGER " + name
+            + " BEFORE UPDATE OF " + column + " ON cerberus." + table + " FOR EACH ROW WHEN (OLD.id="
+            + (grant ? s.Grant.Id : s.Recipient.InternalId) + ") EXECUTE FUNCTION cerberus." + name + "()");
+        try
+        {
+            var failed = await Revoke(s);
+            Assert.Equal("persistence_unavailable", failed.Error); Assert.Null(failed.Data);
+            Assert.Equal(before, await All(s));
+        }
+        finally { await Sql("DROP TRIGGER " + name + " ON cerberus." + table + "; DROP FUNCTION cerberus." + name + "()"); }
+        Assert.Equal(before, await All(s));
+        var retry = await Revoke(s); Assert.Null(retry.Error); Assert.NotNull(retry.Data);
+        Assert.Equal(s.PathCollection, retry.Data.CollectionId); Assert.Equal(s.PathGrant, retry.Data.GrantId); Assert.Equal(2, retry.Data.Revision);
+        Assert.Equal(stable, await Stable(s)); Assert.Equal(2, await Generation(s));
+        await using var db = fixture.CreateContext(); var saved = await db.CollectionGrants.SingleAsync(x => x.Id == s.Grant.Id);
+        Assert.Equal(CollectionGrantState.Revoked, saved.State); Assert.Equal(2, saved.Revision); Assert.Empty(saved.RecipientKeyEnvelope);
+        Assert.Equal(CollectionGrantAccess.ReadOnly, saved.Access); Assert.NotEqual(s.Grant.ConcurrencyStamp, saved.ConcurrencyStamp);
+    }
+
     [FunctionalTheory][InlineData("policy", "vault_access_denied")][InlineData("recipient", "not_found")][InlineData("grant", "revision_conflict")][InlineData("generation", "revision_conflict")][InlineData("terminal", "revision_conflict")]
     public async Task GivenChangeAtGuardedStatement_WhenRevoking_ThenRejectAndRollback(string state, string error)
     {
@@ -173,12 +206,12 @@ public partial class CollectionGrantRevocationStoreTests(PostgresFixture fixture
         Assert.Equal(error, (await Store(new ThrowingFactory(new Exception("must not persist"))).RevokeAsync(request, default)).Error);
     }
 
-    [FunctionalTheory][InlineData("timeout")][InlineData("cancel")][InlineData("db")][InlineData("update")][InlineData("json")][InlineData("format")][InlineData("wrapped")][InlineData("unique")]
+    [FunctionalTheory][InlineData("timeout")][InlineData("cancel")][InlineData("db")][InlineData("update")][InlineData("json")][InlineData("format")][InlineData("wrapped")][InlineData("unique")][InlineData("sequence")]
     public async Task GivenInternalFailure_WhenRevoking_ThenReturnSafeError(string kind)
     {
         using var s = await Setup(); Exception exception = kind switch
-        { "cancel" => new OperationCanceledException("private"), "db" => new NpgsqlException("private"), "update" => new DbUpdateException("private"), "json" => new JsonException("private"), "format" => new FormatException("private"), "wrapped" => new InvalidOperationException("private", new TimeoutException("private")), "unique" => new PostgresException("private", "ERROR", "ERROR", "23505"), _ => new TimeoutException("private") };
-        await Outcome(s, kind == "unique" ? "revision_conflict" : "persistence_unavailable", factory: new ThrowingFactory(exception));
+        { "cancel" => new OperationCanceledException("private"), "db" => new NpgsqlException("private"), "update" => new DbUpdateException("private"), "json" => new JsonException("private"), "format" => new FormatException("private"), "wrapped" => new InvalidOperationException("private", new TimeoutException("private")), "unique" => new PostgresException("private", "ERROR", "ERROR", "23505"), "sequence" => new PostgresException("private", "ERROR", "ERROR", "2200H"), _ => new TimeoutException("private") };
+        await Outcome(s, "persistence_unavailable", factory: new ThrowingFactory(exception));
     }
 
     [FunctionalTheory][InlineData(false, "revision", 0L)][InlineData(true, "revision", 9007199254740992L)]

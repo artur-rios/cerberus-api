@@ -123,7 +123,6 @@ public sealed class CollectionGrantRevocationStore(IDbContextFactory<AppDbContex
             await tx.CommitAsync(ct);
             return new(new(request.CollectionId, request.GrantId, revision));
         }
-        catch (PostgresException e) when (e.SqlState is "23505" or "2200H") { return new(Error: "revision_conflict"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
         catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException or JsonException or FormatException
             || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException })

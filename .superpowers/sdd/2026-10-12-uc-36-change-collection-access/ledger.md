@@ -37,7 +37,7 @@
 - [x] Task 2 - PostgreSQL permission/generation writer
 - [x] Task 2 review
 - [x] Task 3 - HTTP/docs/OpenAPI/full verification
-- [ ] Task 3 review
+- [x] Task 3 review
 - [ ] Whole-branch review
 - [ ] Exact-head delivery and closeout
 
@@ -491,3 +491,28 @@ Final complete-run SHA-256 values:
 | `cerberus-uc36-task3-full2-test-results.tar.gz` | `01c0a9888b0f006510cc258929d24116ac4d1e4abeba68305d7b53efe7232f2b` |
 | `task-3-full.sh` | `c6ae28cb2c4c98cdaacac6d4c2651b8aed83a52af73be8551dec2b19661d0945` |
 | `task-3-full-inner.sh` | `c88e671ba7b5bd22e8792f7b5e6a7e4494da3f9d5f7bc64b64c031a82e0ad131` |
+
+### Task 3 independent review (2026-10-12)
+
+- Reviewer inspected exact range
+  `ac3c4ec..f09e384a23c3d5c4ba5999ab328990c6f7074b7f` against the
+  complete design, plan and ledger, including route, DI, handler/store/native
+  behavior, HTTP tests, generated OpenAPI and operational documentation.
+- Result: accepted with **0 Critical, 0 Important and 0 Minor** findings. Strict
+  transport, canonical route context, authority precedence, status/output
+  contracts, cancellation, no-store behavior, atomic rollback, both permission
+  directions, selected isolation and regrant behavior all matched the design.
+- Fresh independent read-only-source HTTP run: **114 passed, 0 failed,
+  0 skipped**, exit 0; temporary output only and no repository changes.
+- The reviewer independently reconciled the meaningful RED (109 failures and one
+  existing oversize pass), all **9,406** full-suite passes, raw coverage
+  (**15,624/15,857 lines**, **6,893/7,466 branches**), every assembly's 90%
+  line floor, native Java 173/Python 142/helpers 36/repository helpers 23/corpus
+  322 by four directions, and OSV 153 coordinates with zero findings.
+- All 646 full-run source hashes, 100 native source hashes, 20 native evidence
+  hashes and 39 ledger hash entries matched. Full1's reporting-tool failure and
+  corrected Full2 success were truthfully disclosed.
+- Generated OpenAPI added only the intended PUT and three schemas; shared
+  metadata limitations remained documented. README independently counted
+  **37 Done / 18 Todo**. Exact reviewed head, working tree and whitespace checks
+  were clean. Independent protocol/security/client approval remains external.

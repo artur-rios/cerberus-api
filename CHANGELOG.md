@@ -12,6 +12,16 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Explicit owner-only read-only software access grants (UC-42), with scoped
+  active Heimdall application lookup, native envelope/key binding and one atomic
+  typed target aggregate. Strict POST transport returns only grant ID/revision;
+  exact revoked reactivation replaces the whole key/scope once, while active
+  replay conflicts. Real PostgreSQL/native HTTP tests cover selected ownership,
+  foreign denials, upstream failures and rollback. Software authentication and
+  retrieval (UC-43), revocation (UC-44), client interoperability and independent
+  security/protocol approval remain separate gates. See the
+  [software access API](docs/security/software-access-api.md).
+
 - Owner-only collection access revocation (UC-37) with an exact active-grant
   revision check, wrapper erasure and one atomic recipient-generation increment.
   Old wide and selected handles become stale; fresh access excludes the revoked

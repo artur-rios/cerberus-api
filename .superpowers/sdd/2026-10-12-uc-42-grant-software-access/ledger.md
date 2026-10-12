@@ -31,7 +31,7 @@
 ## Task status
 
 - Task 1: complete at `984fc72e85716d1562cdd9109b64474d97a2a8b4`; independent review APPROVED with no findings; Linux Shared suite 180/180 passed.
-- Task 2: pending
+- Task 2: complete at `42cead548a5f4122d49509d3353116d7544e0520`; independent review APPROVED with no findings; Linux Command suite 1,864/1,864 passed.
 - Task 3: pending
 - Task 4: pending
 - Task 5: pending

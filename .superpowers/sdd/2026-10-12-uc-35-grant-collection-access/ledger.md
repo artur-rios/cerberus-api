@@ -40,7 +40,7 @@
 
 - [x] Task 1 - Domain and application contract (`e33b1a0d810575df69c3e972e41e28d520c02c4e`)
 - [x] Task 1 review
-- [ ] Task 2 — PostgreSQL store and concurrency
+- [x] Task 2 - PostgreSQL store and concurrency
 - [ ] Task 2 review
 - [ ] Task 3 — HTTP/docs/OpenAPI/full verification
 - [ ] Task 3 review
@@ -109,4 +109,72 @@ CI head/base and merge audit here as the work advances.
 - Authority, native pins/signatures, ordered account locking, grant lifecycle,
   ancestry and atomic rollback remain intentionally scoped to Task 2. Transport
   and route behavior remain scoped to Task 3.
+
+### Task 2 implementation
+
+- Added the dedicated PostgreSQL grant store and real PostgreSQL 18.6 tests;
+  no migration, dependency, HTTP registration or unrelated production change.
+- Applied test-driven development, systematic debugging and verification before
+  completion. Initial executable scaffold supplied no grant behavior. Behavioral
+  RED: `cerberus-uc35-task2-behavior-red.log`, 3/3 failed on missing successful
+  initial RO/RW and revoked-regrant outcomes, exit 1. Expanded contract RED:
+  `cerberus-uc35-task2-contract-red.log`, 55 failed / 13 passed / 68 total, exit 1.
+  Compilation-only scaffold/harness diagnostics were corrected before these
+  behavioral runs and are not claimed as behavioral red evidence.
+- First contract GREEN: `cerberus-uc35-task2-contract-green2.log`, 68/68 passed.
+  Subsequent fault RED: `cerberus-uc35-task2-race-red2.log`, 95 passed / 1 failed;
+  a grant changed during final member projection escaped the earlier row check.
+  Moved exact grant-row verification after projection. Expanded GREEN:
+  `cerberus-uc35-task2-expanded-green.log`, 119/119 passed, zero skips.
+- Final focused GREEN: `cerberus-uc35-task2-final-focused.log`, 127/127 passed,
+  zero failures/skips, exit 0. The Linux runner is the ignored
+  `task-2-linux.sh` beside this ledger; it copies the read-only checkout to a
+  disposable SDK 10 container, restores in locked mode with a read-only NuGet
+  fallback cache and runs the real PostgreSQL Testcontainers fixture.
+- Store behavior: target-first authority classification; native-validated foreign
+  denial without requested-recipient locks; distinct active protected recipient;
+  ordered owner/recipient account `FOR UPDATE` in one statement before session,
+  selected owned profile, owned collection and captured grant/collision locks;
+  current authority rechecks after every wait; current native owner/recipient
+  protection parsed once; guarded insert or same-ID exact-revision reactivation;
+  exact direct active member projection with complete same-owner ancestry and no
+  profiles; final grant/projection verification; atomic rollback and cancellation.
+- Confirmed with parent: a self-recipient relationship returns 400
+  `validation_failed`; missing/closing/terminal/unprotected recipients return 404;
+  malformed present protection returns 503.
+- Tests cover selected Master/PerProfile and wide scope; current lifecycle and
+  native binding; hidden versus visible foreign targets; active duplicates,
+  mismatched/stale regrant, collisions, typed terminal reservations, unsafe and
+  exhausted revisions plus max-1 to max; opaque revoked-envelope replacement;
+  exact unchanged account/protection/session/profile/collection/member state;
+  sorted typed direct member roots; ancestry exclusion and active cycle failures;
+  post-write insert/reactivation/projection/native faults and clean retry.
+- Real concurrency evidence includes reciprocal grants, initial/regrant same-pair
+  winners, each owner/recipient/session/profile/collection/grant wait expiry,
+  current state loss after waits, before/after authorization expiry, actual
+  recipient protection and owner membership/trash/rotation writers in both
+  orders. Recipient lifecycle races use real account-lock/update transactions:
+  this repository does not yet contain an account-closure store.
+- An actual grant INSERT blocks on the recipient account's implicit FK lock;
+  `pg_blocking_pids` establishes the blocker. Canonical-order verification waits
+  until the lower recipient blocks the store, then proves the higher owner and
+  target collection remain independently lockable with `NOWAIT`. Captured SQL
+  proves the single ordered account statement and later phase order, exactly one
+  grant-row mutation, no content/ancestor locks, and EXPLAIN ANALYZE reports one
+  target with 100 unrelated collections.
+- Exact-current-source full Data GREEN: `cerberus-uc35-task2-final-data.log`,
+  3,558/3,558 passed, zero failures/skips in 8m05s, exit 0. Invocation:
+  `wsl.exe -d Ubuntu -- bash
+  /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-35-grant-collection-access/task-2-linux.sh
+  cerberus-uc35-task2-final-data all`. The unfiltered project run includes all
+  127 current grant cases. The runner's `-source.sha256` file matches the final
+  workspace: store `7406004b408233bb4f524176ead7177b8c3f78a9b531965911a180aa7fa2f86c`,
+  tests `f7c9845d578dea2342a7e919e8ed2470a400f94ffe5cc85889b166d2ee86cfac`.
+- A preliminary full run also passed 3,550 tests with the earlier 119-case test
+  file, but its outer Bash wrapper exited 1 because the ignored runner was edited
+  while Bash still had it open. It is not the acceptance run; the exact-source
+  rerun above completed with exit 0 and supersedes it.
+- Self-review, source-hash comparison and working/staged whitespace verification
+  completed. Commit subject: `feat: grant collection access atomically`.
+  Independent task review remains pending and parent-controlled.
 

@@ -20,7 +20,7 @@ Collection identity is reserved within the collection kind. Other resource kinds
 
 New collections enter the complete retained owned protection-rotation inventory immediately. Actual native Master and PerProfile rotations include the new collection and current linked content/profile revisions. Omitted, extra, foreign or stale replacements reject before proof consumption. Successful rotation preserves client edit times and typed relationships, advances the collection epoch and revokes old selected access. Rewrapping preserves content and links.
 
-Existing profile/folder/record GET and list operations recalculate current initial membership and inherited visibility with hidden-reference filtering. Collection updates are described below; deletion and membership replacement belong to UC33–34. UC48 must provide durable inherited visibility and offline removals. External key provisioning and authenticated client decryption, shared OpenAPI requiredness/wrapper/empty-413 metadata, and independent security/protocol/client qualification remain release obligations. The owner's development-only review deferral leaves main/tag/release gates intact.
+Existing profile/folder/record GET and list operations recalculate current initial membership and inherited visibility with hidden-reference filtering. Collection updates and deletion are described below; membership replacement belongs to UC34. UC48 must provide durable inherited visibility and offline removals. External key provisioning and authenticated client decryption, shared OpenAPI requiredness/wrapper/empty-413 metadata, and independent security/protocol/client qualification remain release obligations. The owner's development-only review deferral leaves main/tag/release gates intact.
 
 ## List collections (UC30)
 
@@ -207,3 +207,80 @@ Generated OpenAPI includes the route and request/response models, but shared
 requiredness, output-wrapper and empty-413 schema limitations remain. Actual HTTP
 tests enforce the exact runtime shapes. Independent security/protocol review and
 external client decryption/qualification remain release gates.
+
+## Recoverably delete a collection (UC33)
+
+`DELETE /api/collections/{id}` trashes one currently visible owned collection
+for exactly 720 hours. Send current Heimdall authentication, one canonical
+`X-Cerberus-Vault-Access` header, a lowercase dashed nonzero UUID path and bounded
+strict UTF-8 JSON with media type `application/json` (case-insensitive, optionally
+with a UTF-8 charset), containing exactly `{"expectedRevision":1}`. The required
+revision is a positive integer at most `9007199254740991`. Query parameters,
+unknown/duplicate/case-forged fields, numeric strings, ownership, membership,
+grants, wrappers, ciphertext and lifecycle overrides are rejected. Non-JSON,
+compressed, BOM or invalid UTF-8 bodies return 400 `validation_failed`.
+All responses use `Cache-Control: no-store`; shared oversized input is an empty 413.
+
+Success is 200 `collection_deleted` with exactly `collectionId`,
+`trashOperationId`, `revision`, `serverSequence`, `deletedAt` and `purgeAt`.
+The revision advances once, the sequence becomes a greater safe integer, and
+both timestamps are UTC at PostgreSQL microsecond precision, exactly 720 hours
+apart. No envelope, association snapshot, grant, identity, wrapper or key is returned.
+
+Wide owner access permits an active owned target. Selected Master or PerProfile
+access requires its current direct profile/collection link; selection loss never
+widens access. Native read-only and read/write recipients cannot delete a collection.
+A visible foreign target returns 403 `vault_access_denied` after validating its
+current signed grant binding, collection envelope/epoch and owner/recipient pins.
+Corrupt relevant native evidence returns 503; hidden, revoked or unselected foreign
+targets return nonrevealing 404 before stale revision or irrelevant corruption.
+
+The collection retains its ciphertext, client edit time, owner and key epoch.
+Every stored profile/collection, collection/folder and collection/record link is
+removed, with sorted distinct public IDs retained in one restricted typed trash
+entry. The snapshot includes inactive links and recipient-owned profile links;
+it contains no grants or wrappers. Each distinct active directly linked owned
+profile, folder and record advances its revision, sequence and concurrency stamp
+once. Foreign profiles and inactive resources do not advance. Underlying records
+and folders stay active with the same opaque content, parent, owner, edit time and
+direct noncollection links. Owner direct access survives; inherited recipient
+GET/list visibility disappears immediately.
+
+Every active target grant becomes Revoked and advances revision once. Already
+revoked grants stay exact. Grant identity, recipient, access and opaque wrapper
+bytes are retained; recipient sessions remain valid. This does not rotate keys,
+destroy client copies or promise immediate offline removal. Restore must never
+reactivate these grants. UC51 must revalidate all restored links, including current
+ownership and a newly active grant for recipient profile links; re-sharing requires
+the sharing use cases. The retained collection remains in complete protection
+rotation inventory. UC48 supplies durable offline visibility removal.
+
+The atomic transaction locks the actor account/session, ordered linked owned and
+selected profiles, target collection, active owned folders/records, grants and
+typed links. It locks no foreign account/profile/protection or unrelated content.
+Current authority is rechecked after waits; the complete captured graph is reloaded
+under locks and checked again in the guarded lifecycle update. New unheld links or
+changed captured state conflict; harmless disappearance uses the fresh graph.
+Membership removal, owned structural bumps, grant revocation, one trash operation,
+one typed entry and one `trash/{operationId}` retention item commit together.
+
+Missing identity/access returns 401; invalid current session/selection returns 403.
+Inactive or terminal actors, targets or owners and hidden targets return 404.
+Stale/exhausted revisions, exhausted sequences, changed captured state or an existing
+typed entry return 409 `revision_conflict`. Required stored/native corruption,
+outage, timeout, internal cancellation or failed post-write verification return
+503 `persistence_unavailable`; unavailable current identity is 503
+`identity_unavailable`. Caller cancellation propagates. Owned damaged ciphertext
+can be trashed unchanged. Any post-write failure rolls back the entire graph;
+sequence gaps are allowed. Same-revision concurrent deletion has one winner.
+A lost-success retry returns 404 and cannot create another operation or extend
+the deadline.
+
+UC50–53 trash listing, restoration, emptying and physical expiry remain later work;
+missing collection retention handlers currently retry. A restored collection must
+reconcile its old typed entry before another trash operation. The generated OpenAPI
+includes this route and models; shared advertised media-type, requiredness,
+output-wrapper and empty-413 schema limitations remain, with actual HTTP tests
+enforcing the runtime contract. Formatter-advertised `text/json` and
+`application/*+json` request types are rejected at runtime.
+Independent security/protocol and external-client qualification remain release gates.

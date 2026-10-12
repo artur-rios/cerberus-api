@@ -80,6 +80,9 @@ public static class Startup
         builder.Services.AddScoped<IRecordCreateStore, RecordCreateStore>();
         builder.Services.AddScoped<ICollectionCreateStore, CollectionCreateStore>();
         builder.Services.AddScoped<ICollectionUpdateStore, CollectionUpdateStore>();
+        builder.Services.AddScoped<ICollectionTrashStore, CollectionTrashStore>();
+        builder.Services.AddScoped<IValidator<DeleteCollectionCommand>, DeleteCollectionValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<DeleteCollectionCommand, DeleteCollectionOutput>, DeleteCollectionHandler>();
         builder.Services.AddScoped<IValidator<UpdateCollectionCommand>, UpdateCollectionValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<UpdateCollectionCommand, UpdateCollectionOutput>, UpdateCollectionHandler>();
         builder.Services.AddScoped<ICollectionListStore, CollectionListStore>();

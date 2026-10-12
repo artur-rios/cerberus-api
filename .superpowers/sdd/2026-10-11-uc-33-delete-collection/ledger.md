@@ -309,4 +309,21 @@ review. The final reviewer is fresh and receives the full base-to-head package.
 
 ### Final review and delivery
 
-- Status: pending
+- Status: whole-branch review approved; remote delivery pending.
+- Review range: `36d60041beeb3e53c9fa6ba2440d62fdde7046da..2843b5c4290744ac224c843347b1667289eeabb6`
+  (seven commits, original base through corrected tested head).
+- Fresh ordinary whole-branch review: **Ready to merge: yes**; Critical 0,
+  Important 0 unresolved, Minor 1 acknowledged. The reviewer confirmed all five
+  review-focus statements, Main and AF-01 through AF-05, all four design rulings,
+  the media-type RED/correction, scope/security/privacy and the recorded 8,248-test,
+  coverage and native evidence.
+- Deferred minor: generated OpenAPI advertises `text/json` and
+  `application/*+json` while runtime accepts only parsed `application/json`.
+  Reason: this is an existing shared generator metadata limitation, explicitly
+  documented, and runtime now fails closed with 400. Cost: a generated client may
+  select an advertised unsupported type and receive 400; shared media-type,
+  requiredness, wrapper and 413 metadata must be corrected before client
+  qualification.
+- Declined review scope: independent protocol/security approval, external-client
+  interoperability, future UC48/UC50-53 behavior, production-scale performance and
+  remote CI/merge state remain separate gates.

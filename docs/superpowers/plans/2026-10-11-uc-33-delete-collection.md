@@ -168,11 +168,11 @@ explicitly. Existing create/list/detail/update endpoints remain unchanged.
 
 ## Final review and delivery
 
-- [ ] Build one original-base-to-tested-head review package containing the design,
+- [x] Build one original-base-to-tested-head review package containing the design,
   plan, five review-focus statements, all rulings and verification evidence. Dispatch
   one fresh ordinary whole-branch reviewer. Apply at most one blocking TDD correction
   pass; defer nonblocking minors with explicit rationale and cost.
-- [ ] Re-run exact changed-scope and full verification after any correction. Confirm
+- [x] Re-run exact changed-scope and full verification after any correction. Confirm
   clean worktree and unchanged base assumptions.
 - [ ] Push `feature/uc-33-delete-collection`, open one PR into `develop` closing issue
   34, attach it to this chat and move the project item to Testing.

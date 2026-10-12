@@ -26,6 +26,7 @@
 
 - Ruling: Use `d730c91c1b3577802fc12568959054900d14b71d` as the branch base because the fetched post-UC-37 change is limited to attribution-license/WakaTime files. Cost if wrong: another semantic change hidden in that commit would require rebase and renewed review.
 - Ruling: Physical cascades are allowed only at existing terminal account/target/grant removal boundaries; logical trash and revocation must preserve the aggregate until their own state transitions. Cost if wrong: later lifecycle work may require an explicit audit-preservation migration.
+- Ruling: Linux is the binding verification host. The Windows test run exposed the repository's existing CNG, durable-erasure, path, and resource-limit incompatibilities; the isolated Linux SDK run passed Domain (361), Shared (125), Query (606), and Command (1,753), and the exact base SHA passed the repository's GitHub Actions `Tests` workflow (run 38296953001). Cost if wrong: a Windows-specific regression would not be represented by the project-supported Linux evidence.
 
 ## Task status
 

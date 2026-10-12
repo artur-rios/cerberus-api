@@ -30,7 +30,7 @@
 
 ## Task status
 
-- Task 1: pending
+- Task 1: complete at `984fc72e85716d1562cdd9109b64474d97a2a8b4`; independent review APPROVED with no findings; Linux Shared suite 180/180 passed.
 - Task 2: pending
 - Task 3: pending
 - Task 4: pending

@@ -12,7 +12,7 @@ Account-wide access permits empty relationships or multiple owned active profile
 
 The collection, direct profile/collection, collection/folder and collection/record links commit atomically. Each distinct explicitly linked profile, folder and record advances structural revision, server sequence and concurrency stamp once. Overlapping direct folder and record membership preserves both typed links. Existing ciphertext, client edit times, parent references, protection, key wrappers, grants, unrelated relationships, recipient metadata and prior trash operations remain exact. Ancestors, inherited descendants and nonlinked profiles receive no fabricated direct changes. Owned grouping does not decrypt or repair damaged existing member ciphertext; required changed structural metadata is validated.
 
-The transaction locks the own account and session, requested/selected profiles, contributing owned collections, requested folders and requested records in that order. Collections precede content, as in current native recipient editors. No foreign account, profile, grant or upward ancestor chain is locked. Current authority is rechecked after each wait and inside the guarded INSERT, which is the authorization boundary. Completing that authorized atomic operation after later natural expiry is permitted. Changed valid captured state or newly needed unheld scope requires reload and retry. Current permission loss is returned before uniqueness or stale metadata inspection. Controlled owner and native recipient writer races are tested; the separate implicit recipient-account FK audit remains required before UC35 introduces grant creation.
+The transaction locks the own account and session, requested/selected profiles, contributing owned collections, requested folders and requested records in that order. Collections precede content, as in current native recipient editors. No foreign account, profile, grant or upward ancestor chain is locked. Current authority is rechecked after each wait and inside the guarded INSERT, which is the authorization boundary. Completing that authorized atomic operation after later natural expiry is permitted. Changed valid captured state or newly needed unheld scope requires reload and retry. Current permission loss is returned before uniqueness or stale metadata inspection. Controlled owner and native recipient writer races are tested; UC35 below records the completed implicit recipient-account FK audit and compatible grant lock order.
 
 Malformed/unknown/duplicate/case-forged fields, invalid envelope/time/typed IDs, compressed/non-UTF8/BOM transport and malformed/repeated access headers return 400. Shared oversized input returns an empty 413. Missing identity or access is 401; revoked, expired, superseded or invalid selected access is 403. Hidden, missing, foreign, trashed or terminal relationships and inactive accounts return nonrevealing 404. A retained or permanently reserved collection ID, stale captured state or exhausted revision/sequence capacity returns 409 `revision_conflict`. Relevant active ancestry cycles, required structural corruption and unavailable persistence return 503 `persistence_unavailable`, without private dependency detail or success data. Hidden/incomplete ancestry is rejected before corrupt content inspection; unrelated cycles are ignored.
 
@@ -345,8 +345,8 @@ no foreign account/profile, unrelated content or upward ancestor. Current author
 and the captured graph/native evidence are rechecked after waits and inside the
 guarded collection update. Newly needed unheld links, members, grants or changed
 evidence require 409 and a reload. Current access/lifecycle loss wins over stale
-revision. The separate recipient-account foreign-key lock audit remains required
-before UC35 introduces grant creation.
+revision. The recipient-account foreign-key lock audit is complete; UC35 below
+documents the ordered dual-account grant writer compatible with this lock order.
 
 Envelope/edit metadata, direct membership replacement and structural counters
 commit together. Each distinct active owned direct record/folder in the symmetric
@@ -376,3 +376,98 @@ OpenAPI includes the route and models; shared advertised media-type, requirednes
 output-wrapper and empty-413 schema limitations remain. Actual HTTP tests enforce
 the runtime contract. Independent security/protocol and external-client
 qualification remain release gates.
+
+## Grant collection access (UC35)
+
+`POST /api/collections/{id}/grants` creates an explicit recipient grant or
+reactivates a revoked one. Send current Heimdall authentication, exactly one
+canonical `X-Cerberus-Vault-Access` handle, a canonical lowercase dashed nonzero
+collection UUID and bounded strict UTF-8 JSON. No query parameters are accepted.
+The parsed media type must be exactly `application/json` case-insensitively, with
+an optional valid UTF-8 charset. Compression, BOMs, invalid UTF-8 and alternate
+JSON media types are rejected. Every response is no-store; oversized input is an
+empty 413.
+
+The body has exactly five required fields: `grantId`, `recipientAccountId`,
+`expectedRevision`, `access`, and `keyEnvelope`. Both IDs are canonical nonzero
+UUIDs; the recipient ID is its public Cerberus account ID. `expectedRevision`
+must be explicitly `null` for initial creation, or a positive safe current grant
+revision below `9007199254740991` for regrant. Access is exactly `read-only` or
+`read-write`. Missing, unknown, duplicate or case-forged fields, numeric strings,
+forged actor/owner/profile context and plaintext are rejected.
+
+The strict `cerberus-recipient-wrap-v1` envelope must bind the submitted grant ID,
+revision 1 or `expectedRevision + 1`, current owner account ID and author pin,
+resource kind `collection`, target collection ID and current key epoch, and the
+current recipient Heimdall identity and recipient-key pin. Incorrect caller
+binding, stale keys/pins or a wrong signature returns 400 `validation_failed`.
+The server never decrypts, generates or returns the wrapped root. Recipient-key
+discovery, authenticated trust establishment and client decryptability remain
+external qualification requirements.
+
+Success is 201 `collection_access_granted`. Its data has exactly `collectionId`,
+`grantId`, `revision`, `access`, sorted unique `recordIds` and sorted unique
+`folderIds`. These arrays contain direct active same-owner members with complete
+active same-owner ancestry. Descendants of shared folders resolve dynamically
+through existing GET/list rules. No profile IDs, account identities, internal IDs,
+collection/recipient envelopes, protection material or keys appear in this output.
+
+Only the active owner may administer grants. Wide access permits an active owned
+collection; selected Master or PerProfile access additionally requires its exact
+current profile/collection link. Selection is preserved. A visible native foreign
+RO/RW target returns 403 only after its relevant grant, collection envelope/epoch,
+recipient identity and current owner/recipient pins validate; corrupt relevant
+native evidence returns 503. Hidden, absent, revoked or unselected foreign targets
+return nonrevealing 404 before inspecting the requested recipient.
+
+The recipient must be distinct, active, nonterminal and currently protected.
+Self-grants return 400. Missing, closing, terminal or unprotected recipients return
+404. Present malformed recipient protection, malformed owner protection or
+malformed stored collection envelope/epoch returns 503. A recipient needs no
+session or profile, and granting creates no profile association. Account-wide
+recipient reads see the grant immediately. Selected recipient access remains
+isolated until an explicit permitted association is established through the
+existing profile-association API.
+
+An active pair always conflicts, even for identical bytes; POST is not an
+idempotent replay and UC36 owns active permission changes. Regrant requires the
+same public grant ID and exact current revoked revision. It preserves the row,
+collection and recipient, advances revision once, becomes Active, and replaces
+access, envelope and concurrency stamp. Old revoked envelope bytes are not
+authority. Stale/missing expectations, a different grant ID, public-ID collision,
+terminal reservation, unsafe/exhausted stored revision or a concurrent winner
+returns 409 `revision_conflict` and preserves the winning state. Reload current
+permitted state before retrying; a lost successful response also returns 409.
+
+The mandatory PostgreSQL recipient-FK audit is complete. Owner-only account
+locking reproduced reciprocal deadlock through the INSERT's implicit recipient
+`FOR KEY SHARE`. The grant writer therefore locks both owner and recipient
+accounts together, ordered by public UUID, with `FOR UPDATE` before the actor
+session, selected owned profile, target collection and captured grant/collision
+rows. It never acquires a recipient-account lock after a collection/grant or
+upgrades an earlier weak account lock. Foreign denials acquire no requested
+recipient lock. Current authority and captured state are rechecked after every
+wait; the guarded insert/reactivation is the authorization linearization point.
+Natural expiry after that statement does not undo an authorized atomic result.
+
+Only one grant row changes. Collection identity, ciphertext, epoch, revision,
+sequence, memberships and owner metadata, plus both accounts' protection/session/
+profile graphs, remain exact. Final saved-row and member projection verification
+occurs before commit. Any write or post-write fault rolls back the grant; a clean
+retry can succeed. No descendant content locks or fabricated direct memberships
+are introduced. Real PostgreSQL tests cover reciprocal grants and lifecycle,
+protection, membership, delete, rotation and same-pair races.
+
+Malformed transport or caller material is 400; missing/current-rejected identity
+or missing access is 401. Invalid current access/selection or valid visible
+foreign administration is 403. Hidden/inactive actors, targets and recipients
+are 404. Required stored/native corruption, database failure, internal timeout
+or failed post-write verification is 503 `persistence_unavailable`; unavailable
+current identity is 503 `identity_unavailable`. Errors have no success data or
+private dependency details. Caller cancellation propagates.
+
+UC37 owns explicit revocation and UC48 owns durable offline visibility additions
+and removals; copied plaintext or roots cannot be recalled. Shared generated
+OpenAPI requiredness, wrapper, media-type and empty-413 schema limitations remain
+documented; actual HTTP tests enforce the runtime contract. Independent
+security/protocol and external-client qualification remain release gates.

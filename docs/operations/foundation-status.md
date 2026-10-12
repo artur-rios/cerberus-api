@@ -111,8 +111,8 @@ operation/queue. Independent trash keeps its deadline; active recipient reads
 hide deleted content while grants remain active. Complete protection rotation
 includes retained members. UC48 durable inherited visibility and UC50–53 trash
 listing/restore/empty/physical expiry remain release obligations; missing trash
-handlers currently retry. Before UC35, audit implicit recipient-account FK locks
-against strong owner account writers. Shared metadata and independent formal
+handlers currently retry. UC35 below records the completed implicit recipient-account
+FK audit against strong owner account writers. Shared metadata and independent formal
 security/protocol/client qualifications remain development-only deferred.
 
 UC28 adds [owned folder parent moves](../security/folder-api.md#move-a-folder-uc28).
@@ -124,7 +124,7 @@ Only root and distinct changed immediate parents advance metadata. Independent
 trash/deadlines stay unchanged. Current GET/list inheritance recalculates, while
 UC48 durable inherited visibility and independent client qualification remain
 release obligations. Collection-before-content locking aligns existing recipient
-editors; the implicit recipient-account FK audit remains mandatory before UC35.
+editors; UC35 below records the completed implicit recipient-account FK audit.
 
 UC29 adds [owned encrypted collection creation](../security/collection-api.md).
 Current selected access permits only already-visible owned members; foreign native
@@ -134,7 +134,7 @@ atomically. Existing opaque content, keys, grants, recipient metadata and prior
 trash remain exact. New collections enter complete native protection rotation.
 UC48 durable inherited visibility, external key provisioning/decryption, shared
 OpenAPI metadata and independent security/protocol/client release qualification
-remain obligations. The separate recipient-account FK audit remains before UC35.
+remain obligations. UC35 below records the completed recipient-account FK audit.
 
 UC31 adds [encrypted collection detail](../security/collection-api.md#get-an-encrypted-collection-uc31)
 with exact selected-profile collection admission, current native RO/RW bindings,
@@ -168,9 +168,9 @@ The restricted trash snapshot keeps public association IDs, including recipient
 profile links. UC51 must revalidate restored links and never reactivate revoked
 grants; UC53 must supply collection physical expiry. Missing retention handlers
 currently retry. Retained collections stay in complete protection rotation.
-UC48 durable offline visibility removal, the pre-UC35 recipient-account FK audit,
-shared OpenAPI metadata and independent security/protocol/client qualification
-remain release obligations.
+UC48 durable offline visibility removal, shared OpenAPI metadata and independent
+security/protocol/client qualification remain release obligations. UC35 below
+records the completed recipient-account FK audit.
 
 UC34 adds [atomic collection membership replacement](../security/collection-api.md#replace-collection-membership-uc34).
 An owned collection's direct records/folders and same-epoch opaque client key
@@ -182,6 +182,22 @@ members advance structural metadata. Current recipient GET/list visibility
 recalculates immediately, including dynamic descendants. HTTP integration covers
 strict transport, current authority precedence, native recipient denials, one
 same-revision winner, rollback and clean retry. UC48 offline removals, client
-manifest/decryptability qualification, the pre-UC35 recipient-account FK audit,
-shared OpenAPI metadata and independent protocol/security approval remain
-separate obligations. Operational retry guidance is in the linked API contract.
+manifest/decryptability qualification, shared OpenAPI metadata and independent
+protocol/security approval remain separate obligations. UC35 below records the
+completed recipient-account FK audit. Operational retry guidance is in the linked
+API contract.
+
+UC35 adds [owner-only collection access grants](../security/collection-api.md#grant-collection-access-uc35).
+Initial RO/RW grants and explicit same-ID revoked regrants validate current native
+owner/recipient pins, identity, collection epoch and grant revision. The mandatory
+recipient-account FK audit is complete: PostgreSQL reproduced the implicit
+key-share reciprocal deadlock, and the writer now locks both accounts together
+in public-UUID order before any collection/grant lock. Current authority is
+rechecked after waits and at the guarded mutation. One grant row and its exact
+direct-member output commit or roll back together, without collection/member or
+recipient protection/profile/session changes. HTTP integration proves strict
+transport, selected-profile isolation, regrant and immediate recipient GET/list
+visibility. UC36 permission changes, UC37 revocation, UC48 durable offline
+visibility, authenticated recipient-key discovery/client decryptability, shared
+OpenAPI metadata and independent security/protocol approval remain separate
+obligations. The linked API contract records conflict and clean-retry guidance.

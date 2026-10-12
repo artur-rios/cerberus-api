@@ -46,7 +46,7 @@ review. The final reviewer is fresh and receives the full base-to-head package.
 
 ### Task 1
 
-- Status: implemented, verified and committed; separate task review pending.
+- Status: implemented, verified, committed and independently approved.
 - Task base: `f4b79b3` (`docs: design collection trash flow`).
 - Scope: seven Domain/Command contract files and `DeleteCollectionHandlerTests.cs`;
   no persistence store, controller, registration or Task 2 implementation.
@@ -69,8 +69,13 @@ review. The final reviewer is fresh and receives the full base-to-head package.
   `dotnet --info` identified denied Windows Service Control Manager access. Approved
   `require_escalated` test executions ran normally, without changing project configuration.
 - Task 1 rulings: none. Deferred minors: none. Blockers: none.
-- Commit subject: `feat: define collection trash contract`. The plan's final Task 1
-  checkbox remains unchecked until the controller records the separate task review.
+- Commit: `543b2eda909ee695c28ae3c728c4d9535a0de279`
+  (`feat: define collection trash contract`).
+- Independent review: approved `f4b79b3..543b2ed`; Critical 0, Important 0,
+  Minor 0. Reviewer confirmed strict JSON/trusted context, validation/forwarding,
+  safe result/error mapping, exact contract/snapshot shapes and no Task 2 leakage.
+- Review rulings: sorted/distinct snapshot capture, greater-than-prior sequence
+  enforcement and internal cancellation mapping remain Task 2 responsibilities.
 
 ### Task 2
 

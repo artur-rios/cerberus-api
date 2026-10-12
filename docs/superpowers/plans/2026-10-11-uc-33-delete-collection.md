@@ -84,7 +84,7 @@ ProfileIds,Guid[] RecordIds,Guid[] FolderIds)`. Command exposes only required
 - [x] Implement the Domain and Command contracts using the established record/folder
   trash result validation and `collection_deleted` status mapping.
 - [x] Run focused green and the entire Command test project with zero failures/skips.
-- [ ] Commit `feat: define collection trash contract`; record evidence and obtain a
+- [x] Commit `feat: define collection trash contract`; record evidence and obtain a
   separate task review before Task 2.
 
 ### Task 2: Guarded owner-only collection trash transaction

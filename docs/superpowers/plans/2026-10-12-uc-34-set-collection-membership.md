@@ -59,7 +59,7 @@ under `src/Application/ArturRios.Cerberus.Command/Collections`; create
   contracts and command boundary.
 - [x] Run focused and complete Command tests with zero failures/skips.
 - [x] Commit `feat: define collection membership contract`; update the ledger.
-- [ ] Obtain a separate Task 1 review before Task 2.
+- [x] Obtain a separate Task 1 review before Task 2.
 
 ### Task 2: Guarded membership replacement transaction
 

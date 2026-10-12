@@ -12,6 +12,14 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owner-only atomic collection membership replacement (UC-34), with exact typed
+  member sets and a same-epoch envelope for the client key manifest. Selected access cannot
+  expand its current visibility. Every active native grant validates and keeps
+  its wrapper/revision; only direct symmetric-difference members receive structural
+  bumps. Current GET/list visibility, strict HTTP transport, winner retry and
+  rollback are verified. See the
+  [collection membership API](docs/security/collection-api.md#replace-collection-membership-uc34).
+
 - Recoverable owner-only collection deletion (UC-33), with one exact 30-day
   deadline, atomic membership removal and active grant revocation. Underlying
   records/folders, direct access and opaque content survive; restore cannot revive

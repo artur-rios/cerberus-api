@@ -20,7 +20,7 @@ Collection identity is reserved within the collection kind. Other resource kinds
 
 New collections enter the complete retained owned protection-rotation inventory immediately. Actual native Master and PerProfile rotations include the new collection and current linked content/profile revisions. Omitted, extra, foreign or stale replacements reject before proof consumption. Successful rotation preserves client edit times and typed relationships, advances the collection epoch and revokes old selected access. Rewrapping preserves content and links.
 
-Existing profile/folder/record GET and list operations recalculate current initial membership and inherited visibility with hidden-reference filtering. Collection updates and deletion are described below; membership replacement belongs to UC34. UC48 must provide durable inherited visibility and offline removals. External key provisioning and authenticated client decryption, shared OpenAPI requiredness/wrapper/empty-413 metadata, and independent security/protocol/client qualification remain release obligations. The owner's development-only review deferral leaves main/tag/release gates intact.
+Existing profile/folder/record GET and list operations recalculate current initial membership and inherited visibility with hidden-reference filtering. Collection updates, deletion and membership replacement are described below. UC48 must provide durable inherited visibility and offline removals. External key provisioning and authenticated client decryption, shared OpenAPI requiredness/wrapper/empty-413 metadata, and independent security/protocol/client qualification remain release obligations. The owner's development-only review deferral leaves main/tag/release gates intact.
 
 ## List collections (UC30)
 
@@ -284,3 +284,95 @@ output-wrapper and empty-413 schema limitations remain, with actual HTTP tests
 enforcing the runtime contract. Formatter-advertised `text/json` and
 `application/*+json` request types are rejected at runtime.
 Independent security/protocol and external-client qualification remain release gates.
+
+## Replace collection membership (UC34)
+
+`PUT /api/collections/{id}/members` atomically replaces the direct records and
+folders of one active owned collection and its opaque collection envelope.
+Send current Heimdall authentication, exactly one `X-Cerberus-Vault-Access` header,
+a canonical lowercase dashed nonzero collection UUID, and bounded strict UTF-8
+JSON. No query parameters are accepted. The parsed media type must be exactly
+`application/json` (case-insensitive), optionally with a valid UTF-8 charset.
+Compressed bodies, BOMs, invalid UTF-8 and other JSON media types return 400.
+Every response uses `Cache-Control: no-store`; oversized input is an empty 413.
+
+The body has exactly five required fields: `expectedRevision`, `envelope`,
+`editedAt`, `recordIds` and `folderIds`. Revision is a positive safe integer at
+most `9007199254740991`. Each member array is nonnull and contains distinct
+canonical nonzero UUIDs; empty arrays clear that direct member kind. The same
+UUID may independently identify a record and folder. Unknown, duplicate,
+case-forged or missing fields, numeric strings, plaintext, profile IDs,
+ownership, grants, wrappers, per-member revisions and access overrides are rejected.
+
+The `cerberus-content-v1` envelope must retain the collection's key epoch. A
+changed envelope requires both fresh `keySalt` and fresh `nonce`. An identical
+envelope and unchanged membership remain valid for an expected-revision-controlled
+metadata operation. UTC `editedAt` must be at least
+`0001-01-01T00:00:00.000001Z` and is floored to PostgreSQL microseconds. Older or
+equal client edit times are accepted; revision controls concurrency.
+
+The same-epoch envelope is the opaque client boundary for a member key manifest
+or wrapped-key changes. The server never decrypts it, generates usable member keys,
+or certifies that it contains a usable client manifest. Every active target grant
+must validate its signed owner/collection/recipient binding, epoch, grant revision
+and current protection pins before effective scope changes. Active and revoked
+grant rows, revisions and wrapper bytes are preserved exactly. Revoked and unrelated
+evidence does not poison this operation. Independent protocol review may require a
+different manifest boundary; native server tests do not establish client decryptability.
+
+Success is 200 `collection_membership_set`, with exactly `collectionId`,
+`revision`, `serverSequence`, normalized `editedAt`, sorted `recordIds` and sorted
+`folderIds`. Collection revision advances once and sequence becomes a greater safe
+integer. No ciphertext, identity, internal ID, grant, wrapper, protection material
+or key is returned. Subsequent collection GET returns the replacement envelope and
+current visible direct memberships.
+
+Wide owner access permits active owned members with complete active same-owner
+ancestry. Selected Master or PerProfile access also requires the exact current
+profile/collection link. Every requested member must already be visible through
+the selected profile before replacement, including routes contributed by this
+collection. A selected owner may retain or promote an inherited member to a direct
+link; it cannot import private records/folders or broaden effective visibility.
+Record-only visibility never admits its containing folder. Recipients have no
+membership administration rights: visible native RO and RW targets return 403
+only after relevant native evidence validates. Hidden, revoked or unselected
+targets return nonrevealing 404 before stale revision or irrelevant corruption.
+
+The transaction locks the own account/session, selected owned profile, target
+collection, active target grants, the ordered old/requested folders and records,
+and typed link rows. Collection locks precede content locks. It explicitly locks
+no foreign account/profile, unrelated content or upward ancestor. Current authority
+and the captured graph/native evidence are rechecked after waits and inside the
+guarded collection update. Newly needed unheld links, members, grants or changed
+evidence require 409 and a reload. Current access/lifecycle loss wins over stale
+revision. The separate recipient-account foreign-key lock audit remains required
+before UC35 introduces grant creation.
+
+Envelope/edit metadata, direct membership replacement and structural counters
+commit together. Each distinct active owned direct record/folder in the symmetric
+difference advances revision, sequence and concurrency stamp once. Retained direct
+members, inherited descendants, ancestors, profiles, other collections, parent
+links, opaque member bytes and member client edit times remain exact. Direct folder
+descendants are effective dynamically; no descendant direct rows are fabricated.
+Current recipient GET/list calls immediately observe additions and removals,
+including future descendants of a retained direct folder. Already copied plaintext
+or keys cannot be recalled; UC48 must deliver durable offline visibility removals.
+
+Malformed input or a changed epoch/reused salt or nonce returns 400; missing
+identity/access returns 401; invalid current session/selection or a valid visible
+foreign target returns 403. Missing, foreign-owned, inactive, terminal,
+incomplete-ancestry or out-of-selection members return 404. Stale/exhausted
+revision, concurrent winners, changed captured graphs and exhausted global sequence
+return 409 `revision_conflict`. Relevant active ancestry cycles, required structural
+or native corruption, persistence failure and failed post-write verification return
+503 `persistence_unavailable`; unavailable identity returns 503 `identity_unavailable`.
+Caller cancellation propagates; internal cancellation maps safely to 503.
+
+Two requests with the same revision have one winner. A lost-success retry returns
+409 and preserves the winner. Reload permitted collection metadata before retrying.
+A failure at any write stage rolls back the envelope, links and structural counters;
+a clean retry can succeed. Sequence gaps after rollback are permitted. Generated
+OpenAPI includes the route and models; shared advertised media-type, requiredness,
+output-wrapper and empty-413 schema limitations remain. Actual HTTP tests enforce
+the runtime contract. Independent security/protocol and external-client
+qualification remain release gates.

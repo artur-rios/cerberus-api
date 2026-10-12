@@ -11,6 +11,36 @@ namespace ArturRios.Cerberus.Shared.Identity;
 public sealed partial class HeimdallClient(HttpClient client, CerberusOptions options, HeimdallTokenValidator tokens) : IHeimdallClient
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions ApplicationJson = new(Json)
+    { PropertyNameCaseInsensitive = false, RespectNullableAnnotations = true };
+
+    public async Task<HeimdallApplicationStatus> VerifyApplicationAsync(Guid applicationId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (applicationId == Guid.Empty || options.HeimdallScopeId == Guid.Empty) return HeimdallApplicationStatus.Unavailable;
+        var credential = options.HeimdallServiceCredential ?? string.Empty;
+        if (await tokens.ValidateServiceAsync(credential) is null) return HeimdallApplicationStatus.Unavailable;
+        var response = await SendAsync(HttpMethod.Get,
+            $"/api/scopes/{options.HeimdallScopeId:D}/applications/{applicationId:D}", null, credential, cancellationToken);
+        if (response.Data is null) return response.HttpStatus == HttpStatusCode.NotFound
+            ? HeimdallApplicationStatus.NotFound : HeimdallApplicationStatus.Unavailable;
+        ApplicationSnapshot? application;
+        try { application = response.Data.Value.Deserialize<ApplicationSnapshot>(ApplicationJson); }
+        catch (JsonException) { return HeimdallApplicationStatus.Unavailable; }
+        if (application is null || application.Id != applicationId || application.ScopeId != options.HeimdallScopeId)
+            return HeimdallApplicationStatus.Unavailable;
+        return application.IsDeleted ? HeimdallApplicationStatus.NotFound : HeimdallApplicationStatus.Active;
+    }
+
+    [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+    private sealed record ApplicationSnapshot(
+        [property: JsonRequired] Guid Id,
+        [property: JsonRequired] string Name,
+        [property: JsonRequired] Guid ScopeId,
+        [property: JsonRequired] Guid OwnerId,
+        [property: JsonRequired] bool IsDeleted,
+        [property: JsonRequired] DateTime CreatedAt,
+        [property: JsonRequired] DateTime UpdatedAt);
 
     public async Task<HeimdallAuthentication> AuthenticateAsync(string email, string password, CancellationToken cancellationToken) =>
         await AuthenticateResponseAsync(await SendAsync(HttpMethod.Post, "/api/auth/login",

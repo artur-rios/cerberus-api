@@ -110,11 +110,11 @@ OpenAPI.
 
 ## Final review and delivery
 
-- [ ] Build one original-base-to-tested-head package containing this design, plan,
+- [x] Build one original-base-to-tested-head package containing this design, plan,
   review priorities, rulings and fresh evidence. Dispatch one fresh whole-branch
   reviewer. Apply at most one blocking TDD correction pass; defer nonblocking minors
   with explicit rationale and cost.
-- [ ] Re-run changed-scope and full verification after any correction; require a
+- [x] Re-run changed-scope and full verification after any correction; require a
   clean worktree and unchanged base assumptions.
 - [ ] Push the feature branch, open one PR into `develop` closing issue #35, attach
   it to this chat and move the project item to Testing.

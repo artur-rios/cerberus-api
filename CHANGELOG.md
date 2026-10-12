@@ -12,6 +12,15 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owner-only collection permission changes (UC-36) with an exact active-grant
+  revision check and mandatory next-revision native recipient envelope. The
+  permission update and recipient account revocation-generation increment commit
+  atomically. Previous wide and selected recipient handles become stale; fresh
+  unlocks preserve permitted reads and enforce read-write/read-only member edits.
+  Strict HTTP transport, six-field output, selected isolation, rollback and clean
+  retry are verified. See the
+  [collection access-change API](docs/security/collection-api.md#change-collection-access-uc36).
+
 - Owner-only collection access grants (UC-35) with strict initial creation and
   explicit same-identity revoked regrant, native recipient-envelope binding and
   read-only/read-write access. Ordered owner/recipient account locking prevents

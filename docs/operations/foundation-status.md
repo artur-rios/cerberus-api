@@ -197,7 +197,22 @@ rechecked after waits and at the guarded mutation. One grant row and its exact
 direct-member output commit or roll back together, without collection/member or
 recipient protection/profile/session changes. HTTP integration proves strict
 transport, selected-profile isolation, regrant and immediate recipient GET/list
-visibility. UC36 permission changes, UC37 revocation, UC48 durable offline
+visibility. UC37 revocation, UC48 durable offline
 visibility, authenticated recipient-key discovery/client decryptability, shared
 OpenAPI metadata and independent security/protocol approval remain separate
 obligations. The linked API contract records conflict and clean-retry guidance.
+
+UC36 adds [owner-only collection permission changes](../security/collection-api.md#change-collection-access-uc36).
+The exact active grant keeps its identity, collection and recipient while access,
+native next-revision envelope, revision and concurrency stamp change. The same
+guarded statement increments recipient account revocation generation exactly once;
+both mutations commit or roll back together. Ordered strong dual-account locks
+precede session, selected profile, collection and grant locks. Current authority,
+native pins and stored grant evidence are rechecked before replacement. HTTP tests
+prove old wide/selected recipient handles become stale, real fresh unlocks retain
+read visibility, read-write permits member content edits and read-only rejects
+them without mutation. Selection remains exact; revoked grants require POST
+regrant. This is online account-wide handle invalidation. UC37 explicit revocation,
+UC48 durable offline changes, external key discovery/decryptability, shared
+OpenAPI metadata and independent security/protocol/client approval remain separate
+release obligations.

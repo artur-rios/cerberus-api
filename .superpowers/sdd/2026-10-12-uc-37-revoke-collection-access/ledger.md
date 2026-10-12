@@ -27,7 +27,7 @@ The ignored `progress.md` is the short-lived SDD recovery map; this force-added 
 
 - Task 1: COMPLETE - Domain and application revocation contract; 75 focused and 1,753 complete Command tests passed.
 - Task 2: COMPLETE - Corrected atomic PostgreSQL revocation writer accepted after fresh full-range re-review; 130 focused and 3,820 complete Data tests passed on PostgreSQL 18.6.
-- Task 3: TODO - HTTP route, integration, documentation and exhaustive verification.
+- Task 3: COMPLETE pending fresh review - strict HTTP revocation, documentation, 90 focused / 9,701 full tests, coverage and native/audit gates passed.
 - Task 4: TODO - Whole-branch review and exact-head delivery.
 
 ## Task 1 implementation evidence
@@ -307,3 +307,155 @@ The TDD, writing-good-tests and verification-before-completion skills governed t
 - Correctly deferred: HTTP/DI/online authorization integration, public documentation/OpenAPI, repository-wide/native/audit/CI gates, performance benchmarks, arbitrary out-of-graph triggers, unchanged adjacent SQLSTATE mappings, client key rotation/copied-material destruction/UC-48 and independent release approval.
 
 Task 2: complete - implementation `11d3d4a4c0f9a929c169800f68ec2f0d9cb62f02` plus correction `1c9921a9a768e31f99b37aece48519846134743f` accepted after fresh full-range re-review; no remaining findings.
+
+## Task 3 implementation and verification (2026-10-12)
+
+- Base: `eaf52c863a15fc8efdf31189e069b8f2571eef3f`; branch `feature/uc-37-revoke-collection-access`.
+- Task 3 is COMPLETE pending fresh review. Task 4 remains TODO under controller ownership. No push, PR, issue/project update, merge or delivery operation occurred.
+- Scope is exactly the DELETE action, three scoped DI registrations, the new HTTP integration suite, generated OpenAPI, collection security/foundation documentation, CHANGELOG, README and this ledger. Reviewed Tasks 1-2 and unrelated files are unchanged. No repository-local AGENTS.md was found.
+- The TDD skill and writing-good-tests reference governed missing-route RED and independent behavior assertions. Systematic debugging identified fixture assumptions and native harness line-ending failures. Verification-before-completion governed the final source/evidence reconciliation and whitespace checks.
+
+### RED and focused GREEN
+
+| Run name (cerberus-uc37-task3- prefix) | Passed | Failed | Result |
+| --- | ---: | ---: | --- |
+| http-red | 5 | 83 | Expected absent-route RED, exit 1 |
+| http-red-final | 5 | 84 | Final preimplementation absent-route RED, exit 1 |
+| http-green-first | 83 | 6 | Test-fixture assumptions exposed, exit 1 |
+| http-green | 89 | 0 | Corrected integration GREEN, exit 0 |
+| http-final | 90 | 0 | Exact final source, including database-wait cancellation, exit 0 |
+
+All runs had zero skips. Every final RED failure was the absent DELETE route returning 405 (83 enum MethodNotAllowed assertions and one raw status assertion). The five RED passes were existing shared middleware: the oversized-body empty 413 and four rejected-identity cases. None is counted as new failing behavior. Native fixture signing, initial POST grants, compilation and actual PostgreSQL startup all succeeded before the route/DI implementation.
+
+The final RED test source was captured before production edits as task-3-red-tests.cs. The initial RED source is retained as task-3-initial-red-tests.cs, reconstructed from the original creation content; it predates corrected existing move-route probes and the additional maximum input revision rejection. The 89-test GREEN source is retained as task-3-green-89-tests.cs. The current final test source has the final 90-case suite.
+
+The first GREEN's six failures were five selected create probes with empty profile IDs (existing create authorization correctly returned 403 before evaluating a hidden folder) and one corrupt historical-access owner-reduction probe that incorrectly expected 503. Selected probes now supply their exact profile; corrupt access is tested through the relevant visible foreign native-validation path. The reviewed revocation store deliberately preserves historical access while reducing authority. No production correction was needed. The final added cancellation test proves a real request is blocked by an actual PostgreSQL account-lock holder via pg_blocking_pids, then proves caller cancellation removes the database waiter before the holder releases and leaves exact snapshots unchanged.
+
+The HTTP suite verifies both access values; wide/Master/PerProfile owner and recipient handles; pre-revocation lists, details and read-only/read-write member edits; exact three-field success and secrecy; exact revoked row, empty wrapper, changed stamp and generation +1; stale old handles including unrelated data; real fresh account/profile challenge/proof access; absent direct/inherited collection members; denied record/folder create, update and move paths; unchanged unrelated recipient-owned data; retained inert ProfileCollection links; and UC35 regrant at revision 2 using a fresh native revision-3 envelope restoring only the intended linked profile. Owner malformed/empty wrapper and unprotected-recipient reductions succeed. Foreign corruption, hidden targets, lifecycle/session errors, stale/exhausted counters, both atomic trigger faults, missing-table database outage, rollback and clean retry are pinned. Strict canonical path IDs, no query, exactly one header, one-field JSON, duplicate/unknown/case-forged/null/string/unsafe fields, media type/charset/UTF-8/BOM/compression/body limits, no-store and empty 413 are exercised.
+
+Exact focused host invocation (each name above, with focused):
+```text
+wsl.exe -d Ubuntu -- bash /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-37-revoke-collection-access/task-3-focused.sh <name> focused
+```
+
+Inner commands:
+```text
+dotnet restore tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj --locked-mode --ignore-failed-sources -p:NuGetAudit=false -p:TreatWarningsAsErrors=true
+dotnet test tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj --no-restore -c Release -p:TreatWarningsAsErrors=true --filter FullyQualifiedName~CollectionGrantRevocationHttpTests --logger console;verbosity=normal
+```
+
+These focused disposable SDK containers use a read-only source mount, isolated source copy and read-only package cache. Auditing was explicitly disabled only for focused cached-package runs; live audit belongs to the full gate below. Initial sandboxed WSL access returned E_ACCESSDENIED before any tests; approved escalation enabled the actual runs.
+
+### Full six-family Release verification
+
+Authoritative run `cerberus-uc37-task3-full` exited 0 with **9,701 passed, zero failed/skipped**. Fresh TRX parsing independently requires total=passed, zero failed and zero notExecuted in exactly six reports.
+
+| Family | Passed |
+| --- | ---: |
+| Command | 1,753 |
+| Query | 606 |
+| Shared | 125 |
+| Domain | 361 |
+| Data | 3,820 |
+| WebApi | 3,036 |
+
+Data took 9m17s and WebApi 4m54s. Locked solution and generator restore, Release build with warnings-as-errors (0 warnings/errors), live NuGet direct/transitive audit (zero known findings), 23 repository helper tests, specification validation and generated OpenAPI drift/shape gates passed. Specs validated 13 Markdown files, 7 template structures, links/anchors, 107 FRs/55 UCs, 12 features, 29 BRs, 6 milestones and 56 backlog rows. The independent release gate returned exactly its expected exit 1: "Protocol security and client review is pending." The development runner validates that pending-review result and ends 0; no release-approval claim is made.
+
+ReportGenerator 5.5.11 merged exactly six fresh Cobertura collectors at 2026-10-12T16:05:07Z. Aggregate line coverage is **98.5% (15,829/16,066)** and branch coverage **92.1% (7,106/7,712)**. The exact six-production-assembly inventory and every individual 90% line floor passed; test/foreign assemblies are excluded.
+
+| Production assembly | Covered / coverable lines | Line coverage |
+| --- | ---: | ---: |
+| Command | 1,298 / 1,298 | 100% |
+| Query | 580 / 580 | 100% |
+| Shared | 311 / 321 | 96.8% |
+| Domain | 519 / 522 | 99.4% |
+| Data | 12,351 / 12,530 | 98.5% |
+| WebApi | 770 / 815 | 94.4% |
+
+Exact full invocation and key inner commands:
+```text
+wsl.exe -d Ubuntu -- bash /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-37-revoke-collection-access/task-3-full.sh cerberus-uc37-task3-full
+dotnet restore src/ArturRios.Cerberus.sln --locked-mode -p:RestoreAdditionalProjectFallbackFolders=/nuget -p:TreatWarningsAsErrors=true
+dotnet restore tools/OpenApiGen/OpenApiGen.csproj --locked-mode -p:RestoreAdditionalProjectFallbackFolders=/nuget -p:TreatWarningsAsErrors=true
+dotnet tool install --tool-path /opt/uc37-report dotnet-reportgenerator-globaltool --version 5.5.11
+python3 scripts/vulnerabilities.py
+dotnet build src/ArturRios.Cerberus.sln --configuration Release --no-restore -p:TreatWarningsAsErrors=true
+python3 -m unittest discover -s scripts -p test_*.py -v
+python3 scripts/verify_specs.py
+python3 scripts/openapi.py
+python3 /evidence/task-3-check.py shape
+dotnet test src/ArturRios.Cerberus.sln --configuration Release --no-build --logger trx --collect:XPlat Code Coverage
+python3 scripts/coverage.py --report-only
+python3 /evidence/task-3-check.py results
+python3 /evidence/task-3-check.py reconcile
+```
+
+The runner preflights ReportGenerator before tests, archives all six TRX/Cobertura reports immediately after tests and retains the stopped container's exact /work snapshot. Runtime: SDK 10.0.401, .NET/ASP.NET 10.0.12, Linux x64, actual PostgreSQL 18.6-alpine.
+
+Image identities:
+- SDK: sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317.
+- PostgreSQL: sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873.
+- Full runtime cerberus-uc32-verify: sha256:e856488e0619b98ffc029b686b5fa3f7c26e50e23eb67e52dc2859a749aa4f3a.
+- Native runtime cerberus-uc33-native: sha256:3a7bd4e59f6f755cb9bcf90c392f6764823c2ad0c4fdfc07d770cb9803ef480b.
+
+### Native/corpus/audit verification and truthful failed attempts
+
+Final native3 run exited 0. Java **173/173**, Python **142/142**, native helpers **36/36**, repository helpers **23/23**, and **322 corpus cases in all four directions** passed without failures/errors/skips. The current verify.py module performed the replay against the committed corpus and retained the complete result, native suites, known-answer self-tests and provenance. Live OSV at 2026-10-12T15:57:59.460822+00:00 queried **153 package coordinates**, zero findings. Dependencies were freshly hash-locked downloaded/installed; runtime is Python 3.14.8, Temurin 25 and Maven 3.10.0. OSV is a version-based snapshot and does not audit runtime/OS correctness.
+
+Exact final host command:
+```text
+wsl.exe -d Ubuntu -- bash /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-37-revoke-collection-access/task-3-native.sh
+```
+
+The retained task-3-native-inner.sh records fresh venv/wheel/Maven ZIP setup, clean Java tests/dependency tree, live audit.py, current verify.py corpus execution, native/repository helper suites and source reconciliation.
+
+Failed attempts remain separately retained:
+1. native.log exited 127 because the copied Windows CRLF Maven wrapper's shebang was not executable on Linux. No native test pass is attributed to this attempt.
+2. native2.log completed Java tests and live OSV but verify.py returned invalid_protocol. Native diagnostic evidence independently proved Java 173, Python 142 and both six-known-answer self-test sets passed; the rejection was corpus provenance byte hashes, not cryptographic behavior.
+3. Diagnostic comparison proved every differing provenance hash matched after CRLF-to-LF conversion alone. Final native3 normalizes exactly the 44 corpus-provenance inputs plus the Maven wrapper in the isolated copy, verifies each expected corpus digest before execution, and records all **45 raw-source/executed SHA-256 pairs**. Repository files and corpus content remain unchanged. Final reconciliation compares raw source exactly and permits only the explicitly proven LF conversion in these executed copies.
+4. The evidence-checker's corpus helper was corrected before its first successful invocation to call verify(check=...) and serialize the returned result; supplying both output and check is forbidden by that API. The earlier check failed before reaching this helper.
+5. The full-result parser's project key was preflight-corrected before results collection so all six families remain distinct. No full test failure or lost coverage report occurred.
+
+### OpenAPI, docs and closeout
+
+The repository generator ran successfully in isolated mode (`task-3-full.sh cerberus-uc37-openapi generate`). Only the intended DELETE operation and RevokeCollectionAccessCommand, RevokeCollectionAccessOutput and its DataOutput wrapper schemas were added: 273 generated lines. The shape gate removes exactly those additions and requires semantic equality with the entire baseline document; it also pins the eight response statuses, exact path/header parameters, one required nonnullable revision input and exact three output properties.
+
+Collection security docs, foundation status, CHANGELOG and README describe wrapper erasure, account-wide online invalidation, retained inert links and explicit revision-bound regrant. Independent PowerShell and Python tracker counts both find exactly **55 business rows: 38 Done / 17 Todo**, with UC37 Done in feature content only (M04 now 3/6). No external tracker was changed.
+
+The raw full/native source manifests both bind **662** tested source/test/helper/tool/contract files. They match each other, the final worktree and the final 90-test HTTP file exactly. The eight deliverable hashes are separately retained. All **38** evidence/runner/snapshot hashes are in task-3-evidence-manifest.json (excluding the manifest itself, mutable report/progress and this self-referential ledger), SHA-256 **ef7aa2883927d6f423f9e98622829a37b2ae251564d4b0a0656c6f2967fe2b9f**. Fresh worktree and base-range git diff --check passed. Ignored scripts, snapshots, logs, reports and evidence are excluded from the commit.
+
+A mental mutation check maps missing/wrong route, context, status map, strict transport or output to the HTTP matrix; dropped cancellation to the observed database-wait cancellation test; missing wrapper erasure or generation change to exact row/stale-handle checks; unauthorized or collateral writes to unchanged snapshots; removed profile links or widened regrant scope to exact retained-link and isolated-profile assertions.
+
+Limitations remain explicit: copied roots, ciphertext and plaintext cannot be recalled; this endpoint does not rotate/re-encrypt client keys; UC48 durable offline delivery is not implemented here; shared generated metadata cannot express all runtime transport/output requirements; authenticated recipient-key discovery/external decryptability and independent protocol/security/client approval remain release obligations. No unresolved Task 3 production finding is known; fresh Task 3 review remains required.
+
+### Task 3 exact deliverable SHA-256
+
+| File | SHA-256 |
+| --- | --- |
+| `src/Presentation/ArturRios.Cerberus.WebApi/Controllers/CollectionsController.cs` | `0d466c3effc9973af4985586f51a520420e20056a62ac050b72b41c290642846` |
+| `src/Presentation/ArturRios.Cerberus.WebApi/Startup.cs` | `e0f0627d3490523e7a2900789370935ac560d3c967b0403ff5ce02c34112d6f3` |
+| `tests/Presentation/ArturRios.Cerberus.WebApi.Tests/CollectionGrantRevocationHttpTests.cs` | `3945b74e4771a892b165c72f8eeb3332aa5a3779b08ad0701a70c319f83fec61` |
+| `docs/contracts/openapi.json` | `bf62e4251a62fa6a9d9e0e99763cb33799059e230dd31a21a29080045f4d87be` |
+| `docs/security/collection-api.md` | `ce7ae7ae202daf5a5309093cd63336d73e7b3976e60f4f53bd1c4140ca585537` |
+| `docs/operations/foundation-status.md` | `9d8c3a089299ad987b4cbca7da58211aae8fec2d75fc01225daa0a084268075a` |
+| `CHANGELOG.md` | `57c80cf2921fa7935b9d9950157a80876ffe718baf213f055644da545636c8f5` |
+| `README.md` | `3df80fae920a1ca35105216dc3a8318399e31b8763f2fc64273c643eb26122fd` |
+
+### Task 3 primary evidence SHA-256
+
+| File | SHA-256 |
+| --- | --- |
+| `cerberus-uc37-task3-http-red-final.log` | `c861b172b04564403bdc9b0fdfe65410ddb504d6883fe681e1aa1441e5b65077` |
+| `cerberus-uc37-task3-http-final.log` | `bcc0c3bc01daa32eb06ef27f6dfee1b65738ae7a72d3308437f8138adc021f27` |
+| `cerberus-uc37-task3-full.log` | `3abff0641caaa1b354a118bc60bf0ef969fc131a5965b89d644c9a128bb25148` |
+| `cerberus-uc37-task3-full-evidence.json` | `9444fcbc14cdac905694562fa466e13f57b772845fb71d31afc58f30277f8752` |
+| `cerberus-uc37-task3-full-coverage-summary.json` | `674d4c9100acbb5de877a724d2aad680dae3093b59f237cf4e2285038f3fcf02` |
+| `cerberus-uc37-task3-full-source-sha.json` | `a06f6bd818490a1ee00c8f9d7f61bc0dee99e33c96ce127e216f3de2e6d36d83` |
+| `cerberus-uc37-task3-full-test-results.tar.gz` | `873184c2979d94d6aeb2c4676158dd54860d8ac6334cace3fc05e21e7d8658f5` |
+| `native3.log` | `f4be39d1a4ca49c18ac16da2af093b8b3651fa7f2d1cde6aa83b37ea40d82090` |
+| `native3-source-sha.json` | `a06f6bd818490a1ee00c8f9d7f61bc0dee99e33c96ce127e216f3de2e6d36d83` |
+| `native-summary.json` | `665c074183a92c3e48ccc31205d8b9c3a7c1f3cb4e1c40a18ea47c8b14c4ffd7` |
+| `native-corpus-result.json` | `89e62bc5eaab08c9796aec812fbcc55bfa15cd18db141b29345a071c783245c3` |
+| `native-audit.json` | `72e7cc61663a5a4f549438ae23395c33456041c62cb9fc0f1faeb3a90dface96` |
+| `native-runtime-normalization.json` | `4441597718aca6b8a0a23b3603d98c9619c127f05af956e891ecf957afae763c` |
+| `task-3-check.py` | `d9d0e7c10a2e85d1b8aa2bdbb9c38bef600508fc9bce5f5e442d1c279f389f5e` |

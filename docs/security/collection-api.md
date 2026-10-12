@@ -466,7 +466,7 @@ or failed post-write verification is 503 `persistence_unavailable`; unavailable
 current identity is 503 `identity_unavailable`. Errors have no success data or
 private dependency details. Caller cancellation propagates.
 
-UC37 owns explicit revocation and UC48 owns durable offline visibility additions
+UC37 below implements explicit online revocation and UC48 owns durable offline visibility additions
 and removals; copied plaintext or roots cannot be recalled. Shared generated
 OpenAPI requiredness, wrapper, media-type and empty-413 schema limitations remain
 documented; actual HTTP tests enforce the runtime contract. Independent
@@ -560,9 +560,89 @@ returns 503 `persistence_unavailable`; unavailable current identity returns
 precede caller revision and replacement-envelope binding. Errors carry no success
 data or private dependency details. Caller cancellation propagates.
 
-Account-wide generation invalidation provides online enforcement. UC37 owns
+Account-wide generation invalidation provides online enforcement. UC37 below implements
 explicit grant revocation and UC48 owns durable offline permission/addition/removal
 delivery; copied plaintext or roots cannot be recalled. Authenticated recipient-key
 discovery, external client decryptability and independent security/protocol/client
 approval remain release gates. Shared generated OpenAPI requiredness, wrapper,
 media-type and empty-413 limitations remain; HTTP tests enforce the runtime shape.
+
+## Revoke collection access (UC37)
+
+`DELETE /api/collections/{id}/grants/{grantId}` revokes one current active grant.
+Send current Heimdall authentication, exactly one canonical
+`X-Cerberus-Vault-Access` handle, and lowercase dashed nonzero UUIDs in both path
+positions. No query parameters are accepted. The body contains exactly
+`{"expectedRevision":1}`: a positive safe integer strictly below
+`9007199254740991`. Missing, duplicate, unknown or case-forged fields, numeric
+strings and caller-supplied authority are rejected with 400 `validation_failed`.
+The bounded body must be strict UTF-8 JSON with parsed media type exactly
+`application/json` (case-insensitive), optionally with a valid UTF-8 charset.
+Invalid UTF-8, BOMs, compression and alternate JSON media types are rejected.
+Every response is no-store; oversized input returns an empty 413.
+
+Success is 200 `collection_access_revoked`, with exactly `collectionId`,
+`grantId` and `revision`. The revision advances once. The response contains no
+access/state, account/recipient identity, profile/internal ID, generation,
+envelope, pin or usable key. The stored grant keeps its identity, collection,
+recipient and historical access, becomes revoked, receives a new concurrency
+stamp and has its recipient wrapper replaced with empty bytes.
+
+Only current owner access can revoke. Wide access admits the active owned
+collection; selected Master or PerProfile access additionally requires the exact
+selected profile's current collection link. A visible foreign read-only/read-write
+actor receives 403 only after its relevant native grant, collection and current
+owner/recipient protection pins validate. Relevant foreign corruption returns 503.
+Hidden, revoked, unselected or absent foreign targets return nonrevealing 404
+without inspecting the requested grant. Owner reduction deliberately does not
+parse old recipient-wrapper bytes: malformed or empty old wrappers cannot prevent
+removal. An active recipient need not still have a protection row.
+
+The requested grant must be active, nonterminal and belong to this exact owned
+collection and a distinct active nonterminal recipient. Missing, revoked, terminal,
+cross-collection or inactive-recipient cases return 404 `not_found`. Retrying an
+already committed revocation is therefore 404; reload permitted state before
+deciding whether an explicit regrant is wanted. Stale revisions, exhausted safe
+grant/generation counters and captured concurrent changes return 409
+`revision_conflict`. Unsafe persisted counters and required stored corruption
+return 503 `persistence_unavailable`.
+
+The transaction captures target authority, then locks both accounts in public-UUID
+order with `FOR UPDATE`, followed by actor session, selected owner profile,
+collection and exact grant. Authority and captured state are rechecked after lock
+waits. One guarded statement is the database-time authorization point: grant
+revocation and the dependent recipient generation increment commit together.
+Natural session expiry after this point does not undo an authorized result.
+Post-write checks require the exact revoked row, empty wrapper, advanced revision,
+generation +1 and no active pair. Collection/member metadata, both accounts'
+unrelated fields, protection, profiles, links and sessions remain unchanged. A
+write, trigger or post-write fault rolls back both mutations; a clean retry can
+succeed. Caller cancellation propagates without a partial commit.
+
+All previously issued recipient handles, wide and selected, become stale and
+return 403 `vault_access_denied`, including handles used for unrelated owned data.
+A fresh account unlock or selected-profile challenge issues a current handle.
+Current list/detail projections then exclude the revoked collection and members
+reachable only through it, and direct/inherited writes cannot use that grant.
+Unrelated recipient-owned data remains available after fresh access. Existing
+`ProfileCollection` links are retained but confer no access while the grant is
+revoked. UC35 POST can explicitly regrant the same relationship using the revoked
+revision and a new native envelope bound to the next revision; existing selected
+links then restore only their intended scope.
+
+Missing/current-rejected identity returns 401 `authentication_required`; missing
+vault access returns 401 `vault_access_required`. Invalid current access and valid
+visible foreign administration return 403 `vault_access_denied`. Database outage,
+internal timeout and failed post-write verification return 503
+`persistence_unavailable`; unavailable current identity returns 503
+`identity_unavailable`. Failures contain no success payload or private dependency
+details.
+
+This is online generation invalidation. The server cannot recall copied keys,
+ciphertext or plaintext, and does not rotate client content roots or re-encrypt
+remaining recipients' material. Client rotation and decryptability qualification
+remain separate obligations. UC48 owns durable offline permission/removal delivery;
+disconnected clients do not gain immediate remote erasure from this endpoint.
+Shared generated OpenAPI output-requiredness, wrapper, media-type and empty-413
+metadata limitations remain; HTTP tests enforce the actual transport and shape.
+Independent protocol/security/client approval remains required before release.

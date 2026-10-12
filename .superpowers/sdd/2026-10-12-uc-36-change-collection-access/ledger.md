@@ -33,7 +33,7 @@
 ## Task status
 
 - [x] Task 1 - Domain and application contract
-- [ ] Task 1 review
+- [x] Task 1 review
 - [ ] Task 2 - PostgreSQL permission/generation writer
 - [ ] Task 2 review
 - [ ] Task 3 - HTTP/docs/OpenAPI/full verification
@@ -119,3 +119,25 @@ Exact tested source SHA-256 values (paths relative to the repository):
 | `src/Domain/ArturRios.Cerberus.Domain/Collections/CollectionGrantChangeContracts.cs` | `8d6efe65be0054ce67660a806248cfcc6f78eca25412b5f9d9f480f11b0d1808` |
 | `tests/Application/ArturRios.Cerberus.Command.Tests/ChangeCollectionAccessContractTests.cs` | `6fb40313f025f8e77f0780cc931f2c3447dda4647d12eb7323049ecae4598d51` |
 | `tests/Application/ArturRios.Cerberus.Command.Tests/ChangeCollectionAccessHandlerTests.cs` | `f1bb0762232fd58d1d3d534d075e056014836d4ddc39834475c99cb74b1ddff8` |
+
+### Task 1 independent review (2026-10-12)
+
+- Reviewer inspected exact range
+  `1568ede..b193ae78b3ca939938c40c5dbb963a74d9886675` against the
+  binding design, plan, UC-35 patterns and retained evidence.
+- Result: accepted with **0 Critical, 0 Important and 0 Minor** findings.
+  The reviewer confirmed the exact three-field input, trusted path/session
+  context, revision/envelope agreement, authentication precedence,
+  cancellation forwarding, safe status mapping, fail-closed store result
+  handling and exact six-field output. Task scope remained limited to the
+  contract/application layer and tests.
+- Fresh independent focused run: **121 passed, 0 failed, 0 skipped**, exit 0.
+  The reviewer also reconciled the executable RED (2 expected failures), typed
+  RED (six expected missing-type compiler errors), complete Command GREEN
+  (**1,678 passed**) and every recorded source/runner hash.
+- The first review wrapper attempt ran all 121 tests successfully but ended with
+  exit 127 from a trailing Windows carriage return. A normalized read-only
+  rerun completed with exit 0; no repository or retained evidence file changed.
+- Exact-range whitespace check passed and the reviewed head/working tree were
+  unchanged. PostgreSQL authority, native validation, atomic generation update
+  and HTTP integration remain Task 2/3 gates.

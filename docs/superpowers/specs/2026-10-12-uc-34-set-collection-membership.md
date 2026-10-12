@@ -186,4 +186,3 @@ implicit recipient-account foreign-key lock interaction called out by UC-29.
 4. Permit selected access to retain or promote members already visible through the
    target collection, while forbidding any new effective scope. Requiring an
    independent route would prevent legitimate narrowing and direct-link promotion.
-

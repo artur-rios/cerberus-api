@@ -81,6 +81,9 @@ public static class Startup
         builder.Services.AddScoped<ICollectionCreateStore, CollectionCreateStore>();
         builder.Services.AddScoped<ICollectionUpdateStore, CollectionUpdateStore>();
         builder.Services.AddScoped<ICollectionTrashStore, CollectionTrashStore>();
+        builder.Services.AddScoped<ICollectionMembershipStore, CollectionMembershipStore>();
+        builder.Services.AddScoped<IValidator<SetCollectionMembershipCommand>, SetCollectionMembershipValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<SetCollectionMembershipCommand, SetCollectionMembershipOutput>, SetCollectionMembershipHandler>();
         builder.Services.AddScoped<IValidator<DeleteCollectionCommand>, DeleteCollectionValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<DeleteCollectionCommand, DeleteCollectionOutput>, DeleteCollectionHandler>();
         builder.Services.AddScoped<IValidator<UpdateCollectionCommand>, UpdateCollectionValidator>();

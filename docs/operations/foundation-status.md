@@ -171,3 +171,17 @@ currently retry. Retained collections stay in complete protection rotation.
 UC48 durable offline visibility removal, the pre-UC35 recipient-account FK audit,
 shared OpenAPI metadata and independent security/protocol/client qualification
 remain release obligations.
+
+UC34 adds [atomic collection membership replacement](../security/collection-api.md#replace-collection-membership-uc34).
+An owned collection's direct records/folders and same-epoch opaque client key
+manifest change together. Wide and selected native owner flows are supported;
+selected handles can retain/promote currently visible members but cannot import
+private scope. All active target grants validate before membership changes, while
+their revisions and wrappers remain exact. Only direct symmetric-difference
+members advance structural metadata. Current recipient GET/list visibility
+recalculates immediately, including dynamic descendants. HTTP integration covers
+strict transport, current authority precedence, native recipient denials, one
+same-revision winner, rollback and clean retry. UC48 offline removals, client
+manifest/decryptability qualification, the pre-UC35 recipient-account FK audit,
+shared OpenAPI metadata and independent protocol/security approval remain
+separate obligations. Operational retry guidance is in the linked API contract.

@@ -94,19 +94,19 @@ create
 update collection security/operations/status docs, README, CHANGELOG and generated
 OpenAPI.
 
-- [ ] Write actual HTTP tests first for wide/selected native success, exact output,
+- [x] Write actual HTTP tests first for wide/selected native success, exact output,
   existing GET/list visibility, recipient changes, foreign 403/hidden 404, strict
   route/query/header/media/body transport, current lifecycle and winner retry.
-- [ ] Capture the missing-route RED, add `[HttpPut("{id}/members")]` with
+- [x] Capture the missing-route RED, add `[HttpPut("{id}/members")]` with
   `VaultProofBody`, explicit store/validator/handler registrations, and run focused
   Web green.
-- [ ] Document the exact contract, same-epoch opaque key-manifest boundary, native
+- [x] Document the exact contract, same-epoch opaque key-manifest boundary, native
   grant preservation, offline limitations and M03 completion; regenerate OpenAPI.
-- [ ] Run locked restore/dependency audit, native OSV/corpus/helper suites, specs,
+- [x] Run locked restore/dependency audit, native OSV/corpus/helper suites, specs,
   OpenAPI drift, whitespace, and a fresh unfiltered six-family coverage run. Require
   zero failures/skips and at least 90% line coverage for every production assembly.
-- [ ] Commit `feat: expose collection membership replacement`; update the ledger and
-  obtain a separate Task 3 review.
+- [x] Commit `feat: expose collection membership replacement`; update the ledger.
+- [ ] Obtain a separate Task 3 review.
 
 ## Final review and delivery
 
@@ -123,4 +123,3 @@ OpenAPI.
 - [ ] Confirm issue closed/project Done, README M03 26/26, local/remote feature branch
   deletion, tested-tree equality on `develop`, checkpoint preservation and workspace
   cleanup. Then perform the mandatory pre-UC35 recipient-account FK lock audit.
-

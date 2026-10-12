@@ -157,9 +157,119 @@ receives the task base/head diff and test evidence; the final reviewer is fresh.
 
 ### Task 3
 
-- Status: pending.
+- Status: implementation and full verification complete; separate Task 3 review pending.
+- Base: `49546bb`. Read complete design, plan, preceding ledger and Tasks 1/2
+  production contracts/store. Kept the assigned existing feature checkout and
+  parent-controlled task lifecycle/`ledger.md` established by Task 1.
+- Test-first RED: `wsl.exe -d Ubuntu -- bash
+  /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-34-set-collection-membership/task-3-linux.sh
+  cerberus-uc34-task3-red`, before route/DI existed, exit 1:
+  116 failed / 1 passed / 0 skipped of 117 in 1m10s (`task-3-red.log`).
+  Missing-route responses caused expected-status failures; the six lock-wait
+  probes timed out because no route entered the transaction. One existing identity
+  rejection already passed. All prerequisites compiled and actual endpoint creation
+  succeeded. No Task 1/2 production change was required.
+- Minimal production changes: exact `PUT /api/collections/{id}/members` route,
+  trusted context and response metadata, `VaultProofBody`, explicit store/validator/
+  handler registrations. The shared corrected exact JSON media-type rule is reused.
+- Focused GREEN: same Linux runner with `cerberus-uc34-task3-green`, exit 0,
+  117/117, zero failures/skips in 15s (`task-3-focused.log`).
+- Complete Web GREEN: same runner with `cerberus-uc34-task3-web all`, exit 0,
+  2,727/2,727, zero failures/skips in 3m12s (`task-3-web.log`).
+- Tests exercise actual profile/access/record/folder/collection HTTP prerequisites,
+  owner wide/Master/PerProfile success, exact six fields/sorted IDs, same-epoch
+  envelope replacement, GET detail, recipient GET/list additions/removals, future
+  dynamic descendants, unchanged grant wrappers/revisions, selected private scope
+  and record-container denial, inherited promotion/clear, native RO/RW denial,
+  hidden/native corruption precedence, strict route/header/query/media/body rules,
+  no-store and empty 413, current identity/session/lifecycle and waiting authority
+  changes, same-revision winner/lost retry, outage and post-link-write rollback with
+  clean retry. Account/protection/access and native grant rows are fixture setup;
+  no grant-creation HTTP endpoint exists before UC35.
+- Documentation updated only after focused/full Web passed: security/operations
+  contract, CHANGELOG, README UC34 Done/M03 26/26, foundation status, generated
+  OpenAPI. Release approval and external-client decryptability are not claimed.
+- Required Linux/native scripts and raw logs are retained in this plan workspace:
+  `task-3-full.sh`, `task-3-native.sh`, `task-3-native-python.sh` and
+  `task-3-linux.sh`. Main runners copy the read-only checkout to a disposable
+  `/work`, exclude old bin/obj/TestResults, and use task-specific containers/caches;
+  the explicit Python count run uses the identical preserved native snapshot.
+- Full prerequisite commands in `task-3-full.sh`: `dotnet restore
+  src/ArturRios.Cerberus.sln --locked-mode`, `python3 scripts/vulnerabilities.py`,
+  `python3 scripts/openapi.py --write`, `python3 scripts/openapi.py`,
+  `python3 -m unittest discover -s scripts -p "test_*.py" -v`, and
+  `python3 scripts/verify_specs.py`. All passed; 23 Python helpers, no known direct
+  or transitive NuGet vulnerabilities, no OpenAPI drift. Corresponding raw logs:
+  `task-3-restore.log`, `task-3-nuget-audit.log`, `task-3-openapi-write.log`,
+  `task-3-openapi-drift.log`, `task-3-python-helpers.log`, `task-3-specs.log`.
+  Live `/source` specs were rechecked after README/status edits and passed.
+- Native command: `wsl.exe -d Ubuntu -- bash
+  /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-34-set-collection-membership/task-3-native.sh`,
+  exit 0. Fresh hash-locked wheels/venv, checked Maven 3.10.0 distribution and fresh
+  Maven cache; `mvnw -B -Dmaven.repo.local="$HARNESS_MAVEN_CACHE" -f
+  tools/protocol-harness/java/pom.xml clean test dependency:tree`: 173 tests,
+  zero failures/errors/skips (`task-3-maven.log`). The audit command
+  `"$HARNESS_PYTHON" tools/protocol-harness/audit.py --maven-cache
+  "$HARNESS_MAVEN_CACHE" --wheels "$CERBERUS_PYTHON_WHEELS"
+  --maven-distribution "$CERBERUS_MAVEN_DISTRIBUTION"` passed 153 coordinates,
+  zero findings at 2026-10-12T05:03:22Z (`task-3-native-audit.log`).
+- `"$HARNESS_PYTHON" tools/protocol-harness/verify.py --check
+  docs/security/interoperability-vectors.json`: 322 cases, four directions,
+  both complete native suites (`task-3-native-corpus.log`).
+  `python3 -m unittest discover -s tools/protocol-harness/tests -v`: 36/36
+  (`task-3-native-helpers.log`). An explicit native Python suite run from the
+  identical preserved native snapshot recorded 142/142, zero failures/errors/skips
+  (`task-3-native-python.log`, `task-3-native-python.sh`). Its first diagnostic
+  one-line shell attempt lost a variable at the Windows/Bash boundary and ran no
+  tests; the explicit script corrected command transport, not product code.
+- `python3 scripts/verify_protocol.py`: exit 1, exactly `BLOCKED: Protocol
+  security and client review is pending.` (`task-3-protocol-gate.log`). This
+  expected independent release gate is not represented as development approval.
+- Runtime evidence (`task-3-runtime.log`, `task-3-native-runtime.log`): Linux x64
+  Debian 12, .NET SDK 10.0.401, .NET/ASP.NET 10.0.12, PostgreSQL 18.6-alpine,
+  CPython 3.14.8, Temurin 25.0.4.1+1, Maven 3.10.0, ReportGenerator 5.5.11.
+- Task 3: Ruling: normalize the 44 Windows CRLF protocol provenance files only
+  in the disposable native copy and only when the resulting SHA-256 exactly
+  matches committed corpus provenance - follows the established UC33 harness
+  and parent instruction without modifying repository protocol bytes - cost if
+  wrong: a separate platform that intentionally qualifies CRLF would need its
+  own provenance; this run qualifies the committed LF protocol corpus.
+- Task 3: Ruling: remove one trailing blank line from the earlier design, plan
+  and ledger - the required original-base whitespace gate exposed these inherited
+  formatting errors - cost if wrong: no runtime or design behavior changes, only
+  final-file whitespace differs from the earlier review snapshot.
+- Generated OpenAPI was copied from the actual generator and matched SHA-256
+  `9efe97184897a61d6b9b2598e377f8aa7a6acb57957fe7d352085ad1f7dd9409`.
+  Parsed route metadata has exactly 200/400/401/403/404/409/413/503; the command
+  schema has exactly five required properties and output exactly six properties.
+  Existing broader advertised JSON types, nullability/requiredness/wrapper and
+  empty-413 schema limitations remain documented, not silently claimed fixed.
+- Snapshot/worktree byte equality: controller SHA-256
+  `4b80a2cee22146161e02545dc8fbbee221139a8466272d39a30fb456068d8ad2`, Startup
+  `51a71ab9c1e2c9b74159ccb7f811d2931e98183ad8e923e924e607dd4232102c`, HTTP tests
+  `36ed8e70da538e85658f2c59cf29cc01a0968a93dba917ab56f9823ff03dda4d`.
+- Authoritative full command: `wsl.exe -d Ubuntu -- bash
+  /mnt/d/Repositories/cerberus-api/.superpowers/sdd/2026-10-12-uc-34-set-collection-membership/task-3-full.sh`,
+  exit 0. It runs unfiltered `python3 scripts/coverage.py`, which invokes
+  `dotnet test /work/src/ArturRios.Cerberus.sln --collect:XPlat Code Coverage`.
+  Fresh six-family total: 8,687/8,687, zero failures/skips; Domain 361,
+  Shared 125, Query 606, Command 1,437, Data 3,431 (7m51s), Web 2,727 (3m07s).
+  Six new Cobertura collectors merged at 2026-10-12T05:12:12Z:
+  line 98.4% (15,758/16,002), branch 92.6% (6,414/6,926).
+  Every production assembly exceeds 90% line: Command 1,162/1,162 (100%),
+  Data 12,282/12,468 (98.51%), Domain 511/514 (99.42%), Query 623/623 (100%),
+  Shared 355/365 (97.26%), WebApi 825/870 (94.83%). Per-assembly threshold
+  and exact six-assembly inventory independently checked from
+  `task-3-coverage-summary.json`; complete output is `task-3-coverage.log`.
+- Exact production/test/docs/OpenAPI/plan/ledger diff inspected. Working and
+  original-base `git diff 1283500 --check` pass after the whitespace correction.
+  Task 3 implementation: complete (base `49546bb`; commit
+  `feat: expose collection membership replacement`; evidence above).
+- No Task 3 behavior was consciously deferred; no Task 1/2 runtime change was
+  needed. Separate Task 3 and whole-branch reviews, publishing/PR/CI/merge and the
+  pre-UC35 audit remain parent-controlled later steps. Nothing was pushed and no
+  project item was moved to Testing.
 
 ### Final review and delivery
 
 - Status: pending.
-

@@ -27,7 +27,7 @@ The ignored `progress.md` is the short-lived SDD recovery map; this force-added 
 
 - Task 1: COMPLETE - Domain and application revocation contract; 75 focused and 1,753 complete Command tests passed.
 - Task 2: COMPLETE - Corrected atomic PostgreSQL revocation writer accepted after fresh full-range re-review; 130 focused and 3,820 complete Data tests passed on PostgreSQL 18.6.
-- Task 3: COMPLETE pending fresh review - strict HTTP revocation, documentation, 90 focused / 9,701 full tests, coverage and native/audit gates passed.
+- Task 3: COMPLETE - strict HTTP revocation, documentation and exhaustive gates accepted after fresh exact-range review; 90 focused / 9,701 full tests passed.
 - Task 4: TODO - Whole-branch review and exact-head delivery.
 
 ## Task 1 implementation evidence
@@ -459,3 +459,16 @@ Limitations remain explicit: copied roots, ciphertext and plaintext cannot be re
 | `native-audit.json` | `72e7cc61663a5a4f549438ae23395c33456041c62cb9fc0f1faeb3a90dface96` |
 | `native-runtime-normalization.json` | `4441597718aca6b8a0a23b3603d98c9619c127f05af956e891ecf957afae763c` |
 | `task-3-check.py` | `d9d0e7c10a2e85d1b8aa2bdbb9c38bef600508fc9bce5f5e442d1c279f389f5e` |
+
+## Task 3 review acceptance
+
+- Reviewed exact range: `eaf52c863a15fc8efdf31189e069b8f2571eef3f..6ef9fa149505356f6f37ed7a799158311587effc`.
+- Fresh reviewer result: zero Critical, zero Important and zero actionable Minor findings; Task 3 is ready for whole-branch review.
+- Independent exact-source HTTP verification: 90 passed, zero failed/skipped, exit 0, against PostgreSQL 18.6 in 27.3 seconds.
+- Retained full evidence independently reconciled to Command 1,753; Query 606; Shared 125; Domain 361; Data 3,820; WebApi 3,036; total 9,701 passed with zero failed/skipped.
+- Raw coverage independently reconciled to 15,829/16,066 lines (98.5%) and 7,106/7,712 branches (92.1%); each production assembly remains above the 90% line floor.
+- All eight deliverable hashes, both 662-file source manifests and all 38 evidence hashes matched. Native normalization/provenance pairs reconciled; retained Java 173, Python 142, helpers 36, repository helpers 23, corpus 322 in all four directions, NuGet zero known findings and live OSV 153/0 evidence are consistent.
+- The reviewer reconfirmed strict transport, exact status/output secrecy, malformed-wrapper reduction, foreign classification, stale/fresh online behavior, direct/inherited denial, unrelated recipient data, inert links, revision-bound regrant, narrow generated contract and accurate 38 Done / 17 Todo documentation.
+- Correctly deferred: actual client rotation/copied-material destruction/UC-48, external-client decryptability and independent protocol/security approval, production load/deployment/OS qualification, and Task 4 whole-branch/exact-head delivery.
+
+Task 3: complete - implementation commit `6ef9fa149505356f6f37ed7a799158311587effc` accepted after fresh exact-range review; no blocking findings.

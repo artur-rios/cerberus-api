@@ -79,6 +79,9 @@ public static class Startup
         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
         builder.Services.AddScoped<IRecordCreateStore, RecordCreateStore>();
         builder.Services.AddScoped<ICollectionCreateStore, CollectionCreateStore>();
+        builder.Services.AddScoped<ICollectionUpdateStore, CollectionUpdateStore>();
+        builder.Services.AddScoped<IValidator<UpdateCollectionCommand>, UpdateCollectionValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<UpdateCollectionCommand, UpdateCollectionOutput>, UpdateCollectionHandler>();
         builder.Services.AddScoped<ICollectionListStore, CollectionListStore>();
         builder.Services.AddScoped<ICollectionReadStore, CollectionReadStore>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetCollectionQuery, CollectionDetailsOutput>, GetCollectionHandler>();

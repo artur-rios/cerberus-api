@@ -15,6 +15,31 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 [Route("api/collections")]
 public sealed class CollectionsController(CommandMediator commands, QueryMediator queries) : ControllerBase
 {
+    [HttpPut("{id}")]
+    [VaultProofBody]
+    [ProducesResponseType(typeof(DataOutput<UpdateCollectionOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<UpdateCollectionOutput?>>> Update([FromRoute] string id,
+        [FromBody] UpdateCollectionCommand command,
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
+    {
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
+            || !Guid.TryParseExact(id, "D", out var collectionId) || collectionId == Guid.Empty || id != collectionId.ToString("D"))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
+        command.SetContext(actor, vaultAccess, collectionId);
+        var result = await commands.ExecuteCommandAsync<UpdateCollectionCommand, UpdateCollectionOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: CollectionUpdateMessages.StatusCodes);
+    }
+
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(DataOutput<CollectionDetailsOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]

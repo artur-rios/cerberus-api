@@ -145,3 +145,16 @@ Required native, ancestry or projection corruption fails without partial output;
 unrelated corruption stays isolated. Actual creation/access HTTP flows cover strict
 transport, current permission removal and no mutation. Independent security/protocol
 and external-client qualification remain release obligations.
+
+UC32 adds [owner-only collection updates](../security/collection-api.md#update-an-owned-collection-uc32).
+Wide or directly linked selected owners may replace opaque envelopes at the current
+revision without changing key epoch, membership, grants or recipient wrappers.
+Visible native RO/RW recipients receive 403 only after their relevant signed
+evidence is validated; hidden targets receive 404. Owner updates are independent
+of grants. Account/session/selection/target locks, current guarded authority and
+post-write verification protect lifecycle races, lost retries and rollback.
+All HTTP responses are no-store; successful updates return only collection ID,
+revision, server sequence and normalized UTC edit time. Shared OpenAPI requiredness,
+wrapper and empty-413 metadata limitations remain; runtime HTTP tests define those
+contracts. Independent security/protocol and external-client qualification remain
+release obligations.

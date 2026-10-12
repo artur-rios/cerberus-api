@@ -41,7 +41,7 @@
 - [x] Task 1 - Domain and application contract (`e33b1a0d810575df69c3e972e41e28d520c02c4e`)
 - [x] Task 1 review
 - [x] Task 2 - PostgreSQL store and concurrency
-- [ ] Task 2 review
+- [x] Task 2 review
 - [ ] Task 3 — HTTP/docs/OpenAPI/full verification
 - [ ] Task 3 review
 - [ ] Whole-branch review
@@ -55,7 +55,6 @@ CI head/base and merge audit here as the work advances.
 ### Task 1 implementation
 
 - Base: `97b3040`; implementation commit: `feat: define collection access grant contract`.
-  Independent task review remains pending and parent-controlled.
 - Read the complete binding design, implementation plan, tracked ledger, and
   adjacent collection command/domain/test and recipient-envelope patterns.
   Applied test-driven development and verification-before-completion.
@@ -176,5 +175,26 @@ CI head/base and merge audit here as the work advances.
   rerun above completed with exit 0 and supersedes it.
 - Self-review, source-hash comparison and working/staged whitespace verification
   completed. Commit subject: `feat: grant collection access atomically`.
-  Independent task review remains pending and parent-controlled.
+
+### Task 2 independent review
+
+- Reviewer model/effort: GPT-6 Astra, ultra.
+- Exact range: `9b43722..0cd9f5fe0edf6f31e00024b379fc1e6471956354`.
+- Findings: Critical 0, Important 0, Minor 2; accepted. The nonblocking
+  test-strength notes are that some same-pair/writer-order outcome tests do not
+  independently prove a database wait, and the EXPLAIN assertion proves target
+  cardinality rather than bounded executor work. Existing stronger tests do use
+  `pg_blocking_pids` for the implicit-FK/canonical-order waits, while static
+  review confirmed that the current member and ancestry queries are rooted in
+  the single target. These notes do not identify a production defect and are
+  retained as future hardening rather than changing accepted Task 2 code.
+- Independent focused PostgreSQL 18.6 rerun: 127/127 passed, zero failures/skips,
+  exit 0. The reviewer confirmed the runner hashes match the final store and test
+  sources; `git diff --check` passed and the tracked tree remained clean. Evidence:
+  `cerberus-uc35-task2-review.log`.
+- Confirmed target-first authority, exact selected-profile handling, hidden 404
+  versus native-validated visible 403, one ordered dual-account `FOR UPDATE`
+  before every later lock, no weak-lock upgrade, current protection/envelope
+  binding, insert/reactivation conflict rules, one-row mutation, direct-root
+  ancestry projection, final saved-row guard, rollback and cancellation.
 

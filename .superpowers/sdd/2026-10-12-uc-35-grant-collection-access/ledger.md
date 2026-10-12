@@ -331,6 +331,8 @@ CI head/base and merge audit here as the work advances.
 ### Task 3 review correction
 
 - Reviewed Task 3 head: `ed7dcba7a8d69c2a5eca0de2d64eb4a8446554b4`.
+- Independent Task 3 review findings: Critical 0, Important 0, Minor 1;
+  accepted subject to the README count correction, which is now complete.
 - Accepted finding: the README headline retained stale totals of 33 implemented
   and 22 remaining business use cases despite the updated backlog tracker.
   Corrected the headline to 36 implemented and 19 remaining, matching the

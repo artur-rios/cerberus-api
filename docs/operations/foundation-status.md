@@ -158,3 +158,16 @@ revision, server sequence and normalized UTC edit time. Shared OpenAPI requiredn
 wrapper and empty-413 metadata limitations remain; runtime HTTP tests define those
 contracts. Independent security/protocol and external-client qualification remain
 release obligations.
+
+UC33 adds [recoverable owner-only collection deletion](../security/collection-api.md#recoverably-delete-a-collection-uc33).
+One atomic transaction retains the collection for 720 hours, removes all typed
+memberships, bumps active directly linked owned resources and revokes active
+grants while preserving their wrappers. Records/folders and direct noncollection
+access survive; recipient online visibility disappears without revoking sessions.
+The restricted trash snapshot keeps public association IDs, including recipient
+profile links. UC51 must revalidate restored links and never reactivate revoked
+grants; UC53 must supply collection physical expiry. Missing retention handlers
+currently retry. Retained collections stay in complete protection rotation.
+UC48 durable offline visibility removal, the pre-UC35 recipient-account FK audit,
+shared OpenAPI metadata and independent security/protocol/client qualification
+remain release obligations.

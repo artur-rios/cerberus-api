@@ -12,6 +12,13 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Recoverable owner-only collection deletion (UC-33), with one exact 30-day
+  deadline, atomic membership removal and active grant revocation. Underlying
+  records/folders, direct access and opaque content survive; restore cannot revive
+  revoked grants. Native selected authority, lifecycle races and rollback are
+  enforced through the strict six-field HTTP contract. See the
+  [collection deletion API](docs/security/collection-api.md#recoverably-delete-a-collection-uc33).
+
 - Owner-only encrypted collection updates (UC-32), with strict expected-revision
   requests, fixed key epoch and fresh salt/nonce for changed envelopes. Updates
   return four metadata fields and preserve memberships, grants and recipient

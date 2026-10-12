@@ -4,7 +4,7 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** foundation infrastructure and 31 business use cases implemented; 24 business
+> **Status:** foundation infrastructure and 32 business use cases implemented; 23 business
 > use cases remain. Independent protocol review is explicitly deferred for development and
 > remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
 > and [foundation status](docs/operations/foundation-status.md).
@@ -86,7 +86,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | --- | --- | --- | --- | --- |
 | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
 | [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 9 / 9 closed |
-| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 24 / 26 closed |
+| [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 25 / 26 closed |
 | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 0 / 6 closed |
 | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 0 / 5 closed |
 | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
@@ -141,7 +141,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [#31](https://github.com/artur-rios/cerberus-api/issues/31) | UC-30 — List collections | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-30-list-collections) | Done |
 | [#32](https://github.com/artur-rios/cerberus-api/issues/32) | UC-31 — Get collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-31-get-collection) | Done |
 | [#33](https://github.com/artur-rios/cerberus-api/issues/33) | UC-32 — Update collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-32-update-collection) | Done |
-| [#34](https://github.com/artur-rios/cerberus-api/issues/34) | UC-33 — Delete collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-33-delete-collection) | Todo |
+| [#34](https://github.com/artur-rios/cerberus-api/issues/34) | UC-33 — Delete collection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-33-delete-collection) | Done |
 | [#35](https://github.com/artur-rios/cerberus-api/issues/35) | UC-34 — Set collection membership | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-34-set-collection-membership) | Todo |
 
 ### M-04 — Controlled sharing and software secrets

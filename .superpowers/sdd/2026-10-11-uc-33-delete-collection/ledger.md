@@ -150,7 +150,89 @@ review. The final reviewer is fresh and receives the full base-to-head package.
 
 ### Task 3
 
-- Status: pending
+- Status: implemented, verified and committed; independent task review pending.
+- Task base: `3e85238` (`docs: record collection trash review`).
+- Scope: collection DELETE action, explicit store/validator/handler registration,
+  `CollectionTrashHttpTests.cs`, collection API/security and foundation operations
+  status, changelog, README UC33/M03 status, generated OpenAPI and task bookkeeping.
+  No Domain, Command, persistence, schema or dependency changes.
+- TDD prerequisite: all native collection creation, profile proof/open and recipient
+  GET fixtures ran through the real HTTP host before the absent DELETE operation.
+  Two initial xUnit2031 test-only analyzer errors were corrected before counting RED.
+- Genuine RED before route/registration:
+  `dotnet test tests/Presentation/ArturRios.Cerberus.WebApi.Tests/ArturRios.Cerberus.WebApi.Tests.csproj --filter FullyQualifiedName~CollectionTrashHttpTests --verbosity minimal`
+  in the established disposable Linux Docker harness exited 1: **92 discovered,
+  87 failed, 5 passed, 0 skipped**. Native owner successes expected 200 and received
+  405 MethodNotAllowed; validation/foreign/hidden cases likewise observed the absent
+  route. Six current-authority wait cases could not observe a lock because no
+  endpoint executed. Shared middleware admitted its existing passing cases.
+  Full output: `task-3-red.log`.
+- Focused GREEN after only controller/DI wiring: the same command exited 0:
+  **92 passed, 0 failed, 0 skipped**, 12 seconds, no warnings.
+  Full output: `task-3-green.log`.
+- HTTP evidence: native wide/Master/PerProfile owner success; exact six response
+  fields, safe counters, UTC microsecond 720-hour deadline and no-store; retained
+  collection bytes/time/epoch/owner, active record/folder content and direct access;
+  complete typed membership snapshots/removal, owned structural bumps, active grant
+  revocation and unchanged wrappers/recipient profiles/sessions; recipient GET/list
+  disappearance. Native RO/RW recipients in all access modes return 403 before stale
+  revisions, hidden targets return 404 before corrupt evidence, and relevant
+  malformed native binding/pins return 503.
+- HTTP failures: strict forged/missing/duplicate/case/numeric bodies, canonical
+  paths, headers/query/UTF-8/BOM/compression/charset/oversize and current identity/
+  account/session state preserve complete snapshots. Real account lock waits
+  reclassify policy/revocation/selection/link/lifecycle/terminal changes. Concurrent
+  same-revision delete has one winner and a lost-success retry returns 404 without
+  extending retention. Required metadata corruption, actual missing-table outage
+  and queue-insert failure return 503; the queue fault rolls back the entire graph,
+  and outage/queue clean retries succeed.
+- Supporting gates: `dotnet restore src/ArturRios.Cerberus.sln --locked-mode`,
+  `python3 scripts/vulnerabilities.py`, `python3 scripts/openapi.py` all exited 0.
+  The dependency scan reports no known direct/transitive vulnerabilities and
+  OpenAPI reports current. The generated route/models retain documented shared
+  requiredness, wrapper and empty-413 schema limitations.
+- Native Linux runtime: CPython **3.14.8**, Temurin **25.0.4.1+1**, .NET SDK
+  **10.0.401**. Fresh hash-locked wheels/Maven distribution and cache; Maven
+  **173 tests, 0 failures/errors/skips**; live OSV audit **153 packages, 0 findings**;
+  committed corpus **322 cases × 4 directions**; native helper suite **36 passed**;
+  Python helper suite **23 passed**. All supporting logs use `task-3-*` names.
+- Native environment diagnosis: first corpus replay returned invalid_protocol after
+  a successful audit. Comparing committed provenance identified **44 Windows CRLF
+  mismatches**, all matching the expected SHA-256 after LF normalization. Normalizing
+  only the disposable Linux copy's protocol source/fixtures produced a successful
+  fresh replay; repository protocol files/evidence were not modified.
+- Specification validation passed: 13 Markdown files, 107 FRs, 55 UCs, 29 BRs,
+  6 milestones and 56 backlog entries. Independent protocol/client review remains
+  explicitly pending: `verify_protocol.py` exited 1 with its expected BLOCKED
+  message; it is not counted as a green release gate.
+- Fresh full unfiltered GREEN:
+  `dotnet test src/ArturRios.Cerberus.sln --collect:"XPlat Code Coverage" --logger trx --verbosity minimal`
+  in the established WSL/Docker Linux harness exited 0: **8,241 passed, 0 failed,
+  0 skipped**. Six fresh TRX/collector families: Domain **361**, Shared **125**,
+  Query **606**, Command **1,327**, Data **3,219** (7m26s), WebApi **2,603** (2m53s).
+  No compiler warnings or errors. Source and package cache were mounted read-only;
+  a disposable `/work` copy excluded prior bin/obj/TestResults, restored locked
+  packages and used the host Docker socket with Testcontainers Ryuk disabled.
+- Merged fresh ReportGenerator coverage: **98.4% line (15,488/15,728)** and
+  **92.4% branch (6,138/6,642)**. All six production assemblies exceed the
+  required 90% line threshold; test/foreign assemblies excluded. Exact evidence:
+  `task-3-full-tests.log`, `coverage/Summary.json`,
+  `task-3-coverage-summary.log` and `task-3-reportgenerator.log`.
+
+  | Production assembly | Line coverage | Branch coverage |
+  | --- | --- | --- |
+  | Command | 100% (1,090/1,090) | 98.0% (1,037/1,058) |
+  | Data | 98.5% (12,113/12,296) | 89.2% (2,795/3,130) |
+  | Domain | 99.3% (496/499) | 96.5% (670/694) |
+  | Query | 100% (623/623) | 98.8% (714/722) |
+  | Shared | 97.2% (355/365) | 88.0% (317/360) |
+  | WebApi | 94.8% (811/855) | 89.2% (605/678) |
+
+- Whitespace: `git diff 36d60041beeb3e53c9fa6ba2440d62fdde7046da --check`
+  exited 0; staged whitespace is checked immediately before the Task 3 commit.
+- Commit subject: `feat: expose collection trash endpoint`. The separate task
+  review and final whole-branch review remain the coordinator's next steps.
+- Task 3 design rulings: none. Deferred minors: none. Implementation blockers: none.
 
 ### Final review and delivery
 

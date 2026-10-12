@@ -142,23 +142,23 @@ operations/status documentation and generated `docs/contracts/openapi.json`.
 and returns `DeleteCollectionOutput`; register the store, validator and handler
 explicitly. Existing create/list/detail/update endpoints remain unchanged.
 
-- [ ] Write actual HTTP tests before the route for native owner wide/selected
+- [x] Write actual HTTP tests before the route for native owner wide/selected
   success, exact six fields/deadline, preserved underlying content and direct access,
   removed memberships, revoked grants and recipient visibility; cover valid foreign
   RO/RW `403`, hidden `404`, strict path/query/header/body/transport, lifecycle and
   concurrency, no-store and no mutation on failure.
-- [ ] Run focused Web tests and capture the expected missing-DELETE RED result with
+- [x] Run focused Web tests and capture the expected missing-DELETE RED result with
   nonzero discovery and working prerequisites.
-- [ ] Add the focused `[HttpDelete("{id}")]`/`[VaultProofBody]` action and explicit
+- [x] Add the focused `[HttpDelete("{id}")]`/`[VaultProofBody]` action and explicit
   store/validator/handler registrations. Run focused HTTP green.
-- [ ] Update security, changelog, operations, README milestone status and generated
+- [x] Update security, changelog, operations, README milestone status and generated
   OpenAPI for exact collection trash, grant-revocation and restore semantics.
-- [ ] Run locked restore and dependency audit; native audit with zero findings,
+- [x] Run locked restore and dependency audit; native audit with zero findings,
   corpus/helper suites, spec validation, OpenAPI drift, full-range whitespace, then
   a fresh unfiltered six-family test/coverage run. Require zero failures/skips and
   every production assembly at least 90% line coverage; report branch coverage.
-- [ ] Commit `feat: expose collection trash endpoint`; record all evidence and obtain
-  a separate task review.
+- [x] Commit `feat: expose collection trash endpoint`; record all evidence.
+- [ ] Obtain a separate Task 3 review before the final whole-branch review.
 
 ## Final review and delivery
 

@@ -74,16 +74,16 @@ Task<VaultResult<CollectionTrashDetails>>`; `CollectionAssociationSnapshot(Guid[
 ProfileIds,Guid[] RecordIds,Guid[] FolderIds)`. Command exposes only required
 `ExpectedRevision` and trusted `SetContext(Guid,string?,Guid)`.
 
-- [ ] Write handler/validator tests first for invalid context/revision, strict body
+- [x] Write handler/validator tests first for invalid context/revision, strict body
   requiredness, no persistence on rejection, exact trusted forwarding and handle
   hashing, caller cancellation, safe error mapping, null/error-with-data/unknown
   results, mismatched IDs/counters/timestamps and exact six-field output.
-- [ ] Run focused Command tests and capture the expected missing-type RED result;
+- [x] Run focused Command tests and capture the expected missing-type RED result;
   prove test discovery and exclude fixture/compiler mistakes unrelated to missing
   production types.
-- [ ] Implement the Domain and Command contracts using the established record/folder
+- [x] Implement the Domain and Command contracts using the established record/folder
   trash result validation and `collection_deleted` status mapping.
-- [ ] Run focused green and the entire Command test project with zero failures/skips.
+- [x] Run focused green and the entire Command test project with zero failures/skips.
 - [ ] Commit `feat: define collection trash contract`; record evidence and obtain a
   separate task review before Task 2.
 

@@ -43,6 +43,30 @@ internal static class ResourceModel
         grant.HasIndex(x=>new{x.CollectionId,x.RecipientAccountId}).IsUnique();grant.Property(x=>x.RecipientKeyEnvelope).IsRequired();grant.Property(x=>x.Revision).IsConcurrencyToken();
         grant.HasOne<VaultCollection>().WithMany().HasForeignKey(x=>x.CollectionId).OnDelete(DeleteBehavior.Cascade);
         grant.HasOne<Account>().WithMany().HasForeignKey(x=>x.RecipientAccountId).OnDelete(DeleteBehavior.Cascade);
+        var softwareGrant = model.Entity<SoftwareGrant>();
+        softwareGrant.ToTable("software_grant");
+        softwareGrant.HasIndex(x => x.PublicId).IsUnique();
+        softwareGrant.HasIndex(x => new { x.AccountId, x.HeimdallSoftwarePublicId });
+        softwareGrant.HasAlternateKey(x => new { x.AccountId, x.Id });
+        softwareGrant.Property(x => x.RecipientKey).IsRequired();
+        softwareGrant.Property(x => x.Revision).IsConcurrencyToken();
+        softwareGrant.HasOne<Account>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Cascade);
+        var softwareRecord = model.Entity<SoftwareGrantRecord>();
+        softwareRecord.ToTable("software_grant_record");
+        softwareRecord.HasKey(x => new { x.GrantId, x.RecordId });
+        softwareRecord.Property(x => x.RecipientKeyEnvelope).IsRequired();
+        softwareRecord.HasOne<SoftwareGrant>().WithMany().HasForeignKey(x => new { x.AccountId, x.GrantId })
+            .HasPrincipalKey(x => new { x.AccountId, x.Id }).OnDelete(DeleteBehavior.Cascade);
+        softwareRecord.HasOne<VaultRecord>().WithMany().HasForeignKey(x => new { x.AccountId, x.RecordId })
+            .HasPrincipalKey(x => new { x.AccountId, x.Id }).OnDelete(DeleteBehavior.Cascade);
+        var softwareCollection = model.Entity<SoftwareGrantCollection>();
+        softwareCollection.ToTable("software_grant_collection");
+        softwareCollection.HasKey(x => new { x.GrantId, x.CollectionId });
+        softwareCollection.Property(x => x.RecipientKeyEnvelope).IsRequired();
+        softwareCollection.HasOne<SoftwareGrant>().WithMany().HasForeignKey(x => new { x.AccountId, x.GrantId })
+            .HasPrincipalKey(x => new { x.AccountId, x.Id }).OnDelete(DeleteBehavior.Cascade);
+        softwareCollection.HasOne<VaultCollection>().WithMany().HasForeignKey(x => new { x.AccountId, x.CollectionId })
+            .HasPrincipalKey(x => new { x.AccountId, x.Id }).OnDelete(DeleteBehavior.Cascade);
     }
     private static void ConfigureResource(ModelBuilder model,Type type,string table)
     {

@@ -35,7 +35,7 @@
 - [x] Task 1 - Domain and application contract
 - [x] Task 1 review
 - [x] Task 2 - PostgreSQL permission/generation writer
-- [ ] Task 2 review
+- [x] Task 2 review
 - [ ] Task 3 - HTTP/docs/OpenAPI/full verification
 - [ ] Task 3 review
 - [ ] Whole-branch review
@@ -240,3 +240,29 @@ ignored ledger siblings):
 | `cerberus-uc36-task2-grant-fault-red.trx` | `7e4d80d3ad8f88f7e733fd836939852d1f6b4666ed19da3ef02dc55c4dfb1ca9` |
 | `cerberus-uc36-task2-focused-final-green.trx` | `6846c139f12dc9bf9333eba2ae982deec34650064bbfd46cbc76aa3d00840d6e` |
 | `cerberus-uc36-task2-data-green.trx` | `1f2e5d8ffda056b6a2ece186987e5856cdf12050864903a75e860dd15579e8c5` |
+
+### Task 2 independent review (2026-10-12)
+
+- Reviewer inspected exact range
+  `9804a3a..801dd8fedd4ff5a1e31cb51a5cd72017565fb699` against the
+  binding design, plan, UC-35 grant writer and adjacent account/session,
+  lifecycle and protection writers.
+- Result: accepted with **0 Critical, 0 Important and 0 Minor** findings. The
+  review confirmed target-first authority classification, 403/404 native
+  validation semantics, canonical strong dual-account locking before all later
+  locks, current native binding, exact error taxonomy, one-statement grant CAS
+  plus recipient-generation increment, exact mutation scope, rollback and
+  post-write grant/generation/direct-root verification.
+- Fresh independent read-only-source PostgreSQL run: **132 passed, 0 failed,
+  0 skipped**, exit 0. The reviewer reconciled the retained complete Data result
+  (**3,690 passed**) and every recorded source, runner and TRX hash.
+- Actual `pg_blocking_pids` evidence, both writer acquisition orders, trigger
+  suppression faults and bounded `EXPLAIN ANALYZE` assertions were checked and
+  accepted as behaviorally meaningful.
+- One initial independent wrapper attempt failed before restore/tests because a
+  Windows/WSL quoting error supplied an empty evidence mount. A normalized
+  base64-transported wrapper succeeded. Its temporary output directory was
+  ephemeral, so the fresh command output—not a new retained TRX hash—is the
+  review evidence. The repository and retained evidence remained unchanged.
+- Exact reviewed head and range whitespace checks were clean. HTTP integration,
+  all-family coverage and native interoperability remain Task 3 gates.

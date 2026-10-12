@@ -33,5 +33,5 @@
 - Task 1: complete at `984fc72e85716d1562cdd9109b64474d97a2a8b4`; independent review APPROVED with no findings; Linux Shared suite 180/180 passed.
 - Task 2: complete at `42cead548a5f4122d49509d3353116d7544e0520`; independent review APPROVED with no findings; Linux Command suite 1,864/1,864 passed.
 - Task 3: complete at `17714325e3c73023eb93a34082573c3e26030196`; independent review APPROVED with no findings; focused schema/migration 10/10 and full Linux solution 9,875/9,875 passed; EF reports no pending model changes.
-- Task 4: pending
+- Task 4: complete at `61945f4170d04a7f2c2935dbcd5888ea656c2f72`; independent review APPROVED with no findings; focused real-PostgreSQL store/concurrency suite 147/147 and full Linux solution 10,022/10,022 passed.
 - Task 5: pending

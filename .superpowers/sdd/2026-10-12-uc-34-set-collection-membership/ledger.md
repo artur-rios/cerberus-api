@@ -35,7 +35,16 @@ receives the task base/head diff and test evidence; the final reviewer is fresh.
 
 ### Task 1
 
-- Status: pending.
+- Status: implementation complete; separate task review pending.
+- Base: `0ce71e7`.
+- Discovery: escalated `dotnet test tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj --no-restore --list-tests --filter FullyQualifiedName~UpdateCollectionHandlerTests --verbosity minimal`, exit 0; existing collection tests listed successfully.
+- RED: focused `dotnet test tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj --no-restore --filter FullyQualifiedName~SetCollectionMembershipHandlerTests --verbosity minimal`, exit 1 with seven CS0246 errors for missing membership types, before any new production code.
+- Task 1: Ruling: preserve the existing `ledger.md` and parent-controlled sequential task lifecycle rather than introducing skill-script `progress.md` bookkeeping - coordinated record and explicit Task 1-only brief govern - cost if wrong: automation expecting the skill's default filename would need adaptation.
+- Windows sandbox .NET attempt returned exit 1 without test execution; approved narrowly scoped `require_escalated` .NET execution provides actual discovery/RED evidence.
+- GREEN: focused Command test command above passed 110/110, zero failures/skips; complete `dotnet test tests/Application/ArturRios.Cerberus.Command.Tests/ArturRios.Cerberus.Command.Tests.csproj --no-restore --verbosity minimal` passed 1,437/1,437, zero failures/skips.
+- Changes: strict five-field Domain/Command input, hashed trusted context, safe-error allowlist, fail-closed null/error-plus-data/mismatched results, safe counters, matching microsecond UTC edit time, distinct typed membership equality and sorted exact six-field output. Store/HTTP/Startup untouched.
+- Verification: `git diff --check` passed; exact staged diff inspected before commit.
+- Task 1: complete (base `0ce71e7`; commit `feat: define collection membership contract`; tests above). Separate implementation review is the next gate before Task 2.
 
 ### Task 2
 

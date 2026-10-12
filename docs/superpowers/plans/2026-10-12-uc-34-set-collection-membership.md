@@ -52,14 +52,14 @@ create `SetCollectionMembershipCommand.cs`, validator, handler, output and messa
 under `src/Application/ArturRios.Cerberus.Command/Collections`; create
 `tests/Application/ArturRios.Cerberus.Command.Tests/SetCollectionMembershipHandlerTests.cs`.
 
-- [ ] Write unit tests first for required fields, typed arrays, envelope/time/revision
+- [x] Write unit tests first for required fields, typed arrays, envelope/time/revision
   validation, trusted context and handle hashing, cancellation, safe store errors,
   malformed results, exact sorted six-field output and no persistence on rejection.
-- [ ] Capture focused missing-type RED with working discovery, then implement the
+- [x] Capture focused missing-type RED with working discovery, then implement the
   contracts and command boundary.
-- [ ] Run focused and complete Command tests with zero failures/skips.
-- [ ] Commit `feat: define collection membership contract`; update the ledger and
-  obtain a separate task review before Task 2.
+- [x] Run focused and complete Command tests with zero failures/skips.
+- [x] Commit `feat: define collection membership contract`; update the ledger.
+- [ ] Obtain a separate Task 1 review before Task 2.
 
 ### Task 2: Guarded membership replacement transaction
 

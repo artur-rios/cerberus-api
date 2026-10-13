@@ -46,5 +46,5 @@
 
 - [x] Write real concurrency tests: two same-policy updates yield one winner; held account/session/profile locks followed by revocation, profile trash or positive policy/revocation change deny/conflict without mutation. Add before/at/after-expiry and post-write fault rollback cases. Run/fix focused suite.
 - [x] Regenerate OpenAPI and document whole-second TimeSpan support, nullable disabled input, required fields, policy version CAS, fresh access after update, stable errors and last-issued disconnected policy. Update changelog/status.
-- [ ] Run locked restore/audit/build, full unfiltered Release suite with coverage, helper/spec/OpenAPI/native corpus and Docker checks; require all pass. One fresh whole-change reviewer must have no unresolved Critical/Important findings.
+- [x] Run locked restore/audit/build, full unfiltered Release suite with coverage, helper/spec/OpenAPI/native corpus and Docker checks; require all pass. One fresh whole-change reviewer must have no unresolved Critical/Important findings.
 - [ ] Update issue47 README status/count, push/open one PR, wait exact-head required CI and merge normally under recorded authorization. Verify issue/project/branch closeout and clean synchronized develop before UC47.

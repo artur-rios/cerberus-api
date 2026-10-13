@@ -41,11 +41,19 @@ public static class ContractRegistration
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             if (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
-                || context.MethodInfo.Name != nameof(SoftwareGrantsController.GrantAccess)) return;
+                || context.MethodInfo.Name is not (nameof(SoftwareGrantsController.GrantAccess)
+                    or nameof(SoftwareGrantsController.RevokeAccess))) return;
             var content = operation.RequestBody!.Content!;
             var json = content["application/json"];
             content.Clear();
             content.Add("application/json", json);
+            if (context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            {
+                ((OpenApiRequestBody)operation.RequestBody!).Required = true;
+                operation.Responses!["413"].Content?.Clear();
+                var id = operation.Parameters!.OfType<OpenApiParameter>().Single(p => p.Name == "id" && p.In == ParameterLocation.Path);
+                id.Schema = new OpenApiSchema { Type = JsonSchemaType.String, Format = "uuid" };
+            }
         }
     }
 }

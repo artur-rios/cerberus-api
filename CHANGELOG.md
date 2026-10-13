@@ -12,13 +12,24 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owner-only software access revocation (UC-44) through strict
+  `DELETE /api/software-grants/{grantId}` with an exact active revision. One
+  guarded transaction advances the revoked revision, empties the recipient key
+  and atomically erases every typed target/envelope row. Nonrevealing denial,
+  current selected-session administration, concurrency/reactivation winners,
+  rollback, clean retry and post-write checks are covered. Success returns only
+  grant ID/revision with no-store; vault data and owner sessions remain unchanged.
+  No Heimdall application call is made. UC-43 remains blocked, copied ciphertext
+  cannot be recalled and offline delivery/security review remain separate gates.
+  See the [software access revocation API](docs/security/software-access-revocation-api.md).
+
 - Explicit owner-only read-only software access grants (UC-42), with scoped
   active Heimdall application lookup, native envelope/key binding and one atomic
   typed target aggregate. Strict POST transport returns only grant ID/revision;
   exact revoked reactivation replaces the whole key/scope once, while active
   replay conflicts. Real PostgreSQL/native HTTP tests cover selected ownership,
   foreign denials, upstream failures and rollback. Software authentication and
-  retrieval (UC-43), revocation (UC-44), client interoperability and independent
+  retrieval (UC-43), client interoperability and independent
   security/protocol approval remain separate gates. See the
   [software access API](docs/security/software-access-api.md).
 

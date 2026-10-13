@@ -87,6 +87,9 @@ public static class Startup
         builder.Services.AddScoped<ICollectionMembershipStore, CollectionMembershipStore>();
         builder.Services.AddScoped<ICollectionGrantStore, CollectionGrantStore>();
         builder.Services.AddScoped<ISoftwareGrantStore, SoftwareGrantStore>();
+        builder.Services.AddScoped<ISoftwareGrantRevocationStore, SoftwareGrantRevocationStore>();
+        builder.Services.AddScoped<IValidator<RevokeSoftwareAccessCommand>, RevokeSoftwareAccessValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<RevokeSoftwareAccessCommand, RevokeSoftwareAccessOutput>, RevokeSoftwareAccessHandler>();
         builder.Services.AddScoped<IValidator<GrantSoftwareAccessCommand>, GrantSoftwareAccessValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<GrantSoftwareAccessCommand, GrantSoftwareAccessOutput>, GrantSoftwareAccessHandler>();
         builder.Services.AddScoped<ICollectionGrantRevocationStore, CollectionGrantRevocationStore>();

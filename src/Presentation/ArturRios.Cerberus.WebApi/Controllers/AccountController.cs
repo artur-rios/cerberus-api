@@ -1,5 +1,6 @@
 using ArturRios.Cerberus.Command.Accounts;
 using ArturRios.Cerberus.Query.Accounts;
+using ArturRios.Cerberus.Query.Offline;
 using ArturRios.Mediator.Command;
 using ArturRios.Mediator.Query;
 using ArturRios.Output;
@@ -14,6 +15,28 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 [Route("api/accounts")]
 public sealed class AccountController(CommandMediator commands, QueryMediator queries) : ControllerBase
 {
+    [HttpGet("me/offline-policy")]
+    [ProducesResponseType(typeof(DataOutput<OfflinePolicyOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<OfflinePolicyOutput?>>> GetOfflinePolicy(
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
+    {
+        if (Request.Query.Count != 0 || HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true
+            || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0
+            || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var rawAccess) ? rawAccess.ToString() : null;
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var identityId) || identityId == Guid.Empty)
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        var result = await queries.ExecuteQueryAsync<GetOfflinePolicyQuery, OfflinePolicyOutput>(
+            new GetOfflinePolicyQuery(identityId, vaultAccess), cancellationToken);
+        return result.ToActionResult(statusMap: OfflinePolicyMessages.StatusCodes);
+    }
+
     [HttpPut("me")]
     [ProducesResponseType(typeof(DataOutput<UpdateAccountOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]

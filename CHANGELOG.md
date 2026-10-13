@@ -12,6 +12,10 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owner-only `GET /api/accounts/me/offline-policy` returns the current saved renewal
+  setting, duration and policy/revocation versions, with a 24-hour initial policy,
+  explicit disabled state, current session checks and no-store responses.
+
 - Owner-only software access revocation (UC-44) through strict
   `DELETE /api/software-grants/{grantId}` with an exact active revision. One
   guarded transaction advances the revoked revision, empties the recipient key

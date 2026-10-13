@@ -6620,16 +6620,6 @@
               "schema": {
                 "$ref": "#/components/schemas/GrantSoftwareAccessCommand"
               }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GrantSoftwareAccessCommand"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/GrantSoftwareAccessCommand"
-              }
             }
           }
         },

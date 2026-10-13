@@ -26,8 +26,28 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.AspNetCore.Builder;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
+
+public sealed class SoftwareGrantContractTests
+{
+    [UnitFact]
+    public void GivenStrictSoftwareGrantRoute_WhenGeneratingOpenApi_ThenAdvertiseOnlyApplicationJson()
+    {
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            ApplicationName = typeof(Startup).Assembly.GetName().Name,
+            Args = []
+        });
+        builder.Services.AddCerberusContracts();
+        using var host = builder.Build();
+        var document = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
+        var operation = Assert.Single(document.Paths["/api/software-grants"].Operations!).Value;
+        Assert.Equal("application/json", Assert.Single(operation.RequestBody!.Content!).Key);
+    }
+}
 
 [Collection("Registration host")]
 public sealed class SoftwareGrantHttpTests(RegistrationApiFixture fixture)

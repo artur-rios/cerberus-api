@@ -30,6 +30,7 @@ using ArturRios.Cerberus.Data.Protection;
 using ArturRios.Cerberus.Query.Protection;
 using ArturRios.Cerberus.Query.Accounts;
 using ArturRios.Cerberus.Query.Offline;
+using ArturRios.Cerberus.Command.Offline;
 using ArturRios.Cerberus.Domain.Offline;
 using ArturRios.Cerberus.Data.Offline;
 using ArturRios.Mediator.Query;
@@ -84,6 +85,9 @@ public static class Startup
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetOfflinePolicyQuery, OfflinePolicyOutput>, GetOfflinePolicyHandler>();
         builder.Services.AddScoped<IOfflinePolicyReadStore, OfflinePolicyReadStore>();
+        builder.Services.AddScoped<IOfflinePolicyUpdateStore, OfflinePolicyUpdateStore>();
+        builder.Services.AddScoped<IValidator<SetOfflinePolicyCommand>, SetOfflinePolicyValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<SetOfflinePolicyCommand, SetOfflinePolicyOutput>, SetOfflinePolicyHandler>();
         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();
         builder.Services.AddScoped<IRecordCreateStore, RecordCreateStore>();
         builder.Services.AddScoped<ICollectionCreateStore, CollectionCreateStore>();

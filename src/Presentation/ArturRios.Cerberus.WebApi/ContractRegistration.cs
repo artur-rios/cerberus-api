@@ -30,27 +30,32 @@ public static class ContractRegistration
                 Version = "v1",
                 Description = "Cerberus encrypted vault API. Identity authentication and vault access are separate."
             });
-            options.OperationFilter<SoftwareGrantRequestContentFilter>();
+            options.OperationFilter<StrictRequestContentFilter>();
         });
         return services;
     }
 
     // Documentation only: runtime rejects unsupported media with 400, not MVC's 415.
-    private sealed class SoftwareGrantRequestContentFilter : IOperationFilter
+    private sealed class StrictRequestContentFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            if (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
+            var policyUpdate = context.MethodInfo.DeclaringType == typeof(AccountController)
+                && context.MethodInfo.Name == nameof(AccountController.SetOfflinePolicy);
+            if (!policyUpdate && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
                 || context.MethodInfo.Name is not (nameof(SoftwareGrantsController.GrantAccess)
-                    or nameof(SoftwareGrantsController.RevokeAccess))) return;
+                    or nameof(SoftwareGrantsController.RevokeAccess)))) return;
             var content = operation.RequestBody!.Content!;
             var json = content["application/json"];
             content.Clear();
             content.Add("application/json", json);
-            if (context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            if (policyUpdate || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 ((OpenApiRequestBody)operation.RequestBody!).Required = true;
                 operation.Responses!["413"].Content?.Clear();
+            }
+            if (context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            {
                 var id = operation.Parameters!.OfType<OpenApiParameter>().Single(p => p.Name == "id" && p.In == ParameterLocation.Path);
                 id.Schema = new OpenApiSchema { Type = JsonSchemaType.String, Format = "uuid" };
             }

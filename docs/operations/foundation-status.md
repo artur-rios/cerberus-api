@@ -1,5 +1,13 @@
 # Foundation implementation status
 
+UC46 adds the [offline policy update](../security/offline-policy-api.md#update-the-policy)
+at `PUT /api/accounts/me/offline-policy`. Three required fields control a positive
+whole-second renewal interval or explicit disabled-null state. Canonical
+account/session/profile locks, rechecks after waits, statement-time expiry and
+postcondition rollback protect the versioned update. It preserves content, grants
+and revocation generation; old-version online sessions require fresh access,
+while disconnected clients retain their last issued lease until reconnect/expiry.
+
 UC45 adds the [owner-only offline policy read](../security/offline-policy-api.md)
 at `GET /api/accounts/me/offline-policy`. Current identity, account lifecycle and
 account-wide or valid own-profile vault authority protect one metadata-only

@@ -689,6 +689,125 @@ namespace ArturRios.Cerberus.Data.Migrations
                     b.ToTable("profile_record", "cerberus");
                 });
 
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Resources.SoftwareGrant", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AccountId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("account_id");
+
+                    b.Property<Guid>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid")
+                        .HasColumnName("concurrency_stamp");
+
+                    b.Property<Guid>("HeimdallSoftwarePublicId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("heimdall_software_public_id");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("public_id");
+
+                    b.Property<byte[]>("RecipientKey")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("recipient_key");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("revision");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer")
+                        .HasColumnName("state");
+
+                    b.HasKey("Id")
+                        .HasName("pk_software_grant");
+
+                    b.HasAlternateKey("AccountId", "Id")
+                        .HasName("ak_software_grant_account_id_id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_software_grant_public_id");
+
+                    b.HasIndex("AccountId", "HeimdallSoftwarePublicId")
+                        .HasDatabaseName("ix_software_grant_account_id_heimdall_software_public_id");
+
+                    b.ToTable("software_grant", "cerberus");
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Resources.SoftwareGrantCollection", b =>
+                {
+                    b.Property<long>("GrantId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("grant_id");
+
+                    b.Property<long>("CollectionId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("collection_id");
+
+                    b.Property<long>("AccountId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("account_id");
+
+                    b.Property<byte[]>("RecipientKeyEnvelope")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("recipient_key_envelope");
+
+                    b.HasKey("GrantId", "CollectionId")
+                        .HasName("pk_software_grant_collection");
+
+                    b.HasIndex("AccountId", "CollectionId")
+                        .HasDatabaseName("ix_software_grant_collection_account_id_collection_id");
+
+                    b.HasIndex("AccountId", "GrantId")
+                        .HasDatabaseName("ix_software_grant_collection_account_id_grant_id");
+
+                    b.ToTable("software_grant_collection", "cerberus");
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Resources.SoftwareGrantRecord", b =>
+                {
+                    b.Property<long>("GrantId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("grant_id");
+
+                    b.Property<long>("RecordId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("record_id");
+
+                    b.Property<long>("AccountId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("account_id");
+
+                    b.Property<byte[]>("RecipientKeyEnvelope")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("recipient_key_envelope");
+
+                    b.HasKey("GrantId", "RecordId")
+                        .HasName("pk_software_grant_record");
+
+                    b.HasIndex("AccountId", "GrantId")
+                        .HasDatabaseName("ix_software_grant_record_account_id_grant_id");
+
+                    b.HasIndex("AccountId", "RecordId")
+                        .HasDatabaseName("ix_software_grant_record_account_id_record_id");
+
+                    b.ToTable("software_grant_record", "cerberus");
+                });
+
             modelBuilder.Entity("ArturRios.Cerberus.Domain.Resources.VaultCollection", b =>
                 {
                     b.Property<long>("Id")
@@ -1167,6 +1286,54 @@ namespace ArturRios.Cerberus.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_profile_record_record_account_id_record_id");
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Resources.SoftwareGrant", b =>
+                {
+                    b.HasOne("ArturRios.Cerberus.Domain.Accounts.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_software_grant_accounts_account_id");
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Resources.SoftwareGrantCollection", b =>
+                {
+                    b.HasOne("ArturRios.Cerberus.Domain.Resources.VaultCollection", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId", "CollectionId")
+                        .HasPrincipalKey("AccountId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_software_grant_collection_collection_account_id_collection_");
+
+                    b.HasOne("ArturRios.Cerberus.Domain.Resources.SoftwareGrant", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId", "GrantId")
+                        .HasPrincipalKey("AccountId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_software_grant_collection_software_grant_account_id_grant_id");
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Resources.SoftwareGrantRecord", b =>
+                {
+                    b.HasOne("ArturRios.Cerberus.Domain.Resources.SoftwareGrant", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId", "GrantId")
+                        .HasPrincipalKey("AccountId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_software_grant_record_software_grant_account_id_grant_id");
+
+                    b.HasOne("ArturRios.Cerberus.Domain.Resources.VaultRecord", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId", "RecordId")
+                        .HasPrincipalKey("AccountId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_software_grant_record_record_account_id_record_id");
                 });
 
             modelBuilder.Entity("ArturRios.Cerberus.Domain.Resources.VaultCollection", b =>

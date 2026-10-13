@@ -2,6 +2,8 @@ using ArturRios.Output;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
+using ArturRios.Cerberus.WebApi.Controllers;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ArturRios.Cerberus.WebApi;
 
@@ -20,12 +22,30 @@ public static class ContractRegistration
             .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = _ =>
                 new BadRequestObjectResult(ProcessOutput.New.WithError("validation_failed")));
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(options => options.SwaggerDoc("v1", new OpenApiInfo
+        services.AddSwaggerGen(options =>
         {
-            Title = "Cerberus API",
-            Version = "v1",
-            Description = "Cerberus encrypted vault API. Identity authentication and vault access are separate."
-        }));
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Cerberus API",
+                Version = "v1",
+                Description = "Cerberus encrypted vault API. Identity authentication and vault access are separate."
+            });
+            options.OperationFilter<SoftwareGrantRequestContentFilter>();
+        });
         return services;
+    }
+
+    // Documentation only: runtime rejects unsupported media with 400, not MVC's 415.
+    private sealed class SoftwareGrantRequestContentFilter : IOperationFilter
+    {
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
+        {
+            if (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
+                || context.MethodInfo.Name != nameof(SoftwareGrantsController.GrantAccess)) return;
+            var content = operation.RequestBody!.Content!;
+            var json = content["application/json"];
+            content.Clear();
+            content.Add("application/json", json);
+        }
     }
 }

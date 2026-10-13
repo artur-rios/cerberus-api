@@ -11,6 +11,7 @@ public sealed record HeimdallRegistration(string Name, string Email, string Pass
 
 public interface IHeimdallClient
 {
+    Task<HeimdallApplicationStatus> VerifyApplicationAsync(Guid applicationId, CancellationToken cancellationToken);
     Task<IdentityUpdateResult> UpdateIdentityAsync(string token, Guid identityId, string name, string email, CancellationToken cancellationToken);
     Task<HeimdallAuthentication> AuthenticateAsync(string email, string password, CancellationToken cancellationToken);
     Task<HeimdallAuthentication> VerifyChallengeAsync(string challenge, string? code, string? recoveryCode, CancellationToken cancellationToken);
@@ -24,3 +25,4 @@ public interface IHeimdallClient
 }
 
 public enum HeimdallAuthorization { Unavailable, Denied, Authorized }
+public enum HeimdallApplicationStatus { Active, NotFound, Unavailable }

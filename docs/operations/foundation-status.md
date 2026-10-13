@@ -5,6 +5,18 @@ The implementation and verification below describe the foundation snapshot of
 2026-10-07. Current business delivery is tracked in the [README backlog](../../README.md);
 UC-01 now exposes account registration. The API remains a development artifact.
 
+UC42 adds [explicit owner-only software grants](../security/software-access-api.md)
+through strict `POST /api/software-grants`. A scoped Heimdall application lookup
+precedes the guarded PostgreSQL transaction. Current owner/selected-profile scope
+and every native target/epoch/software-key binding validate before one normalized
+grant and complete typed target set commit. Exact revoked reactivation replaces
+the whole key/scope at the next revision; active replay conflicts. Success returns
+only grant ID/revision, with no vault-resource mutation. HTTP tests prove strict
+transport, upstream classifications, native foreign denials, selected access,
+rollback and clean retry. UC43 software authentication/retrieval, UC44 revocation,
+UC48 offline delivery, cross-service deletion revalidation and independent
+security/protocol/client and production qualification remain release obligations.
+
 ## Implemented and tested
 
 - Six production layers and six mirrored test projects with central dependency versions.

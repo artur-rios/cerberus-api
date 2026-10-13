@@ -1,5 +1,13 @@
 # Foundation implementation status
 
+UC45 adds the [owner-only offline policy read](../security/offline-policy-api.md)
+at `GET /api/accounts/me/offline-policy`. Current identity, account lifecycle and
+account-wide or valid own-profile vault authority protect one metadata-only
+snapshot. It returns the saved renewal setting/duration and policy/revocation
+versions, defaults to 24 hours, and fails closed on corrupt policy or unavailable
+dependencies. It issues no lease and reads no ciphertext. The owner authorized
+continuing M-05 while UC43 remains blocked on Heimdall #178.
+
 Foundation issue #1 is implemented and reviewed through [PR #57](https://github.com/artur-rios/cerberus-api/pull/57).
 The implementation and verification below describe the foundation snapshot of
 2026-10-07. Current business delivery is tracked in the [README backlog](../../README.md);

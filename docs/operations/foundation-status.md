@@ -5,6 +5,22 @@ The implementation and verification below describe the foundation snapshot of
 2026-10-07. Current business delivery is tracked in the [README backlog](../../README.md);
 UC-01 now exposes account registration. The API remains a development artifact.
 
+UC44 adds [owner-only software access revocation](../security/software-access-revocation-api.md)
+through strict `DELETE /api/software-grants/{grantId}` with exactly one expected
+revision. Current human identity and vault-session authority guard one
+Active-to-Revoked compare-and-set transition; account-owned grant administration
+also accepts a current selected-profile session without widening its selection.
+The transaction advances the revision, empties the recipient public key and
+deletes every typed record/collection target and recipient envelope. Affected-row
+and post-write checks reject partial erasure or collateral changes before commit.
+Vault data, unrelated grants and owner sessions/generation remain unchanged.
+Success returns only grant ID/revision. Command, PostgreSQL store/concurrency and
+HTTP/OpenAPI test families cover strict transport, nonrevealing denial, captured
+state races, UC42 reactivation, rollback/clean retry, no-store and non-disclosure.
+This path makes no Heimdall application call; UC43 remains blocked. Copied
+ciphertext cannot be recalled, UC48 offline delivery remains separate, and
+independent security/protocol/client review remains a release obligation.
+
 UC42 adds [explicit owner-only software grants](../security/software-access-api.md)
 through strict `POST /api/software-grants`. A scoped Heimdall application lookup
 precedes the guarded PostgreSQL transaction. Current owner/selected-profile scope
@@ -13,9 +29,10 @@ grant and complete typed target set commit. Exact revoked reactivation replaces
 the whole key/scope at the next revision; active replay conflicts. Success returns
 only grant ID/revision, with no vault-resource mutation. HTTP tests prove strict
 transport, upstream classifications, native foreign denials, selected access,
-rollback and clean retry. UC43 software authentication/retrieval, UC44 revocation,
-UC48 offline delivery, cross-service deletion revalidation and independent
-security/protocol/client and production qualification remain release obligations.
+rollback and clean retry. UC44 revocation is recorded above. UC43 software
+authentication/retrieval remains blocked; UC48 offline delivery, cross-service
+deletion revalidation and independent security/protocol/client and production
+qualification remain release obligations.
 
 ## Implemented and tested
 

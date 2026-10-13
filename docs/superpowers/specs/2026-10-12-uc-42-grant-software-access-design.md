@@ -1,9 +1,3 @@
-Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
-Hello world!
-[ERROR] Failed on checkpwshupdate command
-Program 'winget.exe' failed to run: An error occurred trying to start process 'C:\Users\Artur\AppData\Local\Microsoft\WindowsApps\winget.exe' with working directory 'D:\Repositories\cerberus-api'. The file cannot be accessed by the system.At C:\Users\Artur\OneDrive\Documentos\PowerShell\Microsoft.PowerShell_profile.ps1:19 char:18
-+ . eckOutput = winget list --id Microsoft.PowerShell --upgrade-available .
-+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.
 # UC-42 Grant software access design
 
 ## Binding and scope

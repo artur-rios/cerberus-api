@@ -103,10 +103,16 @@ public sealed class SoftwareGrantRevocationStore(IDbContextFactory<AppDbContext>
         { RelationallyCorrupt: true } => "persistence_unavailable",
         _ => null
     };
-    private static string? RecheckError(Snapshot current, Snapshot captured) =>
-        current.Stable != captured.Stable || current.Aggregate != captured.Aggregate || current.Collateral != captured.Collateral
-            || current.GrantVisible != captured.GrantVisible || current.ActorActive != captured.ActorActive
+    private static string? RecheckError(Snapshot current, Snapshot captured)
+    {
+        // Captured actor loss is a conflict; an otherwise current actor must still
+        // have session authority before changed evidence can become a conflict.
+        if (!current.ActorActive) return "revision_conflict";
+        if (!current.SessionAllowed) return "vault_access_denied";
+        return current.Stable != captured.Stable || current.Aggregate != captured.Aggregate || current.Collateral != captured.Collateral
+            || current.GrantVisible != captured.GrantVisible
             ? "revision_conflict" : AuthorityError(current);
+    }
     private static object[] Parameters(SoftwareGrantRevocationRequest r, bool authorized = false) =>
     [new NpgsqlParameter("actor", r.Actor), new NpgsqlParameter("verifier", r.AccessVerifier), new NpgsqlParameter("grant", r.GrantId),
         new NpgsqlParameter("active", (object)(int)AccountState.Active), new NpgsqlParameter("active_grant", (object)(int)SoftwareGrantState.Active),

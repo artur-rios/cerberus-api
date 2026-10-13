@@ -92,6 +92,56 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture)
         await Outcome(s, request, error);
     }
 
+    // Break: changed session evidence masking current access denial as a revision conflict.
+    [FunctionalTheory]
+    [InlineData("revoked")][InlineData("policy")][InlineData("generation")]
+    [InlineData("profileDeleted")][InlineData("profileTerminal")]
+    public async Task GivenSessionInvalidatedAfterCapture_WhenRevoking_ThenDenyAccessAndPreserveCommittedWinner(string kind)
+    {
+        using var s = await Setup(); long? profile = null;
+        if (kind.StartsWith("profile"))
+        {
+            profile = await s.Profile(fixture);
+            await Sql("UPDATE cerberus.vault_access_session SET profile_id={1} WHERE handle_verifier={0}", s.Owner.Verifier, profile.Value);
+        }
+        var aggregate = await SoftwareGrantSetup.Aggregate(fixture, s.Grant); string? winnerVault = null;
+        var hook = new BeforeAccountLock(async () =>
+        {
+            // This independent context commits after capture and before the first lock.
+            if (kind == "profileDeleted") await Sql("UPDATE cerberus.profile SET deleted_at=statement_timestamp() WHERE id={0}", profile!.Value);
+            else if (kind == "profileTerminal") await Sql("INSERT INTO cerberus.terminal_erasure(resource_kind,resource_id,deleted_at) SELECT 'profile',public_id,statement_timestamp() FROM cerberus.profile WHERE id={0}", profile!.Value);
+            else await Sql(kind switch
+            {
+                "revoked" => "UPDATE cerberus.vault_access_session SET revoked=true WHERE handle_verifier={0}",
+                "policy" => "UPDATE cerberus.vault_access_session SET policy_revision=2 WHERE handle_verifier={0}",
+                _ => "UPDATE cerberus.vault_access_session SET revocation_generation=2 WHERE handle_verifier={0}"
+            }, s.Owner.Verifier);
+            winnerVault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
+        });
+        var result = await Store(new ProfileSetup.Factory(fixture, hook)).RevokeAsync(Request(s), default);
+        Assert.Equal("vault_access_denied", result.Error); Assert.Null(result.Data); Assert.NotNull(winnerVault);
+        Assert.Equal(aggregate, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
+        Assert.Equal(winnerVault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
+    }
+
+    [FunctionalTheory][InlineData("actor")][InlineData("grant")]
+    public async Task GivenCapturedVisibilityLostBeforeLock_WhenRevoking_ThenConflictAndPreserveCommittedWinner(string kind)
+    {
+        using var s = await Setup(); string? winnerAggregate = null; string? winnerVault = null;
+        var hook = new BeforeAccountLock(async () =>
+        {
+            if (kind == "actor") await Sql("UPDATE cerberus.account SET state=1 WHERE id={0}", s.Owner.InternalId);
+            else Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
+            winnerAggregate = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
+            winnerVault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
+        });
+        var result = await Store(new ProfileSetup.Factory(fixture, hook)).RevokeAsync(Request(s), default);
+        Assert.Equal("revision_conflict", result.Error); Assert.Null(result.Data);
+        Assert.NotNull(winnerAggregate); Assert.NotNull(winnerVault);
+        Assert.Equal(winnerAggregate, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
+        Assert.Equal(winnerVault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
+    }
+
     [FunctionalFact]
     public async Task GivenSelectedProfileWithoutTargets_WhenRevoking_ThenAdministerAccountGrant()
     {
@@ -251,6 +301,16 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture)
         { if (Matches(c, "cas")) written = true; return ValueTask.FromResult(r); }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
         { if (stage == "read" || stage == "post" && written) Fail(); return ValueTask.FromResult(r); }
+    }
+    private sealed class BeforeAccountLock(Func<Task> action) : DbCommandInterceptor
+    {
+        private bool used;
+        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default)
+        {
+            if (!used && c.CommandText.StartsWith("SELECT FROM cerberus.account ") && c.CommandText.Contains("FOR UPDATE"))
+            { used = true; await action(); }
+            return r;
+        }
     }
     private sealed class WrongCount(string stage) : DbCommandInterceptor
     {

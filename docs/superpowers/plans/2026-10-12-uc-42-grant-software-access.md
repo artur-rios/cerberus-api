@@ -587,4 +587,3 @@ Record the fresh reviewer verdict and all final command evidence in the ledger.
 - [ ] Present Gate 3 evidence and obtain explicit approval before squash merge, project Done transition or branch deletion.
 - [ ] After approval, squash merge only the reviewed tree, delete local/remote feature branches, close issue #43, set project status Done and verify the squash tree equals the reviewed feature tree.
 - [ ] Save `.superpowers/checkpoints/uc-42-2026-10-12-complete/RESUME.md`, preserve the tracked ledger, remove only verified ignored UC-42 scratch/evidence files, and finish with clean `develop == origin/develop`.
-

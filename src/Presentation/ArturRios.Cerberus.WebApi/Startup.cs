@@ -86,6 +86,10 @@ public static class Startup
         builder.Services.AddScoped<IQueryHandlerAsync<GetOfflinePolicyQuery, OfflinePolicyOutput>, GetOfflinePolicyHandler>();
         builder.Services.AddScoped<IOfflinePolicyReadStore, OfflinePolicyReadStore>();
         builder.Services.AddScoped<IOfflinePolicyUpdateStore, OfflinePolicyUpdateStore>();
+        builder.Services.AddSingleton<IOfflineLeaseSigner, ArturRios.Cerberus.Shared.Offline.OfflineLeaseSigner>();
+        builder.Services.AddScoped<IOfflineAuthorizationStore, OfflineAuthorizationStore>();
+        builder.Services.AddScoped<IValidator<RenewOfflineAuthorizationCommand>, RenewOfflineAuthorizationValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<RenewOfflineAuthorizationCommand, OfflineAuthorizationOutput>, RenewOfflineAuthorizationHandler>();
         builder.Services.AddScoped<IValidator<SetOfflinePolicyCommand>, SetOfflinePolicyValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<SetOfflinePolicyCommand, SetOfflinePolicyOutput>, SetOfflinePolicyHandler>();
         builder.Services.AddScoped<IAccountUpdateStore, AccountUpdateStore>();

@@ -11,6 +11,8 @@ public sealed class CerberusOptions
     public string? AuthAudience { get; set; }
     public string? AuthValidationSecret { get; set; }
     public string? RegistrationFingerprintKey { get; set; }
+    public string? OfflineLeaseIssuer { get; set; }
+    public string? OfflineLeasePrivateKeyPem { get; set; }
     public string? BackupRetention { get; set; }
     public string? LogRetention { get; set; }
     public string? SyncRetention { get; set; }

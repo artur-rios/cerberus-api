@@ -12,6 +12,11 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Profile-scoped `POST /api/offline-authorizations` returns a native ES256 lease
+  bound to current owner access, policy, protection and sharing grant revisions,
+  with explicit disabled renewal and separate issuer/signing-key provisioning.
+  Required CI verifies server-produced leases with independent Python/Java clients.
+
 - Owner-only `PUT /api/accounts/me/offline-policy` sets a positive whole-second
   renewal interval or explicitly disables renewal, with policy-version concurrency,
   current authority checks and no-store responses. Old-version vault sessions become

@@ -40,6 +40,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
     public DbSet<SyncStream> SyncStreams => Set<SyncStream>();
     public DbSet<SyncInventory> SyncInventories => Set<SyncInventory>();
     public DbSet<SyncChange> SyncChanges => Set<SyncChange>();
+    public DbSet<SyncOperation> SyncOperations => Set<SyncOperation>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
         optionsBuilder.UseSnakeCaseNamingConvention().EnableDetailedErrors(false).EnableSensitiveDataLogging(false);

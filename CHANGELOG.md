@@ -12,6 +12,10 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- `POST /api/sync/edits` applies bounded encrypted native creates and content
+  updates under current permissions, with timestamp/sequence ordering, durable
+  scoped operation idempotency, safe per-item outcomes and atomic rollback.
+
 - Selected-profile `GET /api/sync/changes` returns durable opaque continuations,
   current native encrypted payloads/provisioning, known typed removals and minimal
   terminal tombstones. Invalid or expired history requires explicit clear-scope

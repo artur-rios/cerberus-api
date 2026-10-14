@@ -13,7 +13,7 @@ public sealed record RecordUpdateInput(
     public bool IsValid()=>ExpectedRevision is >0 and <=ProtocolBinary.MaxInteger && Envelope?.IsValid()==true
         && EditedAt.Offset==TimeSpan.Zero && EditedAt.Ticks>=TimeSpan.TicksPerMicrosecond;
 }
-public sealed record RecordUpdateRequest(Guid Actor,string AccessVerifier,Guid RecordId,RecordUpdateInput Input);
+public sealed record RecordUpdateRequest(Guid Actor,string AccessVerifier,Guid RecordId,RecordUpdateInput Input, bool OfflineLatestEdit = false, bool OfflineInspectOnly = false);
 public interface IRecordUpdateStore
 {
     Task<VaultResult<RecordCreateDetails>> UpdateAsync(RecordUpdateRequest request,CancellationToken cancellationToken);

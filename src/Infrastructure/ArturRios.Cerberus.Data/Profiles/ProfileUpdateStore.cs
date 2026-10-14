@@ -1,8 +1,10 @@
+using ArturRios.Cerberus.Data.Resources;
 using System.Data.Common;
 using System.Text.Json;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Protection;
+using ArturRios.Cerberus.Domain.Sync;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 namespace ArturRios.Cerberus.Data.Profiles;
@@ -19,7 +21,7 @@ public sealed class ProfileUpdateStore(IDbContextFactory<AppDbContext> factory):
         try
         {
             await using var db=await factory.CreateDbContextAsync(cancellationToken);
-            await using var tx=await db.Database.BeginTransactionAsync(cancellationToken);
+            await using var tx=await NativeMutationTransaction.BeginAsync(db, cancellationToken);
             // Same lock order as account protection rotation. Never use transaction-start time.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE",cancellationToken);
             var account=await db.Accounts.AsNoTracking().Where(x=>x.HeimdallPublicId==request.Actor)
@@ -38,7 +40,7 @@ public sealed class ProfileUpdateStore(IDbContextFactory<AppDbContext> factory):
             if(profile is null || profile.DeletedAt is not null || session.ProfileId is not null && session.ProfileId!=profile.Id
                 || await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "profile" && x.ResourceId == profile.PublicId),cancellationToken))return new(Error:"not_found");
             if(profile.Revision is <=0 or >ProtocolBinary.MaxInteger || profile.ServerSequence is <=0 or >ProtocolBinary.MaxInteger)return new(Error:"persistence_unavailable");
-            if(profile.Revision!=input.ExpectedRevision || profile.Revision==ProtocolBinary.MaxInteger)return new(Error:"revision_conflict");
+            if(!request.OfflineLatestEdit && (profile.Revision!=input.ExpectedRevision || profile.Revision==ProtocolBinary.MaxInteger))return new(Error:"revision_conflict");
             var protection=await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==account.Id,cancellationToken);
             if(protection is null)return new(Error:"persistence_unavailable");
             var pins=JsonSerializer.Deserialize<ProtectionMaterial>(protection.Material,Json);
@@ -48,8 +50,25 @@ public sealed class ProfileUpdateStore(IDbContextFactory<AppDbContext> factory):
                 || protection.Revision is <=0 or >ProtocolBinary.MaxInteger || envelope?.IsValid()!=true || wrappers?.IsValid()!=true
                 || wrappers.MasterKeyWrapper.GrantRevision>profile.Revision
                 || !wrappers.IsBound(account.PublicId,profile.PublicId,envelope.KeyEpoch,wrappers.MasterKeyWrapper.GrantRevision,request.Actor,pins))return new(Error:"persistence_unavailable");
+            if(request.OfflineInspectOnly)
+            {
+                if(!request.OfflineLatestEdit || !SyncResourceData.ValidTime(profile.EditedAt))return new(Error:"persistence_unavailable");
+                await tx.CommitAsync(cancellationToken);
+                return new(new ProfileCreateDetails(profile.PublicId,profile.Revision,profile.ServerSequence,profile.EditedAt));
+            }
             if(input.Envelope.KeyEpoch!=envelope.KeyEpoch || input.Envelope!=envelope
                 && (input.Envelope.KeySalt==envelope.KeySalt || input.Envelope.Nonce==envelope.Nonce))return new(Error:"validation_failed");
+            if(request.OfflineLatestEdit)
+            {
+                if(!SyncResourceData.ValidTime(profile.EditedAt))return new(Error:"persistence_unavailable");
+                if(!OfflineEditOrder.ShouldApply(input.EditedAt,profile.EditedAt))
+                {
+                    await tx.CommitAsync(cancellationToken);
+                    return new(new ProfileCreateDetails(profile.PublicId,profile.Revision,profile.ServerSequence,profile.EditedAt), "superseded");
+                }
+                if(profile.Revision==ProtocolBinary.MaxInteger)return new(Error:"revision_conflict");
+                input=input with {ExpectedRevision=profile.Revision};
+            }
             var bytes=JsonSerializer.SerializeToUtf8Bytes(input.Envelope,Json);
             var editedAt=input.EditedAt.AddTicks(-(input.EditedAt.Ticks%TimeSpan.TicksPerMicrosecond));
             var changed=await db.Database.ExecuteSqlInterpolatedAsync($"""

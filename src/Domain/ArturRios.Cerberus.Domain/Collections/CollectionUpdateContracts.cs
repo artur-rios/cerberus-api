@@ -16,7 +16,7 @@ public sealed record CollectionUpdateInput(
         && EditedAt.Ticks >= TimeSpan.TicksPerMicrosecond;
 }
 
-public sealed record CollectionUpdateRequest(Guid Actor, string AccessVerifier, Guid CollectionId, CollectionUpdateInput Input);
+public sealed record CollectionUpdateRequest(Guid Actor, string AccessVerifier, Guid CollectionId, CollectionUpdateInput Input, bool OfflineLatestEdit = false, bool OfflineInspectOnly = false);
 
 public interface ICollectionUpdateStore
 {

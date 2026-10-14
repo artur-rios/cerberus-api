@@ -4,7 +4,7 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** foundation infrastructure and 44 business use cases implemented; 11 business
+> **Status:** foundation infrastructure and 45 business use cases implemented; 10 business
 > use cases remain. Independent protocol review is explicitly deferred for development and
 > remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
 > and [foundation status](docs/operations/foundation-status.md).
@@ -89,7 +89,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 9 / 9 closed |
 | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 26 / 26 closed |
 | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 5 / 6 closed |
-| [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 3 / 5 closed |
+| [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 5 / 5 closed |
 | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
 
 ## Backlog
@@ -164,7 +164,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [#47](https://github.com/artur-rios/cerberus-api/issues/47) | UC-46 — Set offline policy | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-46-set-offline-policy) | Done |
 | [#48](https://github.com/artur-rios/cerberus-api/issues/48) | UC-47 — Renew offline authorization | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-47-renew-offline-authorization) | Done |
 | [#49](https://github.com/artur-rios/cerberus-api/issues/49) | UC-48 — Download synchronization changes | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-48-download-synchronization-changes) | Done |
-| [#50](https://github.com/artur-rios/cerberus-api/issues/50) | UC-49 — Upload offline edits | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-49-upload-offline-edits) | Todo |
+| [#50](https://github.com/artur-rios/cerberus-api/issues/50) | UC-49 — Upload offline edits | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-49-upload-offline-edits) | Done |
 
 ### M-06 — Recoverable deletion and beta operations
 

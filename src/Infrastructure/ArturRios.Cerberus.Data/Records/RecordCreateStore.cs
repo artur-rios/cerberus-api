@@ -1,3 +1,4 @@
+using ArturRios.Cerberus.Data.Resources;
 using System.Data.Common;
 using System.Text.Json;
 using ArturRios.Cerberus.Domain.Accounts;
@@ -23,7 +24,7 @@ public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) :
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
-            await using var tx = await db.Database.BeginTransactionAsync(ct);
+            await using var tx = await NativeMutationTransaction.BeginAsync(db, ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", ct);
             var account = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.HeimdallPublicId == request.Actor, ct);
             if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), ct))

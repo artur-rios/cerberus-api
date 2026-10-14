@@ -1,16 +1,15 @@
-using System.Data.Common;
 using System.Security.Cryptography;
 using System.Text.Json;
 using ArturRios.Cerberus.Data.Collections;
 using ArturRios.Cerberus.Data.Folders;
 using ArturRios.Cerberus.Data.Profiles;
 using ArturRios.Cerberus.Data.Records;
+using ArturRios.Cerberus.Data.Resources;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Domain.Sync;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace ArturRios.Cerberus.Data.Sync;
 
@@ -27,7 +26,7 @@ internal static class CurrentSyncInventory
     internal static async Task<CurrentSyncInventoryResult> ReadAsync(AppDbContext db, IDbContextFactory<AppDbContext> contexts, SyncDownloadRequest request,
         long account, Guid profileId, CancellationToken ct)
     {
-        var factory = new TransactionFactory(contexts, db.Database.GetDbConnection(), db.Database.CurrentTransaction!.GetDbTransaction());
+        var factory = new TransactionContextFactory(contexts, db);
         var items = new Dictionary<SyncResourceIdentity, SyncResourceData>();
         void Add(SyncResourceData data)
         {
@@ -93,16 +92,4 @@ internal static class CurrentSyncInventory
 
     private static T Decode<T>(byte[] bytes) where T : class => JsonSerializer.Deserialize<T>(bytes, Json) ?? throw new JsonException();
 
-    // Child stores dispose only their context. The outer operation owns the
-    // already-open connection and transaction, retaining one locked scope.
-    private sealed class TransactionFactory(IDbContextFactory<AppDbContext> contexts, DbConnection connection, DbTransaction transaction) : IDbContextFactory<AppDbContext>
-    {
-        public AppDbContext CreateDbContext()
-        {
-            var context = contexts.CreateDbContext();
-            context.Database.SetDbConnection(connection, contextOwnsConnection: false);
-            context.Database.UseTransaction(transaction);
-            return context;
-        }
-    }
 }

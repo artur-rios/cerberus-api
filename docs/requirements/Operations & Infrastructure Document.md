@@ -111,6 +111,16 @@ earlier sources; production secrets never appear in example settings or the repo
 | Protocols | Reviewed accepted envelope formats, proof/lease suites and key epochs | Reject unknown formats; cryptographic sizes come from the reviewed suite. |
 | Offline user policy | Account persistence, not global deployment environment | 24-hour initial policy; owner-selected positive interval or renewal disabled. |
 
+UC48 implements the [synchronization download contract](../security/synchronization-api.md).
+Each profile stream has a fixed configured expiry and retains only typed
+disclosed IDs, fingerprints and minimal descriptors. Reads remove encountered
+expired streams; account/profile deletion cascades their metadata. UC53 must
+schedule deletion of abandoned expired streams as well. Downloads scan the
+current native inventory and lock all collections of the acting and associated
+owner accounts to serialize shared edits through alternate routes. Plan capacity
+for inventory-size work and shared-writer contention, beyond bounded response
+page size. No second connection is required for a download.
+
 Fail production startup/readiness on missing mandatory credentials, limits, retention policy or
 ledger configuration. No deployment secret values or fabricated retention periods are supplied
 by these documents. Required operator values must be chosen before the foundation is approved.

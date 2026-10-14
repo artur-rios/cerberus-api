@@ -7436,6 +7436,179 @@
         }
       }
     },
+    "/api/sync/changes": {
+      "get": {
+        "tags": [
+          "Sync"
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "X-Cerberus-Vault-Access",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncChangesOutputDataOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncChangesOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncChangesOutputDataOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncChangesOutputDataOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncChangesOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncChangesOutputDataOutput"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/vault/protection": {
       "post": {
         "tags": [
@@ -11105,7 +11278,20 @@
             "$ref": "#/components/schemas/RecipientEnvelope"
           },
           "passwordWrapper": {
-            "$ref": "#/components/schemas/PasswordWrapper"
+            "type": "object",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PasswordWrapper"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "type": "object",
+                "nullable": true
+              }
+            ],
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -12131,6 +12317,394 @@
         },
         "additionalProperties": false
       },
+      "SyncChangeItem": {
+        "type": "object",
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resourceKind": {
+            "type": "string",
+            "nullable": true
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventType": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "object",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SyncProfileData"
+              },
+              {
+                "$ref": "#/components/schemas/SyncRecordData"
+              },
+              {
+                "$ref": "#/components/schemas/SyncFolderData"
+              },
+              {
+                "$ref": "#/components/schemas/SyncCollectionData"
+              },
+              {
+                "$ref": "#/components/schemas/SyncGrantData"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "type": "object",
+                "nullable": true
+              }
+            ],
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncChangesOutput": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "profileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "policyRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "revocationGeneration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "serverTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncChangeItem"
+            },
+            "nullable": true
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasMore": {
+            "type": "boolean"
+          },
+          "clearScope": {
+            "type": "boolean"
+          },
+          "resynchronizationRequired": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncChangesOutputDataOutput": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "success": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SyncChangesOutput"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncCollectionData": {
+        "required": [
+          "serverSequence",
+          "editedAt",
+          "envelope",
+          "keyEpoch",
+          "resourceId",
+          "revision",
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "serverSequence": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "keyEpoch": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resourceType": {
+            "enum": [
+              "collection"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncFolderData": {
+        "required": [
+          "serverSequence",
+          "editedAt",
+          "envelope",
+          "resourceId",
+          "revision",
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "serverSequence": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resourceType": {
+            "enum": [
+              "folder"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncGrantData": {
+        "required": [
+          "collectionId",
+          "recipientKeyEnvelope",
+          "resourceId",
+          "revision",
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "collectionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipientKeyEnvelope": {
+            "$ref": "#/components/schemas/RecipientEnvelope"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resourceType": {
+            "enum": [
+              "grant"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncProfileData": {
+        "required": [
+          "serverSequence",
+          "editedAt",
+          "envelope",
+          "keyWrappers",
+          "recordIds",
+          "folderIds",
+          "collectionIds",
+          "resourceId",
+          "revision",
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "serverSequence": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "keyWrappers": {
+            "$ref": "#/components/schemas/ProfileKeyWrappers"
+          },
+          "recordIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "folderIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "collectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resourceType": {
+            "enum": [
+              "profile"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncRecordData": {
+        "required": [
+          "serverSequence",
+          "editedAt",
+          "envelope",
+          "resourceId",
+          "revision",
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "serverSequence": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resourceType": {
+            "enum": [
+              "record"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncResourceData": {
+        "required": [
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "resourceType",
+          "mapping": {
+            "profile": "#/components/schemas/SyncProfileData",
+            "record": "#/components/schemas/SyncRecordData",
+            "folder": "#/components/schemas/SyncFolderData",
+            "collection": "#/components/schemas/SyncCollectionData",
+            "grant": "#/components/schemas/SyncGrantData"
+          }
+        }
+      },
       "UnlockVaultCommand": {
         "type": "object",
         "properties": {
@@ -12882,6 +13456,9 @@
     },
     {
       "name": "SoftwareGrants"
+    },
+    {
+      "name": "Sync"
     },
     {
       "name": "Vault"

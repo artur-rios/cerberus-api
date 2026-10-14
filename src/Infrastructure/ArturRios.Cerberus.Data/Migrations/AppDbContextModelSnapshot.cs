@@ -1027,6 +1027,200 @@ namespace ArturRios.Cerberus.Data.Migrations
                     b.ToTable("record", "cerberus");
                 });
 
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Sync.SyncChange", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("event_type");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("resource_id");
+
+                    b.Property<string>("ResourceKind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("resource_kind");
+
+                    b.Property<long>("Sequence")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("sequence")
+                        .HasDefaultValueSql("nextval('cerberus.server_sequence')");
+
+                    b.Property<long>("StreamId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("stream_id");
+
+                    b.Property<long>("WindowVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("window_version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sync_change");
+
+                    b.HasIndex("Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("ix_sync_change_sequence");
+
+                    b.HasIndex("StreamId", "WindowVersion", "Sequence")
+                        .HasDatabaseName("ix_sync_change_stream_id_window_version_sequence");
+
+                    b.HasIndex("StreamId", "WindowVersion", "ResourceKind", "ResourceId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_sync_change_stream_id_window_version_resource_kind_resource");
+
+                    b.ToTable("sync_change", "cerberus", t =>
+                        {
+                            t.HasCheckConstraint("ck_sync_change_descriptor", "resource_kind IN('profile','record','folder','collection','grant') AND window_version BETWEEN 1 AND 9007199254740991 AND sequence BETWEEN 1 AND 9007199254740991 AND event_type IN('upsert','removed','permanently-deleted') AND (event_type='permanently-deleted')=(deleted_at IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Sync.SyncInventory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<byte[]>("Fingerprint")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("resource_id");
+
+                    b.Property<string>("ResourceKind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("resource_kind");
+
+                    b.Property<long>("StreamId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("stream_id");
+
+                    b.Property<bool>("Terminal")
+                        .HasColumnType("boolean")
+                        .HasColumnName("terminal");
+
+                    b.Property<bool>("Visible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("visible");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sync_inventory");
+
+                    b.HasIndex("StreamId", "ResourceKind", "ResourceId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_sync_inventory_stream_id_resource_kind_resource_id");
+
+                    b.ToTable("sync_inventory", "cerberus", t =>
+                        {
+                            t.HasCheckConstraint("ck_sync_inventory_metadata", "resource_kind IN('profile','record','folder','collection','grant') AND octet_length(fingerprint)=32");
+                        });
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Sync.SyncStream", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AccountId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("account_id");
+
+                    b.Property<long>("Boundary")
+                        .HasColumnType("bigint")
+                        .HasColumnName("boundary");
+
+                    b.Property<Guid>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid")
+                        .HasColumnName("concurrency_stamp");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<long>("LastAfter")
+                        .HasColumnType("bigint")
+                        .HasColumnName("last_after");
+
+                    b.Property<int>("PageSize")
+                        .HasColumnType("integer")
+                        .HasColumnName("page_size");
+
+                    b.Property<long>("ProfileId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("profile_id");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("public_id");
+
+                    b.Property<byte[]>("VisibilityStamp")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("visibility_stamp");
+
+                    b.Property<bool>("WindowComplete")
+                        .HasColumnType("boolean")
+                        .HasColumnName("window_complete");
+
+                    b.Property<long>("WindowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("window_version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sync_stream");
+
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("ix_sync_stream_expires_at");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_sync_stream_public_id");
+
+                    b.HasIndex("AccountId", "ProfileId")
+                        .HasDatabaseName("ix_sync_stream_account_id_profile_id");
+
+                    b.ToTable("sync_stream", "cerberus", t =>
+                        {
+                            t.HasCheckConstraint("ck_sync_stream_checkpoint", "window_version BETWEEN 1 AND 9007199254740991 AND last_after>=0 AND boundary>=last_after AND boundary<=9007199254740991 AND page_size>0 AND expires_at>created_at");
+                        });
+                });
+
             modelBuilder.Entity("ArturRios.Cerberus.Domain.Trash.TrashEntry", b =>
                 {
                     b.Property<long>("Id")
@@ -1378,6 +1572,44 @@ namespace ArturRios.Cerberus.Data.Migrations
                         .HasPrincipalKey("AccountId", "Id")
                         .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("fk_record_folder_account_id_folder_id");
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Sync.SyncChange", b =>
+                {
+                    b.HasOne("ArturRios.Cerberus.Domain.Sync.SyncStream", null)
+                        .WithMany()
+                        .HasForeignKey("StreamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sync_change_sync_stream_stream_id");
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Sync.SyncInventory", b =>
+                {
+                    b.HasOne("ArturRios.Cerberus.Domain.Sync.SyncStream", null)
+                        .WithMany()
+                        .HasForeignKey("StreamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sync_inventory_sync_stream_stream_id");
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Sync.SyncStream", b =>
+                {
+                    b.HasOne("ArturRios.Cerberus.Domain.Accounts.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sync_stream_accounts_account_id");
+
+                    b.HasOne("ArturRios.Cerberus.Domain.Profiles.Profile", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId", "ProfileId")
+                        .HasPrincipalKey("AccountId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sync_stream_profiles_account_id_profile_id");
                 });
 
             modelBuilder.Entity("ArturRios.Cerberus.Domain.Trash.TrashEntry", b =>

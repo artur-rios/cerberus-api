@@ -12,6 +12,11 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Selected-profile `GET /api/sync/changes` returns durable opaque continuations,
+  current native encrypted payloads/provisioning, known typed removals and minimal
+  terminal tombstones. Invalid or expired history requires explicit clear-scope
+  resynchronization; checkpoint updates roll back on authority/storage failures.
+
 - Profile-scoped `POST /api/offline-authorizations` returns a native ES256 lease
   bound to current owner access, policy, protection and sharing grant revisions,
   with explicit disabled renewal and separate issuer/signing-key provisioning.

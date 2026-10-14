@@ -4,7 +4,7 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** foundation infrastructure and 43 business use cases implemented; 12 business
+> **Status:** foundation infrastructure and 44 business use cases implemented; 11 business
 > use cases remain. Independent protocol review is explicitly deferred for development and
 > remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
 > and [foundation status](docs/operations/foundation-status.md).
@@ -163,7 +163,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [#46](https://github.com/artur-rios/cerberus-api/issues/46) | UC-45 — Get offline policy | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-45-get-offline-policy) | Done |
 | [#47](https://github.com/artur-rios/cerberus-api/issues/47) | UC-46 — Set offline policy | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-46-set-offline-policy) | Done |
 | [#48](https://github.com/artur-rios/cerberus-api/issues/48) | UC-47 — Renew offline authorization | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-47-renew-offline-authorization) | Done |
-| [#49](https://github.com/artur-rios/cerberus-api/issues/49) | UC-48 — Download synchronization changes | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-48-download-synchronization-changes) | Todo |
+| [#49](https://github.com/artur-rios/cerberus-api/issues/49) | UC-48 — Download synchronization changes | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-48-download-synchronization-changes) | Done |
 | [#50](https://github.com/artur-rios/cerberus-api/issues/50) | UC-49 — Upload offline edits | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-49-upload-offline-edits) | Todo |
 
 ### M-06 — Recoverable deletion and beta operations

@@ -6,6 +6,7 @@ using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Protection;
+using ArturRios.Cerberus.Domain.Sync;
 using ArturRios.Data.Relational.Core.Configuration;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +37,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
     public DbSet<RegistrationOperation> RegistrationOperations => Set<RegistrationOperation>();
     public DbSet<RetentionWorkItem> RetentionWorkItems => Set<RetentionWorkItem>();
     public DbSet<TerminalErasure> TerminalErasures => Set<TerminalErasure>();
+    public DbSet<SyncStream> SyncStreams => Set<SyncStream>();
+    public DbSet<SyncInventory> SyncInventories => Set<SyncInventory>();
+    public DbSet<SyncChange> SyncChanges => Set<SyncChange>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
         optionsBuilder.UseSnakeCaseNamingConvention().EnableDetailedErrors(false).EnableSensitiveDataLogging(false);
@@ -44,6 +48,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : BaseD
     {
         modelBuilder.HasDefaultSchema("cerberus");
         ResourceModel.Configure(modelBuilder);
+        SyncModel.Configure(modelBuilder);
         modelBuilder.HasSequence<long>("server_sequence", "cerberus").StartsAt(1).IncrementsBy(1).HasMax(ProtocolBinary.MaxInteger);
         var profile=modelBuilder.Entity<Profile>();
         profile.ToTable("profile");

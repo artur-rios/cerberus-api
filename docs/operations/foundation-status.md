@@ -317,3 +317,11 @@ cannot destroy copied roots, ciphertext or plaintext, does not perform client ke
 rotation, and does not implement UC48 durable offline permission delivery. Shared
 generated OpenAPI metadata limits and independent protocol/security/client review
 remain release obligations.
+
+## Account closure (UC06)
+
+The [closure API](../security/account-closure-api.md) schedules `account-purge/<accountId>`
+work for the original 30-day deadline while retaining encrypted content. Existing
+leases are bounded by their previous client policy; online authority is revoked
+immediately. Account purge execution and expiry scheduling are delivered by the
+following lifecycle use cases. No independent release review is implied.

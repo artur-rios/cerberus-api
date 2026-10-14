@@ -12,6 +12,10 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- `POST /api/accounts/me/closure` atomically revokes account sessions and grants,
+  retains encrypted data for 30 days, and preserves the original purge deadline
+  across freshly authenticated retries.
+
 - `POST /api/sync/edits` applies bounded encrypted native creates and content
   updates under current permissions, with timestamp/sequence ordering, durable
   scoped operation idempotency, safe per-item outcomes and atomic rollback.

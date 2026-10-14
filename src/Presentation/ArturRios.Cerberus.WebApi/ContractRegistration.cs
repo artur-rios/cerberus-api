@@ -81,6 +81,11 @@ public static class ContractRegistration
                 target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
                 return;
             }
+            if (context.Type == typeof(ArturRios.Cerberus.Command.Accounts.AccountClosureOutput))
+            {
+                target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
+                return;
+            }
             if (typeof(SyncEditInput).IsAssignableFrom(context.Type) && !context.Type.IsAbstract)
             {
                 target.AllOf?.Clear();
@@ -135,17 +140,19 @@ public static class ContractRegistration
         {
             var policyUpdate = context.MethodInfo.DeclaringType == typeof(AccountController)
                 && context.MethodInfo.Name == nameof(AccountController.SetOfflinePolicy);
+            var closure = context.MethodInfo.DeclaringType == typeof(AccountController)
+                && context.MethodInfo.Name == nameof(AccountController.RequestClosure);
             var renewal = context.MethodInfo.DeclaringType == typeof(OfflineAuthorizationsController)
                 && context.MethodInfo.Name == nameof(OfflineAuthorizationsController.Renew);
             var syncEdits = context.MethodInfo.DeclaringType == typeof(SyncController) && context.MethodInfo.Name == nameof(SyncController.Edits);
-            if (!policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
+            if (!closure && !policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
                 || context.MethodInfo.Name is not (nameof(SoftwareGrantsController.GrantAccess)
                     or nameof(SoftwareGrantsController.RevokeAccess)))) return;
             var content = operation.RequestBody!.Content!;
             var json = content["application/json"];
             content.Clear();
             content.Add("application/json", json);
-            if (policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            if (closure || policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 ((OpenApiRequestBody)operation.RequestBody!).Required = true;
                 operation.Responses!["413"].Content?.Clear();

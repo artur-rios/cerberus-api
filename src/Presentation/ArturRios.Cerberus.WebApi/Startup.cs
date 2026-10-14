@@ -83,6 +83,8 @@ public static class Startup
         builder.Services.AddScoped<QueryMediator>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
+        builder.Services.AddScoped<IAccountClosureStore, AccountClosureStore>();
+        builder.Services.AddScoped<ICommandHandlerAsync<RequestAccountClosureCommand, AccountClosureOutput>, RequestAccountClosureHandler>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetOfflinePolicyQuery, OfflinePolicyOutput>, GetOfflinePolicyHandler>();
         builder.Services.AddScoped<IOfflinePolicyReadStore, OfflinePolicyReadStore>();
         builder.Services.AddScoped<ArturRios.Cerberus.Domain.Sync.ISyncDownloadStore, ArturRios.Cerberus.Data.Sync.SyncDownloadStore>();

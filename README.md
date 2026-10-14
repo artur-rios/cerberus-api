@@ -4,7 +4,7 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** foundation infrastructure and 45 business use cases implemented; 10 business
+> **Status:** foundation infrastructure and 46 business use cases implemented; 9 business
 > use cases remain. Independent protocol review is explicitly deferred for development and
 > remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
 > and [foundation status](docs/operations/foundation-status.md).
@@ -90,7 +90,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 26 / 26 closed |
 | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 5 / 6 closed |
 | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 5 / 5 closed |
-| [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 0 / 9 closed |
+| [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 1 / 9 closed |
 
 ## Backlog
 
@@ -170,7 +170,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 
 | Issue | Work | Spec | Status |
 | --- | --- | --- | --- |
-| [#7](https://github.com/artur-rios/cerberus-api/issues/7) | UC-06 — Request account closure | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-06-request-account-closure) | Todo |
+| [#7](https://github.com/artur-rios/cerberus-api/issues/7) | UC-06 — Request account closure | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-06-request-account-closure) | Done |
 | [#8](https://github.com/artur-rios/cerberus-api/issues/8) | UC-07 — Cancel account closure | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-07-cancel-account-closure) | Todo |
 | [#9](https://github.com/artur-rios/cerberus-api/issues/9) | UC-08 — Permanently delete account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-08-permanently-delete-account) | Todo |
 | [#51](https://github.com/artur-rios/cerberus-api/issues/51) | UC-50 — List trash | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-50-list-trash) | Todo |

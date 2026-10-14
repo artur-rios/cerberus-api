@@ -84,6 +84,11 @@ public static class Startup
         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
         builder.Services.AddScoped<IAccountClosureStore, AccountClosureStore>();
+        builder.Services.AddScoped<IAccountClosureCancellationStore,AccountClosureCancellationStore>();
+        builder.Services.AddScoped<IAccountClosureRecoveryStore,AccountClosureRecoveryStore>();
+        builder.Services.AddScoped<ICommandHandlerAsync<CancelAccountClosureCommand,AccountClosureCancellationOutput>,CancelAccountClosureHandler>();
+        builder.Services.AddScoped<ICommandHandlerAsync<ClosureRecoveryLoginCommand,ClosureRecoveryAuthenticationOutput>,ClosureRecoveryAuthenticationHandler>();
+        builder.Services.AddScoped<ICommandHandlerAsync<ClosureRecoveryVerifyChallengeCommand,ClosureRecoveryAuthenticationOutput>,ClosureRecoveryAuthenticationHandler>();
         builder.Services.AddScoped<ICommandHandlerAsync<RequestAccountClosureCommand, AccountClosureOutput>, RequestAccountClosureHandler>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetOfflinePolicyQuery, OfflinePolicyOutput>, GetOfflinePolicyHandler>();
         builder.Services.AddScoped<IOfflinePolicyReadStore, OfflinePolicyReadStore>();

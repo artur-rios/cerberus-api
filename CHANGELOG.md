@@ -12,6 +12,10 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Restricted Heimdall password/MFA recovery and `POST /api/accounts/me/closure/cancel`
+  restore only unexpired pending accounts, cancel purge claims atomically and
+  require new vault sessions and explicit regranting.
+
 - `POST /api/accounts/me/closure` atomically revokes account sessions and grants,
   retains encrypted data for 30 days, and preserves the original purge deadline
   across freshly authenticated retries.

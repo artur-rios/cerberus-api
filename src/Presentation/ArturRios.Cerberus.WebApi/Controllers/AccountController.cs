@@ -18,6 +18,34 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 [Route("api/accounts")]
 public sealed class AccountController(CommandMediator commands, QueryMediator queries, TimeProvider clock) : ControllerBase
 {
+    [HttpPost("me/closure/cancel")]
+    [VaultProofBody]
+    [ProducesResponseType(typeof(DataOutput<AccountClosureCancellationOutput>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status410Gone)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<AccountClosureCancellationOutput?>>> CancelClosure(
+        [FromBody]CancelAccountClosureCommand command,CancellationToken cancellationToken)
+    {
+        if(Request.Query.Count!=0||Request.Headers["X-Cerberus-Vault-Access"].Count>1
+            ||!MediaTypeHeaderValue.TryParse(Request.ContentType,out var media)||media.Parameters.Count>1
+            ||media.Parameters.Any(p=>!string.Equals(p.Name,"charset",StringComparison.OrdinalIgnoreCase)))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if(!Guid.TryParse(User.FindFirst("id")?.Value,out var actor)||actor==Guid.Empty)
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        var issued=User.FindAll("iat").ToArray();
+        if(issued.Length!=1||!long.TryParse(issued[0].Value,System.Globalization.NumberStyles.None,System.Globalization.CultureInfo.InvariantCulture,out var issuedAt)
+            ||!ArturRios.Cerberus.Domain.Accounts.FreshAuthentication.IsFresh(issuedAt,clock.GetUtcNow()))
+            return Unauthorized(ProcessOutput.New.WithError("fresh_authentication_required"));
+        command.SetContext(actor,issuedAt);
+        return(await commands.ExecuteCommandAsync<CancelAccountClosureCommand,AccountClosureCancellationOutput>(command,cancellationToken))
+            .ToActionResult(statusMap:AccountClosureCancellationMessages.StatusCodes);
+    }
+
     [HttpPost("me/closure")]
     [VaultProofBody]
     [ProducesResponseType(typeof(DataOutput<AccountClosureOutput>), StatusCodes.Status200OK)]

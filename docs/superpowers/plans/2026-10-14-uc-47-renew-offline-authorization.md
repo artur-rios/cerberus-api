@@ -40,7 +40,7 @@
 
 - [x] Cover owner/session/profile/policy/grant revocation and expiry after lock waits; signing/storage failures and no hidden disclosures; verify no-expiry and disconnected revocation limits.
 - [x] Document exact signing/trust/configuration, scoped wire/error contract and compliant client clock/reconnection/no-cache behavior; regenerate OpenAPI.
-- [ ] Run locked restore/audit/zero-warning build, full unfiltered Release fresh coverage, helper/spec/native interoperability/OpenAPI and Docker checks. Resolve all Critical/Important independent whole-change review findings.
+- [x] Run locked restore/audit/zero-warning build, full unfiltered Release fresh coverage, helper/spec/native interoperability/OpenAPI and Docker checks. Resolve all Critical/Important independent whole-change review findings.
 
 ### Task4: Authorized delivery
 

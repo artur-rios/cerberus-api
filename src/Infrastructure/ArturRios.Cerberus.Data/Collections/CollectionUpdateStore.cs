@@ -7,6 +7,7 @@ using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Collections;
 using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Resources;
+using ArturRios.Cerberus.Domain.Sync;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
@@ -31,7 +32,7 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
-            await using var tx = await db.Database.BeginTransactionAsync(ct);
+            await using var tx = await NativeMutationTransaction.BeginAsync(db, ct);
             // Protection rotation and resource writers use the actor's account first.
             // A foreign denial never locks the owner graph or any grant/protection row.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR NO KEY UPDATE", ct);
@@ -68,13 +69,29 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
             var original = Convert.FromHexString(target.Envelope);
             var old = JsonSerializer.Deserialize<EncryptedEnvelope>(original, Json);
             if (old?.IsValid() != true || old.KeyEpoch != target.KeyEpoch) return new(Error: "persistence_unavailable");
+            if (request.OfflineInspectOnly)
+            {
+                if (!request.OfflineLatestEdit) return new(Error: "validation_failed");
+                await tx.CommitAsync(ct);
+                return new(new CollectionCreateDetails(target.CollectionId, target.Revision, target.Sequence, storedTime));
+            }
             var input = request.Input;
-            if (target.Revision != input.ExpectedRevision || target.Revision == ProtocolBinary.MaxInteger)
+            if (!request.OfflineLatestEdit && (target.Revision != input.ExpectedRevision || target.Revision == ProtocolBinary.MaxInteger))
                 return new(Error: "revision_conflict");
             if (input.Envelope.KeyEpoch != target.KeyEpoch
                 || input.Envelope != old && (input.Envelope.KeySalt == old.KeySalt || input.Envelope.Nonce == old.Nonce))
                 return new(Error: "validation_failed");
 
+            if (request.OfflineLatestEdit)
+            {
+                if (!OfflineEditOrder.ShouldApply(input.EditedAt, storedTime))
+                {
+                    await tx.CommitAsync(ct);
+                    return new(new CollectionCreateDetails(target.CollectionId, target.Revision, target.Sequence, storedTime), "superseded");
+                }
+                if (target.Revision == ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
+                input = input with { ExpectedRevision = target.Revision };
+            }
             var replacement = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
             var edited = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             var stamp = Guid.NewGuid();

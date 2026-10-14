@@ -7436,6 +7436,177 @@
         }
       }
     },
+    "/api/sync/edits": {
+      "post": {
+        "tags": [
+          "Sync"
+        ],
+        "parameters": [
+          {
+            "name": "X-Cerberus-Vault-Access",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadSyncEditsCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncEditsOutputDataOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncEditsOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncEditsOutputDataOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large"
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/sync/changes": {
       "get": {
         "tags": [
@@ -9172,6 +9343,55 @@
         },
         "additionalProperties": false
       },
+      "CollectionCreateInput": {
+        "required": [
+          "collectionId",
+          "editedAt",
+          "envelope",
+          "folderIds",
+          "profileIds",
+          "recordIds"
+        ],
+        "type": "object",
+        "properties": {
+          "collectionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "profileIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "recordIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "folderIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CollectionDetailsOutput": {
         "required": [
           "envelope"
@@ -10064,6 +10284,42 @@
           },
           "tag": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FolderCreateInput": {
+        "required": [
+          "editedAt",
+          "envelope",
+          "folderId",
+          "profileIds"
+        ],
+        "type": "object",
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "profileIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "parentFolderId": {
+            "type": "string",
+            "format": "uuid",
             "nullable": true
           }
         },
@@ -11177,6 +11433,50 @@
         },
         "additionalProperties": false
       },
+      "ProfileCreateInput": {
+        "type": "object",
+        "properties": {
+          "profileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "keyWrappers": {
+            "$ref": "#/components/schemas/ProfileKeyWrappers"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recordIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "folderIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "collectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ProfileDetailsOutput": {
         "required": [
           "envelope",
@@ -11483,6 +11783,42 @@
           },
           "signature": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecordCreateInput": {
+        "required": [
+          "editedAt",
+          "envelope",
+          "profileIds",
+          "recordId"
+        ],
+        "type": "object",
+        "properties": {
+          "recordId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "profileIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "folderId": {
+            "type": "string",
+            "format": "uuid",
             "nullable": true
           }
         },
@@ -12449,6 +12785,30 @@
         },
         "additionalProperties": false
       },
+      "SyncCollectionCreate": {
+        "required": [
+          "input",
+          "operationId",
+          "editType"
+        ],
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/CollectionCreateInput"
+          },
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "editType": {
+            "enum": [
+              "collection-create"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "SyncCollectionData": {
         "required": [
           "serverSequence",
@@ -12487,6 +12847,219 @@
           "resourceType": {
             "enum": [
               "collection"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncCollectionUpdate": {
+        "required": [
+          "input",
+          "operationId",
+          "editType"
+        ],
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/SyncContentEditInput"
+          },
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "editType": {
+            "enum": [
+              "collection-update"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncContentEditInput": {
+        "required": [
+          "editedAt",
+          "envelope",
+          "resourceId"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncEditInput": {
+        "required": [
+          "editType",
+          "operationId"
+        ],
+        "type": "object",
+        "properties": {
+          "editType": {
+            "type": "string"
+          },
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "editType",
+          "mapping": {
+            "record-create": "#/components/schemas/SyncRecordCreate",
+            "record-update": "#/components/schemas/SyncRecordUpdate",
+            "folder-create": "#/components/schemas/SyncFolderCreate",
+            "folder-update": "#/components/schemas/SyncFolderUpdate",
+            "collection-create": "#/components/schemas/SyncCollectionCreate",
+            "collection-update": "#/components/schemas/SyncCollectionUpdate",
+            "profile-create": "#/components/schemas/SyncProfileCreate",
+            "profile-update": "#/components/schemas/SyncProfileUpdate"
+          }
+        }
+      },
+      "SyncEditOutcome": {
+        "required": [
+          "operationId",
+          "resourceKind",
+          "resourceId",
+          "status",
+          "revision",
+          "serverSequence",
+          "editedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceKind": {
+            "enum": [
+              "profile",
+              "record",
+              "folder",
+              "collection"
+            ],
+            "type": "string"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "enum": [
+              "applied",
+              "superseded",
+              "denied",
+              "permanently-deleted"
+            ],
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "serverSequence": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncEditsOutput": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "profileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "serverTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "outcomes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncEditOutcome"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncEditsOutputDataOutput": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "success": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SyncEditsOutput"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncFolderCreate": {
+        "required": [
+          "input",
+          "operationId",
+          "editType"
+        ],
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/FolderCreateInput"
+          },
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "editType": {
+            "enum": [
+              "folder-create"
             ],
             "type": "string"
           }
@@ -12532,6 +13105,30 @@
         },
         "additionalProperties": false
       },
+      "SyncFolderUpdate": {
+        "required": [
+          "input",
+          "operationId",
+          "editType"
+        ],
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/SyncContentEditInput"
+          },
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "editType": {
+            "enum": [
+              "folder-update"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "SyncGrantData": {
         "required": [
           "collectionId",
@@ -12560,6 +13157,30 @@
           "resourceType": {
             "enum": [
               "grant"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncProfileCreate": {
+        "required": [
+          "input",
+          "operationId",
+          "editType"
+        ],
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/ProfileCreateInput"
+          },
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "editType": {
+            "enum": [
+              "profile-create"
             ],
             "type": "string"
           }
@@ -12636,6 +13257,54 @@
         },
         "additionalProperties": false
       },
+      "SyncProfileUpdate": {
+        "required": [
+          "input",
+          "operationId",
+          "editType"
+        ],
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/SyncContentEditInput"
+          },
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "editType": {
+            "enum": [
+              "profile-update"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncRecordCreate": {
+        "required": [
+          "input",
+          "operationId",
+          "editType"
+        ],
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/RecordCreateInput"
+          },
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "editType": {
+            "enum": [
+              "record-create"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "SyncRecordData": {
         "required": [
           "serverSequence",
@@ -12669,6 +13338,30 @@
           "resourceType": {
             "enum": [
               "record"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncRecordUpdate": {
+        "required": [
+          "input",
+          "operationId",
+          "editType"
+        ],
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/SyncContentEditInput"
+          },
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "editType": {
+            "enum": [
+              "record-update"
             ],
             "type": "string"
           }
@@ -13130,6 +13823,47 @@
           },
           "data": {
             "$ref": "#/components/schemas/UpdateRecordOutput"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UploadSyncEditsCommand": {
+        "required": [
+          "edits"
+        ],
+        "type": "object",
+        "properties": {
+          "edits": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/SyncRecordCreate"
+                },
+                {
+                  "$ref": "#/components/schemas/SyncRecordUpdate"
+                },
+                {
+                  "$ref": "#/components/schemas/SyncFolderCreate"
+                },
+                {
+                  "$ref": "#/components/schemas/SyncFolderUpdate"
+                },
+                {
+                  "$ref": "#/components/schemas/SyncCollectionCreate"
+                },
+                {
+                  "$ref": "#/components/schemas/SyncCollectionUpdate"
+                },
+                {
+                  "$ref": "#/components/schemas/SyncProfileCreate"
+                },
+                {
+                  "$ref": "#/components/schemas/SyncProfileUpdate"
+                }
+              ]
+            }
           }
         },
         "additionalProperties": false

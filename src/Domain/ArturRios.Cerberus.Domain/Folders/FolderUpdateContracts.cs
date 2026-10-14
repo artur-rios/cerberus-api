@@ -13,7 +13,7 @@ public sealed record FolderUpdateInput(
     public bool IsValid()=>ExpectedRevision is >0 and <=ProtocolBinary.MaxInteger && Envelope?.IsValid()==true
         && EditedAt.Offset==TimeSpan.Zero && EditedAt.Ticks>=TimeSpan.TicksPerMicrosecond;
 }
-public sealed record FolderUpdateRequest(Guid Actor,string AccessVerifier,Guid FolderId,FolderUpdateInput Input);
+public sealed record FolderUpdateRequest(Guid Actor,string AccessVerifier,Guid FolderId,FolderUpdateInput Input, bool OfflineLatestEdit = false, bool OfflineInspectOnly = false);
 public interface IFolderUpdateStore
 {
     Task<VaultResult<FolderCreateDetails>> UpdateAsync(FolderUpdateRequest request,CancellationToken cancellationToken);

@@ -1141,6 +1141,87 @@ namespace ArturRios.Cerberus.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Sync.SyncOperation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AccountId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("account_id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("action");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("EditedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("edited_at");
+
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("operation_id");
+
+                    b.Property<byte[]>("RequestFingerprint")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("request_fingerprint");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("resource_id");
+
+                    b.Property<string>("ResourceKind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("resource_kind");
+
+                    b.Property<long?>("Revision")
+                        .HasColumnType("bigint")
+                        .HasColumnName("revision");
+
+                    b.Property<Guid?>("ScopeProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("scope_profile_id");
+
+                    b.Property<long?>("ServerSequence")
+                        .HasColumnType("bigint")
+                        .HasColumnName("server_sequence");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sync_operation");
+
+                    b.HasIndex("AccountId", "OperationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_sync_operation_account_id_operation_id");
+
+                    b.HasIndex("AccountId", "ScopeProfileId", "ResourceKind", "ResourceId")
+                        .HasDatabaseName("ix_sync_operation_account_id_scope_profile_id_resource_kind_re");
+
+                    b.ToTable("sync_operation", "cerberus", t =>
+                        {
+                            t.HasCheckConstraint("ck_sync_operation_metadata", "operation_id<>'00000000-0000-0000-0000-000000000000'::uuid\nAND resource_id<>'00000000-0000-0000-0000-000000000000'::uuid\nAND resource_kind IN('profile','record','folder','collection') AND action IN('create','update')\nAND octet_length(request_fingerprint)=32\nAND ((status IN('applied','superseded') AND revision IS NOT NULL AND server_sequence IS NOT NULL\n  AND revision BETWEEN 1 AND 9007199254740991 AND server_sequence BETWEEN 1 AND 9007199254740991 AND edited_at IS NOT NULL)\n  OR (status IN('denied','permanently-deleted') AND revision IS NULL AND server_sequence IS NULL AND edited_at IS NULL))");
+                        });
+                });
+
             modelBuilder.Entity("ArturRios.Cerberus.Domain.Sync.SyncStream", b =>
                 {
                     b.Property<long>("Id")
@@ -1592,6 +1673,16 @@ namespace ArturRios.Cerberus.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_sync_inventory_sync_stream_stream_id");
+                });
+
+            modelBuilder.Entity("ArturRios.Cerberus.Domain.Sync.SyncOperation", b =>
+                {
+                    b.HasOne("ArturRios.Cerberus.Domain.Accounts.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sync_operation_accounts_account_id");
                 });
 
             modelBuilder.Entity("ArturRios.Cerberus.Domain.Sync.SyncStream", b =>

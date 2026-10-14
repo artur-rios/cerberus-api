@@ -18,6 +18,7 @@ public static class ContractRegistration
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.AllowDuplicateProperties = false;
+                options.JsonSerializerOptions.AllowOutOfOrderMetadataProperties = true;
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
                 options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
                 options.JsonSerializerOptions.Converters.Add(new CanonicalGuidConverter());
@@ -37,12 +38,19 @@ public static class ContractRegistration
             options.UseOneOfForPolymorphism();
             options.SelectSubTypesUsing(type => type == typeof(SyncResourceData)
                 ? [typeof(SyncProfileData), typeof(SyncRecordData), typeof(SyncFolderData), typeof(SyncCollectionData), typeof(SyncGrantData)]
+                : type == typeof(SyncEditInput)
+                ? [typeof(SyncRecordCreate), typeof(SyncRecordUpdate), typeof(SyncFolderCreate), typeof(SyncFolderUpdate),
+                    typeof(SyncCollectionCreate), typeof(SyncCollectionUpdate), typeof(SyncProfileCreate), typeof(SyncProfileUpdate)]
                 : []);
-            options.SelectDiscriminatorNameUsing(type => type == typeof(SyncResourceData) ? "resourceType" : null);
+            options.SelectDiscriminatorNameUsing(type => type == typeof(SyncResourceData) ? "resourceType" : type == typeof(SyncEditInput) ? "editType" : null);
             options.SelectDiscriminatorValueUsing(type => type.Name switch
             {
                 nameof(SyncProfileData) => "profile", nameof(SyncRecordData) => "record", nameof(SyncFolderData) => "folder",
-                nameof(SyncCollectionData) => "collection", nameof(SyncGrantData) => "grant", _ => null
+                nameof(SyncCollectionData) => "collection", nameof(SyncGrantData) => "grant",
+                nameof(SyncRecordCreate) => "record-create", nameof(SyncRecordUpdate) => "record-update",
+                nameof(SyncFolderCreate) => "folder-create", nameof(SyncFolderUpdate) => "folder-update",
+                nameof(SyncCollectionCreate) => "collection-create", nameof(SyncCollectionUpdate) => "collection-update",
+                nameof(SyncProfileCreate) => "profile-create", nameof(SyncProfileUpdate) => "profile-update", _ => null
             });
             options.SchemaFilter<SyncResourceSchemaFilter>();
         });
@@ -57,6 +65,37 @@ public static class ContractRegistration
         public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
         {
             if (schema is not OpenApiSchema { Properties: not null } target) return;
+            if (context.Type == typeof(ArturRios.Cerberus.Command.Sync.UploadSyncEditsCommand))
+            {
+                var edits = (OpenApiSchema)target.Properties["edits"];
+                edits.Type = JsonSchemaType.Array;
+                edits.MinItems = 1;
+                return;
+            }
+            if (context.Type == typeof(SyncEditOutcome))
+            {
+                target.Properties["resourceKind"] = new OpenApiSchema { Type = JsonSchemaType.String,
+                    Enum = [JsonValue.Create("profile"), JsonValue.Create("record"), JsonValue.Create("folder"), JsonValue.Create("collection")] };
+                target.Properties["status"] = new OpenApiSchema { Type = JsonSchemaType.String,
+                    Enum = [JsonValue.Create("applied"), JsonValue.Create("superseded"), JsonValue.Create("denied"), JsonValue.Create("permanently-deleted")] };
+                target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
+                return;
+            }
+            if (typeof(SyncEditInput).IsAssignableFrom(context.Type) && !context.Type.IsAbstract)
+            {
+                target.AllOf?.Clear();
+                target.Properties["operationId"] = new OpenApiSchema { Type = JsonSchemaType.String, Format = "uuid" };
+                var editKind = context.Type.Name switch
+                {
+                    nameof(SyncRecordCreate) => "record-create", nameof(SyncRecordUpdate) => "record-update",
+                    nameof(SyncFolderCreate) => "folder-create", nameof(SyncFolderUpdate) => "folder-update",
+                    nameof(SyncCollectionCreate) => "collection-create", nameof(SyncCollectionUpdate) => "collection-update",
+                    nameof(SyncProfileCreate) => "profile-create", nameof(SyncProfileUpdate) => "profile-update", _ => throw new InvalidOperationException()
+                };
+                target.Properties["editType"] = new OpenApiSchema { Type = JsonSchemaType.String, Enum = [JsonValue.Create(editKind)] };
+                target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
+                return;
+            }
             if (context.Type == typeof(ProfileKeyWrappers))
             {
                 var password = target.Properties["passwordWrapper"];
@@ -98,14 +137,15 @@ public static class ContractRegistration
                 && context.MethodInfo.Name == nameof(AccountController.SetOfflinePolicy);
             var renewal = context.MethodInfo.DeclaringType == typeof(OfflineAuthorizationsController)
                 && context.MethodInfo.Name == nameof(OfflineAuthorizationsController.Renew);
-            if (!policyUpdate && !renewal && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
+            var syncEdits = context.MethodInfo.DeclaringType == typeof(SyncController) && context.MethodInfo.Name == nameof(SyncController.Edits);
+            if (!policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
                 || context.MethodInfo.Name is not (nameof(SoftwareGrantsController.GrantAccess)
                     or nameof(SoftwareGrantsController.RevokeAccess)))) return;
             var content = operation.RequestBody!.Content!;
             var json = content["application/json"];
             content.Clear();
             content.Add("application/json", json);
-            if (policyUpdate || renewal || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            if (policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 ((OpenApiRequestBody)operation.RequestBody!).Required = true;
                 operation.Responses!["413"].Content?.Clear();

@@ -1,3 +1,4 @@
+using ArturRios.Cerberus.Data.Resources;
 using System.Data.Common;
 using System.Text.Json;
 using ArturRios.Cerberus.Domain.Accounts;
@@ -21,7 +22,7 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
         try
         {
             await using var db=await factory.CreateDbContextAsync(cancellationToken);
-            await using var tx=await db.Database.BeginTransactionAsync(cancellationToken);
+            await using var tx=await NativeMutationTransaction.BeginAsync(db, cancellationToken);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE",cancellationToken);
             var account=await db.Accounts.AsNoTracking().Where(x=>x.HeimdallPublicId==request.Actor)
                 .Select(x=>new{x.Id,x.PublicId,x.State,x.PolicyRevision,x.RevocationGeneration,x.RenewalEnabled}).SingleOrDefaultAsync(cancellationToken);

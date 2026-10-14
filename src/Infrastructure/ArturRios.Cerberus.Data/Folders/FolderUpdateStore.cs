@@ -6,6 +6,7 @@ using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Folders;
 using ArturRios.Cerberus.Domain.Resources;
+using ArturRios.Cerberus.Domain.Sync;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 namespace ArturRios.Cerberus.Data.Folders;
@@ -22,7 +23,7 @@ public sealed class FolderUpdateStore(IDbContextFactory<AppDbContext> factory):I
         try
         {
             await using var db=await factory.CreateDbContextAsync(ct);
-            await using var tx=await db.Database.BeginTransactionAsync(ct);
+            await using var tx=await NativeMutationTransaction.BeginAsync(db, ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR NO KEY UPDATE",ct);
             var account=await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x=>x.HeimdallPublicId==request.Actor,ct);
             if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "account" && x.ResourceId == account.PublicId),ct))return new(Error:"not_found");
@@ -70,9 +71,25 @@ public sealed class FolderUpdateStore(IDbContextFactory<AppDbContext> factory):I
             var original=Convert.FromHexString(target.Envelope);
             var old=JsonSerializer.Deserialize<EncryptedEnvelope>(original,Json);
             if(old?.IsValid()!=true)return new(Error:"persistence_unavailable");
-            if(target.Revision!=request.Input.ExpectedRevision || target.Revision==ProtocolBinary.MaxInteger)return new(Error:"revision_conflict");
+            if(request.OfflineInspectOnly)
+            {
+                if(!request.OfflineLatestEdit)return new(Error:"validation_failed");
+                await tx.CommitAsync(ct);
+                return new(new FolderCreateDetails(target.FolderId,target.Revision,target.Sequence,target.EditedAt));
+            }
+            if(!request.OfflineLatestEdit && (target.Revision!=request.Input.ExpectedRevision || target.Revision==ProtocolBinary.MaxInteger))return new(Error:"revision_conflict");
             var input=request.Input;
             if(input.Envelope.KeyEpoch!=old.KeyEpoch || input.Envelope!=old && (input.Envelope.KeySalt==old.KeySalt || input.Envelope.Nonce==old.Nonce))return new(Error:"validation_failed");
+            if(request.OfflineLatestEdit)
+            {
+                if(!OfflineEditOrder.ShouldApply(input.EditedAt,target.EditedAt))
+                {
+                    await tx.CommitAsync(ct);
+                    return new(new FolderCreateDetails(target.FolderId,target.Revision,target.Sequence,target.EditedAt), "superseded");
+                }
+                if(target.Revision==ProtocolBinary.MaxInteger)return new(Error:"revision_conflict");
+                input=input with {ExpectedRevision=target.Revision};
+            }
             var edited=input.EditedAt.AddTicks(-(input.EditedAt.Ticks%10));
             var parameters=Parameters(request).Concat(new object[]{new NpgsqlParameter("replacement",JsonSerializer.SerializeToUtf8Bytes(input.Envelope,Json)),new NpgsqlParameter("edited",edited),new NpgsqlParameter("stamp",Guid.NewGuid()),new NpgsqlParameter("expected",input.ExpectedRevision),new NpgsqlParameter("previous_sequence",target.Sequence),new NpgsqlParameter("original",original),new NpgsqlParameter("collections",current.Collections),new NpgsqlParameter("grants",current.GrantsIds)}).ToArray();
             var changed=await db.Database.ExecuteSqlRawAsync(Authority+"""

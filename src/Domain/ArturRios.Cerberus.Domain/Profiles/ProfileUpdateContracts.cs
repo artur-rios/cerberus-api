@@ -10,7 +10,7 @@ public sealed record ProfileUpdateInput(long ExpectedRevision,EncryptedEnvelope 
     public bool IsValid()=>ExpectedRevision is >0 and <=ProtocolBinary.MaxInteger && Envelope?.IsValid()==true
         && EditedAt.Ticks>=TimeSpan.TicksPerMicrosecond && EditedAt.Offset==TimeSpan.Zero;
 }
-public sealed record ProfileUpdateRequest(Guid Actor,string AccessVerifier,Guid ProfileId,ProfileUpdateInput Input);
+public sealed record ProfileUpdateRequest(Guid Actor,string AccessVerifier,Guid ProfileId,ProfileUpdateInput Input, bool OfflineLatestEdit = false, bool OfflineInspectOnly = false);
 public interface IProfileUpdateStore
 {
     Task<VaultResult<ProfileCreateDetails>> UpdateAsync(ProfileUpdateRequest request,CancellationToken cancellationToken);

@@ -37,3 +37,19 @@ public sealed class SyncChange : Entity
     public string EventType { get; set; } = string.Empty;
     public DateTimeOffset? DeletedAt { get; set; }
 }
+
+public sealed class SyncOperation : Entity
+{
+    public long AccountId { get; set; }
+    public Guid OperationId { get; set; }
+    public Guid? ScopeProfileId { get; set; }
+    public byte[] RequestFingerprint { get; set; } = [];
+    public string ResourceKind { get; set; } = string.Empty;
+    public Guid ResourceId { get; set; }
+    public string Action { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public long? Revision { get; set; }
+    public long? ServerSequence { get; set; }
+    public DateTimeOffset? EditedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}

@@ -1,5 +1,17 @@
 # Foundation implementation status
 
+UC49 adds [encrypted offline edit upload](../security/offline-edits-api.md)
+at `POST /api/sync/edits`. Eight native create/content-update variants retain
+current owner/selected-profile/sharing authority and native cryptographic checks.
+Locked microsecond timestamps and persisted native sequences order accepted
+edits; a metadata-only scoped operation ledger makes exact retries stable without
+retaining payloads. Canonical exclusive owner roots serialize opposing shared
+batches; upfront canonical owner-collection locks also serialize standalone online
+recipient content writers. Savepoints preserve native rollback within the outer atomic transaction.
+Current denial overrides historical winning metadata and known typed terminal
+identifiers cannot resurrect. Upload operation IDs survive download retention
+and cascade on account erasure. External client qualification remains open.
+
 UC48 adds [durable selected-profile synchronization](../security/synchronization-api.md)
 at `GET /api/sync/changes`. Current native visibility readers supply typed
 encrypted payloads and recipient provisioning; retained history holds only

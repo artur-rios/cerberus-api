@@ -1,5 +1,8 @@
 # Download synchronization changes
 
+[Upload offline edits](offline-edits-api.md) before fetching reconciled current
+content when reconnecting with pending writes.
+
 UC48 exposes `GET /api/sync/changes`. Send a current Heimdall human bearer token
 and `X-Cerberus-Vault-Access` for a current selected profile. The profile comes
 from that session; an account-wide session does not authorize synchronization.

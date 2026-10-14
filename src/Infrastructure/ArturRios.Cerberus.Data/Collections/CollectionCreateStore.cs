@@ -1,3 +1,4 @@
+using ArturRios.Cerberus.Data.Resources;
 using System.Data.Common;
 using System.Text.Json;
 using ArturRios.Cerberus.Domain.Accounts;
@@ -21,7 +22,7 @@ public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factor
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
-            await using var tx = await db.Database.BeginTransactionAsync(ct);
+            await using var tx = await NativeMutationTransaction.BeginAsync(db, ct);
             // Strong own-account serialization also covers new owned-resource FKs.
             // Collections precede content to match current native recipient writers.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", ct);

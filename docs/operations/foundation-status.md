@@ -1,5 +1,17 @@
 # Foundation implementation status
 
+UC48 adds [durable selected-profile synchronization](../security/synchronization-api.md)
+at `GET /api/sync/changes`. Current native visibility readers supply typed
+encrypted payloads and recipient provisioning; retained history holds only
+descriptors, disclosed IDs and fingerprints. Opaque cursors survive valid handle
+replacement, enforce monotonic windows, and explicitly require clear-scope
+resynchronization when invalid, expired or unsafe to continue. Known typed
+removals precede upserts and later terminal tombstones. Canonical account and
+complete owner-collection locks serialize alternate shared-edit routes; fresh
+authority checks and transaction rollback protect every page. Fixed configured
+retention is enforced on read; scheduled abandoned-stream cleanup belongs to
+UC53. External client qualification and independent release review remain open.
+
 UC47 adds [profile-scoped offline authorization](../security/offline-authorization-api.md)
 at `POST /api/offline-authorizations`. Current Heimdall, account, session, profile
 and associated sharing metadata bind a native ES256 lease; canonical locks and

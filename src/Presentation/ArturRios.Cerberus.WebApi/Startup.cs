@@ -85,6 +85,9 @@ public static class Startup
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetOfflinePolicyQuery, OfflinePolicyOutput>, GetOfflinePolicyHandler>();
         builder.Services.AddScoped<IOfflinePolicyReadStore, OfflinePolicyReadStore>();
+        builder.Services.AddScoped<ArturRios.Cerberus.Domain.Sync.ISyncDownloadStore, ArturRios.Cerberus.Data.Sync.SyncDownloadStore>();
+        builder.Services.AddSingleton<ArturRios.Cerberus.Query.Sync.SyncCursor>();
+        builder.Services.AddScoped<IQueryHandlerAsync<ArturRios.Cerberus.Query.Sync.DownloadSyncChangesQuery, ArturRios.Cerberus.Query.Sync.SyncChangesOutput>, ArturRios.Cerberus.Query.Sync.DownloadSyncChangesHandler>();
         builder.Services.AddScoped<IOfflinePolicyUpdateStore, OfflinePolicyUpdateStore>();
         builder.Services.AddSingleton<IOfflineLeaseSigner, ArturRios.Cerberus.Shared.Offline.OfflineLeaseSigner>();
         builder.Services.AddScoped<IOfflineAuthorizationStore, OfflineAuthorizationStore>();

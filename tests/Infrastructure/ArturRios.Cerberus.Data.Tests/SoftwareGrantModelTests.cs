@@ -138,7 +138,9 @@ public sealed class SoftwareGrantMigrationTests(PostgresFixture fixture)
             Assert.Empty(await db.SoftwareGrants.ToArrayAsync());
             Assert.Empty(await db.SoftwareGrantRecords.ToArrayAsync());
             Assert.Empty(await db.SoftwareGrantCollections.ToArrayAsync());
-            Assert.EndsWith("_SoftwareGrants", (await db.Database.GetAppliedMigrationsAsync()).Last());
+            var applied = (await db.Database.GetAppliedMigrationsAsync()).ToArray();
+            Assert.Contains(applied, x => x.EndsWith("_SoftwareGrants", StringComparison.Ordinal));
+            Assert.Equal(db.Database.GetMigrations(), applied);
         }
         finally
         {

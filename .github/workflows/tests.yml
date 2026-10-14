@@ -111,6 +111,10 @@ jobs:
         if: steps.scaffold.outputs.ready == 'true'
         run: dotnet restore src/ArturRios.Cerberus.sln
 
+      - name: Verify server leases with independent native clients
+        if: steps.scaffold.outputs.ready == 'true'
+        run: '"$HARNESS_PYTHON" scripts/offline_leases.py'
+
       - name: Scan for vulnerable dependencies
         if: steps.scaffold.outputs.ready == 'true'
         run: python3 scripts/vulnerabilities.py

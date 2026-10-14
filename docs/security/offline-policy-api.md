@@ -1,5 +1,8 @@
 # Offline policy API
 
+Signed profile lease issuance is documented in
+[Offline authorization leases](offline-authorization-api.md).
+
 `GET /api/accounts/me/offline-policy` returns the current owner's saved renewal
 policy. Authenticate with a current scoped Heimdall bearer token and supply one
 `X-Cerberus-Vault-Access` header. The handle must identify a current account-wide

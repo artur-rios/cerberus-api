@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using ArturRios.Cerberus.Domain.Offline;
 
 namespace ArturRios.Cerberus.Shared.Configuration;
 
@@ -26,6 +27,11 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
         Require(options.RegistrationFingerprintKey is { Length: >= 32 } registrationKey
                 && registrationKey.All(c => c is >= '!' and <= '~') && registrationKey != options.AuthValidationSecret,
             "CERBERUS_REGISTRATION_FINGERPRINT_KEY");
+        if (options.OfflineLeaseIssuer is not null || options.OfflineLeasePrivateKeyPem is not null)
+        {
+            Require(OfflineLease.ValidIssuer(options.OfflineLeaseIssuer), "CERBERUS_OFFLINE_LEASE_ISSUER");
+            Require(OfflineLease.TrySigningPublicKey(options.OfflineLeasePrivateKeyPem, out _), "CERBERUS_OFFLINE_LEASE_PRIVATE_KEY_PEM");
+        }
         foreach (var (value, key) in new[]
         {
             (options.BackupRetention, "CERBERUS_BACKUP_RETENTION"),

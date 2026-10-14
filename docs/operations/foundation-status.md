@@ -1,5 +1,14 @@
 # Foundation implementation status
 
+UC47 adds [profile-scoped offline authorization](../security/offline-authorization-api.md)
+at `POST /api/offline-authorizations`. Current Heimdall, account, session, profile
+and associated sharing metadata bind a native ES256 lease; canonical locks and
+post-signing revalidation prevent disclosure from stale authority. A separately
+provisioned issuer/private P-256 pair enables issuance, with independently pinned
+client public-key trust. Default/custom/disabled expiry and server-produced leases
+are checked by both native verifiers in required CI. External-client clock/storage
+qualification and independent release review remain outstanding.
+
 UC46 adds the [offline policy update](../security/offline-policy-api.md#update-the-policy)
 at `PUT /api/accounts/me/offline-policy`. Three required fields control a positive
 whole-second renewal interval or explicit disabled-null state. Canonical

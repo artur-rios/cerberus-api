@@ -19,6 +19,20 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
 {
     public static readonly Guid Scope = Guid.Parse("527a1001-8ef5-4c9b-a565-111111111111");
     private const string Secret = "fixture-only-signing-key-32-characters";
+    private static readonly string LeasePrivatePem = FixtureLeaseKey();
+    public static ArturRios.Cerberus.Domain.Protection.PublicJwk LeasePublicKey
+    {
+        get
+        {
+            ArturRios.Cerberus.Domain.Offline.OfflineLease.TrySigningPublicKey(LeasePrivatePem, out var key);
+            return key!;
+        }
+    }
+    private static string FixtureLeaseKey()
+    {
+        using var key = System.Security.Cryptography.ECDsa.Create(System.Security.Cryptography.ECCurve.NamedCurves.nistP256);
+        return key.ExportPkcs8PrivateKeyPem();
+    }
     private readonly string _serviceToken = ServiceToken();
     private readonly HeimdallTokenValidator _tokens = new(new CerberusOptions
     { HeimdallScopeId = Scope, AuthIssuer = "fixture-issuer", AuthAudience = "fixture-audience", AuthValidationSecret = Secret });
@@ -125,6 +139,7 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
             ["CERBERUS_AUTH_ISSUER"] = "fixture-issuer", ["CERBERUS_AUTH_AUDIENCE"] = "fixture-audience",
             ["CERBERUS_AUTH_VALIDATION_SECRET"] = Secret,
             ["CERBERUS_REGISTRATION_FINGERPRINT_KEY"] = "independent-durable-fixture-key-32-bytes",
+            ["CERBERUS_OFFLINE_LEASE_ISSUER"] = "fixture-lease-issuer", ["CERBERUS_OFFLINE_LEASE_PRIVATE_KEY_PEM"] = LeasePrivatePem,
             ["CERBERUS_BACKUP_RETENTION"] = "7.00:00:00", ["CERBERUS_LOG_RETENTION"] = "7.00:00:00",
             ["CERBERUS_SYNC_RETENTION"] = "30.00:00:00", ["CERBERUS_RETENTION_INTERVAL"] = "00:05:00",
             ["CERBERUS_BACKUP_PATH"] = "/srv/cerberus/backups", ["CERBERUS_ERASURE_LEDGER_PATH"] = _ledger,

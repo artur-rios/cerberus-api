@@ -42,14 +42,16 @@ public static class ContractRegistration
         {
             var policyUpdate = context.MethodInfo.DeclaringType == typeof(AccountController)
                 && context.MethodInfo.Name == nameof(AccountController.SetOfflinePolicy);
-            if (!policyUpdate && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
+            var renewal = context.MethodInfo.DeclaringType == typeof(OfflineAuthorizationsController)
+                && context.MethodInfo.Name == nameof(OfflineAuthorizationsController.Renew);
+            if (!policyUpdate && !renewal && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
                 || context.MethodInfo.Name is not (nameof(SoftwareGrantsController.GrantAccess)
                     or nameof(SoftwareGrantsController.RevokeAccess)))) return;
             var content = operation.RequestBody!.Content!;
             var json = content["application/json"];
             content.Clear();
             content.Add("application/json", json);
-            if (policyUpdate || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            if (policyUpdate || renewal || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 ((OpenApiRequestBody)operation.RequestBody!).Required = true;
                 operation.Responses!["413"].Content?.Clear();

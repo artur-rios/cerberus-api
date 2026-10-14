@@ -20,6 +20,8 @@ public static class CerberusConfiguration
             AuthAudience = Value("CERBERUS_AUTH_AUDIENCE", nameof(CerberusOptions.AuthAudience)),
             AuthValidationSecret = Value("CERBERUS_AUTH_VALIDATION_SECRET", nameof(CerberusOptions.AuthValidationSecret)),
             RegistrationFingerprintKey = Value("CERBERUS_REGISTRATION_FINGERPRINT_KEY", nameof(CerberusOptions.RegistrationFingerprintKey)),
+            OfflineLeaseIssuer = Value("CERBERUS_OFFLINE_LEASE_ISSUER", nameof(CerberusOptions.OfflineLeaseIssuer)),
+            OfflineLeasePrivateKeyPem = Value("CERBERUS_OFFLINE_LEASE_PRIVATE_KEY_PEM", nameof(CerberusOptions.OfflineLeasePrivateKeyPem)),
             BackupRetention = Value("CERBERUS_BACKUP_RETENTION", nameof(CerberusOptions.BackupRetention)),
             LogRetention = Value("CERBERUS_LOG_RETENTION", nameof(CerberusOptions.LogRetention)),
             SyncRetention = Value("CERBERUS_SYNC_RETENTION", nameof(CerberusOptions.SyncRetention)),

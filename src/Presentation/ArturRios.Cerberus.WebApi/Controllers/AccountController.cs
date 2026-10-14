@@ -1,6 +1,9 @@
 using ArturRios.Cerberus.Command.Accounts;
 using ArturRios.Cerberus.Query.Accounts;
 using ArturRios.Cerberus.Query.Offline;
+using ArturRios.Cerberus.Command.Offline;
+using ArturRios.Cerberus.WebApi.Middleware;
+using System.Net.Http.Headers;
 using ArturRios.Mediator.Command;
 using ArturRios.Mediator.Query;
 using ArturRios.Output;
@@ -15,6 +18,31 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 [Route("api/accounts")]
 public sealed class AccountController(CommandMediator commands, QueryMediator queries) : ControllerBase
 {
+    [HttpPut("me/offline-policy")]
+    [VaultProofBody]
+    [ProducesResponseType(typeof(DataOutput<SetOfflinePolicyOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<SetOfflinePolicyOutput?>>> SetOfflinePolicy(
+        [FromBody] SetOfflinePolicyCommand command, CancellationToken cancellationToken)
+    {
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
+            || !MediaTypeHeaderValue.TryParse(Request.ContentType, out var media) || media.Parameters.Count > 1
+            || media.Parameters.Any(p => !string.Equals(p.Name, "charset", StringComparison.OrdinalIgnoreCase)))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var identityId) || identityId == Guid.Empty)
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        command.SetContext(identityId,
+            Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var access) ? access.ToString() : null);
+        var result = await commands.ExecuteCommandAsync<SetOfflinePolicyCommand, SetOfflinePolicyOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: OfflinePolicyUpdateMessages.StatusCodes);
+    }
+
     [HttpGet("me/offline-policy")]
     [ProducesResponseType(typeof(DataOutput<OfflinePolicyOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]

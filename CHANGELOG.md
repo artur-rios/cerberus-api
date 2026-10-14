@@ -12,6 +12,11 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- Owner-only `PUT /api/accounts/me/offline-policy` sets a positive whole-second
+  renewal interval or explicitly disables renewal, with policy-version concurrency,
+  current authority checks and no-store responses. Old-version vault sessions become
+  stale; disconnected leases retain their previously issued policy.
+
 - Owner-only `GET /api/accounts/me/offline-policy` returns the current saved renewal
   setting, duration and policy/revocation versions, with a 24-hour initial policy,
   explicit disabled state, current session checks and no-store responses.

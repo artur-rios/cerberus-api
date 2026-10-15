@@ -12,6 +12,11 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- `GET /api/trash` returns native encrypted deletion roots and original deadlines,
+  with current owner/selected-profile scope, bounded authenticated pagination,
+  typed terminal exclusions and no-store responses. Folder cascades appear once;
+  independently prior deletions retain their own operation and expiry.
+
 - `GET /api/software-secrets` validates a distinct-audience Heimdall application
   token and live credential on every read, then releases only exact currently
   granted native ciphertext and signed provisioning under database-time checks.

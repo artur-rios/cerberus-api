@@ -33,9 +33,9 @@ internal static class AccountExportSql
             AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_kind='folder' AND e.resource_id=f.public_id) state_ok
           FROM cerberus.folder f JOIN actor a ON a.id=f.account_id CROSS JOIN clock t
         ), tree AS (
-          SELECT f.id,f.parent_folder_id,f.state_ok visible FROM folders f WHERE f.parent_folder_id IS NULL
+          SELECT f.id,f.parent_folder_id,f.state_ok visible,ARRAY[f.public_id] path FROM folders f WHERE f.parent_folder_id IS NULL
           UNION ALL
-          SELECT f.id,f.parent_folder_id,t.visible AND f.state_ok FROM folders f JOIN tree t ON t.id=f.parent_folder_id
+          SELECT f.id,f.parent_folder_id,t.visible AND f.state_ok,t.path||f.public_id FROM folders f JOIN tree t ON t.id=f.parent_folder_id
         ), visible_folders AS MATERIALIZED (SELECT f.* FROM folders f JOIN tree t ON t.id=f.id WHERE t.visible),
         visible_profiles AS MATERIALIZED (
           SELECT p.* FROM cerberus.profile p JOIN actor a ON a.id=p.account_id CROSS JOIN clock t
@@ -78,11 +78,11 @@ internal static class AccountExportSql
               ELSE jsonb_build_object('keyEpoch',n.key_epoch) END FROM natives n
         )
         """;
-    internal const string Declare="DECLARE cerberus_account_export NO SCROLL CURSOR FOR "+Authority+Native+"""
-        SELECT COALESCE(g.error,ng.error) error,h.value header,e.body::text body
-        FROM guard g CROSS JOIN native_guard ng LEFT JOIN header h ON true
-        LEFT JOIN LATERAL (SELECT body FROM native_entries WHERE g.error IS NULL AND ng.error IS NULL) e ON true
-        """;
+    internal const string Declare="DECLARE cerberus_account_export NO SCROLL CURSOR FOR "+Authority+"\n"+Native+"\n"+AccountExportRelationsSql.Projections+"\n"+"""
+        SELECT COALESCE(g.error,ng.error,rg.error) error,h.value header,e.body::text body,dependencies.value fences
+        FROM guard g CROSS JOIN native_guard ng CROSS JOIN relation_guard rg LEFT JOIN header h ON true
+        LEFT JOIN LATERAL (SELECT body FROM all_entries WHERE g.error IS NULL AND ng.error IS NULL AND rg.error IS NULL) e ON true
+        """+"\n"+AccountExportRelationsSql.Dependencies;
     internal const string Fetch="FETCH FORWARD 32 FROM cerberus_account_export";
     internal const string Fence=Authority+"""
         SELECT COALESCE(g.error,CASE WHEN NOT EXISTS(SELECT FROM actor a WHERE a.public_id=@owner) THEN 'not_found'
@@ -92,6 +92,7 @@ internal static class AccountExportSql
         """;
     internal static object[] Parameters(AccountExportRequest r,bool initial)=>
     [new NpgsqlParameter("actor",r.Actor),new NpgsqlParameter("verifier",r.AccessVerifier),new NpgsqlParameter("iat",r.AuthenticationIssuedAt),
-        new NpgsqlParameter("expected",r.ExpectedRevision),new NpgsqlParameter("initial",initial)];
+        new NpgsqlParameter("expected",r.ExpectedRevision),new NpgsqlParameter("initial",initial),
+        new NpgsqlParameter("uuid_pattern","^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")];
     internal const long Max=ProtocolBinary.MaxInteger;
 }

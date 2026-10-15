@@ -43,7 +43,9 @@ internal sealed class AccountExportLease(AppDbContext db,IDbContextTransaction t
     private async Task Fence(CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        var ids=new List<object>();foreach(var row in batch)foreach(var id in AccountExportRow.Ids(row.Read(Header,capturedHeader)))ids.Add(new{kind=id.Kind,id=id.Id});
+        var pending=new HashSet<(string Kind,Guid Id)>();foreach(var row in batch)
+        {foreach(var id in AccountExportRow.Ids(row.Read(Header,capturedHeader)))pending.Add(id);foreach(var id in row.Dependencies())pending.Add(id);}
+        var ids=pending.Select(id=>new{kind=id.Kind,id=id.Id});
         var parameters=AccountExportSql.Parameters(request,false).Concat([
             new NpgsqlParameter("owner",Header.AccountId),new NpgsqlParameter("policy",Header.PolicyRevision),
             new NpgsqlParameter("generation",Header.RevocationGeneration),new NpgsqlParameter("pending",JsonSerializer.Serialize(ids))]).ToArray();

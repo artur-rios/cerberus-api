@@ -170,7 +170,7 @@ public partial class AccountExportStoreTests(PostgresFixture fixture):IAsyncLife
             await root.Database.ExecuteSqlRawAsync("GRANT SELECT ON "+string.Join(',',tables.Select(x=>"cerberus."+x))+" TO "+role);
             var target=Factory(probe,change:b=>{b.Username=role;b.Password="fixture-only-export-password";});
             // When/Then: successful native export proves no UPDATE locks, DML or sequence usage.
-            var result=await Capture(w,target);Assert.Single(result.Entries.OfType<AccountExportRecord>());Assert.Equal("on",probe.Mode);Assert.Equal(before,await Snapshot(w));
+            var result=await Capture(w,target,()=>probe.Failure);Assert.Single(result.Entries.OfType<AccountExportRecord>());Assert.Equal("on",probe.Mode);Assert.Equal(before,await Snapshot(w));
         }
         finally{await root.Database.ExecuteSqlRawAsync("DROP OWNED BY "+role);await root.Database.ExecuteSqlRawAsync("DROP ROLE "+role);}
     }
@@ -203,10 +203,10 @@ public partial class AccountExportStoreTests(PostgresFixture fixture):IAsyncLife
         await db.SaveChangesAsync();return new(s,await db.Profiles.AsNoTracking().SingleAsync(x=>x.Id==pid),items.Record,items.Folder,items.Collection);
     }
     private static AccountExportRequest Request(Graph w)=>new(w.Owner.Actor,w.Owner.Verifier,DateTimeOffset.UtcNow.ToUnixTimeSeconds(),1);
-    private async Task<IAccountExportLease> Open(Graph w,IDbContextFactory<AppDbContext>? target=null)
-    {var result=await new AccountExportStore(target??fixture).OpenAsync(Request(w),default);Assert.Null(result.Error);return Assert.IsAssignableFrom<IAccountExportLease>(result.Lease);}
-    private async Task<Captured> Capture(Graph w,IDbContextFactory<AppDbContext>? target=null)
-    {await using var lease=await Open(w,target);var entries=new List<AccountExportEntry>();await foreach(var e in lease.ReadAsync(default))entries.Add(e);return new(lease.Header,entries);}
+    private async Task<IAccountExportLease> Open(Graph w,IDbContextFactory<AppDbContext>? target=null,Func<string?>? diagnostic=null)
+    {var result=await new AccountExportStore(target??fixture).OpenAsync(Request(w),default);Assert.True(result.Error is null,diagnostic?.Invoke()??result.Error);return Assert.IsAssignableFrom<IAccountExportLease>(result.Lease);}
+    private async Task<Captured> Capture(Graph w,IDbContextFactory<AppDbContext>? target=null,Func<string?>? diagnostic=null)
+    {await using var lease=await Open(w,target,diagnostic);var entries=new List<AccountExportEntry>();await foreach(var e in lease.ReadAsync(default))entries.Add(e);return new(lease.Header,entries);}
     private IDbContextFactory<AppDbContext> Factory(DbCommandInterceptor? interceptor=null,string? tag=null,Action<NpgsqlConnectionStringBuilder>? change=null)
     {
         using var db=fixture.CreateContext();var cs=new NpgsqlConnectionStringBuilder(db.Database.GetConnectionString()){ApplicationName=tag??"uc54_export_"+Guid.NewGuid().ToString("N"),Pooling=false,Timeout=3,CommandTimeout=10};change?.Invoke(cs);
@@ -217,17 +217,27 @@ public partial class AccountExportStoreTests(PostgresFixture fixture):IAsyncLife
         await using var db=fixture.CreateContext();var id=w.Owner.InternalId;
         return JsonSerializer.Serialize(new{Account=await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x=>x.Id==id),Protection=await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==id),
             Profiles=await db.Profiles.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.Id).ToArrayAsync(),Records=await db.Records.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.Id).ToArrayAsync(),Folders=await db.Folders.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.Id).ToArrayAsync(),Collections=await db.Collections.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.Id).ToArrayAsync(),
-            Sessions=await db.VaultAccessSessions.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.Id).ToArrayAsync(),Markers=await db.TerminalErasures.AsNoTracking().OrderBy(x=>x.ResourceKind).ThenBy(x=>x.ResourceId).ToArrayAsync()},ProtectionFixture.Json);
+            Sessions=await db.VaultAccessSessions.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.Id).ToArrayAsync(),
+            ProfileRecords=await db.ProfileRecords.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.ProfileId).ThenBy(x=>x.RecordId).ToArrayAsync(),ProfileFolders=await db.ProfileFolders.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.ProfileId).ThenBy(x=>x.FolderId).ToArrayAsync(),
+            ProfileCollections=await db.ProfileCollections.AsNoTracking().Where(x=>db.Profiles.Any(p=>p.Id==x.ProfileId&&p.AccountId==id)||db.Collections.Any(c=>c.Id==x.CollectionId&&c.AccountId==id)).OrderBy(x=>x.ProfileId).ThenBy(x=>x.CollectionId).ToArrayAsync(),
+            CollectionRecords=await db.CollectionRecords.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.CollectionId).ThenBy(x=>x.RecordId).ToArrayAsync(),CollectionFolders=await db.CollectionFolders.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.CollectionId).ThenBy(x=>x.FolderId).ToArrayAsync(),
+            Grants=await db.CollectionGrants.AsNoTracking().Where(x=>x.RecipientAccountId==id||db.Collections.Any(c=>c.Id==x.CollectionId&&c.AccountId==id)).OrderBy(x=>x.Id).ToArrayAsync(),Software=await db.SoftwareGrants.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.Id).ToArrayAsync(),
+            SoftwareRecords=await db.SoftwareGrantRecords.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.GrantId).ThenBy(x=>x.RecordId).ToArrayAsync(),SoftwareCollections=await db.SoftwareGrantCollections.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.GrantId).ThenBy(x=>x.CollectionId).ToArrayAsync(),
+            Trash=await db.TrashOperations.AsNoTracking().Where(x=>x.AccountId==id).OrderBy(x=>x.Id).ToArrayAsync(),History=await db.TrashEntries.AsNoTracking().Where(x=>db.TrashOperations.Any(o=>o.Id==x.OperationId&&o.AccountId==id)).OrderBy(x=>x.Id).ToArrayAsync(),
+            Markers=await db.TerminalErasures.AsNoTracking().OrderBy(x=>x.ResourceKind).ThenBy(x=>x.ResourceId).ToArrayAsync()},ProtectionFixture.Json);
     }
     private async Task<long> ActiveTransactions(string tag)
     {await using var db=fixture.CreateContext();return await db.Database.SqlQuery<long>($"SELECT count(*) AS \"Value\" FROM pg_stat_activity WHERE application_name={tag} AND xact_start IS NOT NULL").SingleAsync();}
     private sealed class ReadMode:DbCommandInterceptor
     {
         public string? Mode{get;private set;}
+        public string? Failure{get;private set;}
         private async Task Check(DbCommand command,CancellationToken ct)
         {if(Mode is null&&command.CommandText.TrimStart().StartsWith("DECLARE ",StringComparison.OrdinalIgnoreCase)){await using var probe=command.Connection!.CreateCommand();probe.Transaction=command.Transaction;probe.CommandText="SHOW transaction_read_only";Mode=Convert.ToString(await probe.ExecuteScalarAsync(ct));}}
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default){await Check(c,ct);return r;}
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<DbDataReader> r,CancellationToken ct=default){await Check(c,ct);return r;}
+        public override Task CommandFailedAsync(DbCommand c,CommandErrorEventData d,CancellationToken ct=default)
+        {if(d.Exception is PostgresException e)Failure=$"{e.SqlState} at {e.Position}: {e.MessageText}";return Task.CompletedTask;}
     }
     public Task InitializeAsync()=>Task.CompletedTask;
     public async Task DisposeAsync(){if(owners.Count==0)return;await using var db=fixture.CreateContext();await db.Accounts.Where(x=>owners.Contains(x.Id)).ExecuteDeleteAsync();}

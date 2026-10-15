@@ -1,6 +1,9 @@
 using System.Data.Common;
 using ArturRios.Cerberus.Data.Accounts.Export;
 using ArturRios.Cerberus.Domain.Accounts;
+using ArturRios.Cerberus.Domain.Trash;
+using ArturRios.Cerberus.TestSupport;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
@@ -97,17 +100,22 @@ public partial class AccountExportStoreTests
         try
         {
             await RequireBoundary(gate.Reached.Task,pending);await using var db=fixture.CreateContext();
+            // Build original operation metadata before arming the short actual boundary.
+            var records=await db.Records.AsNoTracking().Where(x=>x.AccountId==w.Owner.InternalId).ToArrayAsync();var provisional=DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            var operations=records.Select(r=>new TrashOperation{AccountId=w.Owner.InternalId,RootResourceKind="record",RootResourceId=r.PublicId,DeletedAt=provisional,PurgeAt=provisional.AddHours(720)}).ToArray();db.TrashOperations.AddRange(operations);await db.SaveChangesAsync();
+            db.TrashEntries.AddRange(operations.Select(o=>new TrashEntry{OperationId=o.Id,ResourceKind="record",ResourceId=o.RootResourceId,AssociationSnapshot=JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(o.RootResourceId==w.Record.PublicId?w.Folder.PublicId:null,[],[]),ProtectionFixture.Json)}));await db.SaveChangesAsync();
             deadline=await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp()+interval '3 seconds' AS \"Value\"").SingleAsync();
-            await db.Records.Where(x=>x.AccountId==w.Owner.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(r=>r.DeletedAt,deadline.AddHours(-720)).SetProperty(r=>r.PurgeAt,deadline));gate.Release.TrySetResult();
+            await db.Records.Where(x=>x.AccountId==w.Owner.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(r=>r.DeletedAt,deadline.AddHours(-720)).SetProperty(r=>r.PurgeAt,deadline));
+            await db.TrashOperations.Where(x=>x.AccountId==w.Owner.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(o=>o.DeletedAt,deadline.AddHours(-720)).SetProperty(o=>o.PurgeAt,deadline));gate.Release.TrySetResult();
         }
         finally{gate.Release.TrySetResult();}
-        var opened=await pending;Assert.Null(opened.Error);await using var lease=Assert.IsAssignableFrom<IAccountExportLease>(opened.Lease);await using var reader=lease.ReadAsync(default).GetAsyncEnumerator();var total=0;
-        for(var i=0;i<32;i++){Assert.True(await reader.MoveNextAsync());if(reader.Current is AccountExportRecord)total++;}
+        var opened=await pending;Assert.Null(opened.Error);await using var lease=Assert.IsAssignableFrom<IAccountExportLease>(opened.Lease);await using var reader=lease.ReadAsync(default).GetAsyncEnumerator();var total=0;var operationsRead=0;
+        for(var i=0;i<32;i++){Assert.True(await reader.MoveNextAsync());if(reader.Current is AccountExportRecord)total++;if(reader.Current is AccountExportTrashOperation)operationsRead++;}
         // When: later FETCH statements run strictly after the original deadline.
         var delay=deadline-DateTimeOffset.UtcNow+TimeSpan.FromMilliseconds(100);if(delay>TimeSpan.Zero)await Task.Delay(delay);
-        while(await reader.MoveNextAsync())if(reader.Current is AccountExportRecord)total++;
+        while(await reader.MoveNextAsync()){if(reader.Current is AccountExportRecord)total++;if(reader.Current is AccountExportTrashOperation)operationsRead++;}
         // Then: this package has all97 records; a newly captured package omits them.
-        Assert.Equal(97,total);var next=await Capture(w);Assert.Empty(next.Entries.OfType<AccountExportRecord>());
+        Assert.Equal(97,total);Assert.Equal(97,operationsRead);var next=await Capture(w);Assert.Empty(next.Entries.OfType<AccountExportRecord>());Assert.Empty(next.Entries.OfType<AccountExportTrashOperation>());
     }
 
     [FunctionalTheory][InlineData(false)][InlineData(true)]

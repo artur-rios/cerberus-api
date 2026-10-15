@@ -46,12 +46,13 @@
 ### Task 3: Private relationship and key metadata
 **Files:** Create `src/Infrastructure/ArturRios.Cerberus.Data/Accounts/Export/AccountExportRelationsSql.cs`; modify AccountExportSql/row mapping; create `tests/Infrastructure/ArturRios.Cerberus.Data.Tests/AccountExportRelationsTests.cs`, `AccountExportRetentionTests.cs`.
 **Interfaces:** Extends the same Task2 cursor SELECT through a focused partial SQL helper; no independent package-data queries. Uses Task1 fixed typed entries and Task2 header/current fences. Exposes owned normalized relationships, related incoming refs, owned grants/target envelopes and original retained-operation metadata.
-- [ ] Write real tests first: current profile/folder/collection associations, own outgoing grants, own software public-key and record/collection target envelopes, related incoming refs without foreign ciphertext/protection/private profiles. Assert byte equality, original counters and entire foreign canary graph unchanged.
-- [ ] Add typed UUID collision, corrupt cross-owner native/link/target and historical recipient-profile cases; retain original owned history through fixed-key filtered normalized references. Expired/terminal/hidden ancestor chains are omitted; selected cyclic/invalid metadata cannot silently produce a complete archive. Opaque native crypto remains transportable. Terminal fences cover pending key/relationship identities.
-- [ ] Run focused AccountExport tests; Expected: native-only implementation fails metadata/foreign/corruption assertions.
-- [ ] Implement all whitelisted relationships/grants/encrypted target keys/retained metadata within the captured cursor snapshot. Never dump EF entities, raw association snapshots or foreign protection bundles.
+- [x] Write real tests first: current profile/folder/collection associations, own outgoing grants, own software public-key and record/collection target envelopes, related incoming refs without foreign ciphertext/protection/private profiles. Assert byte equality, original counters and entire foreign canary graph unchanged.
+- [x] Add typed UUID collision, corrupt cross-owner native/link/target and historical recipient-profile cases; retain original owned history through fixed-key filtered normalized references. Expired/terminal/hidden ancestor chains are omitted; selected cyclic/invalid metadata cannot silently produce a complete archive. Opaque native crypto remains transportable. Terminal fences cover pending key/relationship identities.
+- [x] Run focused AccountExport tests; Expected: native-only implementation fails metadata/foreign/corruption assertions.
+- [x] Implement all whitelisted relationships/grants/encrypted target keys/retained metadata within the captured cursor snapshot. Never dump EF entities, raw association snapshots or foreign protection bundles.
 - [ ] Run all focused AccountExport tests and relevant trash/native/grant regressions; Expected: all PASS,0fail/skip.
-- [ ] Commit `feat: export private relationships and wrapped keys`.
+- [x] Commit `feat: export private relationships and wrapped keys`.
+
 
 ### Task 4: HTTP streaming, wire failures and full local gates
 **Files:** Create `src/Presentation/ArturRios.Cerberus.WebApi/Controllers/AccountExportController.cs`, `Results/AccountExportStreamResult.cs`; modify Startup registrations; add `tests/Presentation/ArturRios.Cerberus.WebApi.Tests/AccountExportHttpTests.cs`, `AccountExportStreamingTests.cs`; update `docs/contracts/openapi.json`, operations docs, new `docs/security/account-export-api.md`, README.

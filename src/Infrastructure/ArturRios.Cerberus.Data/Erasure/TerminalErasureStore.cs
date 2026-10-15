@@ -18,7 +18,7 @@ public sealed class TerminalErasureStore(IDbContextFactory<AppDbContext> factory
             ON CONFLICT (resource_kind,resource_id) DO UPDATE
             SET deleted_at=LEAST(cerberus.terminal_erasure.deleted_at,EXCLUDED.deleted_at)
             """, cancellationToken);
-        if (entry.ResourceKind == "record") await RecordErasure.RemoveAsync(context, entry.ResourceId, null, cancellationToken);
+        if (entry.ResourceKind is "record" or "folder" or "collection" or "profile") await ResourceErasure.RemoveAsync(context, entry.ResourceKind, entry.ResourceId, null, cancellationToken);
         if (entry.ResourceKind == "account") await AccountErasure.RemoveAsync(context,entry.ResourceId,null,cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }

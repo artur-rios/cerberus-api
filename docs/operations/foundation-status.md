@@ -349,3 +349,16 @@ restricted fresh Heimdall password/MFA recovery without admitting pending accoun
 to ordinary login. The account/job transaction requires the original deadline to
 be in the future on the database clock and clears claims atomically. Existing
 sessions, challenges and grants remain reduced; new unlock/regranting is explicit.
+
+### Owner-visible recoverable trash listing (UC50)
+
+GET `/api/trash` returns one native encrypted root per recoverable deletion
+operation, with original deadline and current selected scope. Folder cascade
+members are represented by their root; independent prior deletions stay separate.
+Own account/session SHARE locks precede one final current authorization/scope/
+expiry/page/pin snapshot. No writes, foreign authority locks, plaintext or usable
+keys. Current expiry and typed terminal markers hide content before cleanup.
+Selected listing scans retained root association metadata; plan inventory capacity
+and owner-writer contention. See the [trash API](../security/trash-api.md).
+UC51–53 remain responsible for restore, emptying and scheduled physical expiry;
+independent protocol/client qualification remains required before release.

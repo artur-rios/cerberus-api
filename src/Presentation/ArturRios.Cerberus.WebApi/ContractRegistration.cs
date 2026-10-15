@@ -1,3 +1,4 @@
+using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Output;
 using ArturRios.Cerberus.Domain.Sync;
 using ArturRios.Cerberus.Domain.Profiles;
@@ -38,13 +39,17 @@ public static class ContractRegistration
             options.UseOneOfForPolymorphism();
             options.SelectSubTypesUsing(type => type == typeof(SyncResourceData)
                 ? [typeof(SyncProfileData), typeof(SyncRecordData), typeof(SyncFolderData), typeof(SyncCollectionData), typeof(SyncGrantData)]
+                : type == typeof(TrashListItem)
+                ? [typeof(TrashRecordItem), typeof(TrashFolderItem), typeof(TrashCollectionItem), typeof(TrashProfileItem)]
                 : type == typeof(SyncEditInput)
                 ? [typeof(SyncRecordCreate), typeof(SyncRecordUpdate), typeof(SyncFolderCreate), typeof(SyncFolderUpdate),
                     typeof(SyncCollectionCreate), typeof(SyncCollectionUpdate), typeof(SyncProfileCreate), typeof(SyncProfileUpdate)]
                 : []);
-            options.SelectDiscriminatorNameUsing(type => type == typeof(SyncResourceData) ? "resourceType" : type == typeof(SyncEditInput) ? "editType" : null);
+            options.SelectDiscriminatorNameUsing(type => type == typeof(SyncResourceData) ? "resourceType" : type == typeof(SyncEditInput) ? "editType" : type == typeof(TrashListItem) ? "kind" : null);
             options.SelectDiscriminatorValueUsing(type => type.Name switch
             {
+                nameof(TrashRecordItem) => "record", nameof(TrashFolderItem) => "folder",
+                nameof(TrashCollectionItem) => "collection", nameof(TrashProfileItem) => "profile",
                 nameof(SyncProfileData) => "profile", nameof(SyncRecordData) => "record", nameof(SyncFolderData) => "folder",
                 nameof(SyncCollectionData) => "collection", nameof(SyncGrantData) => "grant",
                 nameof(SyncRecordCreate) => "record-create", nameof(SyncRecordUpdate) => "record-update",
@@ -53,6 +58,7 @@ public static class ContractRegistration
                 nameof(SyncProfileCreate) => "profile-create", nameof(SyncProfileUpdate) => "profile-update", _ => null
             });
             options.SchemaFilter<SyncResourceSchemaFilter>();
+            options.SchemaFilter<TrashListSchemaFilter>();
         });
         return services;
     }

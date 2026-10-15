@@ -1,3 +1,6 @@
+using ArturRios.Cerberus.Query.Trash;
+using ArturRios.Cerberus.Domain.Trash;
+using ArturRios.Cerberus.Data.Trash;
 using ArturRios.Cerberus.Query.Software;
 using ArturRios.Cerberus.Query.Collections;
 using ArturRios.Cerberus.Command.Collections;
@@ -158,6 +161,7 @@ public static class Startup
         builder.Services.AddScoped<IQueryHandlerAsync<GetFolderQuery, FolderDetailsOutput>, GetFolderHandler>();
         builder.Services.AddScoped<IValidator<CreateFolderCommand>, CreateFolderValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<CreateFolderCommand, CreateFolderOutput>, CreateFolderHandler>();
+        builder.Services.AddScoped<ITrashListStore, TrashListStore>();
         builder.Services.AddScoped<IRecordListStore, RecordListStore>();
         builder.Services.AddScoped<IRecordReadStore, RecordReadStore>();
         builder.Services.AddScoped<IRecordMoveStore, RecordMoveStore>();
@@ -178,6 +182,8 @@ public static class Startup
         builder.Services.AddScoped<IValidator<UpdateRecordCommand>, UpdateRecordValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<UpdateRecordCommand, UpdateRecordOutput>, UpdateRecordHandler>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetRecordQuery, RecordDetailsOutput>, GetRecordHandler>();
+        builder.Services.AddSingleton<TrashListCursor>();
+        builder.Services.AddScoped<IQueryHandlerAsync<ListTrashQuery, TrashListOutput>, ListTrashHandler>();
         builder.Services.AddSingleton<RecordListCursor>();
         builder.Services.AddScoped<IQueryHandlerAsync<ListRecordsQuery, RecordListOutput>, ListRecordsHandler>();
         builder.Services.AddScoped<IValidator<CreateRecordCommand>, CreateRecordValidator>();

@@ -204,6 +204,9 @@ public class TrashListStoreTests(PostgresFixture fixture)
     private sealed class Failure:DbCommandInterceptor
     {public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<DbDataReader> r,CancellationToken ct=default)=>throw new NpgsqlException("fixture private persistence details");}
 
+    [FunctionalFact]
+    public async Task GivenMaximumRepresentableConfiguredPageSize_WhenListingEmptyTrash_ThenNoOverflowOrArtificialLimit()
+    {using var keys=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,keys);var r=await List(s,int.MaxValue);Assert.Null(r.Error);Assert.Empty(r.Data!.Items);}
     private TrashListStore Store()=>new(fixture);
     private Task<VaultResult<TrashListPage>> List(ProfileSetup.State s,int size=50)=>Store().ListAsync(new(s.Actor,s.Verifier,size,0,null),default);
     private async Task<Profile> Profile(ProfileSetup.State s,ProtectionFixture keys,ProtectionFixture scoped)

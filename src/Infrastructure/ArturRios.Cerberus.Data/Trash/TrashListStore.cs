@@ -19,7 +19,7 @@ public sealed class TrashListStore(IDbContextFactory<AppDbContext> factory):ITra
     {
         ct.ThrowIfCancellationRequested();
         if(request.Actor==Guid.Empty)return new(Error:"authentication_required");
-        if(request.PageSize<=0 || request.PageSize==int.MaxValue || request.After<0 || request.After>ProtocolBinary.MaxInteger
+        if(request.PageSize<=0 || request.After<0 || request.After>ProtocolBinary.MaxInteger
             || request.Boundary is <0 or >ProtocolBinary.MaxInteger || request.Boundary is {} boundary && boundary<request.After)
             return new(Error:"validation_failed");
         try
@@ -42,7 +42,7 @@ public sealed class TrashListStore(IDbContextFactory<AppDbContext> factory):ITra
                 new NpgsqlParameter("history",NpgsqlDbType.Jsonb){Value=JsonSerializer.Serialize(history,Json)},
                 new NpgsqlParameter("boundary",NpgsqlDbType.Bigint){Value=(object?)request.Boundary??DBNull.Value},
                 new NpgsqlParameter("after",request.After),new NpgsqlParameter("size",request.PageSize),
-                new NpgsqlParameter("take",request.PageSize+1),new NpgsqlParameter("max",ProtocolBinary.MaxInteger)}).ToArray();
+                new NpgsqlParameter("take",(long)request.PageSize+1),new NpgsqlParameter("max",ProtocolBinary.MaxInteger)}).ToArray();
             // All waits precede this one current snapshot: authority, retained scope, terminal
             // identities, original deadlines, page ciphertext and independent owner pins.
             var snapshot=(await db.Database.SqlQueryRaw<Snapshot>(TrashListSql.Snapshot,parameters).ToListAsync(ct)).Single();

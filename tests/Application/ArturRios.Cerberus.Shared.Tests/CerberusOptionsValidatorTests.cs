@@ -107,6 +107,7 @@ public class CerberusOptionsValidatorTests
         HeimdallServiceCredential = "test-only-service-credential",
         AuthIssuer = "https://identity.example.test",
         AuthAudience = "cerberus",
+        AuthApplicationAudience = "cerberus-applications",
         AuthValidationSecret = "test-only-ASCII-secret-at-least-32-bytes",
         RegistrationFingerprintKey = "independent-durable-fixture-key-32-bytes",
         BackupRetention = "7.00:00:00",

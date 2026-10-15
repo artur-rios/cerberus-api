@@ -3,8 +3,9 @@
 `DELETE /api/software-grants/{grantId}` revokes one active software grant owned by
 the authenticated human account. The grant remains for explicit UC-42
 reactivation; its server-held recipient key and complete typed target set are
-erased atomically. Software authentication and retrieval (UC-43) remain blocked.
-This endpoint neither implements UC-43 nor calls Heimdall application APIs.
+erased atomically. [UC43 retrieval](software-secret-retrieval-api.md) checks this
+current state on every application read. Revocation itself calls no Heimdall
+application API.
 
 ## Request and transport
 

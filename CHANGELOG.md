@@ -12,6 +12,12 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- `GET /api/software-secrets` validates a distinct-audience Heimdall application
+  token and live credential on every read, then releases only exact currently
+  granted native ciphertext and signed provisioning under database-time checks.
+  Application tokens cannot enter human routes. Explicit previous-key rotation
+  is supported; a distinct configured application audience is now required.
+
 - `DELETE /api/accounts/me/permanent` commits irreversible typed intent, durably
   records account erasure and purges owned data under fenced worker claims while
   retaining foreign shared content and the linked Heimdall identity. Restore

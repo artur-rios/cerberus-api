@@ -100,7 +100,7 @@ earlier sources; production secrets never appear in example settings or the repo
 | Heimdall | CERBERUS_HEIMDALL_BASE_URL; CERBERUS_HEIMDALL_SCOPE_ID | Required identity integration; HTTPS outside isolated local tests. |
 | Registration identity | CERBERUS_HEIMDALL_SERVICE_CREDENTIAL | Secret; narrowly authorized scope registration only; no fallback to global administration. |
 | Registration retries | CERBERUS_REGISTRATION_FINGERPRINT_KEY | Independent durable HMAC secret; at least 32 printable ASCII characters; preserve across replicas, restores and routine identity-key rotation. |
-| Token validation | CERBERUS_AUTH_ISSUER; CERBERUS_AUTH_AUDIENCE; configured trusted validation keys | Required; reject unsupported issuer/scope/key or unavailable required revalidation. |
+| Token validation | CERBERUS_AUTH_ISSUER; CERBERUS_AUTH_AUDIENCE; CERBERUS_AUTH_APPLICATION_AUDIENCE; CERBERUS_AUTH_VALIDATION_SECRET; optional CERBERUS_AUTH_VALIDATION_SECRET_PREVIOUS | Required distinct person/application audiences; reject unsupported issuer/scope/key or unavailable required live revalidation. |
 | Offline signing | CERBERUS_OFFLINE_SIGNING_KEY; reviewed key identifier/rotation configuration | Server signing secret; never a vault decryption key. |
 | Retention worker | CERBERUS_RETENTION_INTERVAL | Explicit positive representable interval; retries and purge lag monitored. |
 | Backup retention | CERBERUS_BACKUP_RETENTION; CERBERUS_BACKUP_PATH | Operator-supplied expiry and protected storage; no unlimited default. |

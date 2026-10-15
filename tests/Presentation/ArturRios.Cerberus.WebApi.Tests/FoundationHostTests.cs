@@ -133,6 +133,7 @@ public class FoundationHostTests : WebApiTest<Program>
                 ["CERBERUS_HEIMDALL_SERVICE_CREDENTIAL"] = "fixture-only-credential",
                 ["CERBERUS_AUTH_ISSUER"] = "fixture-issuer",
                 ["CERBERUS_AUTH_AUDIENCE"] = "fixture-audience",
+            ["CERBERUS_AUTH_APPLICATION_AUDIENCE"] = "fixture-applications",
                 ["CERBERUS_AUTH_VALIDATION_SECRET"] = "fixture-only-signing-key-32-characters",
                 ["CERBERUS_REGISTRATION_FINGERPRINT_KEY"] = "independent-durable-fixture-key-32-bytes",
                 ["CERBERUS_BACKUP_RETENTION"] = "7.00:00:00",

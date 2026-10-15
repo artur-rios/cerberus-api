@@ -8206,6 +8206,151 @@
         }
       }
     },
+    "/api/software-secrets": {
+      "get": {
+        "tags": [
+          "SoftwareSecrets"
+        ],
+        "parameters": [
+          {
+            "name": "grantId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "collectionId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SoftwareSecretOutputDataOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SoftwareSecretOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SoftwareSecretOutputDataOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large"
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/sync/edits": {
       "post": {
         "tags": [
@@ -13782,6 +13927,124 @@
         },
         "additionalProperties": false
       },
+      "SoftwareSecretOutput": {
+        "required": [
+          "authorKey",
+          "grantId",
+          "grantRevision",
+          "ownerAccountId",
+          "provisioning",
+          "recipientKey",
+          "target"
+        ],
+        "type": "object",
+        "properties": {
+          "ownerAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grantRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "target": {
+            "$ref": "#/components/schemas/SoftwareSecretResource"
+          },
+          "provisioning": {
+            "$ref": "#/components/schemas/SoftwareSecretProvisioning"
+          },
+          "recipientKey": {
+            "$ref": "#/components/schemas/SoftwareRecipientKey"
+          },
+          "authorKey": {
+            "$ref": "#/components/schemas/PublicJwk"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SoftwareSecretOutputDataOutput": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "success": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SoftwareSecretOutput"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SoftwareSecretProvisioning": {
+        "required": [
+          "keyEnvelope",
+          "resource"
+        ],
+        "type": "object",
+        "properties": {
+          "resource": {
+            "$ref": "#/components/schemas/SoftwareSecretResource"
+          },
+          "keyEnvelope": {
+            "$ref": "#/components/schemas/RecipientEnvelope"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SoftwareSecretResource": {
+        "required": [
+          "envelope",
+          "id",
+          "keyEpoch",
+          "kind",
+          "revision"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "keyEpoch": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EncryptedEnvelope"
+          }
+        },
+        "additionalProperties": false
+      },
       "SyncChangeItem": {
         "type": "object",
         "properties": {
@@ -15319,6 +15582,9 @@
     },
     {
       "name": "SoftwareGrants"
+    },
+    {
+      "name": "SoftwareSecrets"
     },
     {
       "name": "Sync"

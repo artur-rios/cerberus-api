@@ -18,7 +18,7 @@ public sealed class SecurityBarrierTests
         var context = Context();
         var called = false;
         await new ProtectedEndpointMiddleware(_ => { called = true; return Task.CompletedTask; })
-            .InvokeAsync(context, new HeimdallTokenValidator(Options()), new Mock<IHeimdallClient>(MockBehavior.Strict).Object);
+            .InvokeAsync(context, new HeimdallTokenValidator(Options()), new Mock<IHeimdallClient>(MockBehavior.Strict).Object, new HeimdallApplicationTokenValidator(Options()));
         Assert.False(called);
         Assert.Equal(401, context.Response.StatusCode);
     }
@@ -38,7 +38,7 @@ public sealed class SecurityBarrierTests
             .ReturnsAsync(active ? HeimdallAuthorization.Authorized : HeimdallAuthorization.Denied);
         var called = false;
         await new ProtectedEndpointMiddleware(_ => { called = true; return Task.CompletedTask; })
-            .InvokeAsync(context, new HeimdallTokenValidator(options), upstream.Object);
+            .InvokeAsync(context, new HeimdallTokenValidator(options), upstream.Object, new HeimdallApplicationTokenValidator(options));
         Assert.Equal(active, called);
         if (active) Assert.Equal("527a1001-8ef5-4c9b-a565-222222222222", context.User.FindFirst("id")?.Value);
         else Assert.Equal(401, context.Response.StatusCode);
@@ -71,7 +71,7 @@ public sealed class SecurityBarrierTests
         context.Request.Headers.Authorization = "Bearer " + token;
         var executed = false;
         await new ProtectedEndpointMiddleware(_ => { executed = true; return Task.CompletedTask; })
-            .InvokeAsync(context, new HeimdallTokenValidator(options), identity);
+            .InvokeAsync(context, new HeimdallTokenValidator(options), identity, new HeimdallApplicationTokenValidator(options));
         Assert.False(executed);
         Assert.Equal(expected, context.Response.StatusCode);
         var body = Encoding.UTF8.GetString(((MemoryStream)context.Response.Body).ToArray());

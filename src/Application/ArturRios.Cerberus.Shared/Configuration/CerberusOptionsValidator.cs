@@ -23,9 +23,13 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
         Require(!string.IsNullOrWhiteSpace(options.HeimdallServiceCredential), "CERBERUS_HEIMDALL_SERVICE_CREDENTIAL");
         Require(!string.IsNullOrWhiteSpace(options.AuthIssuer), "CERBERUS_AUTH_ISSUER");
         Require(!string.IsNullOrWhiteSpace(options.AuthAudience), "CERBERUS_AUTH_AUDIENCE");
+        Require(!string.IsNullOrWhiteSpace(options.AuthApplicationAudience)&&options.AuthApplicationAudience!=options.AuthAudience,
+            "CERBERUS_AUTH_APPLICATION_AUDIENCE");
+        Require(options.AuthValidationSecretPrevious is null || options.AuthValidationSecretPrevious is {Length:>=32} previous
+            &&previous.All(c=>c is >= '!' and <= '~'), "CERBERUS_AUTH_VALIDATION_SECRET_PREVIOUS");
         Require(options.AuthValidationSecret is { Length: >= 32 } secret && secret.All(c => c is >= '!' and <= '~'), "CERBERUS_AUTH_VALIDATION_SECRET");
         Require(options.RegistrationFingerprintKey is { Length: >= 32 } registrationKey
-                && registrationKey.All(c => c is >= '!' and <= '~') && registrationKey != options.AuthValidationSecret,
+                && registrationKey.All(c => c is >= '!' and <= '~') && registrationKey != options.AuthValidationSecret && registrationKey != options.AuthValidationSecretPrevious,
             "CERBERUS_REGISTRATION_FINGERPRINT_KEY");
         if (options.OfflineLeaseIssuer is not null || options.OfflineLeasePrivateKeyPem is not null)
         {

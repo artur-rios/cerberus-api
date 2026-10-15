@@ -88,7 +88,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [M-01 — Foundation](https://github.com/artur-rios/cerberus-api/milestone/1) | Scaffold, persistence, identity adapters, tests, CI and safe operational primitives. | — | 1 | 1 / 1 closed |
 | [M-02 — Account identity and vault protection](https://github.com/artur-rios/cerberus-api/milestone/2) | Register/login, manage account details and protect/recover the vault. | M-01 | 9 | 9 / 9 closed |
 | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 26 / 26 closed |
-| [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 5 / 6 closed |
+| [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 6 / 6 closed |
 | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 5 / 5 closed |
 | [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 3 / 9 closed |
 
@@ -153,7 +153,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [#37](https://github.com/artur-rios/cerberus-api/issues/37) | UC-36 — Change collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-36-change-collection-access) | Done |
 | [#38](https://github.com/artur-rios/cerberus-api/issues/38) | UC-37 — Revoke collection access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-37-revoke-collection-access) | Done |
 | [#43](https://github.com/artur-rios/cerberus-api/issues/43) | UC-42 — Grant software access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-42-grant-software-access) | Done |
-| [#44](https://github.com/artur-rios/cerberus-api/issues/44) | UC-43 — Retrieve software secrets | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-43-retrieve-software-secrets) | Todo |
+| [#44](https://github.com/artur-rios/cerberus-api/issues/44) | UC-43 — Retrieve software secrets | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-43-retrieve-software-secrets) | Done |
 | [#45](https://github.com/artur-rios/cerberus-api/issues/45) | UC-44 — Revoke software access | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-44-revoke-software-access) | Done |
 
 ### M-05 — Offline synchronization

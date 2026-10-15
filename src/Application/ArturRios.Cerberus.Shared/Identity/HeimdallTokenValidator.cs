@@ -36,7 +36,7 @@ public sealed class HeimdallTokenValidator(CerberusOptions options)
             {
                 ValidIssuer = options.AuthIssuer,
                 ValidAudience = options.AuthAudience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(options.AuthValidationSecret!)),
+                IssuerSigningKeys = HeimdallSigningKeys.Read(options),
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
@@ -45,8 +45,9 @@ public sealed class HeimdallTokenValidator(CerberusOptions options)
                 RequireExpirationTime = true,
                 ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
                 ClockSkew = TimeSpan.Zero
-            }, out _);
-            if (!Guid.TryParse(principal.FindFirst("id")?.Value, out var id) || id == Guid.Empty
+            }, out var validated);
+            if (validated is not JwtSecurityToken signed || signed.Payload.ContainsKey("tokenKind")
+                || !Guid.TryParse(principal.FindFirst("id")?.Value, out var id) || id == Guid.Empty
                 || principal.FindFirst("mfaPending") is not null)
                 return null;
             return principal;

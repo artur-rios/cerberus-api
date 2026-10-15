@@ -9,7 +9,7 @@ public sealed class TrashListContractTests
     {
         var builder=WebApplication.CreateBuilder(new WebApplicationOptions{ApplicationName=typeof(Startup).Assembly.GetName().Name,Args=[]});
         builder.Services.AddCerberusContracts();using var host=builder.Build();var doc=host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
-        Assert.Contains("/api/trash",doc.Paths.Keys);var op=Assert.Single(doc.Paths["/api/trash"].Operations!).Value;
+        Assert.Contains("/api/trash",doc.Paths.Keys);var op=doc.Paths["/api/trash"].Operations![HttpMethod.Get];
         Assert.Null(op.RequestBody);Assert.Equal(new[]{"400","401","403","404","413","503","200"}.Order(),op.Responses!.Keys.Order());
         Assert.True(op.Responses["413"].Content is null or {Count:0});
         Assert.Equal(new[]{"X-Cerberus-Vault-Access","cursor","pageSize"}.Order(),op.Parameters!.Select(x=>x.Name).Order());

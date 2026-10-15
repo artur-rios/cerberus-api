@@ -60,6 +60,7 @@ public static class ContractRegistration
             options.SchemaFilter<SyncResourceSchemaFilter>();
             options.SchemaFilter<TrashListSchemaFilter>();
             options.SchemaFilter<TrashRestoreSchemaFilter>();
+            options.SchemaFilter<TrashEmptySchemaFilter>();
         });
         return services;
     }
@@ -165,16 +166,17 @@ public static class ContractRegistration
                 &&context.MethodInfo.Name is nameof(AuthController.ClosureLogin) or nameof(AuthController.ClosureVerifyChallenge);
             var renewal = context.MethodInfo.DeclaringType == typeof(OfflineAuthorizationsController)
                 && context.MethodInfo.Name == nameof(OfflineAuthorizationsController.Renew);
+            var trashEmpty=context.MethodInfo.DeclaringType==typeof(TrashController) && context.MethodInfo.Name==nameof(TrashController.EmptyTrash);
             var trashRestore=context.MethodInfo.DeclaringType==typeof(TrashController) && context.MethodInfo.Name==nameof(TrashController.Restore);
             var syncEdits = context.MethodInfo.DeclaringType == typeof(SyncController) && context.MethodInfo.Name == nameof(SyncController.Edits);
-            if (!trashRestore && !recovery && !closure && !policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
+            if (!trashEmpty && !trashRestore && !recovery && !closure && !policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
                 || context.MethodInfo.Name is not (nameof(SoftwareGrantsController.GrantAccess)
                     or nameof(SoftwareGrantsController.RevokeAccess)))) return;
             var content = operation.RequestBody!.Content!;
             var json = content["application/json"];
             content.Clear();
             content.Add("application/json", json);
-            if (trashRestore || recovery || closure || policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            if (trashEmpty || trashRestore || recovery || closure || policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 ((OpenApiRequestBody)operation.RequestBody!).Required = true;
                 operation.Responses!["413"].Content?.Clear();

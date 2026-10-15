@@ -1,6 +1,6 @@
 # UC52 Empty Trash Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Permanently empty admitted owned trash with durable typed erasure, safe retries and real backup-restore privacy, preserving active unrelated and foreign content.
 
@@ -44,9 +44,9 @@
 
 **Interface:** `ResourceErasure.RemoveAsync(AppDbContext db, string kind, Guid id, RetentionClaim? claim, CancellationToken ct)` for record/folder/collection/profile with current typed terminal guard. Caller owns transaction; workers require durable entries before call; replay runs before traffic. Typed helper never deletes unmarked descendants or related active members. Extend ReapplyAsync to physically remove F/C/P.
 
-- [ ] Write real four-kind replay, cross-kind isolation, related-active/foreign preservation, selected session IDs, parent-FK ordering and claim/fault/cancellation tests first; observe missing F/C/P physical behavior RED.
-- [ ] Implement guarded physical erasure, scoped metadata retirement, safe parent detachment and typed replay; verify GREEN including existing record/account erasure regressions.
-- [ ] Commit verified helper/replay changes.
+- [x] Write real four-kind replay, cross-kind isolation, related-active/foreign preservation, selected session IDs, parent-FK ordering and claim/fault/cancellation tests first; observe missing F/C/P physical behavior RED.
+- [x] Implement guarded physical erasure, scoped metadata retirement, safe parent detachment and typed replay; verify GREEN including existing record/account erasure regressions.
+- [x] Commit verified helper/replay changes.
 
 ### Task 2: Strict empty-trash command/output
 
@@ -54,8 +54,8 @@
 
 **Interface:** `TrashEmptyRequest(Actor,AccessVerifier,ExpectedRevision)`; `ITrashEmptyStore.EmptyAsync` returns VaultResult<TrashEmptyDetails>. Details accountId/purgedAt/counts/totalPurged; count entries exactly four known kinds, safe nonnegative integers, unique, total=sum, UTC microsecond time. Internal actor/access context; required strict expectedRevision safe positive account revision.200trash_emptied,400/401/403/404/409/503 allowlisted failures.
 
-- [ ] RED command/validator/defensive metadata/error/cancellation tests.
-- [ ] Implement strict metadata-only contract and handler; GREEN and commit.
+- [x] RED command/validator/defensive metadata/error/cancellation tests.
+- [x] Implement strict metadata-only contract and handler; GREEN and commit.
 
 ### Task 3: Irreversible owner-wide admission and resumable purge
 
@@ -63,14 +63,14 @@
 
 **Interfaces:** Implements Task2. Handler exactKind `trash-erase`, operation key two canonical segments `trash-erase/{accountPublicId}`. No RetentionWorkItem.Payload. Inventory union is bounded to actual owned deleted rows, contains typed IDs/state only and excludes active/foreign content. New typed intent and create/reopen/coalesce job commit atomically under current DB-time wide-session/account revision guard. New targets invalidate stale claims; same-intent retries preserve live claims. Worker captures typed terminal trash, records all ledger entries before physical phase, relocks/fences, requires complete durable set and purges under one transaction. Extend DB-time completion fence for trash-erase; register exact handler at final HTTP task. Empty0 performs no queue/ledger writes. Scope account deletion queue cleanup.
 
-- [ ] RED actual four-kind owner inventory, expired/damaged trash, native foreign sharing, empty/retry/restore-winner/current auth/revision, new intent during ledger, persisted queue, ledger outage, stale/expired claim/statement fencing, after-mutation failure/cancellation and account-purge integration tests.
-- [ ] Implement intent/coalesced job/worker without plaintext/native decryption or active unrelated deletion. Reuse existing safe SQL parameters and terminal fences; no warning suppressions. GREEN all flow/concurrency/native/rollback cases and commit.
+- [x] RED actual four-kind owner inventory, expired/damaged trash, native foreign sharing, empty/retry/restore-winner/current auth/revision, new intent during ledger, persisted queue, ledger outage, stale/expired claim/statement fencing, after-mutation failure/cancellation and account-purge integration tests.
+- [x] Implement intent/coalesced job/worker without plaintext/native decryption or active unrelated deletion. Reuse existing safe SQL parameters and terminal fences; no warning suppressions. GREEN all flow/concurrency/native/rollback cases and commit.
 
 ### Task 4: HTTP contract, docs and verified delivery
 
 **Files:** TrashController.cs, Startup.cs, schema/operation contract metadata; WebApi.Tests/TrashEmptyHttpTests.cs and TrashEmptyContractTests.cs; trash guide/foundation/changelog/README/OpenAPI.
 
-- [ ] Actual route/schema/native four-kind HTTP tests RED before registration; implement strict request/current auth/required metadata/empty413/no-store; GREEN with actual JSON/schema validation.
-- [ ] Document wide-only/account expected revision/admission boundary, irreversible503 retries/coalesced claims/counts, backup replay and unchanged active/foreign resources. README53Done3Todo/M066of9.
+- [x] Actual route/schema/native four-kind HTTP tests RED before registration; implement strict request/current auth/required metadata/empty413/no-store; GREEN with actual JSON/schema validation.
+- [x] Document wide-only/account expected revision/admission boundary, irreversible503 retries/coalesced claims/counts, backup replay and unchanged active/foreign resources. README53Done3Todo/M066of9.
 - [ ] Locked restore,0warning build,direct/transitive/native audits,helpers/spec,native322×4/actualleaseclients,Docker/OpenAPI, frozen source full unfiltered Release suite/fresh coverage and fresh independent whole-branch read-only review. Record rulings/minors.
 - [ ] One PR closing53,Testing,exacthead3requiredSUCCESS,normal squashmerge,tree equality/ClosedDone/clean develop/ownedcleanup/hasharchive; automatically continueUC53issue54.

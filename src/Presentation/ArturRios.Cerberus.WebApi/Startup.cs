@@ -164,6 +164,10 @@ public static class Startup
         builder.Services.AddScoped<ICommandHandlerAsync<CreateFolderCommand, CreateFolderOutput>, CreateFolderHandler>();
         builder.Services.AddScoped<ITrashListStore, TrashListStore>();
         builder.Services.AddScoped<ITrashRestoreStore, TrashRestoreStore>();
+        builder.Services.AddScoped<ITrashEmptyStore, TrashEmptyStore>();
+        builder.Services.AddScoped<IValidator<EmptyTrashCommand>, EmptyTrashValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<EmptyTrashCommand, EmptyTrashOutput>, EmptyTrashHandler>();
+        builder.Services.AddScoped<IRetentionHandler, TrashPurgeHandler>();
         builder.Services.AddScoped<IValidator<RestoreTrashCommand>, RestoreTrashValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<RestoreTrashCommand, RestoreTrashOutput>, RestoreTrashHandler>();
         builder.Services.AddScoped<IRecordListStore, RecordListStore>();

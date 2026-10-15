@@ -12,6 +12,12 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- `DELETE /api/trash` permanently erases current owned trash under an account-wide
+  session and expected account revision. Typed intent, a coalesced outbox and
+  complete durable ledger precede fenced physical removal; success returns four
+  safe counts. Backup replay now physically erases folders, collections and profiles
+  while preserving active/foreign content and selected-session scope.
+
 - `POST /api/trash/{id}/restore` atomically restores the surviving owned deletion
   unit before its original deadline, revalidates former links against current
   scope, reports safe omissions and preserves native bytes and revoked grants.

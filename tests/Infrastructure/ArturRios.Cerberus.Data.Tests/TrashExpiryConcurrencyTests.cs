@@ -22,7 +22,7 @@ public partial class TrashExpiryHandlerTests
         await using var check=fixture.CreateContext();Assert.False(await check.TerminalErasures.AnyAsync(x=>x.ResourceKind==kind&&x.ResourceId==root.ResourceId));
     }
     [FunctionalFact]
-    public async Task GivenRestoreAdmittedBeforeDeadline_WhenAccountExpiryWaits_ThenOnlyRestoreCommitsEvenAfterDeadline()
+    public async Task GivenRestoreAdmittedBeforeDeadline_WhenTrashExpiryWaits_ThenOnlyRestoreCommitsEvenAfterDeadline()
     {
         using var keys=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,keys);var root=await TrashRestoreSetup.RootAsync(fixture,s,keys,"record");var deadline=DateTimeOffset.UtcNow.AddSeconds(5);await TrashRestoreSetup.Deadline(fixture,root,deadline);
         await using(var db=fixture.CreateContext())await db.RetentionWorkItems.Where(x=>x.OperationKey=="trash/"+root.OperationId).ExecuteUpdateAsync(x=>x.SetProperty(w=>w.DueAt,DateTimeOffset.UtcNow.AddDays(-1)));

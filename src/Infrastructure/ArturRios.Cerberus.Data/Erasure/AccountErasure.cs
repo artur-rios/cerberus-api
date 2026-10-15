@@ -39,18 +39,33 @@ internal static class AccountErasure
         UNION SELECT 'grant',public_id FROM cerberus.software_grant WHERE account_id IN(SELECT id FROM owner)
         """).ToListAsync(ct);
     private sealed class Target{public string ResourceKind{get;set;}="";public Guid ResourceId{get;set;}}
-    internal static async Task AddIntentAsync(AppDbContext db,Guid id,DateTimeOffset at,CancellationToken ct)
+    internal static async Task AddIntentAsync(AppDbContext db,Guid id,DateTimeOffset at,CancellationToken ct,RetentionClaim? claim=null)
     {
         var targets=await TargetsAsync(db,id,ct);
         if(targets.Count==0||targets.Any(x=>!TerminalResourceIdentity.IsValid(x.ResourceKind,x.ResourceId))||at.Offset!=TimeSpan.Zero||at<DateTimeOffset.UnixEpoch||at.Ticks%10!=0)
             throw new InvalidOperationException("Invalid account erasure intent.");
         foreach(var t in targets)
         {
-            await db.Database.ExecuteSqlInterpolatedAsync($"""
-                INSERT INTO cerberus.terminal_erasure(resource_kind,resource_id,deleted_at)
-                VALUES({t.ResourceKind},{t.ResourceId},{at}) ON CONFLICT(resource_kind,resource_id)
-                DO UPDATE SET deleted_at=LEAST(cerberus.terminal_erasure.deleted_at,EXCLUDED.deleted_at)
-                """,ct);
+            if(claim is null)
+                await db.Database.ExecuteSqlInterpolatedAsync($"""
+                    INSERT INTO cerberus.terminal_erasure(resource_kind,resource_id,deleted_at)
+                    VALUES({t.ResourceKind},{t.ResourceId},{at}) ON CONFLICT(resource_kind,resource_id)
+                    DO UPDATE SET deleted_at=LEAST(cerberus.terminal_erasure.deleted_at,EXCLUDED.deleted_at)
+                    """,ct);
+            else
+            {
+                await RecordErasure.RequireClaimAsync(db,claim,ct);
+                var changed=await db.Database.ExecuteSqlInterpolatedAsync($"""
+                    INSERT INTO cerberus.terminal_erasure(resource_kind,resource_id,deleted_at)
+                    SELECT {t.ResourceKind},{t.ResourceId},{at}
+                    WHERE EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_kind='account' AND e.resource_id={id})
+                      AND EXISTS(SELECT FROM cerberus.retention_work_item w WHERE w.public_id={claim.WorkId} AND w.operation_key={claim.OperationKey}
+                        AND w.claim_token={claim.Token} AND w.completed_at IS NULL AND w.claim_expires_at>statement_timestamp())
+                    ON CONFLICT(resource_kind,resource_id) DO UPDATE SET deleted_at=LEAST(cerberus.terminal_erasure.deleted_at,EXCLUDED.deleted_at)
+                    """,ct);
+                if(changed!=1)throw new InvalidOperationException("Account expiry intent admission changed.");
+                await RecordErasure.RequireClaimAsync(db,claim,ct);
+            }
             if(!await db.TerminalErasures.AnyAsync(x=>x.ResourceKind==t.ResourceKind&&x.ResourceId==t.ResourceId&&x.DeletedAt<=at,ct))throw new InvalidOperationException("Erasure intent was not persisted.");
         }
     }
@@ -89,7 +104,7 @@ internal static class AccountErasure
         }
         await Fence();var marker=await db.TerminalErasures.AsNoTracking().SingleAsync(x=>x.ResourceKind=="account"&&x.ResourceId==id,ct);
         var owner=await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x=>x.PublicId==id,ct);
-        var workKeys=new List<string>{"account-purge/"+id,"trash-erase/"+id};
+        var workKeys=new List<string>{"account-purge/"+id,"account-erase/"+id,"trash-erase/"+id};
         string? collateral=null;long[] recipients=[];Dictionary<long,long> generations=[];
         if(owner is not null)
         {
@@ -117,9 +132,14 @@ internal static class AccountErasure
             if(await Delete("DELETE FROM cerberus.account WHERE public_id=@id",new NpgsqlParameter("id",id))!=1)throw new InvalidOperationException("Account purge was not persisted.");
         }
         await Delete("DELETE FROM cerberus.registration_operation WHERE account_public_id=@id",new NpgsqlParameter("id",id));
-        await Delete("DELETE FROM cerberus.retention_work_item WHERE operation_key=ANY(@keys)",new NpgsqlParameter("keys",workKeys.ToArray()));
+        var cleanup="DELETE FROM cerberus.retention_work_item WHERE operation_key=ANY(@keys)";
+        var workParameters=new List<object>{new NpgsqlParameter("keys",workKeys.ToArray())};
+        if(claim is not null){cleanup+=" AND public_id<>@preserve_work";workParameters.Add(new NpgsqlParameter("preserve_work",claim.WorkId));}
+        await Delete(cleanup,workParameters.ToArray());
+        var remainingWork=db.RetentionWorkItems.Where(x=>workKeys.Contains(x.OperationKey));
+        if(claim is not null)remainingWork=remainingWork.Where(x=>x.PublicId!=claim.WorkId);
         if(await db.Accounts.AnyAsync(x=>x.PublicId==id,ct)||await db.RegistrationOperations.AnyAsync(x=>x.AccountPublicId==id,ct)
-            ||await db.RetentionWorkItems.AnyAsync(x=>workKeys.Contains(x.OperationKey),ct))throw new InvalidOperationException("Account purge is incomplete.");
+            ||await remainingWork.AnyAsync(ct))throw new InvalidOperationException("Account purge is incomplete.");
         if(owner is not null)
         {
             if(await AccountErasureCollateral.ReadAsync(db,owner.Id,roots,recipients,ct)!=collateral)throw new InvalidOperationException("Account purge changed unrelated data.");

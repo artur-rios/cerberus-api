@@ -58,9 +58,12 @@ and delivered branch cleanup. Security/client release approval remains separate.
   AF04 revision/state409; AF05 safe503 and rollback; AF06 deadline410/erased404.
 - [x] API/operations/changelog/OpenAPI docs and actual HTTP contract validation;
   fresh whole-change read-only review, resolve all material findings.
-- [ ] Full unfiltered Release, cleared fresh>=90production line coverage,
+- [x] Full unfiltered Release, cleared fresh>=90production line coverage,
   zero-warning build/lockedrestore/audits/helpers/spec/native corpus/serverleases/
   OpenAPI/Docker. README only after local verification.
 - [ ] Own PR closes8, exact-head branch-policy/test/dockerSUCCESS, normal merge,
   Closed/projectDone/merged source-tree proof/branchcleanup/hashverified archive/
   clean synchronized develop, then UC08/50–55.
+
+Verification 2026-10-15: full unfiltered Release11340 passed/0failed/0skipped;
+fresh production coverage98.8%line/89.6%branch. All auxiliary gates passed.

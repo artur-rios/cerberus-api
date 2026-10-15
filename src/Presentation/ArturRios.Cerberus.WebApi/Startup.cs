@@ -1,4 +1,5 @@
 using ArturRios.Cerberus.Query.Trash;
+using ArturRios.Cerberus.Command.Trash;
 using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.Data.Trash;
 using ArturRios.Cerberus.Query.Software;
@@ -162,6 +163,9 @@ public static class Startup
         builder.Services.AddScoped<IValidator<CreateFolderCommand>, CreateFolderValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<CreateFolderCommand, CreateFolderOutput>, CreateFolderHandler>();
         builder.Services.AddScoped<ITrashListStore, TrashListStore>();
+        builder.Services.AddScoped<ITrashRestoreStore, TrashRestoreStore>();
+        builder.Services.AddScoped<IValidator<RestoreTrashCommand>, RestoreTrashValidator>();
+        builder.Services.AddScoped<ICommandHandlerAsync<RestoreTrashCommand, RestoreTrashOutput>, RestoreTrashHandler>();
         builder.Services.AddScoped<IRecordListStore, RecordListStore>();
         builder.Services.AddScoped<IRecordReadStore, RecordReadStore>();
         builder.Services.AddScoped<IRecordMoveStore, RecordMoveStore>();

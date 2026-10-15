@@ -769,3 +769,29 @@ including current removal/revocation and no mutation. Database evidence verifies
 the single coherent snapshot, bounded ancestry and absence of explicit locks.
 Independent security/protocol and external-client qualification remain release
 obligations. See the [collection detail API](../security/collection-api.md#get-an-encrypted-collection-uc31).
+
+### UC51 restoration admission and queue reconciliation
+
+POST `/api/trash/{id}/restore` identifies one retained deletion operation and
+requires its root expected revision. Current owner/selected-vault authority,
+original exclusive 720-hour database-time deadline, typed terminal exclusions and
+required native evidence precede a guarded root mutation. That mutation admits
+all surviving members atomically; later natural expiry does not split a cascade.
+Original links are revalidated against current owned scope; unavailable targets
+are omitted with authorized source IDs and counts, never hidden target IDs.
+Profile-to-foreign-collection links require current signed native grants and pins.
+Sessions, selected ProfileId, software/native grants and terminal markers are
+never revived or cleared. Native encrypted bytes and client edit times remain
+unchanged, and revisions/sequences advance once for restored rows and affected
+active structural parents under the existing resource-specific conventions.
+
+Owner/session/job/operation/entry locks precede ordered profile/collection/folder/
+record locks. Profile roots use collection SHARE locks rather than strong own
+collection locks followed by foreign SHARE locks, avoiding reciprocal restore
+cycles. The chosen operation, entries and `trash/{operationId}` job are removed
+only in the successful transaction, invalidating old claims. Retry after a lost
+success returns404; re-trash creates a new operation/deadline. Failed native
+validation, mutation postconditions, dependency faults or caller cancellation
+roll back the entire restore. Sequence allocation gaps are allowed. UC52/53 must
+supply durable physical emptying/expiry before release; independent protocol and
+client qualification remains a separate release gate.

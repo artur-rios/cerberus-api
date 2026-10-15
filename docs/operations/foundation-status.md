@@ -360,5 +360,22 @@ expiry/page/pin snapshot. No writes, foreign authority locks, plaintext or usabl
 keys. Current expiry and typed terminal markers hide content before cleanup.
 Selected listing scans retained root association metadata; plan inventory capacity
 and owner-writer contention. See the [trash API](../security/trash-api.md).
-UC51–53 remain responsible for restore, emptying and scheduled physical expiry;
+UC52/53 remain responsible for emptying and scheduled physical expiry;
 independent protocol/client qualification remains required before release.
+
+### Association-revalidated trash restoration (UC51)
+
+POST `/api/trash/{id}/restore` restores the listed operation's surviving owned
+unit under current vault scope, original database-time expiry and root revision.
+Independent trash and typed terminal members stay deleted. Current original
+links are revalidated; unavailable targets are reported by omission counts,
+without hidden target identifiers. Native ciphertext, encrypted profile wrappers,
+client edit times, ownership and revoked capabilities remain intact. One guarded
+root mutation admits the atomic restore, including a folder cascade; expiry after
+admission may finish under held locks. Only the chosen operation and queue item
+are consumed. Profile restoration uses collection SHARE locks for reciprocal
+foreign links, and never locks foreign account/profile rows. Corrupt required
+native material, injected faults and cancellation roll back the entire restore.
+See the [restore contract](../security/trash-api.md#restore-one-deletion-operation-uc51).
+UC52/53 physical erasure and independent protocol/client release qualification
+remain required before release.

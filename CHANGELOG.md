@@ -12,6 +12,10 @@ development into `develop` only; it is still required before any release.
 
 ### Added
 
+- `POST /api/trash/{id}/restore` atomically restores the surviving owned deletion
+  unit before its original deadline, revalidates former links against current
+  scope, reports safe omissions and preserves native bytes and revoked grants.
+
 - `GET /api/trash` returns native encrypted deletion roots and original deadlines,
   with current owner/selected-profile scope, bounded authenticated pagination,
   typed terminal exclusions and no-store responses. Folder cascades appear once;

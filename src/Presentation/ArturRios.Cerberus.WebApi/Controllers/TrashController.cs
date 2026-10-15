@@ -1,4 +1,7 @@
 using System.Globalization;
+using ArturRios.Cerberus.Command.Trash;
+using ArturRios.Cerberus.WebApi.Middleware;
+using ArturRios.Mediator.Command;
 using ArturRios.Cerberus.Query.Trash;
 using ArturRios.Mediator.Query;
 using ArturRios.Output;
@@ -9,8 +12,34 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 
 [ApiController]
 [Route("api/trash")]
-public sealed class TrashController(QueryMediator queries):ControllerBase
+public sealed class TrashController(QueryMediator queries,CommandMediator commands):ControllerBase
 {
+    [HttpPost("{id}/restore")]
+    [VaultProofBody]
+    [ProducesResponseType(typeof(DataOutput<RestoreTrashOutput>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status410Gone)]
+    [ProducesResponseType(typeof(void),StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<RestoreTrashOutput?>>> Restore([FromRoute]string id,[FromBody]RestoreTrashCommand command,
+        [FromHeader(Name="X-Cerberus-Vault-Access")]string? vaultAccess,CancellationToken cancellationToken)
+    {
+        if(Request.Query.Count!=0 || Request.Headers["X-Cerberus-Vault-Access"].Count>1
+            || Request.Headers.Keys.Any(k=>k.StartsWith("X-Cerberus-",StringComparison.OrdinalIgnoreCase)
+                && !k.Equals("X-Cerberus-Vault-Access",StringComparison.OrdinalIgnoreCase))
+            || !Guid.TryParseExact(id,"D",out var operationId) || operationId==Guid.Empty || id!=operationId.ToString("D"))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if(!Guid.TryParse(User.FindFirst("id")?.Value,out var actor))return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess=Request.Headers.TryGetValue("X-Cerberus-Vault-Access",out var raw)?raw.ToString():null;
+        command.SetContext(actor,vaultAccess,operationId);
+        var result=await commands.ExecuteCommandAsync<RestoreTrashCommand,RestoreTrashOutput>(command,cancellationToken);
+        return result.ToActionResult(statusMap:RestoreTrashMessages.StatusCodes);
+    }
+
     [HttpGet]
     [ProducesResponseType(typeof(DataOutput<TrashListOutput>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status400BadRequest)]

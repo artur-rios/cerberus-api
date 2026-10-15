@@ -6,7 +6,7 @@ namespace ArturRios.Cerberus.Domain.Accounts;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 [JsonNumberHandling(JsonNumberHandling.Strict)]
-public sealed record AccountExportInput([property:JsonRequired,Range(1d,ProtocolBinary.MaxInteger)]long ExpectedRevision)
+public sealed record AccountExportInput([property:JsonRequired][Range(1d,ProtocolBinary.MaxInteger)]long ExpectedRevision)
 {
     public bool IsValid()=>ExpectedRevision is >0 and <=ProtocolBinary.MaxInteger;
 }

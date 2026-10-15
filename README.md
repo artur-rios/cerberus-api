@@ -177,7 +177,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [#52](https://github.com/artur-rios/cerberus-api/issues/52) | UC-51 — Restore trash entry | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-51-restore-trash-entry) | Done |
 | [#53](https://github.com/artur-rios/cerberus-api/issues/53) | UC-52 — Empty trash | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-52-empty-trash) | Done |
 | [#54](https://github.com/artur-rios/cerberus-api/issues/54) | UC-53 — Expire retained deletions | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-53-expire-retained-deletions) | Done |
-| [#55](https://github.com/artur-rios/cerberus-api/issues/55) | UC-54 — Export account data | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-54-export-account-data) | Todo |
+| [#55](https://github.com/artur-rios/cerberus-api/issues/55) | UC-54 — Export account data | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-54-export-account-data) | Done |
 | [#56](https://github.com/artur-rios/cerberus-api/issues/56) | UC-55 — Check API health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-55-check-api-health) | Todo |
 
 ## Changelog

@@ -50,20 +50,21 @@
 - [x] Add typed UUID collision, corrupt cross-owner native/link/target and historical recipient-profile cases; retain original owned history through fixed-key filtered normalized references. Expired/terminal/hidden ancestor chains are omitted; selected cyclic/invalid metadata cannot silently produce a complete archive. Opaque native crypto remains transportable. Terminal fences cover pending key/relationship identities.
 - [x] Run focused AccountExport tests; Expected: native-only implementation fails metadata/foreign/corruption assertions.
 - [x] Implement all whitelisted relationships/grants/encrypted target keys/retained metadata within the captured cursor snapshot. Never dump EF entities, raw association snapshots or foreign protection bundles.
-- [ ] Run all focused AccountExport tests and relevant trash/native/grant regressions; Expected: all PASS,0fail/skip.
+- [x] Run all focused AccountExport tests and relevant trash/native/grant regressions; Expected: all PASS,0fail/skip.
 - [x] Commit `feat: export private relationships and wrapped keys`.
 
 
 ### Task 4: HTTP streaming, wire failures and full local gates
 **Files:** Create `src/Presentation/ArturRios.Cerberus.WebApi/Controllers/AccountExportController.cs`, `Results/AccountExportStreamResult.cs`; modify Startup registrations; add `tests/Presentation/ArturRios.Cerberus.WebApi.Tests/AccountExportHttpTests.cs`, `AccountExportStreamingTests.cs`; update `docs/contracts/openapi.json`, operations docs, new `docs/security/account-export-api.md`, README.
 **Interfaces:** Consumes ExportAccountQuery/output/map and owning lease. Controller POST strict metadata/body, actual actor+signed iat+single access header. Stream result advertises AccountExportArchive, pre-enumerates first entry before headers, flushes prefix/entries with async PipeWriter backpressure, disposes after EOF/final fence before entryCount/complete footer, maps pre-start known/dependency errors, aborts after-start failure. Attachment constant filename; no-store/no conditional validators.
-- [ ] Write HTTP tests first for success/raw typed schema/unchanged native graph, malformed JSON/unknown members/revision/header/media/body limits, owner/profile/software/wrong-scope/provider/current-state denials and conflicts. Expected first run: missing route404 instead of declared behavior.
-- [ ] Write real Kestrel ResponseHeadersRead tests: late actual FETCH failure yields nonempty truncated unparseable JSON with no success/footer/error replacement; caller disconnect while FETCH is pending releases actual backend transaction; EOF disposal failure prevents a complete archive. Add narrow genuine test-only AES256GCM content roundtrip through returned bytes/context, separate from structural wrapper fixtures.
-- [ ] Implement endpoint, DI and streaming lifetime/error behavior; generate OpenAPI and compare actual raw bodies. Existing unrelated account404 schema Minor stays deferred; new export errors must conform to their actual ProcessOutput declarations.
-- [ ] Run focused query/Data/HTTP/streaming checks; Expected: all PASS,0fail/skip, no protected log text. Update README UC54Done (55Done1Todo, foundation+54business, M06 8/9).
-- [ ] Run locked restore, zero-warning Release build, audits/helpers/specs/native322×4/actual Java-Python lease/OpenAPI/Docker gates; Expected: all PASS with actual raw response-schema evidence.
-- [ ] Commit `feat: serve private owner export streams` after focused checks to freeze a clean head.
+- [x] Write HTTP tests first for success/raw typed schema/unchanged native graph, malformed JSON/unknown members/revision/header/media/body limits, owner/profile/software/wrong-scope/provider/current-state denials and conflicts. Expected first run: missing route404 instead of declared behavior.
+- [x] Write real Kestrel ResponseHeadersRead tests: late actual FETCH failure yields nonempty truncated unparseable JSON with no success/footer/error replacement; caller disconnect while FETCH is pending releases actual backend transaction; EOF disposal failure prevents a complete archive. Add narrow genuine test-only AES256GCM content roundtrip through returned bytes/context, separate from structural wrapper fixtures.
+- [x] Implement endpoint, DI and streaming lifetime/error behavior; generate OpenAPI and compare actual raw bodies. Existing unrelated account404 schema Minor stays deferred; new export errors must conform to their actual ProcessOutput declarations.
+- [x] Run focused query/Data/HTTP/streaming checks; Expected: all PASS,0fail/skip, no protected log text. Update README UC54Done (55Done1Todo, foundation+54business, M06 8/9).
+- [x] Run locked restore, zero-warning Release build, audits/helpers/specs/native322×4/actual Java-Python lease/OpenAPI/Docker gates; Expected: all PASS with actual raw response-schema evidence.
+- [x] Commit `feat: serve private owner export streams` after focused checks to freeze a clean head.
 - [ ] Run full unfiltered six-project Release suite and fresh coverage; Expected:0fail/skip, six-assembly>=90% line, branch reported. Complete this implementation task only after all local gates; record the actual frozen-head run rather than redundantly repeating an identical full run.
+
 
 ## Delivery after implementation
 - [ ] Prepare whole-branch package and dispatch exactly one fresh read-only most-capable reviewer with Review Focus/ledger. Regrade all findings; Important/Critical one RED→GREEN fix pass +full suite, Minor deferred; rule on every declined judgment with cost.

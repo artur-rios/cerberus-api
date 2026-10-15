@@ -94,6 +94,15 @@ public sealed class SoftwareSecretHttpTests(RegistrationApiFixture fixture)
         if(method!="GET")request.Content=new StringContent("{}",Encoding.UTF8,"application/json");
         using var response=await client.SendAsync(request);await Failure(response,401,"authentication_required");Assert.Equal(0,identity.Calls);
     }
+    [FunctionalFact]
+    public async Task GivenOversizedDeclaredBodyWithoutBearer_WhenGetting_ThenReturnEmptyNoStore413BeforeProvider()
+    {
+        using var identity=new LiveIdentity(new(Guid.NewGuid(),RegistrationApiFixture.Scope,Guid.NewGuid(),DateTimeOffset.UtcNow.AddMinutes(1)));
+        using var host=Host(identity);using var client=host.CreateClient();
+        using var request=new HttpRequestMessage(HttpMethod.Get,"/api/software-secrets"){Content=new ByteArrayContent(new byte[65537])};
+        using var response=await client.SendAsync(request);Assert.Equal(HttpStatusCode.RequestEntityTooLarge,response.StatusCode);
+        Assert.Equal("",await response.Content.ReadAsStringAsync());AssertNoStore(response);Assert.Equal(0,identity.Calls);
+    }
     private async Task<SoftwareSecretFixture.Case> Seed(string kind,bool member)
     {
         var c=SoftwareSecretFixture.Create(kind,member);c=c with{Identity=c.Identity with{ScopeId=RegistrationApiFixture.Scope}};

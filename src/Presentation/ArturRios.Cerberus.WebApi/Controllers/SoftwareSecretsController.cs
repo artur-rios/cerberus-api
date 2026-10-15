@@ -21,6 +21,7 @@ public sealed class SoftwareSecretsController(QueryMediator queries):ControllerB
     [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(void),StatusCodes.Status413PayloadTooLarge)]
     [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status503ServiceUnavailable)]
     public async Task<ActionResult<DataOutput<SoftwareSecretOutput?>>> Get(
         [FromQuery,BindRequired]string? grantId,[FromQuery,BindRequired]string? kind,[FromQuery,BindRequired]string? id,[FromQuery]string? collectionId,CancellationToken cancellationToken)

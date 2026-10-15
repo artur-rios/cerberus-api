@@ -15,7 +15,9 @@ Query fields are single-valued and case-sensitive:
 | `collectionId` | Optional canonical collection UUID, only for a record retrieved through that explicitly granted collection. |
 
 Bodies, duplicate/unknown query fields, alternate UUID forms and `X-Cerberus-*`
-human authority headers return400 `validation_failed`. Invalid application tokens
+human authority headers return400 `validation_failed` after authentication.
+An oversized declared body is rejected by the shared request-size guard before
+authentication with an empty413 response and no provider call. Invalid application tokens
 return401 before any live provider call. Valid transport performs a fresh
 `/api/applications/self` check for every request using the original bearer.
 Heimdall401 returns401 `authentication_required`; unavailable or incompatible

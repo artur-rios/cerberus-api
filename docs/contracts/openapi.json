@@ -8325,6 +8325,9 @@
               }
             }
           },
+          "413": {
+            "description": "Content Too Large"
+          },
           "503": {
             "description": "Service Unavailable",
             "content": {

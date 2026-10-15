@@ -10,7 +10,7 @@ public sealed class SoftwareSecretContractTests
         var builder=WebApplication.CreateBuilder(new WebApplicationOptions{ApplicationName=typeof(Startup).Assembly.GetName().Name,Args=[]});
         builder.Services.AddCerberusContracts();using var host=builder.Build();var doc=host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
         var op=Assert.Single(doc.Paths["/api/software-secrets"].Operations!).Value;
-        Assert.Null(op.RequestBody);Assert.Equal(new[]{"grantId","id","kind"},op.Parameters!.Where(x=>x.Required).Select(x=>x.Name).Order());
+        Assert.Contains("413",op.Responses!.Keys);Assert.True(op.Responses["413"].Content is null or {Count:0});Assert.Null(op.RequestBody);Assert.Equal(new[]{"grantId","id","kind"},op.Parameters!.Where(x=>x.Required).Select(x=>x.Name).Order());
         Assert.False(op.Parameters!.Single(x=>x.Name=="collectionId").Required);
         foreach(var name in new[]{"SoftwareSecretOutput","SoftwareSecretResource","SoftwareSecretProvisioning"})
         {

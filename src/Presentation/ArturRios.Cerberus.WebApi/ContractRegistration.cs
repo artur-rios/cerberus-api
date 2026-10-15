@@ -83,9 +83,12 @@ public static class ContractRegistration
             }
             if (context.Type == typeof(ArturRios.Cerberus.Command.Accounts.AccountClosureOutput)
                 ||context.Type==typeof(ArturRios.Cerberus.Command.Accounts.AccountClosureCancellationOutput)
+                ||context.Type==typeof(ArturRios.Cerberus.Command.Accounts.AccountDeletionOutput)
                 ||context.Type==typeof(ArturRios.Cerberus.Domain.Accounts.AccountClosureRecoveryDetails))
             {
                 target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
+                if(context.Type==typeof(ArturRios.Cerberus.Command.Accounts.AccountDeletionOutput))
+                    target.Properties["state"]=new OpenApiSchema{Type=JsonSchemaType.String,Enum=[JsonValue.Create("completed"),JsonValue.Create("pending")]};
                 return;
             }
             if (typeof(SyncEditInput).IsAssignableFrom(context.Type) && !context.Type.IsAbstract)
@@ -150,7 +153,7 @@ public static class ContractRegistration
             var policyUpdate = context.MethodInfo.DeclaringType == typeof(AccountController)
                 && context.MethodInfo.Name == nameof(AccountController.SetOfflinePolicy);
             var closure = context.MethodInfo.DeclaringType == typeof(AccountController)
-                && context.MethodInfo.Name is nameof(AccountController.RequestClosure) or nameof(AccountController.CancelClosure);
+                && context.MethodInfo.Name is nameof(AccountController.RequestClosure) or nameof(AccountController.CancelClosure) or nameof(AccountController.DeleteAccount);
             var recovery=context.MethodInfo.DeclaringType==typeof(AuthController)
                 &&context.MethodInfo.Name is nameof(AuthController.ClosureLogin) or nameof(AuthController.ClosureVerifyChallenge);
             var renewal = context.MethodInfo.DeclaringType == typeof(OfflineAuthorizationsController)

@@ -1,5 +1,13 @@
 # Foundation implementation status
 
+UC08 adds [permanent account deletion](../security/account-deletion-api.md) at
+`DELETE /api/accounts/me/permanent`: current fresh identity and account-wide
+vault authority commit irreversible typed intent and immediate erasure work.
+Ledger-first, database-time claim fencing purges owned data and supports safe
+retry and actual backup replay before traffic. Foreign shared content and the
+Heimdall identity survive. UC43 is now unblocked by Heimdall #178 / PR #185;
+application-token integration remains the next development task.
+
 UC49 adds [encrypted offline edit upload](../security/offline-edits-api.md)
 at `POST /api/sync/edits`. Eight native create/content-update variants retain
 current owner/selected-profile/sharing authority and native cryptographic checks.

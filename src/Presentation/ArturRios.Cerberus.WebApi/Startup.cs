@@ -83,6 +83,8 @@ public static class Startup
         builder.Services.AddScoped<QueryMediator>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
+        builder.Services.AddScoped<IAccountDeletionStore,AccountDeletionStore>();
+        builder.Services.AddScoped<ICommandHandlerAsync<DeleteAccountCommand,AccountDeletionOutput>,DeleteAccountHandler>();
         builder.Services.AddScoped<IAccountClosureStore, AccountClosureStore>();
         builder.Services.AddScoped<IAccountClosureCancellationStore,AccountClosureCancellationStore>();
         builder.Services.AddScoped<IAccountClosureRecoveryStore,AccountClosureRecoveryStore>();
@@ -161,6 +163,7 @@ public static class Startup
         builder.Services.AddScoped<IValidator<PermanentlyDeleteRecordCommand>, PermanentlyDeleteRecordValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<PermanentlyDeleteRecordCommand, PermanentlyDeleteRecordOutput>, PermanentlyDeleteRecordHandler>();
         builder.Services.AddScoped<IRetentionHandler, RecordPurgeHandler>();
+        builder.Services.AddScoped<IRetentionHandler,AccountPurgeHandler>();
         builder.Services.AddScoped<IRecordTrashStore, RecordTrashStore>();
         builder.Services.AddScoped<IFolderTrashStore, FolderTrashStore>();
         builder.Services.AddScoped<IValidator<DeleteRecordCommand>, DeleteRecordValidator>();

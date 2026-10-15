@@ -325,3 +325,11 @@ work for the original 30-day deadline while retaining encrypted content. Existin
 leases are bounded by their previous client policy; online authority is revoked
 immediately. Account purge execution and expiry scheduling are delivered by the
 following lifecycle use cases. No independent release review is implied.
+
+## Account closure cancellation (UC07)
+
+The [cancellation API](../security/account-closure-cancellation-api.md) provides
+restricted fresh Heimdall password/MFA recovery without admitting pending accounts
+to ordinary login. The account/job transaction requires the original deadline to
+be in the future on the database clock and clears claims atomically. Existing
+sessions, challenges and grants remain reduced; new unlock/regranting is explicit.

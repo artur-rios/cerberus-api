@@ -81,7 +81,9 @@ public static class ContractRegistration
                 target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
                 return;
             }
-            if (context.Type == typeof(ArturRios.Cerberus.Command.Accounts.AccountClosureOutput))
+            if (context.Type == typeof(ArturRios.Cerberus.Command.Accounts.AccountClosureOutput)
+                ||context.Type==typeof(ArturRios.Cerberus.Command.Accounts.AccountClosureCancellationOutput)
+                ||context.Type==typeof(ArturRios.Cerberus.Domain.Accounts.AccountClosureRecoveryDetails))
             {
                 target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
                 return;
@@ -99,6 +101,13 @@ public static class ContractRegistration
                 };
                 target.Properties["editType"] = new OpenApiSchema { Type = JsonSchemaType.String, Enum = [JsonValue.Create(editKind)] };
                 target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
+                return;
+            }
+            if (context.Type == typeof(ArturRios.Cerberus.Command.Authentication.ClosureRecoveryAuthenticationOutput))
+            {
+                var account = target.Properties["account"];
+                target.Properties["account"] = new OpenApiSchema
+                    { Type = JsonSchemaType.Object | JsonSchemaType.Null, OneOf = [account, NullValue()] };
                 return;
             }
             if (context.Type == typeof(ProfileKeyWrappers))
@@ -141,18 +150,20 @@ public static class ContractRegistration
             var policyUpdate = context.MethodInfo.DeclaringType == typeof(AccountController)
                 && context.MethodInfo.Name == nameof(AccountController.SetOfflinePolicy);
             var closure = context.MethodInfo.DeclaringType == typeof(AccountController)
-                && context.MethodInfo.Name == nameof(AccountController.RequestClosure);
+                && context.MethodInfo.Name is nameof(AccountController.RequestClosure) or nameof(AccountController.CancelClosure);
+            var recovery=context.MethodInfo.DeclaringType==typeof(AuthController)
+                &&context.MethodInfo.Name is nameof(AuthController.ClosureLogin) or nameof(AuthController.ClosureVerifyChallenge);
             var renewal = context.MethodInfo.DeclaringType == typeof(OfflineAuthorizationsController)
                 && context.MethodInfo.Name == nameof(OfflineAuthorizationsController.Renew);
             var syncEdits = context.MethodInfo.DeclaringType == typeof(SyncController) && context.MethodInfo.Name == nameof(SyncController.Edits);
-            if (!closure && !policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
+            if (!recovery && !closure && !policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
                 || context.MethodInfo.Name is not (nameof(SoftwareGrantsController.GrantAccess)
                     or nameof(SoftwareGrantsController.RevokeAccess)))) return;
             var content = operation.RequestBody!.Content!;
             var json = content["application/json"];
             content.Clear();
             content.Add("application/json", json);
-            if (closure || policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            if (recovery || closure || policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 ((OpenApiRequestBody)operation.RequestBody!).Required = true;
                 operation.Responses!["413"].Content?.Clear();

@@ -397,6 +397,8 @@ and identifier treatment must be justified by the deployment privacy policy.
 | PUT | `/api/accounts/me` | UC-04 Update account | FR-AC-09 |
 | PUT | `/api/identity/me` | UC-05 Update identity details | FR-AC-10 |
 | POST | `/api/accounts/me/closure` | UC-06 Request account closure | FR-AC-11, FR-AC-12, FR-AC-13 |
+| POST | `/api/auth/closure/login` | UC-07 Restricted closure recovery authentication | FR-AC-14 |
+| POST | `/api/auth/closure/2fa/verify` | UC-07 Complete restricted recovery challenge | FR-AC-14 |
 | POST | `/api/accounts/me/closure/cancel` | UC-07 Cancel account closure | FR-AC-14 |
 | DELETE | `/api/accounts/me/permanent` | UC-08 Permanently delete account | FR-AC-15, FR-AC-16, FR-AC-17, FR-AC-18 |
 

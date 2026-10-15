@@ -72,26 +72,8 @@ public sealed class TrashListStore(IDbContextFactory<AppDbContext> factory):ITra
     private static object[] Base(TrashListRequest r)=>[new NpgsqlParameter("actor",r.Actor),new NpgsqlParameter("verifier",r.AccessVerifier)];
     private sealed class HistoryRow{public long Id{get;set;}public string Kind{get;set;}="";public byte[] Bytes{get;set;}=[];}
     private sealed record History(long Id,string Bytes,Guid? Parent,Guid[] Profiles,Guid[] Collections);
-    private static History? ParseHistory(HistoryRow row)
-    {
-        try
-        {
-            using var doc=JsonDocument.Parse(row.Bytes);var root=doc.RootElement;
-            if(root.ValueKind!=JsonValueKind.Object)return null;
-            var fields=root.EnumerateObject().ToArray();var parentName=row.Kind=="record"?"folderId":"parentFolderId";
-            var names=row.Kind=="collection"?new[]{"profileIds","recordIds","folderIds"}:new[]{parentName,"profileIds","collectionIds"};
-            if(fields.Length!=3 || fields.Select(x=>x.Name).Distinct().Count()!=3 || fields.Any(x=>!names.Contains(x.Name)))return null;
-            static Guid Id(JsonElement e)=>e.ValueKind==JsonValueKind.String && Guid.TryParseExact(e.GetString(),"D",out var id)
-                && id!=Guid.Empty && e.GetString()==id.ToString("D")?id:throw new JsonException();
-            static Guid[] Ids(JsonElement e){if(e.ValueKind!=JsonValueKind.Array)throw new JsonException();var ids=e.EnumerateArray().Select(Id).ToArray();if(ids.Distinct().Count()!=ids.Length)throw new JsonException();return ids;}
-            var profiles=Ids(root.GetProperty("profileIds"));
-            Guid? parent=null;Guid[] collections=[];
-            if(row.Kind=="collection"){_=Ids(root.GetProperty("recordIds"));_=Ids(root.GetProperty("folderIds"));}
-            else {var value=root.GetProperty(parentName);parent=value.ValueKind==JsonValueKind.Null?null:Id(value);collections=Ids(root.GetProperty("collectionIds"));}
-            return new(row.Id,Convert.ToHexStringLower(row.Bytes),parent,profiles,collections);
-        }
-        catch(JsonException){return null;}
-    }
+    private static History? ParseHistory(HistoryRow row)=>TrashAssociations.TryRead(row.Kind,row.Bytes,out var data)
+        ?new(row.Id,Convert.ToHexStringLower(row.Bytes),data!.Parent,data.ProfileIds,data.CollectionIds):null;
     private sealed record Item(long Position,Guid OperationId,string Kind,Guid ResourceId,long Revision,long ServerSequence,
         DateTimeOffset EditedAt,DateTimeOffset DeletedAt,DateTimeOffset PurgeAt,string Envelope,long? KeyEpoch,string? KeyWrappers);
     private sealed class Snapshot

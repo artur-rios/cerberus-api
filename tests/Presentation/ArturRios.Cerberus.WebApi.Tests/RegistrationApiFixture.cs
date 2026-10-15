@@ -137,6 +137,7 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
             ["CERBERUS_HEIMDALL_SCOPE_ID"] = Scope.ToString(),
             ["CERBERUS_HEIMDALL_SERVICE_CREDENTIAL"] = _serviceToken,
             ["CERBERUS_AUTH_ISSUER"] = "fixture-issuer", ["CERBERUS_AUTH_AUDIENCE"] = "fixture-audience",
+            ["CERBERUS_AUTH_APPLICATION_AUDIENCE"] = "fixture-applications",
             ["CERBERUS_AUTH_VALIDATION_SECRET"] = Secret,
             ["CERBERUS_REGISTRATION_FINGERPRINT_KEY"] = "independent-durable-fixture-key-32-bytes",
             ["CERBERUS_OFFLINE_LEASE_ISSUER"] = "fixture-lease-issuer", ["CERBERUS_OFFLINE_LEASE_PRIVATE_KEY_PEM"] = LeasePrivatePem,

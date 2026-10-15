@@ -47,10 +47,9 @@ It issues no offline lease; clients continue to enforce their last issued policy
 until reconnection or its existing expiry. Policy changes and lease renewal are
 separate use cases.
 
-UC-43 remains blocked by the missing Heimdall application-authentication contract,
-tracked by [Heimdall #178](https://github.com/artur-rios/heimdall-api/issues/178).
-The owner authorized moving into M-05 while this external prerequisite remains
-open. This human-owner metadata endpoint does not depend on software credentials.
+UC43 now uses the application-authentication contract delivered by
+[Heimdall #178](https://github.com/artur-rios/heimdall-api/issues/178).
+This human-owner metadata endpoint remains independent of software credentials.
 Independent protocol/client review remains deferred for development only and is
 still required before release.
 

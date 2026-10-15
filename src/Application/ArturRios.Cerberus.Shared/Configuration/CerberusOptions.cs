@@ -9,7 +9,9 @@ public sealed class CerberusOptions
     public string? HeimdallServiceCredential { get; set; }
     public string? AuthIssuer { get; set; }
     public string? AuthAudience { get; set; }
+    public string? AuthApplicationAudience { get; set; }
     public string? AuthValidationSecret { get; set; }
+    public string? AuthValidationSecretPrevious { get; set; }
     public string? RegistrationFingerprintKey { get; set; }
     public string? OfflineLeaseIssuer { get; set; }
     public string? OfflineLeasePrivateKeyPem { get; set; }

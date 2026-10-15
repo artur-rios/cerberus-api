@@ -1,12 +1,21 @@
 # Foundation implementation status
 
+UC43 adds [application-only encrypted retrieval](../security/software-secret-retrieval-api.md)
+at `GET /api/software-secrets`. Distinct-audience signed application tokens are
+live checked against Heimdall `/api/applications/self` for every read. Exact
+current native grants, recipient/author bindings, lifecycle and collection-member
+visibility protect bounded ciphertext and provisioning output. Canonical locks
+and final database-time checks reject authority changes or expiry after waits.
+Application tokens confer no human-route or write authority. Configuration now
+requires a distinct application audience and supports an explicit previous
+trusted signing key. Independent release qualification remains outstanding.
+
 UC08 adds [permanent account deletion](../security/account-deletion-api.md) at
 `DELETE /api/accounts/me/permanent`: current fresh identity and account-wide
 vault authority commit irreversible typed intent and immediate erasure work.
 Ledger-first, database-time claim fencing purges owned data and supports safe
 retry and actual backup replay before traffic. Foreign shared content and the
-Heimdall identity survive. UC43 is now unblocked by Heimdall #178 / PR #185;
-application-token integration remains the next development task.
+Heimdall identity survive. UC43 uses the Heimdall #178 / PR #185 application authentication contract.
 
 UC49 adds [encrypted offline edit upload](../security/offline-edits-api.md)
 at `POST /api/sync/edits`. Eight native create/content-update variants retain
@@ -55,7 +64,7 @@ account-wide or valid own-profile vault authority protect one metadata-only
 snapshot. It returns the saved renewal setting/duration and policy/revocation
 versions, defaults to 24 hours, and fails closed on corrupt policy or unavailable
 dependencies. It issues no lease and reads no ciphertext. The owner authorized
-continuing M-05 while UC43 remains blocked on Heimdall #178.
+continuing M-05 while the now-resolved Heimdall #178 dependency was outstanding.
 
 Foundation issue #1 is implemented and reviewed through [PR #57](https://github.com/artur-rios/cerberus-api/pull/57).
 The implementation and verification below describe the foundation snapshot of
@@ -74,7 +83,7 @@ Vault data, unrelated grants and owner sessions/generation remain unchanged.
 Success returns only grant ID/revision. Command, PostgreSQL store/concurrency and
 HTTP/OpenAPI test families cover strict transport, nonrevealing denial, captured
 state races, UC42 reactivation, rollback/clean retry, no-store and non-disclosure.
-This path makes no Heimdall application call; UC43 remains blocked. Copied
+This path makes no Heimdall application call; UC43 now supplies live application retrieval. Copied
 ciphertext cannot be recalled, UC48 offline delivery remains separate, and
 independent security/protocol/client review remains a release obligation.
 
@@ -86,10 +95,9 @@ grant and complete typed target set commit. Exact revoked reactivation replaces
 the whole key/scope at the next revision; active replay conflicts. Success returns
 only grant ID/revision, with no vault-resource mutation. HTTP tests prove strict
 transport, upstream classifications, native foreign denials, selected access,
-rollback and clean retry. UC44 revocation is recorded above. UC43 software
-authentication/retrieval remains blocked; UC48 offline delivery, cross-service
-deletion revalidation and independent security/protocol/client and production
-qualification remain release obligations.
+rollback and clean retry. UC44 revocation is recorded above. UC43 supplies software authentication/retrieval; UC48 supplies offline delivery.
+Independent security/protocol/client and production qualification remain release
+obligations.
 
 ## Implemented and tested
 

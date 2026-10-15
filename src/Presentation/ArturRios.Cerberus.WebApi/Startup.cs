@@ -1,3 +1,4 @@
+using ArturRios.Cerberus.Query.Software;
 using ArturRios.Cerberus.Query.Collections;
 using ArturRios.Cerberus.Command.Collections;
 using ArturRios.Cerberus.Domain.Collections;
@@ -79,6 +80,7 @@ public static class Startup
         builder.Services.AddSingleton(options);
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddSingleton<HeimdallTokenValidator>();
+        builder.Services.AddSingleton<HeimdallApplicationTokenValidator>();
         builder.Services.AddScoped<CommandMediator>();
         builder.Services.AddScoped<QueryMediator>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
@@ -114,6 +116,8 @@ public static class Startup
         builder.Services.AddScoped<ICollectionMembershipStore, CollectionMembershipStore>();
         builder.Services.AddScoped<ICollectionGrantStore, CollectionGrantStore>();
         builder.Services.AddScoped<ISoftwareGrantStore, SoftwareGrantStore>();
+        builder.Services.AddScoped<ISoftwareSecretStore, SoftwareSecretStore>();
+        builder.Services.AddScoped<IQueryHandlerAsync<GetSoftwareSecretQuery, SoftwareSecretOutput>, GetSoftwareSecretHandler>();
         builder.Services.AddScoped<ISoftwareGrantRevocationStore, SoftwareGrantRevocationStore>();
         builder.Services.AddScoped<IValidator<RevokeSoftwareAccessCommand>, RevokeSoftwareAccessValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<RevokeSoftwareAccessCommand, RevokeSoftwareAccessOutput>, RevokeSoftwareAccessHandler>();
@@ -230,6 +234,13 @@ public static class Startup
         builder.Services.AddScoped<IAccountAuthenticationStore, AccountAuthenticationStore>();
         builder.Services.AddDbContextFactory<AppDbContext>(configuration => configuration.UseNpgsql(options.ConnectionString));
         builder.Services.AddHttpClient<IHeimdallClient, HeimdallClient>(client =>
+            {
+                client.BaseAddress = new Uri(options.HeimdallBaseUrl!);
+                client.Timeout = TimeSpan.FromSeconds(10);
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false })
+            .RemoveAllLoggers();
+        builder.Services.AddHttpClient<IHeimdallApplicationClient, HeimdallApplicationClient>(client =>
             {
                 client.BaseAddress = new Uri(options.HeimdallBaseUrl!);
                 client.Timeout = TimeSpan.FromSeconds(10);

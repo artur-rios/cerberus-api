@@ -6,7 +6,7 @@ namespace ArturRios.Cerberus.WebApi.Middleware;
 
 public sealed class ProtectedEndpointMiddleware(RequestDelegate next)
 {
-    public async Task InvokeAsync(HttpContext context, HeimdallTokenValidator tokens, IHeimdallClient identity)
+    public async Task InvokeAsync(HttpContext context, HeimdallTokenValidator tokens, IHeimdallClient identity, HeimdallApplicationTokenValidator applications)
     {
         var endpoint = context.GetEndpoint();
         if (endpoint is null || endpoint.Metadata.GetMetadata<IAllowAnonymous>() is not null
@@ -18,6 +18,19 @@ public sealed class ProtectedEndpointMiddleware(RequestDelegate next)
         var headers = context.Request.Headers.Authorization;
         var header = headers.Count == 1 ? headers[0] : null;
         var token = header?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true ? header[7..] : string.Empty;
+        if (endpoint.Metadata.GetMetadata<ApplicationAuthenticationAttribute>() is not null)
+        {
+            var application = await applications.ValidateAsync(token);
+            if (application is null)
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsJsonAsync(ProcessOutput.New.WithError("authentication_required"), context.RequestAborted);
+                return;
+            }
+            context.User = application;
+            await next(context);
+            return;
+        }
         var principal = await tokens.ValidateAsync(token);
         var authorization = principal is null ? HeimdallAuthorization.Denied
             : await identity.RevalidateAsync(token, context.RequestAborted);

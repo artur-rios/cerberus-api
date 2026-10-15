@@ -18,6 +18,8 @@ public static class CerberusConfiguration
             HeimdallServiceCredential = Value("CERBERUS_HEIMDALL_SERVICE_CREDENTIAL", nameof(CerberusOptions.HeimdallServiceCredential)),
             AuthIssuer = Value("CERBERUS_AUTH_ISSUER", nameof(CerberusOptions.AuthIssuer)),
             AuthAudience = Value("CERBERUS_AUTH_AUDIENCE", nameof(CerberusOptions.AuthAudience)),
+            AuthApplicationAudience = Value("CERBERUS_AUTH_APPLICATION_AUDIENCE", nameof(CerberusOptions.AuthApplicationAudience)),
+            AuthValidationSecretPrevious = Value("CERBERUS_AUTH_VALIDATION_SECRET_PREVIOUS", nameof(CerberusOptions.AuthValidationSecretPrevious)),
             AuthValidationSecret = Value("CERBERUS_AUTH_VALIDATION_SECRET", nameof(CerberusOptions.AuthValidationSecret)),
             RegistrationFingerprintKey = Value("CERBERUS_REGISTRATION_FINGERPRINT_KEY", nameof(CerberusOptions.RegistrationFingerprintKey)),
             OfflineLeaseIssuer = Value("CERBERUS_OFFLINE_LEASE_ISSUER", nameof(CerberusOptions.OfflineLeaseIssuer)),

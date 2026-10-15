@@ -131,5 +131,64 @@ entries and job together; global sequence gaps may remain.
 Only the chosen operation/entries/job are consumed. An old worker claim cannot
 complete the removed job. A lost-success retry returns 404; clients reload normal
 resource/trash state. Trashing a restored item again creates a new deletion
-operation with a new original deadline. Emptying and scheduled physical expiry
-remain UC52 and UC53 responsibilities; restoration never purges content.
+operation with a new original deadline. Permanent emptying is described below; scheduled physical expiry remains UC53.
+Restoration never purges content.
+
+## Permanently empty owned trash (UC52)
+
+DELETE `/api/trash` with a current human bearer, one account-wide vault handle and
+strict JSON `{"expectedRevision":1}`. This revision belongs to the **account**.
+A selected-profile handle returns 403 rather than widening its scope. Queries,
+caller authority overrides, unknown or duplicate fields, quoted numbers and
+unsupported media return 400. Oversized requests return an empty 413 before
+identity validation; all responses are no-store.
+
+A successful 200 `trash_emptied` response contains only `accountId`, `purgedAt`,
+`counts` and `totalPurged`. `counts` has exactly one nonnegative integer count for
+each of `record`, `folder`, `collection` and `profile`, including zeros; their sum
+is `totalPurged`. Counts represent physical owned resource rows, so folder cascade
+members each count once. No target IDs, encrypted content, keys, handles or retained
+association snapshots appear. Empty native and metadata inventories return four
+zeros without creating a job or touching the durable ledger. Owned orphan trash
+metadata may be retired with zero native-resource counts.
+
+All current owned trash is eligible, including rows whose original retention
+period has expired and clearly owned rows with damaged opaque content or history.
+The operation never decrypts those bytes. Active resources, another owner's
+trash, foreign shared content and unrelated grants remain outside the purge.
+Relationships pointing to an erased resource disappear; other members of a
+collection or profile stay active. Directly selected sessions retain their
+ProfileId and stay revoked when the profile is erased.
+
+Admission locks the owner, current session, coalesced job, ordered own profiles,
+collections, folders and records. After all waits, a guarded database-time job
+upsert admits the operation only while the current wide session and expected
+account revision are valid. Typed terminal markers commit in the same transaction.
+A session that expires after this admission does not cancel the admitted erasure.
+A stale account revision returns 409; absent/inactive owners return nonrevealing
+404; invalid current vault authority returns 403. Identity failures follow the
+listing contract. There is no expired-trash 410 for permanent emptying.
+
+The durable `trash-erase/{accountId}` job coalesces retries. The worker releases
+all database transactions before recording every admitted typed erasure in the
+filesystem ledger. Only then does it relock resources and physically erase them
+under its persisted token and exclusive database-time lease. New permanent targets
+invalidate older claims; pure retries preserve a live claim. New recoverable trash
+created after admission remains intact until a later explicit empty request.
+An original expiry worker's live claim is retained so that worker can complete.
+
+A dependency failure returns 503 `persistence_unavailable`. Before admission,
+failures leave no intent. **After admission, 503 or cancellation can mean permanent
+intent was committed**: listing and restoration hide those typed terminal targets
+while durable work is retried. A live worker may cause a concurrent retry to return
+503; retry after it finishes or its claim expires. A lost-success retry can return
+zero counts. Physical-pass failures roll back the pass without undoing committed
+intent or durable ledger entries; a partially written ledger never permits a
+partial physical pass.
+
+Restoring an older database backup replays all typed record/folder/collection/
+profile erasures before opening the traffic barrier. Replay preserves surviving
+native bytes and restored metadata, detaches unmarked children safely and revokes
+directly selected erased-profile sessions without broadening selection. Scheduled
+expiry remains UC53; independent protocol/client qualification is still required
+before release.

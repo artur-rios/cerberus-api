@@ -360,7 +360,7 @@ expiry/page/pin snapshot. No writes, foreign authority locks, plaintext or usabl
 keys. Current expiry and typed terminal markers hide content before cleanup.
 Selected listing scans retained root association metadata; plan inventory capacity
 and owner-writer contention. See the [trash API](../security/trash-api.md).
-UC52/53 remain responsible for emptying and scheduled physical expiry;
+UC52 permanent emptying is described below; scheduled expiry remains UC53;
 independent protocol/client qualification remains required before release.
 
 ### Association-revalidated trash restoration (UC51)
@@ -377,5 +377,18 @@ are consumed. Profile restoration uses collection SHARE locks for reciprocal
 foreign links, and never locks foreign account/profile rows. Corrupt required
 native material, injected faults and cancellation roll back the entire restore.
 See the [restore contract](../security/trash-api.md#restore-one-deletion-operation-uc51).
-UC52/53 physical erasure and independent protocol/client release qualification
+Scheduled expiry (UC53) and independent protocol/client release qualification
 remain required before release.
+
+### Owner-wide permanent trash erasure (UC52)
+
+DELETE `/api/trash` admits all current owned trash with a strict expected account
+revision and current account-wide vault session. Typed irreversible intent and a
+coalesced outbox job commit atomically after database-time authority checks. The
+worker records the complete durable ledger set outside database locks before a
+fenced physical pass; expired or replaced claims cannot mutate or complete work.
+A post-admission 503 remains irreversible and retryable. Counts-only success never
+returns cipher or target IDs. Active/foreign resources and unrelated native grants
+remain intact; backup replay physically erases all four kinds before traffic.
+See the [empty-trash contract](../security/trash-api.md#permanently-empty-owned-trash-uc52).
+Scheduled retention expiry remains UC53 and release qualification remains separate.

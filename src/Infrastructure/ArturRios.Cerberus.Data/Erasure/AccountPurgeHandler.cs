@@ -11,19 +11,6 @@ public sealed class AccountPurgeHandler(IDbContextFactory<AppDbContext> factory,
     {
         cancellationToken.ThrowIfCancellationRequested();var parts=claim.OperationKey.Split('/');
         if(parts.Length!=2||parts[0]!=Kind||!Guid.TryParseExact(parts[1],"D",out var id)||id==Guid.Empty||parts[1]!=id.ToString("D"))throw new InvalidOperationException("Invalid account erasure work.");
-        IReadOnlyList<ErasureEntry> entries;
-        await using(var db=await factory.CreateDbContextAsync(cancellationToken))
-        {
-            await using var tx=await db.Database.BeginTransactionAsync(cancellationToken);
-            await AccountErasure.LockAsync(db,id,cancellationToken);
-            await RecordErasure.RequireClaimAsync(db,claim,cancellationToken);
-            entries=await AccountErasure.EntriesAsync(db,id,cancellationToken);
-            await tx.CommitAsync(cancellationToken);
-        }
-        // Every retained typed identifier is durable before any physical removal.
-        foreach(var entry in entries)await ledger.RecordAsync(entry,cancellationToken);
-        await using var purge=await factory.CreateDbContextAsync(cancellationToken);await using var transaction=await purge.Database.BeginTransactionAsync(cancellationToken);
-        await AccountErasure.RemoveAsync(purge,id,claim,cancellationToken,entries);
-        await transaction.CommitAsync(cancellationToken);
+        await AccountErasureExecution.ExecuteAsync(factory,ledger,claim,id,cancellationToken);
     }
 }

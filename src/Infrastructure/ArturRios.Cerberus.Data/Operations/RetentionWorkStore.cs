@@ -9,9 +9,16 @@ public sealed class RetentionWorkStore(IDbContextFactory<AppDbContext> factory) 
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limit);
         await using var context = await factory.CreateDbContextAsync(cancellationToken);
-        return await context.RetentionWorkItems.AsNoTracking()
-            .Where(x => x.CompletedAt == null && x.DueAt <= now && (x.ClaimExpiresAt == null || x.ClaimExpiresAt <= now))
-            .OrderBy(x => x.DueAt).ThenBy(x => x.PublicId).Take(limit).Select(x => x.PublicId).ToListAsync(cancellationToken);
+        return await context.Database.SqlQuery<Guid>($"""
+            SELECT public_id AS "Value" FROM cerberus.retention_work_item
+            WHERE completed_at IS NULL
+              AND due_at<=CASE WHEN operation_key LIKE 'trash/%' OR operation_key LIKE 'account-purge/%'
+                THEN statement_timestamp() ELSE {now} END
+              AND (claim_expires_at IS NULL OR claim_expires_at<=CASE
+                WHEN operation_key LIKE 'trash/%' OR operation_key LIKE 'account-purge/%'
+                THEN statement_timestamp() ELSE {now} END)
+            ORDER BY due_at,public_id LIMIT {limit}
+            """).ToListAsync(cancellationToken);
     }
 
     public async Task<RetentionClaim?> TryClaimAsync(Guid workId, DateTimeOffset now, TimeSpan lease, CancellationToken cancellationToken)
@@ -23,11 +30,16 @@ public sealed class RetentionWorkStore(IDbContextFactory<AppDbContext> factory) 
             .ToListAsync(cancellationToken);
         var work = rows.SingleOrDefault();
         var token = Guid.NewGuid();
-        if (work is null || !work.TryClaim(token, now, lease)) return null;
+        if (work is null || now.Offset!=TimeSpan.Zero) return null;
+        if (IsExpiry(work.OperationKey))
+            now=await context.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(cancellationToken);
+        if (!work.TryClaim(token, now, lease)) return null;
         await context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return new RetentionClaim(work.PublicId, token, work.OperationKey, work.ClaimExpiresAt!.Value);
     }
+
+    private static bool IsExpiry(string key)=>key.StartsWith("trash/",StringComparison.Ordinal)||key.StartsWith("account-purge/",StringComparison.Ordinal);
 
     public async Task<bool> TryCompleteAsync(RetentionClaim claim, DateTimeOffset now, CancellationToken cancellationToken)
     {
@@ -37,7 +49,7 @@ public sealed class RetentionWorkStore(IDbContextFactory<AppDbContext> factory) 
             $"SELECT * FROM cerberus.retention_work_item WHERE public_id = {claim.WorkId} FOR UPDATE")
             .ToListAsync(cancellationToken);
         var work = rows.SingleOrDefault();
-        if(work is not null && (work.OperationKey.StartsWith("record-purge/",StringComparison.Ordinal)||work.OperationKey.StartsWith("account-erase/",StringComparison.Ordinal)||work.OperationKey.StartsWith("trash-erase/",StringComparison.Ordinal)))
+        if(work is not null && (work.OperationKey.StartsWith("record-purge/",StringComparison.Ordinal)||work.OperationKey.StartsWith("account-erase/",StringComparison.Ordinal)||work.OperationKey.StartsWith("trash-erase/",StringComparison.Ordinal)||IsExpiry(work.OperationKey)))
         {
             if(work.OperationKey!=claim.OperationKey || claim.Token==Guid.Empty || now.Offset!=TimeSpan.Zero)return false;
             // The caller's clock cannot extend a purge lease. This statement starts

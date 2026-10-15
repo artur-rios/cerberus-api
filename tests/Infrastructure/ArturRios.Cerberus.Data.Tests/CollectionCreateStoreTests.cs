@@ -213,19 +213,49 @@ public class CollectionCreateStoreTests(PostgresFixture fixture)
         Assert.True(fault.Triggered); Assert.Equal("persistence_unavailable", result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s)); await Success(s, input, before, await Create(s, input));
     }
 
-    [FunctionalTheory][InlineData("account")][InlineData("session")][InlineData("profile")][InlineData("collection")][InlineData("folder")][InlineData("record")]
-    public async Task GivenNaturalExpiryDuringEachLockWait_WhenCreating_ThenDenyBeforeDuplicateAndLeaveGraphUnchanged(string kind)
+    [FunctionalTheory][InlineData("account",false)][InlineData("session",false)][InlineData("profile",false)][InlineData("collection",false)][InlineData("folder",false)][InlineData("record",false)][InlineData("collection",true)]
+    public async Task GivenNaturalExpiryDuringEachLockWait_WhenCreating_ThenDenyBeforeDuplicateAndLeaveGraphUnchanged(string kind,bool delayedPreparation)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var p = await Profile(s, owner, scoped); var f = await Folder(s); var r = await Record(s, f.Id); var c = await Collection(s);
         await Routes(s, p.Id, c.Id, [], [], [f.Id], [r.Id]); s = s with { Verifier = await Selected(s, p.Id) }; var input = Input([p.PublicId], [f.PublicId], [r.PublicId]) with { CollectionId = c.PublicId };
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(2); await using (var db = fixture.CreateContext()) await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
+        // Preparation/snapshot queries can outlast a short lease under coverage.
+        // Keep authority valid until the exact intended lock statement is ready.
+        var initialExpiry=DateTimeOffset.UtcNow.AddHours(1);await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.HandleVerifier==s.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,initialExpiry));
         var before = await Snapshot(s); await using var held = fixture.CreateContext(); await using var tx = await held.Database.BeginTransactionAsync();
         var table = kind == "session" ? "vault_access_session" : kind; var id = kind switch { "account" => s.InternalId, "profile" => p.Id, "collection" => c.Id, "folder" => f.Id, _ => r.Id };
         await held.Database.ExecuteSqlRawAsync(kind == "session" ? "SELECT FROM cerberus.vault_access_session WHERE handle_verifier={0} FOR UPDATE" : "SELECT FROM cerberus." + table + " WHERE id={0} FOR UPDATE", kind == "session" ? (object)s.Verifier : id);
-        var reached = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously); using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-        var pending = new CollectionCreateStore(new ProfileSetup.Factory(fixture, new Signal(reached, table))).CreateAsync(new(s.Actor, s.Verifier, input), ct.Token);
-        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(pending.IsCompleted); await Past(deadline); await tx.CommitAsync();
-        var result = await pending; Assert.Equal("vault_access_denied", result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s));
+        if(delayedPreparation)await Task.Delay(TimeSpan.FromSeconds(3));
+        DateTimeOffset deadline=default;var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));
+        var hook=new ArmExpiryAtRowWait(table,async command=>
+        {
+            deadline=DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.AddSeconds(2).ToUnixTimeMilliseconds());
+            if(kind=="session")await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET expires_at={deadline} WHERE handle_verifier={s.Verifier}",ct.Token);
+            else
+            {
+                // Later lock stages already hold the session. Arrange expiry on
+                // that same transaction without replacing the real row wait.
+                await using var write=command.Connection!.CreateCommand();write.Transaction=command.Transaction;
+                write.CommandText="UPDATE cerberus.vault_access_session SET expires_at=@expiry WHERE handle_verifier=@verifier";
+                write.Parameters.Add(new NpgsqlParameter("expiry",deadline));write.Parameters.Add(new NpgsqlParameter("verifier",s.Verifier));Assert.Equal(1,await write.ExecuteNonQueryAsync(ct.Token));
+            }
+            reached.TrySetResult();
+        });
+        var pending=new CollectionCreateStore(new ProfileSetup.Factory(fixture,hook)).CreateAsync(new(s.Actor,s.Verifier,input),ct.Token);
+        try
+        {
+            if(await Task.WhenAny(reached.Task,pending)==pending){var early=await pending;Assert.False(pending.IsCompleted,"Fixture returned before intended "+kind+" row wait: "+early.Error);}
+            await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await Past(deadline);
+        }
+        finally{await tx.CommitAsync();}
+        var result=await pending;Assert.Equal("vault_access_denied",result.Error);Assert.Null(result.Data);
+        if(kind=="session")
+        {
+            // Only this known setup write commits on the transaction holding the
+            // session; every other native field must still match exactly.
+            var expected=JsonNode.Parse(before)!;var session=expected["Sessions"]!.AsArray().Single(x=>x!["HandleVerifier"]!.GetValue<string>()==s.Verifier)!;
+            session["ExpiresAt"]=JsonSerializer.SerializeToNode(deadline);Assert.True(JsonNode.DeepEquals(expected,JsonNode.Parse(await Snapshot(s))));
+        }
+        else Assert.Equal(before,await Snapshot(s));
     }
 
     [FunctionalTheory]
@@ -610,6 +640,14 @@ public class CollectionCreateStoreTests(PostgresFixture fixture)
         public bool Triggered { get; private set; }
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<int> result, CancellationToken ct = default)
         { if (!Triggered && command.CommandText.Contains("INSERT INTO cerberus.collection(")) { Triggered = true; await action(command); } return result; }
+    }
+    private sealed class ArmExpiryAtRowWait(string table,Func<DbCommand,Task> arm):DbCommandInterceptor
+    {
+        private bool used;
+        private async Task Check(DbCommand command)
+        {if(!used&&command.CommandText.Contains("FROM cerberus."+table+" ")&&command.CommandText.Contains("FOR ")){used=true;await arm(command);}}
+        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default){await Check(c);return r;}
+        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<DbDataReader> r,CancellationToken ct=default){await Check(c);return r;}
     }
     private sealed class Signal(TaskCompletionSource reached, string table) : DbCommandInterceptor
     {

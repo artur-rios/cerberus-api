@@ -95,7 +95,8 @@ Record ledger replay upserts the typed marker and removes restored record
 ciphertext, direct links and typed record trash membership in one transaction
 before the traffic gate opens. Empty root-record trash operations and their trash
 work are removed; nonempty cascades, other kinds, profiles, folders, collections
-and grants survive. Other resource kinds retain fail-closed typed tombstones until
+and grants survive. Account replay also physically removes the complete owned tree (see below).
+Other resource kinds retain fail-closed typed tombstones until
 their physical replay handlers ship. Selected profile IDs are never cleared.
 
 `RecordPurgeHandlerTests.GivenBackupBeforePermanentDeletion_WhenRestoringAndReplayingLedger_ThenRemoveCiphertextBeforeTrafficAndKeepOtherKinds`
@@ -104,3 +105,28 @@ replays the preserved external ledger and checks physical record absence before
 opening traffic while a same-UUID folder survives. Claim-expiry/theft, rollback,
 ledger outage and corrupt-reconciliation tests cover failed recovery. These server
 fixtures do not certify a production restore drill or external client behavior.
+
+
+## Permanent account erasure (UC08)
+
+Preserve all typed account and child entries in the external ledger. The account
+entry is flushed before child entries and any physical account deletion. A ledger
+outage or cancelled public request may leave a closed, terminal account with
+`account-erase/<UUID>` work; it is already irreversible. Restore the dependency
+and let a fresh timed claim retry. Do not clear markers or reopen the account.
+The completed recoverable `account-purge/<UUID>` job cannot revive it.
+
+Replay of an account entry marks restored owned identifiers and physically removes
+owned active/trashed resources, protection/recovery, access sessions/challenges,
+software provisioning, synchronization, registration metadata and owned resource
+work in a transaction before traffic. Incoming and outgoing grants are removed;
+foreign collections/content/sibling grants remain. Any still-active outbound
+recipients' generations advance once. Repeated replay preserves that result.
+Heimdall identity is retained. Preserve the external ledger across every restore.
+
+`AccountDeletionStoreTests.GivenBackupBeforeAccountDeletion_WhenRestoringAndReplayingLedger_ThenRemoveOwnedCiphertextBeforeTrafficAndKeepForeignContent`
+restores an actual dump containing nested folders, links, trash, software grants,
+recovery and synchronization data. It proves owned physical absence, preserved
+foreign data and idempotent generation changes before the gate opens. Additional
+tests exercise expired/stolen claims, atomic rollback, ledger failure and typed
+UUID collisions. This fixture is not a production restore drill.

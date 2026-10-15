@@ -1,4 +1,5 @@
 using System.Data.Common;
+using ArturRios.Cerberus.Data.Resources;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.Domain.Protection;
@@ -16,7 +17,7 @@ public sealed class AccountClosureStore(IDbContextFactory<AppDbContext> factory)
         if (!new AccountClosureInput(request.ExpectedRevision).IsValid()) return new(Error: "validation_failed");
         try
         {
-            await using var db = await factory.CreateDbContextAsync(ct); await using var tx = await db.Database.BeginTransactionAsync(ct);
+            await using var db = await factory.CreateDbContextAsync(ct); await using var tx = await NativeMutationTransaction.BeginAsync(db,ct);
             var initial = await Actor(db, request.Actor, ct);
             if (initial is null || await Erased(db, initial, ct)) return new(Error: "not_found");
             var ids = (await Connections(db, initial.Id, ct)).Append(initial.Id).Distinct().ToArray();

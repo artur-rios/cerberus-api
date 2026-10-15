@@ -168,6 +168,7 @@ public static class Startup
         builder.Services.AddScoped<IValidator<EmptyTrashCommand>, EmptyTrashValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<EmptyTrashCommand, EmptyTrashOutput>, EmptyTrashHandler>();
         builder.Services.AddScoped<IRetentionHandler, TrashPurgeHandler>();
+        builder.Services.AddScoped<IRetentionHandler, TrashExpiryHandler>();
         builder.Services.AddScoped<IValidator<RestoreTrashCommand>, RestoreTrashValidator>();
         builder.Services.AddScoped<ICommandHandlerAsync<RestoreTrashCommand, RestoreTrashOutput>, RestoreTrashHandler>();
         builder.Services.AddScoped<IRecordListStore, RecordListStore>();
@@ -180,6 +181,7 @@ public static class Startup
         builder.Services.AddScoped<ICommandHandlerAsync<PermanentlyDeleteRecordCommand, PermanentlyDeleteRecordOutput>, PermanentlyDeleteRecordHandler>();
         builder.Services.AddScoped<IRetentionHandler, RecordPurgeHandler>();
         builder.Services.AddScoped<IRetentionHandler,AccountPurgeHandler>();
+        builder.Services.AddScoped<IRetentionHandler,AccountExpiryHandler>();
         builder.Services.AddScoped<IRecordTrashStore, RecordTrashStore>();
         builder.Services.AddScoped<IFolderTrashStore, FolderTrashStore>();
         builder.Services.AddScoped<IValidator<DeleteRecordCommand>, DeleteRecordValidator>();
@@ -264,6 +266,7 @@ public static class Startup
         var ledger = new FileErasureLedger(options.ErasureLedgerPath!);
         builder.Services.AddSingleton<IErasureLedger>(ledger);
         builder.Services.AddScoped<IRetentionWorkStore, RetentionWorkStore>();
+        builder.Services.AddScoped<IRetentionMaintenance, RetentionMaintenance>();
         builder.Services.AddScoped<ITerminalErasureStore, TerminalErasureStore>();
         builder.Services.AddScoped<IRetentionExecutor, RetentionExecutor>();
         builder.Services.AddScoped<RetentionRunner>();

@@ -248,6 +248,38 @@ The retention worker claims expired operations idempotently and retries failures
 deadline checks prevent worker outages from extending restore windows. Registration and
 erasure recovery procedures must also cover interrupted cross-system/ledger operations.
 
+UC-53 processes the original `trash/{operationId}` and `account-purge/{accountId}` jobs
+using PostgreSQL UTC time after row waits. It never extends the original 30-day window.
+Typed terminal intent commits before durable ledger I/O, and the complete ledger set precedes
+atomic physical removal. No database transaction spans filesystem I/O. A cancellation admitted
+before its deadline completes the original closure job and invalidates its claim; expiry must
+preserve that winner. A failed pass leaves expired data inaccessible and retries under a new
+claim after the persisted lease expires.
+
+Before discovering or claiming work, the internal worker checks its database execution rights.
+It needs schema usage, `cerberus.server_sequence` usage and the table capabilities listed in
+[RetentionMaintenanceRights](../../src/Infrastructure/ArturRios.Cerberus.Data/Operations/RetentionMaintenanceRights.cs).
+Only the work and typed terminal tables require insertion; native encrypted resource creation
+is not a worker capability. Missing rights refuse the pass with `retention_execution_denied`;
+dependency failures use `retention_dependency_unavailable`. Neither log exposes connection
+strings, identities, claim tokens, resource identifiers or content. No human identity, Heimdall
+mutation or public worker endpoint is involved.
+
+A bounded preparation pass reconstructs missing **due** original jobs after taking and
+rechecking each owner lock. It preserves existing deadlines and claims, including completed
+jobs; it does not reopen completed work automatically. Completed work with retained native
+remnants requires controlled operational recovery with traffic closed. Cleanup removes only
+expired sync streams and their dependent download inventory/change rows. Locked downloads are
+skipped until a later pass. Active-account upload `SyncOperation` idempotency rows survive
+regardless of age.
+
+The `ArturRios.Cerberus.Retention` meter reports tag-free counters
+`cerberus.retention.completed` (completed jobs), `cerberus.retention.failures` (job or polling
+failures), `cerberus.retention.scheduled` (reconstructed jobs), and
+`cerberus.retention.expired_streams` (removed streams). A successful empty pass reports zero
+progress. Completion counts jobs rather than the number of resources in a cascade. A required
+restore barrier blocks worker passes until completed erasures have been replayed and verified.
+
 ---
 
 ## Account read access

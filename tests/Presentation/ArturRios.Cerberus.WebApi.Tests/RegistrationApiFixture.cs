@@ -142,7 +142,7 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
             ["CERBERUS_REGISTRATION_FINGERPRINT_KEY"] = "independent-durable-fixture-key-32-bytes",
             ["CERBERUS_OFFLINE_LEASE_ISSUER"] = "fixture-lease-issuer", ["CERBERUS_OFFLINE_LEASE_PRIVATE_KEY_PEM"] = LeasePrivatePem,
             ["CERBERUS_BACKUP_RETENTION"] = "7.00:00:00", ["CERBERUS_LOG_RETENTION"] = "7.00:00:00",
-            ["CERBERUS_SYNC_RETENTION"] = "30.00:00:00", ["CERBERUS_RETENTION_INTERVAL"] = "00:05:00",
+            ["CERBERUS_SYNC_RETENTION"] = "30.00:00:00", ["CERBERUS_RETENTION_INTERVAL"] = "1.00:00:00",
             ["CERBERUS_BACKUP_PATH"] = "/srv/cerberus/backups", ["CERBERUS_ERASURE_LEDGER_PATH"] = _ledger,
             ["CERBERUS_MAX_REQUEST_BYTES"] = "65536", ["CERBERUS_MAX_PAGE_SIZE"] = "100",
             ["CERBERUS_RESTORE_REQUIRED"] = "false"

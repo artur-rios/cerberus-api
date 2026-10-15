@@ -89,7 +89,7 @@ internal static class AccountErasure
         }
         await Fence();var marker=await db.TerminalErasures.AsNoTracking().SingleAsync(x=>x.ResourceKind=="account"&&x.ResourceId==id,ct);
         var owner=await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x=>x.PublicId==id,ct);
-        var workKeys=new List<string>{"account-purge/"+id};
+        var workKeys=new List<string>{"account-purge/"+id,"trash-erase/"+id};
         string? collateral=null;long[] recipients=[];Dictionary<long,long> generations=[];
         if(owner is not null)
         {

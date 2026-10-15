@@ -37,7 +37,7 @@ public sealed class RetentionWorkStore(IDbContextFactory<AppDbContext> factory) 
             $"SELECT * FROM cerberus.retention_work_item WHERE public_id = {claim.WorkId} FOR UPDATE")
             .ToListAsync(cancellationToken);
         var work = rows.SingleOrDefault();
-        if(work is not null && (work.OperationKey.StartsWith("record-purge/",StringComparison.Ordinal)||work.OperationKey.StartsWith("account-erase/",StringComparison.Ordinal)))
+        if(work is not null && (work.OperationKey.StartsWith("record-purge/",StringComparison.Ordinal)||work.OperationKey.StartsWith("account-erase/",StringComparison.Ordinal)||work.OperationKey.StartsWith("trash-erase/",StringComparison.Ordinal)))
         {
             if(work.OperationKey!=claim.OperationKey || claim.Token==Guid.Empty || now.Offset!=TimeSpan.Zero)return false;
             // The caller's clock cannot extend a purge lease. This statement starts

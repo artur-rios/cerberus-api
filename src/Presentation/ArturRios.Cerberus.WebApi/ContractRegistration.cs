@@ -59,6 +59,7 @@ public static class ContractRegistration
             });
             options.SchemaFilter<SyncResourceSchemaFilter>();
             options.SchemaFilter<TrashListSchemaFilter>();
+            options.SchemaFilter<TrashRestoreSchemaFilter>();
         });
         return services;
     }
@@ -164,20 +165,21 @@ public static class ContractRegistration
                 &&context.MethodInfo.Name is nameof(AuthController.ClosureLogin) or nameof(AuthController.ClosureVerifyChallenge);
             var renewal = context.MethodInfo.DeclaringType == typeof(OfflineAuthorizationsController)
                 && context.MethodInfo.Name == nameof(OfflineAuthorizationsController.Renew);
+            var trashRestore=context.MethodInfo.DeclaringType==typeof(TrashController) && context.MethodInfo.Name==nameof(TrashController.Restore);
             var syncEdits = context.MethodInfo.DeclaringType == typeof(SyncController) && context.MethodInfo.Name == nameof(SyncController.Edits);
-            if (!recovery && !closure && !policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
+            if (!trashRestore && !recovery && !closure && !policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
                 || context.MethodInfo.Name is not (nameof(SoftwareGrantsController.GrantAccess)
                     or nameof(SoftwareGrantsController.RevokeAccess)))) return;
             var content = operation.RequestBody!.Content!;
             var json = content["application/json"];
             content.Clear();
             content.Add("application/json", json);
-            if (recovery || closure || policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            if (trashRestore || recovery || closure || policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 ((OpenApiRequestBody)operation.RequestBody!).Required = true;
                 operation.Responses!["413"].Content?.Clear();
             }
-            if (context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            if (trashRestore || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 var id = operation.Parameters!.OfType<OpenApiParameter>().Single(p => p.Name == "id" && p.In == ParameterLocation.Path);
                 id.Schema = new OpenApiSchema { Type = JsonSchemaType.String, Format = "uuid" };

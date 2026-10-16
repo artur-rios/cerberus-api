@@ -2,6 +2,8 @@ namespace ArturRios.Cerberus.Shared.Configuration;
 
 public sealed class CerberusOptions
 {
+    public string? OperationalPersonIds { get; set; }
+    public string? OperationalApplicationIds { get; set; }
     public string? ConnectionString { get; set; }
     public string? DatabaseType { get; set; }
     public string? HeimdallBaseUrl { get; set; }

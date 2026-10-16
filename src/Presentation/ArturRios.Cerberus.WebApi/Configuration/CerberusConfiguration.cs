@@ -11,6 +11,8 @@ public static class CerberusConfiguration
         var restore = Value("CERBERUS_RESTORE_REQUIRED", nameof(CerberusOptions.RestoreRequired));
         return new CerberusOptions
         {
+            OperationalPersonIds = Value("CERBERUS_OPERATIONAL_PERSON_IDS", nameof(CerberusOptions.OperationalPersonIds)),
+            OperationalApplicationIds = Value("CERBERUS_OPERATIONAL_APPLICATION_IDS", nameof(CerberusOptions.OperationalApplicationIds)),
             ConnectionString = Value("CERBERUS_DATA_CONNECTIONSTRING", nameof(CerberusOptions.ConnectionString)),
             DatabaseType = Value("CERBERUS_DATA_DATABASETYPE", nameof(CerberusOptions.DatabaseType)),
             HeimdallBaseUrl = Value("CERBERUS_HEIMDALL_BASE_URL", nameof(CerberusOptions.HeimdallBaseUrl)),

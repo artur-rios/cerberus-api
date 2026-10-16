@@ -7,7 +7,7 @@ public sealed class RestoreBarrierMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context, RestoreTrafficGate gate)
     {
-        if (gate.IsReady) { await next(context); return; }
+        if (gate.IsReady || context.GetEndpoint()?.Metadata.GetMetadata<HealthEndpointAttribute>() is not null) { await next(context); return; }
         context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
         await context.Response.WriteAsJsonAsync(ProcessOutput.New.WithError("restore_reconciliation_required"), context.RequestAborted);
     }

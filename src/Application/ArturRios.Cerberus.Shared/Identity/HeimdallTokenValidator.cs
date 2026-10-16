@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ArturRios.Cerberus.Shared.Identity;
 
-public sealed class HeimdallTokenValidator(CerberusOptions options)
+public sealed partial class HeimdallTokenValidator(CerberusOptions options)
 {
     public Task<ClaimsPrincipal?> ValidateAsync(string token)
     {

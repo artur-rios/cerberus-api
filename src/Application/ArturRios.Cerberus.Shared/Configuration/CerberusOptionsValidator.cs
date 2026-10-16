@@ -55,6 +55,8 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
                 && !IsWithin(options.ErasureLedgerPath!, options.BackupPath), "CERBERUS_ERASURE_LEDGER_PATH");
         Require(options.MaxRequestBytes > 0, "CERBERUS_MAX_REQUEST_BYTES");
         Require(options.MaxPageSize > 0, "CERBERUS_MAX_PAGE_SIZE");
+        Require(Operations.OperationalGrants.TryParse(options.OperationalPersonIds, out _), "CERBERUS_OPERATIONAL_PERSON_IDS");
+        Require(Operations.OperationalGrants.TryParse(options.OperationalApplicationIds, out _), "CERBERUS_OPERATIONAL_APPLICATION_IDS");
         Require(options.RestoreRequired.HasValue, "CERBERUS_RESTORE_REQUIRED");
         return errors.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(errors);
     }

@@ -64,6 +64,8 @@ public static class ContractRegistration
             options.SchemaFilter<TrashRestoreSchemaFilter>();
             options.SchemaFilter<TrashEmptySchemaFilter>();
             options.SchemaFilter<AccountExportSchemaFilter>();
+            options.SchemaFilter<HealthSchemaFilter>();
+            options.OperationFilter<HealthSchemaFilter>();
         });
         return services;
     }

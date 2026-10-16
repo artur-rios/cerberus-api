@@ -4,8 +4,7 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
-> **Status:** foundation infrastructure and 53 business use cases implemented; 2 business
-> use cases remain. Independent protocol review is explicitly deferred for development and
+> **Status:** foundation infrastructure and all 55 business use cases implemented. Independent protocol review is explicitly deferred for development and
 > remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
 > and [foundation status](docs/operations/foundation-status.md).
 
@@ -57,7 +56,8 @@ explicit database, Heimdall and operational configuration; no production default
 The container is a development artifact, not a release-ready vault API.
 See [operational settings](docs/operations/proposed-beta-settings.md), the nonsecret
 [configuration example](docs/operations/appsettings.example.json),
-[Heimdall contracts](docs/operations/heimdall.md) and [restore runbook](docs/operations/restore.md).
+[Heimdall contracts](docs/operations/heimdall.md), [health probes and operational grants](docs/operations/health.md)
+and [restore runbook](docs/operations/restore.md).
 Copy the reviewed nonsecret settings into the host's `appsettings.json` or supply named
 `CERBERUS_...` environment keys, which take precedence over `Cerberus:Property` values.
 Supply all credentials and identity scope separately through protected configuration.
@@ -90,7 +90,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [M-03 — Organized vault](https://github.com/artur-rios/cerberus-api/milestone/3) | Manage profiles, custom records, nested folders and collection membership. | M-01, M-02 | 26 | 26 / 26 closed |
 | [M-04 — Controlled sharing and software secrets](https://github.com/artur-rios/cerberus-api/milestone/4) | Share selected collections and serve explicitly granted software ciphertext. | M-01, M-02, M-03 | 6 | 6 / 6 closed |
 | [M-05 — Offline synchronization](https://github.com/artur-rios/cerberus-api/milestone/5) | Apply configurable renewal, incremental access changes and deterministic offline edits. | M-01, M-02, M-03, M-04 | 5 | 5 / 5 closed |
-| [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 7 / 9 closed |
+| [M-06 — Recoverable deletion and beta operations](https://github.com/artur-rios/cerberus-api/milestone/6) | Deliver account closure/erasure, trash restoration/expiry, privacy export and operational health. | M-01, M-02, M-03, M-04, M-05 | 9 | 9 / 9 closed |
 
 ## Backlog
 
@@ -178,7 +178,7 @@ GitHub milestone pages show live progress. No due dates or labels were assigned.
 | [#53](https://github.com/artur-rios/cerberus-api/issues/53) | UC-52 — Empty trash | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-52-empty-trash) | Done |
 | [#54](https://github.com/artur-rios/cerberus-api/issues/54) | UC-53 — Expire retained deletions | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-53-expire-retained-deletions) | Done |
 | [#55](https://github.com/artur-rios/cerberus-api/issues/55) | UC-54 — Export account data | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-54-export-account-data) | Done |
-| [#56](https://github.com/artur-rios/cerberus-api/issues/56) | UC-55 — Check API health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-55-check-api-health) | Todo |
+| [#56](https://github.com/artur-rios/cerberus-api/issues/56) | UC-55 — Check API health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md#uc-55-check-api-health) | Done |
 
 ## Changelog
 

@@ -1291,6 +1291,108 @@
         }
       }
     },
+    "/api/accounts/me/export": {
+      "post": {
+        "tags": [
+          "AccountExport"
+        ],
+        "parameters": [
+          {
+            "name": "X-Cerberus-Vault-Access",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountExportInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountExportArchive"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large"
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/closure/login": {
       "post": {
         "tags": [
@@ -10702,6 +10804,792 @@
         },
         "additionalProperties": false
       },
+      "AccountExportAccount": {
+        "required": [
+          "details",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "details": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "entryType": {
+            "enum": [
+              "account"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportArchive": {
+        "required": [
+          "format",
+          "header",
+          "entries",
+          "entryCount",
+          "complete"
+        ],
+        "type": "object",
+        "properties": {
+          "format": {
+            "enum": [
+              "cerberus-account-export-v1"
+            ],
+            "type": "string"
+          },
+          "header": {
+            "$ref": "#/components/schemas/AccountExportHeader"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/AccountExportAccount"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportProtection"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportProfile"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportRecord"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportFolder"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportCollection"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportRelationship"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportCollectionGrant"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportSharedReference"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportSoftwareGrant"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportSoftwareTarget"
+                },
+                {
+                  "$ref": "#/components/schemas/AccountExportTrashOperation"
+                }
+              ]
+            },
+            "nullable": true
+          },
+          "entryCount": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer",
+            "format": "int64"
+          },
+          "complete": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportCollection": {
+        "required": [
+          "resourceId",
+          "revision",
+          "serverSequence",
+          "editedAt",
+          "deletedAt",
+          "purgeAt",
+          "envelope",
+          "keyEpoch",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "serverSequence": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "purgeAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "envelope": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "keyEpoch": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "entryType": {
+            "enum": [
+              "collection"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportCollectionGrant": {
+        "required": [
+          "grantId",
+          "collectionId",
+          "recipientAccountId",
+          "access",
+          "state",
+          "revision",
+          "recipientKeyEnvelope",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "collectionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipientAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "access": {
+            "enum": [
+              "read-only",
+              "read-write"
+            ],
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "active",
+              "revoked"
+            ],
+            "type": "string"
+          },
+          "revision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "recipientKeyEnvelope": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "entryType": {
+            "enum": [
+              "collection-grant"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportEntry": {
+        "required": [
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "entryType": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "entryType",
+          "mapping": {
+            "account": "#/components/schemas/AccountExportAccount",
+            "protection": "#/components/schemas/AccountExportProtection",
+            "profile": "#/components/schemas/AccountExportProfile",
+            "record": "#/components/schemas/AccountExportRecord",
+            "folder": "#/components/schemas/AccountExportFolder",
+            "collection": "#/components/schemas/AccountExportCollection",
+            "relationship": "#/components/schemas/AccountExportRelationship",
+            "collection-grant": "#/components/schemas/AccountExportCollectionGrant",
+            "shared-collection-reference": "#/components/schemas/AccountExportSharedReference",
+            "software-grant": "#/components/schemas/AccountExportSoftwareGrant",
+            "software-target": "#/components/schemas/AccountExportSoftwareTarget",
+            "trash-operation": "#/components/schemas/AccountExportTrashOperation"
+          }
+        }
+      },
+      "AccountExportFolder": {
+        "required": [
+          "resourceId",
+          "revision",
+          "serverSequence",
+          "editedAt",
+          "deletedAt",
+          "purgeAt",
+          "envelope",
+          "parentFolderId",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "serverSequence": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "purgeAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "envelope": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "parentFolderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "entryType": {
+            "enum": [
+              "folder"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportHeader": {
+        "required": [
+          "accountId",
+          "identityId",
+          "revision",
+          "policyRevision",
+          "revocationGeneration",
+          "renewalEnabled",
+          "renewalIntervalSeconds",
+          "serverTime"
+        ],
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "identityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "policyRevision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "revocationGeneration": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "renewalEnabled": {
+            "type": "boolean"
+          },
+          "renewalIntervalSeconds": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "serverTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportInput": {
+        "required": [
+          "expectedRevision"
+        ],
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportProfile": {
+        "required": [
+          "resourceId",
+          "revision",
+          "serverSequence",
+          "editedAt",
+          "deletedAt",
+          "purgeAt",
+          "envelope",
+          "keyWrappers",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "serverSequence": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "purgeAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "envelope": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "keyWrappers": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "entryType": {
+            "enum": [
+              "profile"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportProtection": {
+        "required": [
+          "revision",
+          "keyEpoch",
+          "recoveryGeneration",
+          "material",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "revision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "keyEpoch": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "recoveryGeneration": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "material": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "entryType": {
+            "enum": [
+              "protection"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportRecord": {
+        "required": [
+          "resourceId",
+          "revision",
+          "serverSequence",
+          "editedAt",
+          "deletedAt",
+          "purgeAt",
+          "envelope",
+          "folderId",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "serverSequence": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "editedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "purgeAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "envelope": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "folderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "entryType": {
+            "enum": [
+              "record"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportRelationship": {
+        "required": [
+          "relationshipKind",
+          "sourceKind",
+          "sourceId",
+          "targetKind",
+          "targetId",
+          "operationId",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "relationshipKind": {
+            "enum": [
+              "current",
+              "historical"
+            ],
+            "type": "string"
+          },
+          "sourceKind": {
+            "enum": [
+              "profile",
+              "collection",
+              "record",
+              "folder"
+            ],
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "targetKind": {
+            "enum": [
+              "record",
+              "folder",
+              "collection"
+            ],
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "operationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "entryType": {
+            "enum": [
+              "relationship"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportSharedReference": {
+        "required": [
+          "collectionId",
+          "ownerAccountId",
+          "grantId",
+          "grantRevision",
+          "access",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "collectionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grantRevision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "access": {
+            "enum": [
+              "read-only",
+              "read-write"
+            ],
+            "type": "string"
+          },
+          "entryType": {
+            "enum": [
+              "shared-collection-reference"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportSoftwareGrant": {
+        "required": [
+          "grantId",
+          "softwareId",
+          "state",
+          "revision",
+          "recipientKey",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "softwareId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "enum": [
+              "active",
+              "revoked"
+            ],
+            "type": "string"
+          },
+          "revision": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64"
+          },
+          "recipientKey": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "entryType": {
+            "enum": [
+              "software-grant"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportSoftwareTarget": {
+        "required": [
+          "grantId",
+          "resourceKind",
+          "resourceId",
+          "recipientKeyEnvelope",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceKind": {
+            "enum": [
+              "record",
+              "collection"
+            ],
+            "type": "string"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipientKeyEnvelope": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "entryType": {
+            "enum": [
+              "software-target"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AccountExportTrashOperation": {
+        "required": [
+          "operationId",
+          "rootKind",
+          "rootId",
+          "deletedAt",
+          "purgeAt",
+          "entryType"
+        ],
+        "type": "object",
+        "properties": {
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rootKind": {
+            "enum": [
+              "profile",
+              "record",
+              "folder",
+              "collection"
+            ],
+            "type": "string"
+          },
+          "rootId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purgeAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "entryType": {
+            "enum": [
+              "trash-operation"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "AccountOutput": {
         "required": [
           "details"
@@ -16672,6 +17560,9 @@
   "tags": [
     {
       "name": "Account"
+    },
+    {
+      "name": "AccountExport"
     },
     {
       "name": "Auth"

@@ -1,4 +1,5 @@
 using ArturRios.Cerberus.Domain.Trash;
+using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Output;
 using ArturRios.Cerberus.Domain.Sync;
 using ArturRios.Cerberus.Domain.Profiles;
@@ -39,14 +40,15 @@ public static class ContractRegistration
             options.UseOneOfForPolymorphism();
             options.SelectSubTypesUsing(type => type == typeof(SyncResourceData)
                 ? [typeof(SyncProfileData), typeof(SyncRecordData), typeof(SyncFolderData), typeof(SyncCollectionData), typeof(SyncGrantData)]
+                : type == typeof(AccountExportEntry) ? AccountExportSchemaFilter.Kinds.Keys
                 : type == typeof(TrashListItem)
                 ? [typeof(TrashRecordItem), typeof(TrashFolderItem), typeof(TrashCollectionItem), typeof(TrashProfileItem)]
                 : type == typeof(SyncEditInput)
                 ? [typeof(SyncRecordCreate), typeof(SyncRecordUpdate), typeof(SyncFolderCreate), typeof(SyncFolderUpdate),
                     typeof(SyncCollectionCreate), typeof(SyncCollectionUpdate), typeof(SyncProfileCreate), typeof(SyncProfileUpdate)]
                 : []);
-            options.SelectDiscriminatorNameUsing(type => type == typeof(SyncResourceData) ? "resourceType" : type == typeof(SyncEditInput) ? "editType" : type == typeof(TrashListItem) ? "kind" : null);
-            options.SelectDiscriminatorValueUsing(type => type.Name switch
+            options.SelectDiscriminatorNameUsing(type => type == typeof(AccountExportEntry) ? "entryType" : type == typeof(SyncResourceData) ? "resourceType" : type == typeof(SyncEditInput) ? "editType" : type == typeof(TrashListItem) ? "kind" : null);
+            options.SelectDiscriminatorValueUsing(type => AccountExportSchemaFilter.Kinds.TryGetValue(type,out var exportKind)?exportKind:type.Name switch
             {
                 nameof(TrashRecordItem) => "record", nameof(TrashFolderItem) => "folder",
                 nameof(TrashCollectionItem) => "collection", nameof(TrashProfileItem) => "profile",
@@ -61,6 +63,7 @@ public static class ContractRegistration
             options.SchemaFilter<TrashListSchemaFilter>();
             options.SchemaFilter<TrashRestoreSchemaFilter>();
             options.SchemaFilter<TrashEmptySchemaFilter>();
+            options.SchemaFilter<AccountExportSchemaFilter>();
         });
         return services;
     }
@@ -160,6 +163,7 @@ public static class ContractRegistration
         {
             var policyUpdate = context.MethodInfo.DeclaringType == typeof(AccountController)
                 && context.MethodInfo.Name == nameof(AccountController.SetOfflinePolicy);
+            var export=context.MethodInfo.DeclaringType==typeof(AccountExportController);
             var closure = context.MethodInfo.DeclaringType == typeof(AccountController)
                 && context.MethodInfo.Name is nameof(AccountController.RequestClosure) or nameof(AccountController.CancelClosure) or nameof(AccountController.DeleteAccount);
             var recovery=context.MethodInfo.DeclaringType==typeof(AuthController)
@@ -169,18 +173,19 @@ public static class ContractRegistration
             var trashEmpty=context.MethodInfo.DeclaringType==typeof(TrashController) && context.MethodInfo.Name==nameof(TrashController.EmptyTrash);
             var trashRestore=context.MethodInfo.DeclaringType==typeof(TrashController) && context.MethodInfo.Name==nameof(TrashController.Restore);
             var syncEdits = context.MethodInfo.DeclaringType == typeof(SyncController) && context.MethodInfo.Name == nameof(SyncController.Edits);
-            if (!trashEmpty && !trashRestore && !recovery && !closure && !policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
+            if (!export && !trashEmpty && !trashRestore && !recovery && !closure && !policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
                 || context.MethodInfo.Name is not (nameof(SoftwareGrantsController.GrantAccess)
                     or nameof(SoftwareGrantsController.RevokeAccess)))) return;
             var content = operation.RequestBody!.Content!;
             var json = content["application/json"];
             content.Clear();
             content.Add("application/json", json);
-            if (trashEmpty || trashRestore || recovery || closure || policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
+            if (export || trashEmpty || trashRestore || recovery || closure || policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 ((OpenApiRequestBody)operation.RequestBody!).Required = true;
                 operation.Responses!["413"].Content?.Clear();
             }
+            if(export)((OpenApiParameter)operation.Parameters!.Single(p=>p.Name=="X-Cerberus-Vault-Access")).Required=true;
             if (trashRestore || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 var id = operation.Parameters!.OfType<OpenApiParameter>().Single(p => p.Name == "id" && p.In == ParameterLocation.Path);

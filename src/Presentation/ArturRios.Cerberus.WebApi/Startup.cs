@@ -89,6 +89,8 @@ public static class Startup
         builder.Services.AddScoped<QueryMediator>();
         builder.Services.AddScoped<IQueryHandlerAsync<GetAccountQuery, AccountOutput>, GetAccountHandler>();
         builder.Services.AddScoped<IAccountReadStore, AccountReadStore>();
+        builder.Services.AddScoped<IAccountExportStore,ArturRios.Cerberus.Data.Accounts.Export.AccountExportStore>();
+        builder.Services.AddScoped<IQueryHandlerAsync<ExportAccountQuery,AccountExportOutput>,ExportAccountHandler>();
         builder.Services.AddScoped<IAccountDeletionStore,AccountDeletionStore>();
         builder.Services.AddScoped<ICommandHandlerAsync<DeleteAccountCommand,AccountDeletionOutput>,DeleteAccountHandler>();
         builder.Services.AddScoped<IAccountClosureStore, AccountClosureStore>();

@@ -1,5 +1,6 @@
 using ArturRios.Cerberus.Shared.Identity;
 using ArturRios.Output;
+using ArturRios.Cerberus.Shared.Operations;
 using Microsoft.AspNetCore.Authorization;
 
 namespace ArturRios.Cerberus.WebApi.Middleware;
@@ -18,6 +19,24 @@ public sealed class ProtectedEndpointMiddleware(RequestDelegate next)
         var headers = context.Request.Headers.Authorization;
         var header = headers.Count == 1 ? headers[0] : null;
         var token = header?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true ? header[7..] : string.Empty;
+        if (endpoint.Metadata.GetMetadata<OperationalAuthenticationAttribute>() is not null)
+        {
+            var operational = await context.RequestServices.GetRequiredService<OperationalHealthAuthorizer>().AuthorizeAsync(token, context.RequestAborted);
+            if (operational != OperationalAuthorization.Authorized)
+            {
+                var (status, code) = operational switch
+                {
+                    OperationalAuthorization.Forbidden => (StatusCodes.Status403Forbidden, "operational_access_required"),
+                    OperationalAuthorization.Unavailable => (StatusCodes.Status503ServiceUnavailable, "identity_unavailable"),
+                    _ => (StatusCodes.Status401Unauthorized, "authentication_required")
+                };
+                context.Response.StatusCode = status;
+                await context.Response.WriteAsJsonAsync(ProcessOutput.New.WithError(code), context.RequestAborted);
+                return;
+            }
+            await next(context);
+            return;
+        }
         if (endpoint.Metadata.GetMetadata<ApplicationAuthenticationAttribute>() is not null)
         {
             var application = await applications.ValidateAsync(token);

@@ -92,9 +92,9 @@ public sealed class OperationalHealthAuthorizationTests
     [UnitTheory][InlineData("person")][InlineData("operator")]
     public async Task GivenGrantedPersonExpiresDuringAuthorityWait_WhenAuthorizing_ThenNeverReturnCurrentAuthority(string actor)
     {
-        var options=Options(actor);var c=Claims(options,actor);var expires=DateTimeOffset.UtcNow.AddSeconds(2).ToUnixTimeSeconds();c["exp"]=expires;
-        using var http=Transport(options,async r=>{var remaining=DateTimeOffset.FromUnixTimeSeconds(expires).AddMilliseconds(100)-DateTimeOffset.UtcNow;if(remaining>TimeSpan.Zero)await Task.Delay(remaining);return Live(options,actor,r);});
-        Assert.Equal(OperationalAuthorization.Unauthenticated,await Authorizer(http,options).AuthorizeAsync(Sign(options,JsonSerializer.Serialize(c)),default));
+        var options=Options(actor);var c=Claims(options,actor);var expires=DateTimeOffset.UtcNow.AddSeconds(2).ToUnixTimeSeconds();c["exp"]=expires;var entered=0;
+        using var http=Transport(options,async r=>{Interlocked.Increment(ref entered);var remaining=DateTimeOffset.FromUnixTimeSeconds(expires).AddMilliseconds(100)-DateTimeOffset.UtcNow;if(remaining>TimeSpan.Zero)await Task.Delay(remaining);return Live(options,actor,r);});
+        Assert.Equal(OperationalAuthorization.Unauthenticated,await Authorizer(http,options).AuthorizeAsync(Sign(options,JsonSerializer.Serialize(c)),default));Assert.True(entered>0,"Expiry must occur after a real provider request; initial refusal cannot satisfy this case.");
     }
     [UnitTheory][InlineData("person")][InlineData("operator")][InlineData("application")]
     public async Task GivenStalledAuthorityBody_WhenAuthorizing_ThenBoundResponseWithoutLeakingException(string actor)

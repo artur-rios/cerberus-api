@@ -258,6 +258,13 @@ public static class Startup
             })
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false })
             .RemoveAllLoggers();
+        builder.Services.AddHttpClient<IHeimdallOperationalClient, HeimdallClient>(client =>
+            {
+                client.BaseAddress = new Uri(options.HeimdallBaseUrl!);
+                client.Timeout = TimeSpan.FromSeconds(10);
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false })
+            .RemoveAllLoggers();
         builder.Services.AddHttpClient<IHeimdallApplicationClient, HeimdallApplicationClient>(client =>
             {
                 client.BaseAddress = new Uri(options.HeimdallBaseUrl!);
@@ -273,6 +280,9 @@ public static class Startup
         builder.Services.AddScoped<IRetentionExecutor, RetentionExecutor>();
         builder.Services.AddScoped<RetentionRunner>();
         builder.Services.AddSingleton<RestoreTrafficGate>();
+        builder.Services.AddScoped<OperationalHealthAuthorizer>();
+        builder.Services.AddScoped<OperationalHealthProbe>();
+        builder.Services.AddScoped<IDatabaseReadinessProbe, DatabaseReadinessProbe>();
         builder.Services.AddScoped<IRestoreAuthorizationVerifier, RestoreAuthorizationVerifier>();
         builder.Services.AddScoped<IRestoreReconciler, RestoreReconciler>();
         builder.Services.AddHostedService<RetentionWorker>();

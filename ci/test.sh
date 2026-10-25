@@ -31,6 +31,11 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 export DOTNET_NOLOGO=1 DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 
+# The .NET images set ASPNETCORE_HTTP_PORTS=8080 (the runner did not). The functional tests start Kestrel hosts on
+# port 0 and read the address back; with the variable set each host also binds [::]:8080 and the tests then try to
+# connect to an unspecified address.
+unset ASPNETCORE_HTTP_PORTS ASPNETCORE_HTTPS_PORTS ASPNETCORE_URLS
+
 # shellcheck source=ci/python.sh
 . ci/python.sh
 # shellcheck source=ci/java.sh

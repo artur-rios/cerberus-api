@@ -21,7 +21,7 @@ The system uses [Heimdall API](https://github.com/artur-rios/heimdall-api) for a
 - The back-end must be built using the latest stable version of .NET and C#
 - The front-end will be Flutter, shared among all suppored platforms
 - All libraries and other dependencies used must be on their latest stable version
-- The API must use my [Dotnet Libraries](https://artur-rios.github.io/dotnet-libraries/)
+- The API must use my [Dotnet Libraries](https://docs.artur-rios.tech/dotnet-libraries/)
 
 ## Use Cases
 

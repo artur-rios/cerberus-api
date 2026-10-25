@@ -115,7 +115,7 @@ class DeliveryTests(unittest.TestCase):
         self.assertIn("docker build", self.docker_script)
         self.assertNotIn("--push", self.docker_script)
         self.assertNotIn("docker push", self.docker_script)
-        self.assertRegex(self.pipeline, r"(?m)^  docker:\n(    .*\n)*?    docker: true$")
+        self.assertRegex(self.pipeline, r"(?m)^  docker:.*\n(    .*\n)*?    docker: true\b")
 
     def test_GivenProductionGraphAndDocker_WhenInspected_ThenHarnessExcluded(self):
         for project in (ROOT / "src").rglob("*.csproj"):

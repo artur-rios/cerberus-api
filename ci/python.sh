@@ -8,6 +8,9 @@
 # build from astral-sh/python-build-standalone, pinned by release and by checksum, unpacked into a directory of its
 # own. A python3 that is already there is used, so on a machine of your own it must be 3.14.
 #
+# Every directory made here is added to CLEANUP_DIRS, which ci/test.sh declares and removes from its EXIT trap: the
+# download directory and the interpreter's (it must outlive this function, for the rest of the check).
+#
 # Renovate follows the release below (the comment above it), but not the checksums: when it moves the release, copy the
 # sha256 of that release's two assets (its release page lists them) and CPYTHON_VERSION into this file by hand.
 # renovate: datasource=github-releases depName=astral-sh/python-build-standalone versioning=loose
@@ -34,20 +37,20 @@ ensure_python3() {
   esac
 
   # The download directory goes once the archive is unpacked into a directory of its own: the interpreter stays for
-  # the rest of the check (and goes with the check's container).
+  # the rest of the check (and goes with the trap).
   directory=$(mktemp -d)
+  CLEANUP_DIRS+=("$directory")
   archive="$directory/python.tar.gz"
   echo "ci/python.sh: no python3 on the PATH; fetching CPython $CPYTHON_VERSION ($CPYTHON_RELEASE)"
   curl --fail --silent --show-error --location --retry 3 -o "$archive" \
-    "https://github.com/astral-sh/python-build-standalone/releases/download/${CPYTHON_RELEASE}/${asset//+/%2B}" \
-    || { rm -rf "$directory"; return 1; }
+    "https://github.com/astral-sh/python-build-standalone/releases/download/${CPYTHON_RELEASE}/${asset//+/%2B}"
   if ! echo "$sha256  $archive" | sha256sum --check --strict --status; then
     echo "ci/python.sh: the CPython archive does not match its pinned checksum" >&2
-    rm -rf "$directory"
     return 1
   fi
   local python_home
   python_home=$(mktemp -d)
+  CLEANUP_DIRS+=("$python_home")
   tar -xzf "$archive" -C "$python_home"
   rm -rf "$directory"
   export PATH="$python_home/python/bin:$PATH"

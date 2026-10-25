@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -53,15 +54,30 @@ class DeliveryTests(unittest.TestCase):
 
     def test_GivenHarnessCI_WhenParsed_ThenLockedAuditPrecedesFullReplay(self):
         self.assertIn("set -euo pipefail", self.script)
-        # The runtimes the harness is supported on (JDK 25, CPython 3.14), each fetched by checksum.
+        # The runtimes the harness is supported on (JDK 25, CPython 3.14), each fetched by checksum: every pin is a
+        # sha256 (64 hex characters), and the archive is checked before it is unpacked.
         java = (ROOT / "ci/java.sh").read_text()
         python = (ROOT / "ci/python.sh").read_text()
         self.assertRegex(java, r'TEMURIN_RELEASE="jdk-25\.')
-        self.assertIn("sha256sum --check --strict", java)
         self.assertRegex(python, r"CPYTHON_VERSION=3\.14\.")
-        self.assertIn("sha256sum --check --strict", python)
-        for helper in ("ensure_python3", "ensure_java", "ensure_unzip"):
-            self.assertRegex(self.script, r"(?m)^" + helper + "$")
+        for name, text in (("ci/java.sh", java), ("ci/python.sh", python)):
+            with self.subTest(script=name):
+                pins = re.findall(r"(?m)^\s*sha256=(\S+?)(?: ;;)?$", text)
+                self.assertEqual(2, len(pins), "one pin per architecture")
+                for pin in pins:
+                    self.assertRegex(pin, r"\A[0-9a-f]{64}\Z")
+                self.assertIn("sha256sum --check --strict", text)
+                self.assertLess(text.index("sha256sum --check"), text.index("tar -xzf"))
+        # The unzip shim runs on the Python the first helper makes available.
+        position = {helper: re.search(r"(?m)^" + helper + "$", self.script).start()
+                    for helper in ("ensure_python3", "ensure_java", "ensure_unzip")}
+        self.assertLess(position["ensure_python3"], position["ensure_unzip"])
+        self.assertLess(position["ensure_java"], position["ensure_unzip"])
+        # What the helpers make is removed by the script's EXIT trap.
+        self.assertRegex(self.script, r"(?m)^trap cleanup EXIT$")
+        self.assertRegex(self.script, r"(?m)^CLEANUP_DIRS=\(\)$")
+        for text in (java, python):
+            self.assertEqual(text.count("mktemp -d"), text.count("CLEANUP_DIRS+=("))
         install = "pip download"
         self.assertIn("mktemp -d", self.script)
         self.assertEqual(2, self.script.count("--only-binary=:all: --require-hashes"))
@@ -74,6 +90,14 @@ class DeliveryTests(unittest.TestCase):
         audit = self.script.index("tools/protocol-harness/audit.py")
         for argument in ("--maven-cache", "--wheels", "--maven-distribution"):
             self.assertIn(argument, self.script[audit:audit + 400])
+        # The server's lease fixtures are checked right after the restore, before the vulnerability scan; they run
+        # `dotnet run` and Java's source-file mode, so the restore and ensure_java come first.
+        restore = self.script.index('dotnet restore "$SOLUTION"')
+        leases = self.script.index('"$HARNESS_PYTHON" scripts/offline_leases.py')
+        self.assertLess(restore, leases)
+        self.assertLess(leases, self.script.index("python3 scripts/vulnerabilities.py"))
+        self.assertLess(self.script.index("\nensure_java\n"), leases)
+        self.assertLess(self.script.index('"$HARNESS_PYTHON" -m pip install'), leases)
         replay = self.script.index("verify.py --check docs/security/interoperability-vectors.json")
         self.assertIn("unittest discover -s tools/protocol-harness/tests", self.script[replay:replay + 300])
         self.assertLess(self.script.index(install), self.script.index("clean test dependency:tree"))
@@ -116,6 +140,38 @@ class DeliveryTests(unittest.TestCase):
         self.assertNotIn("--push", self.docker_script)
         self.assertNotIn("docker push", self.docker_script)
         self.assertRegex(self.pipeline, r"(?m)^  docker:.*\n(    .*\n)*?    docker: true\b")
+        self.assertRegex(self.pipeline, r"(?m)^  test:.*\n(    .*\n)*?    run: ci/test\.sh$")
+        self.assertRegex(self.pipeline, r"(?m)^  test:.*\n(    .*\n)*?    docker: true\b")
+
+    @unittest.skipUnless(shutil.which("sh"), "needs a POSIX shell")
+    def test_GivenUnzipShim_WhenExtracting_ThenModesKeptAndUnknownFlagsRejected(self):
+        java = (ROOT / "ci/java.sh").read_text()
+        shim = java.split("<<'SHIM'\n", 1)[1].split("\nSHIM\n", 1)[0] + "\n"
+        path = os.pathsep.join([str(Path(sys.executable).parent), os.environ.get("PATH", "")])
+        with tempfile.TemporaryDirectory() as temporary:
+            folder = Path(temporary)
+            script = folder / "unzip"
+            script.write_text(shim)
+            archive = folder / "bundle.zip"
+            with zipfile.ZipFile(archive, "w") as bundle:
+                for name, mode in (("apache/bin/mvn", 0o100755), ("apache/lib/a.jar", 0o100644)):
+                    entry = zipfile.ZipInfo(name)
+                    entry.external_attr = mode << 16
+                    bundle.writestr(entry, "x")
+                bundle.writestr("apache/no-mode.txt", "x")
+            env = {**os.environ, "PATH": path}
+            run = lambda *arguments: subprocess.run(["sh", str(script), *arguments], cwd=folder, env=env,
+                                                    capture_output=True, text=True, timeout=30)
+            result = run("-q", str(archive), "-d", str(folder / "out"))
+            self.assertEqual(0, result.returncode, result.stderr)
+            if os.name == "posix":
+                self.assertEqual(0o755, (folder / "out/apache/bin/mvn").stat().st_mode & 0o777)
+                self.assertEqual(0o644, (folder / "out/apache/lib/a.jar").stat().st_mode & 0o777)
+            self.assertTrue((folder / "out/apache/no-mode.txt").is_file())
+            for arguments in (("-o", str(archive)), ("-x", str(archive), "-d", str(folder / "other")), ()):
+                with self.subTest(arguments=arguments):
+                    self.assertEqual(2, run(*arguments).returncode)
+            self.assertFalse((folder / "other").exists())
 
     def test_GivenProductionGraphAndDocker_WhenInspected_ThenHarnessExcluded(self):
         for project in (ROOT / "src").rglob("*.csproj"):

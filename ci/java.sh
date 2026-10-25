@@ -11,6 +11,9 @@
 # tools/protocol-harness/java/.mvn/wrapper) with `unzip`, which the image has not either. ensure_unzip puts a small
 # `unzip` on the PATH, built on the Python that ci/python.sh made available, for the one form the wrapper uses.
 #
+# Every directory made here is added to CLEANUP_DIRS, which ci/test.sh declares and removes from its EXIT trap: the
+# download directory, the JDK (it must outlive this function, for the rest of the check) and the shim's.
+#
 # Renovate follows the release below (the comment above it), but not the checksums: when it moves the release, copy the
 # sha256 of that release's two archives (its release page lists them) into this file by hand.
 # renovate: datasource=github-releases depName=adoptium/temurin25-binaries versioning=loose
@@ -38,17 +41,17 @@ ensure_java() {
   asset="OpenJDK25U-jdk_${arch}_linux_hotspot_${version/+/_}.tar.gz"
 
   directory=$(mktemp -d)
+  CLEANUP_DIRS+=("$directory")
   archive="$directory/jdk.tar.gz"
   echo "ci/java.sh: no java on the PATH; fetching Temurin $TEMURIN_RELEASE"
   curl --fail --silent --show-error --location --retry 3 -o "$archive" \
-    "https://github.com/adoptium/temurin25-binaries/releases/download/${TEMURIN_RELEASE/+/%2B}/${asset}" \
-    || { rm -rf "$directory"; return 1; }
+    "https://github.com/adoptium/temurin25-binaries/releases/download/${TEMURIN_RELEASE/+/%2B}/${asset}"
   if ! echo "$sha256  $archive" | sha256sum --check --strict --status; then
     echo "ci/java.sh: the Temurin archive does not match its pinned checksum" >&2
-    rm -rf "$directory"
     return 1
   fi
   java_home=$(mktemp -d)
+  CLEANUP_DIRS+=("$java_home")
   # --no-same-owner: as root, tar would keep the archive's owner.
   tar -xzf "$archive" -C "$java_home" --strip-components=1 --no-same-owner
   rm -rf "$directory"
@@ -64,23 +67,46 @@ ensure_unzip() {
 
   local bin
   bin=$(mktemp -d)
+  CLEANUP_DIRS+=("$bin")
   cat >"$bin/unzip" <<'SHIM'
 #!/bin/sh
-# unzip [-q] <archive> -d <directory>: the one form the Maven wrapper uses. Python's zipfile drops the permission bits,
-# so the files under a bin/ directory (Maven's launchers) are made executable again.
+# unzip [-q] <archive> [-d <directory>]: the one form the Maven wrapper uses, and nothing else. Python's zipfile drops
+# the permission bits when it extracts, so every member is extracted on its own and gets the mode its entry records
+# (the upper half of external_attr) when there is one: the launchers under Maven's bin/ stay executable.
 set -eu
+usage() { echo "unzip (ci/java.sh's shim): usage: unzip [-q] <archive> [-d <directory>]" >&2; exit 2; }
 archive=
 destination=.
 while [ $# -gt 0 ]; do
   case $1 in
     -q) ;;
-    -d) shift; destination=$1 ;;
-    *) archive=$1 ;;
+    -d) [ $# -ge 2 ] || usage; shift; destination=$1 ;;
+    -*) echo "unzip (ci/java.sh's shim): unsupported option $1" >&2; usage ;;
+    *) [ -z "$archive" ] || usage; archive=$1 ;;
   esac
   shift
 done
-python3 -m zipfile -e "$archive" "$destination"
-find "$destination" -path '*/bin/*' -type f -exec chmod +x {} +
+[ -n "$archive" ] || usage
+exec python3 - "$archive" "$destination" <<'PY'
+import os
+import sys
+import zipfile
+
+archive, destination = sys.argv[1:]
+directories = []
+with zipfile.ZipFile(archive) as bundle:
+    for entry in bundle.infolist():
+        path = bundle.extract(entry, destination)
+        mode = entry.external_attr >> 16
+        if not mode:
+            continue
+        if entry.is_dir():
+            directories.append((path, mode & 0o7777))  # after its members: a read-only directory can't be filled
+        else:
+            os.chmod(path, mode & 0o7777)
+for path, mode in reversed(directories):
+    os.chmod(path, mode)
+PY
 SHIM
   chmod +x "$bin/unzip"
   export PATH="$bin:$PATH"

@@ -275,15 +275,15 @@ CI checks the harness and committed corpus; it does not benchmark hardware as an
 
 ## CI acceptance and independent review handoff
 
-The existing required `test` job sets up JDK 25 and CPython 3.14 with pinned
-[setup-java v6.0.1](https://github.com/actions/setup-java/releases/tag/v6.0.1) and
-[setup-python v7.0.0](https://github.com/actions/setup-python/releases/tag/v7.0.0)
-action commits. Each run uses new Maven/wheel directories, resolves the locked
+The existing required `test` check (`ci/test.sh`, run by Jenkins) uses JDK 25 and CPython 3.14.
+Where the image has neither, `ci/java.sh` and `ci/python.sh` fetch the Temurin and
+python-build-standalone release archives, pinned by release and by sha256 and verified
+before they are unpacked. Each run uses new Maven/wheel directories, resolves the locked
 build/test graph, verifies artifact hashes and installed versions, queries OSV,
 then runs both complete native suites, all known answers and committed-corpus
 replay. Helper/delivery tests run too. No cache with extra artifacts is accepted.
 CI never regenerates the corpus or runs benchmarks as an acceptance gate. The
-.NET coverage steps and Docker job remain separate and unchanged.
+.NET coverage steps and the `docker` check remain separate and unchanged.
 
 After setup, run the complete acceptance checks from the repository root:
 

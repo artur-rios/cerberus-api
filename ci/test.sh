@@ -4,7 +4,8 @@
 # PostgreSQL container per run through Testcontainers.
 #
 # In order: the specification check, the Python helpers' tests, the protocol harness (its locked dependencies, their
-# audit, the corpus replay and both native suites), then restore, the vulnerability scan, the build, the generated
+# audit, the corpus replay and both native suites), then restore, the server lease check
+# (scripts/offline_leases.py), the vulnerability scan, the build, the generated
 # OpenAPI contract, the unit, functional and complete test runs, and the coverage report with its minimum. No path
 # filter: a test suite runs for every change.
 #
@@ -36,6 +37,16 @@ export DOTNET_NOLOGO=1 DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_SKIP_FIRST_TIME_EXPE
 # connect to an unspecified address.
 unset ASPNETCORE_HTTP_PORTS ASPNETCORE_HTTPS_PORTS ASPNETCORE_URLS
 
+# Every directory this script and the helpers below make (the interpreter, the JDK, the unzip shim, the harness's
+# downloads) is removed when the script ends, however it ends: ci/python.sh and ci/java.sh add theirs here.
+CLEANUP_DIRS=()
+cleanup() {
+  if [ "${#CLEANUP_DIRS[@]}" -gt 0 ]; then
+    rm -rf "${CLEANUP_DIRS[@]}"
+  fi
+}
+trap cleanup EXIT
+
 # shellcheck source=ci/python.sh
 . ci/python.sh
 # shellcheck source=ci/java.sh
@@ -47,7 +58,7 @@ ensure_unzip
 # Everything the harness and the report download or build goes under one directory of this run's own, and goes with
 # it: the check runs as whoever the CI engine runs it as, with no promise about a writable home.
 HARNESS_TMP=$(mktemp -d)
-trap 'rm -rf "$HARNESS_TMP"' EXIT
+CLEANUP_DIRS+=("$HARNESS_TMP")
 
 python3 scripts/verify_specs.py
 
@@ -85,6 +96,11 @@ tools/protocol-harness/java/mvnw -B -Dmaven.repo.local="$HARNESS_MAVEN_CACHE" -f
 python3 -m unittest discover -s tools/protocol-harness/tests -v
 
 dotnet restore "$SOLUTION"
+
+# The server's lease fixtures (tools/OfflineLeaseGen, run with `dotnet run`) checked by independent native clients: the
+# harness's Python and, in Java's source-file mode, `java`, which ensure_java put on the PATH above. It needs the
+# restore above and the harness's virtual environment.
+"$HARNESS_PYTHON" scripts/offline_leases.py
 
 # `dotnet list package --vulnerable` exits 0 whether or not it found anything, so the script parses what it printed.
 python3 scripts/vulnerabilities.py

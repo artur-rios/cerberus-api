@@ -164,7 +164,7 @@ is closed and update the repository-root README's backlog entry when it tracks t
 ## Branch protections and releases
 
 Feature and fix branches start from `develop` and target `develop`; accepted names are
-`feature/<name>`, `fix/<name>` and Dependabot branches. Releases use `release/x.y.z`
+`feature/<name>`, `fix/<name>` and Renovate branches. Releases use `release/x.y.z`
 snapshots of `develop` and target `main` with merge commits only. Both branches reject
 force pushes and deletion, require `branch-policy`, `test` and `docker`, and retain
 Heimdall's administrator bypass. `main` also requires `deploy/production`; the deployment

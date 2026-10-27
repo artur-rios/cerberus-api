@@ -1,5 +1,11 @@
 # Cerberus API
 
+> [!NOTE]
+> This is the real, open-source code of cerberus-api. Its home is Forgejo, at
+> https://git.techcraftsmen.net/artur-rios/cerberus-api; the copy on GitHub is a read-only mirror, for viewing only, and
+> its issues and pull requests are not followed. If you want to contribute, email me at
+> arturdev@duck.com.
+
 An end-to-end encrypted vault API for credentials, passwords, notes and custom sensitive
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.

@@ -1,5 +1,7 @@
 # Contributing
 
+This repository lives at <https://git.techcraftsmen.net/artur-rios/cerberus-api>. The GitHub repository is a read-only mirror of it.
+
 Use one issue, one branch and one PR per use case. Human approval is the default
 at the stages in [Development Workflow](docs/requirements/Development%20Workflow%20Document.md).
 Unattended transitions require explicit scoped authorization.
@@ -47,7 +49,7 @@ Current functional tests use disposable PostgreSQL containers and an in-memory H
 Every implemented use case must ship with main/alternative-flow tests. The required merged
 line-coverage floor is 90%; branch coverage is reported alongside it, without a numerical gate.
 `python3 scripts/verify_protocol.py` intentionally fails while the review record is pending.
-CI requires it for promotion to `main` and version-tag releases. The owner explicitly
+CI requires it for pull requests into `main`. The owner explicitly
 deferred independent review for development into `develop`
 ([deferral record](docs/security/development-review-deferral.json)); actual approval remains
 pending and is still required before any release.
@@ -64,7 +66,7 @@ roadmap as everything between `## Roadmap` and `## Backlog`, so keep those headi
 
 - Start `feature/<name>` or `fix/<name>` from an up-to-date `develop` and open the PR into `develop`.
 - Use `feature/uc-##-use-case-name` for use cases; use lowercase names with digits, dots, underscores or hyphens.
-- Merge feature/fix PRs by squash or merge commit. Dependabot PRs also target `develop`.
+- Merge feature/fix PRs by squash or merge commit. Renovate PRs also target `develop`.
 - Cut `release/x.y.z` from `develop` and open the PR into `main`. A release is a snapshot and carries no changes of its own; fixes land on `develop` first.
 - Release PRs merge with a merge commit, and the merge commit is tagged `vx.y.z` — see [Releasing](#releasing).
 - Delete merged work branches. Do not force push or delete `develop` or `main`.
@@ -93,7 +95,7 @@ The API follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). A re
   logging or performance.
 
 The version is not stored in the source. It is the name of the release branch: `release/x.y.z`
-releases `vx.y.z`. The Branch Policy check rejects a release branch whose version already has a
+releases `vx.y.z`. The `branch-policy` check rejects a release branch whose version already has a
 tag. The OpenAPI `info.version` in `docs/contracts/openapi.json` (`v1`) is the API contract
 version and is independent of the release number. No release has been made yet.
 
@@ -105,11 +107,15 @@ owner's administrator bypass is preserved. The rulesets require zero formal appr
 documented human review process still applies. Tags matching `v*` are protected against updates
 and deletion.
 
-The **Tests** workflow runs on every pull request into, and push to, `develop` and `main`, and on
-`v*` tags. It validates the specifications, runs the helper scripts' tests, restores and builds the
-solution, scans for vulnerable packages, checks the generated OpenAPI contract, runs the unit and
-functional tests, enforces 90% merged line coverage, and builds the container image. On pushes to
-and pull requests into `main`, and on tags, it also runs `verify_protocol.py`.
+Jenkins runs the checks on every pull request into, and push to, `develop` and `main`. The `test` check
+([`ci/test.sh`](./ci/test.sh)) validates the specifications, runs the helper scripts' tests and the
+protocol harness, restores and builds the solution, scans for vulnerable packages, checks the generated
+OpenAPI contract, runs the unit and functional tests and enforces 90% merged line coverage; its
+ReportGenerator license is the Jenkins credential `reportgenerator-license`, and a `renovate/*` build,
+which binds no credential, makes the free report. The `docker` check ([`ci/docker.sh`](./ci/docker.sh))
+builds the container image. On pull requests into `main` the `branch-policy` check also runs
+`verify_protocol.py` ([`ci/branch-policy.sh`](./ci/branch-policy.sh)). The checks are declared in
+[`yggdrasil.yml`](./yggdrasil.yml).
 
 ## Releasing
 
@@ -120,11 +126,11 @@ and merge it into `develop`. Then cut `release/x.y.z` from `develop` and open it
 `main`.
 
 Deployment is not set up yet. Unlike `heimdall-api` and `fortuna-api`, this repository is not an
-application in [yggdrasil](https://github.com/artur-rios/yggdrasil)'s `catalog.yaml` and has no
-`Jenkinsfile`, so nothing deploys a release branch and nothing sets the `deploy/production` status
+application in [yggdrasil](https://github.com/artur-rios/yggdrasil)'s `catalog.yaml`: it is listed only
+for its checks, so nothing deploys a release branch and nothing sets the `deploy/production` status
 the `main` ruleset requires: a release pull request cannot pass its required checks. Before the
-first release, register `cerberus-api` in the catalog and add a `Jenkinsfile` that calls the
-yggdrasil pipeline, as the other API repositories do. From then on, pushing `release/x.y.z` deploys
+first release, register `cerberus-api` in the catalog as an application with its release
+environments, as the other API repositories are. From then on, pushing `release/x.y.z` deploys
 it to homologation, and when every check on the release pull request passes, Jenkins deploys to
 production, sets `deploy/production`, merges the pull request with a merge commit, and creates the
 tag and GitHub release `vx.y.z`. This repository does not publish a synthetic `deploy/production`

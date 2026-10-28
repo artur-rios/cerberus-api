@@ -279,6 +279,10 @@ development into `develop` only; it is still required before any release.
 
 ### Fixed
 
+- The protocol harness's dependency audit sets aside GHSA-xxph-c9ww-hj94 on Maven 3.10.0's own
+  `lib/guava-33.7.1-jre.jar` only, until 2027-01-31, and lists it in its report: no Maven release bundles the fixed
+  Guava yet, and the harness deserializes no Java objects. Any other advisory, jar, version or date still fails.
+
 - Profile creation rejects scoped verifier reuse across retained owned profiles, including trash. Challenge/open
   fail closed on legacy duplicate or corrupt retained keys; use independent keys and fresh replacement profile IDs.
 

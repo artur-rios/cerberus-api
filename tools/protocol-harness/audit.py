@@ -6,7 +6,7 @@ Maven's ZIP hash pins its embedded libraries; every embedded Maven coordinate
 is also queried. Only an explicit complete clean feed response passes.
 """
 import argparse
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import hashlib
 from importlib import metadata
 import io
@@ -19,6 +19,18 @@ import zipfile
 
 FEED = "https://api.osv.dev/v1/querybatch"
 LIMITATIONS = "Version-based OSV snapshot, not proof of library correctness; native runtime/OS vulnerabilities require separate review."
+
+# Advisories set aside, each on one jar of the pinned Maven distribution only, until its date (inclusive, UTC). It
+# applies only when that jar is the coordinate's sole source: the same coordinate resolved by the build, found in
+# another jar, at another version, another id or after the date still fails. Each one is listed in the report.
+# Remove an entry once Maven ships the fix; moving the Maven pin leaves it matching nothing.
+ACCEPTED = (
+    {"id": "GHSA-xxph-c9ww-hj94", "relativePath": "apache-maven-3.10.0/lib/guava-33.7.1-jre.jar",
+     "name": "com.google.guava:guava", "version": "33.7.1-jre", "until": "2027-01-31",
+     "reason": "Deserialization of Guava's compact collections can allocate without bound (fixed in 33.7.2). This "
+               "is Maven's own copy, loaded only to build and test the harness, which deserializes no Java objects; "
+               "no Maven release bundles 33.7.2 yet."},
+)
 
 
 class AuditFailure(RuntimeError):
@@ -58,7 +70,8 @@ def _coordinate(ecosystem, name, version):
 
 
 def _embedded_coordinates(distribution, overrides):
-    coordinates = set()
+    """Each embedded coordinate, with the jars of the distribution it comes from."""
+    coordinates = {}
     pinned = {}
     for entry in overrides:
         name = entry["relativePath"]
@@ -77,7 +90,7 @@ def _embedded_coordinates(distribution, overrides):
                     entry = pinned.get(name)
                     if entry is None or hashlib.sha256(outer.read(name)).hexdigest() != entry["sha256"]:
                         _reject()
-                    coordinates.add(_coordinate("Maven", entry["name"], entry["version"]))
+                    coordinates.setdefault(_coordinate("Maven", entry["name"], entry["version"]), set()).add(name)
                     used.add(name)
                 for prop in properties:
                     values = {}
@@ -87,7 +100,8 @@ def _embedded_coordinates(distribution, overrides):
                             if not separator or key.strip() in values:
                                 _reject()
                             values[key.strip()] = value.strip()
-                    coordinates.add(_coordinate("Maven", values["groupId"] + ":" + values["artifactId"], values["version"]))
+                    coordinate = _coordinate("Maven", values["groupId"] + ":" + values["artifactId"], values["version"])
+                    coordinates.setdefault(coordinate, set()).add(name)
     if used != set(pinned):
         _reject()
     return coordinates
@@ -105,11 +119,11 @@ def _query(payload):
 
 
 def audit(lock: Path, *, maven_cache=None, wheels=None, maven_distribution=None,
-          installed_versions=None, transport=None) -> dict:
+          installed_versions=None, transport=None, today=None) -> dict:
     try:
         return _audit(Path(lock), maven_cache=maven_cache, wheels=wheels,
                       maven_distribution=maven_distribution, installed_versions=installed_versions,
-                      transport=transport or _query)
+                      transport=transport or _query, today=today or datetime.now(timezone.utc).date())
     except AuditFailure:
         raise
     except Exception:
@@ -117,7 +131,16 @@ def audit(lock: Path, *, maven_cache=None, wheels=None, maven_distribution=None,
         raise AuditFailure() from None
 
 
-def _audit(lock, *, maven_cache, wheels, maven_distribution, installed_versions, transport):
+def _accepted(coordinate, ids, locked, embedded, today):
+    """The entries of ACCEPTED that set aside one of `ids` on `coordinate`."""
+    ecosystem, name, version = coordinate
+    return [entry for entry in ACCEPTED
+            if entry["id"] in ids and ecosystem == "Maven" and (entry["name"], entry["version"]) == (name, version)
+            and coordinate not in locked and embedded.get(coordinate) == {entry["relativePath"]}
+            and today <= date.fromisoformat(entry["until"])]
+
+
+def _audit(lock, *, maven_cache, wheels, maven_distribution, installed_versions, transport, today):
     data = json.loads(lock.read_text(encoding="utf-8"))
     if data.get("schemaVersion") != 1 or not isinstance(data.get("packages"), list) or not data["packages"]:
         _reject()
@@ -154,10 +177,12 @@ def _audit(lock, *, maven_cache, wheels, maven_distribution, installed_versions,
         _reject()
     if wheel_files != {p.name for p in wheels.glob("*.whl")}:
         _reject()
+    locked = set(coordinates)
     distribution = data["mavenDistribution"]
     _artifact(maven_distribution.parent, maven_distribution.name, distribution["sha256"])
     coordinates.add(_coordinate("Maven", "org.apache.maven:apache-maven", distribution["version"]))
-    coordinates.update(_embedded_coordinates(maven_distribution, distribution.get("embeddedCoordinateOverrides", [])))
+    embedded = _embedded_coordinates(maven_distribution, distribution.get("embeddedCoordinateOverrides", []))
+    coordinates.update(embedded)
     ordered = sorted(coordinates)
     payload = {"queries": [{"package": {"ecosystem": ecosystem, "name": name}, "version": version}
                            for ecosystem, name, version in ordered]}
@@ -165,7 +190,7 @@ def _audit(lock, *, maven_cache, wheels, maven_distribution, installed_versions,
     if (not isinstance(response, dict) or set(response) != {"results"}
             or not isinstance(response["results"], list) or len(response["results"]) != len(ordered)):
         _reject()
-    findings = []
+    findings, accepted = [], []
     for coordinate, result in zip(ordered, response["results"], strict=True):
         # Pagination is unresolved evidence, not an empty result.
         if not isinstance(result, dict) or set(result) - {"vulns"}:
@@ -180,12 +205,16 @@ def _audit(lock, *, maven_cache, wheels, maven_distribution, installed_versions,
                     or not isinstance(vuln.get("modified"), str)):
                 _reject()
             ids.append(vuln["id"])
+        ecosystem, name, version = coordinate
+        for entry in _accepted(coordinate, ids, locked, embedded, today):
+            accepted.append({"ecosystem": ecosystem, "name": name, "version": version, "ids": [entry["id"]],
+                             "relativePath": entry["relativePath"], "until": entry["until"], "reason": entry["reason"]})
+            ids = [i for i in ids if i != entry["id"]]
         if ids:
-            ecosystem, name, version = coordinate
             findings.append({"ecosystem": ecosystem, "name": name, "version": version, "ids": sorted(set(ids))})
     report = {"status": "failed" if findings else "pass", "scannedAtUtc": datetime.now(timezone.utc).isoformat(),
               "feed": FEED, "queriedPackages": len(ordered), "lockSha256": _sha256(lock),
-              "findings": findings, "limitations": LIMITATIONS}
+              "findings": findings, "accepted": accepted, "limitations": LIMITATIONS}
     if findings:
         raise AuditFailure(report)
     return report

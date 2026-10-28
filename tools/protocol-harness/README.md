@@ -26,7 +26,7 @@ Input, manifest, dependency and source hashes bind the evidence to the checked c
 Actual measurements are recorded separately below and never count as security
 approval or performance acceptance in CI.
 
-The fail-closed dependency audit is implemented (14 tests). The initial OSV scan
+The fail-closed dependency audit is implemented (21 tests). The initial OSV scan
 on 2026-10-08 queried 154 distinct coordinates, including Maven's bundled build
 libraries, and failed. See [the recorded result](audit-failure-2026-10-08.json).
 The owner approved targeted plugin dependency upgrades. Fresh resolution and a
@@ -88,6 +88,11 @@ Five distribution JARs omit Maven metadata; their explicit package identities
 and byte hashes are pinned in `mavenDistribution.embeddedCoordinateOverrides`.
 Unknown or changed bundled JARs fail, rather than being excluded from the scan.
 No missing runtime, empty test run or failed dependency scan may be counted green.
+The one exception is `ACCEPTED` in `audit.py`: an advisory set aside on a single
+named JAR of the pinned Maven distribution, until a date, and listed under
+`accepted` in the report. Today that is GHSA-xxph-c9ww-hj94 on Maven 3.10.0's own
+Guava 33.7.1 (fixed in 33.7.2, which no Maven release bundles yet), until
+2027-01-31. Remove it with the Maven bump that ships the fix.
 
 Run against the exact fresh resolved cache, downloaded locked Python wheels and
 verified Maven ZIP, using the Python environment where locked packages are installed:
@@ -275,15 +280,15 @@ CI checks the harness and committed corpus; it does not benchmark hardware as an
 
 ## CI acceptance and independent review handoff
 
-The existing required `test` job sets up JDK 25 and CPython 3.14 with pinned
-[setup-java v6.0.1](https://github.com/actions/setup-java/releases/tag/v6.0.1) and
-[setup-python v7.0.0](https://github.com/actions/setup-python/releases/tag/v7.0.0)
-action commits. Each run uses new Maven/wheel directories, resolves the locked
+The existing required `test` check (`ci/test.sh`, run by Jenkins) uses JDK 25 and CPython 3.14.
+Where the image has neither, `ci/java.sh` and `ci/python.sh` fetch the Temurin and
+python-build-standalone release archives, pinned by release and by sha256 and verified
+before they are unpacked. Each run uses new Maven/wheel directories, resolves the locked
 build/test graph, verifies artifact hashes and installed versions, queries OSV,
 then runs both complete native suites, all known answers and committed-corpus
 replay. Helper/delivery tests run too. No cache with extra artifacts is accepted.
 CI never regenerates the corpus or runs benchmarks as an acceptance gate. The
-.NET coverage steps and Docker job remain separate and unchanged.
+.NET coverage steps and the `docker` check remain separate and unchanged.
 
 After setup, run the complete acceptance checks from the repository root:
 

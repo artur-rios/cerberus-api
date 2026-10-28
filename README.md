@@ -10,6 +10,8 @@ An end-to-end encrypted vault API for credentials, passwords, notes and custom s
 records. Cerberus manages encrypted storage, organization and resource permissions; Heimdall
 handles identity, and authorized clients encrypt/decrypt locally.
 
+This repository lives at <https://git.techcraftsmen.net/artur-rios/cerberus-api>. The GitHub repository is a read-only mirror of it.
+
 > **Status:** foundation infrastructure and all 55 business use cases implemented. Independent protocol review is explicitly deferred for development and
 > remains required before release. See [development review deferral](docs/security/development-review-deferral.json)
 > and [foundation status](docs/operations/foundation-status.md).
@@ -80,7 +82,7 @@ dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi -- --migrate
 dotnet run --project src/Presentation/ArturRios.Cerberus.WebApi
 ```
 
-Clone the repository with `git clone https://github.com/artur-rios/cerberus-api.git`.
+Clone the repository with `git clone https://git.techcraftsmen.net/artur-rios/cerberus-api.git`.
 
 ## Roadmap
 

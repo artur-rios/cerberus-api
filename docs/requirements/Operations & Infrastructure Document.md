@@ -65,7 +65,8 @@ tests/
   Application/ArturRios.Cerberus.Shared.Tests/
   Infrastructure/ArturRios.Cerberus.Data.Tests/
   Presentation/ArturRios.Cerberus.WebApi.Tests/
-.github/workflows/
+ci/
+yggdrasil.yml
 ```
 
 ### 2.4 Platform Requirements
@@ -229,7 +230,7 @@ following the [contribution policy](../../CONTRIBUTING.md). CI validates the spe
 since the foundation scaffold, also runs vulnerability checks, unit/functional tests, merged
 coverage enforcement and a Docker build. The required `deploy/production` check on `main` requires
 the deployment integration to be provisioned: Cerberus is not yet registered in yggdrasil's
-`catalog.yaml` and has no `Jenkinsfile`. No scheduled issue labels or due dates are invented.
+`catalog.yaml` as an application; its checks run from `yggdrasil.yml`. No scheduled issue labels or due dates are invented.
 
 After approval, package the API with the stable runtime and deploy to the Ubuntu VPS through
 the operator's controlled delivery path. Validate configuration, apply migrations through an

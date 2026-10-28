@@ -1,4 +1,5 @@
 """Execute the audit with temporary real artifacts and injected public feed replies."""
+from datetime import date
 import hashlib
 import importlib.util
 import io
@@ -170,6 +171,99 @@ class AuditTest(unittest.TestCase):
         self.data["mavenDistribution"]["embeddedCoordinateOverrides"][0]["sha256"] = "0" * 64
         self.save()
         self.rejected()
+
+    # The accepted advisories: one id, on one jar of Maven's distribution, until a date.
+
+    def accept(self, **change):
+        entry = {"id": "TEST-1", "relativePath": "apache-maven-1/lib/embedded-2.jar", "name": "example:embedded",
+                 "version": "2", "until": "2026-12-31", "reason": "test only"}
+        entry.update(change)
+        self.api.ACCEPTED = (entry,)
+
+    def reporting(self, name, *ids):
+        def feed(payload):
+            self.sent.append(payload)
+            return {"results": [{"vulns": [{"id": i, "modified": "2026-10-27T00:00:00Z"} for i in ids]}
+                                if q["package"]["name"] == name else {} for q in payload["queries"]]}
+        return feed
+
+    def audit_on(self, day, transport):
+        return self.api.audit(self.lock, maven_cache=self.cache, wheels=self.wheels,
+                              maven_distribution=self.distribution, installed_versions={"example": "1"},
+                              transport=transport, today=date.fromisoformat(day))
+
+    def failed_on(self, day, transport):
+        with self.assertRaises(self.api.AuditFailure) as caught:
+            self.audit_on(day, transport)
+        return caught.exception.report
+
+    def test_GivenAcceptedAdvisoryOnItsEmbeddedJar_WhenAuditedUntilItsDate_ThenPassAndReportIt(self):
+        self.accept()
+        report = self.audit_on("2026-12-31", self.reporting("example:embedded", "TEST-1"))
+        self.assertEqual("pass", report["status"])
+        self.assertEqual([], report["findings"])
+        self.assertEqual([{"ecosystem": "Maven", "name": "example:embedded", "version": "2", "ids": ["TEST-1"],
+                           "relativePath": "apache-maven-1/lib/embedded-2.jar", "until": "2026-12-31",
+                           "reason": "test only"}], report["accepted"])
+
+    def test_GivenAcceptedAdvisory_WhenAuditedAfterItsDate_ThenFailClosed(self):
+        self.accept()
+        report = self.failed_on("2027-01-01", self.reporting("example:embedded", "TEST-1"))
+        self.assertEqual(["TEST-1"], report["findings"][0]["ids"])
+        self.assertEqual([], report["accepted"])
+
+    def test_GivenAnotherAdvisoryOnTheSameJar_WhenAudited_ThenOnlyTheAcceptedOneIsSetAside(self):
+        self.accept()
+        report = self.failed_on("2026-10-28", self.reporting("example:embedded", "TEST-1", "TEST-2"))
+        self.assertEqual([{"ecosystem": "Maven", "name": "example:embedded", "version": "2", "ids": ["TEST-2"]}],
+                         report["findings"])
+        self.assertEqual(["TEST-1"], report["accepted"][0]["ids"])
+
+    def test_GivenAcceptedIdOnAnotherCoordinate_WhenAudited_ThenFailClosed(self):
+        self.accept()
+        for name in ("example:library", "org.apache.maven:apache-maven", "example"):
+            with self.subTest(name=name):
+                report = self.failed_on("2026-10-28", self.reporting(name, "TEST-1"))
+                self.assertEqual(name, report["findings"][0]["name"])
+
+    def test_GivenAcceptedCoordinateAlsoResolvedByTheBuild_WhenAudited_ThenFailClosed(self):
+        resolved = self.cache / "example/embedded/2/embedded-2.jar"
+        resolved.parent.mkdir(parents=True)
+        resolved.write_bytes(b"test-only resolved copy")
+        self.data["packages"].append({"ecosystem": "Maven", "name": "example:embedded", "version": "2",
+                                      "relativePath": "example/embedded/2/embedded-2.jar",
+                                      "sha256": self.digest(resolved)})
+        self.save()
+        self.accept()
+        self.assertEqual(["TEST-1"], self.failed_on("2026-10-28", self.reporting("example:embedded", "TEST-1"))
+                         ["findings"][0]["ids"])
+
+    def test_GivenAcceptedCoordinateFromAnotherJar_WhenAudited_ThenFailClosed(self):
+        for change in ({"relativePath": "apache-maven-1/lib/other-2.jar"}, {"version": "3"}):
+            with self.subTest(change=change):
+                self.accept(**change)
+                self.failed_on("2026-10-28", self.reporting("example:embedded", "TEST-1"))
+        shaded = io.BytesIO()
+        with zipfile.ZipFile(shaded, "w") as archive:
+            archive.writestr("META-INF/maven/example/embedded/pom.properties",
+                             "groupId=example\nartifactId=embedded\nversion=2\n")
+        with zipfile.ZipFile(self.distribution, "a") as archive:
+            archive.writestr("apache-maven-1/lib/shaded-1.jar", shaded.getvalue())
+        self.data["mavenDistribution"]["sha256"] = self.digest(self.distribution)
+        self.save()
+        self.accept()
+        self.failed_on("2026-10-28", self.reporting("example:embedded", "TEST-1"))
+
+    def test_GivenTheShippedAcceptances_WhenRead_ThenEachIsOneAdvisoryOnAJarOfThePinnedMaven(self):
+        lock = json.loads((AUDIT.parent / "dependencies.lock.json").read_text(encoding="utf-8"))
+        prefix = f"apache-maven-{lock['mavenDistribution']['version']}/lib/"
+        self.assertEqual(["GHSA-xxph-c9ww-hj94"], [entry["id"] for entry in self.api.ACCEPTED])
+        for entry in self.api.ACCEPTED:
+            self.assertEqual({"id", "relativePath", "name", "version", "until", "reason"}, set(entry))
+            self.assertTrue(entry["relativePath"].startswith(prefix))
+            self.assertNotIn(entry["name"], {p["name"] for p in lock["packages"]})
+            self.assertLessEqual(date.fromisoformat(entry["until"]), date(2027, 1, 31))
+            self.assertTrue(entry["reason"])
 
 
 if __name__ == "__main__":

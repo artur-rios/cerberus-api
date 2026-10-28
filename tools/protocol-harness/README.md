@@ -26,7 +26,7 @@ Input, manifest, dependency and source hashes bind the evidence to the checked c
 Actual measurements are recorded separately below and never count as security
 approval or performance acceptance in CI.
 
-The fail-closed dependency audit is implemented (14 tests). The initial OSV scan
+The fail-closed dependency audit is implemented (21 tests). The initial OSV scan
 on 2026-10-08 queried 154 distinct coordinates, including Maven's bundled build
 libraries, and failed. See [the recorded result](audit-failure-2026-10-08.json).
 The owner approved targeted plugin dependency upgrades. Fresh resolution and a
@@ -88,6 +88,11 @@ Five distribution JARs omit Maven metadata; their explicit package identities
 and byte hashes are pinned in `mavenDistribution.embeddedCoordinateOverrides`.
 Unknown or changed bundled JARs fail, rather than being excluded from the scan.
 No missing runtime, empty test run or failed dependency scan may be counted green.
+The one exception is `ACCEPTED` in `audit.py`: an advisory set aside on a single
+named JAR of the pinned Maven distribution, until a date, and listed under
+`accepted` in the report. Today that is GHSA-xxph-c9ww-hj94 on Maven 3.10.0's own
+Guava 33.7.1 (fixed in 33.7.2, which no Maven release bundles yet), until
+2027-01-31. Remove it with the Maven bump that ships the fix.
 
 Run against the exact fresh resolved cache, downloaded locked Python wheels and
 verified Maven ZIP, using the Python environment where locked packages are installed:

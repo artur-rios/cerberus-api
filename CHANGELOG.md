@@ -279,6 +279,10 @@ development into `develop` only; it is still required before any release.
 
 ### Fixed
 
+- The `test` check runs every test once. It ran the unit tests, then the functional tests, then all of them again
+  for the `.trx` results: about 21 of its 34 minutes repeated tests already run. One unfiltered run now writes the
+  results and the coverage, and still runs a test with neither Category trait.
+
 - The protocol harness's dependency audit sets aside GHSA-xxph-c9ww-hj94 on Maven 3.10.0's own
   `lib/guava-33.7.1-jre.jar` only, until 2027-01-31, and lists it in its report: no Maven release bundles the fixed
   Guava yet, and the harness deserializes no Java objects. Any other advisory, jar, version or date still fails.

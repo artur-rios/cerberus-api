@@ -6,7 +6,7 @@
 # In order: the specification check, the Python helpers' tests, the protocol harness (its locked dependencies, their
 # audit, the corpus replay and both native suites), then restore, the server lease check
 # (scripts/offline_leases.py), the vulnerability scan, the build, the generated
-# OpenAPI contract, the unit, functional and complete test runs, and the coverage report with its minimum. No path
+# OpenAPI contract, one run of every test, and the coverage report with its minimum. No path
 # filter: a test suite runs for every change.
 #
 # The release gate (scripts/verify_protocol.py, which fails while the protocol review is pending) is not here: the old
@@ -110,18 +110,10 @@ dotnet build "$SOLUTION" --configuration Release --no-restore
 
 python3 scripts/openapi.py
 
-# The Category trait comes from the [UnitFact] / [UnitTheory] attributes; both suites collect coverage (a
-# coverage.cobertura.xml per project under TestResults/) and the report below merges every file.
-dotnet test "$SOLUTION" --configuration Release --no-build \
-  --filter "Category=Unit" \
-  --collect:"XPlat Code Coverage"
-
-# These start a real PostgreSQL container per run through Testcontainers: the CI engine's socket (`docker: true`).
-dotnet test "$SOLUTION" --configuration Release --no-build \
-  --filter "Category=Functional" \
-  --collect:"XPlat Code Coverage"
-
-# Unfiltered, so a test with neither trait runs somewhere, and the one that writes the .trx results.
+# Every test once, unit and functional alike: unfiltered, so a test with neither Category trait runs too. The
+# functional tests start PostgreSQL containers through Testcontainers: the CI engine's socket (`docker: true`). Each
+# project writes its .trx results and a coverage.cobertura.xml under TestResults/, which the report below merges. (A
+# unit run and a functional run used to come first; this run repeated every test they ran.)
 dotnet test "$SOLUTION" --configuration Release --no-build \
   --logger trx \
   --collect:"XPlat Code Coverage"

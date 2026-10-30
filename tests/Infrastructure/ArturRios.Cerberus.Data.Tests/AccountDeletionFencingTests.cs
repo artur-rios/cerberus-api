@@ -38,9 +38,14 @@ public partial class AccountDeletionStoreTests
     [FunctionalTheory][InlineData("account")][InlineData("registration_operation")][InlineData("retention_work_item")]
     public async Task GivenClaimExpiresImmediatelyBeforeMutation_WhenPurging_ThenGuardedStatementCannotDelete(string table)
     {
-        var(w,claim)=await Pending();await using var db=fixture.CreateContext();var deadline=DateTimeOffset.UtcNow.AddSeconds(2);
-        await db.RetentionWorkItems.Where(x=>x.PublicId==claim.WorkId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ClaimExpiresAt,deadline));var before=await Snapshot(db,w.Owner);var foreign=await Foreign(db,w);
-        var hook=new BeforeDelete(table,async()=>{var left=deadline-DateTimeOffset.UtcNow;if(left>TimeSpan.Zero)await Task.Delay(left+TimeSpan.FromMilliseconds(50));});
+        var(w,claim)=await Pending();await using var db=fixture.CreateContext();var before=await Snapshot(db,w.Owner);var foreign=await Foreign(db,w);
+        var hook=new BeforeDelete(table,async c=>
+        {
+            await using var expire=c.Connection!.CreateCommand();expire.Transaction=c.Transaction;
+            expire.CommandText="UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp()+interval '50 milliseconds' WHERE public_id=@work";
+            var work=expire.CreateParameter();work.ParameterName="work";work.Value=claim.WorkId;expire.Parameters.Add(work);
+            Assert.Equal(1,await expire.ExecuteNonQueryAsync());await Task.Delay(TimeSpan.FromMilliseconds(250));
+        });
         await Assert.ThrowsAsync<InvalidOperationException>(()=>new AccountPurgeHandler(new ProfileSetup.Factory(fixture,hook),Ledger).ExecuteAsync(claim,default));
         Assert.True(hook.Reached);Assert.Equal(0,hook.Affected);Assert.Equal(before,await Snapshot(db,w.Owner));Assert.Equal(foreign,await Foreign(db,w));
     }
@@ -90,12 +95,12 @@ public partial class AccountDeletionStoreTests
         var factory=afterWait?new ProfileSetup.Factory(fixture,new CompletionDelay(deadline)):fixture as IDbContextFactory<AppDbContext>;
         Assert.False(await new RetentionWorkStore(factory!).TryCompleteAsync(claim,old.AddMinutes(-1),default));Assert.Null(await db.RetentionWorkItems.Where(x=>x.PublicId==claim.WorkId).Select(x=>x.CompletedAt).SingleAsync());
     }
-    private sealed class BeforeDelete(string table,Func<Task> action):DbCommandInterceptor
+    private sealed class BeforeDelete(string table,Func<DbCommand,Task> action):DbCommandInterceptor
     {
         public bool Reached{get;private set;}public int Affected{get;private set;}=-1;
         private bool Match(DbCommand c)=>c.CommandText.StartsWith("DELETE FROM cerberus."+table+" ",StringComparison.Ordinal);
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default)
-        {if(!Reached&&Match(c)){Reached=true;await action();}return r;}
+        {if(!Reached&&Match(c)){Reached=true;await action(c);}return r;}
         public override ValueTask<int> NonQueryExecutedAsync(DbCommand c,CommandExecutedEventData d,int r,CancellationToken ct=default)
         {if(Match(c))Affected=r;return ValueTask.FromResult(r);}
     }

@@ -5,17 +5,17 @@
   </PropertyGroup>
   <!-- Util.Test 3 and PostgreSql 3 require Relational.Core 4; upgrade these together. -->
   <ItemGroup>
-    <PackageVersion Include="ArturRios.Output" Version="3.2.0" />
-    <PackageVersion Include="ArturRios.Util" Version="2.1.0" />
-    <PackageVersion Include="ArturRios.Extensions" Version="1.4.0" />
+    <PackageVersion Include="ArturRios.Output" Version="3.3.1" />
+    <PackageVersion Include="ArturRios.Util" Version="2.2.0" />
+    <PackageVersion Include="ArturRios.Extensions" Version="1.4.1" />
     <PackageVersion Include="ArturRios.Configuration" Version="1.2.0" />
-    <PackageVersion Include="ArturRios.Logging" Version="2.0.0" />
-    <PackageVersion Include="ArturRios.Jwt" Version="1.2.0" />
-    <PackageVersion Include="ArturRios.Validation" Version="2.0.0" />
-    <PackageVersion Include="ArturRios.Mediator" Version="2.0.0" />
+    <PackageVersion Include="ArturRios.Logging" Version="2.0.1" />
+    <PackageVersion Include="ArturRios.Jwt" Version="1.4.1" />
+    <PackageVersion Include="ArturRios.Validation" Version="2.0.1" />
+    <PackageVersion Include="ArturRios.Mediator" Version="2.0.1" />
     <PackageVersion Include="ArturRios.Data.Relational.Core" Version="4.0.1" />
     <PackageVersion Include="ArturRios.Data.PostgreSql" Version="3.0.2" />
-    <PackageVersion Include="ArturRios.Util.WebApi" Version="5.1.0" />
+    <PackageVersion Include="ArturRios.Util.WebApi" Version="5.2.0" />
     <PackageVersion Include="ArturRios.Util.Test" Version="3.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12" />

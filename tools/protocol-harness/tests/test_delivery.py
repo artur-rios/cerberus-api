@@ -123,13 +123,11 @@ class DeliveryTests(unittest.TestCase):
             with self.subTest(base=base):
                 self.assertEqual(0, self.branch_policy(base).returncode)
         self.assertNotIn("python3 scripts/verify_protocol.py", self.script)
+        # One unfiltered run: a test with neither Category trait still runs, and none runs twice (a unit run and a
+        # functional run used to come first, and this run repeated every test they ran).
         tests = re.split(r"(?m)^dotnet test ", self.script)[1:]
-        self.assertEqual(3, len(tests))
-        for command, category in zip(tests[:2], ("Unit", "Functional")):
-            block = command.split("\n\n", 1)[0]
-            self.assertIn('--filter "Category=' + category + '"', block)
-            self.assertIn('--collect:"XPlat Code Coverage"', block)
-        full = tests[2].split("\n\n", 1)[0]
+        self.assertEqual(1, len(tests))
+        full = tests[0].split("\n\n", 1)[0]
         self.assertIn('"$SOLUTION"', full)
         self.assertNotIn("--filter", full)
         self.assertIn("--logger trx", full)

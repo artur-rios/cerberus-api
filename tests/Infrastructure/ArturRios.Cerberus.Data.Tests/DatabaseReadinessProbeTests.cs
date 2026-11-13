@@ -19,7 +19,7 @@ public sealed class DatabaseReadinessProbeTests(PostgresFixture fixture)
             await using(var connection=new NpgsqlConnection(cs.ConnectionString))await connection.OpenAsync();
             Assert.Equal(granted,await new DatabaseReadinessProbe(new Factory(cs.ConnectionString)).CheckAsync(default));
             await setup.Entry(await setup.Accounts.SingleAsync(x=>x.PublicId==id)).ReloadAsync();var after=await setup.Accounts.SingleAsync(x=>x.PublicId==id);Assert.Equal(4,after.Revision);Assert.Equal(new byte[]{7,8,9},after.DetailsEnvelope);
-            Assert.Equal(0,await Active(name));
+            await AssertBackendGone(name);
         }
         finally{await Sql(setup,$"DROP OWNED BY {name}; DROP ROLE {name};");}
     }
@@ -42,10 +42,14 @@ public sealed class DatabaseReadinessProbeTests(PostgresFixture fixture)
         await using var setup=fixture.CreateContext();var name="health_wait_"+Guid.NewGuid().ToString("N");var cs=new NpgsqlConnectionStringBuilder(setup.Database.GetConnectionString()){ApplicationName=name,Pooling=false};
         await using var transaction=await setup.Database.BeginTransactionAsync();await setup.Database.ExecuteSqlRawAsync("LOCK TABLE cerberus.account IN ACCESS EXCLUSIVE MODE");
         using var cancellation=new CancellationTokenSource();var pending=new DatabaseReadinessProbe(new Factory(cs.ConnectionString)).CheckAsync(cancellation.Token);
-        await WaitForLock(name);cancellation.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>pending);Assert.Equal(0,await Active(name));await transaction.RollbackAsync();
+        await WaitForLock(name);cancellation.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>pending);await AssertBackendGone(name);await transaction.RollbackAsync();
     }
     private async Task WaitForLock(string name)
     {for(var attempt=0;attempt<100;attempt++){await using var c=fixture.CreateContext();await c.Database.OpenConnectionAsync();await using var command=c.Database.GetDbConnection().CreateCommand();command.CommandText="SELECT count(*) FROM pg_stat_activity WHERE application_name=@name AND wait_event_type='Lock'";var p=command.CreateParameter();p.ParameterName="name";p.Value=name;command.Parameters.Add(p);if(Convert.ToInt64(await command.ExecuteScalarAsync())==1)return;await Task.Delay(20);}throw new TimeoutException("Readiness did not enter actual database lock wait");}
+    // A connection the probe disposed is closed on the client at once, but PostgreSQL drops its row from
+    // pg_stat_activity only once the backend has exited, a moment later: poll until it is gone rather than read once.
+    private async Task AssertBackendGone(string name)
+    {var deadline=DateTime.UtcNow.AddSeconds(5);long active;while((active=await Active(name))!=0&&DateTime.UtcNow<deadline)await Task.Delay(20);Assert.Equal(0,active);}
     private async Task<long> Active(string name)
     {await using var c=fixture.CreateContext();await c.Database.OpenConnectionAsync();await using var command=c.Database.GetDbConnection().CreateCommand();command.CommandText="SELECT count(*) FROM pg_stat_activity WHERE application_name=@name";var p=command.CreateParameter();p.ParameterName="name";p.Value=name;command.Parameters.Add(p);return Convert.ToInt64(await command.ExecuteScalarAsync());}
     private static async Task Sql(AppDbContext c,string sql){await c.Database.OpenConnectionAsync();await using var command=c.Database.GetDbConnection().CreateCommand();command.CommandText=sql;await command.ExecuteNonQueryAsync();}

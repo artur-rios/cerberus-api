@@ -3,7 +3,7 @@ namespace ArturRios.Cerberus.Domain.Resources;
 
 public enum CollectionGrantAccess { ReadOnly, ReadWrite }
 public enum CollectionGrantState { Active, Revoked }
-public sealed class CollectionGrant : VersionedEntity
+public sealed class CollectionGrant : VersionedEntity<long>
 {
     public Guid PublicId { get; set; }
     public long CollectionId { get; set; }

@@ -40,7 +40,7 @@ public sealed class OperationalHealthApiFixture:IAsyncLifetime
         Environment.SetEnvironmentVariable("CERBERUS_DATA_CONNECTIONSTRING",actual.ConnectionString);
     }
     public void Reset(){Mode="";Calls.Clear();Entered=new(TaskCreationOptions.RunContinuationsAsynchronously);Released=new(TaskCreationOptions.RunContinuationsAsynchronously);Resume=new(TaskCreationOptions.RunContinuationsAsynchronously);}
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _base.InitializeAsync();_oldProvider=Environment.GetEnvironmentVariable("CERBERUS_HEIMDALL_BASE_URL")!;_service=Guid.Parse(new JwtSecurityTokenHandler().ReadJwtToken(ServiceToken).Claims.Single(x=>x.Type=="id").Value);
         var builder=WebApplication.CreateSlimBuilder();builder.Logging.ClearProviders();_provider=builder.Build();_provider.Urls.Add("http://127.0.0.1:0");
@@ -112,6 +112,6 @@ public sealed class OperationalHealthApiFixture:IAsyncLifetime
         private sealed class EmptyLedger:IErasureLedger
         {public Task RecordAsync(ErasureEntry e,CancellationToken ct)=>throw new InvalidOperationException();public async IAsyncEnumerable<ErasureEntry> ReadAsync([System.Runtime.CompilerServices.EnumeratorCancellation]CancellationToken ct){await Task.CompletedTask;ct.ThrowIfCancellationRequested();yield break;}}
     }
-    public async Task DisposeAsync(){await _provider.DisposeAsync();Environment.SetEnvironmentVariable("CERBERUS_HEIMDALL_BASE_URL",_oldProvider);await _base.DisposeAsync();}
+    public async ValueTask DisposeAsync(){await _provider.DisposeAsync();Environment.SetEnvironmentVariable("CERBERUS_HEIMDALL_BASE_URL",_oldProvider);await _base.DisposeAsync();}
 }
 [CollectionDefinition("Operational health host",DisableParallelization=true)]public sealed class OperationalHealthHostCollection:ICollectionFixture<OperationalHealthApiFixture>;

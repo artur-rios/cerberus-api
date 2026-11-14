@@ -12,7 +12,6 @@ using ArturRios.Cerberus.TestSupport;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
-using Xunit.Abstractions;
 
 namespace ArturRios.Cerberus.Data.Tests;
 

@@ -1,7 +1,7 @@
 using ArturRios.Data.Relational.Core.Entities;
 namespace ArturRios.Cerberus.Domain.Trash;
 
-public sealed class TrashOperation : VersionedEntity
+public sealed class TrashOperation : VersionedEntity<long>
 {
     public Guid PublicId { get; set; } = Guid.NewGuid();
     public long AccountId { get; set; }

@@ -32,7 +32,7 @@ public interface IVaultRecoveryStore
 {
     Task<VaultResult<RecoveryDetails>> RecoverAsync(RecoveryRequest request, CancellationToken cancellationToken);
 }
-public sealed class VaultRecoveryOperation : Entity
+public sealed class VaultRecoveryOperation : Entity<long>
 {
     public long AccountId { get; set; }
     public Guid IdempotencyKey { get; set; }

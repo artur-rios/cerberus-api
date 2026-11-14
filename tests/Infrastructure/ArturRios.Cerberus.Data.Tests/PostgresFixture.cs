@@ -20,13 +20,13 @@ public sealed class PostgresFixture : IAsyncLifetime, IDbContextFactory<AppDbCon
         var result = await _container.ExecAsync(["psql", "--username=postgres", "--dbname=postgres", "--set=ON_ERROR_STOP=1", "--file=" + path]);
         Assert.True(result.ExitCode==0,result.Stderr);
     }
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _container.StartAsync();
         await using var context = CreateContext();
         await context.Database.MigrateAsync();
     }
-    public Task DisposeAsync() => _container.DisposeAsync().AsTask();
+    public ValueTask DisposeAsync() => _container.DisposeAsync();
 }
 
 [CollectionDefinition("PostgreSQL", DisableParallelization = true)]

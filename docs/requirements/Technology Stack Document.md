@@ -144,7 +144,7 @@ These references are review inputs, not an unapproved algorithm selection.
 
 | Technology | Version policy | Use |
 | --- | --- | --- |
-| xunit / xunit.runner.visualstudio | Latest stable at implementation time | Unit and functional test framework |
+| xunit.v3.mtp-off / xunit.runner.visualstudio | Latest stable at implementation time | Unit and functional test framework (xUnit v3, run through VSTest) |
 | Microsoft.NET.Test.Sdk | Latest stable at implementation time | Test runner integration |
 | coverlet.collector | Latest stable at implementation time | Coverage collection |
 | Moq | Latest stable at implementation time | Collaborator mocking |
@@ -188,7 +188,7 @@ production credentials. See [Testing Specification](Testing%20Specification%20Do
 | Production | OpenAPI tooling supplied by ArturRios.Util.WebApi | Latest stable at implementation time |
 | Tool | dotnet-ef | Latest stable at implementation time |
 | Database | PostgreSQL | Latest stable at implementation time |
-| Testing | xunit / xunit.runner.visualstudio | Latest stable at implementation time |
+| Testing | xunit.v3.mtp-off / xunit.runner.visualstudio | Latest stable at implementation time |
 | Testing | Microsoft.NET.Test.Sdk | Latest stable at implementation time |
 | Testing | coverlet.collector | Latest stable at implementation time |
 | Testing | Moq | Latest stable at implementation time |

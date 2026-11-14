@@ -1,7 +1,7 @@
 using ArturRios.Data.Relational.Core.Entities;
 namespace ArturRios.Cerberus.Domain.Profiles;
 
-public sealed class Profile : VersionedEntity
+public sealed class Profile : VersionedEntity<long>
 {
     public Guid PublicId { get; set; }
     public long AccountId { get; set; }

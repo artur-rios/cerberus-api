@@ -15,7 +15,7 @@ public interface IVaultProtectionStore
     Task<VaultResult<VaultAccessDetails>> UnlockAsync(Guid actor, long expectedProtectionRevision, Guid challengeId, string proof, byte[] rawBody, CancellationToken cancellationToken);
 }
 
-public sealed class VaultProtection : Entity
+public sealed class VaultProtection : Entity<long>
 {
     public long AccountId { get; set; }
     public long Revision { get; set; } = 1;
@@ -24,7 +24,7 @@ public sealed class VaultProtection : Entity
     public byte[] Material { get; set; } = [];
 }
 
-public sealed class VaultUnlockChallenge : Entity
+public sealed class VaultUnlockChallenge : Entity<long>
 {
     public long AccountId { get; set; }
     public Guid PublicId { get; set; }

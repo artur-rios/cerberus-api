@@ -277,6 +277,14 @@ development into `develop` only; it is still required before any release.
 - Complete vault content rotation covering retained owned records, folders, collections and active owned grants,
   including trash; received and revoked grants remain unchanged.
 
+### Changed
+
+- The protocol harness's locked dependencies are on their latest stable releases: Bouncy Castle 1.86 → 1.87,
+  jackson-core 2.22.3 → 2.23.0, Surefire 3.6.0 → 3.6.1, the jar plugin 3.5.1, the plugins' Plexus overrides
+  3.6.1/4.0.3 → 3.6.2/4.1.0, pip 26.2.1 → 26.3 and pycparser 3.0 → 3.12. `dependencies.lock.json` was regenerated
+  from a fresh cache (its OSV audit passes) and `docs/security/interoperability-vectors.json` re-executed against it;
+  both native suites and all 322 cases in every direction still pass.
+
 ### Fixed
 
 - The `test` check runs every test once. It ran the unit tests, then the functional tests, then all of them again

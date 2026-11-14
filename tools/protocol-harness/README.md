@@ -34,7 +34,7 @@ new live audit returned no findings across 153 package versions; see
 [the patched scan](audit-pass-2026-10-08.json). This is not a vulnerability assessment of the production
 .NET API or independent security approval.
 
-The resources plugin now selects Plexus 3.6.1, the clean plugin Plexus 4.0.3,
+The resources plugin now selects Plexus 3.6.2, the clean plugin Plexus 4.1.0,
 and the dependency plugin BeanUtils 1.11.0. Hashes reflect a new clean cache;
 the failed scan is retained as historical evidence against its original lock.
 BeanUtils 1.9.4 is pulled in by the dependency plugin's Velocity tools; its

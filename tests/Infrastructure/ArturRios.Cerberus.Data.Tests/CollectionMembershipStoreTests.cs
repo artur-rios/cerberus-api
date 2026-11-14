@@ -104,7 +104,10 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture)
             try { await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.folder SET parent_folder_id={(mode == "missing" ? long.MaxValue : f.Id)} WHERE id={a.Folder.Id}"); }
             finally { await db.Database.ExecuteSqlRawAsync("SET session_replication_role=origin"); }
         }
-        await Denied(s, a.Collection, Input(record ? [] : [child.PublicId], record ? [r.PublicId] : []), error);
+        // The dangling parent is put back afterwards: the collection's other tests share this database, and a
+        // reference to no folder makes a later dump fail to restore (RestoreReconcilerTests).
+        try { await Denied(s, a.Collection, Input(record ? [] : [child.PublicId], record ? [r.PublicId] : []), error); }
+        finally { if (mode is "missing" or "foreign") await Sql("UPDATE cerberus.folder SET parent_folder_id=NULL WHERE id={0}", a.Folder.Id); }
     }
 
     [FunctionalTheory][InlineData("unrelatedCycle")][InlineData("otherTerminalType")][InlineData("retainedExhausted")][InlineData("removedInactive")][InlineData("opaqueMember")]
@@ -465,12 +468,21 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture)
     public async Task GivenActiveGrantWithMissingRequiredRecipient_WhenReplacing_Then503()
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s); var grant = await AssociationSetup.Grant(fixture, s, owner, r, client, a.Collection);
+        long recipient;
         await using (var db = fixture.CreateContext())
         {
+            recipient = await db.CollectionGrants.Where(x => x.Id == grant.Id).Select(x => x.RecipientAccountId).SingleAsync();
             await db.Database.OpenConnectionAsync(); await db.Database.ExecuteSqlRawAsync("SET session_replication_role=replica");
             try { await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.collection_grant SET recipient_account_id={long.MaxValue} WHERE id={grant.Id}"); } finally { await db.Database.ExecuteSqlRawAsync("SET session_replication_role=origin"); }
         }
-        await Denied(s, a.Collection, Input([a.Folder.PublicId]), "persistence_unavailable");
+        // The recipient is put back afterwards: the collection's other tests share this database, and a grant to no
+        // account makes a later dump fail to restore (RestoreReconcilerTests).
+        try { await Denied(s, a.Collection, Input([a.Folder.PublicId]), "persistence_unavailable"); }
+        finally
+        {
+            await using var db = fixture.CreateContext(); await db.Database.OpenConnectionAsync(); await db.Database.ExecuteSqlRawAsync("SET session_replication_role=replica");
+            try { await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.collection_grant SET recipient_account_id={recipient} WHERE id={grant.Id}"); } finally { await db.Database.ExecuteSqlRawAsync("SET session_replication_role=origin"); }
+        }
     }
 
     [FunctionalFact]

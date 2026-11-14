@@ -2,7 +2,7 @@ using ArturRios.Data.Relational.Core.Entities;
 
 namespace ArturRios.Cerberus.Domain.Operations;
 
-public sealed class RetentionWorkItem : VersionedEntity
+public sealed class RetentionWorkItem : VersionedEntity<long>
 {
     public Guid PublicId { get; set; } = Guid.NewGuid();
     public string OperationKey { get; set; } = string.Empty;

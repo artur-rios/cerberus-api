@@ -1,7 +1,7 @@
 using ArturRios.Data.Relational.Core.Entities;
 namespace ArturRios.Cerberus.Domain.Trash;
 
-public sealed class TrashEntry : VersionedEntity
+public sealed class TrashEntry : VersionedEntity<long>
 {
     public long OperationId { get; set; }
     public string ResourceKind { get; set; } = string.Empty;

@@ -2,7 +2,7 @@ using ArturRios.Data.Relational.Core.Entities;
 
 namespace ArturRios.Cerberus.Domain.Sync;
 
-public sealed class SyncStream : VersionedEntity
+public sealed class SyncStream : VersionedEntity<long>
 {
     public Guid PublicId { get; set; }
     public long AccountId { get; set; }
@@ -17,7 +17,7 @@ public sealed class SyncStream : VersionedEntity
     public byte[] VisibilityStamp { get; set; } = [];
 }
 
-public sealed class SyncInventory : Entity
+public sealed class SyncInventory : Entity<long>
 {
     public long StreamId { get; set; }
     public string ResourceKind { get; set; } = string.Empty;
@@ -27,7 +27,7 @@ public sealed class SyncInventory : Entity
     public bool Terminal { get; set; }
 }
 
-public sealed class SyncChange : Entity
+public sealed class SyncChange : Entity<long>
 {
     public long StreamId { get; set; }
     public long WindowVersion { get; set; }
@@ -38,7 +38,7 @@ public sealed class SyncChange : Entity
     public DateTimeOffset? DeletedAt { get; set; }
 }
 
-public sealed class SyncOperation : Entity
+public sealed class SyncOperation : Entity<long>
 {
     public long AccountId { get; set; }
     public Guid OperationId { get; set; }

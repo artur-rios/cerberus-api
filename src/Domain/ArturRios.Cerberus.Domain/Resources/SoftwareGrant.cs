@@ -4,7 +4,7 @@ namespace ArturRios.Cerberus.Domain.Resources;
 
 public enum SoftwareGrantState { Active, Revoked }
 
-public sealed class SoftwareGrant : VersionedEntity
+public sealed class SoftwareGrant : VersionedEntity<long>
 {
     public Guid PublicId { get; set; }
     public long AccountId { get; set; }

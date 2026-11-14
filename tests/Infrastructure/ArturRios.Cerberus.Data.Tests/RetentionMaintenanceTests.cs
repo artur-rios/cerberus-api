@@ -67,8 +67,8 @@ public partial class RetentionMaintenanceTests(PostgresFixture fixture):IAsyncLi
         await using var db=fixture.CreateContext();var original=roots.Select(x=>"trash/"+x.OperationId).ToArray();await db.RetentionWorkItems.Where(x=>original.Contains(x.OperationKey)).ExecuteDeleteAsync();
         Assert.Equal(1,(await Run(pageSize:1)).ScheduledJobs);Assert.Equal(1,await db.RetentionWorkItems.CountAsync(x=>original.Contains(x.OperationKey)));Assert.Equal(1,(await Run(pageSize:1)).ScheduledJobs);Assert.Equal(1,(await Run(pageSize:1)).ScheduledJobs);Assert.Equal(3,await db.RetentionWorkItems.CountAsync(x=>original.Contains(x.OperationKey)));Assert.Equal(0,(await Run(pageSize:1)).ScheduledJobs);
     }
-    public Task InitializeAsync()=>Task.CompletedTask;
-    public async Task DisposeAsync()
+    public ValueTask InitializeAsync()=>ValueTask.CompletedTask;
+    public async ValueTask DisposeAsync()
     {
         if(owners.Count==0)return;await using var db=fixture.CreateContext();var ids=await db.Accounts.Where(x=>owners.Contains(x.Id)).Select(x=>x.PublicId).ToListAsync();var operations=await db.TrashOperations.Where(x=>owners.Contains(x.AccountId)).Select(x=>x.PublicId).ToListAsync();var keys=operations.Select(x=>"trash/"+x).Concat(ids.SelectMany(x=>new[]{"account-purge/"+x,"account-erase/"+x,"trash-erase/"+x})).ToArray();await db.RetentionWorkItems.Where(x=>keys.Contains(x.OperationKey)).ExecuteDeleteAsync();await db.Accounts.Where(x=>owners.Contains(x.Id)).ExecuteDeleteAsync();
     }

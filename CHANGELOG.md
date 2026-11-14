@@ -277,6 +277,18 @@ development into `develop` only; it is still required before any release.
 - Complete vault content rotation covering retained owned records, folders, collections and active owned grants,
   including trash; received and revoked grants remain unchanged.
 
+### Changed
+
+- Dependencies are on their latest stable releases: `ArturRios.Data.Relational.Core` 4.0.1 → 5.0.1 and
+  `ArturRios.Data.PostgreSql` 3.0.2 → 4.0.0 (entities derive from `Entity<long>` / `VersionedEntity<long>`; the
+  schema is unchanged), `ArturRios.Configuration` 1.2.0 → 2.0.0, EF Core, ASP.NET Core and `Microsoft.Extensions.*`
+  10.0.12 → 10.0.15 and FluentValidation 12.1.1 → 12.2.0; test-only, `ArturRios.Util.Test` 3.0.0 → 5.0.1 on xUnit v3
+  (`xunit` 2.9.3 → `xunit.v3.mtp-off` 4.0.3, still run through VSTest), `Microsoft.NET.Test.Sdk` 18.12.0 and
+  `Testcontainers.PostgreSql` 4.16.0. With `ArturRios.Configuration` 2.0.0, an environment variable the process
+  already has wins over the `.env` file's value for the same key; the file won before. `Swashbuckle.AspNetCore`
+  stays on 10.3.1: 11.0.1 changes the generated contract (`SyncChangeItem.data` gains a second null branch in its
+  `oneOf`). The HTTP API and the OpenAPI contract are unchanged.
+
 ### Fixed
 
 - The `test` check runs every test once. It ran the unit tests, then the functional tests, then all of them again

@@ -4,7 +4,7 @@ namespace ArturRios.Cerberus.Domain.Accounts;
 
 public enum AccountState { Active, ClosurePending }
 
-public sealed class Account : VersionedEntity
+public sealed class Account : VersionedEntity<long>
 {
     public Guid PublicId { get; set; }
     public Guid HeimdallPublicId { get; set; }

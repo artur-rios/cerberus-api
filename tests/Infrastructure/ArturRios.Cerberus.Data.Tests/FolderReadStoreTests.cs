@@ -2,7 +2,6 @@ using System.Data.Common;
 using System.Security.Cryptography;
 using System.Text.Json;
 using Npgsql;
-using Xunit.Abstractions;
 using ArturRios.Cerberus.Data.Folders;
 using ArturRios.Cerberus.Data.Profiles;
 using ArturRios.Cerberus.Domain.Accounts;

@@ -138,8 +138,11 @@ public static class ContractRegistration
                 var data = (OpenApiSchema)target.Properties["data"];
                 // OAS 3.0 nullable alone does not extend a type-less oneOf. A
                 // distinct null-only branch accepts removal/tombstone data.
-                data.Type = null;
-                if (!HasNullBranch(data)) data.OneOf!.Add(NullValue());
+                // Swashbuckle 11 appends a null-only branch of its own and drops
+                // the outer type; publish the single branch and the nullable
+                // object type the contract has always had instead.
+                data.OneOf = [.. data.OneOf!.Where(branch => !IsNullOnly(branch)), NullValue()];
+                data.Type = JsonSchemaType.Object | JsonSchemaType.Null;
                 return;
             }
             if (!typeof(SyncResourceData).IsAssignableFrom(context.Type) || context.Type == typeof(SyncResourceData)) return;
@@ -154,7 +157,12 @@ public static class ContractRegistration
             target.Properties["resourceType"] = new OpenApiSchema { Type = JsonSchemaType.String, Enum = [JsonValue.Create(kind)] };
             target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
         }
-        private static bool HasNullBranch(IOpenApiSchema schema) => schema.OneOf?.Any(x => x.Enum?.Count == 1 && x.Enum[0] is null) == true;
+        private static bool HasNullBranch(IOpenApiSchema schema) => schema.OneOf?.Any(IsNullOnly) == true;
+        // Swashbuckle 11's own null branch is a schema of type null (written to OAS 3.0 as
+        // {"enum":[null],"nullable":true}); Microsoft.OpenApi 3 reads a null enum value as
+        // JsonNullSentinel rather than a C# null.
+        private static bool IsNullOnly(IOpenApiSchema schema) => schema is OpenApiSchema
+            && (schema.Type == JsonSchemaType.Null || schema.Enum is [var only] && (only is null || only.IsJsonNullSentinel()));
         private static OpenApiSchema NullValue() => new() { Type = JsonSchemaType.Object | JsonSchemaType.Null, Enum = [null!] };
     }
 

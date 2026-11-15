@@ -33,7 +33,7 @@ internal sealed class HealthSchemaFilter : ISchemaFilter, IOperationFilter
         if (context.MethodInfo.DeclaringType != typeof(HealthController)) return;
         if (context.MethodInfo.Name == nameof(HealthController.Details))
         {
-            operation.Responses!["503"].Content!["application/json"].Schema = new OpenApiSchema
+            ((OpenApiMediaType)operation.Responses!["503"].Content!["application/json"]).Schema = new OpenApiSchema
             {
                 OneOf = [context.SchemaGenerator.GenerateSchema(typeof(HealthDetails), context.SchemaRepository),
                     context.SchemaGenerator.GenerateSchema(typeof(ProcessOutput), context.SchemaRepository)]

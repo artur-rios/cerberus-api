@@ -279,6 +279,16 @@ development into `develop` only; it is still required before any release.
 
 ### Changed
 
+- The `ArturRios.*` packages are on their newest releases: `ArturRios.Util.WebApi` 5.2.0 → 6.0.0,
+  `ArturRios.Util.Test` 5.0.1 → 6.0.0 (test-only), `ArturRios.Configuration` 2.0.0 → 2.0.1, `ArturRios.Data.PostgreSql`
+  4.0.0 → 4.0.1, `ArturRios.Data.Relational.Core` 5.0.1 → 5.0.2, `ArturRios.Output` 3.3.1 → 3.3.2, `ArturRios.Util`
+  2.2.0 → 2.2.1, `ArturRios.Extensions` and `ArturRios.Jwt` 1.4.1 → 1.4.2, and `ArturRios.Logging`,
+  `ArturRios.Mediator` and `ArturRios.Validation` 2.0.1 → 2.0.2. `Swashbuckle.AspNetCore` moves from 10.3.1 to 11.0.1,
+  on `Microsoft.OpenApi` 3.11.0, now that `ArturRios.Util.WebApi` is built on it. Swashbuckle 11 adds a null-only branch
+  of its own to `SyncChangeItem.data`'s `oneOf`; the contract filter now replaces it with the single null branch the
+  contract already had, so `docs/contracts/openapi.json` is unchanged. The `.env` precedence is unchanged too: an
+  environment variable the process already has has won over the file since `ArturRios.Configuration` 2.0.0. The HTTP
+  API and the OpenAPI contract are unchanged.
 - Dependencies are on their latest stable releases: `ArturRios.Data.Relational.Core` 4.0.1 → 5.0.1 and
   `ArturRios.Data.PostgreSql` 3.0.2 → 4.0.0 (entities derive from `Entity<long>` / `VersionedEntity<long>`; the
   schema is unchanged), `ArturRios.Configuration` 1.2.0 → 2.0.0, EF Core, ASP.NET Core and `Microsoft.Extensions.*`

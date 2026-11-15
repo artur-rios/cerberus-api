@@ -288,6 +288,11 @@ development into `develop` only; it is still required before any release.
   already has wins over the `.env` file's value for the same key; the file won before. `Swashbuckle.AspNetCore`
   stays on 10.3.1: 11.0.1 changes the generated contract (`SyncChangeItem.data` gains a second null branch in its
   `oneOf`). The HTTP API and the OpenAPI contract are unchanged.
+- The protocol harness's locked dependencies are on their latest stable releases: Bouncy Castle 1.86 → 1.87,
+  jackson-core 2.22.3 → 2.23.0, Surefire 3.6.0 → 3.6.1, the jar plugin 3.5.1, the plugins' Plexus overrides
+  3.6.1/4.0.3 → 3.6.2/4.1.0, pip 26.2.1 → 26.3 and pycparser 3.0 → 3.12. `dependencies.lock.json` was regenerated
+  from a fresh cache (its OSV audit passes) and `docs/security/interoperability-vectors.json` re-executed against it;
+  both native suites and all 322 cases in every direction still pass.
 
 ### Fixed
 

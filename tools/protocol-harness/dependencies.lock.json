@@ -45,15 +45,15 @@
       }
     ]
   },
-  "resolution": "Fresh Maven cache: clean test dependency:tree; affected plugin realms overridden with patched BeanUtils 1.11.0 and Plexus 3.6.1/4.0.3. Includes all invoked plugins/transitives. No security approval implied.",
+  "resolution": "Fresh Maven cache: clean test dependency:tree; affected plugin realms overridden with patched BeanUtils 1.11.0 and Plexus 3.6.2/4.1.0. Includes all invoked plugins/transitives. No security approval implied.",
   "packages": [
     {
       "ecosystem": "Maven",
       "name": "com.fasterxml.jackson.core:jackson-core",
-      "version": "2.22.3",
-      "relativePath": "com/fasterxml/jackson/core/jackson-core/2.22.3/jackson-core-2.22.3.jar",
-      "sha256": "8a501126a385b25841915d839508f8a66e2a0dbc8a6709d055ef3b3e852b094c",
-      "url": "https://repo.maven.apache.org/maven2/com/fasterxml/jackson/core/jackson-core/2.22.3/jackson-core-2.22.3.jar"
+      "version": "2.23.0",
+      "relativePath": "com/fasterxml/jackson/core/jackson-core/2.23.0/jackson-core-2.23.0.jar",
+      "sha256": "449798beb4c4ec26de9cc25b39ca2198036883fb905ca968cbef7136d19a25d9",
+      "url": "https://repo.maven.apache.org/maven2/com/fasterxml/jackson/core/jackson-core/2.23.0/jackson-core-2.23.0.jar"
     },
     {
       "ecosystem": "Maven",
@@ -298,10 +298,10 @@
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.plugins:maven-surefire-plugin",
-      "version": "3.6.0",
-      "relativePath": "org/apache/maven/plugins/maven-surefire-plugin/3.6.0/maven-surefire-plugin-3.6.0.jar",
-      "sha256": "07117c7456920c14b9d3bdb9b1e82fbcb2fc5004ff2a3bd19c8fc6d25d6f15bb",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-surefire-plugin/3.6.0/maven-surefire-plugin-3.6.0.jar"
+      "version": "3.6.1",
+      "relativePath": "org/apache/maven/plugins/maven-surefire-plugin/3.6.1/maven-surefire-plugin-3.6.1.jar",
+      "sha256": "a67d0fee7dd2db3cf5678a6fa8bdcd8faa4c4454c2ce4a69c327e92b5a653015",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-surefire-plugin/3.6.1/maven-surefire-plugin-3.6.1.jar"
     },
     {
       "ecosystem": "Maven",
@@ -330,10 +330,10 @@
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.resolver:maven-resolver-api",
-      "version": "1.9.27",
-      "relativePath": "org/apache/maven/resolver/maven-resolver-api/1.9.27/maven-resolver-api-1.9.27.jar",
-      "sha256": "a895d222283666a7320ddc76615e2e93a41fabd93ce9a6bf9ddee39272bb87b4",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-api/1.9.27/maven-resolver-api-1.9.27.jar"
+      "version": "2.0.24",
+      "relativePath": "org/apache/maven/resolver/maven-resolver-api/2.0.24/maven-resolver-api-2.0.24.jar",
+      "sha256": "1ec0c3370158fd631dc3dcfc8b8f24041e6081f34f329dab1b8fe75c1007ca33",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-api/2.0.24/maven-resolver-api-2.0.24.jar"
     },
     {
       "ecosystem": "Maven",
@@ -346,10 +346,10 @@
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.resolver:maven-resolver-util",
-      "version": "1.9.27",
-      "relativePath": "org/apache/maven/resolver/maven-resolver-util/1.9.27/maven-resolver-util-1.9.27.jar",
-      "sha256": "74a12548f0d6aad13c728666288c1e81201c24bd05bb4e4ec8c1558517b379a7",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-util/1.9.27/maven-resolver-util-1.9.27.jar"
+      "version": "2.0.24",
+      "relativePath": "org/apache/maven/resolver/maven-resolver-util/2.0.24/maven-resolver-util-2.0.24.jar",
+      "sha256": "3fb490e1799f18aa22a05babdc57a74a3a1020c924890865a4cab7a7a34cd286",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-util/2.0.24/maven-resolver-util-2.0.24.jar"
     },
     {
       "ecosystem": "Maven",
@@ -410,74 +410,74 @@
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.surefire:common-java5",
-      "version": "3.6.0",
-      "relativePath": "org/apache/maven/surefire/common-java5/3.6.0/common-java5-3.6.0.jar",
-      "sha256": "861ce45ca43dfd4edb8c098fee859e0107935ba2a69f179f9c1154e4037413e7",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/common-java5/3.6.0/common-java5-3.6.0.jar"
+      "version": "3.6.1",
+      "relativePath": "org/apache/maven/surefire/common-java5/3.6.1/common-java5-3.6.1.jar",
+      "sha256": "40a6bdfd6e9243c77aaf4119c242b04c7dc72c4886272700a4bc9abcd38df9d9",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/common-java5/3.6.1/common-java5-3.6.1.jar"
     },
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.surefire:maven-surefire-common",
-      "version": "3.6.0",
-      "relativePath": "org/apache/maven/surefire/maven-surefire-common/3.6.0/maven-surefire-common-3.6.0.jar",
-      "sha256": "acf54c9a5dcdad4c5a30c2f731ee9892a80b4cc5126014c4f28851a5dc32c6ab",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/maven-surefire-common/3.6.0/maven-surefire-common-3.6.0.jar"
+      "version": "3.6.1",
+      "relativePath": "org/apache/maven/surefire/maven-surefire-common/3.6.1/maven-surefire-common-3.6.1.jar",
+      "sha256": "c71d5496fa762827db549389422c26bb27d44bb9fef790a51935caaf50350552",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/maven-surefire-common/3.6.1/maven-surefire-common-3.6.1.jar"
     },
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.surefire:surefire-api",
-      "version": "3.6.0",
-      "relativePath": "org/apache/maven/surefire/surefire-api/3.6.0/surefire-api-3.6.0.jar",
-      "sha256": "b8cae78767db8c6660f9f07e635ec3e001b883f4e74087f60e995f39a848627e",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-api/3.6.0/surefire-api-3.6.0.jar"
+      "version": "3.6.1",
+      "relativePath": "org/apache/maven/surefire/surefire-api/3.6.1/surefire-api-3.6.1.jar",
+      "sha256": "de84c80cedda049456cea40dd8bdc2027be13b51187c64a5718c741e7e7fb78c",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-api/3.6.1/surefire-api-3.6.1.jar"
     },
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.surefire:surefire-booter",
-      "version": "3.6.0",
-      "relativePath": "org/apache/maven/surefire/surefire-booter/3.6.0/surefire-booter-3.6.0.jar",
-      "sha256": "d4a5121988ec22355b54d84f68a2638bdb7315814e650756183ba90a9b7cd0d2",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-booter/3.6.0/surefire-booter-3.6.0.jar"
+      "version": "3.6.1",
+      "relativePath": "org/apache/maven/surefire/surefire-booter/3.6.1/surefire-booter-3.6.1.jar",
+      "sha256": "7acdda087826580c5a5cb0fcbdbd3e6163298feb3235acc553119c0f11623b47",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-booter/3.6.1/surefire-booter-3.6.1.jar"
     },
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.surefire:surefire-extensions-api",
-      "version": "3.6.0",
-      "relativePath": "org/apache/maven/surefire/surefire-extensions-api/3.6.0/surefire-extensions-api-3.6.0.jar",
-      "sha256": "8e2c305480fde793118cf1257696b7797ba25f3a40c6b3f44a349fd9445e3022",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-extensions-api/3.6.0/surefire-extensions-api-3.6.0.jar"
+      "version": "3.6.1",
+      "relativePath": "org/apache/maven/surefire/surefire-extensions-api/3.6.1/surefire-extensions-api-3.6.1.jar",
+      "sha256": "619e0a465e7506c019c5d1627d4629b495c7a171004a778fd9baf3297e8df11e",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-extensions-api/3.6.1/surefire-extensions-api-3.6.1.jar"
     },
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.surefire:surefire-extensions-spi",
-      "version": "3.6.0",
-      "relativePath": "org/apache/maven/surefire/surefire-extensions-spi/3.6.0/surefire-extensions-spi-3.6.0.jar",
-      "sha256": "beadeb0485fc7f3505f26b0cfcf26602639b83e9badaebac4a3ce5345cc19c0e",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-extensions-spi/3.6.0/surefire-extensions-spi-3.6.0.jar"
+      "version": "3.6.1",
+      "relativePath": "org/apache/maven/surefire/surefire-extensions-spi/3.6.1/surefire-extensions-spi-3.6.1.jar",
+      "sha256": "99ec0c43fd9f644d618d34c44bb8ec98c43a035448a80d623c0205b89d593b3a",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-extensions-spi/3.6.1/surefire-extensions-spi-3.6.1.jar"
     },
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.surefire:surefire-junit-platform",
-      "version": "3.6.0",
-      "relativePath": "org/apache/maven/surefire/surefire-junit-platform/3.6.0/surefire-junit-platform-3.6.0.jar",
-      "sha256": "f11e8ec1fe63ec8d6842ca52cba407e85c5b64cc2012df5c0a67fbe7d8bd7ab1",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-junit-platform/3.6.0/surefire-junit-platform-3.6.0.jar"
+      "version": "3.6.1",
+      "relativePath": "org/apache/maven/surefire/surefire-junit-platform/3.6.1/surefire-junit-platform-3.6.1.jar",
+      "sha256": "0bcc42a6b4bf8615fcefacc99ceed15a2b46aeb43cb53e2a828465cd6ab33921",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-junit-platform/3.6.1/surefire-junit-platform-3.6.1.jar"
     },
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.surefire:surefire-logger-api",
-      "version": "3.6.0",
-      "relativePath": "org/apache/maven/surefire/surefire-logger-api/3.6.0/surefire-logger-api-3.6.0.jar",
-      "sha256": "3872f9506242841831b3ee321d5ae325128d3329906c6b83474056d91d2a309a",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-logger-api/3.6.0/surefire-logger-api-3.6.0.jar"
+      "version": "3.6.1",
+      "relativePath": "org/apache/maven/surefire/surefire-logger-api/3.6.1/surefire-logger-api-3.6.1.jar",
+      "sha256": "8b785827526c78367dc3554b86f7520b1a432808f70eb3d84b1a5fc13a8449fa",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-logger-api/3.6.1/surefire-logger-api-3.6.1.jar"
     },
     {
       "ecosystem": "Maven",
       "name": "org.apache.maven.surefire:surefire-shared-utils",
-      "version": "3.6.0",
-      "relativePath": "org/apache/maven/surefire/surefire-shared-utils/3.6.0/surefire-shared-utils-3.6.0.jar",
-      "sha256": "ce8cc10ffb0e848a8078acc9ddfd447ff69e308f82f431c6311af50c43404c6b",
-      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-shared-utils/3.6.0/surefire-shared-utils-3.6.0.jar"
+      "version": "3.6.1",
+      "relativePath": "org/apache/maven/surefire/surefire-shared-utils/3.6.1/surefire-shared-utils-3.6.1.jar",
+      "sha256": "a6c12347651a68928a9153cd328410c0efbd4b76ea6b1963cf8004716ee3fecc",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-shared-utils/3.6.1/surefire-shared-utils-3.6.1.jar"
     },
     {
       "ecosystem": "Maven",
@@ -506,10 +506,10 @@
     {
       "ecosystem": "Maven",
       "name": "org.bouncycastle:bcprov-jdk18on",
-      "version": "1.86",
-      "relativePath": "org/bouncycastle/bcprov-jdk18on/1.86/bcprov-jdk18on-1.86.jar",
-      "sha256": "2af190b300cbb0b35e248ccf5f4a06b6072030aeb3da7a98ec73abe5b4cb371f",
-      "url": "https://repo.maven.apache.org/maven2/org/bouncycastle/bcprov-jdk18on/1.86/bcprov-jdk18on-1.86.jar"
+      "version": "1.87",
+      "relativePath": "org/bouncycastle/bcprov-jdk18on/1.87/bcprov-jdk18on-1.87.jar",
+      "sha256": "12d2d3dd82a9ec15e92ec7c7943ee64f6097c6dc12c07e984f1693b77565b9aa",
+      "url": "https://repo.maven.apache.org/maven2/org/bouncycastle/bcprov-jdk18on/1.87/bcprov-jdk18on-1.87.jar"
     },
     {
       "ecosystem": "Maven",
@@ -610,10 +610,10 @@
     {
       "ecosystem": "Maven",
       "name": "org.codehaus.plexus:plexus-utils",
-      "version": "3.6.1",
-      "relativePath": "org/codehaus/plexus/plexus-utils/3.6.1/plexus-utils-3.6.1.jar",
-      "sha256": "05a63effd67e2d6b9d610cc82e2bd7473289d34802e57a529b28110f28af5679",
-      "url": "https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/3.6.1/plexus-utils-3.6.1.jar"
+      "version": "3.6.2",
+      "relativePath": "org/codehaus/plexus/plexus-utils/3.6.2/plexus-utils-3.6.2.jar",
+      "sha256": "7c2cdf8b4a02a2ee3f0514b8d74ad5eb6e2365eeb073a5cabd6f2d61d8f871df",
+      "url": "https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/3.6.2/plexus-utils-3.6.2.jar"
     },
     {
       "ecosystem": "Maven",
@@ -622,6 +622,14 @@
       "relativePath": "org/codehaus/plexus/plexus-utils/4.0.3/plexus-utils-4.0.3.jar",
       "sha256": "421ff6ed146c53a9d4eaade8f629b52b12af7187101f1bd06c2c64e904019f3c",
       "url": "https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/4.0.3/plexus-utils-4.0.3.jar"
+    },
+    {
+      "ecosystem": "Maven",
+      "name": "org.codehaus.plexus:plexus-utils",
+      "version": "4.1.0",
+      "relativePath": "org/codehaus/plexus/plexus-utils/4.1.0/plexus-utils-4.1.0.jar",
+      "sha256": "6a2fe69e98301882bb2bb05afe36414eb82d6f7c63299cccdb2dc02b4358a968",
+      "url": "https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/4.1.0/plexus-utils-4.1.0.jar"
     },
     {
       "ecosystem": "Maven",
@@ -802,9 +810,9 @@
     {
       "ecosystem": "PyPI",
       "name": "pip",
-      "version": "26.2.1",
-      "filename": "pip-26.2.1-py3-none-any.whl",
-      "sha256": "71138adf1f4ca900cdb7d289c21b7494329f2332b6d85f0e1c42108c0384ed3e"
+      "version": "26.3",
+      "filename": "pip-26.3-py3-none-any.whl",
+      "sha256": "f3b60b20ffaadd4415ed7957212a38ac63fa4c5fa375bd0f4a797777940fad13"
     },
     {
       "ecosystem": "PyPI",
@@ -823,9 +831,9 @@
     {
       "ecosystem": "PyPI",
       "name": "pycparser",
-      "version": "3.0",
-      "filename": "pycparser-3.0-py3-none-any.whl",
-      "sha256": "b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992"
+      "version": "3.12",
+      "filename": "pycparser-3.12-py3-none-any.whl",
+      "sha256": "a076f3f489b39b43ed13563a1dafe42447445bec2e294154ec5c57fcdda4c85e"
     }
   ]
 }

@@ -13,8 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class VaultRecoveryStoreTests(PostgresFixture fixture)
+public class VaultRecoveryStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenFreshOwnerWithoutVaultSession_WhenRecovering_ThenReplaceCredentialAndPreserveContent()

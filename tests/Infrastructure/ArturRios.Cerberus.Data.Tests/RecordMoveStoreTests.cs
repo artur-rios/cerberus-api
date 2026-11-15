@@ -17,8 +17,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class RecordMoveStoreTests(PostgresFixture fixture)
+public class RecordMoveStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData("between")][InlineData("fromRoot")][InlineData("toRoot")][InlineData("same")][InlineData("rootNoop")]

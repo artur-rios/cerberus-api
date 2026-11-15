@@ -4,8 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public sealed class RetentionExpiryQueueTests(PostgresFixture fixture)
+public sealed class RetentionExpiryQueueTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("trash")][InlineData("account-purge")]
     public async Task GivenFutureExpiry_WhenCallerClockIsFast_ThenNeitherDiscoverNorClaim(string kind)

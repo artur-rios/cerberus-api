@@ -9,8 +9,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class AccountUpdateStoreTests(PostgresFixture fixture)
+public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     private static readonly DateTimeOffset Now = new(DateTimeOffset.UtcNow.Ticks / 10 * 10, TimeSpan.Zero);
 

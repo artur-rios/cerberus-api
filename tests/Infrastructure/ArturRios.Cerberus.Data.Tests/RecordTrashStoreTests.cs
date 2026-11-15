@@ -18,8 +18,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class RecordTrashStoreTests(PostgresFixture fixture)
+public class RecordTrashStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("wide")][InlineData("direct")][InlineData("folder")][InlineData("collection")][InlineData("descendant")]
     public async Task GivenCurrentOwnedScope_WhenTrashing_ThenOneRecoverableOperationAndPreservedCipher(string route)

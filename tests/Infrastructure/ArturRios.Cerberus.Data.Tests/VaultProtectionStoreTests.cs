@@ -13,8 +13,7 @@ using System.Data.Common;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class VaultProtectionStoreTests(PostgresFixture fixture)
+public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     private static readonly byte[] Body = Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1}");
     private static string Hash => ProtocolBinary.Encode(SHA256.HashData(Body));

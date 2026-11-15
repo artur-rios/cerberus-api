@@ -11,8 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class ProfileRotationTests(PostgresFixture fixture)
+public class ProfileRotationTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("Master",false)][InlineData("PerProfile",true)]
     public async Task GivenCompleteProfilesIncludingTrash_WhenRotating_ThenCommitAllOpaqueContentAndWrappers(string mode,bool trashed)

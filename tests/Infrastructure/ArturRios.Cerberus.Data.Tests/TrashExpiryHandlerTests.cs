@@ -8,8 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public partial class TrashExpiryHandlerTests(PostgresFixture fixture):IDisposable
+public partial class TrashExpiryHandlerTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
     private readonly string directory=Path.Combine(Path.GetTempPath(),"cerberus-trash-expiry-"+Guid.NewGuid().ToString("N"));
     private FileErasureLedger Ledger{get{if(!OperatingSystem.IsLinux())throw new PlatformNotSupportedException();Directory.CreateDirectory(directory,UnixFileMode.UserRead|UnixFileMode.UserWrite|UnixFileMode.UserExecute);return new(directory);}}

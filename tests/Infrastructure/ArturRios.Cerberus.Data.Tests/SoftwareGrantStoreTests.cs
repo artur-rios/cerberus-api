@@ -12,8 +12,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class SoftwareGrantStoreTests(PostgresFixture fixture)
+public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     // These cases detect scope widening, missing epoch/signature checks, partial
     // writes, and accepting a stale or differently owned revoked aggregate.

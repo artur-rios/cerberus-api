@@ -4,8 +4,7 @@ using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.TestSupport;
 using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.Data.Tests;
-[Collection("PostgreSQL")]
-public class ProfileVerifierIsolationTests(PostgresFixture fixture)
+public class ProfileVerifierIsolationTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("Master",false)][InlineData("PerProfile",false)][InlineData("Master",true)][InlineData("PerProfile",true)]
     public async Task GivenScopedKeyAlreadyUsedByRetainedProfile_WhenCreatingAnother_ThenRejectWithoutWriting(string mode,bool trashed)

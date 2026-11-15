@@ -92,8 +92,7 @@ public sealed class SoftwareGrantModelTests
     }
 }
 
-[Collection("PostgreSQL")]
-public sealed class SoftwareGrantMigrationTests(PostgresFixture fixture)
+public sealed class SoftwareGrantMigrationTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenCleanDatabase_WhenMigratingSoftwareGrantsUpDownUp_ThenPreserveExistingRowsAndRecreateGrantTables()

@@ -16,8 +16,7 @@ using ArturRios.Cerberus.TestSupport;
 using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class TrashListStoreTests(PostgresFixture fixture)
+public class TrashListStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenFourActualDeletionKinds_WhenListing_ThenOriginalNativeRootsAndNoMutation()

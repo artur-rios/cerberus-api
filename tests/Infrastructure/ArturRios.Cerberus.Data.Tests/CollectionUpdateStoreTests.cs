@@ -17,8 +17,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class CollectionUpdateStoreTests(PostgresFixture fixture)
+public class CollectionUpdateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenCurrentOwnerScope_WhenUpdating_ThenOnlyTargetEnvelopeAndMetadataAdvance(bool selected)

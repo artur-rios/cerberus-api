@@ -11,8 +11,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class OfflinePolicyUpdateStoreConcurrencyTests(PostgresFixture fixture)
+public class OfflinePolicyUpdateStoreConcurrencyTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenTwoCapturedPolicyUpdates_WhenCommitting_ThenOnlyOneVersionAndIntervalWin()

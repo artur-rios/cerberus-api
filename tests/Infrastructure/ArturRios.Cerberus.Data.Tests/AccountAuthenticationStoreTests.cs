@@ -6,8 +6,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class AccountAuthenticationStoreTests(PostgresFixture fixture)
+public class AccountAuthenticationStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData("active", null)]

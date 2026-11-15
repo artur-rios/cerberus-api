@@ -16,8 +16,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class TrashRestoreStoreTests(PostgresFixture fixture)
+public class TrashRestoreStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("record")][InlineData("folder")][InlineData("collection")][InlineData("profile")]
     public async Task GivenActualNativeDeletion_WhenRestoring_ThenOriginalBytesAndOneMetadataAdvance(string kind)

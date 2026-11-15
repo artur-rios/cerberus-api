@@ -9,8 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class ProfileUpdateStoreTests(PostgresFixture fixture)
+public class ProfileUpdateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("Master")][InlineData("PerProfile")]
     public async Task GivenOwnedProfile_WhenUpdatingTwice_ThenOpaqueContentAndSequenceAdvanceWithImmutableProtection(string mode)

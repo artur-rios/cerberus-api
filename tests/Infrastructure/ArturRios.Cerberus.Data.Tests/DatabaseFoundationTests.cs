@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class DatabaseFoundationTests(PostgresFixture fixture)
+public class DatabaseFoundationTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenFoundationSchema_WhenStartingDatabase_ThenApplyVersionedMigrations()

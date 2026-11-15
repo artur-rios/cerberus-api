@@ -12,8 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class VaultResourceRotationTests(PostgresFixture fixture)
+public class VaultResourceRotationTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenCompleteTypedInventoryIncludingTrash_WhenRotating_ThenReplaceOwnedContentAndActiveGrantsAtomically()

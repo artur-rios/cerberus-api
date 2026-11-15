@@ -14,8 +14,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class VaultRecoveryRefreshStoreTests(PostgresFixture fixture)
+public class VaultRecoveryRefreshStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenFreshOwnerWithCurrentAccountSession_WhenRecovering_ThenReplaceCredentialAndPreserveContent()

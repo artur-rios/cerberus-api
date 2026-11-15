@@ -11,8 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class OfflineAuthorizationStoreTests(PostgresFixture fixture)
+public class OfflineAuthorizationStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData("1 month")][InlineData("20000000 days")][InlineData("0.5 seconds")]

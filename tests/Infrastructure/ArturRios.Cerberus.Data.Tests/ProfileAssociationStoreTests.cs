@@ -10,8 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class ProfileAssociationStoreTests(PostgresFixture fixture)
+public class ProfileAssociationStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("foreign")][InlineData("trash")][InlineData("erased")][InlineData("missing")]
     public async Task GivenHiddenTarget_WhenSettingAssociationsWithStaleRevision_ThenNotFoundBeforeConflictAndNoMutation(string kind)

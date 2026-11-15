@@ -15,8 +15,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class RecordReadStoreTests(PostgresFixture fixture, ITestOutputHelper output)
+public class RecordReadStoreTests(PostgresFixture fixture, ITestOutputHelper output) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenOwnedRecordWithNoRelationships_WhenGetting_ThenReturnExactCiphertextAndNoInventedReferences()

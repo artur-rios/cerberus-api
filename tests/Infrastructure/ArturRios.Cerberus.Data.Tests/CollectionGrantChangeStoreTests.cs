@@ -15,8 +15,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture)
+public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenActiveGrant_WhenChangingEitherDirection_ThenOnlyGrantAndRecipientGenerationChange(bool write)

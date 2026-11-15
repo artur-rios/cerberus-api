@@ -12,8 +12,7 @@ using ArturRios.Cerberus.TestSupport;
 using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public partial class TrashEmptyStoreTests(PostgresFixture fixture):IDisposable
+public partial class TrashEmptyStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
     private readonly string directory=Directory.CreateTempSubdirectory("cerberus-uc52-ledger-").FullName;
     private FileErasureLedger Ledger=>new(directory);

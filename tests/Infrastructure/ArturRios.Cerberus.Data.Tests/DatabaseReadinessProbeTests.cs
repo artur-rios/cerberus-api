@@ -5,8 +5,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public sealed class DatabaseReadinessProbeTests(PostgresFixture fixture)
+public sealed class DatabaseReadinessProbeTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenConnectableRoleWithOrWithoutRequiredSelect_WhenProbing_ThenCheckCapabilityAndPreserveCiphertext(bool granted)

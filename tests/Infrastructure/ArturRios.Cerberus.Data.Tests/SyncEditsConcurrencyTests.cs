@@ -12,8 +12,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class SyncEditsConcurrencyTests(PostgresFixture fixture)
+public class SyncEditsConcurrencyTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenRecordThenCollectionBatchAndOnlineRecipientWriter_WhenUpdatingSameSharedRecord_ThenSerializeCollectionsBeforeTargetsWithoutDeadlock()

@@ -14,8 +14,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class CollectionGrantStoreTests(PostgresFixture fixture)
+public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData("read-only", false)][InlineData("read-write", false)][InlineData("read-only", true)]

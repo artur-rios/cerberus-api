@@ -4,8 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public sealed class RetentionWorkStoreTests(PostgresFixture fixture)
+public sealed class RetentionWorkStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     private static readonly DateTimeOffset Now = DateTimeOffset.Parse("2026-10-07T00:00:00Z");
 

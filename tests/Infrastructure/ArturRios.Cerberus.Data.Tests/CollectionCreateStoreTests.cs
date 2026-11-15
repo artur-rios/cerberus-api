@@ -21,8 +21,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class CollectionCreateStoreTests(PostgresFixture fixture)
+public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("empty")][InlineData("profiles")][InlineData("mixed")][InlineData("overlap")][InlineData("typedAlias")]
     public async Task GivenOwnedInitialLinks_WhenCreating_ThenCommitExactTypedLinksAndOnlyDistinctDirectStructuralChanges(string kind)

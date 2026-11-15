@@ -15,8 +15,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class RecordListStoreTests(PostgresFixture fixture, ITestOutputHelper output)
+public class RecordListStoreTests(PostgresFixture fixture, ITestOutputHelper output) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenForeignTrashAndTerminalRows_WhenPaging_ThenFilterBeforeTakeAndKeepInitialBoundary()

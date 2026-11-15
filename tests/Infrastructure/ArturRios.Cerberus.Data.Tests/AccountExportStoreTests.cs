@@ -12,8 +12,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("Account export PostgreSQL")]
-public partial class AccountExportStoreTests(PostgresFixture fixture):IAsyncLifetime
+public partial class AccountExportStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IAsyncLifetime
 {
     private readonly List<long> owners=[];
 
@@ -243,5 +242,3 @@ public partial class AccountExportStoreTests(PostgresFixture fixture):IAsyncLife
     public async ValueTask DisposeAsync(){if(owners.Count==0)return;await using var db=fixture.CreateContext();await db.Accounts.Where(x=>owners.Contains(x.Id)).ExecuteDeleteAsync();}
 }
 
-[CollectionDefinition("Account export PostgreSQL",DisableParallelization=true)]
-public sealed class AccountExportPostgresCollection:ICollectionFixture<PostgresFixture>;

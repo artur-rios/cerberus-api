@@ -8,8 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class OfflinePolicyUpdateStoreTests(PostgresFixture fixture)
+public class OfflinePolicyUpdateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     private static DateTimeOffset Now => DateTimeOffset.UtcNow;
 

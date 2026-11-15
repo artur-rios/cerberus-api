@@ -14,8 +14,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture)
+public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     // Explicit barriers and pg_blocking_pids prove a waiter actually encountered
     // the held PostgreSQL row; timing alone is never the concurrency oracle.

@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class ProfileListStoreTests(PostgresFixture fixture)
+public class ProfileListStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenForeignTrashErasedAndSequenceGaps_WhenPaging_ThenFilterBeforeTakeAndRetainBoundary()

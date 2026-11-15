@@ -7,8 +7,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class RegistrationStoreTests(PostgresFixture fixture)
+public class RegistrationStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenNewRegistration_WhenBinding_ThenPersistOpaqueContentAndUniquePublicIdentity()

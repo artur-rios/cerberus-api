@@ -11,8 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public partial class SyncEditsStoreTests(PostgresFixture fixture)
+public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     private static readonly CerberusOptions Options = new() { MaxPageSize = 100 };
     [FunctionalFact]

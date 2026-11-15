@@ -17,8 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class FolderUpdateStoreTests(PostgresFixture fixture)
+public class FolderUpdateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("wide")][InlineData("direct")][InlineData("folder")][InlineData("collectionTarget")][InlineData("collectionFolder")]
     public async Task GivenCurrentOwnedScope_WhenUpdating_ThenOnlyTargetContentAndMetadataAdvance(string route)

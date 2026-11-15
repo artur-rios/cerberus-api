@@ -8,8 +8,6 @@ using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Command.Profiles;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
-using ArturRios.Util.Test.Functional;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -17,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public partial class TrashRestoreHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
+public partial class TrashRestoreHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalTheory][InlineData("record")][InlineData("folder")][InlineData("collection")][InlineData("profile")]
     public async Task GivenActualHttpTrash_WhenRestoring_ThenMetadataOnlyAndExactNativeBytesRemain(string kind)

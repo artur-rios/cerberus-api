@@ -6,15 +6,13 @@ using System.Text.Json.Nodes;
 using ArturRios.Cerberus.Command.Authentication;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Operations;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class AuthenticationHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
+public class AuthenticationHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalTheory]
     [InlineData(false)]

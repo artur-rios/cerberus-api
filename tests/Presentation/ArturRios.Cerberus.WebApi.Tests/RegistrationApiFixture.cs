@@ -36,7 +36,9 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
     private readonly string _serviceToken = ServiceToken();
     private readonly HeimdallTokenValidator _tokens = new(new CerberusOptions
     { HeimdallScopeId = Scope, AuthIssuer = "fixture-issuer", AuthAudience = "fixture-audience", AuthValidationSecret = Secret });
-    private readonly PostgreSqlContainer _database = new PostgreSqlBuilder("postgres:18.6-alpine").Build();
+    // Durability off: nothing here outlives the container, and a clean stop (StopDatabaseAsync) still flushes it.
+    private readonly PostgreSqlContainer _database = new PostgreSqlBuilder("postgres:18.6-alpine")
+        .WithCommand("-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off").Build();
     private readonly Dictionary<string, string?> _previous = new();
     private WebApplication _identity = null!;
     private string _ledger = null!;

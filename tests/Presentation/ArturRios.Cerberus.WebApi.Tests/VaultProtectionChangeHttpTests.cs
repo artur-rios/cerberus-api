@@ -11,15 +11,13 @@ using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Query.Accounts;
 using ArturRios.Cerberus.Query.Protection;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class VaultProtectionChangeHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
+public class VaultProtectionChangeHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalTheory]
     [InlineData("rewrap")][InlineData("rotate-content")]

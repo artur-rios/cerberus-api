@@ -3,14 +3,12 @@ using System.Text.Json;
 using System.Net;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
-using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public partial class AccountClosureCancellationHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
+public partial class AccountClosureCancellationHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenPendingClosureAndRetainedHeimdallIdentity_WhenLoggingInAndCancelling_ThenRestoreActiveWithoutOldAccess(bool mfa)

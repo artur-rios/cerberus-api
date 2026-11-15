@@ -7,9 +7,7 @@ using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Command.Profiles;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -17,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class ProfileTrashHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
+public class ProfileTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalTheory][InlineData("foreign")][InlineData("trash")][InlineData("erased")][InlineData("missing")]
     public async Task GivenHiddenOrAbsentProfile_WhenDeleting_ThenSameNonrevealing404(string kind)

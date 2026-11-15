@@ -12,15 +12,13 @@ using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class VaultRecoveryRefreshHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
+public class VaultRecoveryRefreshHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalFact]
     public async Task GivenInitializedUnlockedOwner_WhenRefreshing_ThenOldRecoveryFailsAndNewUnlockAndRecoveryWork()

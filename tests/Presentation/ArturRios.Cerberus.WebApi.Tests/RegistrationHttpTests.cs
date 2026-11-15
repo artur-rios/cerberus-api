@@ -5,15 +5,13 @@ using System.Text.Json.Nodes;
 using ArturRios.Cerberus.Command.Accounts;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Shared.Identity;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class RegistrationHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
+public class RegistrationHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalFact]
     public async Task GivenHarnessContentEnvelope_WhenRegistering_ThenAcceptAndPreserveEveryField()

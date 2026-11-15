@@ -2,7 +2,7 @@ using ArturRios.Data.Relational.Core.Entities;
 
 namespace ArturRios.Cerberus.Domain.Access;
 
-public sealed class VaultAccessSession : Entity
+public sealed class VaultAccessSession : Entity<long>
 {
     public string HandleVerifier { get; set; } = string.Empty;
     public long AccountId { get; set; }

@@ -1,7 +1,7 @@
 using ArturRios.Data.Relational.Core.Entities;
 namespace ArturRios.Cerberus.Domain.Resources;
 
-public sealed class VaultCollection : VersionedEntity
+public sealed class VaultCollection : VersionedEntity<long>
 {
     public Guid PublicId { get; set; }
     public long AccountId { get; set; }

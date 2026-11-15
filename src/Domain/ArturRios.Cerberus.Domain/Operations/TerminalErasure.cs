@@ -2,7 +2,7 @@ using ArturRios.Data.Relational.Core.Entities;
 
 namespace ArturRios.Cerberus.Domain.Operations;
 
-public sealed class TerminalErasure : Entity
+public sealed class TerminalErasure : Entity<long>
 {
     public Guid ResourceId { get; set; }
     public string ResourceKind { get; set; } = string.Empty;

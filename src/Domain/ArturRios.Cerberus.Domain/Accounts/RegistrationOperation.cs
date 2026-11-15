@@ -2,7 +2,7 @@ using ArturRios.Data.Relational.Core.Entities;
 
 namespace ArturRios.Cerberus.Domain.Accounts;
 
-public sealed class RegistrationOperation : Entity
+public sealed class RegistrationOperation : Entity<long>
 {
     public Guid OperationId { get; set; }
     public Guid AccountPublicId { get; set; }

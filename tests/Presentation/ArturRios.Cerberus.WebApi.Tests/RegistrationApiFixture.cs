@@ -50,7 +50,7 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
     public sealed record User(Guid Id, string Password, bool Mfa = false, bool Deleted = false, bool IdentityUnavailable = false,
         string Name = "Fixture Owner", string Email = "fixture@example.test", bool EmailVerified = true);
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _database.StartAsync();
         await using (var context = Context()) await context.Database.MigrateAsync();
@@ -168,7 +168,7 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
         await using var context = Context();
         await context.Database.ExecuteSqlRawAsync("DROP TRIGGER IF EXISTS reject_fixture_account ON cerberus.account; DROP FUNCTION IF EXISTS cerberus.reject_fixture_account(); DROP TABLE IF EXISTS cerberus.fixture_reject_account;");
     }
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await _identity.DisposeAsync();
         await _database.DisposeAsync();

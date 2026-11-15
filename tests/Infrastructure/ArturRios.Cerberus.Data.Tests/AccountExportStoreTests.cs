@@ -239,8 +239,8 @@ public partial class AccountExportStoreTests(PostgresFixture fixture):IAsyncLife
         public override Task CommandFailedAsync(DbCommand c,CommandErrorEventData d,CancellationToken ct=default)
         {if(d.Exception is PostgresException e)Failure=$"{e.SqlState} at {e.Position}: {e.MessageText}";return Task.CompletedTask;}
     }
-    public Task InitializeAsync()=>Task.CompletedTask;
-    public async Task DisposeAsync(){if(owners.Count==0)return;await using var db=fixture.CreateContext();await db.Accounts.Where(x=>owners.Contains(x.Id)).ExecuteDeleteAsync();}
+    public ValueTask InitializeAsync()=>ValueTask.CompletedTask;
+    public async ValueTask DisposeAsync(){if(owners.Count==0)return;await using var db=fixture.CreateContext();await db.Accounts.Where(x=>owners.Contains(x.Id)).ExecuteDeleteAsync();}
 }
 
 [CollectionDefinition("Account export PostgreSQL",DisableParallelization=true)]

@@ -279,6 +279,15 @@ development into `develop` only; it is still required before any release.
 
 ### Changed
 
+- Dependencies are on their latest stable releases: `ArturRios.Data.Relational.Core` 4.0.1 → 5.0.1 and
+  `ArturRios.Data.PostgreSql` 3.0.2 → 4.0.0 (entities derive from `Entity<long>` / `VersionedEntity<long>`; the
+  schema is unchanged), `ArturRios.Configuration` 1.2.0 → 2.0.0, EF Core, ASP.NET Core and `Microsoft.Extensions.*`
+  10.0.12 → 10.0.15 and FluentValidation 12.1.1 → 12.2.0; test-only, `ArturRios.Util.Test` 3.0.0 → 5.0.1 on xUnit v3
+  (`xunit` 2.9.3 → `xunit.v3.mtp-off` 4.0.3, still run through VSTest), `Microsoft.NET.Test.Sdk` 18.12.0 and
+  `Testcontainers.PostgreSql` 4.16.0. With `ArturRios.Configuration` 2.0.0, an environment variable the process
+  already has wins over the `.env` file's value for the same key; the file won before. `Swashbuckle.AspNetCore`
+  stays on 10.3.1: 11.0.1 changes the generated contract (`SyncChangeItem.data` gains a second null branch in its
+  `oneOf`). The HTTP API and the OpenAPI contract are unchanged.
 - The protocol harness's locked dependencies are on their latest stable releases: Bouncy Castle 1.86 → 1.87,
   jackson-core 2.22.3 → 2.23.0, Surefire 3.6.0 → 3.6.1, the jar plugin 3.5.1, the plugins' Plexus overrides
   3.6.1/4.0.3 → 3.6.2/4.1.0, pip 26.2.1 → 26.3 and pycparser 3.0 → 3.12. `dependencies.lock.json` was regenerated

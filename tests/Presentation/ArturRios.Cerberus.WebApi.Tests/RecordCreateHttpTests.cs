@@ -14,9 +14,7 @@ using ArturRios.Cerberus.Domain.Records;
 using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Query.Profiles;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class RecordCreateHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
+public class RecordCreateHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalTheory][InlineData(false,false)][InlineData(false,true)][InlineData(true,false)][InlineData(true,true)]
     public async Task GivenAccountWideHandle_WhenCreatingOpaqueRecord_ThenPersistOwnedContentAndReturnOnlyMetadata(bool profiles,bool folder)

@@ -110,13 +110,56 @@ dotnet build "$SOLUTION" --configuration Release --no-restore
 
 python3 scripts/openapi.py
 
-# Every test once, unit and functional alike: unfiltered, so a test with neither Category trait runs too. The
+# Every test once, unit and functional alike: no Category filter, so a test with neither Category trait runs too. The
 # functional tests start PostgreSQL containers through Testcontainers: the CI engine's socket (`docker: true`). Each
-# project writes its .trx results and a coverage.cobertura.xml under TestResults/, which the report below merges. (A
+# run writes its .trx results and a coverage.cobertura.xml under TestResults/, which the report below merges. (A
 # unit run and a functional run used to come first; this run repeated every test they ran.)
-dotnet test "$SOLUTION" --configuration Release --no-build \
-  --logger trx \
-  --collect:"XPlat Code Coverage"
+#
+# The runs go side by side. WebApi.Tests runs as four processes: its fixtures configure the API through process-wide
+# environment variables, so one process can only run its classes one at a time, but processes of their own (each with
+# its own fixture database and identity provider) can run together. The shards split the classes by name, and the last
+# is everything the first three are not, so every test runs exactly once: a new class lands in the last shard. Each
+# shard runs from a copy of the build output of its own: the coverage collector instruments the assemblies in place and
+# restores them afterwards, and the tests write their contract fixtures next to them.
+WEBAPI_NAMESPACE=ArturRios.Cerberus.WebApi.Tests
+WEBAPI_SHARDS=(
+  "FullyQualifiedName~$WEBAPI_NAMESPACE.CollectionGrant"
+  "FullyQualifiedName~$WEBAPI_NAMESPACE.Collection&FullyQualifiedName!~$WEBAPI_NAMESPACE.CollectionGrant"
+  "FullyQualifiedName~$WEBAPI_NAMESPACE.Folder|FullyQualifiedName~$WEBAPI_NAMESPACE.Profile"
+  "FullyQualifiedName!~$WEBAPI_NAMESPACE.Collection&FullyQualifiedName!~$WEBAPI_NAMESPACE.Folder&FullyQualifiedName!~$WEBAPI_NAMESPACE.Profile"
+)
+run_tests() { # <project> <.trx prefix> [dotnet test arguments...]
+  local project=$1 prefix=$2
+  shift 2
+  dotnet test "$project" --configuration Release --no-build \
+    --logger "trx;LogFilePrefix=$prefix" \
+    --results-directory "$(dirname "$project")/TestResults" \
+    --collect:"XPlat Code Coverage" "$@" >"$HARNESS_TMP/$prefix.log" 2>&1
+}
+runs=()
+for project in $(find tests -name '*.Tests.csproj' | sort); do
+  name=$(basename "$project" .csproj)
+  if [ "$name" = "$WEBAPI_NAMESPACE" ]; then
+    output=$(dirname "$(find "$(dirname "$project")/bin/Release" -name "$name.dll" -print -quit)")
+    for shard in "${!WEBAPI_SHARDS[@]}"; do
+      # The project still names the run (so the coverage collector is found); OutputPath points it at the copy.
+      copy=$HARNESS_TMP/$name.$((shard + 1))
+      cp -R "$output" "$copy"
+      run_tests "$project" "$name.$((shard + 1))" -p:OutputPath="$copy/" -p:AppendTargetFrameworkToOutputPath=false \
+        --filter "${WEBAPI_SHARDS[$shard]}" & runs+=("$!:$name.$((shard + 1))")
+    done
+  else
+    run_tests "$project" "$name" & runs+=("$!:$name")
+  fi
+done
+failed=0
+for run in "${runs[@]}"; do
+  if wait "${run%%:*}"; then status=passed; else status=FAILED; failed=1; fi
+  echo "== ${run#*:}: $status"
+  # Each run's output in one piece, without the per-test lines of a detailed logger.
+  cat "$HARNESS_TMP/${run#*:}.log"
+done
+[ "$failed" -eq 0 ]
 
 # scripts/coverage.py calls the tool by name, so it is put on the PATH.
 tools=$HARNESS_TMP/tools

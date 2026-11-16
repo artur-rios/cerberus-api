@@ -19,9 +19,7 @@ using ArturRios.Cerberus.Query.Collections;
 using ArturRios.Cerberus.Query.Folders;
 using ArturRios.Cerberus.Query.Records;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -29,7 +27,7 @@ using Npgsql;
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class CollectionMembershipHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
+public class CollectionMembershipHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalTheory][InlineData("wide")][InlineData("Master")][InlineData("PerProfile")]
     public async Task GivenRealNativeOwnerFlows_WhenReplacingMembers_ThenExactSortedOutputAndCurrentRecipientVisibility(string mode)

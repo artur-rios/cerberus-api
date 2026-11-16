@@ -7,8 +7,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class OfflineAuthorizationStoreConcurrencyTests(PostgresFixture fixture)
+public class OfflineAuthorizationStoreConcurrencyTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData("closure", "revision_conflict")][InlineData("revision", "revision_conflict")]

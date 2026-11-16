@@ -9,8 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class SoftwareSecretStoreTests(PostgresFixture fixture)
+public class SoftwareSecretStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("record",false)][InlineData("collection",false)][InlineData("record",true)]
     public async Task GivenCurrentNativeSoftwareGrant_WhenReading_ThenReturnExactCiphertextWithoutMutation(string kind,bool member)

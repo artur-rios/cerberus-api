@@ -15,8 +15,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public partial class CollectionGrantRevocationStoreTests(PostgresFixture fixture, ITestOutputHelper output)
+public partial class CollectionGrantRevocationStoreTests(PostgresFixture fixture, ITestOutputHelper output) : IClassFixture<PostgresFixture>
 {
     // Breaks caught: retained wrapper/state, wrong revision/generation, or unrelated writes.
     [FunctionalTheory][InlineData(false)][InlineData(true)]

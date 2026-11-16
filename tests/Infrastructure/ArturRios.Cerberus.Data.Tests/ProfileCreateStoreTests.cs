@@ -13,8 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class ProfileCreateStoreTests(PostgresFixture fixture)
+public class ProfileCreateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("Master")][InlineData("PerProfile")]
     public async Task GivenActiveOwnerAndNativeWrapper_WhenCreating_ThenPersistOpaqueProfileAndMonotonicSequence(string mode)

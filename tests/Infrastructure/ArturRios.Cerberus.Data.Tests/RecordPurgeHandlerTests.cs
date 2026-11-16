@@ -12,8 +12,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IDisposable
+public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
     private readonly string directory = Directory.CreateTempSubdirectory("cerberus-purge-handler-").FullName;
     private FileErasureLedger Ledger => new(directory);

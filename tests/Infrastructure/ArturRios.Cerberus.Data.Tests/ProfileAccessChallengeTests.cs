@@ -8,8 +8,7 @@ using ArturRios.Cerberus.TestSupport;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace ArturRios.Cerberus.Data.Tests;
-[Collection("PostgreSQL")]
-public class ProfileAccessChallengeTests(PostgresFixture fixture)
+public class ProfileAccessChallengeTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("Master")][InlineData("PerProfile")]
     public async Task GivenCurrentOwnerWithoutAccessHandle_WhenIssuingProfileChallenge_ThenReturnOnlyBoundOpaqueBootstrapWithoutChangingContent(string mode)

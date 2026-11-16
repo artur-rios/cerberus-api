@@ -16,9 +16,7 @@ using ArturRios.Cerberus.Query.Folders;
 using ArturRios.Cerberus.Query.Records;
 using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -27,7 +25,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class FolderTrashHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
+public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalTheory][InlineData("unknown")][InlineData("actor")][InlineData("vaultAccess")][InlineData("folderId")][InlineData("ownerId")][InlineData("profileIds")][InlineData("parentFolderId")][InlineData("recordId")][InlineData("cascade")][InlineData("collectionIds")][InlineData("name")][InlineData("fields")][InlineData("keyWrappers")][InlineData("envelope")][InlineData("editedAt")][InlineData("trashOperationId")][InlineData("deletedAt")][InlineData("purgeAt")][InlineData("zero")][InlineData("negative")][InlineData("unsafe")][InlineData("missing")][InlineData("duplicate")][InlineData("case")][InlineData("numericString")][InlineData("nullRevision")][InlineData("fraction")][InlineData("overflow")][InlineData("null")][InlineData("array")][InlineData("empty")]
     public async Task GivenStrictOrForgedDeleteBody_WhenTrashing_Then400WithoutAnyOperation(string kind)

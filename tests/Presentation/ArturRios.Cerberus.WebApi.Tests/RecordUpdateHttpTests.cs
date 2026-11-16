@@ -14,9 +14,7 @@ using ArturRios.Cerberus.Domain.Records;
 using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Query.Records;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -25,7 +23,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class RecordUpdateHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
+public class RecordUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalTheory][InlineData("wide",false)][InlineData("Master",false)][InlineData("PerProfile",false)][InlineData("Master",true)][InlineData("PerProfile",true)]
     public async Task GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(string mode,bool folderRoute)

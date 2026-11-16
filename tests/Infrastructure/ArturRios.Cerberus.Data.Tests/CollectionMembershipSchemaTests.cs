@@ -9,8 +9,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class CollectionMembershipSchemaTests(PostgresFixture fixture)
+public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenTypedEqualPublicIds_WhenIncludingInMultipleCollections_ThenKeepIndependentResourcesAndMemberships()

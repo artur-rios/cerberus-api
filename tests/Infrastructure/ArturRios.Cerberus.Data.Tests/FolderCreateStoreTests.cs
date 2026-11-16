@@ -14,8 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class FolderCreateStoreTests(PostgresFixture fixture)
+public class FolderCreateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData(0,false)][InlineData(0,true)][InlineData(2,false)][InlineData(2,true)]
     public async Task GivenAccountWideAccess_WhenCreatingWithOwnedRelationships_ThenPersistOnlyNewCiphertextLinksAndParentMetadata(int profiles,bool folder)

@@ -14,8 +14,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public partial class AccountDeletionStoreTests(PostgresFixture fixture):IDisposable
+public partial class AccountDeletionStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
     private readonly string directory=Path.Combine(Path.GetTempPath(),"cerberus-account-erasure-"+Guid.NewGuid().ToString("N"));
     private FileErasureLedger Ledger{get{if(!OperatingSystem.IsLinux())throw new PlatformNotSupportedException();Directory.CreateDirectory(directory,UnixFileMode.UserRead|UnixFileMode.UserWrite|UnixFileMode.UserExecute);return new(directory);}}

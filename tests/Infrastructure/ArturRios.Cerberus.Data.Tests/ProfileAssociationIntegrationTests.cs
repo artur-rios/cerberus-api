@@ -10,8 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class ProfileAssociationIntegrationTests(PostgresFixture fixture)
+public class ProfileAssociationIntegrationTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenOwnedAndGrantedIdentifiers_WhenCreatingProfile_ThenPersistRealLinksAndReadThemInOneSnapshot()

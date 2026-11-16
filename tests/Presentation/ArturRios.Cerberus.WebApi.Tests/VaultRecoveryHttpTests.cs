@@ -11,15 +11,13 @@ using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class VaultRecoveryHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
+public class VaultRecoveryHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalFact]
     public async Task GivenFreshOwnerWithoutSession_WhenRecoveringAndRetrying_ThenCommitOnceAndRetainHistoricalOutcome()

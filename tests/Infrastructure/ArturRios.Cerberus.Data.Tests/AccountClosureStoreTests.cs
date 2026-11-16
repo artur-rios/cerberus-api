@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public partial class AccountClosureStoreTests(PostgresFixture fixture)
+public partial class AccountClosureStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenFreshOwnerWithEncryptedData_WhenClosingThenReplaying_ThenRevokeSessionsRetainDataAndPreserveOriginalDeadline()

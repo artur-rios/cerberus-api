@@ -23,8 +23,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class CollectionTrashStoreTests(PostgresFixture fixture)
+public class CollectionTrashStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenCallerCancellationDuringRealLockWait_WhenTrashing_ThenPropagateWithoutMutation()

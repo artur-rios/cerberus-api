@@ -4,14 +4,12 @@ using System.Text;
 using System.Text.Json;
 using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Accounts;
-using ArturRios.Configuration.Enums;
-using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public partial class AccountDeletionHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
+public partial class AccountDeletionHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalFact]
     public async Task GivenFreshOwnerAndAccountAccess_WhenDeleting_ThenReturnMinimalErasureAndRetainHeimdallIdentity()

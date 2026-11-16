@@ -11,8 +11,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixture)
+public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     // Break: a captured loser reporting not_found, advancing twice, or leaving a mixed aggregate.
     // PostgreSQL's blocking graph, not elapsed time, proves that each contender really waited.

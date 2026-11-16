@@ -20,8 +20,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class FolderMoveStoreTests(PostgresFixture fixture)
+public class FolderMoveStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("missing","not_found")][InlineData("closing","not_found")][InlineData("terminal","not_found")][InlineData("access","vault_access_denied")][InlineData("revoked","vault_access_denied")][InlineData("expired","vault_access_denied")][InlineData("future","vault_access_denied")][InlineData("policy","vault_access_denied")][InlineData("generation","vault_access_denied")][InlineData("zeroPolicy","vault_access_denied")][InlineData("zeroGeneration","vault_access_denied")][InlineData("nullExpiry","vault_access_denied")][InlineData("disabledExpiry","vault_access_denied")][InlineData("noExpiry",null)][InlineData("selection","vault_access_denied")]
     public async Task GivenInvalidCurrentAuthority_WhenMoving_ThenFailClosed(string kind,string? error)
@@ -338,7 +337,7 @@ public class FolderMoveStoreTests(PostgresFixture fixture)
     public async Task GivenCompleteAncestryOrTerminalChangeBeforeWrite_WhenMoving_ThenCurrentRecursiveStatementDenies(string kind,string error)
     {
         using var owner=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var sourceRoot=await Folder(s);var from=await Folder(s,sourceRoot.Id);var destinationRoot=await Folder(s);var to=await Folder(s,destinationRoot.Id);var hidden=await Folder(s);var target=await Folder(s,from.Id);await using(var db=fixture.CreateContext())await db.Folders.Where(x=>x.Id==hidden.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.DeletedAt,DateTimeOffset.UtcNow));
-        var hook=new BeforeWrite(async()=>{await using var db=fixture.CreateContext();if(kind=="ownerTerminal"){db.TerminalErasures.Add(new(){ResourceKind="account",ResourceId=s.AccountId,DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}else{var id=kind=="sourceHidden"?sourceRoot.Id:destinationRoot.Id;await db.Folders.Where(x=>x.Id==id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ParentFolderId,kind=="destinationCycle"?to.Id:hidden.Id));}});
+        var hook=new BeforeWrite(async()=>{await using var db=fixture.CreateContext();if(kind=="ownerTerminal"){db.TerminalErasures.Add(new(){ResourceKind="account",ResourceId=s.AccountId,DeletedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();}else if(kind=="destinationCycle"){/* The store already holds the destination FOR UPDATE, and pointing a parent at it would take FOR KEY SHARE on it for the foreign key, waiting on the store that waits on this hook until the command timed out. Without the foreign key triggers (this transaction only) the cycle is committed before the write. */await using var tx=await db.Database.BeginTransactionAsync();await db.Database.ExecuteSqlRawAsync("SET LOCAL session_replication_role = replica");await db.Folders.Where(x=>x.Id==destinationRoot.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ParentFolderId,to.Id));await tx.CommitAsync();}else{var id=kind=="sourceHidden"?sourceRoot.Id:destinationRoot.Id;await db.Folders.Where(x=>x.Id==id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ParentFolderId,hidden.Id));}});
         Assert.Equal(error,(await new FolderMoveStore(new ProfileSetup.Factory(fixture,hook)).MoveAsync(new(s.Actor,s.Verifier,target.PublicId,1,to.PublicId),default)).Error);Assert.Equal(Bytes(target),Bytes(await Row(target.Id)));Assert.Equal(Bytes(from),Bytes(await FolderRow(from.Id)));Assert.Equal(Bytes(to),Bytes(await FolderRow(to.Id)));
     }
 

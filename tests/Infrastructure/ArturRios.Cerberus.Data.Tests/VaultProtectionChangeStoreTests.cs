@@ -13,8 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class VaultProtectionChangeStoreTests(PostgresFixture fixture)
+public class VaultProtectionChangeStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData("rewrap")][InlineData("rotate-content")]

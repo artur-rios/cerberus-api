@@ -54,20 +54,27 @@ public sealed class SoftwareGrantRevocationContractTests
 }
 
 [Collection("Registration host")]
-public sealed class SoftwareGrantRevocationHttpTests : IDisposable
+public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGrantRevocationHttpTests.Host>, IDisposable
 {
-    private readonly RegistrationApiFixture fixture;
-    private readonly WebApplicationFactory<Program> host;
-    private (HttpClient Client, TestServer Server) Gateway { get; }
-
-    public SoftwareGrantRevocationHttpTests(RegistrationApiFixture fixture)
+    // One in-memory host for the class rather than one per test (it needs the raw TestServer, so it is not a
+    // SharedApiHost); every test still gets a client of its own.
+    public sealed class Host : IDisposable
     {
-        this.fixture = fixture;
-        host = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.UseEnvironment("local"));
-        Gateway = (host.CreateClient(),host.Server);
+        public WebApplicationFactory<Program> Factory { get; } =
+            new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.UseEnvironment("local"));
+        public void Dispose() => Factory.Dispose();
     }
 
-    public void Dispose() { Gateway.Client.Dispose(); host.Dispose(); }
+    private readonly RegistrationApiFixture fixture;
+    private (HttpClient Client, TestServer Server) Gateway { get; }
+
+    public SoftwareGrantRevocationHttpTests(RegistrationApiFixture fixture, Host host)
+    {
+        this.fixture = fixture;
+        Gateway = (host.Factory.CreateClient(), host.Factory.Server);
+    }
+
+    public void Dispose() => Gateway.Client.Dispose();
 
     // Break: missing route, retained recipient material, widened output or unrelated vault mutation.
     [FunctionalFact]

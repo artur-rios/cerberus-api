@@ -11,8 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class TrashRestoreConcurrencyTests(PostgresFixture fixture)
+public class TrashRestoreConcurrencyTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData("account",false)][InlineData("session",false)][InlineData("retention_work_item",false)]

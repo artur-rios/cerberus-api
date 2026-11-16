@@ -10,7 +10,6 @@ using ArturRios.Cerberus.TestSupport;
 using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
 public class TrashEmptyBackupTests
 {
     [FunctionalFact]

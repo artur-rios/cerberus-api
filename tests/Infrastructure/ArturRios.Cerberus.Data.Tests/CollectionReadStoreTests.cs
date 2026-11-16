@@ -18,8 +18,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper output)
+public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper output) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData(false)][InlineData(true)]

@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class SyncOperationSchemaTests(PostgresFixture fixture)
+public class SyncOperationSchemaTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenOperationMigration_WhenRollingBackAndReapplying_ThenPreserveExistingDataAndHaveNoModelDrift()

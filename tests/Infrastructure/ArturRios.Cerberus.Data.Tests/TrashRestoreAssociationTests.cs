@@ -13,8 +13,7 @@ using ArturRios.Cerberus.TestSupport;
 using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public partial class TrashRestoreAssociationTests(PostgresFixture fixture)
+public partial class TrashRestoreAssociationTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenOriginalRecordLinks_WhenRestoringWide_ThenReattachCurrentOwnedParentsOnce()

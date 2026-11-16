@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public sealed class RestoreReconcilerTests(PostgresFixture fixture) : IDisposable
+public sealed class RestoreReconcilerTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
     private readonly string _directory = Directory.CreateTempSubdirectory("cerberus-restore-test-").FullName;
 

@@ -20,8 +20,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class FolderTrashStoreTests(PostgresFixture fixture)
+public class FolderTrashStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("wide")][InlineData("direct")][InlineData("ancestor")][InlineData("collection")][InlineData("collectionAncestor")]
     public async Task GivenCurrentOwnedFolderScope_WhenTrashing_ThenOneRetainedCascadeAndUnchangedHandle(string route)

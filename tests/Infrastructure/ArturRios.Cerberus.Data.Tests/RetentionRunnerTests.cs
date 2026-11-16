@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("Retention runner PostgreSQL")]
-public sealed class RetentionRunnerTests(PostgresFixture fixture)
+public sealed class RetentionRunnerTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenFailingExecutor_WhenRetryingAfterLease_ThenPreserveWorkUntilSuccessfulCompletion()
@@ -63,5 +62,3 @@ public sealed class RetentionRunnerTests(PostgresFixture fixture)
     }
 }
 
-[CollectionDefinition("Retention runner PostgreSQL", DisableParallelization = true)]
-public sealed class RetentionRunnerPostgresCollection : ICollectionFixture<PostgresFixture>;

@@ -7,14 +7,12 @@ using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
-using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class SyncDownloadHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
+public class SyncDownloadHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalFact]
     public async Task GivenCurrentSelectedProfile_WhenStartingSynchronization_ThenReturnScopedSnapshotAndOpaqueContinuation()

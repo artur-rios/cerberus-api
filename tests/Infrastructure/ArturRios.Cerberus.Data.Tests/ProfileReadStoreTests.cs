@@ -6,8 +6,7 @@ using ArturRios.Cerberus.TestSupport;
 using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class ProfileReadStoreTests(PostgresFixture fixture)
+public class ProfileReadStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory][InlineData("Master")][InlineData("PerProfile")]
     public async Task GivenOwnedActiveProfile_WhenReading_ThenExactOpaqueSnapshotAndActualEmptyLinks(string mode)

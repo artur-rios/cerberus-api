@@ -11,8 +11,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture)
+public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     // Break: retaining recipient material, changing stable grant identity, or mutating the owner's vault.
     [FunctionalTheory][InlineData("mixed")][InlineData("record")][InlineData("collection")]

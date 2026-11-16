@@ -12,8 +12,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class IdentityUpdateStoreTests(PostgresFixture fixture)
+public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData("active", null)]

@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public partial class AccountClosureCancellationStoreTests(PostgresFixture fixture)
+public partial class AccountClosureCancellationStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenUnexpiredPendingClosure_WhenCancelling_ThenRestoreActiveAndCompleteWorkWithoutRevivingOldAccess()

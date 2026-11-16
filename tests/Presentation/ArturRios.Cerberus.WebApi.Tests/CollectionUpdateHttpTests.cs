@@ -16,9 +16,7 @@ using ArturRios.Cerberus.Query.Records;
 using ArturRios.Cerberus.Query.Collections;
 using ArturRios.Cerberus.Query.Folders;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -31,7 +29,7 @@ using System.Text.Json.Nodes;
 using Npgsql;
 
 [Collection("Registration host")]
-public class CollectionUpdateHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
+public class CollectionUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
 
     [FunctionalTheory][InlineData("wide")][InlineData("Master")][InlineData("PerProfile")]

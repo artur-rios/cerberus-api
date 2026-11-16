@@ -11,16 +11,14 @@ using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class ProfileAssociationHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
+public class ProfileAssociationHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     [FunctionalTheory][InlineData(CollectionGrantAccess.ReadOnly)][InlineData(CollectionGrantAccess.ReadWrite)]
     public async Task GivenOwnedItemsAndSharedCollection_WhenSettingAndRemoving_ThenOrganizeProfileAndPreserveAllUnderlyingBytes(CollectionGrantAccess access)

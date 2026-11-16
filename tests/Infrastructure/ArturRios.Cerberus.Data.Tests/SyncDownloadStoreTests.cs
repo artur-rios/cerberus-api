@@ -19,8 +19,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class SyncDownloadStoreTests(PostgresFixture fixture)
+public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     private static readonly CerberusOptions Options = new() { MaxPageSize = 100, SyncRetention = "30.00:00:00" };
     [FunctionalFact]

@@ -5,8 +5,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class NativeMutationTransactionTests(PostgresFixture fixture)
+public class NativeMutationTransactionTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData(false)][InlineData(true)]

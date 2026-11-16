@@ -19,8 +19,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class CollectionMembershipStoreTests(PostgresFixture fixture)
+public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
     [InlineData("replace")][InlineData("empty")][InlineData("retain")][InlineData("promote")][InlineData("typed")][InlineData("sameEnvelope")]

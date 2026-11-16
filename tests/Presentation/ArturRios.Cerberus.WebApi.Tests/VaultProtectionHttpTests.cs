@@ -13,16 +13,14 @@ using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Query.Accounts;
 using ArturRios.Cerberus.Query.Protection;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class VaultProtectionHttpTests(RegistrationApiFixture fixture) : WebApiTest<Program>(EnvironmentType.Local)
+public class VaultProtectionHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     private const string ChallengeHeader = "X-Cerberus-Challenge-Id";
     private const string ProofHeader = "X-Cerberus-Proof";

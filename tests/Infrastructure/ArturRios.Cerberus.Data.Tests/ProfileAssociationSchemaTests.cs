@@ -4,8 +4,7 @@ using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.TestSupport;
 using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.Data.Tests;
-[Collection("PostgreSQL")]
-public class ProfileAssociationSchemaTests(PostgresFixture fixture)
+public class ProfileAssociationSchemaTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenTypedEqualGuidsAndTwoProfiles_WhenLinking_ThenPermitManyViewsWithoutDuplicatingContent()

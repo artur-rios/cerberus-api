@@ -9,8 +9,7 @@ using Npgsql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("Retention maintenance PostgreSQL")]
-public partial class RetentionMaintenanceTests(PostgresFixture fixture):IAsyncLifetime
+public partial class RetentionMaintenanceTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IAsyncLifetime
 {
     private readonly List<long> owners=[];
     private async Task<ProfileSetup.State> Owner(ProtectionFixture keys){var s=await ProfileSetup.Create(fixture,keys);owners.Add(s.InternalId);return s;}
@@ -74,5 +73,3 @@ public partial class RetentionMaintenanceTests(PostgresFixture fixture):IAsyncLi
     }
 }
 
-[CollectionDefinition("Retention maintenance PostgreSQL",DisableParallelization=true)]
-public sealed class RetentionMaintenancePostgresCollection:ICollectionFixture<PostgresFixture>;

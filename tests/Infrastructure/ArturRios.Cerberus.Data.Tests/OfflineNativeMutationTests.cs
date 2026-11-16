@@ -12,8 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public class OfflineNativeMutationTests(PostgresFixture fixture)
+public class OfflineNativeMutationTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalFact]
     public async Task GivenExternalBatchTransaction_WhenNativeCreateSucceeds_ThenOuterRollbackRemovesResourceAndDoesNotPrematurelyCommit()

@@ -17,8 +17,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixture) : IDisposable
+public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
     private readonly string directory = Directory.CreateTempSubdirectory("cerberus-record-erasure-").FullName;
     private FileErasureLedger Ledger => new(directory);

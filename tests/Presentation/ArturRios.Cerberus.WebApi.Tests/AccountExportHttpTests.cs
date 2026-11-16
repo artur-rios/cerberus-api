@@ -11,15 +11,13 @@ using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
-using ArturRios.Util.Test.Functional;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public partial class AccountExportHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
+public partial class AccountExportHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     private const string ExportPath="/api/accounts/me/export";
     private const string AccessHeader="X-Cerberus-Vault-Access";

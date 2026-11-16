@@ -12,12 +12,10 @@ using ArturRios.Cerberus.Domain.Resources;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
-using Testcontainers.PostgreSql;
 
 namespace ArturRios.Cerberus.Data.Tests;
 
-[Collection("PostgreSQL")]
-public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IDisposable
+public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
     private readonly string directory = Directory.CreateTempSubdirectory("cerberus-typed-ledger-").FullName;
     private static readonly DateTimeOffset Deleted = DateTimeOffset.Parse("2026-10-07T00:00:00Z");
@@ -231,9 +229,8 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IDispos
     [InlineData(false)][InlineData(true)]
     public async Task GivenLegacyDatabase_WhenUpgradingTypedIdentity_ThenPreserveValidRowsAndFailUnknownKindClosed(bool invalid)
     {
-        await using var container = new PostgreSqlBuilder("postgres:18.6-alpine").Build();
-        await container.StartAsync();
-        await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(container.GetConnectionString()).Options);
+        // An empty database of its own on the shared server, migrated only up to the legacy schema.
+        await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(await fixture.EmptyDatabaseAsync()).Options);
         var migrator = db.GetService<IMigrator>();
         await migrator.MigrateAsync("20261008224646_CollectionMembership");
         var id = Guid.NewGuid();

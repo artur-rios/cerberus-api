@@ -15,9 +15,7 @@ using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.Query.Records;
 using ArturRios.Cerberus.TestSupport;
-using ArturRios.Configuration.Enums;
 using ArturRios.Output;
-using ArturRios.Util.Test.Functional;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -26,7 +24,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ArturRios.Cerberus.WebApi.Tests;
 
 [Collection("Registration host")]
-public class RecordTrashHttpTests(RegistrationApiFixture fixture):WebApiTest<Program>(EnvironmentType.Local)
+public class RecordTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
 
     [FunctionalTheory][InlineData("wide",false)][InlineData("Master",false)][InlineData("PerProfile",false)][InlineData("Master",true)][InlineData("PerProfile",true)]

@@ -25,8 +25,8 @@ public partial class TrashEmptyStoreTests
     [FunctionalFact]
     public async Task GivenWideSessionExpiresAfterGuardedAdmission_WhenIntentContinues_ThenCompleteAdmittedErasure()
     {
-        using var keys=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,keys);var root=await TrashRestoreSetup.RootAsync(fixture,s,keys,"record");var deadline=DateTimeOffset.UtcNow.AddSeconds(2);await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.HandleVerifier==s.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));
-        var hook=new BeforeEmptyStatement(c=>c.CommandText.Contains("INSERT INTO cerberus.terminal_erasure AS t",StringComparison.Ordinal),()=>WaitPast(deadline));var r=await Store(factory:new ProfileSetup.Factory(fixture,hook)).EmptyAsync(Request(s),default);Assert.True(hook.Reached);Assert.Null(r.Error);Assert.Equal(1,r.Data!.TotalPurged);Assert.False(await Exists(root));
+        using var keys=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,keys);var root=await TrashRestoreSetup.RootAsync(fixture,s,keys,"record");
+        var hook=new BeforeEmptyStatement(c=>c.CommandText.Contains("INSERT INTO cerberus.terminal_erasure AS t",StringComparison.Ordinal),c=>RealTime.ExpireSession(c,s.Verifier));var r=await Store(factory:new ProfileSetup.Factory(fixture,hook)).EmptyAsync(Request(s),default);Assert.True(hook.Reached);Assert.Null(r.Error);Assert.Equal(1,r.Data!.TotalPurged);Assert.False(await Exists(root));
     }
 }
 

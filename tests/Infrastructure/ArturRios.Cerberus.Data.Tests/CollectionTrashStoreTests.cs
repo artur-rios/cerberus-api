@@ -152,11 +152,11 @@ public class CollectionTrashStoreTests(PostgresFixture fixture) : IClassFixture<
     public async Task GivenNaturalExpiryAtEachLockWait_WhenTrashing_ThenDenyBeforeStaleRevision(string table)
     {
         using var owner=new ProtectionFixture();using var key=new ProtectionFixture();using var client=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var recipient=await ProfileSetup.Create(fixture,client);var a=await AssociationSetup.Items(fixture,s);await Members(s,a);var p=await Profile(s,owner,key,[a.Collection.PublicId]);var g=await AssociationSetup.Grant(fixture,s,owner,recipient,client,a.Collection);s=s with{Verifier=await Selected(s,p.Id)};
-        var deadline=DateTimeOffset.UtcNow.AddSeconds(2);await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.HandleVerifier==s.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));var before=await Snapshot(s);
+        var expiry=await RealTime.SessionExpiresDuringWait(fixture,s.Verifier,table=="vault_access_session");var before=await Snapshot(s);
         await using var held=fixture.CreateContext();await using var tx=await held.Database.BeginTransactionAsync();var id=table switch{"account"=>s.InternalId,"profile"=>p.Id,"folder"=>a.Folder.Id,"record"=>a.Record.Id,"collection_grant"=>g.Id,_=>a.Collection.Id};
         var where=table=="vault_access_session"?"handle_verifier={0}":table is "profile_collection" or "collection_folder" or "collection_record"?"collection_id={0}":"id={0}";await held.Database.ExecuteSqlRawAsync("SELECT FROM cerberus."+table+" WHERE "+where+" FOR UPDATE",table=="vault_access_session"?(object)s.Verifier:id);
-        var reached=SignalSource();using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));var pending=new CollectionTrashStore(new ProfileSetup.Factory(fixture,new Signal(reached,table))).TrashAsync(new(s.Actor,s.Verifier,a.Collection.PublicId,77),ct.Token);
-        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await Past(deadline);await tx.CommitAsync();Assert.Equal("vault_access_denied",(await pending).Error);Assert.Equal(before,await Snapshot(s));
+        var reached=SignalSource();using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));var pending=new CollectionTrashStore(new ProfileSetup.Factory(fixture,new Signal(reached,table),expiry.At(reached.Task))).TrashAsync(new(s.Actor,s.Verifier,a.Collection.PublicId,77),ct.Token);
+        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await expiry.Past();await tx.CommitAsync();Assert.Equal("vault_access_denied",(await pending).Error);Assert.Equal(before,await Snapshot(s));
     }
 
     [FunctionalTheory][InlineData("PC")][InlineData("CF")][InlineData("CR")][InlineData("grant")]
@@ -469,7 +469,6 @@ public class CollectionTrashStoreTests(PostgresFixture fixture) : IClassFixture<
     private static byte[] Bytes<T>(T value)=>JsonSerializer.SerializeToUtf8Bytes(value,ProtectionFixture.Json);
     private static byte[] Malformed(byte[] raw,string kind){var value=Encoding.UTF8.GetString(raw);return Encoding.UTF8.GetBytes(kind switch{"numericString"=>value.Replace("\"keyEpoch\":1","\"keyEpoch\":\"1\""),"unknown"=>value.Replace("{","{\"secret\":1,"),"duplicate"=>value.Replace("{","{\"keyEpoch\":1,"),_=>value.Replace("\"format\"","\"Format\"")});}
     private static TaskCompletionSource SignalSource()=>new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private static async Task Past(DateTimeOffset deadline){var delay=deadline-DateTimeOffset.UtcNow;if(delay>TimeSpan.Zero)await Task.Delay(delay+TimeSpan.FromMilliseconds(80));}
     private static Task Hold(AppDbContext db,string table,ProfileSetup.State s,VaultCollection c,Profile p)=>table switch{"account"=>db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE"),"profile"=>db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE id={p.Id} FOR UPDATE"),"vault_access_session"=>db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE handle_verifier={s.Verifier} FOR UPDATE"),_=>db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE id={c.Id} FOR UPDATE")};
 
     private CollectionTrashStore Store()=>new(fixture);

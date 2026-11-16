@@ -223,11 +223,11 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         var before = await Snapshot(s); await using var held = fixture.CreateContext(); await using var tx = await held.Database.BeginTransactionAsync();
         var table = kind == "session" ? "vault_access_session" : kind; var id = kind switch { "account" => s.InternalId, "profile" => p.Id, "collection" => c.Id, "folder" => f.Id, _ => r.Id };
         await held.Database.ExecuteSqlRawAsync(kind == "session" ? "SELECT FROM cerberus.vault_access_session WHERE handle_verifier={0} FOR UPDATE" : "SELECT FROM cerberus." + table + " WHERE id={0} FOR UPDATE", kind == "session" ? (object)s.Verifier : id);
-        if(delayedPreparation)await Task.Delay(TimeSpan.FromSeconds(3));
+        if(delayedPreparation)await Task.Delay(RealTime.Lead+RealTime.Margin);
         DateTimeOffset deadline=default;var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var hook=new ArmExpiryAtRowWait(table,async command=>
         {
-            deadline=DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.AddSeconds(2).ToUnixTimeMilliseconds());
+            deadline=DateTimeOffset.FromUnixTimeMilliseconds(RealTime.Soon().ToUnixTimeMilliseconds());
             if(kind=="session")await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET expires_at={deadline} WHERE handle_verifier={s.Verifier}",ct.Token);
             else
             {
@@ -347,7 +347,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenExpiryAtOrAfterGuardedInsert_WhenCreating_ThenAuthorizeOnlyAtStatementBoundary(bool after)
     {
-        using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var input = Input(); var deadline = DateTimeOffset.UtcNow.AddSeconds(2);
+        using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var input = Input(); var deadline = RealTime.Soon(RealTime.SetupLead);
         await using (var db = fixture.CreateContext()) await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await Snapshot(s); var hook = new ExpireAtInsert(deadline, after);
         var result = await new CollectionCreateStore(new ProfileSetup.Factory(fixture, hook)).CreateAsync(new(s.Actor, s.Verifier, input), default); Assert.True(hook.Triggered);
@@ -633,7 +633,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
             Operations = await db.TrashOperations.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(), Entries = await db.TrashEntries.AsNoTracking().Where(x => db.TrashOperations.Any(o => o.AccountId == s.InternalId && o.Id == x.OperationId)).OrderBy(x => x.Id).ToArrayAsync(), Queue = await db.RetentionWorkItems.AsNoTracking().Where(x => db.TrashOperations.Any(o => o.AccountId == s.InternalId && x.OperationKey == "trash/" + o.PublicId)).OrderBy(x => x.Id).ToArrayAsync()
         });
     }
-    private static async Task Past(DateTimeOffset time) { var delay = time - DateTimeOffset.UtcNow; if (delay > TimeSpan.Zero) await Task.Delay(delay + TimeSpan.FromMilliseconds(100)); }
+    private static Task Past(DateTimeOffset time) => RealTime.Past(time);
     private sealed class BeforeInsert(Func<DbCommand, Task> action) : DbCommandInterceptor
     {
         public bool Triggered { get; private set; }

@@ -25,10 +25,10 @@ public partial class AccountClosureCancellationStoreTests
     [InlineData("work","freshness")][InlineData("root","cancel")][InlineData("work","cancel")]
     public async Task GivenRealLockWait_WhenDeadlineOrFreshnessExpiresOrCallerCancels_ThenNeverRestore(string table,string change)
     {
-        using var key=new ProtectionFixture();var s=await Setup(key);await Close(s);await using var held=fixture.CreateContext();
+        using var key=new ProtectionFixture();var s=await Setup(key);await Close(s);await using var held=fixture.CreateContext();var bound=RealTime.Soon(RealTime.SetupLead);
         if(change=="deadline")
         {
-            await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET closure_requested_at=statement_timestamp()-interval '720 hours'+interval '2 seconds',closure_purge_at=statement_timestamp()+interval '2 seconds' WHERE id={s.InternalId}");
+            await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET closure_requested_at={bound}-interval '720 hours',closure_purge_at={bound} WHERE id={s.InternalId}");
             await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.retention_work_item SET due_at=(SELECT closure_purge_at FROM cerberus.account WHERE id={s.InternalId}) WHERE operation_key={"account-purge/"+s.AccountId}");
         }
         await using var tx=await held.Database.BeginTransactionAsync();
@@ -36,9 +36,9 @@ public partial class AccountClosureCancellationStoreTests
         else await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.retention_work_item WHERE operation_key={"account-purge/"+s.AccountId} FOR UPDATE");
         var ready=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(15));
         var hook=new CancelBefore(c=>table=="root"?Root(c):c.CommandText.Contains("FROM cerberus.retention_work_item")&&c.CommandText.Contains("FOR UPDATE"),_=>{ready.TrySetResult();return Task.CompletedTask;});
-        var request=Request(s);if(change=="freshness")request=request with{AuthenticationIssuedAt=DateTimeOffset.UtcNow.ToUnixTimeSeconds()-55};
+        var request=Request(s);if(change=="freshness"){var fresh=RealTime.StaleSoon(60);request=request with{AuthenticationIssuedAt=fresh.IssuedAt};bound=fresh.StaleAt;}
         var pending=new AccountClosureCancellationStore(new ProfileSetup.Factory(fixture,hook)).CancelAsync(request,ct.Token);
-        try{await ready.Task.WaitAsync(ct.Token);Assert.False(pending.IsCompleted);if(change=="cancel")ct.Cancel();else await Task.Delay(TimeSpan.FromSeconds(change=="freshness"?6:3),ct.Token);}
+        try{await ready.Task.WaitAsync(ct.Token);Assert.False(pending.IsCompleted);if(change=="cancel")ct.Cancel();else await RealTime.Past(bound,ct.Token);}
         finally{await tx.CommitAsync();}
         if(change=="cancel")await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>pending);
         else Assert.Equal(change=="deadline"?"closure_expired":"fresh_authentication_required",(await pending).Error);

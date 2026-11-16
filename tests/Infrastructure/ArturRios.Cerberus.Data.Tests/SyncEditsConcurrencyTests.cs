@@ -69,14 +69,14 @@ public class SyncEditsConcurrencyTests(PostgresFixture fixture) : IClassFixture<
     {
         using var key = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, key);
         var edit = new SyncRecordCreate(Guid.NewGuid(), new(Guid.NewGuid(), ProfileSetup.Envelope(), DateTimeOffset.FromUnixTimeSeconds(1000), []));
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(2);
         await using var blocker = fixture.CreateContext();
-        if (change == "expiry") await blocker.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         await using var tx = await blocker.Database.BeginTransactionAsync(); await blocker.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
         var holder = await blocker.Database.SqlQuery<int>($"SELECT pg_backend_pid() AS \"Value\"").SingleAsync();
         var reached = Signal(); int waiter = 0; using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+        // The session's expiry is armed at the account lock wait, in the store's own transaction.
+        var arm = change == "expiry" ? RealTime.ArmSession(reached.Task, s.Verifier) : null;
         var observed = new ProfileSetup.Factory(fixture, new Before(c => c.CommandText.StartsWith("SELECT FROM cerberus.account ", StringComparison.Ordinal),
-            c => { waiter = ((NpgsqlConnection)c.Connection!).ProcessID; reached.TrySetResult(); return Task.CompletedTask; }));
+            c => { waiter = ((NpgsqlConnection)c.Connection!).ProcessID; reached.TrySetResult(); return Task.CompletedTask; }), arm);
         var pending = new SyncEditsStore(observed, new() { MaxPageSize = 100 }).UploadAsync(new(s.Actor, s.Verifier, new([edit])), ct.Token);
         try
         {
@@ -84,7 +84,7 @@ public class SyncEditsConcurrencyTests(PostgresFixture fixture) : IClassFixture<
             while (!await observer.Database.SqlQuery<bool>($"SELECT {holder}=ANY(pg_blocking_pids({waiter})) AS \"Value\"").SingleAsync(ct.Token)) await Task.Delay(20, ct.Token);
             if (change == "closing") await blocker.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending));
             if (change == "policy") await blocker.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.PolicyRevision, 2));
-            if (change == "expiry") { var delay = deadline - DateTimeOffset.UtcNow; if (delay > TimeSpan.Zero) await Task.Delay(delay + TimeSpan.FromMilliseconds(100), ct.Token); }
+            if (arm is not null) await RealTime.Past(await arm.Deadline, ct.Token);
         }
         finally { await tx.CommitAsync(); }
         var result = await pending; Assert.Equal(error, result.Error); Assert.Null(result.Details);

@@ -157,7 +157,7 @@ public class FolderReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
 
     [FunctionalFact]
     public async Task GivenExpiryImmediatelyBeforeSql_WhenGetting_ThenDatabaseTimeDeniesWithoutMutation()
-    {using var owner=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var record=await TargetFolder(s);var deadline=DateTimeOffset.UtcNow.AddSeconds(1);await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));var before=await Snapshot(s);var r=await new FolderReadStore(new ProfileSetup.Factory(fixture,new ExpireBeforeRead(deadline))).ReadAsync(new(s.Actor,s.Verifier,record.PublicId),default);Assert.Equal("vault_access_denied",r.Error);Assert.Null(r.Data);Assert.Equal(before,await Snapshot(s));}
+    {using var owner=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,owner);var record=await TargetFolder(s);var deadline=RealTime.Soon();await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));var before=await Snapshot(s);var r=await new FolderReadStore(new ProfileSetup.Factory(fixture,new ExpireBeforeRead(deadline))).ReadAsync(new(s.Actor,s.Verifier,record.PublicId),default);Assert.Equal("vault_access_denied",r.Error);Assert.Null(r.Data);Assert.Equal(before,await Snapshot(s));}
 
     [FunctionalFact]
     public async Task GivenUnavailableMembershipTable_WhenGetting_Then503AndRestoreDependency()
@@ -319,7 +319,7 @@ public class FolderReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
     }
 
     private sealed class ExpireBeforeRead(DateTimeOffset deadline):DbCommandInterceptor
-    {public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData e,InterceptionResult<DbDataReader> result,CancellationToken ct=default){var wait=deadline-DateTimeOffset.UtcNow;if(wait>TimeSpan.Zero)await Task.Delay(wait+TimeSpan.FromMilliseconds(100),ct);return result;}}
+    {public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData e,InterceptionResult<DbDataReader> result,CancellationToken ct=default){await RealTime.Past(deadline, ct);return result;}}
     private sealed class RemoveAfterRead(PostgresFixture fixture,string kind,long grant,long collection,long profile):DbCommandInterceptor
     {
         public int Readers{get;private set;}

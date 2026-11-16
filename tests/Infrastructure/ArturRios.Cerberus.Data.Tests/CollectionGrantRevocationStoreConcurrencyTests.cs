@@ -106,18 +106,18 @@ public partial class CollectionGrantRevocationStoreTests
     {
         using var s = await Setup(); var profile = await AssociationSetup.Profile(fixture, s.Owner, s.OwnerKey);
         await Sql("INSERT INTO cerberus.profile_collection(profile_id,collection_id) VALUES({0},{1})", profile, s.Items.Collection.Id); s.Owner = s.Owner with { Verifier = await Selected(s.Owner, profile) };
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(2);
-        if (change == "expiry") await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
         var before = await Grants(s); await using var blocker = fixture.CreateContext(); await using var tx = await blocker.Database.BeginTransactionAsync();
         var id = table switch { "account" => s.Recipient.InternalId, "profile" => profile, "collection" => s.Items.Collection.Id, "collection_grant" => s.Grant.Id, _ => 0 };
         if (table == "vault_access_session") await blocker.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE handle_verifier={s.Owner.Verifier} FOR UPDATE");
         else { var lockSql = "SELECT FROM cerberus." + table + " WHERE id={0} FOR UPDATE"; await blocker.Database.ExecuteSqlRawAsync(lockSql, id); }
         var holder = await blocker.Database.SqlQuery<int>($"SELECT pg_backend_pid() AS \"Value\"").SingleAsync(); int waiter = 0; var reached = Signal(); using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-        var pending = Revoke(s, factory: new ProfileSetup.Factory(fixture, new Before(c => Lock(c, table), c => { waiter = ((NpgsqlConnection)c.Connection!).ProcessID; reached.TrySetResult(); return Task.CompletedTask; })), ct: ct.Token);
+        // Expiry is armed at the lock wait itself: in the store's transaction, or the blocker's when it holds the session.
+        var arm = change == "expiry" ? RealTime.ArmSession(reached.Task, s.Owner.Verifier, table == "vault_access_session" ? blocker : null) : null;
+        var pending = Revoke(s, factory: new ProfileSetup.Factory(fixture, new Before(c => Lock(c, table), c => { waiter = ((NpgsqlConnection)c.Connection!).ProcessID; reached.TrySetResult(); return Task.CompletedTask; }), arm), ct: ct.Token);
         try
         {
             await reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); await Blocked(holder, waiter, ct.Token);
-            if (change == "expiry") { var wait = deadline - DateTimeOffset.UtcNow; if (wait > TimeSpan.Zero) await Task.Delay(wait + TimeSpan.FromMilliseconds(100), ct.Token); }
+            if (arm is not null) await RealTime.Past(await arm.Deadline, ct.Token);
             else await blocker.Database.ExecuteSqlRawAsync(change switch
             {
                 "recipient" => "UPDATE cerberus.account SET state=1 WHERE id={0}",

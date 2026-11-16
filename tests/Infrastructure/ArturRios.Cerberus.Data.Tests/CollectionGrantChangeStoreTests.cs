@@ -184,11 +184,13 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenExpiryAtAuthorization_WhenChanging_ThenOnlyPostAuthorizationExpiryCanCommit(bool after)
     {
-        using var s = await Setup(); var deadline = DateTimeOffset.UtcNow.AddSeconds(1.2);
-        await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
-        async Task Pause(DbCommand _) { var wait = deadline - DateTimeOffset.UtcNow; if (wait > TimeSpan.Zero) await Task.Delay(wait + TimeSpan.FromMilliseconds(100)); }
+        // Before the write the session expires in the store's own transaction. After it, the session must stay current
+        // through the write and expire on the clock before the commit, so it is set before the store starts.
+        using var s = await Setup(); var deadline = RealTime.Soon(RealTime.SetupLead); var paused = false;
+        if (after) await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
+        Task Pause(DbCommand c) { paused = true; return after ? RealTime.Past(deadline) : RealTime.ExpireSession(c, s.Owner.Verifier); }
         DbCommandInterceptor hook = after ? new After(Write, Pause) : new Before(Write, Pause);
-        await Outcome(s, after ? null : "vault_access_denied", factory: new ProfileSetup.Factory(fixture, hook));
+        await Outcome(s, after ? null : "vault_access_denied", factory: new ProfileSetup.Factory(fixture, hook)); Assert.True(paused);
     }
 
     [FunctionalTheory][InlineData(false, false)][InlineData(false, true)][InlineData(true, false)][InlineData(true, true)]

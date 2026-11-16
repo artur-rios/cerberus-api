@@ -145,7 +145,7 @@ public class VaultProtectionChangeStoreTests(PostgresFixture fixture) : IClassFi
     public async Task GivenUnchangedDeadlineExpiringDuringLockWait_WhenChanging_ThenWriteNothing(string locked,string expiry)
     {
         using var client=new ProtectionFixture();var s=await Setup(client);var request=await Request(s,client,Change(s,client));
-        var deadline=DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds()+2);
+        var deadline=DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.SetupLead));
         await using(var db=fixture.CreateContext())
         {
             if(expiry=="session")await db.VaultAccessSessions.Where(x=>x.HandleVerifier==s.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));
@@ -160,7 +160,7 @@ public class VaultProtectionChangeStoreTests(PostgresFixture fixture) : IClassFi
         else await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE handle_verifier={s.Verifier} FOR UPDATE");
         var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var store=new VaultProtectionChangeStore(new Factory(fixture,new LockSignal(reached,locked)));
         var pending=store.ChangeAsync(request,default);await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);
-        var remaining=deadline-DateTimeOffset.UtcNow;if(remaining>TimeSpan.Zero)await Task.Delay(remaining+TimeSpan.FromMilliseconds(100));
+        await RealTime.Past(deadline);
         await tx.CommitAsync();var result=await pending;Assert.Equal(expiry=="session"?"vault_access_denied":"vault_proof_rejected",result.Error);
         Assert.Equal(before,await Snapshot(s));await Unconsumed(request.ChallengeId);
     }

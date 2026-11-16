@@ -97,7 +97,7 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
     public async Task GivenStateChangesBeforeLocks_WhenUpdatingIdentity_ThenCurrentGuardRejectsWithoutCallback(string change, string error)
     {
         var input = await Setup();
-        var interceptor = new BeforeLock(sessionLock: false, async () =>
+        var interceptor = new BeforeLock(sessionLock: false, async _ =>
         {
             await using var competing = fixture.CreateContext();
             var account = await competing.Accounts.SingleAsync(x => x.PublicId == input.Id);
@@ -124,20 +124,11 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
     public async Task GivenSessionExpiresWhileWaitingForSessionLock_WhenUpdatingIdentity_ThenUseFreshStatementTime()
     {
         var input = await Setup();
-        var expires = new DateTimeOffset(DateTimeOffset.UtcNow.AddSeconds(1).Ticks / 10 * 10, TimeSpan.Zero);
-        await using (var setup = fixture.CreateContext())
-        {
-            var session = await setup.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == input.Verifier);
-            session.ExpiresAt = expires;
-            await setup.SaveChangesAsync();
-        }
-        // Account lock already started the transaction. Delay its session-lock
-        // command until expiry; transaction-begin now() would be stale here.
-        var interceptor = new BeforeLock(sessionLock: true, async () =>
-        {
-            for (var remaining = expires - DateTimeOffset.UtcNow; remaining > TimeSpan.Zero; remaining = expires - DateTimeOffset.UtcNow)
-                await Task.Delay(remaining + TimeSpan.FromMilliseconds(20));
-        });
+        // Account lock already started the transaction. The session expires in it
+        // right before its session-lock command; transaction-begin now() would be
+        // stale here.
+        var interceptor = new BeforeLock(sessionLock: true, command => RealTime.ExpireNow(command,
+            "UPDATE cerberus.vault_access_session SET expires_at=clock_timestamp() WHERE handle_verifier=@verifier", ("verifier", input.Verifier)));
         var called = false;
         var before = await Snapshot(input.Id, input.Verifier);
         var result = await new IdentityUpdateStore(new InterceptingFactory(fixture, interceptor)).UpdateAsync(input.Identity, input.Verifier,
@@ -208,7 +199,7 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
             Session = await context.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.HandleVerifier == verifier) });
     }
     private static IdentityUpdateResult Success(Guid identity) => new(new IdentityDetails(identity, "Updated Owner", "updated@example.test", false));
-    private sealed class BeforeLock(bool sessionLock, Func<Task> action) : DbCommandInterceptor
+    private sealed class BeforeLock(bool sessionLock, Func<DbCommand, Task> action) : DbCommandInterceptor
     {
         public bool Ran { get; private set; }
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData eventData,
@@ -216,7 +207,7 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
         {
             if (!Ran && command.CommandText.Contains("FOR UPDATE", StringComparison.OrdinalIgnoreCase)
                 && command.CommandText.Contains(sessionLock ? "vault_access_session" : "cerberus.account", StringComparison.Ordinal))
-            { Ran = true; await action(); }
+            { Ran = true; await action(command); }
             return result;
         }
     }

@@ -126,12 +126,12 @@ public class SoftwareSecretStoreTests(PostgresFixture fixture) : IClassFixture<P
         using var s=await SoftwareGrantSetup.Create(fixture);Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(s.Request(),default)).Error);
         await Sql("INSERT INTO cerberus.collection_record(account_id,collection_id,record_id) VALUES({0},{1},{2})",s.Owner.InternalId,s.Items.Collection.Id,s.Items.Record.Id);
         var request=Request(s,member:mode=="membership");
-        if(mode=="expiry")request=request with{Identity=request.Identity with{ExpiresAt=DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.AddSeconds(3).ToUnixTimeSeconds())}};
+        if(mode=="expiry")request=request with{Identity=request.Identity with{ExpiresAt=DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.SetupLead))}};
         await using var writer=fixture.CreateContext();await using var tx=await writer.Database.BeginTransactionAsync();
         await writer.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={s.Owner.InternalId} FOR UPDATE");
         var probe=new OwnerWait();var read=new SoftwareSecretStore(new ProfileSetup.Factory(fixture,probe)).ReadAsync(request,default);
         await probe.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));
-        if(mode=="expiry")await writer.Database.ExecuteSqlRawAsync("SELECT pg_sleep(3.1)");
+        if(mode=="expiry")await RealTime.Past(request.Identity.ExpiresAt);
         else await writer.Database.ExecuteSqlRawAsync(mode switch{"revocation"=>"UPDATE cerberus.software_grant SET state=1 WHERE account_id={0}","closure"=>"UPDATE cerberus.account SET state=1 WHERE id={0}","membership"=>"DELETE FROM cerberus.collection_record WHERE account_id={0}",_=>"UPDATE cerberus.software_grant SET revision=2 WHERE account_id={0}"},s.Owner.InternalId);
         await tx.CommitAsync();var result=await read.WaitAsync(TimeSpan.FromSeconds(10));Assert.Equal(error,result.Error);Assert.Null(result.Data);
     }

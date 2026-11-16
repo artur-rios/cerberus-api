@@ -69,8 +69,6 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         await Sql("INSERT INTO cerberus.profile_collection(profile_id,collection_id) VALUES({0},{1})", profile, s.Items.Collection.Id);
         await Sql("UPDATE cerberus.vault_access_session SET profile_id={0} WHERE handle_verifier={1}", profile, s.Owner.Verifier);
         Assert.Null((await Store().GrantAsync(s.Request(), default)).Error); await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant);
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(3);
-        if (change == "expiry") await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
         var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
         await using var blocker = fixture.CreateContext(); await using var tx = await blocker.Database.BeginTransactionAsync();
         var targetId = phase switch { "account" => s.Owner.InternalId, "profile" => profile, "collection" => s.Items.Collection.Id, "record" => s.Items.Record.Id, _ => 0 };
@@ -79,11 +77,13 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         else { var statement = "SELECT FROM cerberus." + phase + " WHERE id={0} FOR UPDATE"; await blocker.Database.ExecuteSqlRawAsync(statement, targetId); }
         var holder = await blocker.Database.SqlQuery<int>($"SELECT pg_backend_pid() AS \"Value\"").SingleAsync(); var waiter = 0; var reached = Signal();
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(25));
-        var pending = Store(new ProfileSetup.Factory(fixture, new Before(c => Lock(c, phase), c => { waiter = Pid(c); reached.TrySetResult(); return Task.CompletedTask; }))).GrantAsync(s.Request(1), ct.Token);
+        // Expiry is armed at the lock wait itself: in the store's transaction, or the blocker's when it holds the session.
+        var arm = change == "expiry" ? RealTime.ArmSession(reached.Task, s.Owner.Verifier, phase == "vault_access_session" ? blocker : null) : null;
+        var pending = Store(new ProfileSetup.Factory(fixture, new Before(c => Lock(c, phase), c => { waiter = Pid(c); reached.TrySetResult(); return Task.CompletedTask; }), arm)).GrantAsync(s.Request(1), ct.Token);
         try
         {
             await reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); await Blocked(holder, waiter, ct.Token); Assert.False(pending.IsCompleted);
-            if (change == "expiry") { var wait = deadline - DateTimeOffset.UtcNow; if (wait > TimeSpan.Zero) await Task.Delay(wait + TimeSpan.FromMilliseconds(100), ct.Token); }
+            if (arm is not null) await RealTime.Past(await arm.Deadline, ct.Token);
             else if (change == "selection") await blocker.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM cerberus.profile_record WHERE profile_id={profile} AND record_id={s.Items.Record.Id}", ct.Token);
             else if (phase == "record") await blocker.Database.ExecuteSqlRawAsync(change == "trash"
                 ? "UPDATE cerberus.record SET deleted_at=statement_timestamp() WHERE id={0}"
@@ -193,14 +193,16 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenExpiryAroundGuardedWrite_WhenGranting_ThenOnlyPreviouslyAuthorizedAggregateCommits(bool after)
     {
-        using var s = await SoftwareGrantSetup.Create(fixture); var deadline = DateTimeOffset.UtcNow.AddSeconds(2);
-        await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
-        async Task Past(DbCommand _) { var remaining = deadline - DateTimeOffset.UtcNow; if (remaining > TimeSpan.Zero) await Task.Delay(remaining + TimeSpan.FromMilliseconds(100)); }
-        DbCommandInterceptor interceptor = after ? new After(c => c.CommandText.Contains("INSERT INTO cerberus.software_grant("), Past)
-            : new Before(c => c.CommandText.Contains("INSERT INTO cerberus.software_grant("), Past);
+        // Before the write the session expires in the store's own transaction. After it, the session must stay current
+        // through the write and expire on the clock before the commit, so it is set before the store starts.
+        using var s = await SoftwareGrantSetup.Create(fixture); var deadline = RealTime.Soon(RealTime.SetupLead); var paused = false;
+        if (after) await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
+        Task Pause(DbCommand c) { paused = true; return after ? RealTime.Past(deadline) : RealTime.ExpireSession(c, s.Owner.Verifier); }
+        DbCommandInterceptor interceptor = after ? new After(c => c.CommandText.Contains("INSERT INTO cerberus.software_grant("), Pause)
+            : new Before(c => c.CommandText.Contains("INSERT INTO cerberus.software_grant("), Pause);
         var factory = new ProfileSetup.Factory(fixture, interceptor);
         Assert.Equal(after ? null : "vault_access_denied", (await Store(factory).GrantAsync(s.Request(), default)).Error);
-        await using var db = fixture.CreateContext(); Assert.Equal(after ? 1 : 0, await db.SoftwareGrants.CountAsync(x => x.PublicId == s.Grant));
+        Assert.True(paused); await using var db = fixture.CreateContext(); Assert.Equal(after ? 1 : 0, await db.SoftwareGrants.CountAsync(x => x.PublicId == s.Grant));
     }
 
     [FunctionalTheory][InlineData("record", false)][InlineData("record", true)][InlineData("collection", false)][InlineData("collection", true)]

@@ -28,6 +28,7 @@ public sealed class PostgresServer : IAsyncLifetime
         await using (var context = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>()
                          .UseNpgsql(ConnectionString(Template, pooling: false)).Options))
             await context.Database.MigrateAsync();
+        await CalibrateClockAsync();
         _current = this;
     }
 
@@ -54,6 +55,18 @@ public sealed class PostgresServer : IAsyncLifetime
     }
 
     internal Task<DotNet.Testcontainers.Containers.ExecResult> ExecAsync(IList<string> command) => _container.ExecAsync(command);
+
+    // The tests that wait for a bound to pass compare it with the database clock (RealTime).
+    private async Task CalibrateClockAsync()
+    {
+        await using var connection = new NpgsqlConnection(ConnectionString("postgres"));
+        await connection.OpenAsync();
+        await using var command = new NpgsqlCommand("SELECT clock_timestamp()", connection);
+        await command.ExecuteScalarAsync();
+        var before = DateTimeOffset.UtcNow;
+        var now = (DateTime)(await command.ExecuteScalarAsync())!;
+        RealTime.Calibrate(new DateTimeOffset(now, TimeSpan.Zero), before, DateTimeOffset.UtcNow);
+    }
 
     private async Task ExecuteAsync(string sql)
     {

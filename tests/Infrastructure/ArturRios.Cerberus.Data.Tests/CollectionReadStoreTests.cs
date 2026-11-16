@@ -438,7 +438,7 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
     [FunctionalFact]
     public async Task GivenDatabaseExpiryBeforeStatement_WhenGetting_ThenDenyUsingDatabaseTimeWithoutMutation()
     {
-        using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var target = await Collection(s); var deadline = DateTimeOffset.UtcNow.AddSeconds(1);
+        using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var target = await Collection(s); var deadline = RealTime.Soon();
         await using (var db = fixture.CreateContext()) await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await Snapshot(s); var result = await Store(new ExpireBeforeRead(deadline)).ReadAsync(new(s.Actor, s.Verifier, target.PublicId), default);
         Assert.Equal("vault_access_denied", result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s));
@@ -550,7 +550,7 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
     private sealed class ExpireBeforeRead(DateTimeOffset deadline) : DbCommandInterceptor
     {
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
-        { var delay = deadline - DateTimeOffset.UtcNow; if (delay > TimeSpan.Zero) await Task.Delay(delay + TimeSpan.FromMilliseconds(100), ct); return result; }
+        { await RealTime.Past(deadline, ct); return result; }
     }
     private sealed class FailRead(bool cancellation) : DbCommandInterceptor
     {

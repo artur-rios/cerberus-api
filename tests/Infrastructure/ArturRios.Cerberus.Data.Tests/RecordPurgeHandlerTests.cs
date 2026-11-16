@@ -125,18 +125,16 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
     {
         using var w=await PermanentDeleteSetup.Create(fixture,"wide",true);
         var (work,claim)=await Pending(w,"record");
-        var deadline=DateTimeOffset.UtcNow.AddSeconds(2);
-        await using var db=fixture.CreateContext();
-        await db.RetentionWorkItems.Where(x=>x.Id==work.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ClaimExpiresAt,deadline));
+        // The claim expires in the handler's own transaction right before the physical statement.
         var before=await PermanentDeleteSetup.Snapshot(fixture,w.State.InternalId);
-        var hook=new ExpireBeforeMutation(table,deadline);
+        var hook=new ExpireBeforeMutation(table,work.Id);
         await Assert.ThrowsAsync<InvalidOperationException>(()=>new RecordPurgeHandler(new ProfileSetup.Factory(fixture,hook),Ledger).ExecuteAsync(claim,default));
         Assert.True(hook.Reached);
         Assert.Equal(0,hook.Affected);
         Assert.Equal(before,await PermanentDeleteSetup.Snapshot(fixture,w.State.InternalId));
         Assert.Single(Directory.EnumerateFiles(directory,"*.json"));
     }
-    private sealed class ExpireBeforeMutation(string table,DateTimeOffset deadline):DbCommandInterceptor
+    private sealed class ExpireBeforeMutation(string table,long work):DbCommandInterceptor
     {
         internal bool Reached{get;private set;}
         internal int Affected{get;private set;}=-1;
@@ -145,7 +143,7 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
             || command.CommandText.Contains("DELETE FROM cerberus."+table+" AS",StringComparison.Ordinal);
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<int> result,CancellationToken ct=default)
         {
-            if(!Reached && Match(command)){Reached=true;var left=deadline-DateTimeOffset.UtcNow;if(left>TimeSpan.Zero)await Task.Delay(left+TimeSpan.FromMilliseconds(50),ct);}
+            if(!Reached && Match(command)){Reached=true;await RealTime.ExpireNow(command,"UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE id=@id",("id",work));}
             return result;
         }
         public override ValueTask<int> NonQueryExecutedAsync(DbCommand command,CommandExecutedEventData data,int result,CancellationToken ct=default)
@@ -160,22 +158,23 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
         var (work,claim)=await Pending(w,"record");
         await new RecordPurgeHandler(fixture,Ledger).ExecuteAsync(claim,default);
         var old=DateTimeOffset.UtcNow;
-        var deadline=afterLock?old.AddSeconds(2):old.AddSeconds(-1);
+        // After the claim-row lock the claim is live until the completing statement and expires in its transaction.
+        var deadline=afterLock?old.AddSeconds(60):old.AddSeconds(-1);
         await using var db=fixture.CreateContext();
         await db.RetentionWorkItems.Where(x=>x.Id==work.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ClaimExpiresAt,deadline));
-        var hook=new ExpireBeforeCompletion(deadline);
+        var hook=new ExpireBeforeCompletion(work.Id);
         var factory=afterLock?new ProfileSetup.Factory(fixture,hook):fixture as IDbContextFactory<AppDbContext>;
         Assert.False(await new RetentionWorkStore(factory!).TryCompleteAsync(claim,old.AddMinutes(-1),default));
         Assert.Null((await db.RetentionWorkItems.AsNoTracking().SingleAsync(x=>x.Id==work.Id)).CompletedAt);
         if(afterLock)Assert.True(hook.Reached);
     }
-    private sealed class ExpireBeforeCompletion(DateTimeOffset deadline):DbCommandInterceptor
+    private sealed class ExpireBeforeCompletion(long work):DbCommandInterceptor
     {
         internal bool Reached{get;private set;}
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<int> result,CancellationToken ct=default)
-        {if(!Reached && command.CommandText.Contains("UPDATE cerberus.retention_work_item")){Reached=true;var left=deadline-DateTimeOffset.UtcNow;if(left>TimeSpan.Zero)await Task.Delay(left+TimeSpan.FromMilliseconds(50),ct);}return result;}
+        {if(!Reached && command.CommandText.Contains("UPDATE cerberus.retention_work_item")){Reached=true;await RealTime.ExpireNow(command,"UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE id=@id",("id",work));}return result;}
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<DbDataReader> result,CancellationToken ct=default)
-        {if(!Reached && command.CommandText.Contains("UPDATE cerberus.retention_work_item")){Reached=true;var left=deadline-DateTimeOffset.UtcNow;if(left>TimeSpan.Zero)await Task.Delay(left+TimeSpan.FromMilliseconds(50),ct);}return result;}
+        {if(!Reached && command.CommandText.Contains("UPDATE cerberus.retention_work_item")){Reached=true;await RealTime.ExpireNow(command,"UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE id=@id",("id",work));}return result;}
     }
 
     private async Task<(RetentionWorkItem, RetentionClaim)> Pending(PermanentDeleteSetup.World w, string? terminalKind)

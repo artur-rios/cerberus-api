@@ -128,27 +128,28 @@ WEBAPI_SHARDS=(
   "FullyQualifiedName~$WEBAPI_NAMESPACE.Folder|FullyQualifiedName~$WEBAPI_NAMESPACE.Profile"
   "FullyQualifiedName!~$WEBAPI_NAMESPACE.Collection&FullyQualifiedName!~$WEBAPI_NAMESPACE.Folder&FullyQualifiedName!~$WEBAPI_NAMESPACE.Profile"
 )
-run_tests() { # <project or test assembly> <.trx prefix> [dotnet test arguments...]
-  local target=$1 prefix=$2
+run_tests() { # <project> <.trx prefix> [dotnet test arguments...]
+  local project=$1 prefix=$2
   shift 2
-  dotnet test "$target" \
+  dotnet test "$project" --configuration Release --no-build \
     --logger "trx;LogFilePrefix=$prefix" \
+    --results-directory "$(dirname "$project")/TestResults" \
     --collect:"XPlat Code Coverage" "$@" >"$HARNESS_TMP/$prefix.log" 2>&1
 }
 runs=()
 for project in $(find tests -name '*.Tests.csproj' | sort); do
   name=$(basename "$project" .csproj)
-  results=$(dirname "$project")/TestResults
   if [ "$name" = "$WEBAPI_NAMESPACE" ]; then
     output=$(dirname "$(find "$(dirname "$project")/bin/Release" -name "$name.dll" -print -quit)")
     for shard in "${!WEBAPI_SHARDS[@]}"; do
+      # The project still names the run (so the coverage collector is found); OutputPath points it at the copy.
       copy=$HARNESS_TMP/$name.$((shard + 1))
       cp -R "$output" "$copy"
-      run_tests "$copy/$name.dll" "$name.$((shard + 1))" --results-directory "$results" \
+      run_tests "$project" "$name.$((shard + 1))" -p:OutputPath="$copy/" -p:AppendTargetFrameworkToOutputPath=false \
         --filter "${WEBAPI_SHARDS[$shard]}" & runs+=("$!:$name.$((shard + 1))")
     done
   else
-    run_tests "$project" "$name" --configuration Release --no-build --results-directory "$results" & runs+=("$!:$name")
+    run_tests "$project" "$name" & runs+=("$!:$name")
   fi
 done
 failed=0

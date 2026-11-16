@@ -129,7 +129,9 @@ class DeliveryTests(unittest.TestCase):
         # everything the others are not.
         tests = re.findall(r"(?m)^\s*dotnet test (?:.*\\\n)*.*", self.script)
         self.assertEqual(1, len(tests))
-        self.assertIn('"$target"', tests[0])
+        self.assertIn('dotnet test "$project" --configuration Release --no-build', tests[0])
+        # Every run reports into its project's TestResults, where scripts/coverage.py finds the coverage files.
+        self.assertIn('--results-directory "$(dirname "$project")/TestResults"', tests[0])
         self.assertIn("--logger \"trx;LogFilePrefix=$prefix\"", tests[0])
         self.assertIn('--collect:"XPlat Code Coverage"', tests[0])
         self.assertNotIn("Category", self.script[self.script.index("WEBAPI_SHARDS=("):])
@@ -149,13 +151,9 @@ class DeliveryTests(unittest.TestCase):
         self.assertEqual(f"FullyQualifiedName~{prefix}CollectionGrant", shards[0])
         self.assertEqual(f"FullyQualifiedName~{prefix}Collection&FullyQualifiedName!~{prefix}CollectionGrant", shards[1])
         self.assertEqual(f"FullyQualifiedName~{prefix}Folder|FullyQualifiedName~{prefix}Profile", shards[2])
-        # Every project but WebApi.Tests runs its Release build; each shard runs a copy of that build of its own (the
-        # coverage collector rewrites the assemblies it runs), and every run reports into its project's TestResults.
-        self.assertIn('run_tests "$project" "$name" --configuration Release --no-build --results-directory "$results"',
-                      self.script)
+        # Each shard runs a copy of the Release build of its own: the coverage collector rewrites the assemblies it runs.
         self.assertIn('cp -R "$output" "$copy"', self.script)
-        self.assertIn('run_tests "$copy/$name.dll"', self.script)
-        self.assertIn('results=$(dirname "$project")/TestResults', self.script)
+        self.assertIn('-p:OutputPath="$copy/" -p:AppendTargetFrameworkToOutputPath=false', self.script)
         self.assertIn('[ "$failed" -eq 0 ]', self.script)
         self.assertIn("python3 scripts/coverage.py --report-only", self.script)
         self.assertRegex(self.script, r"(?m)^SOLUTION=src/ArturRios\.Cerberus\.sln$")

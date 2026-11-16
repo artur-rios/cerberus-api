@@ -31,8 +31,10 @@ public sealed class PostgresServer : IAsyncLifetime
         _current = this;
     }
 
+    // With every class running at once a new connection can take longer than Npgsql's 15-second default to open (through
+    // the container's mapped port), so the connect timeout is longer. It bounds opening a connection only, not a command.
     internal string ConnectionString(string database, bool pooling = true) =>
-        new NpgsqlConnectionStringBuilder(_container.GetConnectionString()) { Database = database, Pooling = pooling }.ConnectionString;
+        new NpgsqlConnectionStringBuilder(_container.GetConnectionString()) { Database = database, Pooling = pooling, Timeout = 60 }.ConnectionString;
 
     // A copy of the migrated template, or an empty database for the migration tests that start from an older schema.
     internal async Task<string> CreateDatabaseAsync(bool migrated = true)
@@ -55,7 +57,8 @@ public sealed class PostgresServer : IAsyncLifetime
 
     private async Task ExecuteAsync(string sql)
     {
-        await using var connection = new NpgsqlConnection(ConnectionString("postgres", pooling: false));
+        // Pooled: every class creates and drops a database through it, and reusing connections keeps that cheap.
+        await using var connection = new NpgsqlConnection(ConnectionString("postgres"));
         await connection.OpenAsync();
         await using var command = new NpgsqlCommand(sql, connection);
         await command.ExecuteNonQueryAsync();

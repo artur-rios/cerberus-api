@@ -118,7 +118,9 @@ python3 scripts/openapi.py
 # The runs go side by side. WebApi.Tests runs as four processes: its fixtures configure the API through process-wide
 # environment variables, so one process can only run its classes one at a time, but processes of their own (each with
 # its own fixture database and identity provider) can run together. The shards split the classes by name, and the last
-# is everything the first three are not, so every test runs exactly once: a new class lands in the last shard.
+# is everything the first three are not, so every test runs exactly once: a new class lands in the last shard. Each
+# shard runs from a copy of the build output of its own: the coverage collector instruments the assemblies in place and
+# restores them afterwards, and the tests write their contract fixtures next to them.
 WEBAPI_NAMESPACE=ArturRios.Cerberus.WebApi.Tests
 WEBAPI_SHARDS=(
   "FullyQualifiedName~$WEBAPI_NAMESPACE.CollectionGrant"
@@ -126,22 +128,27 @@ WEBAPI_SHARDS=(
   "FullyQualifiedName~$WEBAPI_NAMESPACE.Folder|FullyQualifiedName~$WEBAPI_NAMESPACE.Profile"
   "FullyQualifiedName!~$WEBAPI_NAMESPACE.Collection&FullyQualifiedName!~$WEBAPI_NAMESPACE.Folder&FullyQualifiedName!~$WEBAPI_NAMESPACE.Profile"
 )
-run_tests() { # <project> <.trx prefix> [dotnet test arguments...]
-  local project=$1 prefix=$2
+run_tests() { # <project or test assembly> <.trx prefix> [dotnet test arguments...]
+  local target=$1 prefix=$2
   shift 2
-  dotnet test "$project" --configuration Release --no-build \
+  dotnet test "$target" \
     --logger "trx;LogFilePrefix=$prefix" \
     --collect:"XPlat Code Coverage" "$@" >"$HARNESS_TMP/$prefix.log" 2>&1
 }
 runs=()
 for project in $(find tests -name '*.Tests.csproj' | sort); do
   name=$(basename "$project" .csproj)
+  results=$(dirname "$project")/TestResults
   if [ "$name" = "$WEBAPI_NAMESPACE" ]; then
+    output=$(dirname "$(find "$(dirname "$project")/bin/Release" -name "$name.dll" -print -quit)")
     for shard in "${!WEBAPI_SHARDS[@]}"; do
-      run_tests "$project" "$name.$((shard + 1))" --filter "${WEBAPI_SHARDS[$shard]}" & runs+=("$!:$name.$((shard + 1))")
+      copy=$HARNESS_TMP/$name.$((shard + 1))
+      cp -R "$output" "$copy"
+      run_tests "$copy/$name.dll" "$name.$((shard + 1))" --results-directory "$results" \
+        --filter "${WEBAPI_SHARDS[$shard]}" & runs+=("$!:$name.$((shard + 1))")
     done
   else
-    run_tests "$project" "$name" & runs+=("$!:$name")
+    run_tests "$project" "$name" --configuration Release --no-build --results-directory "$results" & runs+=("$!:$name")
   fi
 done
 failed=0

@@ -123,15 +123,33 @@ class DeliveryTests(unittest.TestCase):
             with self.subTest(base=base):
                 self.assertEqual(0, self.branch_policy(base).returncode)
         self.assertNotIn("python3 scripts/verify_protocol.py", self.script)
-        # One unfiltered run: a test with neither Category trait still runs, and none runs twice (a unit run and a
-        # functional run used to come first, and this run repeated every test they ran).
-        tests = re.split(r"(?m)^dotnet test ", self.script)[1:]
+        # One run of every test: a test with neither Category trait still runs, and none runs twice (a unit run and a
+        # functional run used to come first, and this run repeated every test they ran). Every test project runs once,
+        # side by side; WebApi.Tests runs as shards whose filters split its classes by name and whose last shard is
+        # everything the others are not.
+        tests = re.findall(r"(?m)^\s*dotnet test (?:.*\\\n)*.*", self.script)
         self.assertEqual(1, len(tests))
-        full = tests[0].split("\n\n", 1)[0]
-        self.assertIn('"$SOLUTION"', full)
-        self.assertNotIn("--filter", full)
-        self.assertIn("--logger trx", full)
-        self.assertIn('--collect:"XPlat Code Coverage"', full)
+        self.assertIn('"$project"', tests[0])
+        self.assertIn("--logger \"trx;LogFilePrefix=$prefix\"", tests[0])
+        self.assertIn('--collect:"XPlat Code Coverage"', tests[0])
+        self.assertNotIn("Category", self.script[self.script.index("WEBAPI_SHARDS=("):])
+        self.assertIn("for project in $(find tests -name '*.Tests.csproj' | sort); do", self.script)
+        shards = re.search(r"(?ms)^WEBAPI_SHARDS=\(\n(.*?)\n\)$", self.script).group(1)
+        shards = [line.strip().strip('"') for line in shards.splitlines()]
+        prefix = "$WEBAPI_NAMESPACE."
+        included = [name for shard in shards[:-1] for name in re.findall(r"FullyQualifiedName~\$WEBAPI_NAMESPACE\.(\w+)", shard)]
+        excluded = re.findall(r"FullyQualifiedName!~\$WEBAPI_NAMESPACE\.(\w+)", shards[-1])
+        # The last shard excludes exactly the names the others take (an excluded longer name is covered by its prefix).
+        self.assertTrue(excluded)
+        self.assertEqual(sorted(excluded), sorted(name for name in set(included)
+                                                  if not any(name != other and name.startswith(other) for other in included)))
+        self.assertNotIn("|", shards[-1])
+        self.assertTrue(all(prefix in shard for shard in shards))
+        # The first shards are disjoint: one takes CollectionGrant, the next Collection without it.
+        self.assertEqual(f"FullyQualifiedName~{prefix}CollectionGrant", shards[0])
+        self.assertEqual(f"FullyQualifiedName~{prefix}Collection&FullyQualifiedName!~{prefix}CollectionGrant", shards[1])
+        self.assertEqual(f"FullyQualifiedName~{prefix}Folder|FullyQualifiedName~{prefix}Profile", shards[2])
+        self.assertIn('[ "$failed" -eq 0 ]', self.script)
         self.assertIn("python3 scripts/coverage.py --report-only", self.script)
         self.assertRegex(self.script, r"(?m)^SOLUTION=src/ArturRios\.Cerberus\.sln$")
         self.assertIn("docker build", self.docker_script)

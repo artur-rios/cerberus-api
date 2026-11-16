@@ -22,18 +22,17 @@ public class TrashRestoreConcurrencyTests(PostgresFixture fixture) : IClassFixtu
     [InlineData("collection",true)][InlineData("folder",true)][InlineData("record",true)]
     public async Task GivenExpiryDuringRequiredDatabaseLockWait_WhenRestoring_ThenRejectAndPreserveWholeOperation(string table,bool session)
     {
-        // Session expiry is armed at the lock wait (see RealTime); the trash deadline spans several rows the holder may
-        // hold, so it is set before the store starts.
         using var keys=new ProtectionFixture();var w=await Linked(keys);var deadline=RealTime.Soon(RealTime.SetupLead);
-        var expiry=session?await RealTime.SessionExpiresDuringWait(fixture,w.State.Verifier,table=="session"):null;
-        if(!session)await TrashRestoreSetup.Deadline(fixture,w.Root,deadline);
+        await using var db=fixture.CreateContext();
+        if(session)await db.VaultAccessSessions.Where(x=>x.HandleVerifier==w.State.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));
+        else await TrashRestoreSetup.Deadline(fixture,w.Root,deadline);
         var before=await TrashRestoreSetup.Snapshot(fixture,w.State);
         await using var held=fixture.CreateContext();await using var tx=await held.Database.BeginTransactionAsync();
         await Lock(held,table,w);
         var signal=new PermanentDeleteSetup.LockSignal(table=="session"?"vault_access_session":table);
         using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));
-        var pending=new TrashRestoreStore(new ProfileSetup.Factory(fixture,signal,expiry?.At(signal.Reached.Task))).RestoreAsync(Request(w),ct.Token);
-        try {await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await (expiry is null?Past(deadline):expiry.Past());}
+        var pending=new TrashRestoreStore(new ProfileSetup.Factory(fixture,signal)).RestoreAsync(Request(w),ct.Token);
+        try {await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await Past(deadline);}
         finally {await tx.CommitAsync();}
         var result=await pending;Assert.Equal(session?"vault_access_denied":"trash_expired",result.Error);Assert.Null(result.Data);
         Assert.Equal(before,await TrashRestoreSetup.Snapshot(fixture,w.State));

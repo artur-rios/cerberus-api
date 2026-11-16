@@ -210,15 +210,15 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
         var g = await AssociationSetup.Grant(fixture, s, owner, r, client, a.Collection); await Sql("UPDATE cerberus.collection_grant SET state=1 WHERE id={0}", g.Id);
         var p = await AssociationSetup.Profile(fixture, s, owner); await Sql("INSERT INTO cerberus.profile_collection(profile_id,collection_id) VALUES({0},{1})", p, a.Collection.Id); s = s with { Verifier = await Selected(s, p) };
-        var expiry = await RealTime.SessionExpiresDuringWait(fixture, s.Verifier, table == "vault_access_session");
+        var deadline = RealTime.Soon(RealTime.SetupLead); await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier);
         var before = await Stable(s, r, a.Collection); var grants = await Grants(a.Collection);
         await using var blocker = fixture.CreateContext(); await using var tx = await blocker.Database.BeginTransactionAsync();
         var actual = table == "recipient" ? "account" : table; object id = table switch { "account" => s.InternalId, "recipient" => r.InternalId, "vault_access_session" => s.Verifier, "profile" => p, "collection_grant" => g.Id, _ => a.Collection.Id };
         var lockSql = "SELECT FROM cerberus." + actual + " WHERE " + (table == "vault_access_session" ? "handle_verifier={0}" : "id={0}") + " FOR UPDATE";
         await blocker.Database.ExecuteSqlRawAsync(lockSql, id);
         var reached = Signal(); using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-        var pending = Grant(s, a.Collection, Input(s, owner, r, client, a.Collection, id: g.PublicId, expected: 1), new ProfileSetup.Factory(fixture, new Before(c => Lock(c, actual), _ => { reached.TrySetResult(); return Task.CompletedTask; }), expiry.At(reached.Task)), ct.Token);
-        try { await reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(pending.IsCompleted); await expiry.Past(); } finally { await tx.CommitAsync(); }
+        var pending = Grant(s, a.Collection, Input(s, owner, r, client, a.Collection, id: g.PublicId, expected: 1), new ProfileSetup.Factory(fixture, new Before(c => Lock(c, actual), _ => { reached.TrySetResult(); return Task.CompletedTask; })), ct.Token);
+        try { await reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(pending.IsCompleted); await Past(deadline); } finally { await tx.CommitAsync(); }
         Assert.Equal("vault_access_denied", (await pending).Error); Assert.Equal(before, await Stable(s, r, a.Collection)); Assert.Equal(grants, await Grants(a.Collection));
     }
 
@@ -226,11 +226,10 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     public async Task GivenExpiryAroundGuardedWrite_WhenGranting_ThenOnlyPreAuthorizationExpiryDenies(bool after)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
-        // The session expires in the store's own transaction right before or right after its guarded write.
-        var expired = false; Task Expire(DbCommand c) { expired = true; return RealTime.ExpireSession(c, s.Verifier); }
-        DbCommandInterceptor hook = after ? new After(Write, Expire) : new Before(Write, Expire);
+        var deadline = RealTime.Soon(RealTime.SetupLead); await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier);
+        DbCommandInterceptor hook = after ? new After(Write, async _ => await Past(deadline)) : new Before(Write, async _ => await Past(deadline));
         var result = await Grant(s, a.Collection, Input(s, owner, r, client, a.Collection), new ProfileSetup.Factory(fixture, hook));
-        Assert.True(expired); Assert.Equal(after ? null : "vault_access_denied", result.Error);
+        Assert.Equal(after ? null : "vault_access_denied", result.Error);
     }
 
     [FunctionalTheory]
@@ -457,6 +456,7 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     private static TaskCompletionSource Signal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
     private static bool Lock(DbCommand c, string table) => c.CommandText.Contains("FROM cerberus." + table + " ") && (c.CommandText.Contains("FOR UPDATE") || c.CommandText.Contains("FOR NO KEY UPDATE"));
     private static bool Write(DbCommand c) => c.CommandText.Contains("INSERT INTO cerberus.collection_grant(") || c.CommandText.Contains("UPDATE cerberus.collection_grant AS g");
+    private static Task Past(DateTimeOffset deadline) => RealTime.Past(deadline);
     private static async Task Execute(DbCommand c, string sql, params NpgsqlParameter[] parameters)
     { await using var command = c.Connection!.CreateCommand(); command.Transaction = c.Transaction; command.CommandText = sql; foreach (var p in parameters) command.Parameters.Add(p); await command.ExecuteNonQueryAsync(); }
     private sealed class Before(Func<DbCommand, bool> match, Func<DbCommand, Task> action) : DbCommandInterceptor

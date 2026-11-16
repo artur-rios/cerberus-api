@@ -208,7 +208,8 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.FolderId, w.Items.Folder.Id));
         db.CollectionRecords.Add(new() { AccountId = w.State.InternalId, CollectionId = w.Items.Collection.Id, RecordId = w.Record.Id });
         await db.SaveChangesAsync();
-        var expiry = await RealTime.SessionExpiresDuringWait(fixture, w.State.Verifier, kind == "session");
+        var deadline = RealTime.Soon(RealTime.SetupLead);
+        await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         await using var held = fixture.CreateContext();
         await using var transaction = await held.Database.BeginTransactionAsync();
@@ -218,10 +219,10 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         else { var lockSql="SELECT FROM cerberus." + table + " WHERE id={0} FOR UPDATE"; await held.Database.ExecuteSqlRawAsync(lockSql, id); }
         var signal = new PermanentDeleteSetup.LockSignal(table);
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-        var pending = Store(factory: new ProfileSetup.Factory(fixture, signal, expiry.At(signal.Reached.Task))).DeleteAsync(w.Request() with { ExpectedRevision = 99 }, ct.Token);
+        var pending = Store(factory: new ProfileSetup.Factory(fixture, signal)).DeleteAsync(w.Request() with { ExpectedRevision = 99 }, ct.Token);
         await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));
         Assert.False(pending.IsCompleted);
-        await expiry.Past();
+        await RealTime.Past(deadline);
         await transaction.CommitAsync();
         Assert.Equal("vault_access_denied", (await pending).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));

@@ -61,16 +61,13 @@ public class VaultRecoveryRefreshStoreTests(PostgresFixture fixture) : IClassFix
     [InlineData(false)][InlineData(true)]
     public async Task GivenSessionExpiringDuringAccountOrSessionLockWait_WhenRefreshing_ThenRejectWithoutConsumption(bool sessionLock)
     {
-        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));
-        // Where the holder holds the session rows, the expiry is set before the store starts; else the store's own
-        // transaction arms it at the account lock wait.
-        var deadline=RealTime.Soon(RealTime.SetupLead);if(sessionLock)await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(y=>y.ExpiresAt,deadline));var before=await Snapshot(s);
+        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));var deadline=RealTime.Soon(RealTime.SetupLead);
+        await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(y=>y.ExpiresAt,deadline));var before=await Snapshot(s);
         await using var holder=fixture.CreateContext();await using var tx=await holder.Database.BeginTransactionAsync();
         if(sessionLock)await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={s.InternalId} FOR UPDATE");
         else await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
-        var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var arm=RealTime.Arm(reached.Task,null,"UPDATE cerberus.vault_access_session SET expires_at=@deadline WHERE account_id=@account",("account",s.InternalId));
-        var pending=new VaultRecoveryStore(sessionLock?new Factory(fixture,new LockSignal(reached,"vault_access_session")):new ProfileSetup.Factory(fixture,new LockSignal(reached),arm)).RecoverAsync(r,default);
-        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(sessionLock?deadline:await arm.Deadline);
+        var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var pending=new VaultRecoveryStore(new Factory(fixture,new LockSignal(reached,sessionLock?"vault_access_session":null))).RecoverAsync(r,default);
+        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(deadline);
         await tx.CommitAsync();Assert.Equal("vault_access_denied",(await pending).Error);Assert.Equal(before,await Snapshot(s));
     }
     [FunctionalFact]

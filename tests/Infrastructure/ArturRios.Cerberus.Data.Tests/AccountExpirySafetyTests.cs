@@ -22,16 +22,13 @@ public partial class AccountDeletionStoreTests
     public async Task GivenLeaseExpiresDuringCanonicalRowWait_WhenAccountExpiryRuns_ThenNoIntentOrErasure(string resource)
     {
         var w=await Create();var claim=await ExpiredClosure(w);await using var held=fixture.CreateContext();
-        // The lease is armed at the executor's row wait in its own transaction; where the holder holds the job row it is
-        // set before the executor starts instead.
-        var deadline=RealTime.Soon(RealTime.SetupLead);if(resource=="job")await held.RetentionWorkItems.Where(x=>x.PublicId==claim.WorkId).ExecuteUpdateAsync(x=>x.SetProperty(j=>j.ClaimExpiresAt,deadline));var before=await Snapshot(held,w.Owner);
+        var deadline=RealTime.Soon(RealTime.SetupLead);await held.RetentionWorkItems.Where(x=>x.PublicId==claim.WorkId).ExecuteUpdateAsync(x=>x.SetProperty(j=>j.ClaimExpiresAt,deadline));var before=await Snapshot(held,w.Owner);
         await using var tx=await held.Database.BeginTransactionAsync();var table=resource=="job"?"retention_work_item":resource=="collection"?"collection":"account";
         if(resource=="job")await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.retention_work_item WHERE public_id={claim.WorkId} FOR UPDATE");
         else if(resource=="collection")await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE id={w.Foreign.Collection.Id} FOR UPDATE");
         else await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={(resource=="owner"?w.Owner.InternalId:w.Other.InternalId)} FOR UPDATE");
-        var signal=new PermanentDeleteSetup.LockSignal(table);var arm=resource=="job"?null:RealTime.Arm(signal.Reached.Task,null,"UPDATE cerberus.retention_work_item SET claim_expires_at=@deadline WHERE public_id=@work",("work",claim.WorkId));
-        using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(25));var pending=ExpiryExecutor(factory:new ProfileSetup.Factory(fixture,signal,arm)).ExecuteAsync(claim,timeout.Token);
-        try{await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(arm is null?deadline:await arm.Deadline);}finally{await tx.CommitAsync();}
+        var signal=new PermanentDeleteSetup.LockSignal(table);using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(25));var pending=ExpiryExecutor(factory:new ProfileSetup.Factory(fixture,signal)).ExecuteAsync(claim,timeout.Token);
+        try{await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(deadline);}finally{await tx.CommitAsync();}
         await Assert.ThrowsAsync<InvalidOperationException>(()=>pending);Assert.Equal(before,await Snapshot(held,w.Owner));Assert.Empty(Directory.GetFiles(directory,"*.json"));Assert.False(await held.TerminalErasures.AnyAsync(x=>x.ResourceKind=="account"&&x.ResourceId==w.Owner.AccountId));
     }
     [FunctionalFact]

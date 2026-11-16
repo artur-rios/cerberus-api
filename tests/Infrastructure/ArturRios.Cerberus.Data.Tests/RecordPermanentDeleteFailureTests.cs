@@ -104,7 +104,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
         setup.Folders.Add(root);
         await setup.SaveChangesAsync();
         await setup.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ParentFolderId, root.Id));
-        var hook = new BeforeIntent(async _ =>
+        var hook = new BeforeIntent(async () =>
         {
             await using var db = fixture.CreateContext();
             if (change.EndsWith("Terminal")) { db.TerminalErasures.Add(new() { ResourceKind = change == "ownerTerminal" ? "account" : "record", ResourceId = change == "ownerTerminal" ? w.State.AccountId : w.Record.PublicId, DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
@@ -122,8 +122,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
     public async Task GivenFreshExpiryAtFinalStatement_WhenDeleting_Then403AndNoTerminalIntent()
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
-        // The session expires in the store's own transaction right before its final statement.
-        var hook = new BeforeIntent(command => RealTime.ExpireSession(command, w.State.Verifier));
+        var deadline = RealTime.Soon(RealTime.SetupLead);
+        await using var db = fixture.CreateContext();
+        await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
+        var hook = new BeforeIntent(() => RealTime.Past(deadline));
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal("vault_access_denied", (await Store(factory: new ProfileSetup.Factory(fixture, hook)).DeleteAsync(w.Request(), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
@@ -156,10 +158,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
         public override ValueTask<int> NonQueryExecutedAsync(DbCommand command, CommandExecutedEventData data, int result, CancellationToken ct = default)
         { if (command.CommandText.Contains("UPDATE cerberus." + table)) throw new TimeoutException("fixture intent mutation failure"); return ValueTask.FromResult(result); }
     }
-    private sealed class BeforeIntent(Func<DbCommand, Task> callback) : DbCommandInterceptor
+    private sealed class BeforeIntent(Func<Task> callback) : DbCommandInterceptor
     {
         private bool invoked;
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<int> result, CancellationToken ct = default)
-        { if (!invoked && command.CommandText.Contains("UPDATE cerberus.record")) { invoked = true; await callback(command); } return result; }
+        { if (!invoked && command.CommandText.Contains("UPDATE cerberus.record")) { invoked = true; await callback(); } return result; }
     }
 }

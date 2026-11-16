@@ -55,18 +55,15 @@ public partial class AccountDeletionStoreTests
     [InlineData("session","freshness")][InlineData("root","cancel")][InlineData("session","cancel")]
     public async Task GivenRealAuthorityLockWait_WhenAccessOrIdentityExpiresOrCallerCancels_ThenNoIntentOrReduction(string table,string fault)
     {
-        // Access expiry is armed at the root lock wait in the store's own transaction; where the holder holds the
-        // sessions, and for the identity (a request value), the bound is set before the store starts.
         var w=await Create();await using var held=fixture.CreateContext();var request=Request(w.Owner);var bound=RealTime.Soon(RealTime.SetupLead);
-        if(fault=="access"&&table=="session")await held.VaultAccessSessions.Where(x=>x.AccountId==w.Owner.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,bound));
+        if(fault=="access")await held.VaultAccessSessions.Where(x=>x.AccountId==w.Owner.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,bound));
         if(fault=="freshness"){var fresh=RealTime.StaleSoon(60);request=request with{AuthenticationIssuedAt=fresh.IssuedAt};bound=fresh.StaleAt;}
         var before=await Snapshot(held,w.Owner);await using var tx=await held.Database.BeginTransactionAsync();
         if(table=="root")await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={w.Owner.InternalId} FOR UPDATE");
         else await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={w.Owner.InternalId} FOR UPDATE");
         var ready=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));
-        var arm=fault=="access"&&table=="root"?RealTime.Arm(ready.Task,null,"UPDATE cerberus.vault_access_session SET expires_at=@deadline WHERE account_id=@account",("account",w.Owner.InternalId)):null;
-        var signal=new BeforeAuthorityWait(table,()=>ready.TrySetResult());var task=Store(new ProfileSetup.Factory(fixture,signal,arm)).DeleteAsync(request,ct.Token);
-        try{await ready.Task.WaitAsync(ct.Token);Assert.False(task.IsCompleted);if(fault=="cancel")ct.Cancel();else await RealTime.Past(arm is null?bound:await arm.Deadline,ct.Token);}
+        var signal=new BeforeAuthorityWait(table,()=>ready.TrySetResult());var task=Store(new ProfileSetup.Factory(fixture,signal)).DeleteAsync(request,ct.Token);
+        try{await ready.Task.WaitAsync(ct.Token);Assert.False(task.IsCompleted);if(fault=="cancel")ct.Cancel();else await RealTime.Past(bound,ct.Token);}
         finally{await tx.CommitAsync();}
         if(fault=="cancel")await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>task);
         else Assert.Equal(fault=="access"?"vault_access_denied":"fresh_authentication_required",(await task).Error);

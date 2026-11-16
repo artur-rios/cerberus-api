@@ -46,7 +46,7 @@ public partial class TrashEmptyStoreTests
     {
         using var keys=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,keys);await TrashRestoreSetup.RootAsync(fixture,s,keys,"record");await AssociationSetup.Profile(fixture,s,keys);
         await using(var db=fixture.CreateContext()){db.RetentionWorkItems.Add(new(){OperationKey="trash-erase/"+s.AccountId,DueAt=DateTimeOffset.UtcNow.AddMinutes(-1)});await db.SaveChangesAsync();}
-        var expiry=await RealTime.SessionExpiresDuringWait(fixture,s.Verifier,table=="vault_access_session");var before=await State(s);await using var held=fixture.CreateContext();await using var tx=await held.Database.BeginTransactionAsync();
+        var deadline=await RealTime.SessionExpiresSoon(fixture,s.Verifier);var before=await State(s);await using var held=fixture.CreateContext();await using var tx=await held.Database.BeginTransactionAsync();
         var sql=table switch{
             "account"=>"SELECT FROM cerberus.account WHERE id={0} FOR UPDATE",
             "vault_access_session"=>"SELECT FROM cerberus.vault_access_session WHERE account_id={0} FOR UPDATE",
@@ -56,15 +56,15 @@ public partial class TrashEmptyStoreTests
             "folder"=>"SELECT FROM cerberus.folder WHERE account_id={0} FOR UPDATE",
             _=>"SELECT FROM cerberus.record WHERE account_id={0} FOR UPDATE"};
         await held.Database.ExecuteSqlRawAsync(sql,table=="retention_work_item"?["trash-erase/"+s.AccountId]:new object[]{s.InternalId});
-        var signal=new PermanentDeleteSetup.LockSignal(table);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));var pending=Store(factory:new ProfileSetup.Factory(fixture,signal,expiry.At(signal.Reached.Task))).EmptyAsync(Request(s),ct.Token);
-        try{await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await expiry.Past();}finally{await tx.CommitAsync();}
+        var signal=new PermanentDeleteSetup.LockSignal(table);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));var pending=Store(factory:new ProfileSetup.Factory(fixture,signal)).EmptyAsync(Request(s),ct.Token);
+        try{await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(deadline);}finally{await tx.CommitAsync();}
         Assert.Equal("vault_access_denied",(await pending).Error);Assert.Equal(before,await State(s));Assert.Empty(Directory.GetFiles(directory,"*.json"));
     }
     [FunctionalFact]
     public async Task GivenSessionExpiresImmediatelyBeforeGuardedAdmission_WhenEmptying_Then403WithoutQueueOrTerminalIntent()
     {
-        using var keys=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,keys);await TrashRestoreSetup.RootAsync(fixture,s,keys,"record");var before=await State(s);
-        var hook=new BeforeEmptyStatement(c=>c.CommandText.Contains("INSERT INTO cerberus.retention_work_item AS w",StringComparison.Ordinal),c=>RealTime.ExpireSession(c,s.Verifier));
+        using var keys=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,keys);await TrashRestoreSetup.RootAsync(fixture,s,keys,"record");var deadline=await RealTime.SessionExpiresSoon(fixture,s.Verifier);var before=await State(s);
+        var hook=new BeforeEmptyStatement(c=>c.CommandText.Contains("INSERT INTO cerberus.retention_work_item AS w",StringComparison.Ordinal),_=>RealTime.Past(deadline));
         Assert.Equal("vault_access_denied",(await Store(factory:new ProfileSetup.Factory(fixture,hook)).EmptyAsync(Request(s),default)).Error);Assert.True(hook.Reached);Assert.Equal(before,await State(s));Assert.Empty(Directory.GetFiles(directory,"*.json"));
     }
     [FunctionalTheory][InlineData("account")][InlineData("retention_work_item")][InlineData("profile")][InlineData("collection")][InlineData("folder")][InlineData("record")]
@@ -72,9 +72,7 @@ public partial class TrashEmptyStoreTests
     {
         using var keys=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,keys);var root=await TrashRestoreSetup.RootAsync(fixture,s,keys,"record");await AssociationSetup.Profile(fixture,s,keys);
         Assert.Equal("persistence_unavailable",(await Store(new PermanentDeleteSetup.LedgerBoundary(Ledger,()=>throw new IOException("leave pending intent"))).EmptyAsync(Request(s),default)).Error);
-        // The lease is armed at the worker's row wait in its own transaction; where the holder holds the job row it is
-        // set before the worker starts instead.
-        var jobHeld=table=="retention_work_item";var deadline=RealTime.Soon(jobHeld?RealTime.SetupLead:TimeSpan.FromMinutes(5));RetentionClaim claim;await using(var db=fixture.CreateContext()){var job=await db.RetentionWorkItems.SingleAsync(x=>x.OperationKey=="trash-erase/"+s.AccountId);job.ClaimExpiresAt=deadline;await db.SaveChangesAsync();claim=new(job.PublicId,job.ClaimToken!.Value,job.OperationKey,deadline);}
+        var deadline=RealTime.Soon(RealTime.SetupLead);RetentionClaim claim;await using(var db=fixture.CreateContext()){var job=await db.RetentionWorkItems.SingleAsync(x=>x.OperationKey=="trash-erase/"+s.AccountId);job.ClaimExpiresAt=deadline;await db.SaveChangesAsync();claim=new(job.PublicId,job.ClaimToken!.Value,job.OperationKey,deadline);}
         var before=await TrashRestoreSetup.Snapshot(fixture,s);await using var held=fixture.CreateContext();await using var tx=await held.Database.BeginTransactionAsync();
         var sql=table switch{
             "account"=>"SELECT FROM cerberus.account WHERE id={0} FOR UPDATE",
@@ -84,9 +82,8 @@ public partial class TrashEmptyStoreTests
             "folder"=>"SELECT FROM cerberus.folder WHERE account_id={0} FOR UPDATE",
             _=>"SELECT FROM cerberus.record WHERE account_id={0} FOR UPDATE"};
         await held.Database.ExecuteSqlRawAsync(sql,table=="retention_work_item"?["trash-erase/"+s.AccountId]:new object[]{s.InternalId});
-        var signal=new PermanentDeleteSetup.LockSignal(table);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));var arm=jobHeld?null:RealTime.Arm(signal.Reached.Task,null,"UPDATE cerberus.retention_work_item SET claim_expires_at=@deadline WHERE operation_key=@key",("key","trash-erase/"+s.AccountId));
-        var pending=new TrashPurgeHandler(new ProfileSetup.Factory(fixture,signal,arm),Ledger).ExecuteAsync(claim,ct.Token);
-        try{await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(arm is null?deadline:await arm.Deadline);}finally{await tx.CommitAsync();}
+        var signal=new PermanentDeleteSetup.LockSignal(table);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));var pending=new TrashPurgeHandler(new ProfileSetup.Factory(fixture,signal),Ledger).ExecuteAsync(claim,ct.Token);
+        try{await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(deadline);}finally{await tx.CommitAsync();}
         await Assert.ThrowsAsync<InvalidOperationException>(()=>pending);Assert.Equal(before,await TrashRestoreSetup.Snapshot(fixture,s));Assert.True(await Exists(root));await Expire(s);Assert.Null((await Store().EmptyAsync(Request(s),default)).Error);Assert.False(await Exists(root));
     }
     private sealed class BeforeEmptyStatement(Func<DbCommand,bool> match,Func<DbCommand,Task> before):DbCommandInterceptor

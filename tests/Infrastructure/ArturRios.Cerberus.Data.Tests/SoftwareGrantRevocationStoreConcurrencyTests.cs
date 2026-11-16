@@ -108,7 +108,7 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
         var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
         string? vault = null; var boundaryEntries = 0;
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-        async Task Expire(DbCommand c)
+        async Task Expire(DbCommand _)
         {
             Assert.Equal(1, ++boundaryEntries);
             await using var observer = fixture.CreateContext();
@@ -117,16 +117,13 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
             // A concurrent reader must never see the uncommitted revoked row with old children.
             Assert.Equal(before, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
             vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
-            // Before the write the session expires in the store's own transaction, which rolls it back with the refusal.
-            if (!after) { await RealTime.ExpireSession(c, s.Owner.Verifier); return; }
             while (!await Expired()) await Task.Delay(20, ct.Token);
         }
         DbCommandInterceptor hook = after ? new After(Cas, Expire) : new Before(Cas, Expire);
         var store = Store(hook); var request = Request(s);
-        // After the write the session must stay current through it and expire on the clock before the commit (a write in
-        // the store's transaction would commit and show in the vault snapshot). Arm the database deadline only after
-        // fixture/snapshot setup, immediately before capture. Leave time for rechecks, then cross expiry inside the hook.
-        if (after) await Sql("UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+{0} WHERE handle_verifier={1}", TimeSpan.FromSeconds(3), s.Owner.Verifier);
+        // Arm the database deadline only after fixture/snapshot setup, immediately before
+        // capture. Leave time for rechecks, then cross expiry inside the observed hook.
+        await Sql("UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+{0} WHERE handle_verifier={1}", TimeSpan.FromSeconds(3), s.Owner.Verifier);
         var result = await store.RevokeAsync(request, ct.Token);
         Assert.Equal(1, boundaryEntries); Assert.NotNull(vault);
         Assert.Equal(after ? null : "vault_access_denied", result.Error);

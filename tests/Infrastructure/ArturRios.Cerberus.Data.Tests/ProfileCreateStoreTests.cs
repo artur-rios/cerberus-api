@@ -99,13 +99,14 @@ public class ProfileCreateStoreTests(PostgresFixture fixture) : IClassFixture<Po
     public async Task GivenNaturalExpiryDuringLockWait_WhenCreating_ThenPersistNothing(string locked)
     {
         using var client=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,client);
+        var deadline=DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.SetupLead));
+        await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.HandleVerifier==s.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));
         await using var holder=fixture.CreateContext();await using var tx=await holder.Database.BeginTransactionAsync();
         if(locked=="account")await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
         else await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE handle_verifier={s.Verifier} FOR UPDATE");
         var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var arm=RealTime.ArmSession(reached.Task,s.Verifier,locked=="session"?holder:null);
-        var pending=new ProfileCreateStore(new ProfileSetup.Factory(fixture,new Signal(reached,locked),arm)).CreateAsync(new(s.Actor,s.Verifier,ProfileSetup.Input(s,client,scoped)),default);
-        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(await arm.Deadline);await tx.CommitAsync();
+        var pending=new ProfileCreateStore(new ProfileSetup.Factory(fixture,new Signal(reached,locked))).CreateAsync(new(s.Actor,s.Verifier,ProfileSetup.Input(s,client,scoped)),default);
+        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(deadline);await tx.CommitAsync();
         Assert.Equal("vault_access_denied",(await pending).Error);await using var check=fixture.CreateContext();Assert.False(await check.Profiles.AnyAsync(x=>x.AccountId==s.InternalId));
     }
     [FunctionalFact]
@@ -128,8 +129,10 @@ public class ProfileCreateStoreTests(PostgresFixture fixture) : IClassFixture<Po
     public async Task GivenAccessExpiresAfterValidationBeforeInsert_WhenCreating_ThenAtomicInsertDenies()
     {
         using var client=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,client);
-        var hook=new ExpireAtInsert(s.Verifier);var store=new ProfileCreateStore(new ProfileSetup.Factory(fixture,hook));
-        Assert.Equal("vault_access_denied",(await store.CreateAsync(new(s.Actor,s.Verifier,ProfileSetup.Input(s,client,scoped)),default)).Error);Assert.True(hook.Reached);
+        var deadline=RealTime.Soon(RealTime.SetupLead);
+        await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.HandleVerifier==s.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));
+        var store=new ProfileCreateStore(new ProfileSetup.Factory(fixture,new ExpireAtInsert(deadline)));
+        Assert.Equal("vault_access_denied",(await store.CreateAsync(new(s.Actor,s.Verifier,ProfileSetup.Input(s,client,scoped)),default)).Error);
         await using var check=fixture.CreateContext();Assert.False(await check.Profiles.AnyAsync(x=>x.AccountId==s.InternalId));
     }
     [FunctionalFact]
@@ -161,11 +164,10 @@ public class ProfileCreateStoreTests(PostgresFixture fixture) : IClassFixture<Po
         var result=await Store().CreateAsync(new(s.Actor,s.Verifier,own),default);Assert.Equal("revision_conflict",result.Error);Assert.Null(result.Data);
         await using var db=fixture.CreateContext();var winner=await db.Profiles.SingleAsync(x=>x.PublicId==first.ProfileId);Assert.Equal(foreign.InternalId,winner.AccountId);
     }
-    private sealed class ExpireAtInsert(string verifier):DbCommandInterceptor
+    private sealed class ExpireAtInsert(DateTimeOffset deadline):DbCommandInterceptor
     {
-        public bool Reached{get;private set;}
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<int> result,CancellationToken ct=default)
-        {if(!Reached&&command.CommandText.Contains("INSERT INTO cerberus.profile")){Reached=true;await RealTime.ExpireSession(command,verifier);}return result;}
+        {if(command.CommandText.Contains("INSERT INTO cerberus.profile")){await RealTime.Past(deadline, ct);}return result;}
     }
     private ProfileCreateStore Store()=>new(fixture);
     private sealed class Signal(TaskCompletionSource reached,string locked):DbCommandInterceptor

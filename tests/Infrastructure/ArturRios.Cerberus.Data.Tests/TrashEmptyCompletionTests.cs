@@ -23,7 +23,7 @@ public partial class TrashEmptyStoreTests
         var claim=await new RetentionWorkStore(fixture).TryClaimAsync(work.PublicId,DateTimeOffset.UtcNow,TimeSpan.FromMinutes(5),default);Assert.NotNull(claim);
         await using var held=fixture.CreateContext();await using var tx=await held.Database.BeginTransactionAsync();await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.retention_work_item WHERE id={work.Id} FOR UPDATE");
         // The holder holds the job row, so it arms the lease there when the store reaches the wait.
-        var signal=new PermanentDeleteSetup.LockSignal("retention_work_item");var arm=RealTime.Arm(signal.Reached.Task,held,"UPDATE cerberus.retention_work_item SET claim_expires_at=@deadline WHERE id=@id",("id",work.Id));using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));var pending=new RetentionWorkStore(new ProfileSetup.Factory(fixture,signal,arm)).TryCompleteAsync(claim!,DateTimeOffset.UtcNow.AddHours(-1),ct.Token);
+        var signal=new PermanentDeleteSetup.LockSignal("retention_work_item");var arm=RealTime.ArmInHolder(signal.Reached.Task,held,"UPDATE cerberus.retention_work_item SET claim_expires_at=@deadline WHERE id=@id",("id",work.Id));using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));var pending=new RetentionWorkStore(new ProfileSetup.Factory(fixture,signal,arm)).TryCompleteAsync(claim!,DateTimeOffset.UtcNow.AddHours(-1),ct.Token);
         try{await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(await arm.Deadline);}finally{await tx.CommitAsync();}
         Assert.False(await pending);Assert.Null((await db.RetentionWorkItems.AsNoTracking().SingleAsync(x=>x.Id==work.Id)).CompletedAt);
     }

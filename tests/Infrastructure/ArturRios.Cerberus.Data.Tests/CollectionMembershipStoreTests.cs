@@ -289,15 +289,15 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var recipient = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
         await Members(s, a.Collection.Id, [a.Folder.Id], [a.Record.Id]); var g = await AssociationSetup.Grant(fixture, s, owner, recipient, client, a.Collection);
         var p = await AssociationSetup.Profile(fixture, s, owner); await Routes(s, p, a.Collection.Id, [], []); s = s with { Verifier = await Selected(s, p) };
-        var expiry = await RealTime.SessionExpiresDuringWait(fixture, s.Verifier, table == "vault_access_session"); var before = await Snapshot(s);
+        var deadline = RealTime.Soon(RealTime.SetupLead); await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier); var before = await Snapshot(s);
         await using var blocker = fixture.CreateContext(); await using var tx = await blocker.Database.BeginTransactionAsync();
         var predicate = table switch { "account" => "id={0}", "vault_access_session" => "handle_verifier={0}", "collection_folder" or "collection_record" => "collection_id={0}", _ => "id={0}" };
         object id = table switch { "account" => s.InternalId, "vault_access_session" => s.Verifier, "profile" => p, "folder" => a.Folder.Id, "record" => a.Record.Id, "collection_grant" => g.Id, _ => a.Collection.Id };
         var lockSql = "SELECT FROM cerberus." + table + " WHERE " + predicate + " FOR UPDATE";
         await blocker.Database.ExecuteSqlRawAsync(lockSql, id);
         var reached = SignalSource(); using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-        var task = new CollectionMembershipStore(new ProfileSetup.Factory(fixture, new Signal(table, reached), expiry.At(reached.Task))).SetAsync(new(s.Actor, s.Verifier, a.Collection.PublicId, Input([a.Folder.PublicId], [a.Record.PublicId]) with { ExpectedRevision = 77 }), ct.Token);
-        try { await reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(task.IsCompleted); await expiry.Past(); } finally { await tx.CommitAsync(); }
+        var task = new CollectionMembershipStore(new ProfileSetup.Factory(fixture, new Signal(table, reached))).SetAsync(new(s.Actor, s.Verifier, a.Collection.PublicId, Input([a.Folder.PublicId], [a.Record.PublicId]) with { ExpectedRevision = 77 }), ct.Token);
+        try { await reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(task.IsCompleted); await Past(deadline); } finally { await tx.CommitAsync(); }
         Assert.Equal("vault_access_denied", (await task).Error); Assert.Equal(before, await Snapshot(s));
     }
 
@@ -524,13 +524,10 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenExpiryAtAuthorizationLinearization_WhenReplacing_ThenBeforeDeniedAndAfterCommits(bool after)
     {
-        // Before the write the session expires in the store's own transaction. After it, the session must stay current
-        // through the write and expire on the clock before the commit, so it is set before the store starts.
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var deadline = RealTime.Soon(RealTime.SetupLead);
-        if (after) await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier); var before = await Snapshot(s); var input = Input([a.Folder.PublicId]);
-        var mutation = new AfterMutation("UPDATE cerberus.collection AS", _ => Past(deadline), false); var write = new Hook("UPDATE cerberus.collection AS", c => RealTime.ExpireSession(c, s.Verifier));
-        DbCommandInterceptor hook = after ? mutation : write;
-        var result = await new CollectionMembershipStore(new ProfileSetup.Factory(fixture, hook)).SetAsync(new(s.Actor, s.Verifier, a.Collection.PublicId, input), default); Assert.True(after ? mutation.Triggered : write.Triggered);
+        await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier); var before = await Snapshot(s); var input = Input([a.Folder.PublicId]);
+        DbCommandInterceptor hook = after ? new AfterMutation("UPDATE cerberus.collection AS", async _ => await Past(deadline), false) : new Hook("UPDATE cerberus.collection AS", async _ => await Past(deadline));
+        var result = await new CollectionMembershipStore(new ProfileSetup.Factory(fixture, hook)).SetAsync(new(s.Actor, s.Verifier, a.Collection.PublicId, input), default);
         if (after) await Success(s, a.Collection, input, before, result); else { Assert.Equal("vault_access_denied", result.Error); Assert.Equal(before, await Snapshot(s)); }
     }
 

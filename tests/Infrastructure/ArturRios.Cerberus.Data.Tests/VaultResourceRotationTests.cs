@@ -117,10 +117,11 @@ public class VaultResourceRotationTests(PostgresFixture fixture) : IClassFixture
     public async Task GivenAccessExpiresWhileWaitingForSharedRows_WhenRotating_ThenNoWritesOrProofConsumption(string kind)
     {
         using var owner=new ProtectionFixture();using var recipient=new ProtectionFixture();using var scoped=new ProtectionFixture();var s=await Setup(owner,recipient,scoped);var request=await Request(s,owner,Change(s,owner,recipient,scoped));
+        var deadline=RealTime.Soon(RealTime.SetupLead);await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.HandleVerifier==s.Owner.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));
         await using var holder=fixture.CreateContext();await using var tx=await holder.Database.BeginTransactionAsync();
         if(kind=="collection")await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.collection WHERE id={s.Items[0].Collection.Id} FOR UPDATE");
         else await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.collection_grant WHERE id={s.Grants[0].Id} FOR UPDATE");
-        var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var before=await Snapshot(s);var arm=RealTime.ArmSession(reached.Task,s.Owner.Verifier);var pending=new VaultProtectionChangeStore(new ProfileSetup.Factory(fixture,new Signal(reached,kind),arm)).ChangeAsync(request,default);await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(await arm.Deadline);await tx.CommitAsync();Assert.Equal("vault_access_denied",(await pending).Error);Assert.Equal(before,await Snapshot(s));await Unconsumed(request);
+        var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var before=await Snapshot(s);var pending=new VaultProtectionChangeStore(new ProfileSetup.Factory(fixture,new Signal(reached,kind))).ChangeAsync(request,default);await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(deadline);await tx.CommitAsync();Assert.Equal("vault_access_denied",(await pending).Error);Assert.Equal(before,await Snapshot(s));await Unconsumed(request);
     }
     [FunctionalFact]
     public async Task GivenGrantRevokedDuringLockWait_WhenRotating_ThenRejectObsoleteManifestWithoutRegranting()

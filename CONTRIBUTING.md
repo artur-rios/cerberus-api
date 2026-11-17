@@ -42,8 +42,13 @@ python3 scripts/openapi.py
 dotnet tool install --global dotnet-reportgenerator-globaltool
 python3 scripts/coverage.py
 python3 scripts/vulnerabilities.py
+dotnet format src/ArturRios.Cerberus.sln --verify-no-changes  # drop the flag to apply the fixes
 docker build -t cerberus-api:local .
 ```
+
+The format check follows [`.editorconfig`](./.editorconfig), which wants LF line endings, as the
+repository stores them. On Windows with `core.autocrlf=true` the working tree is CRLF and the check
+reports every file; run it from a clone with `core.autocrlf=input` (or `false`).
 
 Current functional tests use disposable PostgreSQL containers and an in-memory HTTP host.
 Every implemented use case must ship with main/alternative-flow tests. The required merged
@@ -79,6 +84,11 @@ subject, e.g. `feat: add restore and retention repositories` or `fix: harden fou
 Record every change an API client or an operator would notice under `## [Unreleased]` in
 [CHANGELOG.md](./CHANGELOG.md), in the same pull request that makes it.
 
+[`.git-blame-ignore-revs`](./.git-blame-ignore-revs) lists mechanical commits, such as a `dotnet format`
+pass, that `git blame` should skip. Turn it on once in your clone with
+`git config blame.ignoreRevsFile .git-blame-ignore-revs`. A pull request that adds a commit to it merges
+with a merge commit, not a squash, so the listed hash stays the one on `develop`.
+
 ## Versioning
 
 The API follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). A release is numbered
@@ -109,9 +119,10 @@ and deletion.
 
 Jenkins runs the checks on every pull request into, and push to, `develop` and `main`. The `test` check
 ([`ci/test.sh`](./ci/test.sh)) validates the specifications, runs the helper scripts' tests and the
-protocol harness, restores and builds the solution, scans for vulnerable packages, checks the generated
-OpenAPI contract, runs the unit and functional tests and enforces 90% merged line coverage; its
-ReportGenerator license is the Jenkins credential `reportgenerator-license`, and a `renovate/*` build,
+protocol harness, restores and builds the solution, scans for vulnerable packages, checks the formatting
+(`dotnet format --verify-no-changes`), checks the generated OpenAPI contract, runs the unit and functional
+tests and enforces 90% merged line coverage; its ReportGenerator license is the Jenkins credential
+`reportgenerator-license`, and a `renovate/*` build,
 which binds no credential, makes the free report. The `docker` check ([`ci/docker.sh`](./ci/docker.sh))
 builds the container image. On pull requests into `main` the `branch-policy` check also runs
 `verify_protocol.py` ([`ci/branch-policy.sh`](./ci/branch-policy.sh)). The checks are declared in

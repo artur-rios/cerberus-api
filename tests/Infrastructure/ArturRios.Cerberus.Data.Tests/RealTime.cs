@@ -50,7 +50,8 @@ internal static class RealTime
     internal static async Task Past(DateTimeOffset bound, CancellationToken ct = default)
     {
         var wait = bound + Margin - Now;
-        if (wait > TimeSpan.Zero) await Task.Delay(wait, ct);
+        if (wait > TimeSpan.Zero)
+            await Task.Delay(wait, ct);
     }
 
     internal static Task Past(long unixSeconds, CancellationToken ct = default) =>
@@ -119,7 +120,8 @@ internal static class RealTime
 
         private async Task Check()
         {
-            if (!reached.IsCompleted || Interlocked.Exchange(ref _armed, 1) == 1) return;
+            if (!reached.IsCompleted || Interlocked.Exchange(ref _armed, 1) == 1)
+                return;
             try
             {
                 var deadline = Soon();

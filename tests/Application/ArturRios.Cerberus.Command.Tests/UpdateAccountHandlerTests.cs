@@ -26,10 +26,14 @@ public class UpdateAccountHandlerTests
         var command = Valid();
         command.SetAccess(invalid == "identity" ? Guid.Empty : Identity,
             invalid == "missingAccess" ? null : invalid == "emptyAccess" ? "" : invalid == "malformedAccess" ? "bad" : Handle);
-        if (invalid == "zeroRevision") command.ExpectedRevision = 0;
-        if (invalid == "negativeRevision") command.ExpectedRevision = -1;
-        if (invalid == "nullEnvelope") command.Details = null!;
-        if (invalid == "invalidEnvelope") command.Details = command.Details with { Format = "unsupported" };
+        if (invalid == "zeroRevision")
+            command.ExpectedRevision = 0;
+        if (invalid == "negativeRevision")
+            command.ExpectedRevision = -1;
+        if (invalid == "nullEnvelope")
+            command.Details = null!;
+        if (invalid == "invalidEnvelope")
+            command.Details = command.Details with { Format = "unsupported" };
         var result = await Handler(new Mock<IAccountUpdateStore>(MockBehavior.Strict).Object).HandleAsync(command);
         Assert.False(result.Success);
         Assert.Contains(error, result.Errors);
@@ -99,8 +103,11 @@ public class UpdateAccountHandlerTests
 
     private static UpdateAccountCommand Valid()
     {
-        var command = new UpdateAccountCommand { ExpectedRevision = 3,
-            Details = new("cerberus-content-v1", 1, Handle, "AAAAAAAAAAAAAAAA", "BAUG", "AAAAAAAAAAAAAAAAAAAAAA") };
+        var command = new UpdateAccountCommand
+        {
+            ExpectedRevision = 3,
+            Details = new("cerberus-content-v1", 1, Handle, "AAAAAAAAAAAAAAAA", "BAUG", "AAAAAAAAAAAAAAAAAAAAAA")
+        };
         command.SetAccess(Identity, Handle);
         return command;
     }

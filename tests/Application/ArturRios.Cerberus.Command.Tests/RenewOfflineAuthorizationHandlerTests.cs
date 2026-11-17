@@ -12,28 +12,40 @@ public class RenewOfflineAuthorizationHandlerTests
     private static RenewOfflineAuthorizationCommand Command()
     { var c = new RenewOfflineAuthorizationCommand { ProfileId = Profile, ExpectedProfileRevision = 3 }; c.SetContext(Identity, Handle); return c; }
     [UnitTheory]
-    [InlineData("identity", "authentication_required")][InlineData("missing", "vault_access_required")]
-    [InlineData("handle", "validation_failed")][InlineData("profile", "validation_failed")]
-    [InlineData("revision", "validation_failed")][InlineData("unsafeRevision", "validation_failed")]
+    [InlineData("identity", "authentication_required")]
+    [InlineData("missing", "vault_access_required")]
+    [InlineData("handle", "validation_failed")]
+    [InlineData("profile", "validation_failed")]
+    [InlineData("revision", "validation_failed")]
+    [InlineData("unsafeRevision", "validation_failed")]
     public async Task GivenInvalidInput_WhenRenewing_ThenRejectBeforeStorage(string invalid, string error)
     {
         var c = Command();
         c.SetContext(invalid == "identity" ? Guid.Empty : Identity, invalid == "missing" ? null : invalid == "handle" ? "invalid" : Handle);
-        if (invalid == "profile") c.ProfileId = Guid.Empty;
-        if (invalid == "revision") c.ExpectedProfileRevision = 0;
-        if (invalid == "unsafeRevision") c.ExpectedProfileRevision = 9007199254740992;
+        if (invalid == "profile")
+            c.ProfileId = Guid.Empty;
+        if (invalid == "revision")
+            c.ExpectedProfileRevision = 0;
+        if (invalid == "unsafeRevision")
+            c.ExpectedProfileRevision = 9007199254740992;
         var result = await new RenewOfflineAuthorizationHandler(new RenewOfflineAuthorizationValidator(), new Mock<IOfflineAuthorizationStore>(MockBehavior.Strict).Object).HandleAsync(c);
-        Assert.Contains(error, result.Errors); Assert.Null(result.Data);
+        Assert.Contains(error, result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitTheory]
-    [InlineData("not_found")][InlineData("vault_access_denied")][InlineData("revision_conflict")][InlineData("persistence_unavailable")]
+    [InlineData("not_found")]
+    [InlineData("vault_access_denied")]
+    [InlineData("revision_conflict")]
+    [InlineData("persistence_unavailable")]
     public async Task GivenDeniedRenewal_WhenHandling_ThenReturnStableErrorWithoutLease(string error)
     {
         var result = await Handler(new(Error: error)).HandleAsync(Command());
-        Assert.Contains(error, result.Errors); Assert.Null(result.Data);
+        Assert.Contains(error, result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitTheory]
-    [InlineData(true)][InlineData(false)]
+    [InlineData(true)]
+    [InlineData(false)]
     public async Task GivenCurrentSignedPolicy_WhenHandling_ThenReturnExactScopedPolicy(bool enabled)
     {
         var details = Details(enabled);
@@ -46,8 +58,14 @@ public class RenewOfflineAuthorizationHandlerTests
         Assert.Equal(details.Lease.ExpiresAt, result.Data.ExpiresAt);
     }
     [UnitTheory]
-    [InlineData("empty")][InlineData("identity")][InlineData("profile")][InlineData("revision")]
-    [InlineData("policy")][InlineData("lease")][InlineData("expiry")][InlineData("issued")]
+    [InlineData("empty")]
+    [InlineData("identity")]
+    [InlineData("profile")]
+    [InlineData("revision")]
+    [InlineData("policy")]
+    [InlineData("lease")]
+    [InlineData("expiry")]
+    [InlineData("issued")]
     public async Task GivenMismatchedStoredOutcome_WhenHandling_ThenFailClosed(string invalid)
     {
         var d = Details(true);
@@ -59,15 +77,18 @@ public class RenewOfflineAuthorizationHandlerTests
             "policy" => d with { Snapshot = d.Snapshot with { PolicyRevision = 0 } },
             "lease" => d with { Lease = d.Lease with { Compact = "invalid" } },
             "expiry" => d with { Lease = d.Lease with { ExpiresAt = null } },
-            "issued" => d with { Lease = d.Lease with { IssuedAt = d.Lease.IssuedAt.AddSeconds(1) } }, _ => d
+            "issued" => d with { Lease = d.Lease with { IssuedAt = d.Lease.IssuedAt.AddSeconds(1) } },
+            _ => d
         };
         var result = await Handler(new(invalid == "empty" ? null : d)).HandleAsync(Command());
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenRenewing_ThenPropagateCancellation()
     {
-        using var c = new CancellationTokenSource(); c.Cancel();
+        using var c = new CancellationTokenSource();
+        c.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new()).HandleAsync(Command(), c.Token));
     }
     private static OfflineAuthorizationDetails Details(bool enabled)

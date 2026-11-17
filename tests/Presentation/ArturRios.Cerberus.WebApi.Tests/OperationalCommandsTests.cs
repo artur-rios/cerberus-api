@@ -1,7 +1,7 @@
+using ArturRios.Cerberus.Shared.Configuration;
 using ArturRios.Cerberus.Shared.Operations;
 using ArturRios.Cerberus.WebApi.Operations;
 using Microsoft.Extensions.DependencyInjection;
-using ArturRios.Cerberus.Shared.Configuration;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 

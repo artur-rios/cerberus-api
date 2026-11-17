@@ -66,7 +66,8 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
     public async Task GivenDeniedAccess_WhenUpdatingIdentity_ThenNeverCallProviderOrChangeVault(string state, HttpStatusCode status)
     {
         var input = await Setup(state);
-        if (state != "anonymous") Authorize(RegistrationApiFixture.Token(input.Actor, state == "foreignScope" ? Guid.NewGuid() : null));
+        if (state != "anonymous")
+            Authorize(RegistrationApiFixture.Token(input.Actor, state == "foreignScope" ? Guid.NewGuid() : null));
         var handle = state == "foreignAccess" ? (await Setup()).Handle : state == "missingAccess" ? null : input.Handle;
         var calls = fixture.IdentityUpdateCalls;
         using var response = await Send(handle);
@@ -123,8 +124,10 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
             var bytes = Encoding.UTF8.GetBytes(body);
             var raw = await host.Server.SendAsync(context =>
             {
-                context.Request.Method = "PUT"; context.Request.Path = "/api/identity/me";
-                context.Request.ContentType = "application/json"; context.Request.ContentLength = bytes.Length;
+                context.Request.Method = "PUT";
+                context.Request.Path = "/api/identity/me";
+                context.Request.ContentType = "application/json";
+                context.Request.ContentLength = bytes.Length;
                 context.Request.Body = new MemoryStream(bytes);
                 context.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(input.Actor);
                 context.Request.Headers[Header] = "";
@@ -132,12 +135,13 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
             Assert.Equal(400, raw.Response.StatusCode);
             Assert.Contains("no-store", raw.Response.Headers.CacheControl.ToString());
             var result = (await JsonSerializer.DeserializeAsync<DataOutput<UpdateIdentityOutput>>(raw.Response.Body, Json))!;
-            Assert.False(result.Success); Assert.Null(result.Data);
+            Assert.False(result.Success);
+            Assert.Null(result.Data);
         }
         else
         {
             using var request = new HttpRequestMessage(HttpMethod.Put, "/api/identity/me" + (invalid == "query" ? "?owner=untrusted" : ""))
-                { Content = new StringContent(body, Encoding.UTF8, "application/json") };
+            { Content = new StringContent(body, Encoding.UTF8, "application/json") };
             request.Headers.TryAddWithoutValidation(Header, invalid == "duplicateHeader" ? new[] { input.Handle, input.Handle }
                 : new[] { invalid == "badHeader" ? "invalid" : input.Handle });
             using var response = await Gateway.Client.SendAsync(request);
@@ -168,7 +172,8 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
     [FunctionalFact]
     public async Task GivenDuplicateEmail_WhenUpdatingIdentity_ThenReturnConflictAndPreserveBothOwners()
     {
-        var input = await Setup(); var other = await Setup();
+        var input = await Setup();
+        var other = await Setup();
         Authorize(RegistrationApiFixture.Token(input.Actor));
         using var response = await Send(input.Handle, email: other.Email);
         await Failure(response, HttpStatusCode.Conflict);
@@ -181,7 +186,8 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
     [FunctionalFact]
     public async Task GivenLostResponseAfterProviderCommit_WhenRetryingReplacement_ThenNoVaultMutationOrFalseRollback()
     {
-        var input = await Setup(); Authorize(RegistrationApiFixture.Token(input.Actor));
+        var input = await Setup();
+        Authorize(RegistrationApiFixture.Token(input.Actor));
         var email = Guid.NewGuid().ToString("N") + "@example.test";
         using var lost = await Send(input.Handle, "response-loss", email);
         await Failure(lost, HttpStatusCode.ServiceUnavailable);
@@ -198,11 +204,13 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
     [FunctionalFact]
     public async Task GivenUnavailableDatabase_WhenUpdatingIdentity_ThenReturn503BeforeProvider()
     {
-        var input = await Setup(); Authorize(RegistrationApiFixture.Token(input.Actor));
+        var input = await Setup();
+        Authorize(RegistrationApiFixture.Token(input.Actor));
         var calls = fixture.IdentityUpdateCalls;
         await using var context = fixture.Context();
         await context.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.account RENAME TO fixture_identity_unavailable_account");
-        try { using var response = await Send(input.Handle); await Failure(response, HttpStatusCode.ServiceUnavailable); }
+        try
+        { using var response = await Send(input.Handle); await Failure(response, HttpStatusCode.ServiceUnavailable); }
         finally { await context.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.fixture_identity_unavailable_account RENAME TO account"); }
         Assert.Equal(calls, fixture.IdentityUpdateCalls);
         Assert.Equal(input.Before, await Snapshot(input.Actor));
@@ -210,22 +218,37 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
 
     private async Task<(Guid Actor, string Email, string Handle, string Before)> Setup(string state = "active")
     {
-        var actor = Guid.NewGuid(); var email = Guid.NewGuid().ToString("N") + "@example.test";
+        var actor = Guid.NewGuid();
+        var email = Guid.NewGuid().ToString("N") + "@example.test";
         fixture.Users[email] = new(actor, "fixture-password", Deleted: state == "deletedIdentity", IdentityUnavailable: state == "unavailableIdentity", Email: email);
         var handle = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
         Assert.True(OpaqueAccessHandle.TryHash(handle, out var verifier));
         if (state != "missing")
         {
             await using var context = fixture.Context();
-            var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = actor, Revision = 3,
+            var account = new Account
+            {
+                PublicId = Guid.NewGuid(),
+                HeimdallPublicId = actor,
+                Revision = 3,
                 DetailsEnvelope = JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), Json),
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
-            context.Accounts.Add(account); await context.SaveChangesAsync();
-            context.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                ProfileId = state == "profile" ? 42 : null, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            };
+            context.Accounts.Add(account);
+            await context.SaveChangesAsync();
+            context.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                ProfileId = state == "profile" ? 42 : null,
+                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
                 ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
-                Revoked = state == "revoked", PolicyRevision = state == "stale" ? 0 : 1, RevocationGeneration = 1 });
-            if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = account.PublicId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
+                Revoked = state == "revoked",
+                PolicyRevision = state == "stale" ? 0 : 1,
+                RevocationGeneration = 1
+            });
+            if (state == "erased")
+                context.TerminalErasures.Add(new TerminalErasure { ResourceId = account.PublicId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
         }
         return (actor, email, handle, await Snapshot(actor));
@@ -240,13 +263,16 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
     private async Task<HttpResponseMessage> Send(string? handle, string name = "New Name", string email = "new@example.test")
     {
         using var request = new HttpRequestMessage(HttpMethod.Put, "/api/identity/me") { Content = JsonContent.Create(new { name, email }) };
-        if (handle is not null) request.Headers.Add(Header, handle);
+        if (handle is not null)
+            request.Headers.Add(Header, handle);
         return await Gateway.Client.SendAsync(request);
     }
     private static async Task Failure(HttpResponseMessage response, HttpStatusCode status)
     {
-        Assert.Equal(status, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore);
+        Assert.Equal(status, response.StatusCode);
+        Assert.True(response.Headers.CacheControl?.NoStore);
         var result = (await response.Content.ReadFromJsonAsync<DataOutput<UpdateIdentityOutput>>())!;
-        Assert.False(result.Success); Assert.Null(result.Data);
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
     }
 }

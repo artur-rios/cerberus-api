@@ -35,7 +35,8 @@ public sealed record SoftwareGrantInput(
     {
         if (GrantId == Guid.Empty || SoftwareIdentityId == Guid.Empty
             || ExpectedRevision is not (null or > 0 and < ProtocolBinary.MaxInteger)
-            || RecipientKey?.IsValid() != true || Targets is not { Length: > 0 }) return false;
+            || RecipientKey?.IsValid() != true || Targets is not { Length: > 0 })
+            return false;
 
         var fingerprint = RecipientKey.ToPublicJwk().Fingerprint();
         var revision = (ExpectedRevision ?? 0) + 1;

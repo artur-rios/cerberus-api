@@ -23,12 +23,14 @@ public class OfflinePolicyUpdateStoreConcurrencyTests(PostgresFixture fixture) :
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var hook = new Before(c => Lock(c, "account"), async _ =>
         {
-            if (Interlocked.Increment(ref count) == 2) captured.TrySetResult();
+            if (Interlocked.Increment(ref count) == 2)
+                captured.TrySetResult();
             await release.Task.WaitAsync(ct.Token);
         });
         var one = Store(hook).UpdateAsync(s.Request, ct.Token);
         var two = Store(hook).UpdateAsync(s.Request with { RenewalInterval = TimeSpan.FromSeconds(2) }, ct.Token);
-        try { await captured.Task.WaitAsync(ct.Token); }
+        try
+        { await captured.Task.WaitAsync(ct.Token); }
         finally { release.TrySetResult(); }
         var results = await Task.WhenAll(one, two);
         Assert.Single(results, r => r.Error is null && r.Policy!.PolicyRevision == 2);
@@ -60,12 +62,18 @@ public class OfflinePolicyUpdateStoreConcurrencyTests(PostgresFixture fixture) :
             .UpdateAsync(s.Request, default);
         await ready.Task.WaitAsync(TimeSpan.FromSeconds(10));
         Assert.False(pending.IsCompleted);
-        if (change == "closure") await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET state=1 WHERE id={s.Owner}");
-        if (change == "revision") await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET revision=revision+1 WHERE id={s.Owner}");
-        if (change == "policy") await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET policy_revision=policy_revision+1 WHERE id={s.Owner}");
-        if (change == "generation") await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET revocation_generation=revocation_generation+1 WHERE id={s.Owner}");
-        if (change == "session") await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET revoked=true WHERE id={s.Session}");
-        if (change == "profile") await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.profile SET deleted_at=statement_timestamp(),purge_at=statement_timestamp()+interval '30 days' WHERE id={s.Profile}");
+        if (change == "closure")
+            await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET state=1 WHERE id={s.Owner}");
+        if (change == "revision")
+            await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET revision=revision+1 WHERE id={s.Owner}");
+        if (change == "policy")
+            await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET policy_revision=policy_revision+1 WHERE id={s.Owner}");
+        if (change == "generation")
+            await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET revocation_generation=revocation_generation+1 WHERE id={s.Owner}");
+        if (change == "session")
+            await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET revoked=true WHERE id={s.Session}");
+        if (change == "profile")
+            await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.profile SET deleted_at=statement_timestamp(),purge_at=statement_timestamp()+interval '30 days' WHERE id={s.Profile}");
         await tx.CommitAsync();
         var result = await pending.WaitAsync(TimeSpan.FromSeconds(10));
         Assert.Equal(error, result.Error);
@@ -100,8 +108,10 @@ public class OfflinePolicyUpdateStoreConcurrencyTests(PostgresFixture fixture) :
         {
             await ready.Task.WaitAsync(ct.Token);
             Assert.False(pending.IsCompleted);
-            if (table == "profile") await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.profile SET deleted_at=statement_timestamp(),purge_at=statement_timestamp()+interval '30 days' WHERE id={id}");
-            else await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET revoked=true WHERE id={id}");
+            if (table == "profile")
+                await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.profile SET deleted_at=statement_timestamp(),purge_at=statement_timestamp()+interval '30 days' WHERE id={id}");
+            else
+                await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET revoked=true WHERE id={id}");
         }
         finally { await tx.CommitAsync(); }
         var result = await pending.WaitAsync(ct.Token);
@@ -179,7 +189,8 @@ public class OfflinePolicyUpdateStoreConcurrencyTests(PostgresFixture fixture) :
         Assert.Null(result.Policy);
         await using var db = fixture.CreateContext();
         var row = await db.Accounts.SingleAsync(x => x.Id == s.Owner);
-        Assert.Equal(1, row.PolicyRevision); Assert.Equal(7, row.Revision);
+        Assert.Equal(1, row.PolicyRevision);
+        Assert.Equal(7, row.Revision);
         Assert.Equal(TimeSpan.FromHours(24), row.RenewalInterval);
         Assert.False((await db.VaultAccessSessions.SingleAsync(x => x.Id == s.Session)).Revoked);
         Assert.False(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "profile" && x.ResourceId == s.ProfilePublic));
@@ -190,13 +201,24 @@ public class OfflinePolicyUpdateStoreConcurrencyTests(PostgresFixture fixture) :
         await using var db = fixture.CreateContext();
         var identity = Guid.NewGuid();
         var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = identity, DetailsEnvelope = [11, 22], Revision = 7 };
-        db.Accounts.Add(account); await db.SaveChangesAsync();
+        db.Accounts.Add(account);
+        await db.SaveChangesAsync();
         Profile? profile = null;
-        if (selected) { profile = new Profile { PublicId = Guid.NewGuid(), AccountId = account.Id }; db.Profiles.Add(profile); await db.SaveChangesAsync(); }
+        if (selected)
+        { profile = new Profile { PublicId = Guid.NewGuid(), AccountId = account.Id }; db.Profiles.Add(profile); await db.SaveChangesAsync(); }
         var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
-        var session = new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier, ProfileId = profile?.Id,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 };
-        db.VaultAccessSessions.Add(session); await db.SaveChangesAsync();
+        var session = new VaultAccessSession
+        {
+            AccountId = account.Id,
+            HandleVerifier = verifier,
+            ProfileId = profile?.Id,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        };
+        db.VaultAccessSessions.Add(session);
+        await db.SaveChangesAsync();
         return new(account.Id, session.Id, profile?.Id, profile?.PublicId ?? Guid.Empty, new(identity, verifier, 1, true, TimeSpan.FromSeconds(1)));
     }
     private sealed record SetupState(long Owner, long Session, long? Profile, Guid ProfilePublic, OfflinePolicyUpdateRequest Request);

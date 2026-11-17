@@ -15,8 +15,10 @@ public sealed class AccountAuthenticationStore(IDbContextFactory<AppDbContext> f
             var account = await context.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == identityId)
                 .Select(x => new { x.PublicId, x.Revision, x.State, Erased = context.TerminalErasures.Any(e => (e.ResourceKind == "account" && e.ResourceId == x.PublicId)) })
                 .SingleOrDefaultAsync(cancellationToken);
-            if (account is null) return new();
-            if (account.State != AccountState.Active || account.Erased) return new(Error: "authentication_required");
+            if (account is null)
+                return new();
+            if (account.State != AccountState.Active || account.Erased)
+                return new(Error: "authentication_required");
             return new(new AuthenticationAccount(account.PublicId, account.Revision));
         }
         catch (Exception exception) when (exception is DbException or TimeoutException

@@ -48,20 +48,28 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
     }
 
     [FunctionalTheory]
-    [InlineData("selected", HttpStatusCode.OK)][InlineData("disabled", HttpStatusCode.OK)]
-    [InlineData("missing", HttpStatusCode.NotFound)][InlineData("closing", HttpStatusCode.NotFound)]
-    [InlineData("profileDeleted", HttpStatusCode.NotFound)][InlineData("otherSelection", HttpStatusCode.NotFound)]
-    [InlineData("expired", HttpStatusCode.Forbidden)][InlineData("revoked", HttpStatusCode.Forbidden)]
-    [InlineData("policy", HttpStatusCode.Forbidden)][InlineData("generation", HttpStatusCode.Forbidden)]
-    [InlineData("expected", HttpStatusCode.Conflict)][InlineData("invalidEpoch", HttpStatusCode.ServiceUnavailable)]
-    [InlineData("identityDeleted", HttpStatusCode.Unauthorized)][InlineData("identityUnavailable", HttpStatusCode.ServiceUnavailable)]
+    [InlineData("selected", HttpStatusCode.OK)]
+    [InlineData("disabled", HttpStatusCode.OK)]
+    [InlineData("missing", HttpStatusCode.NotFound)]
+    [InlineData("closing", HttpStatusCode.NotFound)]
+    [InlineData("profileDeleted", HttpStatusCode.NotFound)]
+    [InlineData("otherSelection", HttpStatusCode.NotFound)]
+    [InlineData("expired", HttpStatusCode.Forbidden)]
+    [InlineData("revoked", HttpStatusCode.Forbidden)]
+    [InlineData("policy", HttpStatusCode.Forbidden)]
+    [InlineData("generation", HttpStatusCode.Forbidden)]
+    [InlineData("expected", HttpStatusCode.Conflict)]
+    [InlineData("invalidEpoch", HttpStatusCode.ServiceUnavailable)]
+    [InlineData("identityDeleted", HttpStatusCode.Unauthorized)]
+    [InlineData("identityUnavailable", HttpStatusCode.ServiceUnavailable)]
     public async Task GivenCurrentPolicyOrAuthority_WhenRenewing_ThenReturnExactScopedOutcome(string state, HttpStatusCode status)
     {
         var s = await Setup(state);
         Authorize(RegistrationApiFixture.Token(s.Identity));
         using var request = Request(s, "{\"profileId\":\"" + (state == "missing" ? Guid.NewGuid() : s.Profile) + "\",\"expectedProfileRevision\":" + (state == "expected" ? "2" : "3") + "}");
         using var response = await Gateway.Client.SendAsync(request);
-        Assert.Equal(status, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore);
+        Assert.Equal(status, response.StatusCode);
+        Assert.True(response.Headers.CacheControl?.NoStore);
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         if (status == HttpStatusCode.OK)
         {
@@ -74,12 +82,14 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
             using var claims = JsonDocument.Parse(payload);
             Assert.Equal(state != "disabled", claims.RootElement.TryGetProperty("exp", out _));
         }
-        else Assert.True(!json.RootElement.TryGetProperty("data", out var data) || data.ValueKind == JsonValueKind.Null);
+        else
+            Assert.True(!json.RootElement.TryGetProperty("data", out var data) || data.ValueKind == JsonValueKind.Null);
         await Unchanged(s);
     }
 
     [FunctionalTheory]
-    [InlineData("{}")][InlineData("{\"profileId\":\"{profile}\"}")]
+    [InlineData("{}")]
+    [InlineData("{\"profileId\":\"{profile}\"}")]
     [InlineData("{\"expectedProfileRevision\":3}")]
     [InlineData("{\"profileId\":\"invalid\",\"expectedProfileRevision\":3}")]
     [InlineData("{\"profileId\":\"00000000-0000-0000-0000-000000000000\",\"expectedProfileRevision\":3}")]
@@ -92,42 +102,62 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
     [InlineData("{\"ProfileId\":\"{profile}\",\"expectedProfileRevision\":3}")]
     public async Task GivenInvalidStrictBody_WhenRenewing_ThenRejectWithoutLeaseOrMutation(string body)
     {
-        var s = await Setup(); Authorize(RegistrationApiFixture.Token(s.Identity));
+        var s = await Setup();
+        Authorize(RegistrationApiFixture.Token(s.Identity));
         using var request = Request(s, body.Replace("{profile}", s.Profile.ToString("D")));
         using var response = await Gateway.Client.SendAsync(request);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.True(response.Headers.CacheControl?.NoStore);
         await Unchanged(s);
     }
 
     [FunctionalTheory]
-    [InlineData("noIdentity", HttpStatusCode.Unauthorized)][InlineData("noHandle", HttpStatusCode.Unauthorized)]
-    [InlineData("handle", HttpStatusCode.BadRequest)][InlineData("duplicate", HttpStatusCode.BadRequest)]
-    [InlineData("query", HttpStatusCode.BadRequest)][InlineData("compression", HttpStatusCode.BadRequest)]
-    [InlineData("media", HttpStatusCode.BadRequest)][InlineData("textJson", HttpStatusCode.BadRequest)]
-    [InlineData("vendorJson", HttpStatusCode.BadRequest)][InlineData("charset", HttpStatusCode.BadRequest)]
-    [InlineData("parameter", HttpStatusCode.BadRequest)][InlineData("bom", HttpStatusCode.BadRequest)]
+    [InlineData("noIdentity", HttpStatusCode.Unauthorized)]
+    [InlineData("noHandle", HttpStatusCode.Unauthorized)]
+    [InlineData("handle", HttpStatusCode.BadRequest)]
+    [InlineData("duplicate", HttpStatusCode.BadRequest)]
+    [InlineData("query", HttpStatusCode.BadRequest)]
+    [InlineData("compression", HttpStatusCode.BadRequest)]
+    [InlineData("media", HttpStatusCode.BadRequest)]
+    [InlineData("textJson", HttpStatusCode.BadRequest)]
+    [InlineData("vendorJson", HttpStatusCode.BadRequest)]
+    [InlineData("charset", HttpStatusCode.BadRequest)]
+    [InlineData("parameter", HttpStatusCode.BadRequest)]
+    [InlineData("bom", HttpStatusCode.BadRequest)]
     [InlineData("empty", HttpStatusCode.BadRequest)]
     public async Task GivenInvalidTransport_WhenRenewing_ThenFailClosed(string invalid, HttpStatusCode status)
     {
-        var s = await Setup(); if (invalid != "noIdentity") Authorize(RegistrationApiFixture.Token(s.Identity));
+        var s = await Setup();
+        if (invalid != "noIdentity")
+            Authorize(RegistrationApiFixture.Token(s.Identity));
         using var request = Request(s, invalid == "empty" ? "" : (invalid == "bom" ? "\uFEFF" : "") + "{\"profileId\":\"" + s.Profile + "\",\"expectedProfileRevision\":3}");
-        if (invalid == "noHandle") request.Headers.Remove("X-Cerberus-Vault-Access");
-        if (invalid == "handle") { request.Headers.Remove("X-Cerberus-Vault-Access"); request.Headers.Add("X-Cerberus-Vault-Access", "invalid"); }
-        if (invalid == "duplicate") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Handle);
-        if (invalid == "query") request.RequestUri = new("/api/offline-authorizations?profileId=" + s.Profile, UriKind.Relative);
-        if (invalid == "compression") request.Content!.Headers.ContentEncoding.Add("gzip");
-        if (invalid is "media" or "textJson" or "vendorJson") request.Content!.Headers.ContentType = new(invalid == "media" ? "text/plain" : invalid == "textJson" ? "text/json" : "application/cerberus+json");
-        if (invalid == "charset") request.Content!.Headers.ContentType!.CharSet = "utf-16";
-        if (invalid == "parameter") request.Content!.Headers.ContentType!.Parameters.Add(new("extra", "value"));
+        if (invalid == "noHandle")
+            request.Headers.Remove("X-Cerberus-Vault-Access");
+        if (invalid == "handle")
+        { request.Headers.Remove("X-Cerberus-Vault-Access"); request.Headers.Add("X-Cerberus-Vault-Access", "invalid"); }
+        if (invalid == "duplicate")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Handle);
+        if (invalid == "query")
+            request.RequestUri = new("/api/offline-authorizations?profileId=" + s.Profile, UriKind.Relative);
+        if (invalid == "compression")
+            request.Content!.Headers.ContentEncoding.Add("gzip");
+        if (invalid is "media" or "textJson" or "vendorJson")
+            request.Content!.Headers.ContentType = new(invalid == "media" ? "text/plain" : invalid == "textJson" ? "text/json" : "application/cerberus+json");
+        if (invalid == "charset")
+            request.Content!.Headers.ContentType!.CharSet = "utf-16";
+        if (invalid == "parameter")
+            request.Content!.Headers.ContentType!.Parameters.Add(new("extra", "value"));
         using var response = await Gateway.Client.SendAsync(request);
-        Assert.Equal(status, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore);
+        Assert.Equal(status, response.StatusCode);
+        Assert.True(response.Headers.CacheControl?.NoStore);
         await Unchanged(s);
     }
 
     [FunctionalFact]
     public async Task GivenOversizedBody_WhenRenewing_ThenReturnEmpty413()
     {
-        var s = await Setup(); Authorize(RegistrationApiFixture.Token(s.Identity));
+        var s = await Setup();
+        Authorize(RegistrationApiFixture.Token(s.Identity));
         using var request = Request(s, new string(' ', 65537));
         using var response = await Gateway.Client.SendAsync(request);
         Assert.Equal(HttpStatusCode.RequestEntityTooLarge, response.StatusCode);
@@ -137,7 +167,8 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
     private static HttpRequestMessage Request(SetupState s, string body)
     {
         var r = new HttpRequestMessage(HttpMethod.Post, "/api/offline-authorizations") { Content = new StringContent(body, Encoding.UTF8, "application/json") };
-        r.Headers.Add("X-Cerberus-Vault-Access", s.Handle); return r;
+        r.Headers.Add("X-Cerberus-Vault-Access", s.Handle);
+        return r;
     }
     private async Task Unchanged(SetupState s)
     {
@@ -154,20 +185,42 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
         var handle = ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32));
         Assert.True(OpaqueAccessHandle.TryHash(handle, out var verifier));
         await using var db = fixture.Context();
-        var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = identity, Revision = 7, DetailsEnvelope = [11, 22],
+        var account = new Account
+        {
+            PublicId = Guid.NewGuid(),
+            HeimdallPublicId = identity,
+            Revision = 7,
+            DetailsEnvelope = [11, 22],
             State = state == "closing" ? AccountState.ClosurePending : AccountState.Active,
-            PolicyRevision = state == "policy" ? 2 : 1, RevocationGeneration = state == "generation" ? 2 : 1,
-            RenewalEnabled = state != "disabled", RenewalInterval = state == "disabled" ? null : TimeSpan.FromHours(24) };
-        db.Accounts.Add(account); await db.SaveChangesAsync();
-        var profile = new Profile { AccountId = account.Id, PublicId = Guid.NewGuid(), Revision = 3,
+            PolicyRevision = state == "policy" ? 2 : 1,
+            RevocationGeneration = state == "generation" ? 2 : 1,
+            RenewalEnabled = state != "disabled",
+            RenewalInterval = state == "disabled" ? null : TimeSpan.FromHours(24)
+        };
+        db.Accounts.Add(account);
+        await db.SaveChangesAsync();
+        var profile = new Profile
+        {
+            AccountId = account.Id,
+            PublicId = Guid.NewGuid(),
+            Revision = 3,
             DeletedAt = state == "profileDeleted" ? DateTimeOffset.UtcNow : null,
             Envelope = JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", state == "invalidEpoch" ? 0 : 2,
-                ProtocolBinary.Encode(new byte[32]), ProtocolBinary.Encode(new byte[12]), "AQID", ProtocolBinary.Encode(new byte[16])), new JsonSerializerOptions(JsonSerializerDefaults.Web)) };
-        db.Profiles.Add(profile); await db.SaveChangesAsync();
-        db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
+                ProtocolBinary.Encode(new byte[32]), ProtocolBinary.Encode(new byte[12]), "AQID", ProtocolBinary.Encode(new byte[16])), new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
+        db.Profiles.Add(profile);
+        await db.SaveChangesAsync();
+        db.VaultAccessSessions.Add(new VaultAccessSession
+        {
+            AccountId = account.Id,
+            HandleVerifier = verifier,
             ProfileId = state == "selected" ? profile.Id : state == "otherSelection" ? long.MaxValue : null,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = state == "disabled" ? null : state == "expired" ? DateTimeOffset.UtcNow.AddSeconds(-1) : DateTimeOffset.UtcNow.AddHours(1),
-            PolicyRevision = 1, RevocationGeneration = 1, Revoked = state == "revoked" });
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = state == "disabled" ? null : state == "expired" ? DateTimeOffset.UtcNow.AddSeconds(-1) : DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1,
+            Revoked = state == "revoked"
+        });
         await db.SaveChangesAsync();
         return new(identity, account.PublicId, profile.PublicId, handle);
     }

@@ -15,11 +15,14 @@ internal static class RecordProjection
         if (row is null || row.RecordId == Guid.Empty || row.Revision is <= 0 or > ProtocolBinary.MaxInteger
             || row.ServerSequence is <= 0 or > ProtocolBinary.MaxInteger || row.EditedAt.Ticks < TimeSpan.TicksPerMicrosecond
             || row.EditedAt.Offset != TimeSpan.Zero || row.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond != 0
-            || row.Envelope is null) return false;
+            || row.Envelope is null)
+            return false;
         EncryptedEnvelope? envelope;
-        try { envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json); }
+        try
+        { envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json); }
         catch (JsonException) { return false; }
-        if (envelope?.IsValid() != true) return false;
+        if (envelope?.IsValid() != true)
+            return false;
         item = new(row.RecordId, row.Revision, row.ServerSequence, row.EditedAt, envelope);
         return true;
     }

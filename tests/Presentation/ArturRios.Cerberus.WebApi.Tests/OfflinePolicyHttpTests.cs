@@ -8,9 +8,9 @@ using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.Query.Accounts;
 using ArturRios.Output;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
@@ -133,7 +133,8 @@ public class OfflinePolicyHttpTests(RegistrationApiFixture fixture, SharedApiHos
             request.Version = HttpVersion.Version20;
             request.Content = new UnspecifiedLengthContent();
         }
-        if (invalid == "body") request.Content = new StringContent("{\"ownerId\":\"untrusted\"}", Encoding.UTF8, "application/json");
+        if (invalid == "body")
+            request.Content = new StringContent("{\"ownerId\":\"untrusted\"}", Encoding.UTF8, "application/json");
         if (invalid == "emptyHandle")
         {
             // HttpClient/TestServer omits zero-value headers. Inject the actual
@@ -205,12 +206,18 @@ public class OfflinePolicyHttpTests(RegistrationApiFixture fixture, SharedApiHos
         if (state != "missing")
         {
             await using var context = fixture.Context();
-            var account = new Account { PublicId = id, HeimdallPublicId = identity, Revision = 3,
-                PolicyRevision = state == "stale" ? 2 : 1, RevocationGeneration = state == "staleGeneration" ? 2 : 1,
+            var account = new Account
+            {
+                PublicId = id,
+                HeimdallPublicId = identity,
+                Revision = 3,
+                PolicyRevision = state == "stale" ? 2 : 1,
+                RevocationGeneration = state == "staleGeneration" ? 2 : 1,
                 DetailsEnvelope = Encoding.UTF8.GetBytes("not-json"),
                 RenewalEnabled = state != "disabled",
                 RenewalInterval = state == "disabled" ? null : state == "corruptPolicy" ? TimeSpan.Zero : state == "configured" ? TimeSpan.FromSeconds(1) : TimeSpan.FromHours(24),
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            };
             context.Accounts.Add(account);
             await context.SaveChangesAsync();
             long? selected = null;
@@ -221,11 +228,19 @@ public class OfflinePolicyHttpTests(RegistrationApiFixture fixture, SharedApiHos
                 await context.SaveChangesAsync();
                 selected = profile.Id;
             }
-            context.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                ProfileId = state == "profile" ? 42 : selected, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+            context.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                ProfileId = state == "profile" ? 42 : selected,
+                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
                 ExpiresAt = state == "disabled" ? null : state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
-                Revoked = state == "revoked", PolicyRevision = state == "zeroPolicy" ? 0 : 1, RevocationGeneration = 1 });
-            if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
+                Revoked = state == "revoked",
+                PolicyRevision = state == "zeroPolicy" ? 0 : 1,
+                RevocationGeneration = 1
+            });
+            if (state == "erased")
+                context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
         }
         return (identity, id, handle, details);
@@ -234,7 +249,8 @@ public class OfflinePolicyHttpTests(RegistrationApiFixture fixture, SharedApiHos
     private async Task<HttpResponseMessage> Send(string? handle)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, "/api/accounts/me/offline-policy");
-        if (handle is not null) request.Headers.Add(Header, handle);
+        if (handle is not null)
+            request.Headers.Add(Header, handle);
         return await Gateway.Client.SendAsync(request);
     }
     private static async Task Failure(HttpResponseMessage response, HttpStatusCode status)

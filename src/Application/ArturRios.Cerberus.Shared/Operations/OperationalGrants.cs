@@ -8,11 +8,13 @@ public static class OperationalGrants
     {
         var ids = new HashSet<Guid>();
         subjects = ids;
-        if (string.IsNullOrEmpty(value)) return true;
+        if (string.IsNullOrEmpty(value))
+            return true;
         foreach (var part in value.Split(','))
         {
             if (!Guid.TryParseExact(part, "D", out var id) || id == Guid.Empty
-                || part != id.ToString("D") || !ids.Add(id)) return false;
+                || part != id.ToString("D") || !ids.Add(id))
+                return false;
         }
         return true;
     }

@@ -11,84 +11,101 @@ using NpgsqlTypes;
 
 namespace ArturRios.Cerberus.Data.Software;
 
-public sealed class SoftwareSecretStore(IDbContextFactory<AppDbContext> factory):ISoftwareSecretStore
+public sealed class SoftwareSecretStore(IDbContextFactory<AppDbContext> factory) : ISoftwareSecretStore
 {
-    private static readonly JsonSerializerOptions Json=new(JsonSerializerDefaults.Web)
-    {PropertyNameCaseInsensitive=false,AllowDuplicateProperties=false,NumberHandling=JsonNumberHandling.Strict};
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
 
-    public async Task<VaultResult<SoftwareSecretDetails>> ReadAsync(SoftwareSecretRequest request,CancellationToken ct)
+    public async Task<VaultResult<SoftwareSecretDetails>> ReadAsync(SoftwareSecretRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if(request.Identity?.IsValid()!=true)return new(Error:"authentication_required");
-        if(request.Input?.IsValid()!=true)return new(Error:"validation_failed");
+        if (request.Identity?.IsValid() != true)
+            return new(Error: "authentication_required");
+        if (request.Input?.IsValid() != true)
+            return new(Error: "validation_failed");
         try
         {
-            await using var db=await factory.CreateDbContextAsync(ct);
-            await using var tx=await db.Database.BeginTransactionAsync(ct);
-            var first=await Read(db,request,ct);
-            if(Error(first) is {} error)return new(Error:error);
+            await using var db = await factory.CreateDbContextAsync(ct);
+            await using var tx = await db.Database.BeginTransactionAsync(ct);
+            var first = await Read(db, request, ct);
+            if (Error(first) is { } error)
+                return new(Error: error);
             // Native writers serialize under the owner account before resource/grant locks.
-            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={first.OwnerId} FOR UPDATE",ct);
-            if(request.Input.Kind=="collection"||request.Input.CollectionId is not null)
+            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={first.OwnerId} FOR UPDATE", ct);
+            if (request.Input.Kind == "collection" || request.Input.CollectionId is not null)
             {
-                var collection=request.Input.CollectionId??request.Input.Id;
-                await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE account_id={first.OwnerId} AND public_id={collection} FOR UPDATE",ct);
+                var collection = request.Input.CollectionId ?? request.Input.Id;
+                await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE account_id={first.OwnerId} AND public_id={collection} FOR UPDATE", ct);
             }
-            if(request.Input.Kind=="record")
-                await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.record WHERE account_id={first.OwnerId} AND public_id={request.Input.Id} FOR UPDATE",ct);
-            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.software_grant WHERE account_id={first.OwnerId} AND public_id={request.Input.GrantId} FOR UPDATE",ct);
-            var current=await Read(db,request,ct);
-            if(Error(current) is {} denied)return new(Error:denied);
-            if(current.OwnerId!=first.OwnerId)return new(Error:"not_found");
-            var evidence=JsonSerializer.Deserialize<Evidence>(current.Payload!,Json);
-            if(evidence is null||!CollectionGrantBinding.TryReadPins(new()
+            if (request.Input.Kind == "record")
+                await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.record WHERE account_id={first.OwnerId} AND public_id={request.Input.Id} FOR UPDATE", ct);
+            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.software_grant WHERE account_id={first.OwnerId} AND public_id={request.Input.GrantId} FOR UPDATE", ct);
+            var current = await Read(db, request, ct);
+            if (Error(current) is { } denied)
+                return new(Error: denied);
+            if (current.OwnerId != first.OwnerId)
+                return new(Error: "not_found");
+            var evidence = JsonSerializer.Deserialize<Evidence>(current.Payload!, Json);
+            if (evidence is null || !CollectionGrantBinding.TryReadPins(new()
             {
-                Material=Convert.FromHexString(evidence.Material??""),Revision=evidence.ProtectionRevision,
-                KeyEpoch=evidence.ProtectionEpoch,RecoveryGeneration=evidence.ProtectionGeneration
-            },out var pins))return new(Error:"persistence_unavailable");
-            var target=Resource(evidence.Target);var provisioning=Resource(evidence.Provisioning);
-            var key=JsonSerializer.Deserialize<SoftwareRecipientKey>(Convert.FromHexString(evidence.RecipientKey),Json);
-            var wrap=JsonSerializer.Deserialize<RecipientEnvelope>(Convert.FromHexString(evidence.KeyEnvelope),Json);
-            if(target is null||provisioning is null||key is null||wrap is null)return new(Error:"persistence_unavailable");
-            var details=new SoftwareSecretDetails(evidence.OwnerAccountId,request.Input.GrantId,evidence.GrantRevision,target,new(provisioning,wrap),key,pins!.AuthorKey);
-            if(!details.IsValid(request.Identity,request.Input))return new(Error:"persistence_unavailable");
+                Material = Convert.FromHexString(evidence.Material ?? ""),
+                Revision = evidence.ProtectionRevision,
+                KeyEpoch = evidence.ProtectionEpoch,
+                RecoveryGeneration = evidence.ProtectionGeneration
+            }, out var pins))
+                return new(Error: "persistence_unavailable");
+            var target = Resource(evidence.Target);
+            var provisioning = Resource(evidence.Provisioning);
+            var key = JsonSerializer.Deserialize<SoftwareRecipientKey>(Convert.FromHexString(evidence.RecipientKey), Json);
+            var wrap = JsonSerializer.Deserialize<RecipientEnvelope>(Convert.FromHexString(evidence.KeyEnvelope), Json);
+            if (target is null || provisioning is null || key is null || wrap is null)
+                return new(Error: "persistence_unavailable");
+            var details = new SoftwareSecretDetails(evidence.OwnerAccountId, request.Input.GrantId, evidence.GrantRevision, target, new(provisioning, wrap), key, pins!.AuthorKey);
+            if (!details.IsValid(request.Identity, request.Input))
+                return new(Error: "persistence_unavailable");
             // Final database-time check follows every wait and cryptographic read.
-            var final=await Read(db,request,ct);
-            if(Error(final) is {} finalError)return new(Error:finalError);
-            if(final.OwnerId!=current.OwnerId||final.Stable!=current.Stable||final.Payload!=current.Payload)
-                return new(Error:"persistence_unavailable");
+            var final = await Read(db, request, ct);
+            if (Error(final) is { } finalError)
+                return new(Error: finalError);
+            if (final.OwnerId != current.OwnerId || final.Stable != current.Stable || final.Payload != current.Payload)
+                return new(Error: "persistence_unavailable");
             await tx.CommitAsync(ct);
             return new(details);
         }
-        catch(OperationCanceledException)when(!ct.IsCancellationRequested){return new(Error:"persistence_unavailable");}
-        catch(Exception e)when(e is DbException or DbUpdateException or TimeoutException or JsonException or FormatException
-            ||e is InvalidOperationException{InnerException:DbException or DbUpdateException or TimeoutException})
-        {return new(Error:"persistence_unavailable");}
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
+        catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException or JsonException or FormatException
+            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException })
+        { return new(Error: "persistence_unavailable"); }
     }
-    private static string? Error(Snapshot s)=>s.Expired?"authentication_required":!s.Allowed?"not_found":s.CorruptAncestry?"persistence_unavailable":null;
+    private static string? Error(Snapshot s) => s.Expired ? "authentication_required" : !s.Allowed ? "not_found" : s.CorruptAncestry ? "persistence_unavailable" : null;
     private static SoftwareSecretResource? Resource(ResourceEvidence e)
     {
-        var envelope=JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(e.Envelope),Json);
-        if(envelope is null||e.Sequence is <=0 or >ProtocolBinary.MaxInteger||e.PurgeAt is not null)return null;
-        var resource=new SoftwareSecretResource(e.Kind,e.Id,e.Revision,e.KeyEpoch??envelope.KeyEpoch,envelope);
-        return resource.IsValid()?resource:null;
+        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(e.Envelope), Json);
+        if (envelope is null || e.Sequence is <= 0 or > ProtocolBinary.MaxInteger || e.PurgeAt is not null)
+            return null;
+        var resource = new SoftwareSecretResource(e.Kind, e.Id, e.Revision, e.KeyEpoch ?? envelope.KeyEpoch, envelope);
+        return resource.IsValid() ? resource : null;
     }
-    private sealed record ResourceEvidence(string Kind,Guid Id,long Revision,long? KeyEpoch,string Envelope,long Sequence,string? PurgeAt);
-    private sealed record Evidence(Guid OwnerAccountId,long GrantRevision,string RecipientKey,string KeyEnvelope,
-        ResourceEvidence Target,ResourceEvidence Provisioning,string? Material,long ProtectionRevision,long ProtectionEpoch,long ProtectionGeneration);
+    private sealed record ResourceEvidence(string Kind, Guid Id, long Revision, long? KeyEpoch, string Envelope, long Sequence, string? PurgeAt);
+    private sealed record Evidence(Guid OwnerAccountId, long GrantRevision, string RecipientKey, string KeyEnvelope,
+        ResourceEvidence Target, ResourceEvidence Provisioning, string? Material, long ProtectionRevision, long ProtectionEpoch, long ProtectionGeneration);
     private sealed class Snapshot
     {
-        public long OwnerId{get;set;}public bool Expired{get;set;}public bool Allowed{get;set;}public bool CorruptAncestry{get;set;}
-        public string? Payload{get;set;}public string Stable{get;set;}="{}";
+        public long OwnerId { get; set; }
+        public bool Expired { get; set; }
+        public bool Allowed { get; set; }
+        public bool CorruptAncestry { get; set; }
+        public string? Payload { get; set; }
+        public string Stable { get; set; } = "{}";
     }
-    private static async Task<Snapshot> Read(AppDbContext db,SoftwareSecretRequest r,CancellationToken ct)
+    private static async Task<Snapshot> Read(AppDbContext db, SoftwareSecretRequest r, CancellationToken ct)
     {
-        object[] parameters=[new NpgsqlParameter("grant",r.Input.GrantId),new NpgsqlParameter("application",r.Identity.ApplicationId),
+        object[] parameters = [new NpgsqlParameter("grant",r.Input.GrantId),new NpgsqlParameter("application",r.Identity.ApplicationId),
             new NpgsqlParameter("expiry",r.Identity.ExpiresAt),new NpgsqlParameter("kind",r.Input.Kind),new NpgsqlParameter("id",r.Input.Id),
             new NpgsqlParameter("collection",NpgsqlDbType.Uuid){Value=(object?)r.Input.CollectionId??DBNull.Value}];
-        return(await db.Database.SqlQueryRaw<Snapshot>(Sql,parameters).ToListAsync(ct)).Single();
+        return (await db.Database.SqlQueryRaw<Snapshot>(Sql, parameters).ToListAsync(ct)).Single();
     }
-    private const string Sql="""
+    private const string Sql = """
         WITH RECURSIVE grant_row AS MATERIALIZED (
           SELECT g.* FROM cerberus.software_grant g JOIN cerberus.account a ON a.id=g.account_id
           WHERE g.public_id=@grant AND g.heimdall_software_public_id=@application AND g.state=0 AND a.state=0

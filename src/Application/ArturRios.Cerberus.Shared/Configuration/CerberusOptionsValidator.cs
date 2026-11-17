@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Options;
 using System.Globalization;
 using ArturRios.Cerberus.Domain.Offline;
+using Microsoft.Extensions.Options;
 
 namespace ArturRios.Cerberus.Shared.Configuration;
 
@@ -11,7 +11,8 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
         var errors = new List<string>();
         void Require(bool valid, string setting)
         {
-            if (!valid) errors.Add($"Invalid or missing {setting}.");
+            if (!valid)
+                errors.Add($"Invalid or missing {setting}.");
         }
 
         Require(!string.IsNullOrWhiteSpace(options.ConnectionString), "CERBERUS_DATA_CONNECTIONSTRING");
@@ -23,10 +24,10 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
         Require(!string.IsNullOrWhiteSpace(options.HeimdallServiceCredential), "CERBERUS_HEIMDALL_SERVICE_CREDENTIAL");
         Require(!string.IsNullOrWhiteSpace(options.AuthIssuer), "CERBERUS_AUTH_ISSUER");
         Require(!string.IsNullOrWhiteSpace(options.AuthAudience), "CERBERUS_AUTH_AUDIENCE");
-        Require(!string.IsNullOrWhiteSpace(options.AuthApplicationAudience)&&options.AuthApplicationAudience!=options.AuthAudience,
+        Require(!string.IsNullOrWhiteSpace(options.AuthApplicationAudience) && options.AuthApplicationAudience != options.AuthAudience,
             "CERBERUS_AUTH_APPLICATION_AUDIENCE");
-        Require(options.AuthValidationSecretPrevious is null || options.AuthValidationSecretPrevious is {Length:>=32} previous
-            &&previous.All(c=>c is >= '!' and <= '~'), "CERBERUS_AUTH_VALIDATION_SECRET_PREVIOUS");
+        Require(options.AuthValidationSecretPrevious is null || options.AuthValidationSecretPrevious is { Length: >= 32 } previous
+            && previous.All(c => c is >= '!' and <= '~'), "CERBERUS_AUTH_VALIDATION_SECRET_PREVIOUS");
         Require(options.AuthValidationSecret is { Length: >= 32 } secret && secret.All(c => c is >= '!' and <= '~'), "CERBERUS_AUTH_VALIDATION_SECRET");
         Require(options.RegistrationFingerprintKey is { Length: >= 32 } registrationKey
                 && registrationKey.All(c => c is >= '!' and <= '~') && registrationKey != options.AuthValidationSecret && registrationKey != options.AuthValidationSecretPrevious,
@@ -63,7 +64,8 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
 
     private static bool IsWithin(string path, string? parent)
     {
-        if (parent is null || !Path.IsPathFullyQualified(parent)) return false;
+        if (parent is null || !Path.IsPathFullyQualified(parent))
+            return false;
         var fullParent = Path.GetFullPath(parent).TrimEnd(Path.DirectorySeparatorChar);
         var fullPath = Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar);
         return fullPath == fullParent || fullPath.StartsWith(fullParent + Path.DirectorySeparatorChar, StringComparison.Ordinal);

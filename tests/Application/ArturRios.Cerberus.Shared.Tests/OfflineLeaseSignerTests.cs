@@ -25,12 +25,16 @@ public class OfflineLeaseSignerTests
         options.OfflineLeaseIssuer = state is "absent" or "keyOnly" ? null : state == "nonCanonicalIssuer" ? "e\u0301" : state == "unicodeIssuer" ? "é" : "fixture-lease-issuer";
         options.OfflineLeasePrivateKeyPem = state switch
         {
-            "absent" or "issuerOnly" => null, "invalid" => "invalid", "public" => key.ExportSubjectPublicKeyInfoPem(),
-            "wrongCurve" => wrong.ExportPkcs8PrivateKeyPem(), _ => key.ExportPkcs8PrivateKeyPem()
+            "absent" or "issuerOnly" => null,
+            "invalid" => "invalid",
+            "public" => key.ExportSubjectPublicKeyInfoPem(),
+            "wrongCurve" => wrong.ExportPkcs8PrivateKeyPem(),
+            _ => key.ExportPkcs8PrivateKeyPem()
         };
         var result = new CerberusOptionsValidator().Validate(null, options);
         Assert.Equal(valid, result.Succeeded);
-        if (!valid) Assert.DoesNotContain(options.OfflineLeasePrivateKeyPem ?? "empty", string.Join("", result.Failures!));
+        if (!valid)
+            Assert.DoesNotContain(options.OfflineLeasePrivateKeyPem ?? "empty", string.Join("", result.Failures!));
     }
 
     [UnitFact]

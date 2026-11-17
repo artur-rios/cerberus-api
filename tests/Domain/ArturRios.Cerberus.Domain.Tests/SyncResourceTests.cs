@@ -11,7 +11,11 @@ public class SyncResourceTests
     private static readonly DateTimeOffset Edited = DateTimeOffset.FromUnixTimeSeconds(1000);
     private static EncryptedEnvelope Envelope() => new("cerberus-content-v1", 1, ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16]));
     [UnitTheory]
-    [InlineData("profile")][InlineData("record")][InlineData("folder")][InlineData("collection")][InlineData("grant")]
+    [InlineData("profile")]
+    [InlineData("record")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
     public void GivenNativeScopedResource_WhenCreatingUpsert_ThenValidateTypedContent(string kind)
     {
         using var client = new ProtectionFixture();
@@ -21,7 +25,8 @@ public class SyncResourceTests
         Assert.False(new SyncChangeItem(1, kind, Guid.NewGuid(), "upsert", data).IsValid(Actor, Profile));
     }
     [UnitTheory]
-    [InlineData("removed")][InlineData("permanently-deleted")]
+    [InlineData("removed")]
+    [InlineData("permanently-deleted")]
     public void GivenKnownDisclosedIdentifier_WhenRemoving_ThenRequireMinimalTypedMetadata(string type)
     {
         var item = new SyncChangeItem(1, "record", Guid.NewGuid(), type, DeletedAt: type == "permanently-deleted" ? Edited : null);
@@ -31,17 +36,26 @@ public class SyncResourceTests
         Assert.False((item with { ResourceKind = "account" }).IsValid(Actor, Profile));
     }
     [UnitTheory]
-    [InlineData("revision")][InlineData("sequence")][InlineData("unsafe")][InlineData("time")]
-    [InlineData("utc")][InlineData("precision")][InlineData("envelope")][InlineData("identifier")]
+    [InlineData("revision")]
+    [InlineData("sequence")]
+    [InlineData("unsafe")]
+    [InlineData("time")]
+    [InlineData("utc")]
+    [InlineData("precision")]
+    [InlineData("envelope")]
+    [InlineData("identifier")]
     public void GivenInvalidEncryptedMetadata_WhenValidating_ThenReject(string invalid)
     {
         var r = new SyncRecordData(Guid.NewGuid(), 1, 1, Edited, Envelope());
         r = invalid switch
         {
-            "revision" => r with { Revision = 0 }, "sequence" => r with { ServerSequence = 0 },
-            "unsafe" => r with { ServerSequence = 9007199254740992 }, "time" => r with { EditedAt = default },
+            "revision" => r with { Revision = 0 },
+            "sequence" => r with { ServerSequence = 0 },
+            "unsafe" => r with { ServerSequence = 9007199254740992 },
+            "time" => r with { EditedAt = default },
             "utc" => r with { EditedAt = Edited.ToOffset(TimeSpan.FromHours(1)) },
-            "precision" => r with { EditedAt = Edited.AddTicks(1) }, "envelope" => r with { Envelope = Envelope() with { Format = "unknown" } },
+            "precision" => r with { EditedAt = Edited.AddTicks(1) },
+            "envelope" => r with { Envelope = Envelope() with { Format = "unknown" } },
             _ => r with { ResourceId = Guid.Empty }
         };
         Assert.False(r.IsValid(Actor, Profile));

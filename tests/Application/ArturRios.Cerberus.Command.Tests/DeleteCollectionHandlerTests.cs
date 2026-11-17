@@ -62,7 +62,8 @@ public class DeleteCollectionHandlerTests
     public async Task GivenValidTrashMetadata_WhenHandling_ThenForwardTrustedContextAndReturnExactSixFields(string kind)
     {
         var command = Command();
-        if (kind == "largestRevision") command.ExpectedRevision = 9007199254740990;
+        if (kind == "largestRevision")
+            command.ExpectedRevision = 9007199254740990;
         var time = kind switch
         {
             "minimum" => new DateTimeOffset(10, TimeSpan.Zero),
@@ -202,7 +203,8 @@ public class DeleteCollectionHandlerTests
             "exhaustedRevision" => details with { Revision = 9007199254740992 },
             _ => details
         };
-        if (kind == "exhaustedRevision") command.ExpectedRevision = 9007199254740991;
+        if (kind == "exhaustedRevision")
+            command.ExpectedRevision = 9007199254740991;
         var store = new Mock<ICollectionTrashStore>();
         store.Setup(x => x.TrashAsync(It.IsAny<CollectionTrashRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(kind == "nullResult" ? null! : new VaultResult<CollectionTrashDetails>(returned));

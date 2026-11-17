@@ -6,9 +6,9 @@ using ArturRios.Cerberus.Data.Records;
 using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Records;
-using Microsoft.EntityFrameworkCore;
-using ArturRios.Cerberus.TestSupport;
 using ArturRios.Cerberus.Domain.Resources;
+using ArturRios.Cerberus.TestSupport;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
@@ -44,16 +44,20 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
         var id = Guid.NewGuid();
         var first = new ErasureEntry(id, "record", Deleted);
         var ledger = new FileErasureLedger(directory);
-        if (legacy) await File.WriteAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json"), JsonSerializer.Serialize(first));
-        else await ledger.RecordAsync(first, default);
+        if (legacy)
+            await File.WriteAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json"), JsonSerializer.Serialize(first));
+        else
+            await ledger.RecordAsync(first, default);
         await ledger.RecordAsync(new(id, "folder", Deleted.AddHours(1)), default);
         var entries = new List<ErasureEntry>();
-        await foreach (var entry in new FileErasureLedger(directory).ReadAsync(default)) entries.Add(entry);
+        await foreach (var entry in new FileErasureLedger(directory).ReadAsync(default))
+            entries.Add(entry);
         Assert.Equal(2, entries.Count);
         Assert.Contains(first, entries);
         Assert.Contains(new(id, "folder", Deleted.AddHours(1)), entries);
         Assert.True(File.Exists(Path.Combine(directory, "folder-" + id.ToString("N") + ".json")));
-        if (legacy) Assert.Equal(JsonSerializer.Serialize(first), await File.ReadAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json")));
+        if (legacy)
+            Assert.Equal(JsonSerializer.Serialize(first), await File.ReadAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json")));
     }
 
     [FunctionalFact]
@@ -65,14 +69,19 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
         var ledger = new FileErasureLedger(directory);
         await ledger.RecordAsync(entry with { DeletedAt = Deleted.AddHours(1) }, default);
         var entries = new List<ErasureEntry>();
-        await foreach (var item in ledger.ReadAsync(default)) entries.Add(item);
+        await foreach (var item in ledger.ReadAsync(default))
+            entries.Add(item);
         Assert.Single(entries);
         Assert.Equal(entry, entries[0]);
     }
 
     // Unrelated terminal kinds must never erase the actor account's namespace.
     [FunctionalTheory]
-    [InlineData("profile")][InlineData("record")][InlineData("folder")][InlineData("collection")][InlineData("grant")]
+    [InlineData("profile")]
+    [InlineData("record")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
     public async Task GivenOtherKindErasedWithAccountGuid_WhenReadingAccount_ThenReturnOwnedCiphertext(string kind)
     {
         using var client = new ProtectionFixture();
@@ -85,7 +94,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("account")][InlineData("record")][InlineData("folder")][InlineData("collection")][InlineData("grant")]
+    [InlineData("account")]
+    [InlineData("record")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
     public async Task GivenOtherKindErasedWithProfileGuid_WhenReadingProfile_ThenKeepVisibleOwnedProfile(string kind)
     {
         using var client = new ProtectionFixture();
@@ -100,7 +113,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("account")][InlineData("profile")][InlineData("folder")][InlineData("collection")][InlineData("grant")]
+    [InlineData("account")]
+    [InlineData("profile")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
     public async Task GivenOtherKindErasedWithRecordGuid_WhenReadingAndMovingRecord_ThenKeepItsOwnIdentityActive(string kind)
     {
         using var client = new ProtectionFixture();
@@ -118,7 +135,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("account")][InlineData("profile")][InlineData("folder")][InlineData("collection")][InlineData("grant")]
+    [InlineData("account")]
+    [InlineData("profile")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
     public async Task GivenOtherKindTerminalGuid_WhenCreatingRecord_ThenDoNotReserveItsRecordIdentity(string kind)
     {
         using var client = new ProtectionFixture();
@@ -160,7 +181,10 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("unknown", false)][InlineData("Record", false)][InlineData("", false)][InlineData("record", true)]
+    [InlineData("unknown", false)]
+    [InlineData("Record", false)]
+    [InlineData("", false)]
+    [InlineData("record", true)]
     public async Task GivenInvalidTerminalIdentity_WhenPersistingOrLookingUp_ThenRejectBeforeDatabase(string kind, bool empty)
     {
         var id = empty ? Guid.Empty : Guid.NewGuid();
@@ -184,7 +208,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("owner")][InlineData("collection")][InlineData("grant")][InlineData("folder")][InlineData("record")]
+    [InlineData("owner")]
+    [InlineData("collection")]
+    [InlineData("grant")]
+    [InlineData("folder")]
+    [InlineData("record")]
     public async Task GivenUnrelatedTypedErasureOfNativeRouteGuid_WhenReadingSharedRecord_ThenPreserveCurrentNativeVisibility(string target)
     {
         using var owner = new ProtectionFixture();
@@ -209,7 +237,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("record")][InlineData("folder")][InlineData("collection")][InlineData("grant")][InlineData("account")]
+    [InlineData("record")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
+    [InlineData("account")]
     public async Task GivenOtherKindErasedSelectionGuid_WhenReadingSelectedProfile_ThenKeepSelectionNonnullAndValid(string kind)
     {
         using var owner = new ProtectionFixture();
@@ -226,7 +258,8 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenLegacyDatabase_WhenUpgradingTypedIdentity_ThenPreserveValidRowsAndFailUnknownKindClosed(bool invalid)
     {
         // An empty database of its own on the shared server, migrated only up to the legacy schema.
@@ -252,7 +285,10 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("wrongKind")][InlineData("wrongId")][InlineData("unknownKind")][InlineData("symlink")]
+    [InlineData("wrongKind")]
+    [InlineData("wrongId")]
+    [InlineData("unknownKind")]
+    [InlineData("symlink")]
     public async Task GivenMalformedTypedLedgerFile_WhenReading_ThenFailClosed(string kind)
     {
         var id = Guid.NewGuid();
@@ -264,7 +300,8 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
             await File.WriteAllTextAsync(real, JsonSerializer.Serialize(entry));
             File.CreateSymbolicLink(file, real);
         }
-        else await File.WriteAllTextAsync(file, JsonSerializer.Serialize(entry));
+        else
+            await File.WriteAllTextAsync(file, JsonSerializer.Serialize(entry));
         await Assert.ThrowsAsync<InvalidDataException>(async () => { await foreach (var _ in new FileErasureLedger(directory).ReadAsync(default)) { } });
     }
 

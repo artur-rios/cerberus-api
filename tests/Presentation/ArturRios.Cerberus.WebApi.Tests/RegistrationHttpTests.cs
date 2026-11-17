@@ -66,9 +66,12 @@ public class RegistrationHttpTests(RegistrationApiFixture fixture, SharedApiHost
         _ = Gateway.Client;
         var identityCalls = fixture.IdentityCalls;
         var node = JsonSerializer.SerializeToNode(command, new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
-        if (invalid == "badEnvelope") node["details"]!["nonce"] = "bad";
-        else if (invalid == "missingGuid") node["accountId"] = Guid.Empty.ToString();
-        else node[invalid] = "untrusted";
+        if (invalid == "badEnvelope")
+            node["details"]!["nonce"] = "bad";
+        else if (invalid == "missingGuid")
+            node["accountId"] = Guid.Empty.ToString();
+        else
+            node[invalid] = "untrusted";
         using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", node);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.False(fixture.Users.ContainsKey(command.Identity.Email));
@@ -173,7 +176,8 @@ public class RegistrationHttpTests(RegistrationApiFixture fixture, SharedApiHost
 
     private static RegisterAccountCommand Request(string prefix = "owner") => new()
     {
-        AccountId = Guid.NewGuid(), IdempotencyKey = Guid.NewGuid(),
+        AccountId = Guid.NewGuid(),
+        IdempotencyKey = Guid.NewGuid(),
         Identity = new HeimdallRegistration("Fixture Owner", prefix + "-" + Guid.NewGuid().ToString("N") + "@example.test", "fixture-password"),
         Details = new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA")
     };

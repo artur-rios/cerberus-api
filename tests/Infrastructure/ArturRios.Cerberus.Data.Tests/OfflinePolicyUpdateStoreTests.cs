@@ -42,10 +42,18 @@ public class OfflinePolicyUpdateStoreTests(PostgresFixture fixture) : IClassFixt
         var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
         await using (var setup = fixture.CreateContext())
         {
-            var account = new Account { PublicId = id, HeimdallPublicId = identity, DetailsEnvelope = [1, 2, 3], Revision = 5,
-                PolicyRevision = state == "stalePolicy" ? 2 : 1, RevocationGeneration = state == "staleGeneration" ? 2 : 1,
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active, RenewalEnabled = state is not ("noExpiry" or "disabledWithExpiry"),
-                RenewalInterval = state is "noExpiry" or "disabledWithExpiry" ? null : TimeSpan.FromHours(24) };
+            var account = new Account
+            {
+                PublicId = id,
+                HeimdallPublicId = identity,
+                DetailsEnvelope = [1, 2, 3],
+                Revision = 5,
+                PolicyRevision = state == "stalePolicy" ? 2 : 1,
+                RevocationGeneration = state == "staleGeneration" ? 2 : 1,
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active,
+                RenewalEnabled = state is not ("noExpiry" or "disabledWithExpiry"),
+                RenewalInterval = state is "noExpiry" or "disabledWithExpiry" ? null : TimeSpan.FromHours(24)
+            };
             setup.Accounts.Add(account);
             await setup.SaveChangesAsync();
             var sessionAccountId = account.Id;
@@ -67,23 +75,35 @@ public class OfflinePolicyUpdateStoreTests(PostgresFixture fixture) : IClassFixt
                     await setup.SaveChangesAsync();
                     profileOwner = otherOwner.Id;
                 }
-                var profile = new ArturRios.Cerberus.Domain.Profiles.Profile { PublicId = Guid.NewGuid(), AccountId = profileOwner,
-                    DeletedAt = state == "deletedProfile" ? Now : null, PurgeAt = state == "deletedProfile" ? Now.AddDays(30) : null };
+                var profile = new ArturRios.Cerberus.Domain.Profiles.Profile
+                {
+                    PublicId = Guid.NewGuid(),
+                    AccountId = profileOwner,
+                    DeletedAt = state == "deletedProfile" ? Now : null,
+                    PurgeAt = state == "deletedProfile" ? Now.AddDays(30) : null
+                };
                 setup.Profiles.Add(profile);
                 await setup.SaveChangesAsync();
                 profileId = profile.Id;
-                if (state == "erasedProfile") setup.TerminalErasures.Add(new TerminalErasure { ResourceId = profile.PublicId, ResourceKind = "profile", DeletedAt = Now });
+                if (state == "erasedProfile")
+                    setup.TerminalErasures.Add(new TerminalErasure { ResourceId = profile.PublicId, ResourceKind = "profile", DeletedAt = Now });
             }
-            if (state == "missingProfile") profileId = long.MaxValue;
-            if (state != "missingSession") setup.VaultAccessSessions.Add(new VaultAccessSession
-            {
-                AccountId = sessionAccountId, HandleVerifier = verifier, ProfileId = profileId,
-                IssuedAt = state == "futureIssue" ? Now.AddMinutes(5) : Now.AddMinutes(-5),
-                ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
-                PolicyRevision = state == "zeroPolicy" ? 0 : 1, RevocationGeneration = state == "zeroGeneration" ? 0 : 1,
-                Revoked = state == "revoked"
-            });
-            if (state == "erased") setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
+            if (state == "missingProfile")
+                profileId = long.MaxValue;
+            if (state != "missingSession")
+                setup.VaultAccessSessions.Add(new VaultAccessSession
+                {
+                    AccountId = sessionAccountId,
+                    HandleVerifier = verifier,
+                    ProfileId = profileId,
+                    IssuedAt = state == "futureIssue" ? Now.AddMinutes(5) : Now.AddMinutes(-5),
+                    ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
+                    PolicyRevision = state == "zeroPolicy" ? 0 : 1,
+                    RevocationGeneration = state == "zeroGeneration" ? 0 : 1,
+                    Revoked = state == "revoked"
+                });
+            if (state == "erased")
+                setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
             await setup.SaveChangesAsync();
         }
         var result = await new OfflinePolicyUpdateStore(fixture).UpdateAsync(new(state == "missingAccount" ? Guid.NewGuid() : identity, verifier, 1, true, TimeSpan.FromSeconds(1)), default);
@@ -95,7 +115,8 @@ public class OfflinePolicyUpdateStoreTests(PostgresFixture fixture) : IClassFixt
             Assert.Equal(2, result.Policy.PolicyRevision);
             Assert.Equal(1, result.Policy.RevocationGeneration);
         }
-        else Assert.Null(result.Policy);
+        else
+            Assert.Null(result.Policy);
         await using var after = fixture.CreateContext();
         var unchanged = await after.Accounts.SingleAsync(x => x.PublicId == id);
         Assert.Equal(5, unchanged.Revision);
@@ -115,8 +136,15 @@ public class OfflinePolicyUpdateStoreTests(PostgresFixture fixture) : IClassFixt
         var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = identity, DetailsEnvelope = [11, 22], Revision = 7 };
         db.Accounts.Add(account);
         await db.SaveChangesAsync();
-        db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-            IssuedAt = Now.AddMinutes(-1), ExpiresAt = Now.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 });
+        db.VaultAccessSessions.Add(new VaultAccessSession
+        {
+            AccountId = account.Id,
+            HandleVerifier = verifier,
+            IssuedAt = Now.AddMinutes(-1),
+            ExpiresAt = Now.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         await db.SaveChangesAsync();
         await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET renewal_interval=CAST({interval} AS interval) WHERE id={account.Id}");
         var result = await new OfflinePolicyUpdateStore(fixture).UpdateAsync(new(identity, verifier, 1, true, TimeSpan.FromSeconds(1)), default);

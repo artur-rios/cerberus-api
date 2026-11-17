@@ -28,15 +28,33 @@ public class RegisterAccountValidatorTests
         var command = Valid();
         switch (field)
         {
-            case "account": command.AccountId = Guid.Empty; break;
-            case "operation": command.IdempotencyKey = Guid.Empty; break;
-            case "identity": command.Identity = null!; break;
-            case "details": command.Details = null!; break;
-            case "name": command.Identity = command.Identity with { Name = " " }; break;
-            case "longName": command.Identity = command.Identity with { Name = new string('x', 201) }; break;
-            case "email": command.Identity = command.Identity with { Email = "not-an-email" }; break;
-            case "password": command.Identity = command.Identity with { Password = "short" }; break;
-            case "format": command.Details = command.Details with { Format = "unsupported" }; break;
+            case "account":
+                command.AccountId = Guid.Empty;
+                break;
+            case "operation":
+                command.IdempotencyKey = Guid.Empty;
+                break;
+            case "identity":
+                command.Identity = null!;
+                break;
+            case "details":
+                command.Details = null!;
+                break;
+            case "name":
+                command.Identity = command.Identity with { Name = " " };
+                break;
+            case "longName":
+                command.Identity = command.Identity with { Name = new string('x', 201) };
+                break;
+            case "email":
+                command.Identity = command.Identity with { Email = "not-an-email" };
+                break;
+            case "password":
+                command.Identity = command.Identity with { Password = "short" };
+                break;
+            case "format":
+                command.Details = command.Details with { Format = "unsupported" };
+                break;
         }
         var result = new RegisterAccountValidator().Validate(command);
         Assert.False(result.IsValid);
@@ -52,7 +70,8 @@ public class RegisterAccountValidatorTests
 
     internal static RegisterAccountCommand Valid() => new()
     {
-        AccountId = Guid.NewGuid(), IdempotencyKey = Guid.NewGuid(),
+        AccountId = Guid.NewGuid(),
+        IdempotencyKey = Guid.NewGuid(),
         Identity = new HeimdallRegistration("Fixture Owner", "fixture@example.test", "fixture-password"),
         Details = new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA")
     };

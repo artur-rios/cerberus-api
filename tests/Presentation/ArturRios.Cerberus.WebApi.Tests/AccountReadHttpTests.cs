@@ -8,9 +8,9 @@ using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.Query.Accounts;
 using ArturRios.Output;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
@@ -124,7 +124,8 @@ public class AccountReadHttpTests(RegistrationApiFixture fixture, SharedApiHost 
             request.Version = HttpVersion.Version20;
             request.Content = new UnspecifiedLengthContent();
         }
-        if (invalid == "body") request.Content = new StringContent("{\"ownerId\":\"untrusted\"}", Encoding.UTF8, "application/json");
+        if (invalid == "body")
+            request.Content = new StringContent("{\"ownerId\":\"untrusted\"}", Encoding.UTF8, "application/json");
         if (invalid == "emptyHandle")
         {
             // HttpClient/TestServer omits zero-value headers. Inject the actual
@@ -196,16 +197,29 @@ public class AccountReadHttpTests(RegistrationApiFixture fixture, SharedApiHost 
         if (state != "missing")
         {
             await using var context = fixture.Context();
-            var account = new Account { PublicId = id, HeimdallPublicId = identity, Revision = 3,
+            var account = new Account
+            {
+                PublicId = id,
+                HeimdallPublicId = identity,
+                Revision = 3,
                 DetailsEnvelope = state == "corrupt" ? Encoding.UTF8.GetBytes("not-json") : JsonSerializer.SerializeToUtf8Bytes(details, new JsonSerializerOptions(JsonSerializerDefaults.Web)),
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            };
             context.Accounts.Add(account);
             await context.SaveChangesAsync();
-            context.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                ProfileId = state == "profile" ? 42 : null, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+            context.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                ProfileId = state == "profile" ? 42 : null,
+                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
                 ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
-                Revoked = state == "revoked", PolicyRevision = state == "stale" ? 0 : 1, RevocationGeneration = 1 });
-            if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
+                Revoked = state == "revoked",
+                PolicyRevision = state == "stale" ? 0 : 1,
+                RevocationGeneration = 1
+            });
+            if (state == "erased")
+                context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
         }
         return (identity, id, handle, details);
@@ -214,7 +228,8 @@ public class AccountReadHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     private async Task<HttpResponseMessage> Send(string? handle)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, "/api/accounts/me");
-        if (handle is not null) request.Headers.Add(Header, handle);
+        if (handle is not null)
+            request.Headers.Add(Header, handle);
         return await Gateway.Client.SendAsync(request);
     }
     private static async Task Failure(HttpResponseMessage response, HttpStatusCode status)

@@ -15,16 +15,35 @@ public class ProtectionContractTests
     }
 
     [UnitTheory]
-    [InlineData("passwordFormat")][InlineData("recoveryFormat")][InlineData("zeroEpoch")]
-    [InlineData("unsafeEpoch")][InlineData("differentEpoch")][InlineData("keySalt")]
-    [InlineData("nonce")][InlineData("tag")][InlineData("ciphertext")][InlineData("paddedCiphertext")]
-    [InlineData("kdfAlgorithm")][InlineData("kdfMemory")][InlineData("kdfIterations")][InlineData("kdfLanes")][InlineData("kdfSalt")]
-    [InlineData("nullKdf")][InlineData("nullWrapper")][InlineData("zeroGeneration")][InlineData("fingerprint")]
-    [InlineData("nullKey")][InlineData("offCurve")][InlineData("kty")][InlineData("curve")]
+    [InlineData("passwordFormat")]
+    [InlineData("recoveryFormat")]
+    [InlineData("zeroEpoch")]
+    [InlineData("unsafeEpoch")]
+    [InlineData("differentEpoch")]
+    [InlineData("keySalt")]
+    [InlineData("nonce")]
+    [InlineData("tag")]
+    [InlineData("ciphertext")]
+    [InlineData("paddedCiphertext")]
+    [InlineData("kdfAlgorithm")]
+    [InlineData("kdfMemory")]
+    [InlineData("kdfIterations")]
+    [InlineData("kdfLanes")]
+    [InlineData("kdfSalt")]
+    [InlineData("nullKdf")]
+    [InlineData("nullWrapper")]
+    [InlineData("zeroGeneration")]
+    [InlineData("fingerprint")]
+    [InlineData("nullKey")]
+    [InlineData("offCurve")]
+    [InlineData("kty")]
+    [InlineData("curve")]
     public void GivenInvalidProtectionMetadata_WhenValidating_ThenReject(string invalid)
     {
-        using var f = new ProtectionFixture(); var m = f.Material;
-        var p = m.PasswordWrapper; var r = m.RecoveryWrapper;
+        using var f = new ProtectionFixture();
+        var m = f.Material;
+        var p = m.PasswordWrapper;
+        var r = m.RecoveryWrapper;
         m = invalid switch
         {
             "passwordFormat" => m with { PasswordWrapper = p with { Format = "unsupported" } },
@@ -56,19 +75,34 @@ public class ProtectionContractTests
     }
 
     [UnitTheory]
-    [InlineData(0,1)][InlineData(0,2)][InlineData(0,3)][InlineData(1,2)][InlineData(1,3)][InlineData(2,3)]
+    [InlineData(0, 1)]
+    [InlineData(0, 2)]
+    [InlineData(0, 3)]
+    [InlineData(1, 2)]
+    [InlineData(1, 3)]
+    [InlineData(2, 3)]
     public void GivenOneKeyReusedAcrossRoles_WhenValidating_ThenReject(int source, int target)
     {
         using var f = new ProtectionFixture();
         var keys = new[] { f.Material.UnlockVerifier, f.Material.RecoveryVerifier, f.Material.RecipientKey, f.Material.AuthorKey };
         keys[target] = keys[source];
-        var m = f.Material with { UnlockVerifier = keys[0], RecoveryVerifier = keys[1], RecipientKey = keys[2], AuthorKey = keys[3],
-            RecoveryWrapper = f.Material.RecoveryWrapper with { ProofKeyFingerprint = keys[1].Fingerprint() } };
+        var m = f.Material with
+        {
+            UnlockVerifier = keys[0],
+            RecoveryVerifier = keys[1],
+            RecipientKey = keys[2],
+            AuthorKey = keys[3],
+            RecoveryWrapper = f.Material.RecoveryWrapper with { ProofKeyFingerprint = keys[1].Fingerprint() }
+        };
         Assert.False(m.IsValid());
     }
 
     [UnitTheory]
-    [InlineData("private")][InlineData("unknown")][InlineData("duplicate")][InlineData("stringInteger")][InlineData("decimalInteger")]
+    [InlineData("private")]
+    [InlineData("unknown")]
+    [InlineData("duplicate")]
+    [InlineData("stringInteger")]
+    [InlineData("decimalInteger")]
     public void GivenUnknownPrivateOrCoercedFields_WhenParsing_ThenReject(string invalid)
     {
         using var f = new ProtectionFixture();
@@ -76,7 +110,7 @@ public class ProtectionContractTests
         raw = invalid switch
         {
             "private" => raw.Replace("\"crv\":", "\"d\":\"private\",\"crv\":"),
-            "unknown" => raw.Insert(1,"\"rawPassword\":\"secret\","),
+            "unknown" => raw.Insert(1, "\"rawPassword\":\"secret\","),
             "duplicate" => raw.Replace("\"keyEpoch\":1", "\"keyEpoch\":1,\"keyEpoch\":1"),
             "stringInteger" => raw.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""),
             _ => raw.Replace("\"keyEpoch\":1", "\"keyEpoch\":1.0")

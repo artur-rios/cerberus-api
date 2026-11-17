@@ -43,7 +43,8 @@ public sealed class PostgresServer : IAsyncLifetime
         var name = "cerberus_" + Guid.NewGuid().ToString("N");
         // A copy needs the template to be idle, so copies are made one at a time.
         await _create.WaitAsync();
-        try { await ExecuteAsync($"CREATE DATABASE \"{name}\"" + (migrated ? $" TEMPLATE \"{Template}\"" : "")); }
+        try
+        { await ExecuteAsync($"CREATE DATABASE \"{name}\"" + (migrated ? $" TEMPLATE \"{Template}\"" : "")); }
         finally { _create.Release(); }
         return name;
     }
@@ -107,18 +108,20 @@ public sealed class PostgresFixture : IAsyncLifetime, IDbContextFactory<AppDbCon
     {
         var path = "/tmp/cerberus-test-backup-" + Guid.NewGuid().ToString("N") + ".sql";
         var result = await PostgresServer.Current.ExecAsync(["pg_dump", "--username=postgres", "--dbname=" + Database, "--schema=cerberus", "--clean", "--if-exists", "--file=" + path]);
-        Assert.True(result.ExitCode==0,result.Stderr);
+        Assert.True(result.ExitCode == 0, result.Stderr);
         return path;
     }
     public async Task RestoreAsync(string path)
     {
         var result = await PostgresServer.Current.ExecAsync(["psql", "--username=postgres", "--dbname=" + Database, "--set=ON_ERROR_STOP=1", "--file=" + path]);
-        Assert.True(result.ExitCode==0,result.Stderr);
+        Assert.True(result.ExitCode == 0, result.Stderr);
     }
     public async ValueTask InitializeAsync() => _database = await PostgresServer.Current.CreateDatabaseAsync();
     public async ValueTask DisposeAsync()
     {
-        foreach (var name in _empty) await PostgresServer.Current.DropDatabaseAsync(name);
-        if (_database is not null) await PostgresServer.Current.DropDatabaseAsync(_database);
+        foreach (var name in _empty)
+            await PostgresServer.Current.DropDatabaseAsync(name);
+        if (_database is not null)
+            await PostgresServer.Current.DropDatabaseAsync(_database);
     }
 }

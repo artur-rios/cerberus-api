@@ -1,6 +1,6 @@
 using ArturRios.Cerberus.Shared.Identity;
-using ArturRios.Output;
 using ArturRios.Cerberus.Shared.Operations;
+using ArturRios.Output;
 using Microsoft.AspNetCore.Authorization;
 
 namespace ArturRios.Cerberus.WebApi.Middleware;

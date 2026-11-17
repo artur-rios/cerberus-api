@@ -26,9 +26,12 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
     public async Task<VaultResult<CollectionCreateDetails>> UpdateAsync(CollectionUpdateRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.AccessVerifier)) return new(Error: "vault_access_required");
-        if (request.CollectionId == Guid.Empty || request.Input?.IsValid() != true) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.AccessVerifier))
+            return new(Error: "vault_access_required");
+        if (request.CollectionId == Guid.Empty || request.Input?.IsValid() != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -47,16 +50,20 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
 
             var initial = await SnapshotAsync(db, request, ct);
             var error = StateError(initial);
-            if (error is not null) return new(Error: error);
-            if (initial.ForeignTarget) return new(Error: ValidNative(initial) ? "vault_access_denied" : "persistence_unavailable");
+            if (error is not null)
+                return new(Error: error);
+            if (initial.ForeignTarget)
+                return new(Error: ValidNative(initial) ? "vault_access_denied" : "persistence_unavailable");
 
             var target = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE public_id={request.CollectionId} AND account_id={account.Id} FOR NO KEY UPDATE", ct);
             // Reload after all waits; statement time determines expiry and current scope.
             var current = await SnapshotAsync(db, request, ct);
             error = StateError(current);
-            if (error is not null) return new(Error: error);
-            if (current.ForeignTarget) return new(Error: ValidNative(current) ? "vault_access_denied" : "persistence_unavailable");
+            if (error is not null)
+                return new(Error: error);
+            if (current.ForeignTarget)
+                return new(Error: ValidNative(current) ? "vault_access_denied" : "persistence_unavailable");
             var lockedTarget = target.Id;
             target = JsonSerializer.Deserialize<Item>(current.Item!, Json)!;
             if (target.Id != lockedTarget || target.AccountId != account.Id || current.Selection != session?.ProfileId)
@@ -68,10 +75,12 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
                 return new(Error: "persistence_unavailable");
             var original = Convert.FromHexString(target.Envelope);
             var old = JsonSerializer.Deserialize<EncryptedEnvelope>(original, Json);
-            if (old?.IsValid() != true || old.KeyEpoch != target.KeyEpoch) return new(Error: "persistence_unavailable");
+            if (old?.IsValid() != true || old.KeyEpoch != target.KeyEpoch)
+                return new(Error: "persistence_unavailable");
             if (request.OfflineInspectOnly)
             {
-                if (!request.OfflineLatestEdit) return new(Error: "validation_failed");
+                if (!request.OfflineLatestEdit)
+                    return new(Error: "validation_failed");
                 await tx.CommitAsync(ct);
                 return new(new CollectionCreateDetails(target.CollectionId, target.Revision, target.Sequence, storedTime));
             }
@@ -89,7 +98,8 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
                     await tx.CommitAsync(ct);
                     return new(new CollectionCreateDetails(target.CollectionId, target.Revision, target.Sequence, storedTime), "superseded");
                 }
-                if (target.Revision == ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
+                if (target.Revision == ProtocolBinary.MaxInteger)
+                    return new(Error: "revision_conflict");
                 input = input with { ExpectedRevision = target.Revision };
             }
             var replacement = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);

@@ -8,11 +8,13 @@ public static class ProtocolBinary
     {
         bytes = [];
         if (string.IsNullOrEmpty(value) || value.Length > 1048576
-            || value.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not '-' and not '_')) return false;
+            || value.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not '-' and not '_'))
+            return false;
         try
         {
             var decoded = Convert.FromBase64String(value.Replace('-', '+').Replace('_', '/') + new string('=', (4 - value.Length % 4) % 4));
-            if (decoded.Length == 0 || length is not null && decoded.Length != length || Encode(decoded) != value) return false;
+            if (decoded.Length == 0 || length is not null && decoded.Length != length || Encode(decoded) != value)
+                return false;
             bytes = decoded;
             return true;
         }

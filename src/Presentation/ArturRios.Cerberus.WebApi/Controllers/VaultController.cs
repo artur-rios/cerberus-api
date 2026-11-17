@@ -23,7 +23,8 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
     [ProducesResponseType(typeof(DataOutput<VaultInitializationOutput>), StatusCodes.Status201Created)]
     public async Task<ActionResult<DataOutput<VaultInitializationOutput?>>> Initialize([FromBody] InitializeVaultCommand command, CancellationToken cancellationToken)
     {
-        if (Request.Query.Count != 0) return Invalid();
+        if (Request.Query.Count != 0)
+            return Invalid();
         command.SetActor(Actor());
         var result = await commands.ExecuteCommandAsync<InitializeVaultCommand, VaultInitializationOutput>(command, cancellationToken);
         return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);
@@ -38,12 +39,17 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
         [FromHeader(Name = "X-Cerberus-Challenge-Id")] string? challengeId,
         [FromHeader(Name = "X-Cerberus-Proof")] string? proof, CancellationToken cancellationToken)
     {
-        var ids = Request.Headers["X-Cerberus-Challenge-Id"]; var proofs = Request.Headers["X-Cerberus-Proof"];
-        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1) return Invalid();
-        if (ids.Count == 0 || proofs.Count == 0) return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
-        challengeId = ids.ToString(); proof = proofs.ToString();
+        var ids = Request.Headers["X-Cerberus-Challenge-Id"];
+        var proofs = Request.Headers["X-Cerberus-Proof"];
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
+            return Invalid();
+        if (ids.Count == 0 || proofs.Count == 0)
+            return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
+        challengeId = ids.ToString();
+        proof = proofs.ToString();
         if (ids.Count != 1 || proofs.Count != 1 || !Guid.TryParseExact(challengeId, "D", out var id) || id == Guid.Empty
-            || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw) return Invalid();
+            || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw)
+            return Invalid();
         vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var access) ? access.ToString() : null;
         command.SetContext(Actor(), vaultAccess, id, proof, raw);
         var result = await commands.ExecuteCommandAsync<ChangeVaultProtectionCommand, ChangeVaultProtectionOutput>(command, cancellationToken);
@@ -75,13 +81,19 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
 
     private async Task<ActionResult<DataOutput<RecoverVaultOutput?>>> RecoverCore(RecoverVaultCommand command, string? access, CancellationToken cancellationToken)
     {
-        if (Request.Query.Count != 0) return Invalid();
-        if (!FreshIdentity.IsFresh(User, clock.GetUtcNow())) return Unauthorized(ProcessOutput.New.WithError("fresh_authentication_required"));
-        var ids = Request.Headers["X-Cerberus-Challenge-Id"]; var proofs = Request.Headers["X-Cerberus-Proof"];
-        if (ids.Count == 0 || proofs.Count == 0) return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
-        var challengeId = ids.ToString(); var proof = proofs.ToString();
+        if (Request.Query.Count != 0)
+            return Invalid();
+        if (!FreshIdentity.IsFresh(User, clock.GetUtcNow()))
+            return Unauthorized(ProcessOutput.New.WithError("fresh_authentication_required"));
+        var ids = Request.Headers["X-Cerberus-Challenge-Id"];
+        var proofs = Request.Headers["X-Cerberus-Proof"];
+        if (ids.Count == 0 || proofs.Count == 0)
+            return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
+        var challengeId = ids.ToString();
+        var proof = proofs.ToString();
         if (ids.Count != 1 || proofs.Count != 1 || !Guid.TryParseExact(challengeId, "D", out var id) || id == Guid.Empty
-            || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw) return Invalid();
+            || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw)
+            return Invalid();
         var issued = long.Parse(User.FindFirst("iat")!.Value, System.Globalization.CultureInfo.InvariantCulture);
         command.SetContext(Actor(), issued, id, proof, raw, access);
         var result = await commands.ExecuteCommandAsync<RecoverVaultCommand, RecoverVaultOutput>(command, cancellationToken);
@@ -100,7 +112,8 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
     public async Task<ActionResult<DataOutput<VaultProtectionOutput?>>> Read(CancellationToken cancellationToken)
     {
         if (Request.Query.Count != 0 || HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true
-            || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0) return Invalid();
+            || Request.ContentLength > 0 || Request.Headers.TransferEncoding.Count != 0)
+            return Invalid();
         var result = await queries.ExecuteQueryAsync<GetVaultProtectionQuery, VaultProtectionOutput>(new GetVaultProtectionQuery(Actor()), cancellationToken);
         return result.ToActionResult(statusMap: VaultProtectionQueryMessages.StatusCodes);
     }
@@ -109,8 +122,10 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
     [ProducesResponseType(typeof(DataOutput<VaultChallengeOutput>), StatusCodes.Status201Created)]
     public async Task<ActionResult<DataOutput<VaultChallengeOutput?>>> Challenge([FromBody] IssueVaultChallengeCommand command, CancellationToken cancellationToken)
     {
-        if (Request.Query.Count != 0) return Invalid();
-        if (!FreshIdentity.IsFresh(User, clock.GetUtcNow())) return Unauthorized(ProcessOutput.New.WithError("fresh_authentication_required"));
+        if (Request.Query.Count != 0)
+            return Invalid();
+        if (!FreshIdentity.IsFresh(User, clock.GetUtcNow()))
+            return Unauthorized(ProcessOutput.New.WithError("fresh_authentication_required"));
         command.SetActor(Actor());
         var result = await commands.ExecuteCommandAsync<IssueVaultChallengeCommand, VaultChallengeOutput>(command, cancellationToken);
         return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);
@@ -123,12 +138,17 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
         [FromHeader(Name = "X-Cerberus-Challenge-Id")] string? challengeId,
         [FromHeader(Name = "X-Cerberus-Proof")] string? proof, CancellationToken cancellationToken)
     {
-        if (Request.Query.Count != 0) return Invalid();
-        var ids = Request.Headers["X-Cerberus-Challenge-Id"]; var proofs = Request.Headers["X-Cerberus-Proof"];
-        if (ids.Count == 0 || proofs.Count == 0) return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
-        challengeId = ids.ToString(); proof = proofs.ToString();
+        if (Request.Query.Count != 0)
+            return Invalid();
+        var ids = Request.Headers["X-Cerberus-Challenge-Id"];
+        var proofs = Request.Headers["X-Cerberus-Proof"];
+        if (ids.Count == 0 || proofs.Count == 0)
+            return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
+        challengeId = ids.ToString();
+        proof = proofs.ToString();
         if (ids.Count != 1 || proofs.Count != 1 || !Guid.TryParseExact(challengeId, "D", out var id) || id == Guid.Empty
-            || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw) return Invalid();
+            || challengeId != id.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw)
+            return Invalid();
         command.SetProof(Actor(), id, proof, raw);
         var result = await commands.ExecuteCommandAsync<UnlockVaultCommand, VaultUnlockOutput>(command, cancellationToken);
         return result.ToActionResult(statusMap: VaultProtectionMessages.StatusCodes);

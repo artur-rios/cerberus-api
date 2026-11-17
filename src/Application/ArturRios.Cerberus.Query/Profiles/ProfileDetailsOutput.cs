@@ -2,6 +2,7 @@ using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Mediator.Query;
 namespace ArturRios.Cerberus.Query.Profiles;
+
 public sealed class ProfileDetailsOutput : QueryOutput
 {
     public Guid ProfileId { get; init; }

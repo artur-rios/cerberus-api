@@ -19,8 +19,10 @@ public sealed class NativeMutationTransaction : IAsyncDisposable
     {
         ct.ThrowIfCancellationRequested();
         var current = db.Database.CurrentTransaction;
-        if (current is null) return new(await db.Database.BeginTransactionAsync(ct), null);
-        if (!current.SupportsSavepoints) throw new InvalidOperationException("Native mutation requires savepoint support.");
+        if (current is null)
+            return new(await db.Database.BeginTransactionAsync(ct), null);
+        if (!current.SupportsSavepoints)
+            throw new InvalidOperationException("Native mutation requires savepoint support.");
         var name = "native_" + Guid.NewGuid().ToString("N");
         await current.CreateSavepointAsync(name, ct);
         return new(current, name);
@@ -28,16 +30,21 @@ public sealed class NativeMutationTransaction : IAsyncDisposable
     public async Task CommitAsync(CancellationToken ct)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
-        if (completed) throw new InvalidOperationException("Native mutation is already complete.");
-        if (savepoint is null) await transaction.CommitAsync(ct);
-        else await transaction.ReleaseSavepointAsync(savepoint, ct);
+        if (completed)
+            throw new InvalidOperationException("Native mutation is already complete.");
+        if (savepoint is null)
+            await transaction.CommitAsync(ct);
+        else
+            await transaction.ReleaseSavepointAsync(savepoint, ct);
         completed = true;
     }
     public async ValueTask DisposeAsync()
     {
-        if (disposed) return;
+        if (disposed)
+            return;
         disposed = true;
-        if (savepoint is null) { await transaction.DisposeAsync(); return; }
+        if (savepoint is null)
+        { await transaction.DisposeAsync(); return; }
         if (!completed)
         {
             // Cleanup must still roll back a caller-cancelled or failed statement.

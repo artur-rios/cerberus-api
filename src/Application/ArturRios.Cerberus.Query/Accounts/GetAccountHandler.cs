@@ -16,20 +16,29 @@ public sealed class GetAccountHandler(IAccountReadStore accounts, TimeProvider c
     {
         cancellationToken.ThrowIfCancellationRequested();
         var output = DataOutput<AccountOutput?>.New;
-        if (query.IdentityId == Guid.Empty) return output.WithError("authentication_required");
-        if (query.VaultAccess is null) return output.WithError("vault_access_required");
-        if (!OpaqueAccessHandle.TryHash(query.VaultAccess, out var verifier)) return output.WithError("validation_failed");
+        if (query.IdentityId == Guid.Empty)
+            return output.WithError("authentication_required");
+        if (query.VaultAccess is null)
+            return output.WithError("vault_access_required");
+        if (!OpaqueAccessHandle.TryHash(query.VaultAccess, out var verifier))
+            return output.WithError("validation_failed");
         var result = await accounts.ReadAsync(query.IdentityId, verifier, clock.GetUtcNow(), cancellationToken);
-        if (result.Error is not null) return output.WithError(result.Error);
-        if (result.Account is null) return output.WithError("persistence_unavailable");
+        if (result.Error is not null)
+            return output.WithError(result.Error);
+        if (result.Account is null)
+            return output.WithError("persistence_unavailable");
         EncryptedEnvelope? details;
-        try { details = JsonSerializer.Deserialize<EncryptedEnvelope>(result.Account.DetailsEnvelope, Json); }
+        try
+        { details = JsonSerializer.Deserialize<EncryptedEnvelope>(result.Account.DetailsEnvelope, Json); }
         catch (JsonException) { return output.WithError("persistence_unavailable"); }
-        if (details?.IsValid() != true) return output.WithError("persistence_unavailable");
+        if (details?.IsValid() != true)
+            return output.WithError("persistence_unavailable");
         return output.WithData(new AccountOutput
         {
-            Id = result.Account.Id, Revision = result.Account.Revision,
-            State = result.Account.State.ToString().ToLowerInvariant(), Details = details
+            Id = result.Account.Id,
+            Revision = result.Account.Revision,
+            State = result.Account.State.ToString().ToLowerInvariant(),
+            Details = details
         }).WithMessage("account_found");
     }
 }

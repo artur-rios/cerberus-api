@@ -18,18 +18,28 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
     private FileErasureLedger Ledger => new(directory);
 
     [FunctionalTheory]
-    [InlineData("expired")][InlineData("stolen")][InlineData("wrongWork")][InlineData("wrongKey")]
-    [InlineData("missingTerminal")][InlineData("otherKind")][InlineData("completed")]
+    [InlineData("expired")]
+    [InlineData("stolen")]
+    [InlineData("wrongWork")]
+    [InlineData("wrongKey")]
+    [InlineData("missingTerminal")]
+    [InlineData("otherKind")]
+    [InlineData("completed")]
     public async Task GivenInvalidPersistedPurgeAuthority_WhenExecuting_ThenNoLedgerOrPhysicalRemoval(string kind)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
         var (work, claim) = await Pending(w, kind == "missingTerminal" ? null : kind == "otherKind" ? "folder" : "record");
         await using var db = fixture.CreateContext();
-        if (kind == "expired") await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimExpiresAt, DateTimeOffset.UtcNow.AddSeconds(-1)));
-        if (kind == "stolen") await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimToken, Guid.NewGuid()));
-        if (kind == "completed") await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.CompletedAt, DateTimeOffset.UtcNow));
-        if (kind == "wrongWork") claim = claim with { WorkId = Guid.NewGuid() };
-        if (kind == "wrongKey") claim = claim with { OperationKey = "record-purge/" + Guid.NewGuid() };
+        if (kind == "expired")
+            await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimExpiresAt, DateTimeOffset.UtcNow.AddSeconds(-1)));
+        if (kind == "stolen")
+            await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimToken, Guid.NewGuid()));
+        if (kind == "completed")
+            await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.CompletedAt, DateTimeOffset.UtcNow));
+        if (kind == "wrongWork")
+            claim = claim with { WorkId = Guid.NewGuid() };
+        if (kind == "wrongKey")
+            claim = claim with { OperationKey = "record-purge/" + Guid.NewGuid() };
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         await Assert.ThrowsAsync<InvalidOperationException>(() => new RecordPurgeHandler(fixture, Ledger).ExecuteAsync(claim, default));
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
@@ -37,7 +47,8 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("expired")][InlineData("stolen")]
+    [InlineData("expired")]
+    [InlineData("stolen")]
     public async Task GivenClaimChangesDuringDurableLedgerWrite_WhenPurging_ThenFinalFenceKeepsCipherForNewClaim(string kind)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -45,8 +56,10 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
         var ledger = new PermanentDeleteSetup.LedgerBoundary(Ledger, async () =>
         {
             await using var db = fixture.CreateContext();
-            if (kind == "expired") await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimExpiresAt, DateTimeOffset.UtcNow.AddSeconds(-1)));
-            else await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimToken, Guid.NewGuid()));
+            if (kind == "expired")
+                await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimExpiresAt, DateTimeOffset.UtcNow.AddSeconds(-1)));
+            else
+                await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimToken, Guid.NewGuid()));
         });
         await Assert.ThrowsAsync<InvalidOperationException>(() => new RecordPurgeHandler(fixture, ledger).ExecuteAsync(claim, default));
         await using var check = fixture.CreateContext();
@@ -120,67 +133,74 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("record")][InlineData("trash_entry")][InlineData("retention_work_item")][InlineData("trash_operation")]
+    [InlineData("record")]
+    [InlineData("trash_entry")]
+    [InlineData("retention_work_item")]
+    [InlineData("trash_operation")]
     public async Task GivenClaimExpiresAfterCheckBeforePhysicalStatement_WhenPurging_ThenThatStatementCannotRemoveRows(string table)
     {
-        using var w=await PermanentDeleteSetup.Create(fixture,"wide",true);
-        var (work,claim)=await Pending(w,"record");
+        using var w = await PermanentDeleteSetup.Create(fixture, "wide", true);
+        var (work, claim) = await Pending(w, "record");
         // The claim expires in the handler's own transaction right before the physical statement.
-        var before=await PermanentDeleteSetup.Snapshot(fixture,w.State.InternalId);
-        var hook=new ExpireBeforeMutation(table,work.Id);
-        await Assert.ThrowsAsync<InvalidOperationException>(()=>new RecordPurgeHandler(new ProfileSetup.Factory(fixture,hook),Ledger).ExecuteAsync(claim,default));
+        var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
+        var hook = new ExpireBeforeMutation(table, work.Id);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => new RecordPurgeHandler(new ProfileSetup.Factory(fixture, hook), Ledger).ExecuteAsync(claim, default));
         Assert.True(hook.Reached);
-        Assert.Equal(0,hook.Affected);
-        Assert.Equal(before,await PermanentDeleteSetup.Snapshot(fixture,w.State.InternalId));
-        Assert.Single(Directory.EnumerateFiles(directory,"*.json"));
+        Assert.Equal(0, hook.Affected);
+        Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
+        Assert.Single(Directory.EnumerateFiles(directory, "*.json"));
     }
-    private sealed class ExpireBeforeMutation(string table,long work):DbCommandInterceptor
+    private sealed class ExpireBeforeMutation(string table, long work) : DbCommandInterceptor
     {
-        internal bool Reached{get;private set;}
-        internal int Affected{get;private set;}=-1;
-        private bool Match(DbCommand command)=>command.CommandText.Contains("DELETE FROM cerberus."+table+" ",StringComparison.Ordinal)
-            || command.CommandText.Contains("DELETE FROM cerberus."+table+"\n",StringComparison.Ordinal)
-            || command.CommandText.Contains("DELETE FROM cerberus."+table+" AS",StringComparison.Ordinal);
-        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<int> result,CancellationToken ct=default)
+        internal bool Reached { get; private set; }
+        internal int Affected { get; private set; } = -1;
+        private bool Match(DbCommand command) => command.CommandText.Contains("DELETE FROM cerberus." + table + " ", StringComparison.Ordinal)
+            || command.CommandText.Contains("DELETE FROM cerberus." + table + "\n", StringComparison.Ordinal)
+            || command.CommandText.Contains("DELETE FROM cerberus." + table + " AS", StringComparison.Ordinal);
+        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<int> result, CancellationToken ct = default)
         {
-            if(!Reached && Match(command)){Reached=true;await RealTime.ExpireNow(command,"UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE id=@id",("id",work));}
+            if (!Reached && Match(command))
+            { Reached = true; await RealTime.ExpireNow(command, "UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE id=@id", ("id", work)); }
             return result;
         }
-        public override ValueTask<int> NonQueryExecutedAsync(DbCommand command,CommandExecutedEventData data,int result,CancellationToken ct=default)
-        {if(Reached && Match(command))Affected=result;return ValueTask.FromResult(result);}
+        public override ValueTask<int> NonQueryExecutedAsync(DbCommand command, CommandExecutedEventData data, int result, CancellationToken ct = default)
+        { if (Reached && Match(command)) Affected = result; return ValueTask.FromResult(result); }
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenDatabaseClaimExpiresBeforeCompletion_WhenCompletingWithOldCallerTime_ThenNoAcknowledgement(bool afterLock)
     {
-        using var w=await PermanentDeleteSetup.Create(fixture,"wide",false);
-        var (work,claim)=await Pending(w,"record");
-        await new RecordPurgeHandler(fixture,Ledger).ExecuteAsync(claim,default);
-        var old=DateTimeOffset.UtcNow;
+        using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
+        var (work, claim) = await Pending(w, "record");
+        await new RecordPurgeHandler(fixture, Ledger).ExecuteAsync(claim, default);
+        var old = DateTimeOffset.UtcNow;
         // After the claim-row lock the claim is live until the completing statement and expires in its transaction.
-        var deadline=afterLock?old.AddSeconds(60):old.AddSeconds(-1);
-        await using var db=fixture.CreateContext();
-        await db.RetentionWorkItems.Where(x=>x.Id==work.Id).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ClaimExpiresAt,deadline));
-        var hook=new ExpireBeforeCompletion(work.Id);
-        var factory=afterLock?new ProfileSetup.Factory(fixture,hook):fixture as IDbContextFactory<AppDbContext>;
-        Assert.False(await new RetentionWorkStore(factory!).TryCompleteAsync(claim,old.AddMinutes(-1),default));
-        Assert.Null((await db.RetentionWorkItems.AsNoTracking().SingleAsync(x=>x.Id==work.Id)).CompletedAt);
-        if(afterLock)Assert.True(hook.Reached);
+        var deadline = afterLock ? old.AddSeconds(60) : old.AddSeconds(-1);
+        await using var db = fixture.CreateContext();
+        await db.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimExpiresAt, deadline));
+        var hook = new ExpireBeforeCompletion(work.Id);
+        var factory = afterLock ? new ProfileSetup.Factory(fixture, hook) : fixture as IDbContextFactory<AppDbContext>;
+        Assert.False(await new RetentionWorkStore(factory!).TryCompleteAsync(claim, old.AddMinutes(-1), default));
+        Assert.Null((await db.RetentionWorkItems.AsNoTracking().SingleAsync(x => x.Id == work.Id)).CompletedAt);
+        if (afterLock)
+            Assert.True(hook.Reached);
     }
-    private sealed class ExpireBeforeCompletion(long work):DbCommandInterceptor
+    private sealed class ExpireBeforeCompletion(long work) : DbCommandInterceptor
     {
-        internal bool Reached{get;private set;}
-        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<int> result,CancellationToken ct=default)
-        {if(!Reached && command.CommandText.Contains("UPDATE cerberus.retention_work_item")){Reached=true;await RealTime.ExpireNow(command,"UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE id=@id",("id",work));}return result;}
-        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command,CommandEventData data,InterceptionResult<DbDataReader> result,CancellationToken ct=default)
-        {if(!Reached && command.CommandText.Contains("UPDATE cerberus.retention_work_item")){Reached=true;await RealTime.ExpireNow(command,"UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE id=@id",("id",work));}return result;}
+        internal bool Reached { get; private set; }
+        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<int> result, CancellationToken ct = default)
+        { if (!Reached && command.CommandText.Contains("UPDATE cerberus.retention_work_item")) { Reached = true; await RealTime.ExpireNow(command, "UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE id=@id", ("id", work)); } return result; }
+        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
+        { if (!Reached && command.CommandText.Contains("UPDATE cerberus.retention_work_item")) { Reached = true; await RealTime.ExpireNow(command, "UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE id=@id", ("id", work)); } return result; }
     }
 
     private async Task<(RetentionWorkItem, RetentionClaim)> Pending(PermanentDeleteSetup.World w, string? terminalKind)
     {
         await using var db = fixture.CreateContext();
-        if (terminalKind is not null) db.TerminalErasures.Add(new() { ResourceKind = terminalKind, ResourceId = w.Record.PublicId, DeletedAt = DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()) });
+        if (terminalKind is not null)
+            db.TerminalErasures.Add(new() { ResourceKind = terminalKind, ResourceId = w.Record.PublicId, DeletedAt = DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()) });
         var work = new RetentionWorkItem { OperationKey = "record-purge/" + w.Record.PublicId, DueAt = DateTimeOffset.UtcNow.AddMinutes(-1) };
         db.RetentionWorkItems.Add(work);
         await db.SaveChangesAsync();

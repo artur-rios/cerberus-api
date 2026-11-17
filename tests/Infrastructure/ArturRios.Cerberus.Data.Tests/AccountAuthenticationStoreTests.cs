@@ -18,9 +18,16 @@ public class AccountAuthenticationStoreTests(PostgresFixture fixture) : IClassFi
         var accountId = Guid.NewGuid();
         await using (var setup = fixture.CreateContext())
         {
-            setup.Accounts.Add(new Account { PublicId = accountId, HeimdallPublicId = identity, DetailsEnvelope = [1, 2, 3], Revision = 7,
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active });
-            if (state == "erased") setup.TerminalErasures.Add(new TerminalErasure { ResourceId = accountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
+            setup.Accounts.Add(new Account
+            {
+                PublicId = accountId,
+                HeimdallPublicId = identity,
+                DetailsEnvelope = [1, 2, 3],
+                Revision = 7,
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            });
+            if (state == "erased")
+                setup.TerminalErasures.Add(new TerminalErasure { ResourceId = accountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await setup.SaveChangesAsync();
         }
         var result = await new AccountAuthenticationStore(fixture).FindAsync(identity, default);
@@ -30,7 +37,8 @@ public class AccountAuthenticationStoreTests(PostgresFixture fixture) : IClassFi
             Assert.Equal(accountId, result.Account!.Id);
             Assert.Equal(7, result.Account.Revision);
         }
-        else Assert.Null(result.Account);
+        else
+            Assert.Null(result.Account);
         await using var after = fixture.CreateContext();
         Assert.Equal(7, (await after.Accounts.SingleAsync(x => x.PublicId == accountId)).Revision);
     }

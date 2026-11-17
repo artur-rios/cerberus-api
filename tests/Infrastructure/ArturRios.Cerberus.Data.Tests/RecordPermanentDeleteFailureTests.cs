@@ -27,13 +27,20 @@ public sealed partial class RecordPermanentDeleteStoreTests
         using var w = await PermanentDeleteSetup.Create(fixture, route, true);
         await using var db = fixture.CreateContext();
         var entry = await db.TrashEntries.SingleAsync(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId);
-        if (change == "missing") db.TrashEntries.Remove(entry);
-        if (change == "snapshot") entry.AssociationSnapshot = "bad-snapshot"u8.ToArray();
-        if (change == "wrongProfile") entry.AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(null, [Guid.NewGuid()], []), ProtectionFixture.Json);
-        if (change == "profileTrash") await db.Profiles.Where(x => x.Id == w.Selection).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
-        if (change == "folderTrash") await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
-        if (change == "collectionTrash") await db.Collections.Where(x => x.Id == w.Items.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
-        if (change == "removedCollection") await db.ProfileCollections.Where(x => x.ProfileId == w.Selection && x.CollectionId == w.Items.Collection.Id).ExecuteDeleteAsync();
+        if (change == "missing")
+            db.TrashEntries.Remove(entry);
+        if (change == "snapshot")
+            entry.AssociationSnapshot = "bad-snapshot"u8.ToArray();
+        if (change == "wrongProfile")
+            entry.AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(null, [Guid.NewGuid()], []), ProtectionFixture.Json);
+        if (change == "profileTrash")
+            await db.Profiles.Where(x => x.Id == w.Selection).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
+        if (change == "folderTrash")
+            await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
+        if (change == "collectionTrash")
+            await db.Collections.Where(x => x.Id == w.Items.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
+        if (change == "removedCollection")
+            await db.ProfileCollections.Where(x => x.ProfileId == w.Selection && x.CollectionId == w.Items.Collection.Id).ExecuteDeleteAsync();
         await db.SaveChangesAsync();
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal(error, (await Store().DeleteAsync(w.Request(), default)).Error);
@@ -42,13 +49,16 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData("badSnapshot")][InlineData("expiredRetention")]
+    [InlineData("badSnapshot")]
+    [InlineData("expiredRetention")]
     public async Task GivenAccountwideOwnedTrash_WhenDeleting_ThenEraseDespiteUnusedHistoryOrElapsedRestoreWindow(string kind)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", true);
         await using var db = fixture.CreateContext();
-        if (kind == "badSnapshot") await db.TrashEntries.Where(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId).ExecuteUpdateAsync(x => x.SetProperty(v => v.AssociationSnapshot, "broken"u8.ToArray()));
-        else await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.PurgeAt, DateTimeOffset.UtcNow.AddDays(-1)));
+        if (kind == "badSnapshot")
+            await db.TrashEntries.Where(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId).ExecuteUpdateAsync(x => x.SetProperty(v => v.AssociationSnapshot, "broken"u8.ToArray()));
+        else
+            await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.PurgeAt, DateTimeOffset.UtcNow.AddDays(-1)));
         Assert.Null((await Store().DeleteAsync(w.Request(), default)).Error);
         Assert.False(await db.Records.AnyAsync(x => x.Id == w.Record.Id));
     }
@@ -65,20 +75,30 @@ public sealed partial class RecordPermanentDeleteStoreTests
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "folder", false);
         await using var db = fixture.CreateContext();
-        if (kind == "revisionZero") await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, 0));
-        if (kind == "revisionUnsafe") await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, ProtocolBinary.MaxInteger + 1));
-        if (kind == "sequenceZero") await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, 0));
-        if (kind == "sequenceUnsafe") await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, ProtocolBinary.MaxInteger + 1));
-        if (kind == "parentRevisionMax") await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, ProtocolBinary.MaxInteger));
-        if (kind == "parentRevisionZero") await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, 0));
-        if (kind == "parentSequenceZero") await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, 0));
+        if (kind == "revisionZero")
+            await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, 0));
+        if (kind == "revisionUnsafe")
+            await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, ProtocolBinary.MaxInteger + 1));
+        if (kind == "sequenceZero")
+            await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, 0));
+        if (kind == "sequenceUnsafe")
+            await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, ProtocolBinary.MaxInteger + 1));
+        if (kind == "parentRevisionMax")
+            await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, ProtocolBinary.MaxInteger));
+        if (kind == "parentRevisionZero")
+            await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, 0));
+        if (kind == "parentSequenceZero")
+            await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, 0));
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal(error, (await Store().DeleteAsync(w.Request(), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
     }
 
     [FunctionalTheory]
-    [InlineData("record")][InlineData("profile")][InlineData("collection")][InlineData("folder")]
+    [InlineData("record")]
+    [InlineData("profile")]
+    [InlineData("collection")]
+    [InlineData("folder")]
     public async Task GivenFailureAfterIntentMutation_WhenDeleting_ThenRollbackEverythingAndAllowRetry(string table)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "direct", false);
@@ -94,8 +114,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData("recordTerminal", "not_found")][InlineData("ownerTerminal", "not_found")]
-    [InlineData("ancestorHidden", "not_found")][InlineData("ancestorCycle", "persistence_unavailable")]
+    [InlineData("recordTerminal", "not_found")]
+    [InlineData("ownerTerminal", "not_found")]
+    [InlineData("ancestorHidden", "not_found")]
+    [InlineData("ancestorCycle", "persistence_unavailable")]
     public async Task GivenAuthorityChangesBeforeFinalIntent_WhenDeleting_ThenReclassifyWithoutMutation(string change, string error)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "folder", false);
@@ -107,9 +129,12 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var hook = new BeforeIntent(async () =>
         {
             await using var db = fixture.CreateContext();
-            if (change.EndsWith("Terminal")) { db.TerminalErasures.Add(new() { ResourceKind = change == "ownerTerminal" ? "account" : "record", ResourceId = change == "ownerTerminal" ? w.State.AccountId : w.Record.PublicId, DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
-            if (change == "ancestorHidden") await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
-            if (change == "ancestorCycle") await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ParentFolderId, w.Items.Folder.Id));
+            if (change.EndsWith("Terminal"))
+            { db.TerminalErasures.Add(new() { ResourceKind = change == "ownerTerminal" ? "account" : "record", ResourceId = change == "ownerTerminal" ? w.State.AccountId : w.Record.PublicId, DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
+            if (change == "ancestorHidden")
+                await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
+            if (change == "ancestorCycle")
+                await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ParentFolderId, w.Items.Folder.Id));
         });
         Assert.Equal(error, (await Store(factory: new ProfileSetup.Factory(fixture, hook)).DeleteAsync(w.Request(), default)).Error);
         await using var check = fixture.CreateContext();
@@ -132,7 +157,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData("edit")][InlineData("move")][InlineData("trash")][InlineData("permanent")]
+    [InlineData("edit")]
+    [InlineData("move")]
+    [InlineData("trash")]
+    [InlineData("permanent")]
     public async Task GivenActualConcurrentExpectedRevisionWriters_WhenDeleting_ThenKeepOneWinnerAndNoResurrection(string writer)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -146,11 +174,13 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var deletion = Store().DeleteAsync(w.Request(), default);
         await Task.WhenAll(other, deletion);
         var failures = new[] { await other, (await deletion).Error };
-        Assert.Single(failures,x => x is null);
+        Assert.Single(failures, x => x is null);
         Assert.Contains(failures.Single(x => x is not null), new[] { "revision_conflict", "not_found" });
         await using var check = fixture.CreateContext();
-        if (await check.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId)) Assert.False(await check.Records.AnyAsync(x => x.Id == w.Record.Id));
-        else Assert.Equal(2, (await check.Records.SingleAsync(x => x.Id == w.Record.Id)).Revision);
+        if (await check.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId))
+            Assert.False(await check.Records.AnyAsync(x => x.Id == w.Record.Id));
+        else
+            Assert.Equal(2, (await check.Records.SingleAsync(x => x.Id == w.Record.Id)).Revision);
     }
 
     private sealed class FailMutation(string table) : DbCommandInterceptor

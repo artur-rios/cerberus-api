@@ -30,7 +30,8 @@ public static class VaultProof
     {
         if (!Valid(value) || value.Binding() != expected || now < value.IssuedAt || now >= value.ExpiresAt
             || !ProtocolBinary.TryDecode(proof, 64, out var signature) || !RawObject(rawBody)
-            || value.RequestHash != ProtocolBinary.Encode(SHA256.HashData(rawBody))) return false;
+            || value.RequestHash != ProtocolBinary.Encode(SHA256.HashData(rawBody)))
+            return false;
         return key.Verify(SigningBytes(value), signature);
     }
 
@@ -47,7 +48,8 @@ public static class VaultProof
 
     private static bool RawObject(byte[] raw)
     {
-        if (raw.Length == 0 || raw.Length > 1048576) return false;
+        if (raw.Length == 0 || raw.Length > 1048576)
+            return false;
         try
         {
             _ = new UTF8Encoding(false, true).GetString(raw);

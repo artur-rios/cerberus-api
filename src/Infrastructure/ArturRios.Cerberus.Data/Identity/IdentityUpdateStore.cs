@@ -45,8 +45,9 @@ public sealed class IdentityUpdateStore(IDbContextFactory<AppDbContext> factory)
                         OR (NOT a.renewal_enabled AND s.expires_at IS NULL))
                   ) THEN 403 ELSE 200 END AS "Value"
                 """).SingleAsync(cancellationToken);
-            if (decision != 200) return new(Error: decision switch
-            { 404 => "not_found", 403 => "vault_access_denied", _ => "persistence_unavailable" });
+            if (decision != 200)
+                return new(Error: decision switch
+                { 404 => "not_found", 403 => "vault_access_denied", _ => "persistence_unavailable" });
             var result = await update(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return result;

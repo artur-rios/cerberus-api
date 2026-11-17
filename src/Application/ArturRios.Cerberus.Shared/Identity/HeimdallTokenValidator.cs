@@ -1,8 +1,8 @@
-using ArturRios.Cerberus.Shared.Configuration;
-using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
+using ArturRios.Cerberus.Shared.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ArturRios.Cerberus.Shared.Identity;
 
@@ -28,7 +28,8 @@ public sealed partial class HeimdallTokenValidator(CerberusOptions options)
 
     private ClaimsPrincipal? ValidateSigned(string token)
     {
-        if (string.IsNullOrWhiteSpace(token)) return null;
+        if (string.IsNullOrWhiteSpace(token))
+            return null;
         try
         {
             var handler = new JwtSecurityTokenHandler { MapInboundClaims = false };

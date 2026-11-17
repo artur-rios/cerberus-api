@@ -1,83 +1,86 @@
+using System.Globalization;
 using ArturRios.Cerberus.Command.Profiles;
 using ArturRios.Cerberus.Query.Profiles;
-using ArturRios.Mediator.Query;
-using Microsoft.AspNetCore.Http.Features;
-using System.Globalization;
 using ArturRios.Cerberus.WebApi.Middleware;
 using ArturRios.Mediator.Command;
+using ArturRios.Mediator.Query;
 using ArturRios.Output;
 using ArturRios.Util.WebApi.AspNetCore;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 namespace ArturRios.Cerberus.WebApi.Controllers;
 
 [ApiController]
 [Route("api/profiles")]
-public sealed partial class ProfilesController(CommandMediator commands, QueryMediator queries, TimeProvider clock):ControllerBase
+public sealed partial class ProfilesController(CommandMediator commands, QueryMediator queries, TimeProvider clock) : ControllerBase
 {
     [HttpDelete("{id}")]
     [VaultProofBody]
-    [ProducesResponseType(typeof(DataOutput<DeleteProfileOutput>),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status409Conflict)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status503ServiceUnavailable)]
-    public async Task<ActionResult<DataOutput<DeleteProfileOutput?>>> Delete([FromRoute]string id,[FromBody]DeleteProfileCommand command,
-        [FromHeader(Name="X-Cerberus-Vault-Access")]string? vaultAccess,CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(DataOutput<DeleteProfileOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<DeleteProfileOutput?>>> Delete([FromRoute] string id, [FromBody] DeleteProfileCommand command,
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
     {
-        if(Request.Query.Count!=0 || Request.Headers["X-Cerberus-Vault-Access"].Count>1
-            || !Guid.TryParseExact(id,"D",out var profileId) || profileId==Guid.Empty || id!=profileId.ToString("D"))
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
+            || !Guid.TryParseExact(id, "D", out var profileId) || profileId == Guid.Empty || id != profileId.ToString("D"))
             return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if(!Guid.TryParse(User.FindFirst("id")?.Value,out var actor))return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
-        vaultAccess=Request.Headers.TryGetValue("X-Cerberus-Vault-Access",out var raw)?raw.ToString():null;
-        command.SetContext(actor,vaultAccess,profileId);
-        var result=await commands.ExecuteCommandAsync<DeleteProfileCommand,DeleteProfileOutput>(command,cancellationToken);
-        return result.ToActionResult(statusMap:DeleteProfileMessages.StatusCodes);
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
+        command.SetContext(actor, vaultAccess, profileId);
+        var result = await commands.ExecuteCommandAsync<DeleteProfileCommand, DeleteProfileOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: DeleteProfileMessages.StatusCodes);
     }
 
     [HttpPut("{id}/associations")]
     [VaultProofBody]
-    [ProducesResponseType(typeof(DataOutput<SetProfileAssociationsOutput>),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status409Conflict)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status503ServiceUnavailable)]
-    public async Task<ActionResult<DataOutput<SetProfileAssociationsOutput?>>> SetAssociations([FromRoute]string id,[FromBody]SetProfileAssociationsCommand command,
-        [FromHeader(Name="X-Cerberus-Vault-Access")]string? vaultAccess,CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(DataOutput<SetProfileAssociationsOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<SetProfileAssociationsOutput?>>> SetAssociations([FromRoute] string id, [FromBody] SetProfileAssociationsCommand command,
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
     {
-        if(Request.Query.Count!=0 || Request.Headers["X-Cerberus-Vault-Access"].Count>1
-            || !Guid.TryParseExact(id,"D",out var profileId) || profileId==Guid.Empty || id!=profileId.ToString("D"))
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
+            || !Guid.TryParseExact(id, "D", out var profileId) || profileId == Guid.Empty || id != profileId.ToString("D"))
             return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if(!Guid.TryParse(User.FindFirst("id")?.Value,out var actor))return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
-        vaultAccess=Request.Headers.TryGetValue("X-Cerberus-Vault-Access",out var raw)?raw.ToString():null;
-        command.SetContext(actor,vaultAccess,profileId);
-        var result=await commands.ExecuteCommandAsync<SetProfileAssociationsCommand,SetProfileAssociationsOutput>(command,cancellationToken);
-        return result.ToActionResult(statusMap:SetProfileAssociationsMessages.StatusCodes);
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
+        command.SetContext(actor, vaultAccess, profileId);
+        var result = await commands.ExecuteCommandAsync<SetProfileAssociationsCommand, SetProfileAssociationsOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: SetProfileAssociationsMessages.StatusCodes);
     }
 
     [HttpPut("{id}")]
     [VaultProofBody]
-    [ProducesResponseType(typeof(DataOutput<UpdateProfileOutput>),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status409Conflict)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status503ServiceUnavailable)]
-    public async Task<ActionResult<DataOutput<UpdateProfileOutput?>>> Update([FromRoute]string id,[FromBody]UpdateProfileCommand command,
-        [FromHeader(Name="X-Cerberus-Vault-Access")]string? vaultAccess,CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(DataOutput<UpdateProfileOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<UpdateProfileOutput?>>> Update([FromRoute] string id, [FromBody] UpdateProfileCommand command,
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
     {
-        if(Request.Query.Count!=0 || Request.Headers["X-Cerberus-Vault-Access"].Count>1
-            || !Guid.TryParseExact(id,"D",out var profileId) || profileId==Guid.Empty || id!=profileId.ToString("D"))
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
+            || !Guid.TryParseExact(id, "D", out var profileId) || profileId == Guid.Empty || id != profileId.ToString("D"))
             return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if(!Guid.TryParse(User.FindFirst("id")?.Value,out var actor))return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
-        vaultAccess=Request.Headers.TryGetValue("X-Cerberus-Vault-Access",out var raw)?raw.ToString():null;
-        command.SetContext(actor,vaultAccess,profileId);
-        var result=await commands.ExecuteCommandAsync<UpdateProfileCommand,UpdateProfileOutput>(command,cancellationToken);
-        return result.ToActionResult(statusMap:UpdateProfileMessages.StatusCodes);
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
+        command.SetContext(actor, vaultAccess, profileId);
+        var result = await commands.ExecuteCommandAsync<UpdateProfileCommand, UpdateProfileOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: UpdateProfileMessages.StatusCodes);
     }
 
     [HttpGet("{id}")]
@@ -138,21 +141,23 @@ public sealed partial class ProfilesController(CommandMediator commands, QueryMe
 
     [HttpPost]
     [VaultProofBody]
-    [ProducesResponseType(typeof(DataOutput<CreateProfileOutput>),StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status409Conflict)]
-    [ProducesResponseType(typeof(ProcessOutput),StatusCodes.Status503ServiceUnavailable)]
-    public async Task<ActionResult<DataOutput<CreateProfileOutput?>>> Create([FromBody]CreateProfileCommand command,
-        [FromHeader(Name="X-Cerberus-Vault-Access")]string? vaultAccess,CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(DataOutput<CreateProfileOutput>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<DataOutput<CreateProfileOutput?>>> Create([FromBody] CreateProfileCommand command,
+        [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
     {
-        if(Request.Query.Count!=0 || Request.Headers["X-Cerberus-Vault-Access"].Count>1)return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if(!Guid.TryParse(User.FindFirst("id")?.Value,out var actor))return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
-        vaultAccess=Request.Headers.TryGetValue("X-Cerberus-Vault-Access",out var raw)?raw.ToString():null;
-        command.SetContext(actor,vaultAccess);
-        var result=await commands.ExecuteCommandAsync<CreateProfileCommand,CreateProfileOutput>(command,cancellationToken);
-        return result.ToActionResult(statusMap:ProfileMessages.StatusCodes);
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
+        command.SetContext(actor, vaultAccess);
+        var result = await commands.ExecuteCommandAsync<CreateProfileCommand, CreateProfileOutput>(command, cancellationToken);
+        return result.ToActionResult(statusMap: ProfileMessages.StatusCodes);
     }
 }

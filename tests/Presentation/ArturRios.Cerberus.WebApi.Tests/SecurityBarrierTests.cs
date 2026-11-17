@@ -1,12 +1,12 @@
-using ArturRios.Cerberus.Shared.Identity;
+using System.Net;
+using System.Text;
 using ArturRios.Cerberus.Shared.Configuration;
+using ArturRios.Cerberus.Shared.Identity;
 using ArturRios.Cerberus.Shared.Operations;
 using ArturRios.Cerberus.WebApi.Middleware;
 using ArturRios.Jwt;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using System.Net;
-using System.Text;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
@@ -40,8 +40,10 @@ public sealed class SecurityBarrierTests
         await new ProtectedEndpointMiddleware(_ => { called = true; return Task.CompletedTask; })
             .InvokeAsync(context, new HeimdallTokenValidator(options), upstream.Object, new HeimdallApplicationTokenValidator(options));
         Assert.Equal(active, called);
-        if (active) Assert.Equal("527a1001-8ef5-4c9b-a565-222222222222", context.User.FindFirst("id")?.Value);
-        else Assert.Equal(401, context.Response.StatusCode);
+        if (active)
+            Assert.Equal("527a1001-8ef5-4c9b-a565-222222222222", context.User.FindFirst("id")?.Value);
+        else
+            Assert.Equal(401, context.Response.StatusCode);
     }
 
     [UnitFact]

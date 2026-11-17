@@ -12,35 +12,49 @@ public sealed class OfflinePolicyUpdateStore(IDbContextFactory<AppDbContext> fac
     public async Task<OfflinePolicyReadResult> UpdateAsync(OfflinePolicyUpdateRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request is null) return new(Error: "validation_failed");
-        if (request.IdentityId == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.Verifier)) return new(Error: "vault_access_required");
-        if (!request.IsValid(DateTimeOffset.UtcNow)) return new(Error: "validation_failed");
+        if (request is null)
+            return new(Error: "validation_failed");
+        if (request.IdentityId == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.Verifier))
+            return new(Error: "vault_access_required");
+        if (!request.IsValid(DateTimeOffset.UtcNow))
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
             await using var tx = await db.Database.BeginTransactionAsync(ct);
             var captured = await Read(db, request, ct);
             var error = AuthorityError(captured);
-            if (error is not null) return new(Error: error);
+            if (error is not null)
+                return new(Error: error);
             var original = captured!;
             async Task<string?> Recheck() => RecheckError(await Read(db, request, ct), original);
 
             // All policy/protection/lifecycle writers share this canonical lock prefix.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={original.OwnerId} FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE id={original.SessionId} AND account_id={original.OwnerId} FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             if (original.Selection is { } profile)
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE id={profile} AND account_id={original.OwnerId} FOR NO KEY UPDATE", ct);
-                error = await Recheck(); if (error is not null) return new(Error: error);
+                error = await Recheck();
+                if (error is not null)
+                    return new(Error: error);
             }
             if (original.PolicyRevision != request.ExpectedPolicyRevision || original.PolicyRevision == ProtocolBinary.MaxInteger)
                 return new(Error: "revision_conflict");
             var before = await Read(db, request, ct);
-            error = RecheckError(before, original); if (error is not null) return new(Error: error);
-            if (!request.IsValid(before!.DatabaseNow)) return new(Error: "validation_failed");
+            error = RecheckError(before, original);
+            if (error is not null)
+                return new(Error: error);
+            if (!request.IsValid(before!.DatabaseNow))
+                return new(Error: "validation_failed");
 
             var parameters = Parameters(request).Concat(new object[]
             {
@@ -67,7 +81,8 @@ public sealed class OfflinePolicyUpdateStore(IDbContextFactory<AppDbContext> fac
                 """, parameters, ct);
             if (changed != 1)
             {
-                if (changed != 0) return new(Error: "persistence_unavailable");
+                if (changed != 0)
+                    return new(Error: "persistence_unavailable");
                 var current = await Read(db, request, ct);
                 return new(Error: RecheckError(current, original)
                     ?? (current is not null && !request.IsValid(current.DatabaseNow) ? "validation_failed" : "persistence_unavailable"));
@@ -92,8 +107,10 @@ public sealed class OfflinePolicyUpdateStore(IDbContextFactory<AppDbContext> fac
 
     private static string? AuthorityError(Snapshot? s)
     {
-        if (s is null || !s.ActorActive) return "not_found";
-        if (!s.SessionAllowed) return "vault_access_denied";
+        if (s is null || !s.ActorActive)
+            return "not_found";
+        if (!s.SessionAllowed)
+            return "vault_access_denied";
         if (s.PublicId == Guid.Empty || s.AccountRevision is <= 0 or > ProtocolBinary.MaxInteger
             || s.PolicyRevision is <= 0 or > ProtocolBinary.MaxInteger || s.RevocationGeneration is <= 0 or > ProtocolBinary.MaxInteger
             || (s.RenewalEnabled ? s.RenewalInterval is null || s.RenewalInterval <= TimeSpan.Zero : s.RenewalInterval is not null))
@@ -102,8 +119,10 @@ public sealed class OfflinePolicyUpdateStore(IDbContextFactory<AppDbContext> fac
     }
     private static string? RecheckError(Snapshot? current, Snapshot captured)
     {
-        if (current is null || !current.ActorActive) return "revision_conflict";
-        if (!current.SessionAllowed) return "vault_access_denied";
+        if (current is null || !current.ActorActive)
+            return "revision_conflict";
+        if (!current.SessionAllowed)
+            return "vault_access_denied";
         if (current.OwnerId != captured.OwnerId || current.PublicId != captured.PublicId
             || current.AccountRevision != captured.AccountRevision || current.PolicyRevision != captured.PolicyRevision
             || current.RevocationGeneration != captured.RevocationGeneration || current.RenewalEnabled != captured.RenewalEnabled
@@ -136,16 +155,27 @@ public sealed class OfflinePolicyUpdateStore(IDbContextFactory<AppDbContext> fac
 
     private sealed class Snapshot
     {
-        public long OwnerId { get; set; } public Guid PublicId { get; set; } public long AccountRevision { get; set; }
-        public bool ActorActive { get; set; } public bool SessionAllowed { get; set; }
+        public long OwnerId { get; set; }
+        public Guid PublicId { get; set; }
+        public long AccountRevision { get; set; }
+        public bool ActorActive { get; set; }
+        public bool SessionAllowed { get; set; }
         public bool SelectionActive { get; set; }
-        public bool RenewalEnabled { get; set; } public TimeSpan? RenewalInterval { get; set; }
-        public long PolicyRevision { get; set; } public long RevocationGeneration { get; set; }
-        public long? SessionId { get; set; } public long? Selection { get; set; } public bool? SessionRevoked { get; set; }
-        public DateTimeOffset? SessionIssuedAt { get; set; } public DateTimeOffset? SessionExpiresAt { get; set; }
-        public long? SessionPolicyRevision { get; set; } public long? SessionGeneration { get; set; }
-        public Guid? ProfileId { get; set; } public long? ProfileRevision { get; set; }
-        public DateTimeOffset? ProfileDeletedAt { get; set; } public DateTimeOffset? ProfilePurgeAt { get; set; }
+        public bool RenewalEnabled { get; set; }
+        public TimeSpan? RenewalInterval { get; set; }
+        public long PolicyRevision { get; set; }
+        public long RevocationGeneration { get; set; }
+        public long? SessionId { get; set; }
+        public long? Selection { get; set; }
+        public bool? SessionRevoked { get; set; }
+        public DateTimeOffset? SessionIssuedAt { get; set; }
+        public DateTimeOffset? SessionExpiresAt { get; set; }
+        public long? SessionPolicyRevision { get; set; }
+        public long? SessionGeneration { get; set; }
+        public Guid? ProfileId { get; set; }
+        public long? ProfileRevision { get; set; }
+        public DateTimeOffset? ProfileDeletedAt { get; set; }
+        public DateTimeOffset? ProfilePurgeAt { get; set; }
         public DateTimeOffset DatabaseNow { get; set; }
     }
     private const string SnapshotSql = """

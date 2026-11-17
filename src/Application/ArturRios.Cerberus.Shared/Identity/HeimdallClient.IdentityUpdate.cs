@@ -17,17 +17,19 @@ public sealed partial class HeimdallClient
         if (principal is null || !Guid.TryParse(principal.FindFirst("id")?.Value, out var actor) || actor != identityId)
             return new(Error: "authentication_required");
         var response = await SendAsync(HttpMethod.Put, $"/api/persons/{identityId:D}", new { name, email }, token, cancellationToken);
-        if (response.Data is null) return new(Error: response.HttpStatus switch
-        {
-            HttpStatusCode.BadRequest => "validation_failed",
-            HttpStatusCode.Unauthorized => "authentication_required",
-            HttpStatusCode.Forbidden => "identity_update_forbidden",
-            HttpStatusCode.NotFound => "not_found",
-            HttpStatusCode.Conflict => "identity_conflict",
-            _ => "identity_unavailable"
-        });
+        if (response.Data is null)
+            return new(Error: response.HttpStatus switch
+            {
+                HttpStatusCode.BadRequest => "validation_failed",
+                HttpStatusCode.Unauthorized => "authentication_required",
+                HttpStatusCode.Forbidden => "identity_update_forbidden",
+                HttpStatusCode.NotFound => "not_found",
+                HttpStatusCode.Conflict => "identity_conflict",
+                _ => "identity_unavailable"
+            });
         UpdatedPerson? person;
-        try { person = response.Data.Value.Deserialize<UpdatedPerson>(UpdateJson); }
+        try
+        { person = response.Data.Value.Deserialize<UpdatedPerson>(UpdateJson); }
         catch (JsonException) { return new(Error: "identity_unavailable"); }
         if (person is null || person.Id != identityId || person.Role != 3 || person.ScopeId != options.HeimdallScopeId
             || person.Name != name || !string.Equals(person.Email, email, StringComparison.OrdinalIgnoreCase))

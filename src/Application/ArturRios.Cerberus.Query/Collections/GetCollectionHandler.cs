@@ -12,13 +12,16 @@ public sealed class GetCollectionHandler(ICollectionReadStore store) : IQueryHan
     {
         cancellationToken.ThrowIfCancellationRequested();
         var output = DataOutput<CollectionDetailsOutput?>.New;
-        if (query.Actor == Guid.Empty) return output.WithError("authentication_required");
-        if (query.Access is null) return output.WithError("vault_access_required");
+        if (query.Actor == Guid.Empty)
+            return output.WithError("authentication_required");
+        if (query.Access is null)
+            return output.WithError("vault_access_required");
         if (query.CollectionId == Guid.Empty || !OpaqueAccessHandle.TryHash(query.Access, out var verifier))
             return output.WithError("validation_failed");
 
         VaultResult<CollectionReadDetails>? result;
-        try { result = await store.ReadAsync(new(query.Actor, verifier, query.CollectionId), cancellationToken); }
+        try
+        { result = await store.ReadAsync(new(query.Actor, verifier, query.CollectionId), cancellationToken); }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         { return output.WithError("persistence_unavailable"); }
 
@@ -32,9 +35,14 @@ public sealed class GetCollectionHandler(ICollectionReadStore store) : IQueryHan
 
         return output.WithData(new CollectionDetailsOutput
         {
-            CollectionId = collection!.CollectionId, Revision = collection.Revision, ServerSequence = collection.ServerSequence,
-            EditedAt = collection.EditedAt, Envelope = collection.Envelope,
-            ProfileIds = data.ProfileIds.Order().ToArray(), RecordIds = data.RecordIds.Order().ToArray(), FolderIds = data.FolderIds.Order().ToArray()
+            CollectionId = collection!.CollectionId,
+            Revision = collection.Revision,
+            ServerSequence = collection.ServerSequence,
+            EditedAt = collection.EditedAt,
+            Envelope = collection.Envelope,
+            ProfileIds = data.ProfileIds.Order().ToArray(),
+            RecordIds = data.RecordIds.Order().ToArray(),
+            FolderIds = data.FolderIds.Order().ToArray()
         }).WithMessage("collection_found");
     }
 

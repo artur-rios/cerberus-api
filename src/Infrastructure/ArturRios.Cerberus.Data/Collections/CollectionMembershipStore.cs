@@ -21,9 +21,12 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
     public async Task<VaultResult<CollectionMembershipDetails>> SetAsync(CollectionMembershipRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.AccessVerifier)) return new(Error: "vault_access_required");
-        if (request.CollectionId == Guid.Empty || request.Input?.IsValid() != true) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.AccessVerifier))
+            return new(Error: "vault_access_required");
+        if (request.CollectionId == Guid.Empty || request.Input?.IsValid() != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -33,10 +36,13 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", ct);
             var owner = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.HeimdallPublicId == request.Actor, ct);
             if (owner is null || owner.State != AccountState.Active
-                || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == owner.PublicId, ct)) return new(Error: "not_found");
+                || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == owner.PublicId, ct))
+                return new(Error: "not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={owner.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
-            var initial = await SnapshotAsync(db, request, ct); var error = Error(initial);
-            if (error is not null) return new(Error: error);
+            var initial = await SnapshotAsync(db, request, ct);
+            var error = Error(initial);
+            if (error is not null)
+                return new(Error: error);
             var target = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
             async Task<string?> Reload()
             {
@@ -46,31 +52,48 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
             if (initial.Selection is not null)
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE account_id={owner.Id} AND id={initial.Selection} FOR NO KEY UPDATE", ct);
-                error = await Reload(); if (error is not null) return new(Error: error);
+                error = await Reload();
+                if (error is not null)
+                    return new(Error: error);
             }
             // Collection/grant locks precede folder/record locks, matching recipient editors.
             // Capture once: a newly required member or grant requires retry, never late locks.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE account_id={owner.Id} AND id={target.Id} FOR UPDATE", ct);
-            error = await Reload(); if (error is not null) return new(Error: error);
+            error = await Reload();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_grant WHERE collection_id={target.Id} AND id=ANY({initial.GrantIds}) ORDER BY public_id FOR SHARE", ct);
-            error = await Reload(); if (error is not null) return new(Error: error);
+            error = await Reload();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.folder WHERE account_id={owner.Id} AND id=ANY({initial.FolderIds}) ORDER BY public_id FOR UPDATE", ct);
-            error = await Reload(); if (error is not null) return new(Error: error);
+            error = await Reload();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.record WHERE account_id={owner.Id} AND id=ANY({initial.RecordIds}) ORDER BY public_id FOR UPDATE", ct);
-            error = await Reload(); if (error is not null) return new(Error: error);
+            error = await Reload();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_folder WHERE account_id={owner.Id} AND collection_id={target.Id} ORDER BY folder_id FOR UPDATE", ct);
-            error = await Reload(); if (error is not null) return new(Error: error);
+            error = await Reload();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_record WHERE account_id={owner.Id} AND collection_id={target.Id} ORDER BY record_id FOR UPDATE", ct);
-            error = await Reload(); if (error is not null) return new(Error: error);
+            error = await Reload();
+            if (error is not null)
+                return new(Error: error);
 
             var input = request.Input;
-            if (target.Revision != input.ExpectedRevision || target.Revision == ProtocolBinary.MaxInteger || initial.Exhausted) return new(Error: "revision_conflict");
+            if (target.Revision != input.ExpectedRevision || target.Revision == ProtocolBinary.MaxInteger || initial.Exhausted)
+                return new(Error: "revision_conflict");
             var original = Convert.FromHexString(target.Envelope);
             var previous = JsonSerializer.Deserialize<EncryptedEnvelope>(original, Json)!;
             if (input.Envelope.KeyEpoch != target.KeyEpoch
-                || input.Envelope != previous && (input.Envelope.KeySalt == previous.KeySalt || input.Envelope.Nonce == previous.Nonce)) return new(Error: "validation_failed");
+                || input.Envelope != previous && (input.Envelope.KeySalt == previous.KeySalt || input.Envelope.Nonce == previous.Nonce))
+                return new(Error: "validation_failed");
             var replacement = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
-            var edited = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond)); var stamp = Guid.NewGuid();
+            var edited = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
+            var stamp = Guid.NewGuid();
             var members = JsonSerializer.Deserialize<Member[]>(initial.Members, Json)!;
             var grants = await GrantRowsAsync(db, target.Id, ct);
             var parameters = Parameters(request).Concat(new object[]
@@ -97,7 +120,8 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
                   AND NOT EXISTS(SELECT FROM records r WHERE NOT(r.id=ANY(@held_records)))
                   AND NOT EXISTS(SELECT FROM active_grants g WHERE NOT(g.id=ANY(@held_grants)))
                 """, parameters, ct);
-            if (count != 1) return new(Error: Error(await SnapshotAsync(db, request, ct)) ?? "revision_conflict");
+            if (count != 1)
+                return new(Error: Error(await SnapshotAsync(db, request, ct)) ?? "revision_conflict");
             var result = await db.Collections.AsNoTracking().SingleOrDefaultAsync(x => x.Id == target.Id, ct);
             if (result is null || result.PublicId != request.CollectionId || result.AccountId != owner.Id || result.Revision != target.Revision + 1
                 || !Safe(result.ServerSequence) || result.ServerSequence <= target.Sequence || result.EditedAt != edited || result.KeyEpoch != target.KeyEpoch
@@ -105,7 +129,8 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
                 return new(Error: "persistence_unavailable");
 
             var targetProjection = await RowAsync(db, "collection", target.Id, ct);
-            if (targetProjection is null) return new(Error: "persistence_unavailable");
+            if (targetProjection is null)
+                return new(Error: "persistence_unavailable");
             var memberProjections = new Dictionary<(string Kind, long Id), string>();
             // Count each mutation separately, so any failure rolls back the entire replacement.
             if (await db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM cerberus.collection_folder WHERE account_id={owner.Id} AND collection_id={target.Id}", ct) != initial.OldFolderIds.Length
@@ -116,16 +141,20 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
                 return new(Error: "persistence_unavailable");
             foreach (var member in members.Where(x => x.Changed).OrderBy(x => x.Kind == "folder" ? 0 : 1).ThenBy(x => x.PublicId))
             {
-                var bump = await BumpAsync(db, member, ct); if (bump.Error is not null) return new(Error: bump.Error);
+                var bump = await BumpAsync(db, member, ct);
+                if (bump.Error is not null)
+                    return new(Error: bump.Error);
                 memberProjections[(member.Kind, member.Id)] = bump.Projection!;
             }
             var actualFolders = await (from cf in db.CollectionFolders join f in db.Folders on cf.FolderId equals f.Id where cf.CollectionId == target.Id && cf.AccountId == owner.Id select f.PublicId).ToArrayAsync(ct);
             var actualRecords = await (from cr in db.CollectionRecords join r in db.Records on cr.RecordId equals r.Id where cr.CollectionId == target.Id && cr.AccountId == owner.Id select r.PublicId).ToArrayAsync(ct);
             if (!actualFolders.Order().SequenceEqual(input.FolderIds.Order()) || !actualRecords.Order().SequenceEqual(input.RecordIds.Order())
-                || grants != await GrantRowsAsync(db, target.Id, ct)) return new(Error: "persistence_unavailable");
+                || grants != await GrantRowsAsync(db, target.Id, ct))
+                return new(Error: "persistence_unavailable");
             // Verify the final projection too: a later write/trigger must not invalidate
             // the target or a member whose immediate post-write verification already passed.
-            if (await RowAsync(db, "collection", target.Id, ct) != targetProjection) return new(Error: "persistence_unavailable");
+            if (await RowAsync(db, "collection", target.Id, ct) != targetProjection)
+                return new(Error: "persistence_unavailable");
             foreach (var member in members)
                 if (await RowAsync(db, member.Kind, member.Id, ct) != (member.Changed ? memberProjections[(member.Kind, member.Id)] : member.Original))
                     return new(Error: "persistence_unavailable");
@@ -135,7 +164,8 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
         catch (PostgresException e) when (e.SqlState == "2200H") { return new(Error: "revision_conflict"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
         catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException or JsonException or FormatException
-            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException }) { return new(Error: "persistence_unavailable"); }
+            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException })
+        { return new(Error: "persistence_unavailable"); }
     }
 
     private static bool Safe(long value) => value is > 0 and <= ProtocolBinary.MaxInteger;
@@ -143,30 +173,39 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
         && time.Offset == TimeSpan.Zero && time.Ticks >= 10 && time.Ticks % 10 == 0;
     private static string? Error(Snapshot s)
     {
-        if (!s.ActorActive) return "not_found";
-        if (!s.Allowed) return "vault_access_denied";
-        if (s.Item is null) return "not_found";
-        if (s.ForeignTarget) return ValidNative(s) ? "vault_access_denied" : "persistence_unavailable";
-        if (!s.Permitted) return "not_found";
-        if (s.Corrupt || s.StructuralCorrupt) return "persistence_unavailable";
+        if (!s.ActorActive)
+            return "not_found";
+        if (!s.Allowed)
+            return "vault_access_denied";
+        if (s.Item is null)
+            return "not_found";
+        if (s.ForeignTarget)
+            return ValidNative(s) ? "vault_access_denied" : "persistence_unavailable";
+        if (!s.Permitted)
+            return "not_found";
+        if (s.Corrupt || s.StructuralCorrupt)
+            return "persistence_unavailable";
         var item = JsonSerializer.Deserialize<Item>(s.Item, Json)!;
         var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(item.Envelope), Json);
         if (!Safe(item.Revision) || !Safe(item.Sequence) || !Safe(item.KeyEpoch) || !Time(item.EditedAt) || item.PurgeAt is not null
-            || envelope?.IsValid() != true || envelope.KeyEpoch != item.KeyEpoch || !ValidNative(s)) return "persistence_unavailable";
+            || envelope?.IsValid() != true || envelope.KeyEpoch != item.KeyEpoch || !ValidNative(s))
+            return "persistence_unavailable";
         return null;
     }
     private static bool ValidNative(Snapshot snapshot)
     {
         var target = JsonSerializer.Deserialize<Item>(snapshot.Item!, Json)!;
         var evidence = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Native, Json)!;
-        if (evidence.Length != snapshot.GrantIds.Length) return false;
+        if (evidence.Length != snapshot.GrantIds.Length)
+            return false;
         foreach (var e in evidence)
         {
             if (e.Access is not ((int)CollectionGrantAccess.ReadOnly) and not ((int)CollectionGrantAccess.ReadWrite)
                 || !CollectionGrantBinding.TryReadPins(Pins(e.OwnerMaterial, e.OwnerRevision, e.OwnerEpoch, e.OwnerGeneration), out var owner)
                 || !CollectionGrantBinding.TryReadPins(Pins(e.RecipientMaterial, e.RecipientRevision, e.RecipientEpoch, e.RecipientGeneration), out var recipient)
                 || !CollectionGrantBinding.IsBound(new() { PublicId = e.GrantId, Revision = e.GrantRevision, RecipientKeyEnvelope = Convert.FromHexString(e.GrantEnvelope) },
-                    new() { PublicId = target.CollectionId, KeyEpoch = target.KeyEpoch, Envelope = Convert.FromHexString(target.Envelope) }, e.OwnerId, e.RecipientIdentity, owner!, recipient!)) return false;
+                    new() { PublicId = target.CollectionId, KeyEpoch = target.KeyEpoch, Envelope = Convert.FromHexString(target.Envelope) }, e.OwnerId, e.RecipientIdentity, owner!, recipient!))
+                return false;
         }
         return true;
     }
@@ -184,7 +223,8 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
     {
         var stamp = Guid.NewGuid();
         var sql = $"UPDATE cerberus.{member.Kind} SET revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={{0}} WHERE id={{1}} AND account_id={{2}} AND revision={{3}} AND server_sequence={{4}} AND concurrency_stamp={{5}} AND deleted_at IS NULL AND purge_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_kind='{member.Kind}' AND e.resource_id=cerberus.{member.Kind}.public_id)";
-        if (await db.Database.ExecuteSqlRawAsync(sql, new object[] { stamp, member.Id, member.AccountId, member.Revision, member.Sequence, member.Stamp }, ct) != 1) return ("revision_conflict", null);
+        if (await db.Database.ExecuteSqlRawAsync(sql, new object[] { stamp, member.Id, member.AccountId, member.Revision, member.Sequence, member.Stamp }, ct) != 1)
+            return ("revision_conflict", null);
         var readSql = $"SELECT revision,server_sequence,concurrency_stamp,(to_jsonb(r)-'revision'-'server_sequence'-'concurrency_stamp')::text stable,to_jsonb(r)::text original FROM cerberus.{member.Kind} r WHERE id={{0}}";
         var row = await db.Database.SqlQueryRaw<Written>(readSql, member.Id).SingleOrDefaultAsync(ct);
         return row is null || row.Revision != member.Revision + 1 || !Safe(row.ServerSequence) || row.ServerSequence <= member.Sequence
@@ -198,9 +238,16 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
         string? RecipientMaterial, long? RecipientRevision, long? RecipientEpoch, long? RecipientGeneration);
     private sealed class Snapshot
     {
-        public bool ActorActive { get; set; } public bool Allowed { get; set; } public bool ForeignTarget { get; set; }
-        public bool Permitted { get; set; } public bool Corrupt { get; set; } public bool StructuralCorrupt { get; set; } public bool Exhausted { get; set; }
-        public long? Selection { get; set; } public string? Item { get; set; } public string Native { get; set; } = "[]";
+        public bool ActorActive { get; set; }
+        public bool Allowed { get; set; }
+        public bool ForeignTarget { get; set; }
+        public bool Permitted { get; set; }
+        public bool Corrupt { get; set; }
+        public bool StructuralCorrupt { get; set; }
+        public bool Exhausted { get; set; }
+        public long? Selection { get; set; }
+        public string? Item { get; set; }
+        public string Native { get; set; } = "[]";
         public string Members { get; set; } = "[]"; public string Frozen { get; set; } = "{}";
         public long[] FolderIds { get; set; } = []; public long[] RecordIds { get; set; } = []; public long[] GrantIds { get; set; } = [];
         public long[] OldFolderIds { get; set; } = []; public long[] OldRecordIds { get; set; } = [];

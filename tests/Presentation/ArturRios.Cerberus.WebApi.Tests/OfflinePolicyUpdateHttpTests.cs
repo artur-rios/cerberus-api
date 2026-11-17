@@ -44,9 +44,15 @@ public class OfflinePolicyUpdateHttpTests(RegistrationApiFixture fixture, Shared
         var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = identity, DetailsEnvelope = [11, 22], Revision = 7 };
         db.Accounts.Add(account);
         await db.SaveChangesAsync();
-        db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
-            PolicyRevision = 1, RevocationGeneration = 1 });
+        db.VaultAccessSessions.Add(new VaultAccessSession
+        {
+            AccountId = account.Id,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         await db.SaveChangesAsync();
         Authorize(RegistrationApiFixture.Token(identity));
         using var request = new HttpRequestMessage(HttpMethod.Put, "/api/accounts/me/offline-policy")
@@ -110,7 +116,8 @@ public class OfflinePolicyUpdateHttpTests(RegistrationApiFixture fixture, Shared
             using var stale = await Gateway.Client.SendAsync(get);
             Assert.Equal(HttpStatusCode.Forbidden, stale.StatusCode);
         }
-        else Assert.True(!json.RootElement.TryGetProperty("data", out var data) || data.ValueKind == JsonValueKind.Null);
+        else
+            Assert.True(!json.RootElement.TryGetProperty("data", out var data) || data.ValueKind == JsonValueKind.Null);
         if (state != "missing")
         {
             await using var db = fixture.Context();
@@ -167,15 +174,22 @@ public class OfflinePolicyUpdateHttpTests(RegistrationApiFixture fixture, Shared
     public async Task GivenInvalidTransportOrContext_WhenSetting_ThenFailClosed(string invalid, HttpStatusCode status)
     {
         var input = await Setup();
-        if (invalid != "noIdentity") Authorize(RegistrationApiFixture.Token(input.Identity));
+        if (invalid != "noIdentity")
+            Authorize(RegistrationApiFixture.Token(input.Identity));
         using var request = Request(invalid == "noHandle" ? null : invalid == "handle" ? "invalid" : input.Handle,
             invalid == "empty" ? "" : (invalid == "bom" ? "\uFEFF" : "") + "{\"expectedPolicyRevision\":1,\"renewalEnabled\":false,\"renewalInterval\":null}");
-        if (invalid == "duplicate") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", input.Handle);
-        if (invalid == "query") request.RequestUri = new("/api/accounts/me/offline-policy?ownerId=untrusted", UriKind.Relative);
-        if (invalid == "compression") request.Content!.Headers.ContentEncoding.Add("gzip");
-        if (invalid == "media") request.Content!.Headers.ContentType = new("text/plain");
-        if (invalid == "charset") request.Content!.Headers.ContentType!.CharSet = "utf-16";
-        if (invalid == "parameter") request.Content!.Headers.ContentType!.Parameters.Add(new("extra", "value"));
+        if (invalid == "duplicate")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", input.Handle);
+        if (invalid == "query")
+            request.RequestUri = new("/api/accounts/me/offline-policy?ownerId=untrusted", UriKind.Relative);
+        if (invalid == "compression")
+            request.Content!.Headers.ContentEncoding.Add("gzip");
+        if (invalid == "media")
+            request.Content!.Headers.ContentType = new("text/plain");
+        if (invalid == "charset")
+            request.Content!.Headers.ContentType!.CharSet = "utf-16";
+        if (invalid == "parameter")
+            request.Content!.Headers.ContentType!.Parameters.Add(new("extra", "value"));
         using var response = await Gateway.Client.SendAsync(request);
         Assert.Equal(status, response.StatusCode);
         Assert.True(response.Headers.CacheControl?.NoStore);
@@ -200,13 +214,15 @@ public class OfflinePolicyUpdateHttpTests(RegistrationApiFixture fixture, Shared
     [FunctionalFact]
     public async Task GivenAnotherOwnersHandle_WhenSetting_ThenDenyAndPreserveBothPolicies()
     {
-        var owner = await Setup(); var other = await Setup();
+        var owner = await Setup();
+        var other = await Setup();
         Authorize(RegistrationApiFixture.Token(owner.Identity));
         using var request = Request(other.Handle, "{\"expectedPolicyRevision\":1,\"renewalEnabled\":false,\"renewalInterval\":null}");
         using var response = await Gateway.Client.SendAsync(request);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         Assert.DoesNotContain(other.Account.ToString(), await response.Content.ReadAsStringAsync());
-        await Unchanged(owner.Account); await Unchanged(other.Account);
+        await Unchanged(owner.Account);
+        await Unchanged(other.Account);
     }
 
     [FunctionalFact]
@@ -229,28 +245,48 @@ public class OfflinePolicyUpdateHttpTests(RegistrationApiFixture fixture, Shared
 
     private async Task<(Guid Identity, Guid Account, string Handle)> Setup(string state = "active")
     {
-        var identity = Guid.NewGuid(); var id = Guid.NewGuid();
+        var identity = Guid.NewGuid();
+        var id = Guid.NewGuid();
         fixture.Users[Guid.NewGuid() + "@example.test"] = new(identity, "fixture-password");
         var handle = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
         Assert.True(OpaqueAccessHandle.TryHash(handle, out var verifier));
         if (state != "missing")
         {
             await using var db = fixture.Context();
-            var account = new Account { PublicId = id, HeimdallPublicId = identity, DetailsEnvelope = [11, 22], Revision = 7,
+            var account = new Account
+            {
+                PublicId = id,
+                HeimdallPublicId = identity,
+                DetailsEnvelope = [11, 22],
+                Revision = 7,
                 PolicyRevision = state == "exhausted" ? 9007199254740991 : state == "stalePolicy" ? 2 : 1,
-                RenewalInterval = state == "corruptPolicy" ? TimeSpan.Zero : TimeSpan.FromHours(24), RevocationGeneration = state == "staleGeneration" ? 2 : 1,
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
-            db.Accounts.Add(account); await db.SaveChangesAsync();
+                RenewalInterval = state == "corruptPolicy" ? TimeSpan.Zero : TimeSpan.FromHours(24),
+                RevocationGeneration = state == "staleGeneration" ? 2 : 1,
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            };
+            db.Accounts.Add(account);
+            await db.SaveChangesAsync();
             long? selected = null;
             if (state == "selected")
             {
                 var profile = new ArturRios.Cerberus.Domain.Profiles.Profile { AccountId = account.Id, PublicId = Guid.NewGuid() };
-                db.Profiles.Add(profile); await db.SaveChangesAsync(); selected = profile.Id;
+                db.Profiles.Add(profile);
+                await db.SaveChangesAsync();
+                selected = profile.Id;
             }
-            db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
-                PolicyRevision = state == "exhausted" ? 9007199254740991 : 1, RevocationGeneration = 1, Revoked = state == "revoked", ProfileId = state == "badProfile" ? long.MaxValue : selected });
-            if (state == "erased") db.TerminalErasures.Add(new ArturRios.Cerberus.Domain.Operations.TerminalErasure { ResourceKind = "account", ResourceId = id, DeletedAt = DateTimeOffset.UtcNow });
+            db.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+                ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
+                PolicyRevision = state == "exhausted" ? 9007199254740991 : 1,
+                RevocationGeneration = 1,
+                Revoked = state == "revoked",
+                ProfileId = state == "badProfile" ? long.MaxValue : selected
+            });
+            if (state == "erased")
+                db.TerminalErasures.Add(new ArturRios.Cerberus.Domain.Operations.TerminalErasure { ResourceKind = "account", ResourceId = id, DeletedAt = DateTimeOffset.UtcNow });
             await db.SaveChangesAsync();
         }
         return (identity, id, handle);
@@ -259,15 +295,18 @@ public class OfflinePolicyUpdateHttpTests(RegistrationApiFixture fixture, Shared
     {
         var request = new HttpRequestMessage(HttpMethod.Put, "/api/accounts/me/offline-policy")
         { Content = new StringContent(body, System.Text.Encoding.UTF8, "application/json") };
-        if (handle is not null) request.Headers.Add("X-Cerberus-Vault-Access", handle);
+        if (handle is not null)
+            request.Headers.Add("X-Cerberus-Vault-Access", handle);
         return request;
     }
     private async Task Unchanged(Guid id)
     {
         await using var db = fixture.Context();
         var account = await db.Accounts.SingleAsync(x => x.PublicId == id);
-        Assert.Equal(1, account.PolicyRevision); Assert.Equal(7, account.Revision);
-        Assert.True(account.RenewalEnabled); Assert.Equal(TimeSpan.FromHours(24), account.RenewalInterval);
+        Assert.Equal(1, account.PolicyRevision);
+        Assert.Equal(7, account.Revision);
+        Assert.True(account.RenewalEnabled);
+        Assert.Equal(TimeSpan.FromHours(24), account.RenewalInterval);
         Assert.Equal(new byte[] { 11, 22 }, account.DetailsEnvelope);
     }
 

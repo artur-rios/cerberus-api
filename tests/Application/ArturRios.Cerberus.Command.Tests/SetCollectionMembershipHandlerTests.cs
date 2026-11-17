@@ -57,26 +57,66 @@ public class SetCollectionMembershipHandlerTests
             kind == "id" ? Guid.Empty : target);
         switch (kind)
         {
-            case "revision": command.ExpectedRevision = 0; break;
-            case "negativeRevision": command.ExpectedRevision = -1; break;
-            case "unsafeRevision": command.ExpectedRevision = 9007199254740992; break;
-            case "envelope": command.Envelope = null!; break;
-            case "format": command.Envelope = command.Envelope with { Format = "unknown" }; break;
-            case "epoch": command.Envelope = command.Envelope with { KeyEpoch = 0 }; break;
-            case "unsafeEpoch": command.Envelope = command.Envelope with { KeyEpoch = 9007199254740992 }; break;
-            case "salt": command.Envelope = command.Envelope with { KeySalt = "bad" }; break;
-            case "nonce": command.Envelope = command.Envelope with { Nonce = "bad" }; break;
-            case "tag": command.Envelope = command.Envelope with { Tag = "bad" }; break;
-            case "cipher": command.Envelope = command.Envelope with { Ciphertext = "AQID=" }; break;
-            case "defaultTime": command.EditedAt = default; break;
-            case "time": command.EditedAt = new(9, TimeSpan.Zero); break;
-            case "offset": command.EditedAt = command.EditedAt.ToOffset(TimeSpan.FromHours(1)); break;
-            case "nullRecords": command.RecordIds = null!; break;
-            case "nullFolders": command.FolderIds = null!; break;
-            case "zeroRecord": command.RecordIds = [Guid.Empty]; break;
-            case "zeroFolder": command.FolderIds = [Guid.Empty]; break;
-            case "duplicateRecord": command.RecordIds = [First, First]; break;
-            case "duplicateFolder": command.FolderIds = [First, First]; break;
+            case "revision":
+                command.ExpectedRevision = 0;
+                break;
+            case "negativeRevision":
+                command.ExpectedRevision = -1;
+                break;
+            case "unsafeRevision":
+                command.ExpectedRevision = 9007199254740992;
+                break;
+            case "envelope":
+                command.Envelope = null!;
+                break;
+            case "format":
+                command.Envelope = command.Envelope with { Format = "unknown" };
+                break;
+            case "epoch":
+                command.Envelope = command.Envelope with { KeyEpoch = 0 };
+                break;
+            case "unsafeEpoch":
+                command.Envelope = command.Envelope with { KeyEpoch = 9007199254740992 };
+                break;
+            case "salt":
+                command.Envelope = command.Envelope with { KeySalt = "bad" };
+                break;
+            case "nonce":
+                command.Envelope = command.Envelope with { Nonce = "bad" };
+                break;
+            case "tag":
+                command.Envelope = command.Envelope with { Tag = "bad" };
+                break;
+            case "cipher":
+                command.Envelope = command.Envelope with { Ciphertext = "AQID=" };
+                break;
+            case "defaultTime":
+                command.EditedAt = default;
+                break;
+            case "time":
+                command.EditedAt = new(9, TimeSpan.Zero);
+                break;
+            case "offset":
+                command.EditedAt = command.EditedAt.ToOffset(TimeSpan.FromHours(1));
+                break;
+            case "nullRecords":
+                command.RecordIds = null!;
+                break;
+            case "nullFolders":
+                command.FolderIds = null!;
+                break;
+            case "zeroRecord":
+                command.RecordIds = [Guid.Empty];
+                break;
+            case "zeroFolder":
+                command.FolderIds = [Guid.Empty];
+                break;
+            case "duplicateRecord":
+                command.RecordIds = [First, First];
+                break;
+            case "duplicateFolder":
+                command.FolderIds = [First, First];
+                break;
         }
 
         var result = await Handler(new Mock<ICollectionMembershipStore>(MockBehavior.Strict).Object).HandleAsync(command);
@@ -99,11 +139,16 @@ public class SetCollectionMembershipHandlerTests
     public async Task GivenValidReplacement_WhenHandling_ThenForwardTrustedContextAndReturnExactSortedSixFields(string kind)
     {
         var command = Command();
-        if (kind == "empty") { command.RecordIds = []; command.FolderIds = []; }
-        if (kind == "minimum") command.EditedAt = new(10, TimeSpan.Zero);
-        if (kind == "pre2000") command.EditedAt = new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero).AddTicks(19);
-        if (kind == "laterEpoch") command.Envelope = command.Envelope with { KeyEpoch = 7 };
-        if (kind == "maximumRevision") command.ExpectedRevision = 9007199254740990;
+        if (kind == "empty")
+        { command.RecordIds = []; command.FolderIds = []; }
+        if (kind == "minimum")
+            command.EditedAt = new(10, TimeSpan.Zero);
+        if (kind == "pre2000")
+            command.EditedAt = new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero).AddTicks(19);
+        if (kind == "laterEpoch")
+            command.Envelope = command.Envelope with { KeyEpoch = 7 };
+        if (kind == "maximumRevision")
+            command.ExpectedRevision = 9007199254740990;
         var normalized = kind == "minimum" ? new DateTimeOffset(10, TimeSpan.Zero)
             : kind == "pre2000" ? new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero).AddTicks(10)
             : DateTimeOffset.UnixEpoch.AddTicks(10);
@@ -227,8 +272,10 @@ public class SetCollectionMembershipHandlerTests
     public async Task GivenMalformedStoreSuccess_WhenHandling_Then503WithoutPartialMetadata(string kind)
     {
         var command = Command();
-        if (kind == "exhaustedRevision") command.ExpectedRevision = 9007199254740991;
-        if (kind == "swappedTypes") command.FolderIds = [First];
+        if (kind == "exhaustedRevision")
+            command.ExpectedRevision = 9007199254740991;
+        if (kind == "swappedTypes")
+            command.FolderIds = [First];
         CollectionMembershipDetails? details = Details(command);
         details = kind switch
         {

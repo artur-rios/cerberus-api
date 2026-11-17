@@ -148,6 +148,7 @@ public class CerberusOptionsValidatorTests
         options.RetentionInterval = interval;
         var result = new CerberusOptionsValidator().Validate(null, options);
         Assert.Equal(valid, result.Succeeded);
-        if (!valid) Assert.Equal(["Invalid or missing CERBERUS_RETENTION_INTERVAL."], result.Failures);
+        if (!valid)
+            Assert.Equal(["Invalid or missing CERBERUS_RETENTION_INTERVAL."], result.Failures);
     }
 }

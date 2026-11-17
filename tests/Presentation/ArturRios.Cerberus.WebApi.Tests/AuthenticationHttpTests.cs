@@ -105,7 +105,8 @@ public class AuthenticationHttpTests(RegistrationApiFixture fixture, SharedApiHo
     public async Task GivenRequiredIdentityFailure_WhenLoggingIn_ThenFailClosedWithRedactedStatus(string kind, HttpStatusCode status)
     {
         var input = User(prefix: kind);
-        if (kind is "deleted" or "current-unavailable") fixture.Users[input.Email] = fixture.Users[input.Email] with { Deleted = kind == "deleted", IdentityUnavailable = kind == "current-unavailable" };
+        if (kind is "deleted" or "current-unavailable")
+            fixture.Users[input.Email] = fixture.Users[input.Email] with { Deleted = kind == "deleted", IdentityUnavailable = kind == "current-unavailable" };
         using var response = await Gateway.Client.PostAsJsonAsync("/api/auth/login", input);
         await AssertFailure(response, status);
         var raw = await response.Content.ReadAsStringAsync();
@@ -157,7 +158,8 @@ public class AuthenticationHttpTests(RegistrationApiFixture fixture, SharedApiHo
         var id = Guid.NewGuid();
         await using var context = fixture.Context();
         context.Accounts.Add(new Account { PublicId = id, HeimdallPublicId = fixture.Users[email].Id, DetailsEnvelope = [1, 2, 3], State = state, Revision = 3 });
-        if (erased) context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
+        if (erased)
+            context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
         await context.SaveChangesAsync();
         return new(id, 3);
     }

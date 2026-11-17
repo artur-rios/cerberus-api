@@ -34,9 +34,12 @@ public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFi
     }
 
     [FunctionalTheory]
-    [InlineData("record", "target")][InlineData("folder", "target")]
-    [InlineData("record", "collection")][InlineData("folder", "collection")]
-    [InlineData("record", "marker")][InlineData("folder", "marker")]
+    [InlineData("record", "target")]
+    [InlineData("folder", "target")]
+    [InlineData("record", "collection")]
+    [InlineData("folder", "collection")]
+    [InlineData("record", "marker")]
+    [InlineData("folder", "marker")]
     public async Task GivenCrossOwnerOrForgedMembership_WhenSaving_ThenDatabaseRejectsOwnershipEscape(string kind, string invalid)
     {
         using var owner = new ProtectionFixture();
@@ -59,7 +62,9 @@ public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFi
         Assert.False(await db.CollectionFolders.AnyAsync(x => x.CollectionId == collection));
     }
 
-    [FunctionalTheory][InlineData("record")][InlineData("folder")]
+    [FunctionalTheory]
+    [InlineData("record")]
+    [InlineData("folder")]
     public async Task GivenExistingTypedMembership_WhenSavingDuplicate_ThenDatabaseRejectsDuplicateWithoutChangingContent(string kind)
     {
         using var owner = new ProtectionFixture();
@@ -69,10 +74,15 @@ public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFi
         var before = await Content(db, state.InternalId);
         void Add()
         {
-            if (kind == "record") db.CollectionRecords.Add(new() { AccountId = state.InternalId, CollectionId = items.Collection.Id, RecordId = items.Record.Id });
-            else db.CollectionFolders.Add(new() { AccountId = state.InternalId, CollectionId = items.Collection.Id, FolderId = items.Folder.Id });
+            if (kind == "record")
+                db.CollectionRecords.Add(new() { AccountId = state.InternalId, CollectionId = items.Collection.Id, RecordId = items.Record.Id });
+            else
+                db.CollectionFolders.Add(new() { AccountId = state.InternalId, CollectionId = items.Collection.Id, FolderId = items.Folder.Id });
         }
-        Add(); await db.SaveChangesAsync(); db.ChangeTracker.Clear(); Add();
+        Add();
+        await db.SaveChangesAsync();
+        db.ChangeTracker.Clear();
+        Add();
         var error = await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
         Assert.Equal(PostgresErrorCodes.UniqueViolation, Assert.IsType<PostgresException>(error.InnerException).SqlState);
         Assert.Equal(before, await Content(db, state.InternalId));
@@ -80,7 +90,10 @@ public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFi
         Assert.Equal(kind == "folder" ? 1 : 0, await db.CollectionFolders.CountAsync(x => x.CollectionId == items.Collection.Id));
     }
 
-    [FunctionalTheory][InlineData("record")][InlineData("folder")][InlineData("collection")]
+    [FunctionalTheory]
+    [InlineData("record")]
+    [InlineData("folder")]
+    [InlineData("collection")]
     public async Task GivenTypedMemberships_WhenDeletingOneResource_ThenCascadeOnlyItsLinksAndPreserveOtherKinds(string kind)
     {
         using var owner = new ProtectionFixture();
@@ -95,9 +108,12 @@ public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFi
         }
         await db.SaveChangesAsync();
         var otherBefore = JsonSerializer.Serialize(new { other.Record, other.Folder, other.Collection });
-        if (kind == "record") await db.Records.Where(x => x.Id == items.Record.Id).ExecuteDeleteAsync();
-        if (kind == "folder") await db.Folders.Where(x => x.Id == items.Folder.Id).ExecuteDeleteAsync();
-        if (kind == "collection") await db.Collections.Where(x => x.Id == items.Collection.Id).ExecuteDeleteAsync();
+        if (kind == "record")
+            await db.Records.Where(x => x.Id == items.Record.Id).ExecuteDeleteAsync();
+        if (kind == "folder")
+            await db.Folders.Where(x => x.Id == items.Folder.Id).ExecuteDeleteAsync();
+        if (kind == "collection")
+            await db.Collections.Where(x => x.Id == items.Collection.Id).ExecuteDeleteAsync();
         Assert.Equal(kind != "record", await db.Records.AnyAsync(x => x.Id == items.Record.Id));
         Assert.Equal(kind != "folder", await db.Folders.AnyAsync(x => x.Id == items.Folder.Id));
         Assert.Equal(kind != "collection", await db.Collections.AnyAsync(x => x.Id == items.Collection.Id));
@@ -120,21 +136,27 @@ public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFi
         await using var admin = new NpgsqlConnection(connection.ConnectionString);
         await admin.OpenAsync();
         var name = "membership_upgrade_" + Guid.NewGuid().ToString("N");
-        await using (var create = new NpgsqlCommand($"CREATE DATABASE \"{name}\"", admin)) await create.ExecuteNonQueryAsync();
+        await using (var create = new NpgsqlCommand($"CREATE DATABASE \"{name}\"", admin))
+            await create.ExecuteNonQueryAsync();
         try
         {
-            connection.Database = name; connection.Pooling = false;
+            connection.Database = name;
+            connection.Pooling = false;
             await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(connection.ConnectionString).Options);
             await db.Database.GetService<IMigrator>().MigrateAsync("20261008195528_ProfileAssociations");
             using var owner = new ProtectionFixture();
             var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid(), DetailsEnvelope = JsonSerializer.SerializeToUtf8Bytes(ProfileSetup.Envelope(), ProtectionFixture.Json) };
-            db.Accounts.Add(account); await db.SaveChangesAsync();
+            db.Accounts.Add(account);
+            await db.SaveChangesAsync();
             var bytes = JsonSerializer.SerializeToUtf8Bytes(ProfileSetup.Envelope(), ProtectionFixture.Json);
             var id = Guid.NewGuid();
             var record = new VaultRecord { AccountId = account.Id, PublicId = id, Envelope = bytes, EditedAt = DateTimeOffset.UnixEpoch };
             var folder = new VaultFolder { AccountId = account.Id, PublicId = id, Envelope = bytes, EditedAt = DateTimeOffset.UnixEpoch };
             var collection = new VaultCollection { AccountId = account.Id, PublicId = id, Envelope = bytes, EditedAt = DateTimeOffset.UnixEpoch };
-            db.Records.Add(record); db.Folders.Add(folder); db.Collections.Add(collection); await db.SaveChangesAsync();
+            db.Records.Add(record);
+            db.Folders.Add(folder);
+            db.Collections.Add(collection);
+            await db.SaveChangesAsync();
             var before = await Content(db, account.Id);
             Assert.DoesNotContain("CollectionMembership", string.Join(',', await db.Database.GetAppliedMigrationsAsync()));
             await db.Database.MigrateAsync();
@@ -147,9 +169,11 @@ public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFi
             Assert.True(await db.CollectionFolders.AnyAsync(x => x.CollectionId == collection.Id && x.FolderId == folder.Id));
             Assert.Equal(before, await Content(db, account.Id));
             var foreign = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid(), DetailsEnvelope = bytes };
-            db.Accounts.Add(foreign); await db.SaveChangesAsync();
+            db.Accounts.Add(foreign);
+            await db.SaveChangesAsync();
             var foreignRecord = new VaultRecord { AccountId = foreign.Id, PublicId = Guid.NewGuid(), Envelope = bytes, EditedAt = DateTimeOffset.UnixEpoch };
-            db.Records.Add(foreignRecord); await db.SaveChangesAsync();
+            db.Records.Add(foreignRecord);
+            await db.SaveChangesAsync();
             db.CollectionRecords.Add(new() { AccountId = account.Id, CollectionId = collection.Id, RecordId = foreignRecord.Id });
             var error = await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
             Assert.Equal(PostgresErrorCodes.ForeignKeyViolation, Assert.IsType<PostgresException>(error.InnerException).SqlState);

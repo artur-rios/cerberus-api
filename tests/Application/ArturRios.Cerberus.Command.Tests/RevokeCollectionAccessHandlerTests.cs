@@ -28,9 +28,12 @@ public class RevokeCollectionAccessHandlerTests
     {
         var command = Command(kind switch
         {
-            "zeroRevision" => 0, "negativeRevision" => -1,
-            "exhaustedRevision" => 9007199254740991, "unsafeRevision" => 9007199254740992,
-            "overflowRevision" => long.MaxValue, _ => 1
+            "zeroRevision" => 0,
+            "negativeRevision" => -1,
+            "exhaustedRevision" => 9007199254740991,
+            "unsafeRevision" => 9007199254740992,
+            "overflowRevision" => long.MaxValue,
+            _ => 1
         });
         command.SetContext(Actor, Handle, kind == "collection" ? Guid.Empty : Collection, kind == "grant" ? Guid.Empty : Grant);
         Assert.False((await new RevokeCollectionAccessValidator().ValidateAsync(command)).IsValid);
@@ -50,8 +53,11 @@ public class RevokeCollectionAccessHandlerTests
         var command = Command(0);
         command.SetContext(kind == "actor" ? Guid.Empty : Actor, kind switch
         {
-            "actor" or "missingAccess" => null, "emptyAccess" => "", "malformedAccess" => "bad",
-            "paddedAccess" => Handle + "=", _ => new string('A', 42) + "B"
+            "actor" or "missingAccess" => null,
+            "emptyAccess" => "",
+            "malformedAccess" => "bad",
+            "paddedAccess" => Handle + "=",
+            _ => new string('A', 42) + "B"
         }, Guid.Empty, Guid.Empty);
         var validator = new Mock<IValidator<RevokeCollectionAccessCommand>>(MockBehavior.Strict);
         AssertFailure(await new RevokeCollectionAccessHandler(validator.Object, RejectingStore()).HandleAsync(command), error, status);
@@ -139,12 +145,17 @@ public class RevokeCollectionAccessHandlerTests
         CollectionGrantRevocationDetails? details = new(Collection, Grant, 2);
         details = kind switch
         {
-            "nullData" => null, "collection" => details with { CollectionId = Actor },
+            "nullData" => null,
+            "collection" => details with { CollectionId = Actor },
             "zeroCollection" => details with { CollectionId = Guid.Empty },
-            "grant" => details with { GrantId = Actor }, "zeroGrant" => details with { GrantId = Guid.Empty },
-            "zeroRevision" => details with { Revision = 0 }, "negativeRevision" => details with { Revision = -1 },
-            "unadvancedRevision" => details with { Revision = 1 }, "wrongRevision" => details with { Revision = 3 },
-            "unsafeRevision" => details with { Revision = 9007199254740992 }, _ => details
+            "grant" => details with { GrantId = Actor },
+            "zeroGrant" => details with { GrantId = Guid.Empty },
+            "zeroRevision" => details with { Revision = 0 },
+            "negativeRevision" => details with { Revision = -1 },
+            "unadvancedRevision" => details with { Revision = 1 },
+            "wrongRevision" => details with { Revision = 3 },
+            "unsafeRevision" => details with { Revision = 9007199254740992 },
+            _ => details
         };
         AssertFailure(await Handler(ReturningStore(kind == "nullResult" ? null! : new(details))).HandleAsync(Command()), "persistence_unavailable", 503);
     }

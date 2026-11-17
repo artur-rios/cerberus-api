@@ -13,14 +13,16 @@ public static class OperationalCommands
         using var scope = services.CreateScope();
         switch (command)
         {
-            case "--validate-configuration": return 0; // Startup already validated settings and ledger storage.
+            case "--validate-configuration":
+                return 0; // Startup already validated settings and ledger storage.
             case "--migrate":
                 await using (var context = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContextAsync(cancellationToken))
                     await context.Database.MigrateAsync(cancellationToken);
                 return 0;
             case "--reconcile-restore":
                 return await scope.ServiceProvider.GetRequiredService<IRestoreReconciler>().ReconcileAsync(cancellationToken) ? 0 : 1;
-            default: throw new ArgumentException("Unsupported maintenance command.");
+            default:
+                throw new ArgumentException("Unsupported maintenance command.");
         }
     }
 

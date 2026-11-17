@@ -6,29 +6,33 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArturRios.Cerberus.Data.Erasure;
 
-public sealed class AccountExpiryHandler(IDbContextFactory<AppDbContext> factory,IErasureLedger ledger):IRetentionHandler
+public sealed class AccountExpiryHandler(IDbContextFactory<AppDbContext> factory, IErasureLedger ledger) : IRetentionHandler
 {
-    public string Kind=>"account-purge";
-    public async Task ExecuteAsync(RetentionClaim claim,CancellationToken ct)
+    public string Kind => "account-purge";
+    public async Task ExecuteAsync(RetentionClaim claim, CancellationToken ct)
     {
-        ct.ThrowIfCancellationRequested();var id=RetentionExpiry.Identity(claim,Kind);
-        await using(var db=await factory.CreateDbContextAsync(ct))
+        ct.ThrowIfCancellationRequested();
+        var id = RetentionExpiry.Identity(claim, Kind);
+        await using (var db = await factory.CreateDbContextAsync(ct))
         {
-            await using var tx=await db.Database.BeginTransactionAsync(ct);
+            await using var tx = await db.Database.BeginTransactionAsync(ct);
             // All account roots precede the original job, including foreign grant owners.
-            await AccountErasure.LockAsync(db,id,ct);await RecordErasure.RequireClaimAsync(db,claim,ct);
-            var owner=await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x=>x.PublicId==id,ct);
-            if(owner is null)
+            await AccountErasure.LockAsync(db, id, ct);
+            await RecordErasure.RequireClaimAsync(db, claim, ct);
+            var owner = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.PublicId == id, ct);
+            if (owner is null)
             {
-                if(!await db.TerminalErasures.AnyAsync(x=>x.ResourceKind=="account"&&x.ResourceId==id,ct))throw new InvalidOperationException("Account expiry owner is missing.");
+                if (!await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == id, ct))
+                    throw new InvalidOperationException("Account expiry owner is missing.");
             }
             else
             {
-                var now=await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
-                if(owner.State!=AccountState.ClosurePending||!RetentionExpiry.Due(owner.ClosureRequestedAt,owner.ClosurePurgeAt,now)
-                    ||owner.Revision is <=0 or >ProtocolBinary.MaxInteger||owner.RevocationGeneration is <=0 or >ProtocolBinary.MaxInteger
-                    ||owner.PolicyRevision is <=0 or >ProtocolBinary.MaxInteger)throw new InvalidOperationException("Invalid account expiry state.");
-                var intent=await db.Database.SqlQuery<DateTimeOffset>($"""
+                var now = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
+                if (owner.State != AccountState.ClosurePending || !RetentionExpiry.Due(owner.ClosureRequestedAt, owner.ClosurePurgeAt, now)
+                    || owner.Revision is <= 0 or > ProtocolBinary.MaxInteger || owner.RevocationGeneration is <= 0 or > ProtocolBinary.MaxInteger
+                    || owner.PolicyRevision is <= 0 or > ProtocolBinary.MaxInteger)
+                    throw new InvalidOperationException("Invalid account expiry state.");
+                var intent = await db.Database.SqlQuery<DateTimeOffset>($"""
                     INSERT INTO cerberus.terminal_erasure AS t(resource_kind,resource_id,deleted_at)
                     SELECT 'account',a.public_id,statement_timestamp() FROM cerberus.account a
                     WHERE a.id={owner.Id} AND a.public_id={id} AND a.state={AccountState.ClosurePending}
@@ -51,13 +55,15 @@ public sealed class AccountExpiryHandler(IDbContextFactory<AppDbContext> factory
                     ON CONFLICT(resource_kind,resource_id) DO UPDATE SET deleted_at=LEAST(t.deleted_at,EXCLUDED.deleted_at)
                     RETURNING deleted_at AS "Value"
                     """).ToListAsync(ct);
-                if(intent.Count!=1)throw new InvalidOperationException("Account expiry admission changed.");
-                await RecordErasure.RequireClaimAsync(db,claim,ct);
-                await AccountErasure.AddIntentAsync(db,id,intent[0],ct,claim);
-                await AccountErasure.EntriesAsync(db,id,ct);
+                if (intent.Count != 1)
+                    throw new InvalidOperationException("Account expiry admission changed.");
+                await RecordErasure.RequireClaimAsync(db, claim, ct);
+                await AccountErasure.AddIntentAsync(db, id, intent[0], ct, claim);
+                await AccountErasure.EntriesAsync(db, id, ct);
             }
-            await RecordErasure.RequireClaimAsync(db,claim,ct);await tx.CommitAsync(ct);
+            await RecordErasure.RequireClaimAsync(db, claim, ct);
+            await tx.CommitAsync(ct);
         }
-        await AccountErasureExecution.ExecuteAsync(factory,ledger,claim,id,ct);
+        await AccountErasureExecution.ExecuteAsync(factory, ledger, claim, id, ct);
     }
 }

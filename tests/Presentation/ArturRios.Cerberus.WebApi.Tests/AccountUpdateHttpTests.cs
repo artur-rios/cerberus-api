@@ -95,7 +95,8 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
         Authorize(RegistrationApiFixture.Token(input.Identity));
         using var response = await Send(input.Handle);
         await Failure(response, status);
-        if (state != "missing") await AssertStored(input.Id, input.Identity);
+        if (state != "missing")
+            await AssertStored(input.Id, input.Identity);
     }
 
     [FunctionalTheory]
@@ -218,16 +219,29 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
         if (state != "missing")
         {
             await using var context = fixture.Context();
-            var account = new Account { PublicId = id, HeimdallPublicId = identity, Revision = 3,
+            var account = new Account
+            {
+                PublicId = id,
+                HeimdallPublicId = identity,
+                Revision = 3,
                 DetailsEnvelope = JsonSerializer.SerializeToUtf8Bytes(Envelope("AQID"), Json),
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            };
             context.Accounts.Add(account);
             await context.SaveChangesAsync();
-            context.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                ProfileId = state == "profile" ? 42 : null, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+            context.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                ProfileId = state == "profile" ? 42 : null,
+                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
                 ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
-                Revoked = state == "revoked", PolicyRevision = state == "stale" ? 0 : 1, RevocationGeneration = 1 });
-            if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
+                Revoked = state == "revoked",
+                PolicyRevision = state == "stale" ? 0 : 1,
+                RevocationGeneration = 1
+            });
+            if (state == "erased")
+                context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
         }
         return (id, identity, handle);
@@ -237,7 +251,8 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
     {
         using var request = new HttpRequestMessage(HttpMethod.Put, "/api/accounts/me")
         { Content = JsonContent.Create(new { expectedRevision = 3, details = Envelope(ciphertext) }) };
-        if (handle is not null) request.Headers.Add(Header, handle);
+        if (handle is not null)
+            request.Headers.Add(Header, handle);
         return await Gateway.Client.SendAsync(request);
     }
     private async Task AssertStored(Guid id, Guid identity, long revision = 3, string ciphertext = "AQID")

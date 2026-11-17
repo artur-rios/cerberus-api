@@ -14,7 +14,8 @@ public sealed class VaultProofBodyMiddleware(RequestDelegate next)
     public static readonly object BodyKey = new();
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.GetEndpoint()?.Metadata.GetMetadata<VaultProofBodyAttribute>() is null) { await next(context); return; }
+        if (context.GetEndpoint()?.Metadata.GetMetadata<VaultProofBodyAttribute>() is null)
+        { await next(context); return; }
         if (context.Request.Headers.ContentEncoding.Count != 0
             || !MediaTypeHeaderValue.TryParse(context.Request.ContentType, out var contentType)
             || !string.Equals(contentType.MediaType, "application/json", StringComparison.OrdinalIgnoreCase)
@@ -25,14 +26,17 @@ public sealed class VaultProofBodyMiddleware(RequestDelegate next)
         using var buffer = new MemoryStream();
         await context.Request.Body.CopyToAsync(buffer, context.RequestAborted);
         var raw = buffer.ToArray();
-        try { _ = new UTF8Encoding(false, true).GetString(raw); }
+        try
+        { _ = new UTF8Encoding(false, true).GetString(raw); }
         catch (DecoderFallbackException) { await Invalid(context); return; }
-        if (raw.AsSpan().StartsWith(new byte[] { 239, 187, 191 })) { await Invalid(context); return; }
+        if (raw.AsSpan().StartsWith(new byte[] { 239, 187, 191 }))
+        { await Invalid(context); return; }
         context.Items[BodyKey] = raw;
         var original = context.Request.Body;
         using var body = new MemoryStream(raw, writable: false);
         context.Request.Body = body;
-        try { await next(context); }
+        try
+        { await next(context); }
         finally { context.Request.Body = original; context.Items.Remove(BodyKey); }
     }
     private static Task Invalid(HttpContext context)

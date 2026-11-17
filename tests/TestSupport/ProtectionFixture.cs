@@ -31,27 +31,39 @@ public sealed class ProtectionFixture : IDisposable
     }
     public ProtectionMaterial Rewrap(long epoch = 2) => Material with
     {
-        PasswordWrapper = Material.PasswordWrapper with { KeyEpoch = epoch, KeySalt = Encode(RandomNumberGenerator.GetBytes(32)),
-            Nonce = Encode(RandomNumberGenerator.GetBytes(12)), Ciphertext = "BwgJ", Kdf = Material.PasswordWrapper.Kdf with { Salt = Encode(RandomNumberGenerator.GetBytes(16)) } },
-        RecoveryWrapper = Material.RecoveryWrapper with { KeyEpoch = epoch, KeySalt = Encode(RandomNumberGenerator.GetBytes(32)),
-            Nonce = Encode(RandomNumberGenerator.GetBytes(12)), Ciphertext = "CgsM" }
+        PasswordWrapper = Material.PasswordWrapper with
+        {
+            KeyEpoch = epoch,
+            KeySalt = Encode(RandomNumberGenerator.GetBytes(32)),
+            Nonce = Encode(RandomNumberGenerator.GetBytes(12)),
+            Ciphertext = "BwgJ",
+            Kdf = Material.PasswordWrapper.Kdf with { Salt = Encode(RandomNumberGenerator.GetBytes(16)) }
+        },
+        RecoveryWrapper = Material.RecoveryWrapper with
+        {
+            KeyEpoch = epoch,
+            KeySalt = Encode(RandomNumberGenerator.GetBytes(32)),
+            Nonce = Encode(RandomNumberGenerator.GetBytes(12)),
+            Ciphertext = "CgsM"
+        }
     };
-    public RecipientEnvelope Wrap(Guid owner, string kind, Guid resource, Guid identity, long epoch=1, long revision=1)
+    public RecipientEnvelope Wrap(Guid owner, string kind, Guid resource, Guid identity, long epoch = 1, long revision = 1)
     {
-        using var ephemeral=ECDsa.Create(ECCurve.NamedCurves.nistP256);var point=ephemeral.ExportParameters(false).Q;
-        var wrapper=new RecipientEnvelope("cerberus-recipient-wrap-v1",epoch,resource,revision,identity,
-            Material.RecipientKey.Fingerprint(),Material.AuthorKey.Fingerprint(),Encode([4,..point.X!,..point.Y!]),
-            Encode(RandomNumberGenerator.GetBytes(48)),Encode(new byte[64]));
+        using var ephemeral = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var point = ephemeral.ExportParameters(false).Q;
+        var wrapper = new RecipientEnvelope("cerberus-recipient-wrap-v1", epoch, resource, revision, identity,
+            Material.RecipientKey.Fingerprint(), Material.AuthorKey.Fingerprint(), Encode([4, .. point.X!, .. point.Y!]),
+            Encode(RandomNumberGenerator.GetBytes(48)), Encode(new byte[64]));
         // Opaque HPKE structural fixture; real native author signature, never a decryptability assertion.
-        return wrapper with { Signature=Encode(_author.SignData(wrapper.SigningBytes(owner,kind,resource),HashAlgorithmName.SHA256,DSASignatureFormat.IeeeP1363FixedFieldConcatenation)) };
+        return wrapper with { Signature = Encode(_author.SignData(wrapper.SigningBytes(owner, kind, resource), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation)) };
     }
-    public RecipientEnvelope WrapGrant(Guid owner,Guid collection,Guid grant,Guid identity,PublicJwk recipient,long epoch=1,long revision=1)
+    public RecipientEnvelope WrapGrant(Guid owner, Guid collection, Guid grant, Guid identity, PublicJwk recipient, long epoch = 1, long revision = 1)
     {
-        var wrapper=Wrap(owner,"collection",collection,identity,epoch,revision) with {GrantId=grant,RecipientKeyFingerprint=recipient.Fingerprint()};
-        return wrapper with {Signature=Encode(_author.SignData(wrapper.SigningBytes(owner,"collection",collection),HashAlgorithmName.SHA256,DSASignatureFormat.IeeeP1363FixedFieldConcatenation))};
+        var wrapper = Wrap(owner, "collection", collection, identity, epoch, revision) with { GrantId = grant, RecipientKeyFingerprint = recipient.Fingerprint() };
+        return wrapper with { Signature = Encode(_author.SignData(wrapper.SigningBytes(owner, "collection", collection), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation)) };
     }
-    public RecipientEnvelope SignGrant(RecipientEnvelope wrapper,Guid owner,Guid collection)=>wrapper with
-    {Signature=Encode(_author.SignData(wrapper.SigningBytes(owner,"collection",collection),HashAlgorithmName.SHA256,DSASignatureFormat.IeeeP1363FixedFieldConcatenation))};
+    public RecipientEnvelope SignGrant(RecipientEnvelope wrapper, Guid owner, Guid collection) => wrapper with
+    { Signature = Encode(_author.SignData(wrapper.SigningBytes(owner, "collection", collection), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation)) };
     public string SignRecovery(VaultProofChallenge challenge) => Encode(_recovery.SignData(VaultProof.SigningBytes(challenge), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
     public string Sign(VaultProofChallenge challenge) => Encode(Unlock.SignData(VaultProof.SigningBytes(challenge), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));
     public void Dispose() { Unlock.Dispose(); _recovery.Dispose(); _recipient.Dispose(); _author.Dispose(); }

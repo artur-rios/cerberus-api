@@ -1,13 +1,13 @@
-using ArturRios.Cerberus.Domain.Trash;
-using ArturRios.Cerberus.Domain.Accounts;
-using ArturRios.Output;
-using ArturRios.Cerberus.Domain.Sync;
-using ArturRios.Cerberus.Domain.Profiles;
-using System.Text.Json.Serialization;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using ArturRios.Cerberus.Domain.Accounts;
+using ArturRios.Cerberus.Domain.Profiles;
+using ArturRios.Cerberus.Domain.Sync;
+using ArturRios.Cerberus.Domain.Trash;
+using ArturRios.Cerberus.WebApi.Controllers;
+using ArturRios.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
-using ArturRios.Cerberus.WebApi.Controllers;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ArturRios.Cerberus.WebApi;
@@ -48,16 +48,26 @@ public static class ContractRegistration
                     typeof(SyncCollectionCreate), typeof(SyncCollectionUpdate), typeof(SyncProfileCreate), typeof(SyncProfileUpdate)]
                 : []);
             options.SelectDiscriminatorNameUsing(type => type == typeof(AccountExportEntry) ? "entryType" : type == typeof(SyncResourceData) ? "resourceType" : type == typeof(SyncEditInput) ? "editType" : type == typeof(TrashListItem) ? "kind" : null);
-            options.SelectDiscriminatorValueUsing(type => AccountExportSchemaFilter.Kinds.TryGetValue(type,out var exportKind)?exportKind:type.Name switch
+            options.SelectDiscriminatorValueUsing(type => AccountExportSchemaFilter.Kinds.TryGetValue(type, out var exportKind) ? exportKind : type.Name switch
             {
-                nameof(TrashRecordItem) => "record", nameof(TrashFolderItem) => "folder",
-                nameof(TrashCollectionItem) => "collection", nameof(TrashProfileItem) => "profile",
-                nameof(SyncProfileData) => "profile", nameof(SyncRecordData) => "record", nameof(SyncFolderData) => "folder",
-                nameof(SyncCollectionData) => "collection", nameof(SyncGrantData) => "grant",
-                nameof(SyncRecordCreate) => "record-create", nameof(SyncRecordUpdate) => "record-update",
-                nameof(SyncFolderCreate) => "folder-create", nameof(SyncFolderUpdate) => "folder-update",
-                nameof(SyncCollectionCreate) => "collection-create", nameof(SyncCollectionUpdate) => "collection-update",
-                nameof(SyncProfileCreate) => "profile-create", nameof(SyncProfileUpdate) => "profile-update", _ => null
+                nameof(TrashRecordItem) => "record",
+                nameof(TrashFolderItem) => "folder",
+                nameof(TrashCollectionItem) => "collection",
+                nameof(TrashProfileItem) => "profile",
+                nameof(SyncProfileData) => "profile",
+                nameof(SyncRecordData) => "record",
+                nameof(SyncFolderData) => "folder",
+                nameof(SyncCollectionData) => "collection",
+                nameof(SyncGrantData) => "grant",
+                nameof(SyncRecordCreate) => "record-create",
+                nameof(SyncRecordUpdate) => "record-update",
+                nameof(SyncFolderCreate) => "folder-create",
+                nameof(SyncFolderUpdate) => "folder-update",
+                nameof(SyncCollectionCreate) => "collection-create",
+                nameof(SyncCollectionUpdate) => "collection-update",
+                nameof(SyncProfileCreate) => "profile-create",
+                nameof(SyncProfileUpdate) => "profile-update",
+                _ => null
             });
             options.SchemaFilter<SyncResourceSchemaFilter>();
             options.SchemaFilter<TrashListSchemaFilter>();
@@ -77,7 +87,8 @@ public static class ContractRegistration
     {
         public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
         {
-            if (schema is not OpenApiSchema { Properties: not null } target) return;
+            if (schema is not OpenApiSchema { Properties: not null } target)
+                return;
             if (context.Type == typeof(ArturRios.Cerberus.Command.Sync.UploadSyncEditsCommand))
             {
                 var edits = (OpenApiSchema)target.Properties["edits"];
@@ -87,21 +98,27 @@ public static class ContractRegistration
             }
             if (context.Type == typeof(SyncEditOutcome))
             {
-                target.Properties["resourceKind"] = new OpenApiSchema { Type = JsonSchemaType.String,
-                    Enum = [JsonValue.Create("profile"), JsonValue.Create("record"), JsonValue.Create("folder"), JsonValue.Create("collection")] };
-                target.Properties["status"] = new OpenApiSchema { Type = JsonSchemaType.String,
-                    Enum = [JsonValue.Create("applied"), JsonValue.Create("superseded"), JsonValue.Create("denied"), JsonValue.Create("permanently-deleted")] };
+                target.Properties["resourceKind"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.String,
+                    Enum = [JsonValue.Create("profile"), JsonValue.Create("record"), JsonValue.Create("folder"), JsonValue.Create("collection")]
+                };
+                target.Properties["status"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.String,
+                    Enum = [JsonValue.Create("applied"), JsonValue.Create("superseded"), JsonValue.Create("denied"), JsonValue.Create("permanently-deleted")]
+                };
                 target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
                 return;
             }
             if (context.Type == typeof(ArturRios.Cerberus.Command.Accounts.AccountClosureOutput)
-                ||context.Type==typeof(ArturRios.Cerberus.Command.Accounts.AccountClosureCancellationOutput)
-                ||context.Type==typeof(ArturRios.Cerberus.Command.Accounts.AccountDeletionOutput)
-                ||context.Type==typeof(ArturRios.Cerberus.Domain.Accounts.AccountClosureRecoveryDetails))
+                || context.Type == typeof(ArturRios.Cerberus.Command.Accounts.AccountClosureCancellationOutput)
+                || context.Type == typeof(ArturRios.Cerberus.Command.Accounts.AccountDeletionOutput)
+                || context.Type == typeof(ArturRios.Cerberus.Domain.Accounts.AccountClosureRecoveryDetails))
             {
                 target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
-                if(context.Type==typeof(ArturRios.Cerberus.Command.Accounts.AccountDeletionOutput))
-                    target.Properties["state"]=new OpenApiSchema{Type=JsonSchemaType.String,Enum=[JsonValue.Create("completed"),JsonValue.Create("pending")]};
+                if (context.Type == typeof(ArturRios.Cerberus.Command.Accounts.AccountDeletionOutput))
+                    target.Properties["state"] = new OpenApiSchema { Type = JsonSchemaType.String, Enum = [JsonValue.Create("completed"), JsonValue.Create("pending")] };
                 return;
             }
             if (typeof(SyncEditInput).IsAssignableFrom(context.Type) && !context.Type.IsAbstract)
@@ -110,10 +127,15 @@ public static class ContractRegistration
                 target.Properties["operationId"] = new OpenApiSchema { Type = JsonSchemaType.String, Format = "uuid" };
                 var editKind = context.Type.Name switch
                 {
-                    nameof(SyncRecordCreate) => "record-create", nameof(SyncRecordUpdate) => "record-update",
-                    nameof(SyncFolderCreate) => "folder-create", nameof(SyncFolderUpdate) => "folder-update",
-                    nameof(SyncCollectionCreate) => "collection-create", nameof(SyncCollectionUpdate) => "collection-update",
-                    nameof(SyncProfileCreate) => "profile-create", nameof(SyncProfileUpdate) => "profile-update", _ => throw new InvalidOperationException()
+                    nameof(SyncRecordCreate) => "record-create",
+                    nameof(SyncRecordUpdate) => "record-update",
+                    nameof(SyncFolderCreate) => "folder-create",
+                    nameof(SyncFolderUpdate) => "folder-update",
+                    nameof(SyncCollectionCreate) => "collection-create",
+                    nameof(SyncCollectionUpdate) => "collection-update",
+                    nameof(SyncProfileCreate) => "profile-create",
+                    nameof(SyncProfileUpdate) => "profile-update",
+                    _ => throw new InvalidOperationException()
                 };
                 target.Properties["editType"] = new OpenApiSchema { Type = JsonSchemaType.String, Enum = [JsonValue.Create(editKind)] };
                 target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
@@ -123,13 +145,14 @@ public static class ContractRegistration
             {
                 var account = target.Properties["account"];
                 target.Properties["account"] = new OpenApiSchema
-                    { Type = JsonSchemaType.Object | JsonSchemaType.Null, OneOf = [account, NullValue()] };
+                { Type = JsonSchemaType.Object | JsonSchemaType.Null, OneOf = [account, NullValue()] };
                 return;
             }
             if (context.Type == typeof(ProfileKeyWrappers))
             {
                 var password = target.Properties["passwordWrapper"];
-                if (!HasNullBranch(password)) target.Properties["passwordWrapper"] = new OpenApiSchema
+                if (!HasNullBranch(password))
+                    target.Properties["passwordWrapper"] = new OpenApiSchema
                     { Type = JsonSchemaType.Object | JsonSchemaType.Null, OneOf = [password, NullValue()] };
                 return;
             }
@@ -145,14 +168,19 @@ public static class ContractRegistration
                 data.Type = JsonSchemaType.Object | JsonSchemaType.Null;
                 return;
             }
-            if (!typeof(SyncResourceData).IsAssignableFrom(context.Type) || context.Type == typeof(SyncResourceData)) return;
+            if (!typeof(SyncResourceData).IsAssignableFrom(context.Type) || context.Type == typeof(SyncResourceData))
+                return;
             target.AllOf?.Clear();
             target.Properties!["resourceId"] = new OpenApiSchema { Type = JsonSchemaType.String, Format = "uuid" };
             target.Properties["revision"] = new OpenApiSchema { Type = JsonSchemaType.Integer, Format = "int64" };
             var kind = context.Type.Name switch
             {
-                nameof(SyncProfileData) => "profile", nameof(SyncRecordData) => "record", nameof(SyncFolderData) => "folder",
-                nameof(SyncCollectionData) => "collection", nameof(SyncGrantData) => "grant", _ => throw new InvalidOperationException()
+                nameof(SyncProfileData) => "profile",
+                nameof(SyncRecordData) => "record",
+                nameof(SyncFolderData) => "folder",
+                nameof(SyncCollectionData) => "collection",
+                nameof(SyncGrantData) => "grant",
+                _ => throw new InvalidOperationException()
             };
             target.Properties["resourceType"] = new OpenApiSchema { Type = JsonSchemaType.String, Enum = [JsonValue.Create(kind)] };
             target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
@@ -173,19 +201,20 @@ public static class ContractRegistration
         {
             var policyUpdate = context.MethodInfo.DeclaringType == typeof(AccountController)
                 && context.MethodInfo.Name == nameof(AccountController.SetOfflinePolicy);
-            var export=context.MethodInfo.DeclaringType==typeof(AccountExportController);
+            var export = context.MethodInfo.DeclaringType == typeof(AccountExportController);
             var closure = context.MethodInfo.DeclaringType == typeof(AccountController)
                 && context.MethodInfo.Name is nameof(AccountController.RequestClosure) or nameof(AccountController.CancelClosure) or nameof(AccountController.DeleteAccount);
-            var recovery=context.MethodInfo.DeclaringType==typeof(AuthController)
-                &&context.MethodInfo.Name is nameof(AuthController.ClosureLogin) or nameof(AuthController.ClosureVerifyChallenge);
+            var recovery = context.MethodInfo.DeclaringType == typeof(AuthController)
+                && context.MethodInfo.Name is nameof(AuthController.ClosureLogin) or nameof(AuthController.ClosureVerifyChallenge);
             var renewal = context.MethodInfo.DeclaringType == typeof(OfflineAuthorizationsController)
                 && context.MethodInfo.Name == nameof(OfflineAuthorizationsController.Renew);
-            var trashEmpty=context.MethodInfo.DeclaringType==typeof(TrashController) && context.MethodInfo.Name==nameof(TrashController.EmptyTrash);
-            var trashRestore=context.MethodInfo.DeclaringType==typeof(TrashController) && context.MethodInfo.Name==nameof(TrashController.Restore);
+            var trashEmpty = context.MethodInfo.DeclaringType == typeof(TrashController) && context.MethodInfo.Name == nameof(TrashController.EmptyTrash);
+            var trashRestore = context.MethodInfo.DeclaringType == typeof(TrashController) && context.MethodInfo.Name == nameof(TrashController.Restore);
             var syncEdits = context.MethodInfo.DeclaringType == typeof(SyncController) && context.MethodInfo.Name == nameof(SyncController.Edits);
             if (!export && !trashEmpty && !trashRestore && !recovery && !closure && !policyUpdate && !renewal && !syncEdits && (context.MethodInfo.DeclaringType != typeof(SoftwareGrantsController)
                 || context.MethodInfo.Name is not (nameof(SoftwareGrantsController.GrantAccess)
-                    or nameof(SoftwareGrantsController.RevokeAccess)))) return;
+                    or nameof(SoftwareGrantsController.RevokeAccess))))
+                return;
             var content = operation.RequestBody!.Content!;
             var json = content["application/json"];
             content.Clear();
@@ -195,7 +224,8 @@ public static class ContractRegistration
                 ((OpenApiRequestBody)operation.RequestBody!).Required = true;
                 operation.Responses!["413"].Content?.Clear();
             }
-            if(export)((OpenApiParameter)operation.Parameters!.Single(p=>p.Name=="X-Cerberus-Vault-Access")).Required=true;
+            if (export)
+                ((OpenApiParameter)operation.Parameters!.Single(p => p.Name == "X-Cerberus-Vault-Access")).Required = true;
             if (trashRestore || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
             {
                 var id = operation.Parameters!.OfType<OpenApiParameter>().Single(p => p.Name == "id" && p.In == ParameterLocation.Path);

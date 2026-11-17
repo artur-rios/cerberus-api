@@ -18,7 +18,8 @@ public sealed class RegistrationStore(IDbContextFactory<AppDbContext> factory) :
             await using (var prepare = await context.Database.BeginTransactionAsync(cancellationToken))
             {
                 await LockAsync(context, request.IdentityLock, cancellationToken);
-                if (await ErasedAsync(context, request.AccountId, cancellationToken)) return new(Error: "not_found");
+                if (await ErasedAsync(context, request.AccountId, cancellationToken))
+                    return new(Error: "not_found");
                 var existing = await context.RegistrationOperations.SingleOrDefaultAsync(x => x.OperationId == request.OperationId, cancellationToken);
                 if (existing is not null && (existing.RequestFingerprint != request.RequestFingerprint || existing.AccountPublicId != request.AccountId))
                     return new(Error: "registration_conflict");
@@ -26,7 +27,8 @@ public sealed class RegistrationStore(IDbContextFactory<AppDbContext> factory) :
                 {
                     context.RegistrationOperations.Add(new RegistrationOperation
                     {
-                        OperationId = request.OperationId, AccountPublicId = request.AccountId,
+                        OperationId = request.OperationId,
+                        AccountPublicId = request.AccountId,
                         RequestFingerprint = request.RequestFingerprint
                     });
                     await context.SaveChangesAsync(cancellationToken);
@@ -59,7 +61,8 @@ public sealed class RegistrationStore(IDbContextFactory<AppDbContext> factory) :
         var operations = await context.RegistrationOperations.FromSqlInterpolated(
             $"SELECT * FROM cerberus.registration_operation WHERE operation_id = {request.OperationId} FOR UPDATE").ToListAsync(cancellationToken);
         var operation = operations.Single();
-        if (await ErasedAsync(context, request.AccountId, cancellationToken)) return new(Error: "not_found");
+        if (await ErasedAsync(context, request.AccountId, cancellationToken))
+            return new(Error: "not_found");
         var identity = await establishIdentity(cancellationToken);
         if (identity.Status != RegistrationIdentityStatus.Verified)
             return new(Error: identity.Status switch
@@ -69,14 +72,19 @@ public sealed class RegistrationStore(IDbContextFactory<AppDbContext> factory) :
                 RegistrationIdentityStatus.NotFound => "not_found",
                 _ => "identity_unavailable"
             });
-        if (identity.IdentityId is null || identity.IdentityId == Guid.Empty) return new(Error: "identity_unavailable");
-        if (operation.CompletedIdentityId is not null && operation.CompletedIdentityId != identity.IdentityId) return new(Error: "not_found");
-        if (await ErasedAsync(context, request.AccountId, cancellationToken)) return new(Error: "not_found");
+        if (identity.IdentityId is null || identity.IdentityId == Guid.Empty)
+            return new(Error: "identity_unavailable");
+        if (operation.CompletedIdentityId is not null && operation.CompletedIdentityId != identity.IdentityId)
+            return new(Error: "not_found");
+        if (await ErasedAsync(context, request.AccountId, cancellationToken))
+            return new(Error: "not_found");
         var account = await context.Accounts.SingleOrDefaultAsync(x => x.HeimdallPublicId == identity.IdentityId, cancellationToken);
         if (account is not null)
         {
-            if (operation.CompletedIdentityId is null || account.PublicId != request.AccountId) return new(Error: "registration_conflict");
-            if (account.State != AccountState.Active) return new(Error: "authentication_required");
+            if (operation.CompletedIdentityId is null || account.PublicId != request.AccountId)
+                return new(Error: "registration_conflict");
+            if (account.State != AccountState.Active)
+                return new(Error: "authentication_required");
             return new(account.PublicId, 1, Replayed: true);
         }
         // A completed operation whose account has disappeared must never recreate it.

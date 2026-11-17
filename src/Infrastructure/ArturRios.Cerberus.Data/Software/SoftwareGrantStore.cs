@@ -20,15 +20,20 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
     public async Task<VaultResult<SoftwareGrantDetails>> GrantAsync(SoftwareGrantRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.AccessVerifier)) return new(Error: "vault_access_required");
-        if (request.Input?.IsValid() != true) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.AccessVerifier))
+            return new(Error: "vault_access_required");
+        if (request.Input?.IsValid() != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
             await using var tx = await db.Database.BeginTransactionAsync(ct);
             var captured = await SnapshotAsync(db, request, ct);
-            var error = AuthorityError(captured); if (error is not null) return new(Error: error);
+            var error = AuthorityError(captured);
+            if (error is not null)
+                return new(Error: error);
             async Task<string?> Recheck()
             {
                 var current = await SnapshotAsync(db, request, ct);
@@ -36,17 +41,25 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
             }
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={captured.OwnerId} FOR UPDATE", ct);
             var locked = await SnapshotAsync(db, request, ct);
-            error = AuthorityError(locked); if (error is not null) return new(Error: error);
+            error = AuthorityError(locked);
+            if (error is not null)
+                return new(Error: error);
             // Protection writers use the same account lock. Parse these pins once.
             var protection = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == captured.OwnerId, ct);
-            if (!CollectionGrantBinding.TryReadPins(protection, out var pins)) return new(Error: "persistence_unavailable");
-            if (locked.Stable != captured.Stable || locked.Grants != captured.Grants) return new(Error: "revision_conflict");
+            if (!CollectionGrantBinding.TryReadPins(protection, out var pins))
+                return new(Error: "persistence_unavailable");
+            if (locked.Stable != captured.Stable || locked.Grants != captured.Grants)
+                return new(Error: "revision_conflict");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={captured.OwnerId} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             if (captured.Selection is { } profile)
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE account_id={captured.OwnerId} AND id={profile} FOR NO KEY UPDATE", ct);
-                error = await Recheck(); if (error is not null) return new(Error: error);
+                error = await Recheck();
+                if (error is not null)
+                    return new(Error: error);
             }
             var targets = JsonSerializer.Deserialize<Target[]>(captured.Targets, Json)!;
             // Canonical kind order agrees with native collection/member writers.
@@ -54,15 +67,20 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
             foreach (var kind in new[] { "collection", "record" })
             {
                 var ids = targets.Where(x => x.Kind == kind).Select(x => x.PublicId).ToArray();
-                if (ids.Length == 0) continue;
+                if (ids.Length == 0)
+                    continue;
                 var lockSql = kind == "collection"
                     ? "SELECT FROM cerberus.collection WHERE account_id={0} AND public_id=ANY({1}) ORDER BY public_id FOR UPDATE"
                     : "SELECT FROM cerberus.record WHERE account_id={0} AND public_id=ANY({1}) ORDER BY public_id FOR UPDATE";
                 await db.Database.ExecuteSqlRawAsync(lockSql, [captured.OwnerId, ids], ct);
-                error = await Recheck(); if (error is not null) return new(Error: error);
+                error = await Recheck();
+                if (error is not null)
+                    return new(Error: error);
             }
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.software_grant WHERE public_id={request.Input.GrantId} ORDER BY public_id FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             var input = request.Input;
             var old = JsonSerializer.Deserialize<GrantRow[]>(captured.Rows, Json)!.SingleOrDefault();
             if (captured.Reserved || old is null && input.ExpectedRevision is not null
@@ -76,9 +94,11 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
                 var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(target.Envelope), Json)!;
                 var supplied = input.Targets.Single(x => x.Kind == target.Kind && x.Id == target.PublicId);
                 if (!supplied.KeyEnvelope.Verify(captured.OwnerPublicId, target.Kind, target.PublicId, target.KeyEpoch ?? envelope.KeyEpoch,
-                    input.GrantId, revision, input.SoftwareIdentityId, input.RecipientKey.ToPublicJwk(), pins!.AuthorKey)) return new(Error: "validation_failed");
+                    input.GrantId, revision, input.SoftwareIdentityId, input.RecipientKey.ToPublicJwk(), pins!.AuthorKey))
+                    return new(Error: "validation_failed");
             }
-            var key = JsonSerializer.SerializeToUtf8Bytes(input.RecipientKey, Json); var stamp = Guid.NewGuid();
+            var key = JsonSerializer.SerializeToUtf8Bytes(input.RecipientKey, Json);
+            var stamp = Guid.NewGuid();
             var parameters = Parameters(request).Concat(new object[]
             {
                 new NpgsqlParameter("stable", NpgsqlDbType.Jsonb) { Value = captured.Stable },
@@ -103,18 +123,22 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
                   AND NOT EXISTS(SELECT FROM reserved)
                 """);
             var count = await db.Database.ExecuteSqlRawAsync(writeSql, parameters, ct);
-            if (count != 1) return new(Error: AuthorityError(await SnapshotAsync(db, request, ct)) ?? "revision_conflict");
+            if (count != 1)
+                return new(Error: AuthorityError(await SnapshotAsync(db, request, ct)) ?? "revision_conflict");
             var saved = await db.SoftwareGrants.AsNoTracking().SingleOrDefaultAsync(x => x.PublicId == input.GrantId, ct);
-            if (saved is null) return new(Error: "persistence_unavailable");
+            if (saved is null)
+                return new(Error: "persistence_unavailable");
             var grantId = saved.Id;
             if (old is not null)
             {
-                if (grantId != old.Id) return new(Error: "persistence_unavailable");
+                if (grantId != old.Id)
+                    return new(Error: "persistence_unavailable");
                 using var evidence = JsonDocument.Parse(captured.Grants);
                 if (await db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM cerberus.software_grant_record WHERE account_id={captured.OwnerId} AND grant_id={grantId}", ct)
                         != evidence.RootElement.GetProperty("records").GetArrayLength()
                     || await db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM cerberus.software_grant_collection WHERE account_id={captured.OwnerId} AND grant_id={grantId}", ct)
-                        != evidence.RootElement.GetProperty("collections").GetArrayLength()) return new(Error: "persistence_unavailable");
+                        != evidence.RootElement.GetProperty("collections").GetArrayLength())
+                    return new(Error: "persistence_unavailable");
             }
             foreach (var target in targets)
             {
@@ -135,7 +159,8 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
                 || saved.PublicId != input.GrantId || saved.HeimdallSoftwarePublicId != input.SoftwareIdentityId
                 || saved.State != SoftwareGrantState.Active || saved.Revision != revision || saved.ConcurrencyStamp != stamp
                 || !saved.RecipientKey.AsSpan().SequenceEqual(key) || records.Length != targets.Count(x => x.Kind == "record")
-                || collections.Length != targets.Count(x => x.Kind == "collection")) return new(Error: "persistence_unavailable");
+                || collections.Length != targets.Count(x => x.Kind == "collection"))
+                return new(Error: "persistence_unavailable");
             foreach (var target in targets)
             {
                 var record = records.SingleOrDefault(x => x.RecordId == target.Id);
@@ -143,7 +168,8 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
                 var bytes = target.Kind == "record" ? record?.RecipientKeyEnvelope : collection?.RecipientKeyEnvelope;
                 var owner = target.Kind == "record" ? record?.AccountId : collection?.AccountId;
                 var expected = JsonSerializer.SerializeToUtf8Bytes(input.Targets.Single(x => x.Kind == target.Kind && x.Id == target.PublicId).KeyEnvelope, Json);
-                if (owner != captured.OwnerId || bytes is null || !bytes.AsSpan().SequenceEqual(expected)) return new(Error: "persistence_unavailable");
+                if (owner != captured.OwnerId || bytes is null || !bytes.AsSpan().SequenceEqual(expected))
+                    return new(Error: "persistence_unavailable");
             }
             await tx.CommitAsync(ct);
             return new(new(input.GrantId, revision));
@@ -162,10 +188,14 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
 
     private static string? AuthorityError(Snapshot s)
     {
-        if (!s.ActorActive) return "not_found";
-        if (!s.SessionAllowed) return "vault_access_denied";
-        if (s.MissingOrHiddenTarget) return "not_found";
-        if (s.CorruptAncestry) return "persistence_unavailable";
+        if (!s.ActorActive)
+            return "not_found";
+        if (!s.SessionAllowed)
+            return "vault_access_denied";
+        if (s.MissingOrHiddenTarget)
+            return "not_found";
+        if (s.CorruptAncestry)
+            return "persistence_unavailable";
         var targets = JsonSerializer.Deserialize<Target[]>(s.Targets, Json)!;
         foreach (var target in targets)
         {
@@ -180,7 +210,8 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
                 || !CollectionGrantBinding.TryReadPins(Pins(g.RecipientMaterial, g.RecipientRevision, g.RecipientEpoch, g.RecipientGeneration), out var recipient)
                 || !CollectionGrantBinding.IsBound(new() { PublicId = g.GrantId, Revision = g.Revision, RecipientKeyEnvelope = Convert.FromHexString(g.Envelope) },
                     new() { PublicId = g.CollectionId, KeyEpoch = g.CollectionEpoch, Envelope = Convert.FromHexString(g.CollectionEnvelope) },
-                    g.OwnerPublicId, s.ActorIdentity, owner!, recipient!)) return "persistence_unavailable";
+                    g.OwnerPublicId, s.ActorIdentity, owner!, recipient!))
+                return "persistence_unavailable";
         }
         return targets.Any(x => x.OwnerId != s.OwnerId) ? "vault_access_denied" : null;
     }
@@ -200,9 +231,15 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
         string? RecipientMaterial, long? RecipientRevision, long? RecipientEpoch, long? RecipientGeneration);
     private sealed class Snapshot
     {
-        public bool ActorActive { get; set; } public bool SessionAllowed { get; set; } public bool MissingOrHiddenTarget { get; set; }
-        public bool CorruptAncestry { get; set; } public bool Reserved { get; set; }
-        public long OwnerId { get; set; } public Guid OwnerPublicId { get; set; } public Guid ActorIdentity { get; set; } public long? Selection { get; set; }
+        public bool ActorActive { get; set; }
+        public bool SessionAllowed { get; set; }
+        public bool MissingOrHiddenTarget { get; set; }
+        public bool CorruptAncestry { get; set; }
+        public bool Reserved { get; set; }
+        public long OwnerId { get; set; }
+        public Guid OwnerPublicId { get; set; }
+        public Guid ActorIdentity { get; set; }
+        public long? Selection { get; set; }
         public string Targets { get; set; } = "[]"; public string Native { get; set; } = "[]"; public string Rows { get; set; } = "[]";
         public string Stable { get; set; } = "{}"; public string Grants { get; set; } = "{}";
     }

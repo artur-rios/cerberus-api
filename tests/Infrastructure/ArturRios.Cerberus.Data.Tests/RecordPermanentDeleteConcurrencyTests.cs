@@ -16,15 +16,22 @@ namespace ArturRios.Cerberus.Data.Tests;
 public sealed partial class RecordPermanentDeleteStoreTests
 {
     [FunctionalTheory]
-    [InlineData("create")][InlineData("association")]
+    [InlineData("create")]
+    [InlineData("association")]
     public async Task GivenPermanentIntentHoldsOwnedParents_WhenAnotherActualWriterStarts_ThenSerializeWithoutDeadlock(string writer)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "direct", false);
         await using var db = fixture.CreateContext();
         var verifier = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));
-        db.VaultAccessSessions.Add(new() { AccountId = w.State.InternalId, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
-            PolicyRevision = 1, RevocationGeneration = 1 });
+        db.VaultAccessSessions.Add(new()
+        {
+            AccountId = w.State.InternalId,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         await db.SaveChangesAsync();
         w.State = w.State with { Verifier = verifier };
         await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.FolderId, w.Items.Folder.Id));
@@ -39,14 +46,16 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var other = writer == "create"
             ? new RecordCreateStore(factory).CreateAsync(new(w.State.Actor, w.State.Verifier, new(Guid.NewGuid(), ProfileSetup.Envelope(), DateTimeOffset.UtcNow, [], w.Items.Folder.PublicId)), ct.Token).ContinueWith(t => t.Result.Error)
             : new ProfileAssociationStore(factory).SetAsync(new(w.State.Actor, w.State.Verifier, profile.PublicId, new(profile.Revision, [], [], [])), ct.Token).ContinueWith(t => t.Result.Error);
-        try { await blocked.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(other.IsCompleted); }
+        try
+        { await blocked.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(other.IsCompleted); }
         finally { release.TrySetResult(); }
         Assert.Null((await deletion).Error);
         Assert.Equal(writer == "create" ? null : "revision_conflict", await other);
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenControlledRecipientEditAndOwnerPermanentDelete_WhenWaitingOnCollections_ThenOneWinnerWithoutDeadlock(bool deleteFirst)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -76,7 +85,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
             await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
             second = Store(factory: secondFactory).DeleteAsync(w.Request(), ct.Token).ContinueWith(t => t.Result.Error);
         }
-        try { await blocked.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(second.IsCompleted); }
+        try
+        { await blocked.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(second.IsCompleted); }
         finally { release.TrySetResult(); }
         Assert.Null(await first);
         Assert.Equal(deleteFirst ? "not_found" : "revision_conflict", await second);
@@ -84,7 +94,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenTerminalRecordAwaitingLedger_WhenRotatingSurvivingInventory_ThenTrashIsRequiredButTerminalCipherIsExcluded(bool includeTerminal)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -95,7 +106,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
             new("record", w.Items.Record.PublicId, 1, ProfileSetup.Envelope(2)),
             new("folder", w.Items.Folder.PublicId, 1, ProfileSetup.Envelope(2)),
             new("collection", w.Items.Collection.PublicId, 1, ProfileSetup.Envelope(2)) };
-        if (includeTerminal) content.Add(new("record", w.Record.PublicId, 1, ProfileSetup.Envelope(2)));
+        if (includeTerminal)
+            content.Add(new("record", w.Record.PublicId, 1, ProfileSetup.Envelope(2)));
         var change = new ProtectionChange(w.State.AccountId, 1, 1, "rotate-content", w.Owner.Rewrap(), content.ToArray());
         var raw = JsonSerializer.SerializeToUtf8Bytes(change, ProtectionFixture.Json);
         var challenge = (await new VaultProtectionStore(fixture).ChallengeAsync(w.State.Actor, "change-protection", ProtocolBinary.Encode(SHA256.HashData(raw)), default)).Data!;
@@ -120,7 +132,9 @@ public sealed partial class RecordPermanentDeleteStoreTests
         for (var n = 0; n < 40; n++)
         {
             var folder = new VaultFolder { AccountId = w.State.InternalId, PublicId = Guid.NewGuid(), Envelope = w.Items.Folder.Envelope, EditedAt = w.Items.Folder.EditedAt, ParentFolderId = parent };
-            db.Folders.Add(folder); await db.SaveChangesAsync(); parent = folder.Id;
+            db.Folders.Add(folder);
+            await db.SaveChangesAsync();
+            parent = folder.Id;
             db.Records.Add(new() { AccountId = w.State.InternalId, PublicId = Guid.NewGuid(), Envelope = w.Record.Envelope, EditedAt = w.Record.EditedAt, FolderId = folder.Id });
         }
         await db.SaveChangesAsync();
@@ -135,7 +149,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var tables = new[] { "account", "vault_access_session", "profile", "collection", "folder", "record" };
         var positions = tables.Select(t => capture.Locks.FindIndex(x => x.Contains("cerberus." + t + " "))).ToArray();
         Assert.All(positions, p => Assert.True(p >= 0));
-        for (var i = 1; i < positions.Length; i++) Assert.True(positions[i - 1] < positions[i]);
+        for (var i = 1; i < positions.Length; i++)
+            Assert.True(positions[i - 1] < positions[i]);
         Assert.Contains("ORDER BY p.public_id", capture.Locks[positions[2]]);
         Assert.Contains("ORDER BY c.public_id", capture.Locks[positions[3]]);
     }
@@ -144,7 +159,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
     {
         if (node.ValueKind == JsonValueKind.Object)
         { yield return node; foreach (var property in node.EnumerateObject()) foreach (var child in Nodes(property.Value)) yield return child; }
-        if (node.ValueKind == JsonValueKind.Array) foreach (var value in node.EnumerateArray()) foreach (var child in Nodes(value)) yield return child;
+        if (node.ValueKind == JsonValueKind.Array)
+            foreach (var value in node.EnumerateArray())
+                foreach (var child in Nodes(value))
+                    yield return child;
     }
     private sealed class BeforeTarget(Func<Task> callback) : DbCommandInterceptor
     {
@@ -163,9 +181,12 @@ public sealed partial class RecordPermanentDeleteStoreTests
             Note(command);
             if (Plan is null && command.CommandText.StartsWith("WITH RECURSIVE"))
             {
-                await using var db = postgres.CreateContext(); await db.Database.OpenConnectionAsync(ct);
-                await using var explain = db.Database.GetDbConnection().CreateCommand(); explain.CommandText = "EXPLAIN (ANALYZE, FORMAT JSON) " + command.CommandText;
-                foreach (var p in command.Parameters.Cast<NpgsqlParameter>()) explain.Parameters.Add(p.Clone());
+                await using var db = postgres.CreateContext();
+                await db.Database.OpenConnectionAsync(ct);
+                await using var explain = db.Database.GetDbConnection().CreateCommand();
+                explain.CommandText = "EXPLAIN (ANALYZE, FORMAT JSON) " + command.CommandText;
+                foreach (var p in command.Parameters.Cast<NpgsqlParameter>())
+                    explain.Parameters.Add(p.Clone());
                 Plan = (string)(await explain.ExecuteScalarAsync(ct))!;
             }
             return result;

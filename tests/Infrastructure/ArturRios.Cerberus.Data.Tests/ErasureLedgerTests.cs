@@ -10,7 +10,8 @@ public class ErasureLedgerTests : IDisposable
     [FunctionalFact]
     public void GivenNonPrivateStorage_WhenOpeningLedger_ThenFailClosed()
     {
-        if (!OperatingSystem.IsLinux()) return;
+        if (!OperatingSystem.IsLinux())
+            return;
         File.SetUnixFileMode(_directory, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead);
         Assert.Throws<IOException>(() => new FileErasureLedger(_directory));
     }
@@ -37,7 +38,8 @@ public class ErasureLedgerTests : IDisposable
         var entry = new ErasureEntry(Guid.NewGuid(), "record", DateTimeOffset.Parse("2026-10-07T00:00:00Z"));
         await new FileErasureLedger(_directory).RecordAsync(entry, default);
         var entries = new List<ErasureEntry>();
-        await foreach (var recovered in new FileErasureLedger(_directory).ReadAsync(default)) entries.Add(recovered);
+        await foreach (var recovered in new FileErasureLedger(_directory).ReadAsync(default))
+            entries.Add(recovered);
 
         Assert.Single(entries);
         Assert.Equal(entry, entries[0]);
@@ -49,7 +51,8 @@ public class ErasureLedgerTests : IDisposable
         var entry = new ErasureEntry(Guid.NewGuid(), "account", DateTimeOffset.Parse("2026-10-07T00:00:00Z"));
         await Task.WhenAll(Enumerable.Range(0, 8).Select(_ => new FileErasureLedger(_directory).RecordAsync(entry, default)));
         var entries = new List<ErasureEntry>();
-        await foreach (var recovered in new FileErasureLedger(_directory).ReadAsync(default)) entries.Add(recovered);
+        await foreach (var recovered in new FileErasureLedger(_directory).ReadAsync(default))
+            entries.Add(recovered);
 
         Assert.Single(entries);
         Assert.Equal(entry, entries[0]);
@@ -61,7 +64,8 @@ public class ErasureLedgerTests : IDisposable
         await File.WriteAllTextAsync(Path.Combine(_directory, Guid.NewGuid().ToString("N") + ".json"), "invalid-json-secret");
         var exception = await Assert.ThrowsAsync<InvalidDataException>(async () =>
         {
-            await foreach (var _ in new FileErasureLedger(_directory).ReadAsync(default)) { }
+            await foreach (var _ in new FileErasureLedger(_directory).ReadAsync(default))
+            { }
         });
         Assert.DoesNotContain("invalid-json-secret", exception.Message);
     }
@@ -71,7 +75,8 @@ public class ErasureLedgerTests : IDisposable
     {
         await File.WriteAllTextAsync(Path.Combine(_directory, "interrupted.tmp"), "partial");
         var entries = new List<ErasureEntry>();
-        await foreach (var entry in new FileErasureLedger(_directory).ReadAsync(default)) entries.Add(entry);
+        await foreach (var entry in new FileErasureLedger(_directory).ReadAsync(default))
+            entries.Add(entry);
         Assert.Empty(entries);
     }
 

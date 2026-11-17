@@ -1,6 +1,6 @@
 using ArturRios.Cerberus.Command.Accounts;
-using ArturRios.Cerberus.Data.Accounts;
 using ArturRios.Cerberus.Data;
+using ArturRios.Cerberus.Data.Accounts;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Shared.Configuration;
 using ArturRios.Cerberus.Shared.Identity;
@@ -17,7 +17,8 @@ public class RegistrationRotationTests(RegistrationApiFixture fixture)
     {
         var command = new RegisterAccountCommand
         {
-            AccountId = Guid.NewGuid(), IdempotencyKey = Guid.NewGuid(),
+            AccountId = Guid.NewGuid(),
+            IdempotencyKey = Guid.NewGuid(),
             Identity = new("Fixture Owner", Guid.NewGuid().ToString("N") + "@example.test", "fixture-password"),
             Details = new("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA")
         };
@@ -34,7 +35,8 @@ public class RegistrationRotationTests(RegistrationApiFixture fixture)
             factory.Setup(x => x.CreateDbContextAsync(It.IsAny<CancellationToken>())).ReturnsAsync(() => fixture.Context());
             var options = new CerberusOptions
             {
-                AuthValidationSecret = signingKey, HeimdallScopeId = RegistrationApiFixture.Scope,
+                AuthValidationSecret = signingKey,
+                HeimdallScopeId = RegistrationApiFixture.Scope,
                 RegistrationFingerprintKey = "independent-durable-fixture-key-32-bytes"
             };
             return await new RegisterAccountHandler(new RegisterAccountValidator(), new RegistrationStore(factory.Object), identity.Object, options)

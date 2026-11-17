@@ -43,7 +43,8 @@ public sealed record ProtectionMaterial(PasswordWrapper PasswordWrapper, Recover
     public bool IsValid()
     {
         if (PasswordWrapper?.IsValid() != true || RecoveryWrapper?.IsValid() != true
-            || PasswordWrapper.KeyEpoch != RecoveryWrapper.KeyEpoch) return false;
+            || PasswordWrapper.KeyEpoch != RecoveryWrapper.KeyEpoch)
+            return false;
         var keys = new[] { UnlockVerifier, RecoveryVerifier, RecipientKey, AuthorKey };
         return keys.All(x => x?.IsValid() == true) && keys.Select(x => x.Fingerprint()).Distinct(StringComparer.Ordinal).Count() == 4
             && RecoveryWrapper.ProofKeyFingerprint == RecoveryVerifier.Fingerprint();

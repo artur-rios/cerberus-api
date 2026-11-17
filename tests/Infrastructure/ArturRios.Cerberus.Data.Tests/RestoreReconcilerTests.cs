@@ -115,7 +115,8 @@ public sealed class RestoreReconcilerTests(PostgresFixture fixture) : IClassFixt
         public TaskCompletionSource<bool> Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public async Task<bool> VerifyAsync(CancellationToken cancellationToken)
         {
-            if (Interlocked.Increment(ref _calls) != 1) return true;
+            if (Interlocked.Increment(ref _calls) != 1)
+                return true;
             Started.SetResult(true);
             return await Release.Task.WaitAsync(cancellationToken);
         }

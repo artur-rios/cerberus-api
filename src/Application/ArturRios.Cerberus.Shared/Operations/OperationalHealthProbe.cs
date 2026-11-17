@@ -34,7 +34,8 @@ public sealed class OperationalHealthProbe(IDatabaseReadinessProbe database, IHe
         using var budget = new CancellationTokenSource(TimeSpan.FromSeconds(5), clock);
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(ct, budget.Token);
         bool healthy;
-        try { healthy = await check(linked.Token) && !budget.IsCancellationRequested; }
+        try
+        { healthy = await check(linked.Token) && !budget.IsCancellationRequested; }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
         catch (Exception) { healthy = false; }
         ct.ThrowIfCancellationRequested();

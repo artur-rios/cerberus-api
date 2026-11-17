@@ -34,47 +34,67 @@ internal static class CurrentSyncInventory
                 throw new JsonException("Invalid current synchronization resource.");
         }
         var profile = await new ProfileReadStore(factory).ReadAsync(new(request.Actor, request.AccessVerifier, profileId), ct);
-        if (profile.Error is not null) return new(Error: profile.Error);
+        if (profile.Error is not null)
+            return new(Error: profile.Error);
         var p = profile.Data?.Profile;
-        if (p is null || p.ProfileId != profileId) return new(Error: "persistence_unavailable");
+        if (p is null || p.ProfileId != profileId)
+            return new(Error: "persistence_unavailable");
         Add(new SyncProfileData(p.ProfileId, p.Revision, p.ServerSequence, p.EditedAt,
             Decode<EncryptedEnvelope>(p.Envelope), Decode<ArturRios.Cerberus.Domain.Profiles.ProfileKeyWrappers>(p.KeyWrappers),
             profile.Data!.RecordIds, profile.Data.FolderIds, profile.Data.CollectionIds));
 
         // Reuse native permission, ancestry and grant/protection validation rather
         // than create another definition of visible encrypted content.
-        long after = 0; long? boundary = null;
+        long after = 0;
+        long? boundary = null;
         while (true)
         {
             var result = await new RecordListStore(factory).ListAsync(new(request.Actor, request.AccessVerifier, 100, after, boundary), ct);
-            if (result.Error is not null) return new(Error: result.Error);
+            if (result.Error is not null)
+                return new(Error: result.Error);
             var page = result.Data!;
-            foreach (var r in page.Items) Add(new SyncRecordData(r.RecordId, r.Revision, r.ServerSequence, r.EditedAt, Decode<EncryptedEnvelope>(r.Envelope)));
-            if (!page.HasMore) break;
-            if (page.Items.Count == 0 || page.Items[^1].ServerSequence <= after) return new(Error: "persistence_unavailable");
-            after = page.Items[^1].ServerSequence; boundary = page.Boundary;
+            foreach (var r in page.Items)
+                Add(new SyncRecordData(r.RecordId, r.Revision, r.ServerSequence, r.EditedAt, Decode<EncryptedEnvelope>(r.Envelope)));
+            if (!page.HasMore)
+                break;
+            if (page.Items.Count == 0 || page.Items[^1].ServerSequence <= after)
+                return new(Error: "persistence_unavailable");
+            after = page.Items[^1].ServerSequence;
+            boundary = page.Boundary;
         }
-        after = 0; boundary = null;
+        after = 0;
+        boundary = null;
         while (true)
         {
             var result = await new FolderListStore(factory).ListAsync(new(request.Actor, request.AccessVerifier, 100, after, boundary), ct);
-            if (result.Error is not null) return new(Error: result.Error);
+            if (result.Error is not null)
+                return new(Error: result.Error);
             var page = result.Data!;
-            foreach (var f in page.Items) Add(new SyncFolderData(f.FolderId, f.Revision, f.ServerSequence, f.EditedAt, Decode<EncryptedEnvelope>(f.Envelope)));
-            if (!page.HasMore) break;
-            if (page.Items.Count == 0 || page.Items[^1].ServerSequence <= after) return new(Error: "persistence_unavailable");
-            after = page.Items[^1].ServerSequence; boundary = page.Boundary;
+            foreach (var f in page.Items)
+                Add(new SyncFolderData(f.FolderId, f.Revision, f.ServerSequence, f.EditedAt, Decode<EncryptedEnvelope>(f.Envelope)));
+            if (!page.HasMore)
+                break;
+            if (page.Items.Count == 0 || page.Items[^1].ServerSequence <= after)
+                return new(Error: "persistence_unavailable");
+            after = page.Items[^1].ServerSequence;
+            boundary = page.Boundary;
         }
-        after = 0; boundary = null;
+        after = 0;
+        boundary = null;
         while (true)
         {
             var result = await new CollectionListStore(factory).ListAsync(new(request.Actor, request.AccessVerifier, 100, after, boundary), ct);
-            if (result.Error is not null) return new(Error: result.Error);
+            if (result.Error is not null)
+                return new(Error: result.Error);
             var page = result.Data!;
-            foreach (var c in page.Items) Add(new SyncCollectionData(c.CollectionId, c.Revision, c.ServerSequence, c.EditedAt, Decode<EncryptedEnvelope>(c.Envelope), c.KeyEpoch));
-            if (!page.HasMore) break;
-            if (page.Items.Count == 0 || page.Items[^1].ServerSequence <= after) return new(Error: "persistence_unavailable");
-            after = page.Items[^1].ServerSequence; boundary = page.Boundary;
+            foreach (var c in page.Items)
+                Add(new SyncCollectionData(c.CollectionId, c.Revision, c.ServerSequence, c.EditedAt, Decode<EncryptedEnvelope>(c.Envelope), c.KeyEpoch));
+            if (!page.HasMore)
+                break;
+            if (page.Items.Count == 0 || page.Items[^1].ServerSequence <= after)
+                return new(Error: "persistence_unavailable");
+            after = page.Items[^1].ServerSequence;
+            boundary = page.Boundary;
         }
         var visibleCollections = items.Keys.Where(x => x.Kind == "collection").Select(x => x.Id).ToArray();
         // CollectionListStore already checked each visible foreign grant's native
@@ -86,7 +106,8 @@ internal static class CurrentSyncInventory
                                 && (g.Access == CollectionGrantAccess.ReadOnly || g.Access == CollectionGrantAccess.ReadWrite)
                                 && !db.TerminalErasures.Any(e => e.ResourceKind == "grant" && e.ResourceId == g.PublicId)
                             select new { g.PublicId, g.Revision, CollectionId = c.PublicId, g.RecipientKeyEnvelope }).ToListAsync(ct);
-        foreach (var g in grants) Add(new SyncGrantData(g.PublicId, g.Revision, g.CollectionId, Decode<RecipientEnvelope>(g.RecipientKeyEnvelope)));
+        foreach (var g in grants)
+            Add(new SyncGrantData(g.PublicId, g.Revision, g.CollectionId, Decode<RecipientEnvelope>(g.RecipientKeyEnvelope)));
         return new(items);
     }
 

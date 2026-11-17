@@ -22,7 +22,8 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
             return Task.FromResult(new VaultResult<VaultProtectionDetails>(Error: "validation_failed"));
         return Run<VaultProtectionDetails>(actor, cancellationToken, async (db, account, ct) =>
         {
-            if (account.PublicId != accountId) return new(Error: "not_found");
+            if (account.PublicId != accountId)
+                return new(Error: "not_found");
             if (account.Revision != expectedAccountRevision || await db.VaultProtections.AnyAsync(x => x.AccountId == account.Id, ct))
                 return new(Error: "revision_conflict");
             db.VaultProtections.Add(new VaultProtection { AccountId = account.Id, Material = JsonSerializer.SerializeToUtf8Bytes(material, Json) });
@@ -43,21 +44,30 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
     public Task<VaultResult<VaultProofChallenge>> ChallengeAsync(Guid actor, string operation, string requestHash, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (operation is not ("unlock-account" or "change-protection" or "recover" or "refresh-recovery") || !ProtocolBinary.TryDecode(requestHash, 32, out _)) return Task.FromResult(new VaultResult<VaultProofChallenge>(Error: "validation_failed"));
+        if (operation is not ("unlock-account" or "change-protection" or "recover" or "refresh-recovery") || !ProtocolBinary.TryDecode(requestHash, 32, out _))
+            return Task.FromResult(new VaultResult<VaultProofChallenge>(Error: "validation_failed"));
         return Run<VaultProofChallenge>(actor, cancellationToken, async (db, account, ct) =>
         {
             var row = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, ct);
-            if (row is null) return new(Error: "not_found");
+            if (row is null)
+                return new(Error: "not_found");
             _ = Details(account, row);
-            if (account.PolicyRevision <= 0 || account.RevocationGeneration <= 0) return new(Error: "persistence_unavailable");
+            if (account.PolicyRevision <= 0 || account.RevocationGeneration <= 0)
+                return new(Error: "persistence_unavailable");
             var now = await Now(db, ct);
             await db.VaultUnlockChallenges.Where(x => x.AccountId == account.Id && (x.Consumed || x.ExpiresAt <= now)).ExecuteDeleteAsync(ct);
             var issued = now.ToUnixTimeSeconds();
             var challenge = new VaultProofChallenge("cerberus-challenge-v1", Guid.NewGuid(), ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32)),
                 operation, actor, account.PublicId, "account", account.PublicId, row.KeyEpoch, row.Revision, operation == "recover" ? row.RecoveryGeneration : null, requestHash, issued, issued + 60);
-            db.VaultUnlockChallenges.Add(new VaultUnlockChallenge { AccountId = account.Id, PublicId = challenge.ChallengeId,
-                Challenge = JsonSerializer.SerializeToUtf8Bytes(challenge, Json), PolicyRevision = account.PolicyRevision,
-                RevocationGeneration = account.RevocationGeneration, ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt) });
+            db.VaultUnlockChallenges.Add(new VaultUnlockChallenge
+            {
+                AccountId = account.Id,
+                PublicId = challenge.ChallengeId,
+                Challenge = JsonSerializer.SerializeToUtf8Bytes(challenge, Json),
+                PolicyRevision = account.PolicyRevision,
+                RevocationGeneration = account.RevocationGeneration,
+                ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt)
+            });
             return new(challenge);
         });
     }
@@ -67,11 +77,14 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
         Run<VaultAccessDetails>(actor, cancellationToken, async (db, account, ct) =>
         {
             var protection = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, ct);
-            if (protection is null) return new(Error: "not_found");
+            if (protection is null)
+                return new(Error: "not_found");
             var details = Details(account, protection);
-            if (expectedProtectionRevision != protection.Revision) return new(Error: "revision_conflict");
+            if (expectedProtectionRevision != protection.Revision)
+                return new(Error: "revision_conflict");
             var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.PublicId == challengeId && x.AccountId == account.Id, ct);
-            if (row is null || row.Consumed) return new(Error: "vault_proof_rejected");
+            if (row is null || row.Consumed)
+                return new(Error: "vault_proof_rejected");
             var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, Json) ?? throw new JsonException();
             if (challenge.ChallengeId != row.PublicId || row.ExpiresAt != DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt))
                 return new(Error: "persistence_unavailable");
@@ -83,18 +96,28 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
             if (!VaultProof.Verify(challenge, binding, rawBody, details.Material.UnlockVerifier, proof, now.ToUnixTimeSeconds()))
                 return new(Error: "vault_proof_rejected");
             if (account.PolicyRevision <= 0 || account.RevocationGeneration <= 0
-                || account.RenewalEnabled && account.RenewalInterval is not { Ticks: > 0 }) return new(Error: "persistence_unavailable");
+                || account.RenewalEnabled && account.RenewalInterval is not { Ticks: > 0 })
+                return new(Error: "persistence_unavailable");
             DateTimeOffset? expires = account.RenewalEnabled ? now.Add(account.RenewalInterval!.Value) : null;
             var access = ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32));
-            if (!OpaqueAccessHandle.TryHash(access, out var verifier)) return new(Error: "persistence_unavailable");
+            if (!OpaqueAccessHandle.TryHash(access, out var verifier))
+                return new(Error: "persistence_unavailable");
             // Recheck exclusive expiry at the consumption statement, not transaction begin.
             var consumed = await db.Database.ExecuteSqlInterpolatedAsync($"""
                 UPDATE cerberus.vault_unlock_challenge SET consumed = TRUE
                 WHERE id = {row.Id} AND NOT consumed AND expires_at > statement_timestamp()
                 """, ct);
-            if (consumed != 1) return new(Error: "vault_proof_rejected");
-            db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                IssuedAt = now, ExpiresAt = expires, PolicyRevision = account.PolicyRevision, RevocationGeneration = account.RevocationGeneration });
+            if (consumed != 1)
+                return new(Error: "vault_proof_rejected");
+            db.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                IssuedAt = now,
+                ExpiresAt = expires,
+                PolicyRevision = account.PolicyRevision,
+                RevocationGeneration = account.RevocationGeneration
+            });
             return new(new(account.PublicId, access, now, expires));
         });
 
@@ -102,7 +125,8 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
         Func<AppDbContext, AccountView, CancellationToken, Task<VaultResult<T>>> execute) where T : class
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (actor == Guid.Empty) return new(Error: "authentication_required");
+        if (actor == Guid.Empty)
+            return new(Error: "authentication_required");
         try
         {
             await using var db = await factory.CreateDbContextAsync(cancellationToken);
@@ -113,9 +137,11 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
                 .Select(x => new AccountView(x.Id, x.PublicId, x.Revision, x.State, x.RenewalEnabled, x.RenewalInterval, x.PolicyRevision, x.RevocationGeneration))
                 .SingleOrDefaultAsync(cancellationToken);
             if (account is null || account.State != AccountState.Active
-                || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), cancellationToken)) return new(Error: "not_found");
+                || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), cancellationToken))
+                return new(Error: "not_found");
             var result = await execute(db, account, cancellationToken);
-            if (result.Error is not null) return result;
+            if (result.Error is not null)
+                return result;
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return result;
@@ -131,7 +157,8 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
     {
         var material = JsonSerializer.Deserialize<ProtectionMaterial>(row.Material, Json);
         if (material?.IsValid() != true || row.Revision is <= 0 or > ProtocolBinary.MaxInteger
-            || row.KeyEpoch != material.PasswordWrapper.KeyEpoch || row.RecoveryGeneration != material.RecoveryWrapper.Generation) throw new JsonException();
+            || row.KeyEpoch != material.PasswordWrapper.KeyEpoch || row.RecoveryGeneration != material.RecoveryWrapper.Generation)
+            throw new JsonException();
         return new(account.PublicId, row.Revision, row.KeyEpoch, row.RecoveryGeneration, material);
     }
     private static Task<DateTimeOffset> Now(AppDbContext db, CancellationToken ct) =>

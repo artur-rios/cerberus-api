@@ -10,7 +10,8 @@ public static class PostgresConfiguration
         try
         {
             var settings = new NpgsqlConnectionStringBuilder(connectionString ?? string.Empty);
-            if (!string.IsNullOrWhiteSpace(settings.Host)) return ValidateOptionsResult.Success;
+            if (!string.IsNullOrWhiteSpace(settings.Host))
+                return ValidateOptionsResult.Success;
         }
         catch (ArgumentException) { } // Parser messages can contain credentials or unsupported values.
         return ValidateOptionsResult.Fail("Invalid or missing CERBERUS_DATA_CONNECTIONSTRING.");

@@ -15,17 +15,22 @@ public sealed class OfflineAuthorizationStore(IDbContextFactory<AppDbContext> fa
     public async Task<OfflineAuthorizationResult> RenewAsync(OfflineAuthorizationRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request is null) return new(Error: "validation_failed");
-        if (request.IdentityId == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.Verifier)) return new(Error: "vault_access_required");
-        if (!request.IsValid()) return new(Error: "validation_failed");
+        if (request is null)
+            return new(Error: "validation_failed");
+        if (request.IdentityId == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.Verifier))
+            return new(Error: "vault_access_required");
+        if (!request.IsValid())
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
             await using var tx = await db.Database.BeginTransactionAsync(ct);
             var initial = await Read(db, request, ct);
             var error = AuthorityError(initial);
-            if (error is not null) return new(Error: error);
+            if (error is not null)
+                return new(Error: error);
             var original = initial!;
             var related = JsonSerializer.Deserialize<RelatedCollection[]>(original.Related, Json) ?? throw new JsonException();
             async Task<string?> Recheck() => RecheckError(await Read(db, request, ct), original);
@@ -33,24 +38,36 @@ public sealed class OfflineAuthorizationStore(IDbContextFactory<AppDbContext> fa
             // Match the public-id order of sharing/lifecycle writers. No lock
             // upgrade or write is needed to issue an immutable authorization.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE public_id=ANY({accounts}) ORDER BY public_id FOR SHARE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE id={original.SessionId} AND account_id={original.OwnerId} FOR SHARE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE id={original.ProfileInternalId} AND account_id={original.OwnerId} FOR SHARE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             foreach (var collection in related.OrderBy(c => c.PublicId.ToString("D"), StringComparer.Ordinal))
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE id={collection.Id} FOR SHARE", ct);
-                error = await Recheck(); if (error is not null) return new(Error: error);
+                error = await Recheck();
+                if (error is not null)
+                    return new(Error: error);
                 if (collection.GrantId is { } grantId)
                 {
                     await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_grant WHERE id={grantId} AND collection_id={collection.Id} FOR SHARE", ct);
-                    error = await Recheck(); if (error is not null) return new(Error: error);
+                    error = await Recheck();
+                    if (error is not null)
+                        return new(Error: error);
                 }
             }
-            if (original.ProfileRevision != request.ExpectedProfileRevision) return new(Error: "revision_conflict");
+            if (original.ProfileRevision != request.ExpectedProfileRevision)
+                return new(Error: "revision_conflict");
             var epoch = await KeyEpoch(db, original, ct);
-            if (epoch is <= 0 or > ProtocolBinary.MaxInteger) return new(Error: "persistence_unavailable");
+            if (epoch is <= 0 or > ProtocolBinary.MaxInteger)
+                return new(Error: "persistence_unavailable");
             var grants = new List<OfflineGrantRevision>();
             foreach (var c in related.Where(c => c.OwnerPublicId != original.AccountId && c.CollectionActive && c.GrantActive))
             {
@@ -62,19 +79,26 @@ public sealed class OfflineAuthorizationStore(IDbContextFactory<AppDbContext> fa
                 grants.Add(new(c.GrantPublicId!.Value, c.GrantRevision.Value));
             }
             var before = await Read(db, request, ct);
-            error = RecheckError(before, original); if (error is not null) return new(Error: error);
+            error = RecheckError(before, original);
+            if (error is not null)
+                return new(Error: error);
             var snapshot = new OfflineLeaseSnapshot(request.IdentityId, original.AccountId, request.ProfileId, epoch, original.ProfileRevision!.Value,
                 original.PolicyRevision, original.Generation, grants.OrderBy(g => g.GrantId.ToString("D"), StringComparer.Ordinal).ToArray(),
                 original.RenewalEnabled, original.RenewalInterval, before!.DatabaseNow);
-            if (!snapshot.IsValid()) return new(Error: "persistence_unavailable");
+            if (!snapshot.IsValid())
+                return new(Error: "persistence_unavailable");
             ct.ThrowIfCancellationRequested();
             var lease = signer.Sign(snapshot);
             ct.ThrowIfCancellationRequested();
-            if (lease?.MatchesMetadata(snapshot) != true) return new(Error: "persistence_unavailable");
+            if (lease?.MatchesMetadata(snapshot) != true)
+                return new(Error: "persistence_unavailable");
             // A slow signer may outlive online authority. Revalidate before any
             // signed result leaves the transaction; cached leases cannot renew it.
-            error = await Recheck(); if (error is not null) return new(Error: error);
-            if (await KeyEpoch(db, original, ct) != epoch) return new(Error: "persistence_unavailable");
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
+            if (await KeyEpoch(db, original, ct) != epoch)
+                return new(Error: "persistence_unavailable");
             await tx.CommitAsync(ct);
             return new(new(snapshot, lease));
         }
@@ -86,19 +110,26 @@ public sealed class OfflineAuthorizationStore(IDbContextFactory<AppDbContext> fa
 
     private static string? AuthorityError(Snapshot? s)
     {
-        if (s is null || !s.ActorActive) return "not_found";
-        if (!s.SessionAllowed) return "vault_access_denied";
-        if (!s.ProfileActive || s.Selection is not null && s.Selection != s.ProfileInternalId) return "not_found";
+        if (s is null || !s.ActorActive)
+            return "not_found";
+        if (!s.SessionAllowed)
+            return "vault_access_denied";
+        if (!s.ProfileActive || s.Selection is not null && s.Selection != s.ProfileInternalId)
+            return "not_found";
         if (s.AccountId == Guid.Empty || s.ProfileId == Guid.Empty || s.AccountRevision is <= 0 or > ProtocolBinary.MaxInteger
             || s.ProfileRevision is <= 0 or > ProtocolBinary.MaxInteger || s.PolicyRevision is <= 0 or > ProtocolBinary.MaxInteger
             || s.Generation is <= 0 or > ProtocolBinary.MaxInteger
-            || (s.RenewalEnabled ? s.RenewalInterval is not { Ticks: > 0 } : s.RenewalInterval is not null)) return "persistence_unavailable";
+            || (s.RenewalEnabled ? s.RenewalInterval is not { Ticks: > 0 } : s.RenewalInterval is not null))
+            return "persistence_unavailable";
         return null;
     }
     private static string? RecheckError(Snapshot? current, Snapshot captured)
     {
-        if (current is null || !current.ActorActive || !current.ProfileActive) return "revision_conflict";
-        var error = AuthorityError(current); if (error is not null) return error;
+        if (current is null || !current.ActorActive || !current.ProfileActive)
+            return "revision_conflict";
+        var error = AuthorityError(current);
+        if (error is not null)
+            return error;
         return current.OwnerId != captured.OwnerId || current.AccountId != captured.AccountId || current.AccountRevision != captured.AccountRevision
             || current.ProfileInternalId != captured.ProfileInternalId || current.ProfileId != captured.ProfileId || current.ProfileRevision != captured.ProfileRevision
             || current.SessionId != captured.SessionId || current.Selection != captured.Selection || current.SessionIssuedAt != captured.SessionIssuedAt
@@ -126,14 +157,25 @@ public sealed class OfflineAuthorizationStore(IDbContextFactory<AppDbContext> fa
         """).SingleAsync(ct);
     private sealed class Snapshot
     {
-        public long OwnerId { get; set; } public Guid AccountId { get; set; } public long AccountRevision { get; set; }
-        public bool ActorActive { get; set; } public bool SessionAllowed { get; set; } public bool ProfileActive { get; set; }
-        public long? SessionId { get; set; } public long? Selection { get; set; }
-        public DateTimeOffset? SessionIssuedAt { get; set; } public DateTimeOffset? SessionExpiresAt { get; set; }
-        public long? ProfileInternalId { get; set; } public Guid? ProfileId { get; set; } public long? ProfileRevision { get; set; }
-        public long PolicyRevision { get; set; } public long Generation { get; set; }
-        public bool RenewalEnabled { get; set; } public TimeSpan? RenewalInterval { get; set; }
-        public DateTimeOffset DatabaseNow { get; set; } public string Related { get; set; } = "[]";
+        public long OwnerId { get; set; }
+        public Guid AccountId { get; set; }
+        public long AccountRevision { get; set; }
+        public bool ActorActive { get; set; }
+        public bool SessionAllowed { get; set; }
+        public bool ProfileActive { get; set; }
+        public long? SessionId { get; set; }
+        public long? Selection { get; set; }
+        public DateTimeOffset? SessionIssuedAt { get; set; }
+        public DateTimeOffset? SessionExpiresAt { get; set; }
+        public long? ProfileInternalId { get; set; }
+        public Guid? ProfileId { get; set; }
+        public long? ProfileRevision { get; set; }
+        public long PolicyRevision { get; set; }
+        public long Generation { get; set; }
+        public bool RenewalEnabled { get; set; }
+        public TimeSpan? RenewalInterval { get; set; }
+        public DateTimeOffset DatabaseNow { get; set; }
+        public string Related { get; set; } = "[]";
     }
     private sealed record RelatedCollection(long Id, Guid PublicId, Guid OwnerPublicId, long Revision, long KeyEpoch,
         bool CollectionActive, bool GrantActive, long? GrantId, Guid? GrantPublicId, long? GrantRevision);

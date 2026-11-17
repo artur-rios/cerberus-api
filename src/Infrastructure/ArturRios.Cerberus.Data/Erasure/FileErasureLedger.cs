@@ -1,7 +1,7 @@
-using ArturRios.Cerberus.Domain.Operations;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using ArturRios.Cerberus.Domain.Operations;
 using Microsoft.Win32.SafeHandles;
 
 namespace ArturRios.Cerberus.Data.Erasure;
@@ -12,13 +12,16 @@ public sealed class FileErasureLedger : IErasureLedger
 
     public FileErasureLedger(string directory)
     {
-        if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException("Durable ledger requires the approved Linux host.");
-        if (!Path.IsPathFullyQualified(directory)) throw new ArgumentException("Ledger path must be absolute.", nameof(directory));
+        if (!OperatingSystem.IsLinux())
+            throw new PlatformNotSupportedException("Durable ledger requires the approved Linux host.");
+        if (!Path.IsPathFullyQualified(directory))
+            throw new ArgumentException("Ledger path must be absolute.", nameof(directory));
         _directory = Path.GetFullPath(directory);
         if (!Directory.Exists(_directory))
             throw new IOException("Durable ledger storage must be provisioned before startup.");
         for (var current = new DirectoryInfo(_directory); current is not null; current = current.Parent)
-            if (current.LinkTarget is not null) throw new IOException("Ledger path must not contain symbolic links.");
+            if (current.LinkTarget is not null)
+                throw new IOException("Ledger path must not contain symbolic links.");
         var mode = File.GetUnixFileMode(_directory);
         if ((mode & (UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
                      UnixFileMode.OtherRead | UnixFileMode.OtherWrite | UnixFileMode.OtherExecute)) != 0)
@@ -28,7 +31,8 @@ public sealed class FileErasureLedger : IErasureLedger
 
     public async Task RecordAsync(ErasureEntry entry, CancellationToken cancellationToken)
     {
-        if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException("Durable ledger requires the approved Linux host.");
+        if (!OperatingSystem.IsLinux())
+            throw new PlatformNotSupportedException("Durable ledger requires the approved Linux host.");
         Validate(entry);
         var legacy = Path.Combine(_directory, entry.ResourceId.ToString("N") + ".json");
         if (File.Exists(legacy))
@@ -57,7 +61,8 @@ public sealed class FileErasureLedger : IErasureLedger
                 await file.FlushAsync(cancellationToken);
                 file.Flush(flushToDisk: true);
             }
-            try { File.Move(temporary, destination, overwrite: false); }
+            try
+            { File.Move(temporary, destination, overwrite: false); }
             catch (IOException) when (File.Exists(destination))
             {
                 var existing = await ReadEntryAsync(destination, cancellationToken);
@@ -68,7 +73,8 @@ public sealed class FileErasureLedger : IErasureLedger
         }
         finally
         {
-            if (File.Exists(temporary)) File.Delete(temporary);
+            if (File.Exists(temporary))
+                File.Delete(temporary);
         }
     }
 
@@ -83,13 +89,17 @@ public sealed class FileErasureLedger : IErasureLedger
 
     private static async Task<ErasureEntry> ReadEntryAsync(string path, CancellationToken cancellationToken)
     {
-        if (new FileInfo(path).LinkTarget is not null) throw new InvalidDataException("Ledger record must not be a symbolic link.");
+        if (new FileInfo(path).LinkTarget is not null)
+            throw new InvalidDataException("Ledger record must not be a symbolic link.");
         await using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-        if (file.Length > 4096) throw new InvalidDataException("Invalid ledger record.");
+        if (file.Length > 4096)
+            throw new InvalidDataException("Invalid ledger record.");
         ErasureEntry? entry;
-        try { entry = await JsonSerializer.DeserializeAsync<ErasureEntry>(file, cancellationToken: cancellationToken); }
+        try
+        { entry = await JsonSerializer.DeserializeAsync<ErasureEntry>(file, cancellationToken: cancellationToken); }
         catch (JsonException) { throw new InvalidDataException("Invalid ledger record."); }
-        if (entry is null) throw new InvalidDataException("Invalid ledger record.");
+        if (entry is null)
+            throw new InvalidDataException("Invalid ledger record.");
         Validate(entry);
         var filename = Path.GetFileNameWithoutExtension(path);
         if (filename != entry.ResourceId.ToString("N") && filename != entry.ResourceKind + "-" + entry.ResourceId.ToString("N"))
@@ -107,7 +117,8 @@ public sealed class FileErasureLedger : IErasureLedger
     private void SyncDirectory()
     {
         using var handle = new SafeFileHandle((IntPtr)Open(_directory, 0x10000), ownsHandle: true);
-        if (handle.IsInvalid || Fsync(handle) != 0) throw new IOException("Cannot durably commit the erasure ledger.");
+        if (handle.IsInvalid || Fsync(handle) != 0)
+            throw new IOException("Cannot durably commit the erasure ledger.");
     }
 
     [DllImport("libc", EntryPoint = "open", SetLastError = true)]

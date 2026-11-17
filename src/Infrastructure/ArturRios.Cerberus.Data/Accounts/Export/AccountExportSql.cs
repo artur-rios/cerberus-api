@@ -8,7 +8,7 @@ internal static class AccountExportSql
 {
     // One frozen clock and one insensitive cursor view supply every package field.
     // Fresh READ COMMITTED fences reuse authority only, never package projections.
-    private const string Authority="""
+    private const string Authority = """
         WITH RECURSIVE clock AS MATERIALIZED (SELECT statement_timestamp() now),
         actor AS MATERIALIZED (SELECT a.* FROM cerberus.account a WHERE a.heimdall_public_id=@actor),
         session AS MATERIALIZED (
@@ -27,7 +27,7 @@ internal static class AccountExportSql
             ELSE NULL END error FROM clock t
         )
         """;
-    private const string Native="""
+    private const string Native = """
         , folders AS MATERIALIZED (
           SELECT f.*,(f.deleted_at IS NULL OR f.purge_at>t.now)
             AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_kind='folder' AND e.resource_id=f.public_id) state_ok
@@ -78,21 +78,21 @@ internal static class AccountExportSql
               ELSE jsonb_build_object('keyEpoch',n.key_epoch) END FROM natives n
         )
         """;
-    internal const string Declare="DECLARE cerberus_account_export NO SCROLL CURSOR FOR "+Authority+"\n"+Native+"\n"+AccountExportRelationsSql.Projections+"\n"+"""
+    internal const string Declare = "DECLARE cerberus_account_export NO SCROLL CURSOR FOR " + Authority + "\n" + Native + "\n" + AccountExportRelationsSql.Projections + "\n" + """
         SELECT COALESCE(g.error,ng.error,rg.error) error,h.value header,e.body::text body,dependencies.value fences
         FROM guard g CROSS JOIN native_guard ng CROSS JOIN relation_guard rg LEFT JOIN header h ON true
         LEFT JOIN LATERAL (SELECT body FROM all_entries WHERE g.error IS NULL AND ng.error IS NULL AND rg.error IS NULL) e ON true
-        """+"\n"+AccountExportRelationsSql.Dependencies;
-    internal const string Fetch="FETCH FORWARD 32 FROM cerberus_account_export";
-    internal const string Fence=Authority+"""
+        """ + "\n" + AccountExportRelationsSql.Dependencies;
+    internal const string Fetch = "FETCH FORWARD 32 FROM cerberus_account_export";
+    internal const string Fence = Authority + """
         SELECT COALESCE(g.error,CASE WHEN NOT EXISTS(SELECT FROM actor a WHERE a.public_id=@owner) THEN 'not_found'
           WHEN EXISTS(SELECT FROM actor a WHERE a.policy_revision<>@policy OR a.revocation_generation<>@generation) THEN 'vault_access_denied'
           WHEN EXISTS(SELECT FROM cerberus.terminal_erasure e JOIN jsonb_to_recordset(@pending::jsonb) AS p(kind text,id uuid)
             ON e.resource_kind=p.kind AND e.resource_id=p.id) THEN 'not_found' END) AS "Value" FROM guard g
         """;
-    internal static object[] Parameters(AccountExportRequest r,bool initial)=>
+    internal static object[] Parameters(AccountExportRequest r, bool initial) =>
     [new NpgsqlParameter("actor",r.Actor),new NpgsqlParameter("verifier",r.AccessVerifier),new NpgsqlParameter("iat",r.AuthenticationIssuedAt),
         new NpgsqlParameter("expected",r.ExpectedRevision),new NpgsqlParameter("initial",initial),
         new NpgsqlParameter("uuid_pattern","^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")];
-    internal const long Max=ProtocolBinary.MaxInteger;
+    internal const long Max = ProtocolBinary.MaxInteger;
 }

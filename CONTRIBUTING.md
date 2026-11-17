@@ -46,6 +46,10 @@ dotnet format src/ArturRios.Cerberus.sln --verify-no-changes  # drop the flag to
 docker build -t cerberus-api:local .
 ```
 
+The format check follows [`.editorconfig`](./.editorconfig), which wants LF line endings, as the
+repository stores them. On Windows with `core.autocrlf=true` the working tree is CRLF and the check
+reports every file; run it from a clone with `core.autocrlf=input` (or `false`).
+
 Current functional tests use disposable PostgreSQL containers and an in-memory HTTP host.
 Every implemented use case must ship with main/alternative-flow tests. The required merged
 line-coverage floor is 90%; branch coverage is reported alongside it, without a numerical gate.

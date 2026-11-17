@@ -18,6 +18,31 @@ def is_current(expected, actual):
     return valid(expected) and valid(actual) and expected == actual
 
 
+def drift(expected, actual, at="#", limit=20):
+    """Where two documents differ, at most `limit` places: (JSON Pointer, committed value, generated value).
+    A member only one side has is None on the other."""
+    found = []
+
+    def walk(old, new, path):
+        if len(found) >= limit:
+            return
+        if isinstance(old, dict) and isinstance(new, dict):
+            for key in list(old) + [key for key in new if key not in old]:
+                child = path + "/" + str(key).replace("~", "~0").replace("/", "~1")
+                if key not in old or key not in new:
+                    found.append((child, old.get(key), new.get(key)))
+                else:
+                    walk(old[key], new[key], child)
+        elif isinstance(old, list) and isinstance(new, list) and len(old) == len(new):
+            for index, (first, second) in enumerate(zip(old, new)):
+                walk(first, second, path + "/" + str(index))
+        elif old != new:
+            found.append((path, old, new))
+
+    walk(expected, actual, at)
+    return found[:limit]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write", action="store_true", help="update the committed contract after reviewing API changes")
@@ -39,6 +64,8 @@ def main():
             return 1
         if not is_current(expected, actual):
             print("OpenAPI drift detected. Review the API change, then run scripts/openapi.py --write.")
+            for path, old, new in drift(expected, actual):
+                print("  " + path + ": " + json.dumps(old)[:300] + " -> " + json.dumps(new)[:300])
             return 1
         print("OpenAPI contract is current.")
         return 0

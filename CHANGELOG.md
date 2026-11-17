@@ -279,6 +279,9 @@ development into `develop` only; it is still required before any release.
 
 ### Changed
 
+- `scripts/openapi.py` names where the generated OpenAPI document drifts from `docs/contracts/openapi.json` (up to
+  20 JSON Pointers, each with the committed and the generated value), so a failed check says what to look at.
+
 - The `ArturRios.*` packages are on their newest releases: `ArturRios.Util.WebApi` 5.2.0 → 6.0.0,
   `ArturRios.Util.Test` 5.0.1 → 6.0.0 (test-only), `ArturRios.Configuration` 2.0.0 → 2.0.1, `ArturRios.Data.PostgreSql`
   4.0.0 → 4.0.1, `ArturRios.Data.Relational.Core` 5.0.1 → 5.0.2, `ArturRios.Output` 3.3.1 → 3.3.2, `ArturRios.Util`

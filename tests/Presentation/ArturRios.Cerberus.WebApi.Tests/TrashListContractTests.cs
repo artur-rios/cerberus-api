@@ -15,7 +15,7 @@ public sealed class TrashListContractTests
         Assert.Contains("/api/trash", doc.Paths.Keys);
         var op = doc.Paths["/api/trash"].Operations![HttpMethod.Get];
         Assert.Null(op.RequestBody);
-        Assert.Equal(new[] { "400", "401", "403", "404", "413", "503", "200" }.Order(), op.Responses!.Keys.Order());
+        Assert.Equal(new[] { "400", "401", "403", "404", "413", "500", "503", "200" }.Order(), op.Responses!.Keys.Order());
         Assert.True(op.Responses["413"].Content is null or { Count: 0 });
         Assert.Equal(new[] { "X-Cerberus-Vault-Access", "cursor", "pageSize" }.Order(), op.Parameters!.Select(x => x.Name).Order());
         foreach (var kind in new[] { "Record", "Folder", "Collection", "Profile" })

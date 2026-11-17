@@ -320,6 +320,14 @@ development into `develop` only; it is still required before any release.
 
 ### Fixed
 
+- The OpenAPI document lists the 500 `internal_failure` every operation can answer: `SafeFailureMiddleware` writes
+  it, a `ProcessOutput`, for any exception behind it, as `application/json` only. It lists only the media types the
+  server sends: `text/plain` is gone from all 395 responses that listed it (MVC writes `text/plain` only for a
+  string, and no action answers one, so a request for it got `application/json`), and every JSON response keeps
+  `application/json` and `text/json`, which an object result can negotiate. The responses only middleware writes
+  (the new 500, `/health/details`' 401 and 403) list only `application/json`, and the 413 still has no body.
+  Nothing changes on the wire.
+
 - The OpenAPI document's error responses now describe the bodies the server sends. A request whose handler fails is
   answered with the action's whole envelope, `"data": null` included, which the documented `ProcessOutput` (no
   `data`, no other members allowed) refused. Every error response of an action answering an envelope is now

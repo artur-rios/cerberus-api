@@ -60,10 +60,10 @@ internal static class TrashErasureInventory
     internal static void Validate(IEnumerable<TrashErasureTarget> targets)
     {
         foreach (var r in targets)
-        if (r.Kind is not ("record" or "folder" or "collection" or "profile") || r.ResourceId == Guid.Empty || r.Id <= 0 || r.AccountId <= 0
-            || r.Revision is <= 0 or > ProtocolBinary.MaxInteger || r.ServerSequence is <= 0 or > ProtocolBinary.MaxInteger || r.DeletedAt is null
-            || r.MarkerAt is { } at && (at.Offset != TimeSpan.Zero || at < DateTimeOffset.UnixEpoch || at.Ticks % TimeSpan.TicksPerMicrosecond != 0))
-            throw new InvalidOperationException("Invalid retained erasure state.");
+            if (r.Kind is not ("record" or "folder" or "collection" or "profile") || r.ResourceId == Guid.Empty || r.Id <= 0 || r.AccountId <= 0
+                || r.Revision is <= 0 or > ProtocolBinary.MaxInteger || r.ServerSequence is <= 0 or > ProtocolBinary.MaxInteger || r.DeletedAt is null
+                || r.MarkerAt is { } at && (at.Offset != TimeSpan.Zero || at < DateTimeOffset.UnixEpoch || at.Ticks % TimeSpan.TicksPerMicrosecond != 0))
+                throw new InvalidOperationException("Invalid retained erasure state.");
     }
     internal static async Task LockAsync(AppDbContext db, long owner, CancellationToken ct)
     {

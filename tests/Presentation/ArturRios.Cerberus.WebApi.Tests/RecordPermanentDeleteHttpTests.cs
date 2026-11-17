@@ -401,8 +401,8 @@ public class RecordPermanentDeleteHttpTests(RegistrationApiFixture fixture, Shar
         var ledger = new FileErasureLedger(Environment.GetEnvironmentVariable("CERBERUS_ERASURE_LEDGER_PATH")!);
         var entries = new List<ErasureEntry>();
         await foreach (var entry in ledger.ReadAsync(default))
-        if (entry.ResourceKind == "record" && entry.ResourceId == id)
-            entries.Add(entry);
+            if (entry.ResourceKind == "record" && entry.ResourceId == id)
+                entries.Add(entry);
         Assert.Equal(new ErasureEntry(id, "record", output.DeletedAt), Assert.Single(entries));
     }
     private sealed class UnavailableLedger : IErasureLedger

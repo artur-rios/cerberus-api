@@ -473,8 +473,8 @@ public class FolderTrashStoreTests(PostgresFixture fixture) : IClassFixture<Post
         var child = await Folder(s, root.Id);
         var deadline = RealTime.Soon(RealTime.SetupLead);
         if (kind == "expiry")
-        await using (var db = fixture.CreateContext())
-            await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
+            await using (var db = fixture.CreateContext())
+                await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await Snapshot(s);
         var hook = new BeforeRoot(async () => { if (kind == "expiry") { await Past(deadline); return; } await using var db = fixture.CreateContext(); db.TerminalErasures.Add(new() { ResourceKind = kind == "folderTerminal" ? "folder" : "account", ResourceId = kind == "folderTerminal" ? root.PublicId : s.AccountId, DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); });
         Assert.Equal(error, (await new FolderTrashStore(new ProfileSetup.Factory(fixture, hook)).TrashAsync(new(s.Actor, s.Verifier, root.PublicId, 1), default)).Error);

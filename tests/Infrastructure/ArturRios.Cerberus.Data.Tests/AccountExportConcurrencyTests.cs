@@ -144,8 +144,8 @@ public partial class AccountExportStoreTests
         var winner = await Snapshot(w);
         AccountExportRecord? archived = null;
         while (await reader.MoveNextAsync())
-        if (reader.Current is AccountExportRecord r && r.ResourceId == target.PublicId)
-            archived = r;
+            if (reader.Current is AccountExportRecord r && r.ResourceId == target.PublicId)
+                archived = r;
         // Then: no writer lock was retained, and newer ciphertext is never mixed into the package.
         Assert.NotNull(archived);
         Assert.Equal(1, archived.Revision);

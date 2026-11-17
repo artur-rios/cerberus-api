@@ -402,8 +402,8 @@ public class RecordTrashStoreTests(PostgresFixture fixture) : IClassFixture<Post
             await db.Folders.Where(x => x.Id == hidden.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
         var deadline = RealTime.Soon(RealTime.SetupLead);
         if (kind == "expiry")
-        await using (var db = fixture.CreateContext())
-            await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
+            await using (var db = fixture.CreateContext())
+                await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var interceptor = new BeforeWrite(async () => { if (kind == "expiry") { await Past(deadline); return; } await using var db = fixture.CreateContext(); if (kind == "ancestorTrash") await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); else if (kind == "reparentHidden") await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ParentFolderId, (long?)hidden.Id)); else { db.TerminalErasures.Add(new() { ResourceId = kind == "recordTerminal" ? target.PublicId : s.AccountId, ResourceKind = kind == "recordTerminal" ? "record" : "account", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } });
         Assert.Equal(error, (await new RecordTrashStore(new ProfileSetup.Factory(fixture, interceptor)).TrashAsync(new(s.Actor, s.Verifier, target.PublicId, 1), default)).Error);
         Assert.Equal(Bytes(target), Bytes(await Row(target.Id)));

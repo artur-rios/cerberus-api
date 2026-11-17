@@ -140,8 +140,8 @@ public sealed class TrashRestoreStore(IDbContextFactory<AppDbContext> factory) :
                 AddLink(db, account.Id, link);
             await db.SaveChangesAsync(ct);
             foreach (var link in plan.Links)
-            if (!await HasLink(db, link, ct))
-                return new(Error: "persistence_unavailable");
+                if (!await HasLink(db, link, ct))
+                    return new(Error: "persistence_unavailable");
             await db.TrashOperations.Where(x => x.Id == operation.Id && x.AccountId == account.Id).ExecuteDeleteAsync(ct);
             await db.RetentionWorkItems.Where(x => x.OperationKey == "trash/" + operation.PublicId).ExecuteDeleteAsync(ct);
             if (await db.TrashEntries.AnyAsync(x => x.OperationId == operation.Id, ct) || await db.TrashOperations.AnyAsync(x => x.Id == operation.Id, ct)

@@ -18,8 +18,8 @@ public partial class TrashRestoreHttpTests
         using (var r = await Send(s, "/api/folders", HttpMethod.Post, Bytes(new { folderId = folder, envelope = Envelope(), editedAt = DateTimeOffset.UnixEpoch, profileIds = Array.Empty<Guid>(), parentFolderId = (Guid?)null })))
             Assert.Equal(HttpStatusCode.Created, r.StatusCode);
         foreach (var id in new[] { active, prior })
-        using (var r = await Send(s, "/api/records", HttpMethod.Post, Bytes(new { recordId = id, envelope = Envelope(), editedAt = DateTimeOffset.UnixEpoch, profileIds = Array.Empty<Guid>(), folderId = folder })))
-            Assert.Equal(HttpStatusCode.Created, r.StatusCode);
+            using (var r = await Send(s, "/api/records", HttpMethod.Post, Bytes(new { recordId = id, envelope = Envelope(), editedAt = DateTimeOffset.UnixEpoch, profileIds = Array.Empty<Guid>(), folderId = folder })))
+                Assert.Equal(HttpStatusCode.Created, r.StatusCode);
         using var priorDeleted = await Send(s, "/api/records/" + prior, HttpMethod.Delete, Bytes(new { expectedRevision = 1 }));
         var independent = await Success(priorDeleted);
         using var folderRead = await Send(s, "/api/folders/" + folder);

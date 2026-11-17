@@ -723,18 +723,18 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         foreach (var table in new[] { "Collections", "ProfileCollections", "CollectionFolders", "CollectionRecords" })
         { var array = after[table]!.AsArray(); foreach (var item in array.ToArray()) if (item![table == "Collections" ? "Id" : "CollectionId"]!.GetValue<long>() == row.Id) array.Remove(item); }
         foreach (var (table, ids) in new[] { ("Profiles", input.ProfileIds), ("Folders", input.FolderIds), ("Records", input.RecordIds) })
-        foreach (var item in after[table]!.AsArray())
-        {
-            if (!ids.Contains(item!["PublicId"]!.GetValue<Guid>()))
-                continue;
-            var previous = old[table]!.AsArray().Single(x => x!["Id"]!.GetValue<long>() == item["Id"]!.GetValue<long>())!;
-            Assert.Equal(previous["Revision"]!.GetValue<long>() + 1, item["Revision"]!.GetValue<long>());
-            Assert.True(item["ServerSequence"]!.GetValue<long>() > previous["ServerSequence"]!.GetValue<long>());
-            Assert.InRange(item["ServerSequence"]!.GetValue<long>(), 1, ProtocolBinary.MaxInteger);
-            Assert.NotEqual(previous["ConcurrencyStamp"]!.ToJsonString(), item["ConcurrencyStamp"]!.ToJsonString());
-            foreach (var key in new[] { "Revision", "ServerSequence", "ConcurrencyStamp" })
-                item[key] = previous[key]!.DeepClone();
-        }
+            foreach (var item in after[table]!.AsArray())
+            {
+                if (!ids.Contains(item!["PublicId"]!.GetValue<Guid>()))
+                    continue;
+                var previous = old[table]!.AsArray().Single(x => x!["Id"]!.GetValue<long>() == item["Id"]!.GetValue<long>())!;
+                Assert.Equal(previous["Revision"]!.GetValue<long>() + 1, item["Revision"]!.GetValue<long>());
+                Assert.True(item["ServerSequence"]!.GetValue<long>() > previous["ServerSequence"]!.GetValue<long>());
+                Assert.InRange(item["ServerSequence"]!.GetValue<long>(), 1, ProtocolBinary.MaxInteger);
+                Assert.NotEqual(previous["ConcurrencyStamp"]!.ToJsonString(), item["ConcurrencyStamp"]!.ToJsonString());
+                foreach (var key in new[] { "Revision", "ServerSequence", "ConcurrencyStamp" })
+                    item[key] = previous[key]!.DeepClone();
+            }
         Assert.Equal(old.ToJsonString(), after.ToJsonString());
     }
     private async Task<string> Snapshot(State s)

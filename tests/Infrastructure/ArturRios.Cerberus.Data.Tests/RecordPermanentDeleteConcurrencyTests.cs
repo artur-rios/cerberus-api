@@ -160,9 +160,9 @@ public sealed partial class RecordPermanentDeleteStoreTests
         if (node.ValueKind == JsonValueKind.Object)
         { yield return node; foreach (var property in node.EnumerateObject()) foreach (var child in Nodes(property.Value)) yield return child; }
         if (node.ValueKind == JsonValueKind.Array)
-        foreach (var value in node.EnumerateArray())
-        foreach (var child in Nodes(value))
-            yield return child;
+            foreach (var value in node.EnumerateArray())
+                foreach (var child in Nodes(value))
+                    yield return child;
     }
     private sealed class BeforeTarget(Func<Task> callback) : DbCommandInterceptor
     {

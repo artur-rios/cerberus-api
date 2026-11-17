@@ -21,8 +21,8 @@ public class ProfileVerifierIsolationTests(PostgresFixture fixture) : IClassFixt
         var store = new ProfileCreateStore(fixture);
         Assert.Null((await store.CreateAsync(new(s.Actor, s.Verifier, first), default)).Error);
         await using (var db = fixture.CreateContext())
-        if (trashed)
-            await db.Profiles.Where(x => x.PublicId == first.ProfileId).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
+            if (trashed)
+                await db.Profiles.Where(x => x.PublicId == first.ProfileId).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
         var next = ProfileSetup.Input(s, owner, scoped, mode);
         var result = await store.CreateAsync(new(s.Actor, s.Verifier, next), default);
         Assert.Equal("validation_failed", result.Error);

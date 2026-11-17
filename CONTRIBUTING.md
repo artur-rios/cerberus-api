@@ -42,6 +42,7 @@ python3 scripts/openapi.py
 dotnet tool install --global dotnet-reportgenerator-globaltool
 python3 scripts/coverage.py
 python3 scripts/vulnerabilities.py
+dotnet format src/ArturRios.Cerberus.sln --verify-no-changes  # drop the flag to apply the fixes
 docker build -t cerberus-api:local .
 ```
 
@@ -109,9 +110,10 @@ and deletion.
 
 Jenkins runs the checks on every pull request into, and push to, `develop` and `main`. The `test` check
 ([`ci/test.sh`](./ci/test.sh)) validates the specifications, runs the helper scripts' tests and the
-protocol harness, restores and builds the solution, scans for vulnerable packages, checks the generated
-OpenAPI contract, runs the unit and functional tests and enforces 90% merged line coverage; its
-ReportGenerator license is the Jenkins credential `reportgenerator-license`, and a `renovate/*` build,
+protocol harness, restores and builds the solution, scans for vulnerable packages, checks the formatting
+(`dotnet format --verify-no-changes`), checks the generated OpenAPI contract, runs the unit and functional
+tests and enforces 90% merged line coverage; its ReportGenerator license is the Jenkins credential
+`reportgenerator-license`, and a `renovate/*` build,
 which binds no credential, makes the free report. The `docker` check ([`ci/docker.sh`](./ci/docker.sh))
 builds the container image. On pull requests into `main` the `branch-policy` check also runs
 `verify_protocol.py` ([`ci/branch-policy.sh`](./ci/branch-policy.sh)). The checks are declared in

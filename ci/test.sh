@@ -5,7 +5,7 @@
 #
 # In order: the specification check, the Python helpers' tests, the protocol harness (its locked dependencies, their
 # audit, the corpus replay and both native suites), then restore, the server lease check
-# (scripts/offline_leases.py), the vulnerability scan, the build, the generated
+# (scripts/offline_leases.py), the vulnerability scan, the format check, the build, the generated
 # OpenAPI contract, one run of every test, and the coverage report with its minimum. No path
 # filter: a test suite runs for every change.
 #
@@ -104,6 +104,10 @@ dotnet restore "$SOLUTION"
 
 # `dotnet list package --vulnerable` exits 0 whether or not it found anything, so the script parses what it printed.
 python3 scripts/vulnerabilities.py
+
+# Fails when `dotnet format` (whitespace, code style and analyzers, at their default severities: the repository has no
+# .editorconfig) would change a file; `dotnet format src/ArturRios.Cerberus.sln` applies the same fixes.
+dotnet format "$SOLUTION" --verify-no-changes --no-restore
 
 # Built once so every test run can use --no-build.
 dotnet build "$SOLUTION" --configuration Release --no-restore

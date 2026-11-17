@@ -77,7 +77,7 @@ public class ProfileCreateStoreTests(PostgresFixture fixture) : IClassFixture<Po
             if (state == "noProtection")
                 await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteDeleteAsync();
             if (state == "corrupt")
-                await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(p => p.Material, new byte[] { 1 }));
+                await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(p => p.Material, [1]));
             if (state == "pinEpoch")
                 await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(p => p.KeyEpoch, 2));
             if (state == "revoked")

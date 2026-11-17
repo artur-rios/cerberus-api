@@ -138,10 +138,10 @@ public sealed class RecordPermanentDeleteStore(IDbContextFactory<AppDbContext> f
             return new(Error: "persistence_unavailable");
         if (parents.Any(x => x.Revision == ProtocolBinary.MaxInteger))
             return new(Error: "revision_conflict");
-        var parameters = Parameters(request, current.History).Concat(new object[]{new NpgsqlParameter("expected",request.ExpectedRevision),
+        var parameters = Parameters(request, current.History).Concat([new NpgsqlParameter("expected",request.ExpectedRevision),
                 new NpgsqlParameter("previous_sequence",original.ServerSequence),new NpgsqlParameter("original",original.Envelope),
                 new NpgsqlParameter("parent",NpgsqlDbType.Bigint){Value=(object?)originalFolder??DBNull.Value},
-                new NpgsqlParameter("profiles",heldProfiles),new NpgsqlParameter("collections",heldCollections),new NpgsqlParameter("stamp",Guid.NewGuid())}).ToArray();
+                new NpgsqlParameter("profiles",heldProfiles),new NpgsqlParameter("collections",heldCollections),new NpgsqlParameter("stamp",Guid.NewGuid())]).ToArray();
         var changed = await db.Database.ExecuteSqlRawAsync(Authority + """
                 UPDATE cerberus.record AS r SET deleted_at=COALESCE(r.deleted_at,statement_timestamp()),
                   folder_id=NULL,concurrency_stamp=@stamp
@@ -213,10 +213,14 @@ public sealed class RecordPermanentDeleteStore(IDbContextFactory<AppDbContext> f
     }
     private sealed class HistoryRow { public bool Needed { get; set; } public byte[]? Bytes { get; set; } }
     private static object[] BaseParameters(RecordPermanentDeleteRequest r) => [new NpgsqlParameter("actor", r.Actor), new NpgsqlParameter("verifier", r.AccessVerifier), new NpgsqlParameter("target", r.RecordId), new NpgsqlParameter("active", (object)(int)AccountState.Active), new NpgsqlParameter("grant_active", (object)(int)CollectionGrantState.Active), new NpgsqlParameter("read_only", (object)(int)CollectionGrantAccess.ReadOnly), new NpgsqlParameter("read_write", (object)(int)CollectionGrantAccess.ReadWrite), new NpgsqlParameter("max", ProtocolBinary.MaxInteger)];
-    private static object[] Parameters(RecordPermanentDeleteRequest r, History history) => BaseParameters(r).Concat(new object[]{
-        new NpgsqlParameter("history_bytes",NpgsqlDbType.Bytea){Value=(object?)history.Bytes??DBNull.Value},
-        new NpgsqlParameter("history_folder",NpgsqlDbType.Uuid){Value=(object?)history.Folder??DBNull.Value},
-        new NpgsqlParameter("history_profiles",history.Profiles),new NpgsqlParameter("history_collections",history.Collections)}).ToArray();
+    private static object[] Parameters(RecordPermanentDeleteRequest r, History history) =>
+    [
+        .. BaseParameters(r),
+        .. new object[]{
+            new NpgsqlParameter("history_bytes",NpgsqlDbType.Bytea){Value=(object?)history.Bytes??DBNull.Value},
+            new NpgsqlParameter("history_folder",NpgsqlDbType.Uuid){Value=(object?)history.Folder??DBNull.Value},
+            new NpgsqlParameter("history_profiles",history.Profiles),new NpgsqlParameter("history_collections",history.Collections)},
+    ];
     private static async Task<Snapshot> SnapshotAsync(AppDbContext db, RecordPermanentDeleteRequest request, CancellationToken ct)
     {
         var prefix = Authority[..Authority.IndexOf(", history AS", StringComparison.Ordinal)].Replace("WITH RECURSIVE", "WITH", StringComparison.Ordinal);

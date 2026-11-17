@@ -76,10 +76,10 @@ public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factor
             var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
             var time = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             var stamp = Guid.NewGuid();
-            var parameters = Parameters(request).Concat(new object[] { new NpgsqlParameter("frozen", NpgsqlDbType.Jsonb) { Value = current.Frozen },
+            var parameters = Parameters(request).Concat([ new NpgsqlParameter("frozen", NpgsqlDbType.Jsonb) { Value = current.Frozen },
                 new NpgsqlParameter("held_profiles", initial.ProfileIds), new NpgsqlParameter("held_collections", initial.CollectionIds),
                 new NpgsqlParameter("held_folders", initial.FolderIds), new NpgsqlParameter("held_records", initial.RecordIds),
-                new NpgsqlParameter("envelope", envelope), new NpgsqlParameter("edited", time), new NpgsqlParameter("stamp", stamp) }).ToArray();
+                new NpgsqlParameter("envelope", envelope), new NpgsqlParameter("edited", time), new NpgsqlParameter("stamp", stamp) ]).ToArray();
             // Recompute bounded authority and the whole captured inventory in the
             // statement that inserts. This is the authorization linearization point.
             var inserted = await db.Database.ExecuteSqlRawAsync(Authority + """

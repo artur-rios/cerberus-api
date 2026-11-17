@@ -82,7 +82,7 @@ public class ProfileAccessChallengeTests(PostgresFixture fixture) : IClassFixtur
             { db.TerminalErasures.Add(new() { ResourceId = kind == "erased" ? input.ProfileId : s.AccountId, ResourceKind = kind == "erased" ? "profile" : "account", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
             if (kind == "closingAccount")
                 await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending));
-            await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 }));
+            await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, [1]));
         }
         var before = await Snapshot(input.ProfileId);
         var result = await Store().ChallengeAsync(new(kind == "missingAccount" ? Guid.NewGuid() : s.Actor, kind == "missing" ? Guid.NewGuid() : input.ProfileId, 55, Hash()), default);
@@ -99,7 +99,7 @@ public class ProfileAccessChallengeTests(PostgresFixture fixture) : IClassFixtur
         var s = await ProfileSetup.Create(fixture, owner);
         var input = await Add(s, owner, scoped);
         await using (var db = fixture.CreateContext())
-            await db.Profiles.Where(x => x.PublicId == input.ProfileId).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyWrappers, new byte[] { 1 }));
+            await db.Profiles.Where(x => x.PublicId == input.ProfileId).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyWrappers, [1]));
         Assert.Equal("revision_conflict", (await Store().ChallengeAsync(new(s.Actor, input.ProfileId, 2, Hash()), default)).Error);
         await NoChallenge(s);
     }

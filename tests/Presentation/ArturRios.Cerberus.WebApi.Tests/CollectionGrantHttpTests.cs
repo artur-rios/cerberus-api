@@ -164,7 +164,7 @@ public class CollectionGrantHttpTests(RegistrationApiFixture fixture, SharedApiH
             await Success<GrantCollectionAccessOutput>(response, 201);
         await using var db = fixture.Context();
         var old = await db.CollectionGrants.AsNoTracking().SingleAsync(x => x.PublicId == initial.GrantId);
-        await db.CollectionGrants.Where(x => x.Id == old.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked).SetProperty(g => g.RecipientKeyEnvelope, new byte[] { 1 }));
+        await db.CollectionGrants.Where(x => x.Id == old.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked).SetProperty(g => g.RecipientKeyEnvelope, [1]));
         using (var hidden = await Read(r, "/api/collections/" + target))
             await Failure(hidden, 404, "not_found");
         var input = Input(s, owner, r, recipient, target, "read-write", initial.GrantId, 1);
@@ -233,7 +233,7 @@ public class CollectionGrantHttpTests(RegistrationApiFixture fixture, SharedApiH
         using (var response = await Grant(s, target, initial))
             await Success<GrantCollectionAccessOutput>(response, 201);
         if (corrupt)
-        { await using var db = fixture.Context(); await db.CollectionGrants.Where(x => x.PublicId == initial.GrantId).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, new byte[] { 1 })); }
+        { await using var db = fixture.Context(); await db.CollectionGrants.Where(x => x.PublicId == initial.GrantId).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, [1])); }
         var before = await Stable(s, r);
         var grants = await Grants(target);
         using var failure = await Grant(r, target, initial with { RecipientAccountId = Guid.NewGuid() });
@@ -310,9 +310,9 @@ public class CollectionGrantHttpTests(RegistrationApiFixture fixture, SharedApiH
             if (kind == "unprotected")
                 await db.VaultProtections.Where(x => x.AccountId == r.InternalId).ExecuteDeleteAsync();
             if (kind is "ownerPins" or "recipientPins")
-                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? s.InternalId : r.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(p => p.Material, new byte[] { 1 }));
+                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? s.InternalId : r.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(p => p.Material, [1]));
             if (kind == "collectionEnvelope")
-                await db.Collections.Where(x => x.PublicId == target).ExecuteUpdateAsync(x => x.SetProperty(c => c.Envelope, new byte[] { 1 }));
+                await db.Collections.Where(x => x.PublicId == target).ExecuteUpdateAsync(x => x.SetProperty(c => c.Envelope, [1]));
             if (kind == "collectionEpoch")
                 await db.Collections.Where(x => x.PublicId == target).ExecuteUpdateAsync(x => x.SetProperty(c => c.KeyEpoch, 2));
             if (kind == "deleted")
@@ -527,7 +527,7 @@ public class CollectionGrantHttpTests(RegistrationApiFixture fixture, SharedApiH
         var before = await Stable(s, r);
         var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? [0xc3, 0x28] : Bytes(Input(s, owner, r, recipient, target));
         if (kind == "bom")
-            raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray();
+            raw = [239, 187, 191, .. raw];
         using var request = Request(s, Path(target) + (kind == "query" ? "?profileId=secret" : ""), raw);
         if (kind is "missing" or "bad")
             request.Headers.Remove("X-Cerberus-Vault-Access");
@@ -709,8 +709,8 @@ public class CollectionGrantHttpTests(RegistrationApiFixture fixture, SharedApiH
         Assert.True(document.RootElement.GetProperty("success").GetBoolean());
         if (typeof(T) == typeof(GrantCollectionAccessOutput))
         {
-            Assert.Equal(new[] { "access", "collectionId", "folderIds", "grantId", "recordIds", "revision" }, document.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
-            Assert.Equal(new[] { "collection_access_granted" }, document.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
+            Assert.Equal(["access", "collectionId", "folderIds", "grantId", "recordIds", "revision"], document.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
+            Assert.Equal(["collection_access_granted"], document.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
         }
         return Assert.IsType<T>(JsonSerializer.Deserialize<DataOutput<T>>(raw, ProtectionFixture.Json)!.Data);
     }
@@ -726,7 +726,7 @@ public class CollectionGrantHttpTests(RegistrationApiFixture fixture, SharedApiH
         if (document.RootElement.TryGetProperty("data", out var data))
             Assert.Equal(JsonValueKind.Null, data.ValueKind);
         if (error is not null)
-            Assert.Equal(new[] { error }, document.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
+            Assert.Equal([error], document.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
         Assert.DoesNotContain("private fixture fault", raw);
     }
     private async Task<string> Grants(Guid id)

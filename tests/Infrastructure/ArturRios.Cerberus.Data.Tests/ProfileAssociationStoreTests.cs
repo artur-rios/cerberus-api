@@ -280,7 +280,7 @@ public class ProfileAssociationStoreTests(PostgresFixture fixture) : IClassFixtu
             if (kind == "collectionEpoch")
                 await db.Collections.Where(x => x.Id == items.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyEpoch, 2));
             if (kind == "collectionEnvelope")
-                await db.Collections.Where(x => x.Id == items.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 1 }));
+                await db.Collections.Where(x => x.Id == items.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [1]));
             if (kind == "trash")
                 await db.Collections.Where(x => x.Id == items.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
             if (kind == "erased" || kind == "ownerErased")
@@ -288,7 +288,7 @@ public class ProfileAssociationStoreTests(PostgresFixture fixture) : IClassFixtu
             if (kind == "closing")
                 await db.Accounts.Where(x => x.Id == foreign.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending));
             if (kind is "ownerPins" or "recipientPins")
-                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? foreign.InternalId : state.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 }));
+                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? foreign.InternalId : state.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, [1]));
             if (kind is "signature" or "identity" or "epoch" or "grantId" or "grantRevision" or "author")
             { var w = JsonSerializer.Deserialize<RecipientEnvelope>(g.RecipientKeyEnvelope, ProtectionFixture.Json)!; w = kind switch { "signature" => w with { Signature = ProtectionFixture.Encode(new byte[64]) }, "identity" => w with { RecipientIdentityId = Guid.NewGuid() }, "epoch" => w with { KeyEpoch = 2 }, "grantId" => w with { GrantId = Guid.NewGuid() }, "grantRevision" => w with { GrantRevision = 2 }, _ => w with { AuthorKeyFingerprint = client.Material.AuthorKey.Fingerprint() } }; g.RecipientKeyEnvelope = JsonSerializer.SerializeToUtf8Bytes(w, ProtectionFixture.Json); }
             if (kind == "blob")
@@ -345,9 +345,9 @@ public class ProfileAssociationStoreTests(PostgresFixture fixture) : IClassFixtu
         {
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == state.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ProfileId, row.Id));
             if (kind == "grant")
-                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, new byte[] { 1 }));
+                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, [1]));
             else
-                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? foreign.InternalId : state.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 }));
+                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? foreign.InternalId : state.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, [1]));
         }
         var before = await Snapshot(profile.ProfileId);
         var result = await Store().SetAsync(new(state.Actor, state.Verifier, profile.ProfileId, For(own, 2) with { CollectionIds = [own.Collection.PublicId, shared.Collection.PublicId] }), default);

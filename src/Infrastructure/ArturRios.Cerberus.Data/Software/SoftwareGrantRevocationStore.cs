@@ -58,15 +58,15 @@ public sealed class SoftwareGrantRevocationStore(IDbContextFactory<AppDbContext>
 
             var revision = request.Input.ExpectedRevision + 1;
             var stamp = Guid.NewGuid();
-            var parameters = Parameters(request).Concat(new object[]
-            {
+            var parameters = Parameters(request).Concat(
+            [
                 new NpgsqlParameter("stable", NpgsqlDbType.Jsonb) { Value = captured.Stable },
                 new NpgsqlParameter("aggregate", NpgsqlDbType.Jsonb) { Value = captured.Aggregate },
                 new NpgsqlParameter("collateral", NpgsqlDbType.Jsonb) { Value = captured.Collateral },
                 new NpgsqlParameter("id", captured.GrantId), new NpgsqlParameter("identity", captured.Identity),
                 new NpgsqlParameter("previous", captured.Revision), new NpgsqlParameter("revision", revision),
                 new NpgsqlParameter("revoked", (int)SoftwareGrantState.Revoked), new NpgsqlParameter("stamp", stamp)
-            }).ToArray();
+            ]).ToArray();
             // This statement's database clock is the authorization linearization point.
             var count = await db.Database.ExecuteSqlRawAsync(Authority + """
                 UPDATE cerberus.software_grant AS g

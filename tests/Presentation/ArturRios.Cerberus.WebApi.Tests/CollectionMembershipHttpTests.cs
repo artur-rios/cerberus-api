@@ -207,7 +207,7 @@ public class CollectionMembershipHttpTests(RegistrationApiFixture fixture, Share
         { var p = await Profile(s, recipient, key); s = s with { Access = await Open(s, p, key) }; }
         await using (var db = fixture.Context())
         {
-            await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(c => c.Envelope, new byte[] { 1 }).SetProperty(c => c.DeletedAt, kind == "deleted" ? (DateTimeOffset?)DateTimeOffset.UtcNow : null));
+            await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(c => c.Envelope, [1]).SetProperty(c => c.DeletedAt, kind == "deleted" ? (DateTimeOffset?)DateTimeOffset.UtcNow : null));
             if (kind == "ownerClosing")
                 await db.Accounts.Where(x => x.Id == o.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending));
             if (kind == "revoked")
@@ -241,9 +241,9 @@ public class CollectionMembershipHttpTests(RegistrationApiFixture fixture, Share
         await using (var db = fixture.Context())
         {
             if (kind == "wrapper")
-                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, new byte[] { 1 }));
+                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, [1]));
             if (kind is "ownerPins" or "recipientPins")
-                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? o.InternalId : s.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 }));
+                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? o.InternalId : s.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, [1]));
             if (kind == "revision")
                 await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.Revision, 2));
         }
@@ -476,7 +476,7 @@ public class CollectionMembershipHttpTests(RegistrationApiFixture fixture, Share
         var before = await Snapshot(s);
         var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? [0xc3, 0x28] : Bytes(Replacement());
         if (kind == "bom")
-            raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray();
+            raw = [239, 187, 191, .. raw];
         using var request = Request(s, Path(target.CollectionId) + (kind == "query" ? "?ownerId=secret" : ""), raw, HttpMethod.Put);
         if (kind is "missing" or "bad")
             request.Headers.Remove("X-Cerberus-Vault-Access");
@@ -718,7 +718,7 @@ public class CollectionMembershipHttpTests(RegistrationApiFixture fixture, Share
         Assert.True(document.RootElement.GetProperty("success").GetBoolean());
         if (typeof(T) == typeof(SetCollectionMembershipOutput))
         {
-            Assert.Equal(new[] { "collectionId", "editedAt", "folderIds", "recordIds", "revision", "serverSequence" }, document.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
+            Assert.Equal(["collectionId", "editedAt", "folderIds", "recordIds", "revision", "serverSequence"], document.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
             Assert.Contains("collection_membership_set", document.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
         }
         return Assert.IsType<T>(JsonSerializer.Deserialize<DataOutput<T>>(raw, ProtectionFixture.Json)!.Data);

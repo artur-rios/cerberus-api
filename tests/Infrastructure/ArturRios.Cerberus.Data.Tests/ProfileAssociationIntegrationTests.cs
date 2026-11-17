@@ -81,7 +81,7 @@ public class ProfileAssociationIntegrationTests(PostgresFixture fixture) : IClas
             collections.Add(own.Collection.PublicId);
         if (kind.StartsWith("record") || kind.StartsWith("folder") || kind.StartsWith("ownCollection"))
             collections.Add(shared.Collection.PublicId);
-        await Visible(state, p.PublicId, records, folders, collections.ToArray());
+        await Visible(state, p.PublicId, records, folders, [.. collections]);
     }
     [FunctionalFact]
     public async Task GivenGrantRevokedAfterStatementSnapshot_WhenGetting_ThenReturnCoherentSnapshotAndOmitOnNextRead()

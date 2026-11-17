@@ -22,7 +22,7 @@ public class TrashRestoreContractTests
         Assert.Equal("uuid", op.Parameters!.Single(x => x.Name == "id").Schema!.Format);
         foreach (var name in new[] { "RestoreTrashCommand", "RestoreTrashOutput", "TrashRestoredItem", "TrashRestoreOmission" })
         { var schema = doc.Components!.Schemas![name]; Assert.Equal(schema.Properties!.Keys.Order(), schema.Required!.Order()); }
-        Assert.Equal(new[] { "expectedRevision" }, doc.Components!.Schemas!["RestoreTrashCommand"].Properties!.Keys);
-        Assert.Equal(new[] { "items", "omissions", "operationId", "restoredAt", "rootKind", "rootResourceId" }, doc.Components.Schemas["RestoreTrashOutput"].Properties!.Keys.Order());
+        Assert.Equal(["expectedRevision"], doc.Components!.Schemas!["RestoreTrashCommand"].Properties!.Keys);
+        Assert.Equal(["items", "omissions", "operationId", "restoredAt", "rootKind", "rootResourceId"], doc.Components.Schemas["RestoreTrashOutput"].Properties!.Keys.Order());
     }
 }

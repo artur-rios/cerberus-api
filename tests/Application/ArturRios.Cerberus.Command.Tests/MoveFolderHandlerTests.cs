@@ -58,10 +58,10 @@ public class MoveFolderHandlerTests
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
         Assert.Equal(ct.Token, token);
         using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
-        Assert.Equal(new[] { "folderId", "parentFolderId", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["folderId", "parentFolderId", "revision", "serverSequence"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         Assert.Equal(nullParent ? JsonValueKind.Null : JsonValueKind.String, output.RootElement.GetProperty("parentFolderId").ValueKind);
         using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
-        Assert.Equal(new[] { "expectedRevision", "parentFolderId" }, input.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["expectedRevision", "parentFolderId"], input.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
     [InlineData("validation_failed", 400)]

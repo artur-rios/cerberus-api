@@ -99,14 +99,14 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
             }
             var key = JsonSerializer.SerializeToUtf8Bytes(input.RecipientKey, Json);
             var stamp = Guid.NewGuid();
-            var parameters = Parameters(request).Concat(new object[]
-            {
+            var parameters = Parameters(request).Concat(
+            [
                 new NpgsqlParameter("stable", NpgsqlDbType.Jsonb) { Value = captured.Stable },
                 new NpgsqlParameter("grants", NpgsqlDbType.Jsonb) { Value = captured.Grants },
                 new NpgsqlParameter("key", key), new NpgsqlParameter("stamp", stamp), new NpgsqlParameter("revision", revision),
                 new NpgsqlParameter("identity", input.SoftwareIdentityId), new NpgsqlParameter("previous", old?.Revision ?? 0),
                 new NpgsqlParameter("existing", old?.Id ?? 0)
-            }).ToArray();
+            ]).ToArray();
             // Database-time authorization linearizes at this guarded statement.
             var writeSql = Authority + (old is null ? """
                 INSERT INTO cerberus.software_grant(public_id,account_id,heimdall_software_public_id,recipient_key,state,revision,concurrency_stamp)

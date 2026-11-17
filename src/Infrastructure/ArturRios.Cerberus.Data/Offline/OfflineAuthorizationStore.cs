@@ -83,7 +83,7 @@ public sealed class OfflineAuthorizationStore(IDbContextFactory<AppDbContext> fa
             if (error is not null)
                 return new(Error: error);
             var snapshot = new OfflineLeaseSnapshot(request.IdentityId, original.AccountId, request.ProfileId, epoch, original.ProfileRevision!.Value,
-                original.PolicyRevision, original.Generation, grants.OrderBy(g => g.GrantId.ToString("D"), StringComparer.Ordinal).ToArray(),
+                original.PolicyRevision, original.Generation, [.. grants.OrderBy(g => g.GrantId.ToString("D"), StringComparer.Ordinal)],
                 original.RenewalEnabled, original.RenewalInterval, before!.DatabaseNow);
             if (!snapshot.IsValid())
                 return new(Error: "persistence_unavailable");

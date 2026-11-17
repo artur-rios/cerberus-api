@@ -102,9 +102,9 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
         var s = await Setup(owner);
         var target = await Create(s);
         var before = await Snapshot(s);
-        var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? new byte[] { 0xc3, 0x28 } : Bytes(new { expectedRevision = 1 });
+        var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? [0xc3, 0x28] : Bytes(new { expectedRevision = 1 });
         if (kind == "bom")
-            raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray();
+            raw = [239, 187, 191, .. raw];
         using var req = Delete(s, "/api/folders/" + target.FolderId + (kind == "query" ? "?ownerId=secret" : ""), raw);
         if (kind == "missing")
             req.Headers.Remove("X-Cerberus-Vault-Access");

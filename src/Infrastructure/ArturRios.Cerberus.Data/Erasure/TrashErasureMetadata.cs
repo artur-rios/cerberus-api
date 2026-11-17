@@ -12,7 +12,7 @@ internal static class TrashErasureMetadata
         {
             await RecordErasure.RequireClaimAsync(db, claim, ct);
             var statement = sql + " AND EXISTS(SELECT FROM cerberus.retention_work_item w WHERE w.public_id=@work AND w.claim_token=@token AND w.operation_key=@work_key AND w.completed_at IS NULL AND w.claim_expires_at>statement_timestamp())";
-            var args = values.Concat(new object[] { new NpgsqlParameter("work", claim.WorkId), new NpgsqlParameter("token", claim.Token), new NpgsqlParameter("work_key", claim.OperationKey) }).ToArray();
+            var args = values.Concat([new NpgsqlParameter("work", claim.WorkId), new NpgsqlParameter("token", claim.Token), new NpgsqlParameter("work_key", claim.OperationKey)]).ToArray();
             await db.Database.ExecuteSqlRawAsync(statement, args, ct);
             await RecordErasure.RequireClaimAsync(db, claim, ct);
         }

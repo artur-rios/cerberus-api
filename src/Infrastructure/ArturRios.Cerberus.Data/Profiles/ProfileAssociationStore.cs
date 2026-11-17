@@ -112,7 +112,7 @@ public sealed class ProfileAssociationStore(IDbContextFactory<AppDbContext> fact
             db.ProfileCollections.AddRange(resolved.Collections.Select(id => new ProfileCollection { ProfileId = profile.Id, CollectionId = id }));
             await db.SaveChangesAsync(cancellationToken);
             await tx.CommitAsync(cancellationToken);
-            return new(new(profile.PublicId, metadata.Revision, metadata.ServerSequence, input.RecordIds.Order().ToArray(), input.FolderIds.Order().ToArray(), input.CollectionIds.Order().ToArray()));
+            return new(new(profile.PublicId, metadata.Revision, metadata.ServerSequence, [.. input.RecordIds.Order()], [.. input.FolderIds.Order()], [.. input.CollectionIds.Order()]));
         }
         catch (PostgresException e) when (e.SqlState == "2200H") { return new(Error: "revision_conflict"); }
         catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException

@@ -17,8 +17,7 @@ internal sealed class TrashRestorePlan
     private readonly Dictionary<(string Kind, Guid Id, string Association), int> omissions = [];
     internal void Omit(TrashRestoreResource row, string association, int count = 1)
     { if (count > 0) { var key = (row.Kind, row.PublicId, association); omissions[key] = checked(omissions.GetValueOrDefault(key) + count); } }
-    internal TrashRestoreOmission[] Omissions() => omissions.OrderBy(x => x.Key.Kind, StringComparer.Ordinal).ThenBy(x => x.Key.Id).ThenBy(x => x.Key.Association, StringComparer.Ordinal)
-        .Select(x => new TrashRestoreOmission(x.Key.Kind, x.Key.Id, x.Key.Association, x.Value)).ToArray();
+    internal TrashRestoreOmission[] Omissions() => [.. omissions.OrderBy(x => x.Key.Kind, StringComparer.Ordinal).ThenBy(x => x.Key.Id).ThenBy(x => x.Key.Association, StringComparer.Ordinal).Select(x => new TrashRestoreOmission(x.Key.Kind, x.Key.Id, x.Key.Association, x.Value))];
 }
 internal static class TrashRestoreAssociations
 {

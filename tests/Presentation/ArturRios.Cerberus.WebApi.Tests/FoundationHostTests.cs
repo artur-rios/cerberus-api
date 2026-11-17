@@ -119,7 +119,7 @@ public class FoundationHostTests : WebApiTest<Program>
 
     private static class TestEnvironment
     {
-        private static readonly Dictionary<string, string?> Previous = new();
+        private static readonly Dictionary<string, string?> Previous = [];
         private static string? _ledger;
 
         public static EnvironmentType Configure()

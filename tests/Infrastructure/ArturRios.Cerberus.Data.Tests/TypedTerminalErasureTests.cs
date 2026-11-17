@@ -30,7 +30,7 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
         await store.ReapplyAsync(new(id, "folder", Deleted.AddHours(1)), default);
         await using var db = fixture.CreateContext();
         var entries = await db.TerminalErasures.Where(x => x.ResourceId == id).OrderBy(x => x.ResourceKind).ToListAsync();
-        Assert.Equal(new[] { "folder", "record" }, entries.Select(x => x.ResourceKind));
+        Assert.Equal(["folder", "record"], entries.Select(x => x.ResourceKind));
         Assert.Equal(Deleted.AddHours(1), entries[0].DeletedAt);
         Assert.Equal(Deleted, entries[1].DeletedAt);
     }

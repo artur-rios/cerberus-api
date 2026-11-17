@@ -18,10 +18,10 @@ public class TrashAssociationsTests
         var bytes = Encoding.UTF8.GetBytes(Json(kind));
         Assert.True(TrashAssociations.TryRead(kind, bytes, out var data));
         Assert.Equal(kind is "record" or "folder" ? Guid.Parse(F) : null, data!.Parent);
-        Assert.Equal(kind == "profile" ? Array.Empty<Guid>() : [Guid.Parse(P)], data.ProfileIds);
-        Assert.Equal(kind == "collection" ? Array.Empty<Guid>() : [Guid.Parse(C)], data.CollectionIds);
-        Assert.Equal(kind is "profile" or "collection" ? [Guid.Parse(R)] : Array.Empty<Guid>(), data.RecordIds);
-        Assert.Equal(kind is "profile" or "collection" ? [Guid.Parse(F)] : Array.Empty<Guid>(), data.FolderIds);
+        Assert.Equal(kind == "profile" ? [] : [Guid.Parse(P)], data.ProfileIds);
+        Assert.Equal(kind == "collection" ? [] : [Guid.Parse(C)], data.CollectionIds);
+        Assert.Equal(kind is "profile" or "collection" ? [Guid.Parse(R)] : [], data.RecordIds);
+        Assert.Equal(kind is "profile" or "collection" ? [Guid.Parse(F)] : [], data.FolderIds);
     }
     [UnitTheory]
     [InlineData("record")]

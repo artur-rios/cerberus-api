@@ -37,7 +37,7 @@ public class RecordCreateHttpTests(RegistrationApiFixture fixture, SharedApiHost
         var s = await Setup(owner);
         var f = folder ? await Folder(s) : null;
         var parents = profiles ? new[] { await Profile(s, owner, first, f), await Profile(s, owner, second, f) } : [];
-        var input = Input(parents.Select(x => x.PublicId).ToArray(), f?.PublicId);
+        var input = Input([.. parents.Select(x => x.PublicId)], f?.PublicId);
         var protectedBefore = await Protected(s);
         using var response = await Send(s, input);
         var result = await Success<CreateRecordOutput>(response, 201);
@@ -241,7 +241,7 @@ public class RecordCreateHttpTests(RegistrationApiFixture fixture, SharedApiHost
             raw = "[]";
         if (kind == "oversized")
             raw = new string(' ', 65537) + raw;
-        var bytes = kind == "invalidUtf8" ? new byte[] { 255 } : kind == "bom" ? new byte[] { 239, 187, 191 }.Concat(Encoding.UTF8.GetBytes(raw)).ToArray() : Encoding.UTF8.GetBytes(raw);
+        var bytes = kind == "invalidUtf8" ? [255] : kind == "bom" ? [239, 187, 191, .. Encoding.UTF8.GetBytes(raw)] : Encoding.UTF8.GetBytes(raw);
         var before = await Snapshot(s);
         using var request = Request(s, bytes);
         if (kind == "gzip")
@@ -279,7 +279,7 @@ public class RecordCreateHttpTests(RegistrationApiFixture fixture, SharedApiHost
         var content = new List<ContentReplacement> { new("account", s.AccountId, 1, Envelope(2)) };
         if (complete)
             content.Add(new("record", input.RecordId, 1, Envelope(2)));
-        var change = new ProtectionChange(s.AccountId, 1, 1, "rotate-content", owner.Rewrap(), content.ToArray());
+        var change = new ProtectionChange(s.AccountId, 1, 1, "rotate-content", owner.Rewrap(), [.. content]);
         var raw = Bytes(change);
         using var challengeRequest = new HttpRequestMessage(HttpMethod.Post, "/api/vault/challenges") { Content = JsonContent.Create(new { operation = "change-protection", requestHash = ProtocolBinary.Encode(SHA256.HashData(raw)) }) };
         challengeRequest.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor));

@@ -86,8 +86,8 @@ public class ListRecordsHandlerTests
         Assert.Equal(row.EditedAt, item.EditedAt);
         Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json), item.Envelope);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, ProtectionFixture.Json));
-        Assert.Equal(new[] { "items", "nextCursor" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        Assert.Equal(new[] { "editedAt", "envelope", "recordId", "revision", "serverSequence" },
+        Assert.Equal(["items", "nextCursor"], json.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["editedAt", "envelope", "recordId", "revision", "serverSequence"],
             json.RootElement.GetProperty("items")[0].EnumerateObject().Select(x => x.Name).Order());
         var cursor = Assert.IsType<string>(result.Data.NextCursor);
         Assert.DoesNotContain(Actor.ToString(), cursor);
@@ -119,7 +119,7 @@ public class ListRecordsHandlerTests
         var store = new Mock<IRecordListStore>(MockBehavior.Strict);
         var result = await new ListRecordsHandler(store.Object, options, new(options)).HandleAsync(new(
             kind == "actor" ? Guid.NewGuid() : Actor,
-            kind == "access" ? ProtocolBinary.Encode(Enumerable.Repeat((byte)1, 32).ToArray()) : Access,
+            kind == "access" ? ProtocolBinary.Encode([.. Enumerable.Repeat((byte)1, 32)]) : Access,
             kind == "size" ? 2 : 1, cursor));
         Assert.Contains("validation_failed", result.Errors);
         Assert.Null(result.Data);

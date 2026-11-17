@@ -93,11 +93,11 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         await using (var db = fixture.CreateContext())
         {
             if (kind == "brokenCollection")
-                await db.Collections.Where(x => x.Id == c.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 255 }));
+                await db.Collections.Where(x => x.Id == c.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [255]));
             if (kind == "unusedCollectionCounters")
                 await db.Collections.Where(x => x.Id == c.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, 0).SetProperty(v => v.ServerSequence, 0));
             if (kind == "brokenMemberCipher")
-                await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 255 }));
+                await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [255]));
         }
         var input = Input([p.PublicId], kind is "PR" or "CR" ? [] : [kind is "PFDescendant" or "CFDescendant" ? child.PublicId : root.PublicId],
             kind is "PR" or "CR" or "mixed" or "overlap" ? [r.PublicId] : []);
@@ -865,7 +865,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
             replacements.Add(new("collection", kind == "foreign" ? Guid.NewGuid() : input.CollectionId, kind == "stale" ? 2 : 1, ProfileSetup.Envelope(2)));
         if (kind == "extra")
             replacements.Add(new("collection", Guid.NewGuid(), 1, ProfileSetup.Envelope(2)));
-        var change = new ProtectionChange(s.AccountId, 1, 1, "rotate-content", owner.Rewrap(), replacements.ToArray());
+        var change = new ProtectionChange(s.AccountId, 1, 1, "rotate-content", owner.Rewrap(), [.. replacements]);
         var raw = Bytes(change);
         var challenge = (await new VaultProtectionStore(fixture).ChallengeAsync(s.Actor, "change-protection", ProtocolBinary.Encode(SHA256.HashData(raw)), default)).Data!;
         var before = await Snapshot(s);
@@ -1040,7 +1040,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         var input = Input([p.PublicId], [f.PublicId], [r.PublicId]);
         var before = await Snapshot(s);
         await Success(s, input, before, await new CollectionCreateStore(new ProfileSetup.Factory(fixture, capture)).CreateAsync(new(s.Actor, s.Verifier, input), default));
-        Assert.Equal(new[] { "account", "vault_access_session", "profile", "collection", "folder", "record" }, capture.Locks.Select(x => x.Table));
+        Assert.Equal(["account", "vault_access_session", "profile", "collection", "folder", "record"], capture.Locks.Select(x => x.Table));
         Assert.Equal(new[] { p.Id }, capture.Locks.Single(x => x.Table == "profile").Ids);
         Assert.Equal(new[] { c.Id }, capture.Locks.Single(x => x.Table == "collection").Ids);
         Assert.Equal(new[] { f.Id }, capture.Locks.Single(x => x.Table == "folder").Ids);

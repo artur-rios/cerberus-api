@@ -105,15 +105,15 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
             var replacement = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
             var edited = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             var stamp = Guid.NewGuid();
-            var parameters = Parameters(request).Concat(new object[]
-            {
+            var parameters = Parameters(request).Concat(
+            [
                 new NpgsqlParameter("replacement", replacement), new NpgsqlParameter("edited", edited),
                 new NpgsqlParameter("stamp", stamp), new NpgsqlParameter("expected", input.ExpectedRevision),
                 new NpgsqlParameter("previous_sequence", target.Sequence), new NpgsqlParameter("original", original),
                 new NpgsqlParameter("epoch", target.KeyEpoch), new NpgsqlParameter("owner", account.Id),
                 new NpgsqlParameter("id", target.Id), new NpgsqlParameter("original_stamp", target.Stamp),
                 new NpgsqlParameter("selection", NpgsqlDbType.Bigint) { Value = (object?)session?.ProfileId ?? DBNull.Value }
-            }).ToArray();
+            ]).ToArray();
             // Native grants bind collection identity and epoch, not these opaque bytes.
             // The owner path neither validates nor rewrites grants or recipient wrappers.
             var changed = await db.Database.ExecuteSqlRawAsync(Authority + """

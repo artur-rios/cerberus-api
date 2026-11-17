@@ -31,7 +31,7 @@ public class ChangeCollectionAccessContractTests
         var body = JsonSerializer.Serialize(new { expectedRevision = 1L, access = "read-only", keyEnvelope = envelope }, Json);
         var parsed = JsonSerializer.Deserialize(body, type, Json)!;
         using var document = JsonDocument.Parse(JsonSerializer.Serialize(parsed, type, Json));
-        Assert.Equal(new[] { "access", "expectedRevision", "keyEnvelope" }, document.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["access", "expectedRevision", "keyEnvelope"], document.RootElement.EnumerateObject().Select(x => x.Name).Order());
         foreach (var field in new[] { "expectedRevision", "access", "keyEnvelope" })
         {
             var missing = JsonSerializer.SerializeToNode(parsed, type, Json)!.AsObject();

@@ -121,8 +121,8 @@ public sealed class TrashRestoreStore(IDbContextFactory<AppDbContext> factory) :
                 var row = resource.Row;
                 var parent = plan.Parents.GetValueOrDefault((row.Kind, row.PublicId));
                 var stamp = Guid.NewGuid();
-                var parameters = TrashRestoreInventory.Parameters(row, parent, stamp).Concat(Base(request)).Concat(new object[]{
-                    new NpgsqlParameter("operation",operation.PublicId),new NpgsqlParameter("kind",row.Kind),new NpgsqlParameter("snapshot",resource.Entry.AssociationSnapshot)}).ToArray();
+                var parameters = TrashRestoreInventory.Parameters(row, parent, stamp).Concat(Base(request)).Concat([
+                    new NpgsqlParameter("operation",operation.PublicId),new NpgsqlParameter("kind",row.Kind),new NpgsqlParameter("snapshot",resource.Entry.AssociationSnapshot)]).ToArray();
                 var restored = await db.Database.SqlQueryRaw<DateTimeOffset>(TrashRestoreInventory.RestoreSql(row.Kind, output.Count > 0), parameters).ToListAsync(ct);
                 if (restored.Count != 1)
                 { if (output.Count > 0) return new(Error: "revision_conflict"); authority = await AuthorityAsync(db, request, ct); return new(Error: AuthorityError(authority) ?? (authority.Now >= operation.PurgeAt ? "trash_expired" : "revision_conflict")); }
@@ -148,7 +148,7 @@ public sealed class TrashRestoreStore(IDbContextFactory<AppDbContext> factory) :
                 || await db.RetentionWorkItems.AnyAsync(x => x.OperationKey == "trash/" + operation.PublicId, ct))
                 return new(Error: "persistence_unavailable");
             await tx.CommitAsync(ct);
-            return new(new(operation.PublicId, root.Kind, root.PublicId, restoredAt, output.OrderBy(x => x.Kind, StringComparer.Ordinal).ThenBy(x => x.ResourceId).ToArray(), plan.Omissions()));
+            return new(new(operation.PublicId, root.Kind, root.PublicId, restoredAt, [.. output.OrderBy(x => x.Kind, StringComparer.Ordinal).ThenBy(x => x.ResourceId)], plan.Omissions()));
             Task<bool> Terminal(TrashRestoreResource r) => db.TerminalErasures.AnyAsync(x => x.ResourceKind == r.Kind && x.ResourceId == r.PublicId, ct);
             Task<bool> Scope(TrashRestoreResource r, TrashEntry e, Authority a) => TrashRestoreAssociations.CanAccessRootAsync(db, factory, request, account.Id, a.ProfileId, r, e.AssociationSnapshot, ct);
         }

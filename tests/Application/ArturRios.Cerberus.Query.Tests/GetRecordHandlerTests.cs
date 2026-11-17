@@ -54,7 +54,7 @@ public class GetRecordHandlerTests
         Assert.Equal(collections.Order(), item.CollectionIds);
         Assert.Equal(folder, item.FolderId);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(item, ProtectionFixture.Json));
-        Assert.Equal(new[] { "collectionIds", "editedAt", "envelope", "folderId", "profileIds", "recordId", "revision", "serverSequence" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["collectionIds", "editedAt", "envelope", "folderId", "profileIds", "recordId", "revision", "serverSequence"], json.RootElement.EnumerateObject().Select(x => x.Name).Order());
         store.VerifyAll();
     }
     [UnitTheory]

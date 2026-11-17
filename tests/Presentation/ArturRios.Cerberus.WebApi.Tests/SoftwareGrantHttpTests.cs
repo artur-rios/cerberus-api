@@ -204,7 +204,7 @@ public sealed class SoftwareGrantHttpTests(RegistrationApiFixture fixture)
         var s = await Setup(owner, author);
         var input = Input(s, author, recipient, Guid.NewGuid(), Guid.NewGuid());
         var before = await Vault(s);
-        var raw = kind == "empty" ? [] : kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? new byte[] { 0xc3, 0x28 } : Bytes(input);
+        var raw = kind == "empty" ? [] : kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? [0xc3, 0x28] : Bytes(input);
         if (kind == "bom")
             raw = [239, 187, 191, .. raw];
         using var request = Request(s, raw, "/api/software-grants" + (kind == "query" ? "?actor=forged" : ""));
@@ -580,7 +580,7 @@ public sealed class SoftwareGrantHttpTests(RegistrationApiFixture fixture)
         if (kind == "session")
             await db.VaultAccessSessions.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revoked, true));
         if (kind == "storedEnvelope")
-            await db.Records.Where(x => x.PublicId == record).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, new byte[] { 1 }));
+            await db.Records.Where(x => x.PublicId == record).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, [1]));
         var before = await Vault(s);
         if (kind == "database")
             await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.software_grant RENAME TO fixture_unavailable_software_grant");
@@ -701,7 +701,7 @@ public sealed class SoftwareGrantHttpTests(RegistrationApiFixture fixture)
             await Success<GrantCollectionAccessOutput>(response, 201);
         await using var db = fixture.Context();
         if (corrupt)
-            await db.CollectionGrants.Where(x => x.PublicId == grantId).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, new byte[] { 1 }));
+            await db.CollectionGrants.Where(x => x.PublicId == grantId).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, [1]));
         var input = Input(r, foreignAuthor, software, Guid.NewGuid(), collection);
         input = input with { Targets = [input.Targets[1]] };
         var before = await Vault(r);
@@ -763,7 +763,7 @@ public sealed class SoftwareGrantHttpTests(RegistrationApiFixture fixture)
         { Assert.Equal("", raw); return; }
         using var doc = JsonDocument.Parse(raw);
         Assert.False(doc.RootElement.GetProperty("success").GetBoolean());
-        Assert.Equal(new[] { error }, doc.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
+        Assert.Equal([error], doc.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
         if (doc.RootElement.TryGetProperty("data", out var data))
             Assert.Equal(JsonValueKind.Null, data.ValueKind);
         Assert.DoesNotContain("private", raw);
@@ -845,9 +845,9 @@ public sealed class SoftwareGrantHttpTests(RegistrationApiFixture fixture)
         Assert.True(doc.RootElement.GetProperty("success").GetBoolean());
         if (typeof(T) == typeof(GrantSoftwareAccessOutput))
         {
-            Assert.Equal(new[] { "data", "errors", "messages", "success", "timestamp" }, doc.RootElement.EnumerateObject().Select(x => x.Name).Order());
-            Assert.Equal(new[] { "grantId", "revision" }, doc.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
-            Assert.Equal(new[] { "software_access_granted" }, doc.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
+            Assert.Equal(["data", "errors", "messages", "success", "timestamp"], doc.RootElement.EnumerateObject().Select(x => x.Name).Order());
+            Assert.Equal(["grantId", "revision"], doc.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
+            Assert.Equal(["software_access_granted"], doc.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
             Assert.Empty(doc.RootElement.GetProperty("errors").EnumerateArray());
         }
         return Assert.IsType<T>(JsonSerializer.Deserialize<DataOutput<T>>(raw, ProtectionFixture.Json)!.Data);

@@ -57,9 +57,9 @@ public class DeleteFolderHandlerTests
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
         Assert.Equal(ct.Token, token);
         using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
-        Assert.Equal(new[] { "deletedAt", "folderId", "purgeAt", "revision", "serverSequence", "trashOperationId" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["deletedAt", "folderId", "purgeAt", "revision", "serverSequence", "trashOperationId"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
-        Assert.Equal(new[] { "expectedRevision" }, input.RootElement.EnumerateObject().Select(x => x.Name));
+        Assert.Equal(["expectedRevision"], input.RootElement.EnumerateObject().Select(x => x.Name));
     }
     [UnitTheory]
     [InlineData("validation_failed", 400)]

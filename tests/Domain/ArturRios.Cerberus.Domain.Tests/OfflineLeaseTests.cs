@@ -109,7 +109,7 @@ public class OfflineLeaseTests
         var a = new OfflineGrantRevision(Guid.Parse("00000001-0000-0000-0000-000000000001"), 2);
         var b = new OfflineGrantRevision(Guid.Parse("00000002-0000-0000-0000-000000000002"), 3);
         using var claims = Decode(OfflineLease.Sign(Snapshot() with { GrantRevisions = [b, a] }, "fixture-lease-issuer", key.ExportPkcs8PrivateKeyPem()).Compact.Split('.')[1]);
-        Assert.Equal(new[] { a.GrantId, b.GrantId }, claims.RootElement.GetProperty("grantRevisions").EnumerateArray().Select(x => x.GetProperty("grantId").GetGuid()));
+        Assert.Equal([a.GrantId, b.GrantId], claims.RootElement.GetProperty("grantRevisions").EnumerateArray().Select(x => x.GetProperty("grantId").GetGuid()));
     }
 
     [UnitFact]

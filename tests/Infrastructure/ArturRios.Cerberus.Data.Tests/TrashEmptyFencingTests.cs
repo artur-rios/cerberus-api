@@ -104,7 +104,7 @@ public partial class TrashEmptyStoreTests
             "folder" => "SELECT FROM cerberus.folder WHERE account_id={0} FOR UPDATE",
             _ => "SELECT FROM cerberus.record WHERE account_id={0} FOR UPDATE"
         };
-        await held.Database.ExecuteSqlRawAsync(sql, table == "retention_work_item" ? ["trash-erase/" + s.AccountId] : new object[] { s.InternalId });
+        await held.Database.ExecuteSqlRawAsync(sql, table == "retention_work_item" ? ["trash-erase/" + s.AccountId] : [s.InternalId]);
         var signal = new PermanentDeleteSetup.LockSignal(table);
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var pending = Store(factory: new ProfileSetup.Factory(fixture, signal)).EmptyAsync(Request(s), ct.Token);
@@ -159,7 +159,7 @@ public partial class TrashEmptyStoreTests
             "folder" => "SELECT FROM cerberus.folder WHERE account_id={0} FOR UPDATE",
             _ => "SELECT FROM cerberus.record WHERE account_id={0} FOR UPDATE"
         };
-        await held.Database.ExecuteSqlRawAsync(sql, table == "retention_work_item" ? ["trash-erase/" + s.AccountId] : new object[] { s.InternalId });
+        await held.Database.ExecuteSqlRawAsync(sql, table == "retention_work_item" ? ["trash-erase/" + s.AccountId] : [s.InternalId]);
         var signal = new PermanentDeleteSetup.LockSignal(table);
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var pending = new TrashPurgeHandler(new ProfileSetup.Factory(fixture, signal), Ledger).ExecuteAsync(claim, ct.Token);

@@ -16,7 +16,7 @@ public sealed class SoftwareSecretContractTests
         Assert.Contains("413", op.Responses!.Keys);
         Assert.True(op.Responses["413"].Content is null or { Count: 0 });
         Assert.Null(op.RequestBody);
-        Assert.Equal(new[] { "grantId", "id", "kind" }, op.Parameters!.Where(x => x.Required).Select(x => x.Name).Order());
+        Assert.Equal(["grantId", "id", "kind"], op.Parameters!.Where(x => x.Required).Select(x => x.Name).Order());
         Assert.False(op.Parameters!.Single(x => x.Name == "collectionId").Required);
         foreach (var name in new[] { "SoftwareSecretOutput", "SoftwareSecretResource", "SoftwareSecretProvisioning" })
         {

@@ -27,7 +27,7 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         if (revoked)
         { Assert.Null((await Store().GrantAsync(s.Request(), default)).Error); await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant); }
         var request = s.Request(revoked ? 1 : null);
-        var reversed = request with { Input = request.Input with { Targets = request.Input.Targets.Reverse().ToArray() } };
+        var reversed = request with { Input = request.Input with { Targets = [.. request.Input.Targets.Reverse()] } };
         var reached = Signal();
         var release = Signal();
         var waiting = Signal();

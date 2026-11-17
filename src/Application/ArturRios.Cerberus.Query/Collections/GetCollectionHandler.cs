@@ -40,9 +40,9 @@ public sealed class GetCollectionHandler(ICollectionReadStore store) : IQueryHan
             ServerSequence = collection.ServerSequence,
             EditedAt = collection.EditedAt,
             Envelope = collection.Envelope,
-            ProfileIds = data.ProfileIds.Order().ToArray(),
-            RecordIds = data.RecordIds.Order().ToArray(),
-            FolderIds = data.FolderIds.Order().ToArray()
+            ProfileIds = [.. data.ProfileIds.Order()],
+            RecordIds = [.. data.RecordIds.Order()],
+            FolderIds = [.. data.FolderIds.Order()]
         }).WithMessage("collection_found");
     }
 

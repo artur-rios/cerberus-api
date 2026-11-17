@@ -18,8 +18,8 @@ public sealed record TrashAssociations(Guid? Parent, Guid[] ProfileIds, Guid[] C
             var names = kind switch
             {
                 "profile" => new[] { "recordIds", "folderIds", "collectionIds" },
-                "collection" => new[] { "profileIds", "recordIds", "folderIds" },
-                _ => new[] { parentName, "profileIds", "collectionIds" }
+                "collection" => ["profileIds", "recordIds", "folderIds"],
+                _ => [parentName, "profileIds", "collectionIds"]
             };
             var fields = root.EnumerateObject().ToArray();
             if (fields.Length != 3 || fields.Select(x => x.Name).Distinct(StringComparer.Ordinal).Count() != 3

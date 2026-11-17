@@ -87,7 +87,7 @@ public partial class AccountExportStoreTests
         var op = await Retain(w, kind, History(kind, w));
         await using (var db = fixture.CreateContext())
         {
-            await db.TrashEntries.Where(x => x.OperationId == op.Id).ExecuteUpdateAsync(x => x.SetProperty(e => e.AssociationSnapshot, new byte[] { 255, 0, 129 }));
+            await db.TrashEntries.Where(x => x.OperationId == op.Id).ExecuteUpdateAsync(x => x.SetProperty(e => e.AssociationSnapshot, [255, 0, 129]));
             if (terminal)
                 await Marker(kind, op.RootResourceId);
             else
@@ -137,7 +137,7 @@ public partial class AccountExportStoreTests
                 _ => null
             };
             if (json is not null || damage == "invalidUtf8")
-                await db.TrashEntries.Where(x => x.OperationId == op.Id).ExecuteUpdateAsync(x => x.SetProperty(e => e.AssociationSnapshot, damage == "invalidUtf8" ? new byte[] { 255, 0, 129 } : Encoding.UTF8.GetBytes(json!)));
+                await db.TrashEntries.Where(x => x.OperationId == op.Id).ExecuteUpdateAsync(x => x.SetProperty(e => e.AssociationSnapshot, damage == "invalidUtf8" ? [255, 0, 129] : Encoding.UTF8.GetBytes(json!)));
             if (damage == "kindMismatch")
                 await db.TrashEntries.Where(x => x.OperationId == op.Id).ExecuteUpdateAsync(x => x.SetProperty(e => e.ResourceKind, "folder"));
             if (damage == "rootMismatch")
@@ -224,7 +224,7 @@ public partial class AccountExportStoreTests
     private static (string Kind, Guid Id)? EntryIdentity(AccountExportEntry e) => e switch { AccountExportProfile p => ("profile", p.ResourceId), AccountExportRecord r => ("record", r.ResourceId), AccountExportFolder f => ("folder", f.ResourceId), AccountExportCollection c => ("collection", c.ResourceId), _ => null };
     private static byte[] History(string kind, Graph w, Guid? foreignProfile = null)
     {
-        var profiles = foreignProfile is { } id ? new[] { w.Profile.PublicId, id } : new[] { w.Profile.PublicId };
+        var profiles = foreignProfile is { } id ? new[] { w.Profile.PublicId, id } : [w.Profile.PublicId];
         object value = kind switch
         { "profile" => new ProfileAssociationSnapshot([w.Record.PublicId], [w.Folder.PublicId], [w.Collection.PublicId]), "record" => new RecordAssociationSnapshot(w.Folder.PublicId, profiles, [w.Collection.PublicId]), "folder" => new FolderAssociationSnapshot(null, profiles, [w.Collection.PublicId]), _ => new CollectionAssociationSnapshot(profiles, [w.Record.PublicId], [w.Folder.PublicId]) };
         return JsonSerializer.SerializeToUtf8Bytes(value, ProtectionFixture.Json);

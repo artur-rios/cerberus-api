@@ -83,7 +83,7 @@ public class ProfileRotationTests(PostgresFixture fixture) : IClassFixture<Postg
         };
         c = c with { ContentReplacements = invalid == "missing" ? [account] : [account, item] };
         if (invalid == "corrupt")
-        { await using var db = fixture.CreateContext(); await db.Profiles.Where(x => x.PublicId == i.ProfileId).ExecuteUpdateAsync(x => x.SetProperty(p => p.KeyWrappers, new byte[] { 1 })); }
+        { await using var db = fixture.CreateContext(); await db.Profiles.Where(x => x.PublicId == i.ProfileId).ExecuteUpdateAsync(x => x.SetProperty(p => p.KeyWrappers, [1])); }
         var request = await Request(s, client, c);
         var before = JsonSerializer.Serialize(await Snapshot(s));
         Assert.Equal(error, (await new VaultProtectionChangeStore(fixture).ChangeAsync(request, default)).Error);

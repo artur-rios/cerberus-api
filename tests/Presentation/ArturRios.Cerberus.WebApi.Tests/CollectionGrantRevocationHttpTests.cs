@@ -197,7 +197,7 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         using (var response = await Grant(s, target, initial))
             await Success<GrantCollectionAccessOutput>(response, 201);
         if (corrupt)
-        { await using var db = fixture.Context(); await db.CollectionGrants.Where(x => x.PublicId == initial.GrantId).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, new byte[] { 1 })); }
+        { await using var db = fixture.Context(); await db.CollectionGrants.Where(x => x.PublicId == initial.GrantId).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, [1])); }
         await UnchangedFailure(s, r, r, target, Guid.NewGuid(), 1, corrupt ? 503 : 403);
     }
 
@@ -219,7 +219,7 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         if (kind == "unprotected")
             await db.VaultProtections.Where(x => x.AccountId == r.InternalId).ExecuteDeleteAsync();
         else
-            await db.CollectionGrants.Where(x => x.PublicId == initial.GrantId).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, kind == "empty" ? Array.Empty<byte>() : new byte[] { 1 }));
+            await db.CollectionGrants.Where(x => x.PublicId == initial.GrantId).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, kind == "empty" ? [] : [1]));
         var before = await Stable(s, r, true);
         using var response2 = await Revoke(s, target, initial.GrantId);
         await Success<RevokeCollectionAccessOutput>(response2);
@@ -468,7 +468,7 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         var grants = await Grants(target);
         var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? [0xc3, 0x28] : kind == "empty" ? [] : Bytes(new { expectedRevision = 1 });
         if (kind == "bom")
-            raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray();
+            raw = [239, 187, 191, .. raw];
         using var request = Request(s, RevokePath(target, initial.GrantId) + (kind == "query" ? "?profileId=secret" : ""), raw, HttpMethod.Delete);
         if (kind is "missing" or "bad")
             request.Headers.Remove("X-Cerberus-Vault-Access");
@@ -694,8 +694,8 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         Assert.True(document.RootElement.GetProperty("success").GetBoolean());
         if (typeof(T) == typeof(GrantCollectionAccessOutput) || typeof(T) == typeof(RevokeCollectionAccessOutput))
         {
-            Assert.Equal(typeof(T) == typeof(RevokeCollectionAccessOutput) ? new[] { "collectionId", "grantId", "revision" } : new[] { "access", "collectionId", "folderIds", "grantId", "recordIds", "revision" }, document.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
-            Assert.Equal(new[] { typeof(T) == typeof(RevokeCollectionAccessOutput) ? "collection_access_revoked" : "collection_access_granted" }, document.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
+            Assert.Equal(typeof(T) == typeof(RevokeCollectionAccessOutput) ? new[] { "collectionId", "grantId", "revision" } : ["access", "collectionId", "folderIds", "grantId", "recordIds", "revision"], document.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
+            Assert.Equal([typeof(T) == typeof(RevokeCollectionAccessOutput) ? "collection_access_revoked" : "collection_access_granted"], document.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
         }
         return Assert.IsType<T>(JsonSerializer.Deserialize<DataOutput<T>>(raw, ProtectionFixture.Json)!.Data);
     }
@@ -711,7 +711,7 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         if (document.RootElement.TryGetProperty("data", out var data))
             Assert.Equal(JsonValueKind.Null, data.ValueKind);
         if (error is not null)
-            Assert.Equal(new[] { error }, document.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
+            Assert.Equal([error], document.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
         Assert.DoesNotContain("private fixture fault", raw);
     }
     private async Task<string> Grants(Guid id)

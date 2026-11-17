@@ -53,7 +53,7 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
         var request = s.Request();
-        request = request with { Input = request.Input with { Targets = request.Input.Targets.Where(x => x.Kind == kind).ToArray() } };
+        request = request with { Input = request.Input with { Targets = [.. request.Input.Targets.Where(x => x.Kind == kind)] } };
         await Outcome(s, request, null);
         await using var db = fixture.CreateContext();
         var grant = await db.SoftwareGrants.SingleAsync(x => x.PublicId == s.Grant);
@@ -114,7 +114,7 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
         var request = s.Request();
         var id = kind == "record" ? s.Items.Record.Id : s.Items.Collection.Id;
         if (mode == "missing")
-            request = request with { Input = request.Input with { Targets = request.Input.Targets.Select(t => t.Kind == kind ? s.Target(kind, Guid.NewGuid()) : t).ToArray() } };
+            request = request with { Input = request.Input with { Targets = [.. request.Input.Targets.Select(t => t.Kind == kind ? s.Target(kind, Guid.NewGuid()) : t)] } };
         else if (mode == "terminal")
             await Terminal(kind, kind == "record" ? s.Items.Record.PublicId : s.Items.Collection.PublicId);
         else if (mode is "ancestorTrash" or "cycle")

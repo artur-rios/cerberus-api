@@ -203,8 +203,8 @@ public class ChangeCollectionAccessHandlerTests
         Assert.Equal(grant, result.Data.GrantId);
         Assert.Equal(revision, result.Data.Revision);
         Assert.Equal(access, result.Data.Access);
-        Assert.Equal(empty ? [] : new[] { First, Last }, result.Data.RecordIds);
-        Assert.Equal(empty ? [] : new[] { First, Last }, result.Data.FolderIds);
+        Assert.Equal(empty ? [] : [First, Last], result.Data.RecordIds);
+        Assert.Equal(empty ? [] : [First, Last], result.Data.FolderIds);
         Assert.Equal(actor, received!.Actor);
         Assert.Equal(collection, received.CollectionId);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
@@ -214,8 +214,8 @@ public class ChangeCollectionAccessHandlerTests
         Assert.Equal(command.KeyEnvelope, received.Input.KeyEnvelope);
         Assert.True(received.Input.IsValid(grant));
         Assert.Equal(cancellation.Token, receivedToken);
-        Assert.Equal(empty ? [] : new[] { Last, First }, details.RecordIds);
-        Assert.Equal(empty ? [] : new[] { Last, First }, details.FolderIds);
+        Assert.Equal(empty ? [] : [Last, First], details.RecordIds);
+        Assert.Equal(empty ? [] : [Last, First], details.FolderIds);
         AssertFields(result.Data, ["access", "collectionId", "folderIds", "grantId", "recordIds", "revision"]);
         AssertFields(command, ["access", "expectedRevision", "keyEnvelope"]);
         AssertFields(received.Input, ["access", "expectedRevision", "keyEnvelope"]);

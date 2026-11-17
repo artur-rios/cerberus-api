@@ -60,7 +60,7 @@ public class VaultRecoveryHandlerTests
         Assert.Equal(2, result.Data.ProtectionRevision);
         Assert.Equal("committed", result.Data.Status);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, ProtectionFixture.Json));
-        Assert.Equal(new[] { "status", "protectionRevision", "generation", "revocationGeneration" }, json.RootElement.EnumerateObject().Select(x => x.Name));
+        Assert.Equal(["status", "protectionRevision", "generation", "revocationGeneration"], json.RootElement.EnumerateObject().Select(x => x.Name));
         Assert.Contains("recovery_committed", result.Messages);
         Assert.Equal(200, VaultProtectionMessages.StatusCodes["recovery_committed"]);
     }

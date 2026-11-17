@@ -333,7 +333,7 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         using var owner = new ProtectionFixture();
         var s = await Setup(owner);
         var body = StrictBody("valid");
-        Assert.Equal(new[] { "collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds" }, JsonNode.Parse(body)!.AsObject().Select(x => x.Key).Order());
+        Assert.Equal(["collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds"], JsonNode.Parse(body)!.AsObject().Select(x => x.Key).Order());
         var before = await Snapshot(s);
         using var request = Request(s, Encoding.UTF8.GetBytes(body));
         using var response = await Gateway.Client.SendAsync(request);
@@ -348,7 +348,7 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         using var owner = new ProtectionFixture();
         var s = await Setup(owner);
         var body = StrictBody(kind);
-        var bytes = kind == "invalidUtf8" ? new byte[] { 255 } : kind == "bom" ? new byte[] { 239, 187, 191 }.Concat(Encoding.UTF8.GetBytes(body)).ToArray() : Encoding.UTF8.GetBytes(body);
+        var bytes = kind == "invalidUtf8" ? [255] : kind == "bom" ? [239, 187, 191, .. Encoding.UTF8.GetBytes(body)] : Encoding.UTF8.GetBytes(body);
         var before = await Snapshot(s);
         using var request = Request(s, bytes);
         if (kind == "gzip")
@@ -599,7 +599,7 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
             replacements.Add(new("collection", kind == "foreign" ? Guid.NewGuid() : c.PublicId, kind == "stale" ? c.Revision + 1 : c.Revision, Envelope(2)));
         if (kind == "extra")
             replacements.Add(new("collection", Guid.NewGuid(), 1, Envelope(2)));
-        var change = new ProtectionChange(s.AccountId, 1, 1, "rotate-content", owner.Rewrap(), replacements.ToArray());
+        var change = new ProtectionChange(s.AccountId, 1, 1, "rotate-content", owner.Rewrap(), [.. replacements]);
         var raw = Bytes(change);
         var challenge = await Challenge(s, raw);
         var before = await Snapshot(s);
@@ -775,7 +775,7 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         using var document = JsonDocument.Parse(text);
         Assert.True(document.RootElement.GetProperty("success").GetBoolean());
         if (typeof(T) == typeof(CreateCollectionOutput))
-        { Assert.Contains("collection_created", document.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString())); Assert.Equal(new[] { "collectionId", "editedAt", "revision", "serverSequence" }, document.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order()); }
+        { Assert.Contains("collection_created", document.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString())); Assert.Equal(["collectionId", "editedAt", "revision", "serverSequence"], document.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order()); }
         return Assert.IsType<T>(JsonSerializer.Deserialize<DataOutput<T>>(text, ProtectionFixture.Json)!.Data);
     }
     private static async Task Failure(HttpResponseMessage response, int status, string? error = null)

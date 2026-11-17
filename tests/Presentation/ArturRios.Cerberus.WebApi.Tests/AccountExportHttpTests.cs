@@ -49,7 +49,7 @@ public partial class AccountExportHttpTests(RegistrationApiFixture fixture, Shar
         Assert.Equal("attachment", response.Content.Headers.ContentDisposition?.DispositionType);
         Assert.Equal("cerberus-account-export.json", response.Content.Headers.ContentDisposition?.FileName?.Trim('"'));
         using var doc = JsonDocument.Parse(raw);
-        Assert.Equal(new[] { "complete", "entries", "entryCount", "format", "header" }, doc.RootElement.EnumerateObject().Select(p => p.Name).Order());
+        Assert.Equal(["complete", "entries", "entryCount", "format", "header"], doc.RootElement.EnumerateObject().Select(p => p.Name).Order());
         var archive = JsonSerializer.Deserialize<AccountExportArchive>(raw, ExportJson)!;
         Assert.Equal("cerberus-account-export-v1", archive.Format);
         Assert.True(archive.Complete);

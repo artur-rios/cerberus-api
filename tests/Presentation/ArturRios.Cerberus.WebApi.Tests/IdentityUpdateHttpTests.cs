@@ -143,7 +143,7 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
             using var request = new HttpRequestMessage(HttpMethod.Put, "/api/identity/me" + (invalid == "query" ? "?owner=untrusted" : ""))
             { Content = new StringContent(body, Encoding.UTF8, "application/json") };
             request.Headers.TryAddWithoutValidation(Header, invalid == "duplicateHeader" ? new[] { input.Handle, input.Handle }
-                : new[] { invalid == "badHeader" ? "invalid" : input.Handle });
+                : [invalid == "badHeader" ? "invalid" : input.Handle]);
             using var response = await Gateway.Client.SendAsync(request);
             await Failure(response, HttpStatusCode.BadRequest);
         }

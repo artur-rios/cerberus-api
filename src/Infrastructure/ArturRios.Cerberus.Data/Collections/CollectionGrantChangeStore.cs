@@ -97,14 +97,14 @@ public sealed class CollectionGrantChangeStore(IDbContextFactory<AppDbContext> f
 
             var bytes = JsonSerializer.SerializeToUtf8Bytes(input.KeyEnvelope, Json);
             var stamp = Guid.NewGuid();
-            var parameters = Parameters(request).Concat(new object[]
-            {
+            var parameters = Parameters(request).Concat(
+            [
                 new NpgsqlParameter("stable", NpgsqlDbType.Jsonb) { Value = captured.Stable },
                 new NpgsqlParameter("grants", NpgsqlDbType.Jsonb) { Value = captured.Grants },
                 new NpgsqlParameter("replacement", bytes), new NpgsqlParameter("stamp", stamp), new NpgsqlParameter("access", (int)access),
                 new NpgsqlParameter("revision", revision), new NpgsqlParameter("id", item.Id), new NpgsqlParameter("pair", grant.Id),
                 new NpgsqlParameter("previous", grant.Revision), new NpgsqlParameter("generation", captured.RecipientGeneration.Value)
-            }).ToArray();
+            ]).ToArray();
             // One database-time authorization statement is the linearization point.
             // The dependent account UPDATE can only consume the exact successful grant CAS.
             var count = await db.Database.ExecuteSqlRawAsync(Authority + """
@@ -148,7 +148,7 @@ public sealed class CollectionGrantChangeStore(IDbContextFactory<AppDbContext> f
                 || saved.ConcurrencyStamp != stamp || !saved.RecipientKeyEnvelope.AsSpan().SequenceEqual(bytes))
                 return new(Error: "persistence_unavailable");
             await tx.CommitAsync(ct);
-            return new(new(request.CollectionId, request.GrantId, revision, input.Access, post.RecordIds.Order().ToArray(), post.FolderIds.Order().ToArray()));
+            return new(new(request.CollectionId, request.GrantId, revision, input.Access, [.. post.RecordIds.Order()], [.. post.FolderIds.Order()]));
         }
         catch (PostgresException e) when (e.SqlState is "23505" or "2200H") { return new(Error: "revision_conflict"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }

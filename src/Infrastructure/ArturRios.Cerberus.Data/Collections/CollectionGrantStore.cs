@@ -102,14 +102,14 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
             var bytes = JsonSerializer.SerializeToUtf8Bytes(input.KeyEnvelope, Json);
             var stamp = Guid.NewGuid();
             var access = input.Access == "read-only" ? CollectionGrantAccess.ReadOnly : CollectionGrantAccess.ReadWrite;
-            var parameters = Parameters(request).Concat(new object[]
-            {
+            var parameters = Parameters(request).Concat(
+            [
                 new NpgsqlParameter("stable", NpgsqlDbType.Jsonb) { Value = captured.Stable },
                 new NpgsqlParameter("grants", NpgsqlDbType.Jsonb) { Value = captured.Grants },
                 new NpgsqlParameter("replacement", bytes), new NpgsqlParameter("stamp", stamp), new NpgsqlParameter("access", (int)access),
                 new NpgsqlParameter("revision", revision), new NpgsqlParameter("id", item.Id),
                 new NpgsqlParameter("pair", pair?.Id ?? 0), new NpgsqlParameter("previous", pair?.Revision ?? 0)
-            }).ToArray();
+            ]).ToArray();
             // Authorization linearizes here at database time. The exact captured
             // graph prevents accepting new earlier locks or changed protection pins.
             var writeSql = Authority + (pair is null ? """
@@ -142,7 +142,7 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
                 || saved.ConcurrencyStamp != stamp || !saved.RecipientKeyEnvelope.AsSpan().SequenceEqual(bytes))
                 return new(Error: "persistence_unavailable");
             await tx.CommitAsync(ct);
-            return new(new(request.CollectionId, input.GrantId, revision, input.Access, post.RecordIds.Order().ToArray(), post.FolderIds.Order().ToArray()));
+            return new(new(request.CollectionId, input.GrantId, revision, input.Access, [.. post.RecordIds.Order()], [.. post.FolderIds.Order()]));
         }
         catch (PostgresException e) when (e.SqlState is "23505" or "2200H") { return new(Error: "revision_conflict"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }

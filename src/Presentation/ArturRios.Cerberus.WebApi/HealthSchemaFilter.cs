@@ -45,5 +45,5 @@ internal sealed class HealthSchemaFilter : ISchemaFilter, IOperationFilter
     }
 
     private static OpenApiSchema Text(params string[] values) => new()
-    { Type = JsonSchemaType.String, Enum = values.Select(v => (JsonNode)JsonValue.Create(v)!).ToList() };
+    { Type = JsonSchemaType.String, Enum = [.. values.Select(v => (JsonNode)JsonValue.Create(v)!)] };
 }

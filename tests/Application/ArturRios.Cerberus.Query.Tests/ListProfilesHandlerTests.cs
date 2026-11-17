@@ -75,7 +75,7 @@ public class ListProfilesHandlerTests
         if (kind == "key")
             options.RegistrationFingerprintKey = new string('z', 40);
         var store = new Mock<IProfileListStore>(MockBehavior.Strict);
-        var r = await new ListProfilesHandler(store.Object, options, new(options)).HandleAsync(new(kind == "actor" ? Guid.NewGuid() : Actor, kind == "access" ? ProtocolBinary.Encode(new byte[32].Select(_ => (byte)1).ToArray()) : Access, kind == "size" ? 2 : 1, cursor));
+        var r = await new ListProfilesHandler(store.Object, options, new(options)).HandleAsync(new(kind == "actor" ? Guid.NewGuid() : Actor, kind == "access" ? ProtocolBinary.Encode([.. new byte[32].Select(_ => (byte)1)]) : Access, kind == "size" ? 2 : 1, cursor));
         Assert.Contains("validation_failed", r.Errors);
         Assert.Null(r.Data);
         store.VerifyNoOtherCalls();

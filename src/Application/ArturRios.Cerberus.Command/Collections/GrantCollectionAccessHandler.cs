@@ -43,8 +43,8 @@ public sealed class GrantCollectionAccessHandler(IValidator<GrantCollectionAcces
             GrantId = data.GrantId,
             Revision = data.Revision,
             Access = data.Access,
-            RecordIds = data.RecordIds.Order().ToArray(),
-            FolderIds = data.FolderIds.Order().ToArray()
+            RecordIds = [.. data.RecordIds.Order()],
+            FolderIds = [.. data.FolderIds.Order()]
         }).WithMessage("collection_access_granted");
     }
 }

@@ -225,8 +225,8 @@ public class VaultProtectionHttpTests(RegistrationApiFixture fixture, SharedApiH
             "duplicateBody" => Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1,\"expectedProtectionRevision\":1}"),
             "numericString" => Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":\"1\"}"),
             "stale" => Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":2}"),
-            "bom" => new byte[] { 239, 187, 191 }.Concat(UnlockBody).ToArray(),
-            "invalidUtf8" => new byte[] { 123, 34, 120, 34, 58, 34, 255, 34, 125 },
+            "bom" => [239, 187, 191, .. UnlockBody],
+            "invalidUtf8" => [123, 34, 120, 34, 58, 34, 255, 34, 125],
             _ => UnlockBody
         };
         using var request = new HttpRequestMessage(HttpMethod.Post, "/api/vault/unlock" + (invalid == "query" ? "?owner=untrusted" : ""))
@@ -235,7 +235,7 @@ public class VaultProtectionHttpTests(RegistrationApiFixture fixture, SharedApiH
         if (invalid == "compressed")
             request.Content.Headers.ContentEncoding.Add("gzip");
         if (invalid != "missingHeader")
-            request.Headers.TryAddWithoutValidation(ChallengeHeader, invalid == "duplicateHeader" ? new[] { c.ChallengeId.ToString(), c.ChallengeId.ToString() } : new[] { invalid == "malformedHeader" ? "BAD" : c.ChallengeId.ToString() });
+            request.Headers.TryAddWithoutValidation(ChallengeHeader, invalid == "duplicateHeader" ? new[] { c.ChallengeId.ToString(), c.ChallengeId.ToString() } : [invalid == "malformedHeader" ? "BAD" : c.ChallengeId.ToString()]);
         request.Headers.Add(ProofHeader, invalid == "signature" ? ProtocolBinary.Encode(new byte[64]) : client.Sign(c));
         using var response = await Gateway.Client.SendAsync(request);
         await Failure(response, status);

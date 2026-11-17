@@ -359,10 +359,10 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         {
             var folders = await new FolderListStore(fixture).ListAsync(new(r.Actor, r.Verifier, 100, 0, null), default);
             Assert.Null(folders.Error);
-            Assert.Equal(new[] { b.Folder.PublicId }, folders.Data!.Items.Select(x => x.FolderId));
+            Assert.Equal([b.Folder.PublicId], folders.Data!.Items.Select(x => x.FolderId));
             var records = await new RecordListStore(fixture).ListAsync(new(r.Actor, r.Verifier, 100, 0, null), default);
             Assert.Null(records.Error);
-            Assert.Equal((r == recipient ? new[] { a.Record.PublicId, b.Record.PublicId, child.PublicId } : new[] { b.Record.PublicId, child.PublicId }).Order(), records.Data!.Items.Select(x => x.RecordId).Order());
+            Assert.Equal((r == recipient ? new[] { a.Record.PublicId, b.Record.PublicId, child.PublicId } : [b.Record.PublicId, child.PublicId]).Order(), records.Data!.Items.Select(x => x.RecordId).Order());
         }
         Assert.Equal(r1, await Snapshot(recipient));
         Assert.Equal(r2, await Snapshot(recipient2));
@@ -804,7 +804,7 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         { db.Collections.AddRange(Enumerable.Range(0, 100).Select(i => new VaultCollection { PublicId = Guid.NewGuid(), AccountId = i < 50 ? s.InternalId : r.InternalId, Envelope = Bytes(ProfileSetup.Envelope()), EditedAt = DateTimeOffset.UnixEpoch })); await db.SaveChangesAsync(); }
         var capture = new Capture();
         Assert.Null((await new CollectionMembershipStore(new ProfileSetup.Factory(fixture, capture)).SetAsync(new(s.Actor, s.Verifier, a.Collection.PublicId, Input([a.Folder.PublicId], [a.Record.PublicId])), default)).Error);
-        Assert.Equal(new[] { "account", "vault_access_session", "profile", "collection", "collection_grant", "folder", "record", "collection_folder", "collection_record" }, capture.Locks.Select(x => x.Table));
+        Assert.Equal(["account", "vault_access_session", "profile", "collection", "collection_grant", "folder", "record", "collection_folder", "collection_record"], capture.Locks.Select(x => x.Table));
         Assert.Equal(s.Actor, Assert.Single(capture.Locks[0].Values));
         Assert.Contains("FOR UPDATE", capture.Locks[0].Sql);
         Assert.Contains("FOR NO KEY UPDATE", capture.Locks[2].Sql);
@@ -1134,7 +1134,7 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         Assert.Equal(input.FolderIds.Order(), result.Data.FolderIds);
         Assert.Equal(input.RecordIds.Order(), result.Data.RecordIds);
         using var output = JsonDocument.Parse(Bytes(result.Data));
-        Assert.Equal(new[] { "collectionId", "editedAt", "folderIds", "recordIds", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["collectionId", "editedAt", "folderIds", "recordIds", "revision", "serverSequence"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         await using var db = fixture.CreateContext();
         var c = await db.Collections.AsNoTracking().SingleAsync(x => x.Id == target.Id);
         Assert.Equal(Bytes(input.Envelope), c.Envelope);
@@ -1211,7 +1211,7 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         private void Note(DbCommand c) { if (c.CommandText.Contains("FOR ")) { var table = new[] { "account", "vault_access_session", "profile", "collection", "collection_grant", "folder", "record", "collection_folder", "collection_record" }.Single(x => c.CommandText.Contains("FROM cerberus." + x + " ")); Locks.Add((table, c.CommandText, c.Parameters.Cast<DbParameter>().Select(x => x.Value!).ToArray())); } }
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { Note(c); return ValueTask.FromResult(r); }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
-        { Note(c); if (Sql.Length == 0 && c.CommandText.StartsWith("WITH RECURSIVE")) { Sql = c.CommandText; Parameters = c.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone()).ToArray(); } return ValueTask.FromResult(r); }
+        { Note(c); if (Sql.Length == 0 && c.CommandText.StartsWith("WITH RECURSIVE")) { Sql = c.CommandText; Parameters = [.. c.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone())]; } return ValueTask.FromResult(r); }
     }
     private sealed class ThrowingFactory(Exception failure) : IDbContextFactory<AppDbContext>
     { public AppDbContext CreateDbContext() => throw failure; public Task<AppDbContext> CreateDbContextAsync(CancellationToken ct = default) => Task.FromException<AppDbContext>(failure); }

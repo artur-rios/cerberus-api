@@ -49,8 +49,8 @@ public class EmptyTrashHandlerTests
         Assert.Equal(4, r.Data.Counts.Count);
         Assert.Equal(count, r.Data.Counts.Single(x => x.Kind == "record").Count);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(r.Data, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
-        Assert.Equal(new[] { "accountId", "counts", "purgedAt", "totalPurged" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        Assert.All(json.RootElement.GetProperty("counts").EnumerateArray(), x => Assert.Equal(new[] { "count", "kind" }, x.EnumerateObject().Select(p => p.Name).Order()));
+        Assert.Equal(["accountId", "counts", "purgedAt", "totalPurged"], json.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.All(json.RootElement.GetProperty("counts").EnumerateArray(), x => Assert.Equal(["count", "kind"], x.EnumerateObject().Select(p => p.Name).Order()));
         store.VerifyAll();
     }
     [UnitTheory]
@@ -100,7 +100,7 @@ public class EmptyTrashHandlerTests
         {
             "nullCounts" => null!,
             "emptyCounts" => [],
-            "missingKind" => d.Counts.Take(3).ToArray(),
+            "missingKind" => [.. d.Counts.Take(3)],
             "extraKind" => [.. d.Counts, new("grant", 1)],
             "duplicateKind" => [d.Counts[0], d.Counts[0], d.Counts[2], d.Counts[3]],
             "nullCount" => [null!, .. d.Counts.Skip(1)],

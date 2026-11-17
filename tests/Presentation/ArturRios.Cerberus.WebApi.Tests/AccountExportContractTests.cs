@@ -40,14 +40,14 @@ public sealed class AccountExportContractTests
         var op = doc.Paths["/api/accounts/me/export"].Operations![HttpMethod.Post];
         Assert.Equal(new[] { "200", "400", "401", "403", "404", "409", "413", "503" }.Order(), op.Responses!.Keys.Order());
         Assert.True(op.RequestBody!.Required);
-        Assert.Equal(new[] { "application/json" }, op.RequestBody.Content!.Keys);
+        Assert.Equal(["application/json"], op.RequestBody.Content!.Keys);
         var access = Assert.Single(op.Parameters!);
         Assert.Equal("X-Cerberus-Vault-Access", access.Name);
         Assert.True(access.Required);
         Assert.True(op.Responses["413"].Content is null or { Count: 0 });
         var schemas = doc.Components!.Schemas!;
         var archive = schemas["AccountExportArchive"];
-        Assert.Equal(new[] { "complete", "entries", "entryCount", "format", "header" }, archive.Required!.Order());
+        Assert.Equal(["complete", "entries", "entryCount", "format", "header"], archive.Required!.Order());
         Assert.Equal("cerberus-account-export-v1", Assert.Single(archive.Properties!["format"].Enum!).ToString());
         Assert.Equal("true", Assert.Single(archive.Properties["complete"].Enum!).ToString());
         Assert.Equal(12, archive.Properties["entries"].Items!.OneOf!.Count);
@@ -57,7 +57,7 @@ public sealed class AccountExportContractTests
         var header = schemas["AccountExportHeader"];
         Assert.Equal(header.Properties!.Keys.Order(), header.Required!.Order());
         Assert.Contains("renewalIntervalSeconds", header.Required!);
-        Assert.Equal(new[] { "expectedRevision" }, schemas["AccountExportInput"].Properties!.Keys);
+        Assert.Equal(["expectedRevision"], schemas["AccountExportInput"].Properties!.Keys);
         foreach (var status in new[] { "400", "401", "403", "404", "409", "503" })
             Assert.Equal("ProcessOutput", Assert.IsType<OpenApiSchemaReference>(op.Responses[status].Content!["application/json"].Schema!).Reference.Id);
     }

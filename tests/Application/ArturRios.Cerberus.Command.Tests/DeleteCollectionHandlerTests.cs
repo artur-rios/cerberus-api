@@ -101,10 +101,10 @@ public class DeleteCollectionHandlerTests
         Assert.Equal(cancellation.Token, receivedToken);
         store.Verify(x => x.TrashAsync(It.IsAny<CollectionTrashRequest>(), cancellation.Token), Times.Once);
         using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
-        Assert.Equal(new[] { "collectionId", "deletedAt", "purgeAt", "revision", "serverSequence", "trashOperationId" },
+        Assert.Equal(["collectionId", "deletedAt", "purgeAt", "revision", "serverSequence", "trashOperationId"],
             output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         using var input = JsonDocument.Parse(JsonSerializer.Serialize(command, Json));
-        Assert.Equal(new[] { "expectedRevision" }, input.RootElement.EnumerateObject().Select(x => x.Name));
+        Assert.Equal(["expectedRevision"], input.RootElement.EnumerateObject().Select(x => x.Name));
     }
 
     [UnitTheory]

@@ -54,7 +54,7 @@ public partial class TrashRestoreAssociationTests(PostgresFixture fixture) : ICl
         { await db.Profiles.Where(x => x.Id == p.Id).ExecuteDeleteAsync(); await db.Collections.Where(x => x.Id == a.Collection.Id).ExecuteDeleteAsync(); await db.Folders.Where(x => x.Id == a.Folder.Id).ExecuteDeleteAsync(); }
         var r = await Restore(s, root);
         Assert.Null(r.Error);
-        Assert.Equal(new[] { "collection", "parent", "profile" }, r.Data!.Omissions.Select(x => x.AssociationKind).Order());
+        Assert.Equal(["collection", "parent", "profile"], r.Data!.Omissions.Select(x => x.AssociationKind).Order());
         Assert.All(r.Data.Omissions, x => { Assert.Equal(root.ResourceId, x.ResourceId); Assert.Equal(1, x.Count); });
         await using var check = fixture.CreateContext();
         var row = await check.Records.SingleAsync(x => x.Id == a.Record.Id);
@@ -124,7 +124,7 @@ public partial class TrashRestoreAssociationTests(PostgresFixture fixture) : ICl
         await Select(s, p);
         var r = await Restore(s, root);
         Assert.Null(r.Error);
-        Assert.Equal(new[] { "collection", "parent", "profile" }, r.Data!.Omissions.Select(x => x.AssociationKind).Order());
+        Assert.Equal(["collection", "parent", "profile"], r.Data!.Omissions.Select(x => x.AssociationKind).Order());
         await using var check = fixture.CreateContext();
         Assert.Equal(new[] { p.Id }, await check.ProfileRecords.Where(x => x.RecordId == a.Record.Id).Select(x => x.ProfileId).ToArrayAsync());
         Assert.Equal(new[] { a.Collection.Id }, await check.CollectionRecords.Where(x => x.RecordId == a.Record.Id).Select(x => x.CollectionId).ToArrayAsync());

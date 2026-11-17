@@ -91,9 +91,9 @@ public class UpdateFolderHandlerTests
         Assert.Equal(ct.Token, token);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
         using var data = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
-        Assert.Equal(new[] { "editedAt", "folderId", "revision", "serverSequence" }, data.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["editedAt", "folderId", "revision", "serverSequence"], data.RootElement.EnumerateObject().Select(x => x.Name).Order());
         using var wire = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
-        Assert.Equal(new[] { "editedAt", "envelope", "expectedRevision" }, wire.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["editedAt", "envelope", "expectedRevision"], wire.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
     [InlineData("validation_failed", 400)]

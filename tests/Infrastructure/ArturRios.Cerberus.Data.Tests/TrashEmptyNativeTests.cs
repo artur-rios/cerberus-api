@@ -22,7 +22,7 @@ public partial class TrashEmptyStoreTests
         var r = await Store().EmptyAsync(Request(w.Owner), default);
         Assert.Null(r.Error);
         Assert.Equal(7, r.Data!.TotalPurged);
-        Assert.Equal(new long[] { 3, 2, 1, 1 }, new[] { "record", "folder", "collection", "profile" }.Select(k => r.Data.Counts.Single(x => x.Kind == k).Count));
+        Assert.Equal([3, 2, 1, 1], new[] { "record", "folder", "collection", "profile" }.Select(k => r.Data.Counts.Single(x => x.Kind == k).Count));
         Assert.Equal(before, await TrashEmptyNativeSetup.Survivors(fixture, w));
         foreach (var root in roots)
             await TrashRestoreSetup.NoOperation(fixture, root.OperationId);

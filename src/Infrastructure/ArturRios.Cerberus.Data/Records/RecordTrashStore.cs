@@ -112,12 +112,12 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory) : 
             if (parents.Any(x => x.Revision == ProtocolBinary.MaxInteger))
                 return new(Error: "revision_conflict");
             var snapshot = new RecordAssociationSnapshot(folder?.PublicId,
-                profiles.Where(x => actualProfiles.Contains(x.Id)).Select(x => x.PublicId).Order().ToArray(),
-                collections.Where(x => actualCollections.Contains(x.Id)).Select(x => x.PublicId).Order().ToArray());
-            var parameters = Parameters(request).Concat(new object[]{new NpgsqlParameter("expected",request.ExpectedRevision),
+                [.. profiles.Where(x => actualProfiles.Contains(x.Id)).Select(x => x.PublicId).Order()],
+                [.. collections.Where(x => actualCollections.Contains(x.Id)).Select(x => x.PublicId).Order()]);
+            var parameters = Parameters(request).Concat([new NpgsqlParameter("expected",request.ExpectedRevision),
                 new NpgsqlParameter("previous_sequence",original.ServerSequence),new NpgsqlParameter("original",original.Envelope),
                 new NpgsqlParameter("parent",NpgsqlDbType.Bigint){Value=(object?)originalFolder??DBNull.Value},
-                new NpgsqlParameter("profiles",heldProfiles),new NpgsqlParameter("collections",heldCollections),new NpgsqlParameter("stamp",Guid.NewGuid())}).ToArray();
+                new NpgsqlParameter("profiles",heldProfiles),new NpgsqlParameter("collections",heldCollections),new NpgsqlParameter("stamp",Guid.NewGuid())]).ToArray();
             var changed = await db.Database.ExecuteSqlRawAsync(Authority + """
                 UPDATE cerberus.record AS r SET deleted_at=statement_timestamp(),purge_at=statement_timestamp()+interval '720 hours',
                   folder_id=NULL,revision=r.revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp=@stamp

@@ -59,8 +59,8 @@ public class RecordReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         var before = await Snapshot(s);
         var r = await Read(request, record.PublicId);
         Assert.Null(r.Error);
-        Assert.Equal((selected ? new[] { p.PublicId } : new[] { p.PublicId, q.PublicId }).Order(), r.Data!.ProfileIds);
-        Assert.Equal((selected ? new[] { a.Collection.PublicId } : new[] { a.Collection.PublicId, b.Collection.PublicId }).Order(), r.Data.CollectionIds);
+        Assert.Equal((selected ? new[] { p.PublicId } : [p.PublicId, q.PublicId]).Order(), r.Data!.ProfileIds);
+        Assert.Equal((selected ? new[] { a.Collection.PublicId } : [a.Collection.PublicId, b.Collection.PublicId]).Order(), r.Data.CollectionIds);
         Assert.DoesNotContain(outside.Collection.PublicId, r.Data.CollectionIds);
         Assert.Equal(child.PublicId, r.Data.FolderId);
         Assert.Equal(before, await Snapshot(s));
@@ -84,8 +84,8 @@ public class RecordReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         var r = await Read(s with { Verifier = await Selected(s, p.Id) }, record.PublicId);
         Assert.Null(r.Error);
         Assert.Equal(parentVisible ? child.PublicId : null, r.Data!.FolderId);
-        Assert.Equal(route == "direct" ? new[] { p.PublicId } : [], r.Data.ProfileIds);
-        Assert.Equal(route.StartsWith("collection") ? new[] { a.Collection.PublicId } : [], r.Data.CollectionIds);
+        Assert.Equal(route == "direct" ? [p.PublicId] : [], r.Data.ProfileIds);
+        Assert.Equal(route.StartsWith("collection") ? [a.Collection.PublicId] : [], r.Data.CollectionIds);
     }
     [FunctionalTheory]
     [InlineData(CollectionGrantAccess.ReadOnly, "direct", false)]
@@ -118,7 +118,7 @@ public class RecordReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         var r = await Read(request, record.PublicId);
         Assert.Null(r.Error);
         Assert.Empty(r.Data!.ProfileIds);
-        Assert.Equal((selected ? new[] { a.Collection.PublicId } : new[] { a.Collection.PublicId, b.Collection.PublicId }).Order(), r.Data.CollectionIds);
+        Assert.Equal((selected ? new[] { a.Collection.PublicId } : [a.Collection.PublicId, b.Collection.PublicId]).Order(), r.Data.CollectionIds);
         Assert.Equal(route == "direct" ? null : child.PublicId, r.Data.FolderId);
         Assert.Equal(record.Envelope, r.Data.Record.Envelope);
         Assert.Equal(before, await Snapshot(s));
@@ -444,8 +444,8 @@ public class RecordReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         { if (kind == "profileTrash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(p => p.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "collectionTrash") await db.Collections.Where(x => x.Id == a.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(c => c.DeletedAt, DateTimeOffset.UtcNow)); if (kind.EndsWith("Terminal")) { db.TerminalErasures.Add(new() { ResourceId = kind.StartsWith("profile") ? p.PublicId : a.Collection.PublicId, ResourceKind = kind.StartsWith("profile") ? "profile" : "collection", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } }
         var r = await Read(s, a.Record.PublicId);
         Assert.Null(r.Error);
-        Assert.Equal(kind.StartsWith("profile") ? [] : new[] { p.PublicId }, r.Data!.ProfileIds);
-        Assert.Equal(kind.StartsWith("collection") ? [] : new[] { a.Collection.PublicId }, r.Data.CollectionIds);
+        Assert.Equal(kind.StartsWith("profile") ? [] : [p.PublicId], r.Data!.ProfileIds);
+        Assert.Equal(kind.StartsWith("collection") ? [] : [a.Collection.PublicId], r.Data.CollectionIds);
     }
     [FunctionalTheory]
     [InlineData(true, "epoch")]
@@ -536,7 +536,7 @@ public class RecordReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         public int Readers { get; private set; }
         public string Sql { get; private set; } = ""; public NpgsqlParameter[] Parameters { get; private set; } = [];
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
-        { Readers++; Sql = command.CommandText; Parameters = command.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone()).ToArray(); return ValueTask.FromResult(result); }
+        { Readers++; Sql = command.CommandText; Parameters = [.. command.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone())]; return ValueTask.FromResult(result); }
     }
 
     private sealed class ExpireBeforeRead(DateTimeOffset deadline) : DbCommandInterceptor

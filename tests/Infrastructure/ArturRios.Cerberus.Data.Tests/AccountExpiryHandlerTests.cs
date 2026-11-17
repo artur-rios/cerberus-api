@@ -110,11 +110,11 @@ public partial class AccountDeletionStoreTests
         if (damage == "generation")
             await db.Accounts.Where(x => x.Id == w.Owner.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.RevocationGeneration, 0));
         if (damage is "incomingKey" or "outgoingKey")
-        { var id = damage == "incomingKey" ? w.Incoming.Id : w.Outgoing.Id; await db.CollectionGrants.Where(x => x.Id == id).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, new byte[] { 1 })); }
+        { var id = damage == "incomingKey" ? w.Incoming.Id : w.Outgoing.Id; await db.CollectionGrants.Where(x => x.Id == id).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, [1])); }
         if (damage == "software")
             await db.SoftwareGrants.Where(x => x.AccountId == w.Owner.InternalId).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, SoftwareGrantState.Active));
         if (damage == "softwareKey")
-            await db.SoftwareGrants.Where(x => x.AccountId == w.Owner.InternalId).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKey, new byte[] { 1 }));
+            await db.SoftwareGrants.Where(x => x.AccountId == w.Owner.InternalId).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKey, [1]));
         if (damage == "challenge")
             await db.VaultUnlockChallenges.Where(x => x.AccountId == w.Owner.InternalId).ExecuteUpdateAsync(x => x.SetProperty(g => g.Consumed, false));
         var before = await Snapshot(db, w.Owner);

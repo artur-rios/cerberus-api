@@ -43,7 +43,7 @@ public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
             Assert.Null(result.Id);
         await using var after = fixture.CreateContext();
         var account = await after.Accounts.SingleAsync(x => x.PublicId == input.AccountId);
-        Assert.Equal(error is null ? new byte[] { 7, 8, 9 } : new byte[] { 1, 2, 3 }, account.DetailsEnvelope);
+        Assert.Equal(error is null ? [7, 8, 9] : [1, 2, 3], account.DetailsEnvelope);
         Assert.Equal(state == "exhausted" ? long.MaxValue : error is null ? 4 : 3, account.Revision);
         Assert.Equal(input.Identity, account.HeimdallPublicId);
         Assert.Equal(state == "closing" ? AccountState.ClosurePending : AccountState.Active, account.State);

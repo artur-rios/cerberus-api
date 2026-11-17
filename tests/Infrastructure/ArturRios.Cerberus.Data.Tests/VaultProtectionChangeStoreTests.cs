@@ -80,7 +80,7 @@ public class VaultProtectionChangeStoreTests(PostgresFixture fixture) : IClassFi
             if (state == "noProtection")
                 await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteDeleteAsync();
             if (state == "corruptMaterial")
-                await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(p => p.Material, new byte[] { 1, 2, 3 }));
+                await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(p => p.Material, [1, 2, 3]));
             if (state == "overflow")
                 a.RevocationGeneration = 9007199254740991;
             if (state == "revoked")

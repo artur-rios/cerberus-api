@@ -58,7 +58,7 @@ public sealed class SoftwareSecretHttpTests(RegistrationApiFixture fixture)
             Assert.Equal(c.Details.AuthorKey, output.Data.AuthorKey);
             Assert.Equal(c.Details.RecipientKey, output.Data.RecipientKey);
             using var doc = JsonDocument.Parse(raw);
-            Assert.Equal(new[] { "authorKey", "grantId", "grantRevision", "ownerAccountId", "provisioning", "recipientKey", "target" }, doc.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
+            Assert.Equal(["authorKey", "grantId", "grantRevision", "ownerAccountId", "provisioning", "recipientKey", "target"], doc.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
             Assert.DoesNotContain("password", raw, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("vaultAccess", raw);
             Assert.DoesNotContain("email", raw);
@@ -168,7 +168,7 @@ public sealed class SoftwareSecretHttpTests(RegistrationApiFixture fixture)
         if (mode == "account")
             await db.Accounts.Where(x => x.PublicId == c.Details.OwnerAccountId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending));
         if (mode == "binding")
-            await db.SoftwareGrantRecords.Where(x => x.GrantId == db.SoftwareGrants.Where(g => g.PublicId == c.Input.GrantId).Select(g => g.Id).Single()).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, new byte[] { 1 }));
+            await db.SoftwareGrantRecords.Where(x => x.GrantId == db.SoftwareGrants.Where(g => g.PublicId == c.Input.GrantId).Select(g => g.Id).Single()).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, [1]));
         if (mode == "target")
             c = c with { Input = c.Input with { Id = Guid.NewGuid() } };
         using var request = Request(c, Token(c.Identity));
@@ -284,7 +284,7 @@ public sealed class SoftwareSecretHttpTests(RegistrationApiFixture fixture)
         var raw = await response.Content.ReadAsStringAsync();
         using var doc = JsonDocument.Parse(raw);
         Assert.False(doc.RootElement.GetProperty("success").GetBoolean());
-        Assert.Equal(new[] { code }, doc.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
+        Assert.Equal([code], doc.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
         if (doc.RootElement.TryGetProperty("data", out var data))
             Assert.Equal(JsonValueKind.Null, data.ValueKind);
         Assert.DoesNotContain("private", raw);

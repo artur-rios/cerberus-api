@@ -573,7 +573,7 @@ public class FolderMoveStoreTests(PostgresFixture fixture) : IClassFixture<Postg
         await Members(s, a.Collection, [record.Id], [child.Id]);
         await Profile(s, owner, key, records: [record.PublicId], folders: [target.PublicId, leaf.PublicId]);
         var destination = route is "toRoot" or "rootNoop" ? null : route == "same" ? from : to;
-        var ignored = route is "same" or "rootNoop" ? new[] { target.Id } : new[] { target.Id, from.Id, to.Id };
+        var ignored = route is "same" or "rootNoop" ? new[] { target.Id } : [target.Id, from.Id, to.Id];
         var stable = await Stable(s, ignored);
         await Success(target, destination, from, to, await Move(s, target, destination?.PublicId));
         Assert.Equal(stable, await Stable(s, ignored));
@@ -743,7 +743,7 @@ public class FolderMoveStoreTests(PostgresFixture fixture) : IClassFixture<Postg
         Assert.Contains((await new RecordListStore(fixture).ListAsync(new(recipient.Actor, recipient.Verifier, 50, 0, null), default)).Data!.Items, x => x.RecordId == record.PublicId);
         Assert.Equal("not_found", (await new FolderReadStore(fixture).ReadAsync(new(recipient.Actor, oldHandle, child.PublicId), default)).Error);
         Assert.Equal("not_found", (await new RecordReadStore(fixture).ReadAsync(new(recipient.Actor, oldHandle, record.PublicId), default)).Error);
-        Assert.Equal(new[] { a.Folder.PublicId }, (await new FolderListStore(fixture).ListAsync(new(recipient.Actor, oldHandle, 50, 0, null), default)).Data!.Items.Select(x => x.FolderId));
+        Assert.Equal([a.Folder.PublicId], (await new FolderListStore(fixture).ListAsync(new(recipient.Actor, oldHandle, 50, 0, null), default)).Data!.Items.Select(x => x.FolderId));
         Assert.Empty((await new RecordListStore(fixture).ListAsync(new(recipient.Actor, oldHandle, 50, 0, null), default)).Data!.Items);
     }
     [FunctionalTheory]

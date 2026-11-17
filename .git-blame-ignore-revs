@@ -9,3 +9,6 @@ a7e361863c7db173b7ffe958e8d62e8f9d0c58b1
 
 # style: finish the editorconfig pass
 bba813c09bd54805065bef3b449dac35c386338d
+
+# refactor: use collection expressions (IDE0028, IDE0300-IDE0306)
+88bf964e1e1bf20298fa55b32b685630b6b04b1f

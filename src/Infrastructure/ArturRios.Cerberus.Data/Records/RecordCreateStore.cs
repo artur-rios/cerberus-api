@@ -150,7 +150,8 @@ public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) :
         }
         catch (PostgresException e) when (e.SqlState is PostgresErrorCodes.UniqueViolation or "2200H") { return new(Error: "revision_conflict"); }
         catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException
-            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException }) { return new(Error: "persistence_unavailable"); }
+            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException })
+        { return new(Error: "persistence_unavailable"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
     }
 

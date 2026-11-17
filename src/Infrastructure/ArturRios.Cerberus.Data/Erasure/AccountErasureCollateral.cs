@@ -4,7 +4,7 @@ namespace ArturRios.Cerberus.Data.Erasure;
 
 internal static class AccountErasureCollateral
 {
-    internal static Task<string> ReadAsync(AppDbContext db,long owner,long[] roots,long[] recipients,CancellationToken ct)=>db.Database.SqlQueryRaw<string>("""
+    internal static Task<string> ReadAsync(AppDbContext db, long owner, long[] roots, long[] recipients, CancellationToken ct) => db.Database.SqlQueryRaw<string>("""
         SELECT jsonb_build_object(
         'accounts',(SELECT jsonb_agg(CASE WHEN id=ANY(@recipients) THEN to_jsonb(a)-ARRAY['revocation_generation','concurrency_stamp'] ELSE to_jsonb(a) END ORDER BY id) FROM cerberus.account a WHERE id=ANY(@roots) AND id<>@owner),
         'profiles',(SELECT jsonb_agg(to_jsonb(r) ORDER BY id) FROM cerberus.profile r WHERE account_id=ANY(@roots) AND account_id<>@owner),
@@ -24,5 +24,5 @@ internal static class AccountErasureCollateral
         'software',(SELECT jsonb_agg(to_jsonb(r) ORDER BY id) FROM cerberus.software_grant r WHERE account_id=ANY(@roots) AND account_id<>@owner),
         'software_records',(SELECT jsonb_agg(to_jsonb(r) ORDER BY grant_id,record_id) FROM cerberus.software_grant_record r WHERE account_id=ANY(@roots) AND account_id<>@owner),
         'software_collections',(SELECT jsonb_agg(to_jsonb(r) ORDER BY grant_id,collection_id) FROM cerberus.software_grant_collection r WHERE account_id=ANY(@roots) AND account_id<>@owner))::text AS "Value"
-        """,new NpgsqlParameter("owner",owner),new NpgsqlParameter("roots",roots),new NpgsqlParameter("recipients",recipients)).SingleAsync(ct);
+        """, new NpgsqlParameter("owner", owner), new NpgsqlParameter("roots", roots), new NpgsqlParameter("recipients", recipients)).SingleAsync(ct);
 }

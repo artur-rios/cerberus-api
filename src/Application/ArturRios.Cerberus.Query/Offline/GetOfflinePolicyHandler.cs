@@ -26,8 +26,10 @@ public sealed class GetOfflinePolicyHandler(IOfflinePolicyReadStore policies, Ti
             return output.WithError("persistence_unavailable");
         return output.WithData(new OfflinePolicyOutput
         {
-            RenewalEnabled = policy.RenewalEnabled, RenewalInterval = policy.RenewalInterval,
-            PolicyRevision = policy.PolicyRevision, RevocationGeneration = policy.RevocationGeneration
+            RenewalEnabled = policy.RenewalEnabled,
+            RenewalInterval = policy.RenewalInterval,
+            PolicyRevision = policy.PolicyRevision,
+            RevocationGeneration = policy.RevocationGeneration
         }).WithMessage("offline_policy_found");
     }
 }

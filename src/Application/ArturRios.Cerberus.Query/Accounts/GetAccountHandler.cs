@@ -28,8 +28,10 @@ public sealed class GetAccountHandler(IAccountReadStore accounts, TimeProvider c
         if (details?.IsValid() != true) return output.WithError("persistence_unavailable");
         return output.WithData(new AccountOutput
         {
-            Id = result.Account.Id, Revision = result.Account.Revision,
-            State = result.Account.State.ToString().ToLowerInvariant(), Details = details
+            Id = result.Account.Id,
+            Revision = result.Account.Revision,
+            State = result.Account.State.ToString().ToLowerInvariant(),
+            Details = details
         }).WithMessage("account_found");
     }
 }

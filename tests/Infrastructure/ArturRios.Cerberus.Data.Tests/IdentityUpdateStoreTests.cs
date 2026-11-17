@@ -178,8 +178,15 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
         var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
         var now = new DateTimeOffset(DateTimeOffset.UtcNow.Ticks / 10 * 10, TimeSpan.Zero);
         await using var context = fixture.CreateContext();
-        var account = new Account { PublicId = id, HeimdallPublicId = identity, Revision = 3, DetailsEnvelope = [1, 2, 3],
-            State = state == "closing" ? AccountState.ClosurePending : AccountState.Active, RenewalEnabled = state is not ("noExpiry" or "disabledWithExpiry") };
+        var account = new Account
+        {
+            PublicId = id,
+            HeimdallPublicId = identity,
+            Revision = 3,
+            DetailsEnvelope = [1, 2, 3],
+            State = state == "closing" ? AccountState.ClosurePending : AccountState.Active,
+            RenewalEnabled = state is not ("noExpiry" or "disabledWithExpiry")
+        };
         context.Accounts.Add(account);
         await context.SaveChangesAsync();
         var sessionOwner = account.Id;
@@ -192,10 +199,14 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
         }
         if (state != "missingSession") context.VaultAccessSessions.Add(new VaultAccessSession
         {
-            AccountId = sessionOwner, HandleVerifier = verifier, ProfileId = state == "profile" ? 42 : null,
+            AccountId = sessionOwner,
+            HandleVerifier = verifier,
+            ProfileId = state == "profile" ? 42 : null,
             IssuedAt = state == "future" ? now.AddHours(1) : now.AddMinutes(-5),
             ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expired" ? now.AddMinutes(-1) : now.AddMinutes(5),
-            Revoked = state == "revoked", PolicyRevision = state == "stalePolicy" ? 0 : 1, RevocationGeneration = state == "staleGeneration" ? 0 : 1
+            Revoked = state == "revoked",
+            PolicyRevision = state == "stalePolicy" ? 0 : 1,
+            RevocationGeneration = state == "staleGeneration" ? 0 : 1
         });
         if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = now });
         await context.SaveChangesAsync();
@@ -204,8 +215,11 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
     private async Task<string> Snapshot(Guid id, string verifier)
     {
         await using var context = fixture.CreateContext();
-        return JsonSerializer.Serialize(new { Account = await context.Accounts.AsNoTracking().SingleAsync(x => x.PublicId == id),
-            Session = await context.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.HandleVerifier == verifier) });
+        return JsonSerializer.Serialize(new
+        {
+            Account = await context.Accounts.AsNoTracking().SingleAsync(x => x.PublicId == id),
+            Session = await context.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.HandleVerifier == verifier)
+        });
     }
     private static IdentityUpdateResult Success(Guid identity) => new(new IdentityDetails(identity, "Updated Owner", "updated@example.test", false));
     private sealed class BeforeLock(bool sessionLock, Func<Task> action) : DbCommandInterceptor

@@ -14,7 +14,9 @@ namespace ArturRios.Cerberus.Data.Tests;
 public class OfflineAuthorizationStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
-    [InlineData("1 month")][InlineData("20000000 days")][InlineData("0.5 seconds")]
+    [InlineData("1 month")]
+    [InlineData("20000000 days")]
+    [InlineData("0.5 seconds")]
     public async Task GivenCorruptOrUnsupportedSavedInterval_WhenRenewing_ThenFailClosedWithoutSigning(string interval)
     {
         var s = await OfflineAuthorizationTestData.Setup(fixture);
@@ -43,11 +45,16 @@ public class OfflineAuthorizationStoreTests(PostgresFixture fixture) : IClassFix
         public AppDbContext CreateDbContext() => new(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql("Host=127.0.0.1;Port=1;Database=fixture;Username=fixture;Password=fixture;Timeout=1").Options);
     }
     [FunctionalTheory]
-    [InlineData("active", true, null)][InlineData("write", true, null)]
-    [InlineData("revoked", false, null)][InlineData("missing", false, null)]
-    [InlineData("ownerClosing", false, null)][InlineData("ownerErased", false, null)]
-    [InlineData("collectionDeleted", false, null)][InlineData("collectionErased", false, null)]
-    [InlineData("grantErased", false, null)][InlineData("invalidAccess", false, null)]
+    [InlineData("active", true, null)]
+    [InlineData("write", true, null)]
+    [InlineData("revoked", false, null)]
+    [InlineData("missing", false, null)]
+    [InlineData("ownerClosing", false, null)]
+    [InlineData("ownerErased", false, null)]
+    [InlineData("collectionDeleted", false, null)]
+    [InlineData("collectionErased", false, null)]
+    [InlineData("grantErased", false, null)]
+    [InlineData("invalidAccess", false, null)]
     [InlineData("invalidRevision", false, "persistence_unavailable")]
     public async Task GivenAssociatedSharedCollection_WhenRenewing_ThenBindOnlyCurrentPermittedGrants(string state, bool visible, string? error)
     {
@@ -76,40 +83,71 @@ public class OfflineAuthorizationStoreTests(PostgresFixture fixture) : IClassFix
         Assert.Equal(3, await db.Profiles.Where(x => x.Id == s.Profile).Select(x => x.Revision).SingleAsync());
     }
     [FunctionalTheory]
-    [InlineData("active", null)][InlineData("selected", null)][InlineData("disabled", null)]
-    [InlineData("missingAccount", "not_found")][InlineData("closing", "not_found")][InlineData("erased", "not_found")]
-    [InlineData("missingProfile", "not_found")][InlineData("foreignProfile", "not_found")][InlineData("deletedProfile", "not_found")]
-    [InlineData("erasedProfile", "not_found")][InlineData("otherSelection", "not_found")]
-    [InlineData("missingSession", "vault_access_denied")][InlineData("revoked", "vault_access_denied")]
-    [InlineData("expired", "vault_access_denied")][InlineData("future", "vault_access_denied")]
-    [InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")]
-    [InlineData("staleExpected", "revision_conflict")][InlineData("invalidEnvelope", "persistence_unavailable")]
-    [InlineData("invalidEpoch", "persistence_unavailable")][InlineData("invalidPolicy", "persistence_unavailable")]
+    [InlineData("active", null)]
+    [InlineData("selected", null)]
+    [InlineData("disabled", null)]
+    [InlineData("missingAccount", "not_found")]
+    [InlineData("closing", "not_found")]
+    [InlineData("erased", "not_found")]
+    [InlineData("missingProfile", "not_found")]
+    [InlineData("foreignProfile", "not_found")]
+    [InlineData("deletedProfile", "not_found")]
+    [InlineData("erasedProfile", "not_found")]
+    [InlineData("otherSelection", "not_found")]
+    [InlineData("missingSession", "vault_access_denied")]
+    [InlineData("revoked", "vault_access_denied")]
+    [InlineData("expired", "vault_access_denied")]
+    [InlineData("future", "vault_access_denied")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("generation", "vault_access_denied")]
+    [InlineData("staleExpected", "revision_conflict")]
+    [InlineData("invalidEnvelope", "persistence_unavailable")]
+    [InlineData("invalidEpoch", "persistence_unavailable")]
+    [InlineData("invalidPolicy", "persistence_unavailable")]
     [InlineData("signerUnavailable", "persistence_unavailable")]
     public async Task GivenCurrentAuthority_WhenRenewing_ThenIssueOnlyCurrentOwnedProfileAndPreserveState(string state, string? error)
     {
         var identity = Guid.NewGuid(); var profileId = Guid.NewGuid();
         var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
         await using var db = fixture.CreateContext();
-        var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = identity, Revision = 7, DetailsEnvelope = [11, 22],
+        var account = new Account
+        {
+            PublicId = Guid.NewGuid(),
+            HeimdallPublicId = identity,
+            Revision = 7,
+            DetailsEnvelope = [11, 22],
             State = state == "closing" ? AccountState.ClosurePending : AccountState.Active,
-            PolicyRevision = state == "policy" ? 2 : state == "invalidPolicy" ? 0 : 1, RevocationGeneration = state == "generation" ? 2 : 1,
-            RenewalEnabled = state != "disabled", RenewalInterval = state == "disabled" ? null : TimeSpan.FromHours(24) };
+            PolicyRevision = state == "policy" ? 2 : state == "invalidPolicy" ? 0 : 1,
+            RevocationGeneration = state == "generation" ? 2 : 1,
+            RenewalEnabled = state != "disabled",
+            RenewalInterval = state == "disabled" ? null : TimeSpan.FromHours(24)
+        };
         db.Accounts.Add(account); await db.SaveChangesAsync();
         var owner = account.Id;
         if (state == "foreignProfile")
         { var other = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() }; db.Accounts.Add(other); await db.SaveChangesAsync(); owner = other.Id; }
-        var profile = new Profile { AccountId = owner, PublicId = profileId, Revision = 3,
+        var profile = new Profile
+        {
+            AccountId = owner,
+            PublicId = profileId,
+            Revision = 3,
             DeletedAt = state == "deletedProfile" ? DateTimeOffset.UtcNow : null,
             PurgeAt = state == "deletedProfile" ? DateTimeOffset.UtcNow.AddDays(30) : null,
             Envelope = state == "invalidEnvelope" ? [1, 2] : JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", state == "invalidEpoch" ? 0 : 2,
-                ProtocolBinary.Encode(new byte[32]), ProtocolBinary.Encode(new byte[12]), "AQID", ProtocolBinary.Encode(new byte[16])), new JsonSerializerOptions(JsonSerializerDefaults.Web)) };
+                ProtocolBinary.Encode(new byte[32]), ProtocolBinary.Encode(new byte[12]), "AQID", ProtocolBinary.Encode(new byte[16])), new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        };
         db.Profiles.Add(profile); await db.SaveChangesAsync();
-        if (state != "missingSession") db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
+        if (state != "missingSession") db.VaultAccessSessions.Add(new VaultAccessSession
+        {
+            AccountId = account.Id,
+            HandleVerifier = verifier,
             ProfileId = state == "selected" ? profile.Id : state == "otherSelection" ? long.MaxValue : null,
             IssuedAt = state == "future" ? DateTimeOffset.UtcNow.AddMinutes(5) : DateTimeOffset.UtcNow.AddMinutes(-1),
             ExpiresAt = state == "disabled" ? null : state == "expired" ? DateTimeOffset.UtcNow.AddSeconds(-1) : DateTimeOffset.UtcNow.AddHours(1),
-            PolicyRevision = state == "invalidPolicy" ? 0 : 1, RevocationGeneration = 1, Revoked = state == "revoked" });
+            PolicyRevision = state == "invalidPolicy" ? 0 : 1,
+            RevocationGeneration = 1,
+            Revoked = state == "revoked"
+        });
         if (state is "erased" or "erasedProfile") db.TerminalErasures.Add(new TerminalErasure
         { ResourceId = state == "erased" ? account.PublicId : profileId, ResourceKind = state == "erased" ? "account" : "profile", DeletedAt = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();

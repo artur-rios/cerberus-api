@@ -3,6 +3,7 @@ using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Mediator.Query.Interfaces;
 using ArturRios.Output;
 namespace ArturRios.Cerberus.Query.Profiles;
+
 public sealed class GetProfileHandler(IProfileReadStore store) : IQueryHandlerAsync<GetProfileQuery, ProfileDetailsOutput>
 {
     public async Task<DataOutput<ProfileDetailsOutput?>> HandleAsync(GetProfileQuery query, CancellationToken cancellationToken = default)
@@ -20,9 +21,15 @@ public sealed class GetProfileHandler(IProfileReadStore store) : IQueryHandlerAs
             || !ProfileProjection.TryRead(data.Profile, query.Actor, out var p)) return output.WithError("persistence_unavailable");
         return output.WithData(new ProfileDetailsOutput
         {
-            ProfileId = p!.ProfileId, Revision = p.Revision, ServerSequence = p.ServerSequence, EditedAt = p.EditedAt,
-            Envelope = p.Envelope, KeyWrappers = p.KeyWrappers,
-            RecordIds = data.RecordIds, FolderIds = data.FolderIds, CollectionIds = data.CollectionIds
+            ProfileId = p!.ProfileId,
+            Revision = p.Revision,
+            ServerSequence = p.ServerSequence,
+            EditedAt = p.EditedAt,
+            Envelope = p.Envelope,
+            KeyWrappers = p.KeyWrappers,
+            RecordIds = data.RecordIds,
+            FolderIds = data.FolderIds,
+            CollectionIds = data.CollectionIds
         }).WithMessage("profile_found");
     }
     private static bool ValidIds(Guid[]? ids) => ids is not null && ids.All(x => x != Guid.Empty) && ids.Distinct().Count() == ids.Length;

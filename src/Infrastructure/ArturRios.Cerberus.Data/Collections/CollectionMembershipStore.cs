@@ -135,7 +135,8 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
         catch (PostgresException e) when (e.SqlState == "2200H") { return new(Error: "revision_conflict"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
         catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException or JsonException or FormatException
-            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException }) { return new(Error: "persistence_unavailable"); }
+            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException })
+        { return new(Error: "persistence_unavailable"); }
     }
 
     private static bool Safe(long value) => value is > 0 and <= ProtocolBinary.MaxInteger;
@@ -198,9 +199,16 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
         string? RecipientMaterial, long? RecipientRevision, long? RecipientEpoch, long? RecipientGeneration);
     private sealed class Snapshot
     {
-        public bool ActorActive { get; set; } public bool Allowed { get; set; } public bool ForeignTarget { get; set; }
-        public bool Permitted { get; set; } public bool Corrupt { get; set; } public bool StructuralCorrupt { get; set; } public bool Exhausted { get; set; }
-        public long? Selection { get; set; } public string? Item { get; set; } public string Native { get; set; } = "[]";
+        public bool ActorActive { get; set; }
+        public bool Allowed { get; set; }
+        public bool ForeignTarget { get; set; }
+        public bool Permitted { get; set; }
+        public bool Corrupt { get; set; }
+        public bool StructuralCorrupt { get; set; }
+        public bool Exhausted { get; set; }
+        public long? Selection { get; set; }
+        public string? Item { get; set; }
+        public string Native { get; set; } = "[]";
         public string Members { get; set; } = "[]"; public string Frozen { get; set; } = "{}";
         public long[] FolderIds { get; set; } = []; public long[] RecordIds { get; set; } = []; public long[] GrantIds { get; set; } = [];
         public long[] OldFolderIds { get; set; } = []; public long[] OldRecordIds { get; set; } = [];

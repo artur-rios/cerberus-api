@@ -44,9 +44,15 @@ public class OfflinePolicyUpdateHttpTests(RegistrationApiFixture fixture, Shared
         var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = identity, DetailsEnvelope = [11, 22], Revision = 7 };
         db.Accounts.Add(account);
         await db.SaveChangesAsync();
-        db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
-            PolicyRevision = 1, RevocationGeneration = 1 });
+        db.VaultAccessSessions.Add(new VaultAccessSession
+        {
+            AccountId = account.Id,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         await db.SaveChangesAsync();
         Authorize(RegistrationApiFixture.Token(identity));
         using var request = new HttpRequestMessage(HttpMethod.Put, "/api/accounts/me/offline-policy")
@@ -236,10 +242,17 @@ public class OfflinePolicyUpdateHttpTests(RegistrationApiFixture fixture, Shared
         if (state != "missing")
         {
             await using var db = fixture.Context();
-            var account = new Account { PublicId = id, HeimdallPublicId = identity, DetailsEnvelope = [11, 22], Revision = 7,
+            var account = new Account
+            {
+                PublicId = id,
+                HeimdallPublicId = identity,
+                DetailsEnvelope = [11, 22],
+                Revision = 7,
                 PolicyRevision = state == "exhausted" ? 9007199254740991 : state == "stalePolicy" ? 2 : 1,
-                RenewalInterval = state == "corruptPolicy" ? TimeSpan.Zero : TimeSpan.FromHours(24), RevocationGeneration = state == "staleGeneration" ? 2 : 1,
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
+                RenewalInterval = state == "corruptPolicy" ? TimeSpan.Zero : TimeSpan.FromHours(24),
+                RevocationGeneration = state == "staleGeneration" ? 2 : 1,
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            };
             db.Accounts.Add(account); await db.SaveChangesAsync();
             long? selected = null;
             if (state == "selected")
@@ -247,9 +260,17 @@ public class OfflinePolicyUpdateHttpTests(RegistrationApiFixture fixture, Shared
                 var profile = new ArturRios.Cerberus.Domain.Profiles.Profile { AccountId = account.Id, PublicId = Guid.NewGuid() };
                 db.Profiles.Add(profile); await db.SaveChangesAsync(); selected = profile.Id;
             }
-            db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
-                PolicyRevision = state == "exhausted" ? 9007199254740991 : 1, RevocationGeneration = 1, Revoked = state == "revoked", ProfileId = state == "badProfile" ? long.MaxValue : selected });
+            db.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+                ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
+                PolicyRevision = state == "exhausted" ? 9007199254740991 : 1,
+                RevocationGeneration = 1,
+                Revoked = state == "revoked",
+                ProfileId = state == "badProfile" ? long.MaxValue : selected
+            });
             if (state == "erased") db.TerminalErasures.Add(new ArturRios.Cerberus.Domain.Operations.TerminalErasure { ResourceKind = "account", ResourceId = id, DeletedAt = DateTimeOffset.UtcNow });
             await db.SaveChangesAsync();
         }

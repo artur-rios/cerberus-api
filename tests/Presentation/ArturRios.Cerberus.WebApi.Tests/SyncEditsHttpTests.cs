@@ -23,11 +23,25 @@ public class SyncEditsHttpTests(RegistrationApiFixture fixture, SharedApiHost ap
         Assert.Equal(HttpStatusCode.OK, response.StatusCode); await using var db = fixture.Context(); Assert.True(await db.Records.AnyAsync(x => x.PublicId == s.Record));
     }
     [FunctionalTheory]
-    [InlineData("missing")][InlineData("empty")][InlineData("null")][InlineData("null-item")]
-    [InlineData("unknown")][InlineData("duplicate")][InlineData("case")][InlineData("type")]
-    [InlineData("missing-operation")][InlineData("invalid-operation")][InlineData("missing-input")][InlineData("missing-type")]
-    [InlineData("duplicate-operation")][InlineData("unknown-input")][InlineData("unknown-edit")]
-    [InlineData("string-number")][InlineData("offset")][InlineData("noncanonical")][InlineData("too-many")]
+    [InlineData("missing")]
+    [InlineData("empty")]
+    [InlineData("null")]
+    [InlineData("null-item")]
+    [InlineData("unknown")]
+    [InlineData("duplicate")]
+    [InlineData("case")]
+    [InlineData("type")]
+    [InlineData("missing-operation")]
+    [InlineData("invalid-operation")]
+    [InlineData("missing-input")]
+    [InlineData("missing-type")]
+    [InlineData("duplicate-operation")]
+    [InlineData("unknown-input")]
+    [InlineData("unknown-edit")]
+    [InlineData("string-number")]
+    [InlineData("offset")]
+    [InlineData("noncanonical")]
+    [InlineData("too-many")]
     public async Task GivenInvalidStrictBatch_WhenPosting_ThenRejectWithoutResourceOrOperation(string invalid)
     {
         var s = await Setup(); Authorize(RegistrationApiFixture.Token(s.Actor));
@@ -59,12 +73,18 @@ public class SyncEditsHttpTests(RegistrationApiFixture fixture, SharedApiHost ap
         await Unchanged(s);
     }
     [FunctionalTheory]
-    [InlineData("noIdentity", HttpStatusCode.Unauthorized)][InlineData("noHandle", HttpStatusCode.Unauthorized)]
-    [InlineData("handle", HttpStatusCode.BadRequest)][InlineData("duplicate", HttpStatusCode.BadRequest)]
-    [InlineData("query", HttpStatusCode.BadRequest)][InlineData("compression", HttpStatusCode.BadRequest)]
-    [InlineData("media", HttpStatusCode.BadRequest)][InlineData("charset", HttpStatusCode.BadRequest)]
-    [InlineData("parameter", HttpStatusCode.BadRequest)][InlineData("bom", HttpStatusCode.BadRequest)]
-    [InlineData("empty", HttpStatusCode.BadRequest)][InlineData("size", HttpStatusCode.RequestEntityTooLarge)]
+    [InlineData("noIdentity", HttpStatusCode.Unauthorized)]
+    [InlineData("noHandle", HttpStatusCode.Unauthorized)]
+    [InlineData("handle", HttpStatusCode.BadRequest)]
+    [InlineData("duplicate", HttpStatusCode.BadRequest)]
+    [InlineData("query", HttpStatusCode.BadRequest)]
+    [InlineData("compression", HttpStatusCode.BadRequest)]
+    [InlineData("media", HttpStatusCode.BadRequest)]
+    [InlineData("charset", HttpStatusCode.BadRequest)]
+    [InlineData("parameter", HttpStatusCode.BadRequest)]
+    [InlineData("bom", HttpStatusCode.BadRequest)]
+    [InlineData("empty", HttpStatusCode.BadRequest)]
+    [InlineData("size", HttpStatusCode.RequestEntityTooLarge)]
     public async Task GivenInvalidTransport_WhenUploading_ThenReturnSafeErrorAndNoMutation(string invalid, HttpStatusCode status)
     {
         var s = await Setup(); if (invalid != "noIdentity") Authorize(RegistrationApiFixture.Token(s.Actor));
@@ -86,8 +106,15 @@ public class SyncEditsHttpTests(RegistrationApiFixture fixture, SharedApiHost ap
         var actor = Guid.NewGuid(); fixture.Users[Guid.NewGuid() + "@example.test"] = new(actor, "fixture-password");
         var access = ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(32)); Assert.True(OpaqueAccessHandle.TryHash(access, out var verifier));
         await using var db = fixture.Context(); var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = actor };
-        db.Accounts.Add(account); await db.SaveChangesAsync(); db.VaultAccessSessions.Add(new() { AccountId = account.Id, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 }); await db.SaveChangesAsync();
+        db.Accounts.Add(account); await db.SaveChangesAsync(); db.VaultAccessSessions.Add(new()
+        {
+            AccountId = account.Id,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        }); await db.SaveChangesAsync();
         var id = Guid.NewGuid(); var envelope = new EncryptedEnvelope("cerberus-content-v1", 1, ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16]));
         var body = JsonSerializer.Serialize(new SyncEditsInput([new SyncRecordCreate(Guid.NewGuid(), new(id, envelope, DateTimeOffset.FromUnixTimeSeconds(1000), []))]), new JsonSerializerOptions(JsonSerializerDefaults.Web));
         return new(actor, account.Id, id, access, body);
@@ -109,8 +136,15 @@ public class SyncEditsHttpTests(RegistrationApiFixture fixture, SharedApiHost ap
         var access = ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(32)); Assert.True(OpaqueAccessHandle.TryHash(access, out var verifier));
         await using var db = fixture.Context(); var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = actor };
         db.Accounts.Add(account); await db.SaveChangesAsync();
-        db.VaultAccessSessions.Add(new() { AccountId = account.Id, HandleVerifier = verifier, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 }); await db.SaveChangesAsync();
+        db.VaultAccessSessions.Add(new()
+        {
+            AccountId = account.Id,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        }); await db.SaveChangesAsync();
         var id = Guid.NewGuid(); var operation = Guid.NewGuid(); var envelope = new EncryptedEnvelope("cerberus-content-v1", 1,
             ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16]));
         var body = JsonSerializer.Serialize(new SyncEditsInput([new SyncRecordCreate(operation, new RecordCreateInput(id, envelope, DateTimeOffset.FromUnixTimeSeconds(1000), []))]), new JsonSerializerOptions(JsonSerializerDefaults.Web));

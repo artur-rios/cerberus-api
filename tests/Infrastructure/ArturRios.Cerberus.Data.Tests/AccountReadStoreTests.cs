@@ -35,8 +35,15 @@ public class AccountReadStoreTests(PostgresFixture fixture) : IClassFixture<Post
         var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
         await using (var setup = fixture.CreateContext())
         {
-            var account = new Account { PublicId = id, HeimdallPublicId = identity, DetailsEnvelope = [1, 2, 3], Revision = 5,
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active, RenewalEnabled = state is not ("noExpiry" or "disabledWithExpiry") };
+            var account = new Account
+            {
+                PublicId = id,
+                HeimdallPublicId = identity,
+                DetailsEnvelope = [1, 2, 3],
+                Revision = 5,
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active,
+                RenewalEnabled = state is not ("noExpiry" or "disabledWithExpiry")
+            };
             setup.Accounts.Add(account);
             await setup.SaveChangesAsync();
             var sessionAccountId = account.Id;
@@ -49,10 +56,13 @@ public class AccountReadStoreTests(PostgresFixture fixture) : IClassFixture<Post
             }
             if (state != "missingSession") setup.VaultAccessSessions.Add(new VaultAccessSession
             {
-                AccountId = sessionAccountId, HandleVerifier = verifier, ProfileId = state == "profileOnly" ? 42 : null,
+                AccountId = sessionAccountId,
+                HandleVerifier = verifier,
+                ProfileId = state == "profileOnly" ? 42 : null,
                 IssuedAt = state == "futureIssue" ? Now.AddSeconds(1) : Now.AddMinutes(-5),
                 ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
-                PolicyRevision = state == "stalePolicy" ? 0 : 1, RevocationGeneration = state == "staleGeneration" ? 0 : 1,
+                PolicyRevision = state == "stalePolicy" ? 0 : 1,
+                RevocationGeneration = state == "staleGeneration" ? 0 : 1,
                 Revoked = state == "revoked"
             });
             if (state == "erased") setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });

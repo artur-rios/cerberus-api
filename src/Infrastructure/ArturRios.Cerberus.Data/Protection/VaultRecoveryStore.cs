@@ -102,8 +102,15 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) 
             var changed = await db.Accounts.Where(x => x.Id == a.Id).ExecuteUpdateAsync(set => set.SetProperty(x => x.RevocationGeneration, x => x.RevocationGeneration + 1), cancellationToken);
             if (changed != 1) return new(Error: "revision_conflict");
             var result = new RecoveryDetails("committed", protection.Revision, protection.RecoveryGeneration, a.RevocationGeneration + 1);
-            db.VaultRecoveryOperations.Add(new VaultRecoveryOperation { AccountId = a.Id, IdempotencyKey = input.IdempotencyKey,
-                RequestHash = hash, ProtectionRevision = result.ProtectionRevision, Generation = result.Generation, RevocationGeneration = result.RevocationGeneration });
+            db.VaultRecoveryOperations.Add(new VaultRecoveryOperation
+            {
+                AccountId = a.Id,
+                IdempotencyKey = input.IdempotencyKey,
+                RequestHash = hash,
+                ProtectionRevision = result.ProtectionRevision,
+                Generation = result.Generation,
+                RevocationGeneration = result.RevocationGeneration
+            });
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return new(result);

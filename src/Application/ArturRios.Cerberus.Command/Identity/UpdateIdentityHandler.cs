@@ -24,7 +24,12 @@ public sealed class UpdateIdentityHandler(IValidator<UpdateIdentityCommand> vali
         var person = result.Identity;
         if (person is null || person.Id != command.IdentityId || person.Name != command.Name
             || !string.Equals(person.Email, command.Email, StringComparison.OrdinalIgnoreCase)) return output.WithError("identity_unavailable");
-        return output.WithData(new UpdateIdentityOutput { Id = person.Id, Name = person.Name,
-            Email = person.Email, EmailVerified = person.EmailVerified }).WithMessage("identity_updated");
+        return output.WithData(new UpdateIdentityOutput
+        {
+            Id = person.Id,
+            Name = person.Name,
+            Email = person.Email,
+            EmailVerified = person.EmailVerified
+        }).WithMessage("identity_updated");
     }
 }

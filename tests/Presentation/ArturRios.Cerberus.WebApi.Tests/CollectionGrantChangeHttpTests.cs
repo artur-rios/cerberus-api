@@ -31,9 +31,12 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
 {
 
     [FunctionalTheory]
-    [InlineData("wide", "read-only")][InlineData("wide", "read-write")]
-    [InlineData("Master", "read-only")][InlineData("Master", "read-write")]
-    [InlineData("PerProfile", "read-only")][InlineData("PerProfile", "read-write")]
+    [InlineData("wide", "read-only")]
+    [InlineData("wide", "read-write")]
+    [InlineData("Master", "read-only")]
+    [InlineData("Master", "read-write")]
+    [InlineData("PerProfile", "read-only")]
+    [InlineData("PerProfile", "read-write")]
     public async Task GivenCurrentNativeGrant_WhenChanging_ThenExact200AndFreshUnlockEnforcesNewPermission(string mode, string initialAccess)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var key = new ProtectionFixture();
@@ -78,8 +81,14 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
     }
 
     [FunctionalTheory]
-    [InlineData("Master", false, "read-only")][InlineData("Master", true, "read-only")][InlineData("PerProfile", false, "read-only")][InlineData("PerProfile", true, "read-only")]
-    [InlineData("Master", false, "read-write")][InlineData("Master", true, "read-write")][InlineData("PerProfile", false, "read-write")][InlineData("PerProfile", true, "read-write")]
+    [InlineData("Master", false, "read-only")]
+    [InlineData("Master", true, "read-only")]
+    [InlineData("PerProfile", false, "read-only")]
+    [InlineData("PerProfile", true, "read-only")]
+    [InlineData("Master", false, "read-write")]
+    [InlineData("Master", true, "read-write")]
+    [InlineData("PerProfile", false, "read-write")]
+    [InlineData("PerProfile", true, "read-write")]
     public async Task GivenSelectedRecipient_WhenChanging_ThenStaleHandleAndFreshSelectionKeepsExactIsolation(string mode, bool linked, string initialAccess)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var key = new ProtectionFixture();
@@ -104,7 +113,9 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         else await Failure(write, 403, "vault_access_denied");
     }
 
-    [FunctionalTheory][InlineData("Master")][InlineData("PerProfile")]
+    [FunctionalTheory]
+    [InlineData("Master")]
+    [InlineData("PerProfile")]
     public async Task GivenUnlinkedSelectedOwner_WhenChanging_Then404WithoutWidening(string mode)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var key = new ProtectionFixture();
@@ -128,7 +139,11 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         Assert.Equal(2, await Generation(r));
     }
 
-    [FunctionalTheory][InlineData("read-only", false)][InlineData("read-write", false)][InlineData("read-only", true)][InlineData("read-write", true)]
+    [FunctionalTheory]
+    [InlineData("read-only", false)]
+    [InlineData("read-write", false)]
+    [InlineData("read-only", true)]
+    [InlineData("read-write", true)]
     public async Task GivenVisibleForeignTarget_WhenChanging_ThenRelevantNativeEvidencePrecedes403(string access, bool corrupt)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -138,13 +153,33 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         await UnchangedFailure(s, r, r, target, hiddenGrant, Replacement(s, owner, r, recipient, target, hiddenGrant, 9), corrupt ? 503 : 403);
     }
 
-    [FunctionalTheory][InlineData("stale",409)][InlineData("same",409)][InlineData("generationMaximum",409)]
-    [InlineData("grantMissing",404)][InlineData("grantRevoked",404)][InlineData("grantTerminal",404)][InlineData("crossCollection",404)]
-    [InlineData("recipientClosing",404)][InlineData("recipientTerminal",404)][InlineData("unprotected",404)]
-    [InlineData("ownerPins",503)][InlineData("recipientPins",503)][InlineData("collectionEnvelope",503)][InlineData("collectionEpoch",503)]
-    [InlineData("grantEnvelope",503)][InlineData("grantAccess",503)][InlineData("recipientGeneration",503)]
-    [InlineData("ownerClosing",404)][InlineData("ownerTerminal",404)][InlineData("deleted",404)][InlineData("terminal",404)][InlineData("missing",404)]
-    [InlineData("expired",403)][InlineData("revoked",403)][InlineData("policy",403)][InlineData("generation",403)]
+    [FunctionalTheory]
+    [InlineData("stale", 409)]
+    [InlineData("same", 409)]
+    [InlineData("generationMaximum", 409)]
+    [InlineData("grantMissing", 404)]
+    [InlineData("grantRevoked", 404)]
+    [InlineData("grantTerminal", 404)]
+    [InlineData("crossCollection", 404)]
+    [InlineData("recipientClosing", 404)]
+    [InlineData("recipientTerminal", 404)]
+    [InlineData("unprotected", 404)]
+    [InlineData("ownerPins", 503)]
+    [InlineData("recipientPins", 503)]
+    [InlineData("collectionEnvelope", 503)]
+    [InlineData("collectionEpoch", 503)]
+    [InlineData("grantEnvelope", 503)]
+    [InlineData("grantAccess", 503)]
+    [InlineData("recipientGeneration", 503)]
+    [InlineData("ownerClosing", 404)]
+    [InlineData("ownerTerminal", 404)]
+    [InlineData("deleted", 404)]
+    [InlineData("terminal", 404)]
+    [InlineData("missing", 404)]
+    [InlineData("expired", 403)]
+    [InlineData("revoked", 403)]
+    [InlineData("policy", 403)]
+    [InlineData("generation", 403)]
     public async Task GivenCurrentState_WhenChanging_ThenExactSafeStatusAndNoMutation(string kind, int status)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -171,8 +206,16 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         await UnchangedFailure(s, r, s, pathTarget, grantId, Replacement(s, owner, r, recipient, pathTarget, grantId, kind == "stale" ? 2 : 1, kind == "same" ? "read-only" : "read-write"), status, target);
     }
 
-    [FunctionalTheory][InlineData("owner")][InlineData("collection")][InlineData("epoch")][InlineData("identity")]
-    [InlineData("recipientPin")][InlineData("authorPin")][InlineData("signature")][InlineData("revision")][InlineData("grant")]
+    [FunctionalTheory]
+    [InlineData("owner")]
+    [InlineData("collection")]
+    [InlineData("epoch")]
+    [InlineData("identity")]
+    [InlineData("recipientPin")]
+    [InlineData("authorPin")]
+    [InlineData("signature")]
+    [InlineData("revision")]
+    [InlineData("grant")]
     public async Task GivenIncorrectReplacementBinding_WhenChanging_Then400AndNoMutation(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var other = new ProtectionFixture();
@@ -186,7 +229,10 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         await UnchangedFailure(s, r, s, target, initial.GrantId, new(1, "read-write", envelope), 400);
     }
 
-    [FunctionalTheory][InlineData("outage")][InlineData("grant")][InlineData("generation")]
+    [FunctionalTheory]
+    [InlineData("outage")]
+    [InlineData("grant")]
+    [InlineData("generation")]
     public async Task GivenDatabaseFault_WhenChanging_Then503RollsBackBothMutationsAndCleanRetrySucceeds(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -207,10 +253,32 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         using var retry = await Change(s, target, initial.GrantId, input); await Success<ChangeCollectionAccessOutput>(retry); Assert.Equal(2, await Generation(r));
     }
 
-    [FunctionalTheory][InlineData("missingRevision")][InlineData("missingAccess")][InlineData("missingEnvelope")][InlineData("case")][InlineData("unknown")][InlineData("context")]
-    [InlineData("stringRevision")][InlineData("fractionRevision")][InlineData("nullRevision")][InlineData("zeroRevision")][InlineData("negativeRevision")][InlineData("maxRevision")][InlineData("unsafeRevision")]
-    [InlineData("nullAccess")][InlineData("caseAccess")][InlineData("invalidAccess")][InlineData("nullEnvelope")][InlineData("caseEpoch")][InlineData("unknownEnvelope")]
-    [InlineData("duplicate")][InlineData("duplicateEpoch")][InlineData("emptyObject")][InlineData("array")][InlineData("null")][InlineData("broken")]
+    [FunctionalTheory]
+    [InlineData("missingRevision")]
+    [InlineData("missingAccess")]
+    [InlineData("missingEnvelope")]
+    [InlineData("case")]
+    [InlineData("unknown")]
+    [InlineData("context")]
+    [InlineData("stringRevision")]
+    [InlineData("fractionRevision")]
+    [InlineData("nullRevision")]
+    [InlineData("zeroRevision")]
+    [InlineData("negativeRevision")]
+    [InlineData("maxRevision")]
+    [InlineData("unsafeRevision")]
+    [InlineData("nullAccess")]
+    [InlineData("caseAccess")]
+    [InlineData("invalidAccess")]
+    [InlineData("nullEnvelope")]
+    [InlineData("caseEpoch")]
+    [InlineData("unknownEnvelope")]
+    [InlineData("duplicate")]
+    [InlineData("duplicateEpoch")]
+    [InlineData("emptyObject")]
+    [InlineData("array")]
+    [InlineData("null")]
+    [InlineData("broken")]
     public async Task GivenInvalidExactBody_WhenChanging_Then400AndNoMutation(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -218,13 +286,22 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         var body = JsonSerializer.SerializeToNode(Replacement(s, owner, r, recipient, target, initial.GrantId), ProtectionFixture.Json)!.AsObject();
         switch (kind)
         {
-            case "missingRevision": body.Remove("expectedRevision"); break; case "missingAccess": body.Remove("access"); break; case "missingEnvelope": body.Remove("keyEnvelope"); break;
+            case "missingRevision": body.Remove("expectedRevision"); break;
+            case "missingAccess": body.Remove("access"); break;
+            case "missingEnvelope": body.Remove("keyEnvelope"); break;
             case "case": body.Remove("expectedRevision"); body["ExpectedRevision"] = 1; break;
-            case "unknown": body["plaintext"] = "secret"; break; case "context": body["grantId"] = initial.GrantId.ToString(); break;
-            case "stringRevision": body["expectedRevision"] = "1"; break; case "fractionRevision": body["expectedRevision"] = 1.5; break; case "nullRevision": body["expectedRevision"] = null; break;
-            case "zeroRevision": body["expectedRevision"] = 0; break; case "negativeRevision": body["expectedRevision"] = -1; break;
-            case "maxRevision": body["expectedRevision"] = 9007199254740991L; break; case "unsafeRevision": body["expectedRevision"] = 9007199254740992L; break;
-            case "nullAccess": body["access"] = null; break; case "caseAccess": body["access"] = "Read-Write"; break; case "invalidAccess": body["access"] = "owner"; break;
+            case "unknown": body["plaintext"] = "secret"; break;
+            case "context": body["grantId"] = initial.GrantId.ToString(); break;
+            case "stringRevision": body["expectedRevision"] = "1"; break;
+            case "fractionRevision": body["expectedRevision"] = 1.5; break;
+            case "nullRevision": body["expectedRevision"] = null; break;
+            case "zeroRevision": body["expectedRevision"] = 0; break;
+            case "negativeRevision": body["expectedRevision"] = -1; break;
+            case "maxRevision": body["expectedRevision"] = 9007199254740991L; break;
+            case "unsafeRevision": body["expectedRevision"] = 9007199254740992L; break;
+            case "nullAccess": body["access"] = null; break;
+            case "caseAccess": body["access"] = "Read-Write"; break;
+            case "invalidAccess": body["access"] = "owner"; break;
             case "nullEnvelope": body["keyEnvelope"] = null; break;
             case "caseEpoch": body["keyEnvelope"]!.AsObject().Remove("keyEpoch"); body["keyEnvelope"]!["KeyEpoch"] = 1; break;
             case "unknownEnvelope": body["keyEnvelope"]!["ownerId"] = s.AccountId.ToString(); break;
@@ -238,7 +315,13 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         Assert.Equal(before, await Stable(s, r)); Assert.Equal(grants, await Grants(target));
     }
 
-    [FunctionalTheory][InlineData("bad")][InlineData("zero")][InlineData("uppercase")][InlineData("compact")][InlineData("braced")][InlineData("urn")]
+    [FunctionalTheory]
+    [InlineData("bad")]
+    [InlineData("zero")]
+    [InlineData("uppercase")]
+    [InlineData("compact")]
+    [InlineData("braced")]
+    [InlineData("urn")]
     public async Task GivenNoncanonicalCollectionOrGrantPath_WhenChanging_Then400(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient);
@@ -251,9 +334,22 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         }
     }
 
-    [FunctionalTheory][InlineData("query",400)][InlineData("duplicate",400)][InlineData("bad",400)][InlineData("missing",401)]
-    [InlineData("utf8",400)][InlineData("bom",400)][InlineData("compression",400)][InlineData("charset",400)][InlineData("oversized",413)][InlineData("empty",400)]
-    [InlineData("noMedia",400)][InlineData("text",400)][InlineData("suffix",400)][InlineData("prefix",400)][InlineData("brokenMedia",400)]
+    [FunctionalTheory]
+    [InlineData("query", 400)]
+    [InlineData("duplicate", 400)]
+    [InlineData("bad", 400)]
+    [InlineData("missing", 401)]
+    [InlineData("utf8", 400)]
+    [InlineData("bom", 400)]
+    [InlineData("compression", 400)]
+    [InlineData("charset", 400)]
+    [InlineData("oversized", 413)]
+    [InlineData("empty", 400)]
+    [InlineData("noMedia", 400)]
+    [InlineData("text", 400)]
+    [InlineData("suffix", 400)]
+    [InlineData("prefix", 400)]
+    [InlineData("brokenMedia", 400)]
     public async Task GivenInvalidTransportOrAccess_WhenChanging_ThenStrictFailureAndNoMutation(string kind, int status)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -273,7 +369,11 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         Assert.Equal(before, await Stable(s, r)); Assert.Equal(grants, await Grants(target));
     }
 
-    [FunctionalTheory][InlineData("application/json")][InlineData("Application/Json")][InlineData("application/json; charset=utf-8")][InlineData("application/json; charset=\"UTF-8\"")]
+    [FunctionalTheory]
+    [InlineData("application/json")]
+    [InlineData("Application/Json")]
+    [InlineData("application/json; charset=utf-8")]
+    [InlineData("application/json; charset=\"UTF-8\"")]
     public async Task GivenValidJsonMediaType_WhenChanging_Then200(string media)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -295,7 +395,11 @@ public class CollectionGrantChangeHttpTests(RegistrationApiFixture fixture, Shar
         Assert.Equal(before, await Stable(s, r)); Assert.Equal(grants, await Grants(target));
     }
 
-    [FunctionalTheory][InlineData("missing",401)][InlineData("scope",401)][InlineData("deleted",401)][InlineData("unavailable",503)]
+    [FunctionalTheory]
+    [InlineData("missing", 401)]
+    [InlineData("scope", 401)]
+    [InlineData("deleted", 401)]
+    [InlineData("unavailable", 503)]
     public async Task GivenRejectedIdentity_WhenChanging_ThenSafeStatusAndNoMutation(string kind, int status)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);

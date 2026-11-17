@@ -137,7 +137,7 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
         else
         {
             using var request = new HttpRequestMessage(HttpMethod.Put, "/api/identity/me" + (invalid == "query" ? "?owner=untrusted" : ""))
-                { Content = new StringContent(body, Encoding.UTF8, "application/json") };
+            { Content = new StringContent(body, Encoding.UTF8, "application/json") };
             request.Headers.TryAddWithoutValidation(Header, invalid == "duplicateHeader" ? new[] { input.Handle, input.Handle }
                 : new[] { invalid == "badHeader" ? "invalid" : input.Handle });
             using var response = await Gateway.Client.SendAsync(request);
@@ -217,14 +217,26 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
         if (state != "missing")
         {
             await using var context = fixture.Context();
-            var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = actor, Revision = 3,
+            var account = new Account
+            {
+                PublicId = Guid.NewGuid(),
+                HeimdallPublicId = actor,
+                Revision = 3,
                 DetailsEnvelope = JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), Json),
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            };
             context.Accounts.Add(account); await context.SaveChangesAsync();
-            context.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                ProfileId = state == "profile" ? 42 : null, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+            context.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                ProfileId = state == "profile" ? 42 : null,
+                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
                 ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
-                Revoked = state == "revoked", PolicyRevision = state == "stale" ? 0 : 1, RevocationGeneration = 1 });
+                Revoked = state == "revoked",
+                PolicyRevision = state == "stale" ? 0 : 1,
+                RevocationGeneration = 1
+            });
             if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = account.PublicId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
         }

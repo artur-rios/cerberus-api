@@ -173,9 +173,15 @@ public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
         var identity = Guid.NewGuid();
         var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
         await using var context = fixture.CreateContext();
-        var account = new Account { PublicId = id, HeimdallPublicId = identity, Revision = state == "exhausted" ? long.MaxValue : 3,
-            DetailsEnvelope = [1, 2, 3], State = state == "closing" ? AccountState.ClosurePending : AccountState.Active,
-            RenewalEnabled = state is not ("noExpiry" or "disabledWithExpiry") };
+        var account = new Account
+        {
+            PublicId = id,
+            HeimdallPublicId = identity,
+            Revision = state == "exhausted" ? long.MaxValue : 3,
+            DetailsEnvelope = [1, 2, 3],
+            State = state == "closing" ? AccountState.ClosurePending : AccountState.Active,
+            RenewalEnabled = state is not ("noExpiry" or "disabledWithExpiry")
+        };
         context.Accounts.Add(account);
         await context.SaveChangesAsync();
         var sessionOwner = account.Id;
@@ -188,10 +194,14 @@ public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
         }
         if (state != "missingSession") context.VaultAccessSessions.Add(new VaultAccessSession
         {
-            AccountId = sessionOwner, HandleVerifier = verifier, ProfileId = state == "profile" ? 42 : null,
+            AccountId = sessionOwner,
+            HandleVerifier = verifier,
+            ProfileId = state == "profile" ? 42 : null,
             IssuedAt = state == "futureIssue" ? Now.AddSeconds(1) : Now.AddMinutes(-5),
             ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
-            Revoked = state == "revoked", PolicyRevision = state == "stalePolicy" ? 0 : 1, RevocationGeneration = state == "staleGeneration" ? 0 : 1
+            Revoked = state == "revoked",
+            PolicyRevision = state == "stalePolicy" ? 0 : 1,
+            RevocationGeneration = state == "staleGeneration" ? 0 : 1
         });
         if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
         await context.SaveChangesAsync();

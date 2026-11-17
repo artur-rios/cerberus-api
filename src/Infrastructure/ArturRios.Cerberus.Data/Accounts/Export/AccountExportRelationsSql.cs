@@ -2,7 +2,7 @@ namespace ArturRios.Cerberus.Data.Accounts.Export;
 
 internal static class AccountExportRelationsSql
 {
-    internal const string Projections="""
+    internal const string Projections = """
         , incoming AS MATERIALIZED (
           SELECT c.id,c.public_id collection_id,owner.public_id owner_id,g.public_id grant_id,g.revision,g.access
           FROM cerberus.collection_grant g JOIN actor a ON a.id=g.recipient_account_id
@@ -120,7 +120,7 @@ internal static class AccountExportRelationsSql
         )
         """;
     // Internal permission dependencies never become archive fields.
-    private const string ResourceRefs="""
+    private const string ResourceRefs = """
         SELECT refs.kind,refs.id FROM (
           VALUES
             (CASE WHEN e.body->>'entryType' IN('profile','record','folder','collection') THEN e.body->>'entryType'
@@ -133,13 +133,13 @@ internal static class AccountExportRelationsSql
           UNION ALL SELECT h.root_kind,h.root_id FROM history_roots h WHERE h.operation_id=(e.body->>'operationId')::uuid
         ) refs(kind,id) WHERE refs.kind IS NOT NULL AND refs.id IS NOT NULL
         """;
-    internal const string Dependencies="""
+    internal const string Dependencies = """
         LEFT JOIN LATERAL (
           SELECT COALESCE(jsonb_agg(DISTINCT jsonb_build_object('kind',d.kind,'id',d.id)),'[]'::jsonb)::text value
           FROM (
-        """+"\n"+ResourceRefs+"\n"+"""
+        """ + "\n" + ResourceRefs + "\n" + """
             UNION ALL SELECT n.dependency_kind,n.dependency_id FROM resource_dependencies n JOIN (
-        """+"\n"+ResourceRefs+"\n"+"""
+        """ + "\n" + ResourceRefs + "\n" + """
             ) refs ON refs.kind=n.kind AND refs.id=n.public_id
           ) d
         ) dependencies ON true

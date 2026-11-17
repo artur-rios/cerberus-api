@@ -24,9 +24,14 @@ public sealed class GetRecordHandler(IRecordReadStore store) : IQueryHandlerAsyn
             return output.WithError("persistence_unavailable");
         return output.WithData(new RecordDetailsOutput
         {
-            RecordId = record!.RecordId, Revision = record.Revision, ServerSequence = record.ServerSequence,
-            EditedAt = record.EditedAt, Envelope = record.Envelope,
-            ProfileIds = data.ProfileIds.Order().ToArray(), FolderId = data.FolderId, CollectionIds = data.CollectionIds.Order().ToArray()
+            RecordId = record!.RecordId,
+            Revision = record.Revision,
+            ServerSequence = record.ServerSequence,
+            EditedAt = record.EditedAt,
+            Envelope = record.Envelope,
+            ProfileIds = data.ProfileIds.Order().ToArray(),
+            FolderId = data.FolderId,
+            CollectionIds = data.CollectionIds.Order().ToArray()
         }).WithMessage("record_found");
     }
     private static bool ValidIds(Guid[]? ids) => ids is not null && ids.All(x => x != Guid.Empty) && ids.Distinct().Count() == ids.Length;

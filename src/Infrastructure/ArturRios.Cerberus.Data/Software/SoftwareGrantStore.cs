@@ -200,9 +200,15 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
         string? RecipientMaterial, long? RecipientRevision, long? RecipientEpoch, long? RecipientGeneration);
     private sealed class Snapshot
     {
-        public bool ActorActive { get; set; } public bool SessionAllowed { get; set; } public bool MissingOrHiddenTarget { get; set; }
-        public bool CorruptAncestry { get; set; } public bool Reserved { get; set; }
-        public long OwnerId { get; set; } public Guid OwnerPublicId { get; set; } public Guid ActorIdentity { get; set; } public long? Selection { get; set; }
+        public bool ActorActive { get; set; }
+        public bool SessionAllowed { get; set; }
+        public bool MissingOrHiddenTarget { get; set; }
+        public bool CorruptAncestry { get; set; }
+        public bool Reserved { get; set; }
+        public long OwnerId { get; set; }
+        public Guid OwnerPublicId { get; set; }
+        public Guid ActorIdentity { get; set; }
+        public long? Selection { get; set; }
         public string Targets { get; set; } = "[]"; public string Native { get; set; } = "[]"; public string Rows { get; set; } = "[]";
         public string Stable { get; set; } = "{}"; public string Grants { get; set; } = "{}";
     }

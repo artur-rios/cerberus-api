@@ -27,7 +27,12 @@ public sealed class RecoverVaultHandler(IValidator<RecoverVaultCommand> validato
         if (data is null || data.Status != "committed" || data.ProtectionRevision != command.ExpectedRevision + 1
             || data.ProtectionRevision > ProtocolBinary.MaxInteger || data.Generation != command.RecoveryWrapper.Generation
             || data.RevocationGeneration is <= 0 or > ProtocolBinary.MaxInteger) return output.WithError("persistence_unavailable");
-        return output.WithData(new RecoverVaultOutput { Status = data.Status, ProtectionRevision = data.ProtectionRevision,
-            Generation = data.Generation, RevocationGeneration = data.RevocationGeneration }).WithMessage("recovery_committed");
+        return output.WithData(new RecoverVaultOutput
+        {
+            Status = data.Status,
+            ProtectionRevision = data.ProtectionRevision,
+            Generation = data.Generation,
+            RevocationGeneration = data.RevocationGeneration
+        }).WithMessage("recovery_committed");
     }
 }

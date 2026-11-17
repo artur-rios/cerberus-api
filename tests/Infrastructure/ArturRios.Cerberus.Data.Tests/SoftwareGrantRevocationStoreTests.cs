@@ -14,7 +14,10 @@ namespace ArturRios.Cerberus.Data.Tests;
 public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     // Break: retaining recipient material, changing stable grant identity, or mutating the owner's vault.
-    [FunctionalTheory][InlineData("mixed")][InlineData("record")][InlineData("collection")]
+    [FunctionalTheory]
+    [InlineData("mixed")]
+    [InlineData("record")]
+    [InlineData("collection")]
     public async Task GivenOwnedTargets_WhenRevoking_ThenEraseExactAggregateAndPreserveVault(string kind)
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
@@ -52,14 +55,24 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
 
     // Break: disclosing foreign/hidden grants, authorizing an invalid session, or accepting stale revisions.
     [FunctionalTheory]
-    [InlineData("missing", "not_found")][InlineData("foreign", "not_found")][InlineData("revoked", "not_found")]
-    [InlineData("terminal", "not_found")][InlineData("inactive", "not_found")][InlineData("actorTerminal", "not_found")]
-    [InlineData("sessionMissing", "vault_access_denied")][InlineData("sessionRevoked", "vault_access_denied")]
-    [InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")]
-    [InlineData("expired", "vault_access_denied")][InlineData("future", "vault_access_denied")]
-    [InlineData("profileDeleted", "vault_access_denied")][InlineData("profileTerminal", "vault_access_denied")]
-    [InlineData("stale", "revision_conflict")][InlineData("exhausted", "revision_conflict")]
-    [InlineData("zero", "persistence_unavailable")][InlineData("unsafe", "persistence_unavailable")]
+    [InlineData("missing", "not_found")]
+    [InlineData("foreign", "not_found")]
+    [InlineData("revoked", "not_found")]
+    [InlineData("terminal", "not_found")]
+    [InlineData("inactive", "not_found")]
+    [InlineData("actorTerminal", "not_found")]
+    [InlineData("sessionMissing", "vault_access_denied")]
+    [InlineData("sessionRevoked", "vault_access_denied")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("generation", "vault_access_denied")]
+    [InlineData("expired", "vault_access_denied")]
+    [InlineData("future", "vault_access_denied")]
+    [InlineData("profileDeleted", "vault_access_denied")]
+    [InlineData("profileTerminal", "vault_access_denied")]
+    [InlineData("stale", "revision_conflict")]
+    [InlineData("exhausted", "revision_conflict")]
+    [InlineData("zero", "persistence_unavailable")]
+    [InlineData("unsafe", "persistence_unavailable")]
     public async Task GivenUnavailableGrantState_WhenRevoking_ThenFailWithoutMutation(string mode, string error)
     {
         using var s = await Setup(); var request = Request(s);
@@ -79,7 +92,8 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
             case "generation": await Sql("UPDATE cerberus.vault_access_session SET revocation_generation=2 WHERE handle_verifier={0}", s.Owner.Verifier); break;
             case "expired": await Sql("UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()-interval '1 minute' WHERE handle_verifier={0}", s.Owner.Verifier); break;
             case "future": await Sql("UPDATE cerberus.vault_access_session SET issued_at=statement_timestamp()+interval '1 hour' WHERE handle_verifier={0}", s.Owner.Verifier); break;
-            case "profileDeleted": case "profileTerminal":
+            case "profileDeleted":
+            case "profileTerminal":
                 var profile = await s.Profile(fixture);
                 await Sql("UPDATE cerberus.vault_access_session SET profile_id={1} WHERE handle_verifier={0}", s.Owner.Verifier, profile);
                 if (mode == "profileDeleted") await Sql("UPDATE cerberus.profile SET deleted_at=statement_timestamp() WHERE id={0}", profile);
@@ -93,8 +107,11 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
 
     // Break: changed session evidence masking current access denial as a revision conflict.
     [FunctionalTheory]
-    [InlineData("revoked")][InlineData("policy")][InlineData("generation")]
-    [InlineData("profileDeleted")][InlineData("profileTerminal")]
+    [InlineData("revoked")]
+    [InlineData("policy")]
+    [InlineData("generation")]
+    [InlineData("profileDeleted")]
+    [InlineData("profileTerminal")]
     public async Task GivenSessionInvalidatedAfterCapture_WhenRevoking_ThenDenyAccessAndPreserveCommittedWinner(string kind)
     {
         using var s = await Setup(); long? profile = null;
@@ -123,7 +140,9 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
         Assert.Equal(winnerVault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
     }
 
-    [FunctionalTheory][InlineData("actor")][InlineData("grant")]
+    [FunctionalTheory]
+    [InlineData("actor")]
+    [InlineData("grant")]
     public async Task GivenCapturedVisibilityLostBeforeLock_WhenRevoking_ThenConflictAndPreserveCommittedWinner(string kind)
     {
         using var s = await Setup(); string? winnerAggregate = null; string? winnerVault = null;
@@ -149,7 +168,9 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
         Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenMalformedOpaqueKeys_WhenRevoking_ThenEraseWithoutParsing(bool empty)
     {
         using var s = await Setup(); var bytes = empty ? Array.Empty<byte>() : new byte[] { 255, 0, 1 };
@@ -168,7 +189,8 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
         from failure in new[] { "database", "timeout", "cancel", "40001", "40P01" }
         select new object[] { stage, failure };
 
-    [FunctionalTheory][MemberData(nameof(Faults))]
+    [FunctionalTheory]
+    [MemberData(nameof(Faults))]
     public async Task GivenPersistenceFault_WhenRevoking_ThenRollbackAndAllowCleanRetry(string stage, string failure)
     {
         using var s = await Setup();
@@ -176,7 +198,10 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
         Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
     }
 
-    [FunctionalTheory][InlineData("cas")][InlineData("record")][InlineData("collection")]
+    [FunctionalTheory]
+    [InlineData("cas")]
+    [InlineData("record")]
+    [InlineData("collection")]
     public async Task GivenIncorrectAffectedCount_WhenRevoking_ThenRollbackAndAllowCleanRetry(string stage)
     {
         using var s = await Setup();
@@ -184,8 +209,15 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
         Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
     }
 
-    [FunctionalTheory][InlineData("key")][InlineData("identity")][InlineData("stamp")][InlineData("revision")]
-    [InlineData("account")][InlineData("session")][InlineData("record")][InlineData("protection")]
+    [FunctionalTheory]
+    [InlineData("key")]
+    [InlineData("identity")]
+    [InlineData("stamp")]
+    [InlineData("revision")]
+    [InlineData("account")]
+    [InlineData("session")]
+    [InlineData("record")]
+    [InlineData("protection")]
     public async Task GivenPostWriteMutation_WhenRevoking_ThenRollbackFailedPostcondition(string kind)
     {
         using var s = await Setup();
@@ -204,8 +236,14 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
         Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
     }
 
-    [FunctionalTheory][InlineData("recordOwner")][InlineData("collectionOwner")][InlineData("recordTarget")][InlineData("collectionTarget")]
-    [InlineData("wrongGrant")][InlineData("grantOwner")][InlineData("duplicate")]
+    [FunctionalTheory]
+    [InlineData("recordOwner")]
+    [InlineData("collectionOwner")]
+    [InlineData("recordTarget")]
+    [InlineData("collectionTarget")]
+    [InlineData("wrongGrant")]
+    [InlineData("grantOwner")]
+    [InlineData("duplicate")]
     public async Task GivenRelationalCorruption_WhenRevoking_ThenRollbackWithoutErasingAmbiguousRows(string kind)
     {
         using var s = await Setup(); using var other = await Setup();
@@ -234,8 +272,12 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
         Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
     }
 
-    [FunctionalTheory][InlineData("actor", "authentication_required")][InlineData("access", "vault_access_required")]
-    [InlineData("grant", "validation_failed")][InlineData("input", "validation_failed")][InlineData("revision", "validation_failed")]
+    [FunctionalTheory]
+    [InlineData("actor", "authentication_required")]
+    [InlineData("access", "vault_access_required")]
+    [InlineData("grant", "validation_failed")]
+    [InlineData("input", "validation_failed")]
+    [InlineData("revision", "validation_failed")]
     [InlineData("null", "validation_failed")]
     public async Task GivenInvalidRequest_WhenRevoking_ThenRejectBeforeOpeningDatabase(string mode, string error)
     {
@@ -244,13 +286,23 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
         Assert.Equal(error, (await Store(new ThrowingFactory(new Exception("must not open"))).RevokeAsync(mode == "null" ? null! : request, default)).Error);
     }
 
-    [FunctionalTheory][InlineData("json")][InlineData("format")][InlineData("wrapped")][InlineData("update")][InlineData("23505")]
+    [FunctionalTheory]
+    [InlineData("json")]
+    [InlineData("format")]
+    [InlineData("wrapped")]
+    [InlineData("update")]
+    [InlineData("23505")]
     public async Task GivenOtherInternalFailure_WhenRevoking_ThenReturnSafeError(string failure)
     {
         using var s = await Setup(); await Outcome(s, Request(s), "persistence_unavailable", new ThrowingFactory(Failure(failure)));
     }
 
-    [FunctionalTheory][InlineData("before")][InlineData("cas")][InlineData("record")][InlineData("collection")][InlineData("post")]
+    [FunctionalTheory]
+    [InlineData("before")]
+    [InlineData("cas")]
+    [InlineData("record")]
+    [InlineData("collection")]
+    [InlineData("post")]
     public async Task GivenCallerCancellation_WhenRevoking_ThenPropagateAndRollback(string stage)
     {
         using var s = await Setup(); using var ct = new CancellationTokenSource();
@@ -279,16 +331,20 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     private Task Terminal(string kind, Guid id) => Sql("INSERT INTO cerberus.terminal_erasure(resource_kind,resource_id,deleted_at) VALUES({0},{1},statement_timestamp())", kind, id);
     private static Exception Failure(string kind) => kind switch
     {
-        "database" => new NpgsqlException("private evidence"), "timeout" => new TimeoutException("private evidence"),
-        "cancel" => new OperationCanceledException("private evidence"), "json" => new JsonException("private evidence"),
-        "format" => new FormatException("private evidence"), "update" => new DbUpdateException("private evidence"),
+        "database" => new NpgsqlException("private evidence"),
+        "timeout" => new TimeoutException("private evidence"),
+        "cancel" => new OperationCanceledException("private evidence"),
+        "json" => new JsonException("private evidence"),
+        "format" => new FormatException("private evidence"),
+        "update" => new DbUpdateException("private evidence"),
         "wrapped" => new InvalidOperationException("private evidence", new TimeoutException("private evidence")),
         _ => new PostgresException("private evidence", "ERROR", "ERROR", kind)
     };
     private static bool Matches(DbCommand c, string stage) => stage switch
     {
         "cas" => c.CommandText.Contains("UPDATE cerberus.software_grant AS g"),
-        "record" or "collection" => c.CommandText.StartsWith("DELETE FROM cerberus.software_grant_" + stage), _ => false
+        "record" or "collection" => c.CommandText.StartsWith("DELETE FROM cerberus.software_grant_" + stage),
+        _ => false
     };
     private sealed class Fault(string stage, Exception failure, CancellationTokenSource? caller = null) : DbCommandInterceptor
     {

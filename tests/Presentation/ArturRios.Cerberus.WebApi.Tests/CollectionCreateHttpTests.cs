@@ -30,7 +30,11 @@ namespace ArturRios.Cerberus.WebApi.Tests;
 [Collection("Registration host")]
 public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
-    [FunctionalTheory][InlineData("empty")][InlineData("profiles")][InlineData("mixed")][InlineData("overlap")]
+    [FunctionalTheory]
+    [InlineData("empty")]
+    [InlineData("profiles")]
+    [InlineData("mixed")]
+    [InlineData("overlap")]
     public async Task GivenActualOwnedProfilesFoldersAndRecords_WhenCreatingCollection_ThenReturnExactMetadataAndExposeInitialRelationships(string kind)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); using var second = new ProtectionFixture(); var s = await Setup(owner);
@@ -47,8 +51,13 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         }
     }
 
-    [FunctionalTheory][InlineData("Master", "PF")][InlineData("PerProfile", "PF")][InlineData("Master", "PC")][InlineData("PerProfile", "PC")]
-    [InlineData("Master", "PR")][InlineData("PerProfile", "PR")]
+    [FunctionalTheory]
+    [InlineData("Master", "PF")]
+    [InlineData("PerProfile", "PF")]
+    [InlineData("Master", "PC")]
+    [InlineData("PerProfile", "PC")]
+    [InlineData("Master", "PR")]
+    [InlineData("PerProfile", "PR")]
     public async Task GivenActualNativeSelectedAccess_WhenCreating_ThenKeepSelectionAndCurrentTypedMemberVisibility(string mode, string route)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); using var otherKey = new ProtectionFixture(); var s = await Setup(owner);
@@ -70,7 +79,13 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         OpaqueAccessHandle.TryHash(selected.Access, out var verifier); await using var db = fixture.Context(); Assert.Equal(p.Id, (await db.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == verifier)).ProfileId);
     }
 
-    [FunctionalTheory][InlineData("empty", 403)][InlineData("other", 404)][InlineData("multiple", 404)][InlineData("folder", 404)][InlineData("record", 404)][InlineData("recordOnlyFolder", 404)]
+    [FunctionalTheory]
+    [InlineData("empty", 403)]
+    [InlineData("other", 404)]
+    [InlineData("multiple", 404)]
+    [InlineData("folder", 404)]
+    [InlineData("record", 404)]
+    [InlineData("recordOnlyFolder", 404)]
     public async Task GivenActualSelectedHandle_WhenExpandingInitialMembership_ThenRejectAndPreserveGraph(string kind, int status)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); using var otherKey = new ProtectionFixture(); var s = await Setup(owner); var p = await Profile(s, owner, scoped); var q = await Profile(s, owner, otherKey); var f = await Folder(s); var r = await Record(s, f.PublicId, kind == "recordOnlyFolder" ? [p.PublicId] : []);
@@ -78,7 +93,11 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         var before = await Snapshot(s); using var response = await Send(s, input); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData(CollectionGrantAccess.ReadOnly, false)][InlineData(CollectionGrantAccess.ReadWrite, false)][InlineData(CollectionGrantAccess.ReadOnly, true)][InlineData(CollectionGrantAccess.ReadWrite, true)]
+    [FunctionalTheory]
+    [InlineData(CollectionGrantAccess.ReadOnly, false)]
+    [InlineData(CollectionGrantAccess.ReadWrite, false)]
+    [InlineData(CollectionGrantAccess.ReadOnly, true)]
+    [InlineData(CollectionGrantAccess.ReadWrite, true)]
     public async Task GivenActuallyReadableForeignNativeMember_WhenCreating_Then404AndBothGraphsUnchanged(CollectionGrantAccess access, bool folder)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var source = await Setup(owner); var s = await Setup(client); var f = await Folder(source); var r = await Record(source, f.PublicId);
@@ -92,10 +111,19 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         var before = await Snapshot(s); var foreign = await Snapshot(source); using var response = await Send(s, Input(folders: folder ? [f.PublicId] : [], records: folder ? [] : [r.PublicId])); await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(s)); Assert.Equal(foreign, await Snapshot(source));
     }
 
-    [FunctionalTheory][InlineData("profile", "missing")][InlineData("folder", "missing")][InlineData("record", "missing")]
-    [InlineData("profile", "foreign")][InlineData("folder", "foreign")][InlineData("record", "foreign")]
-    [InlineData("profile", "trash")][InlineData("folder", "trash")][InlineData("record", "trash")]
-    [InlineData("profile", "terminal")][InlineData("folder", "terminal")][InlineData("record", "terminal")]
+    [FunctionalTheory]
+    [InlineData("profile", "missing")]
+    [InlineData("folder", "missing")]
+    [InlineData("record", "missing")]
+    [InlineData("profile", "foreign")]
+    [InlineData("folder", "foreign")]
+    [InlineData("record", "foreign")]
+    [InlineData("profile", "trash")]
+    [InlineData("folder", "trash")]
+    [InlineData("record", "trash")]
+    [InlineData("profile", "terminal")]
+    [InlineData("folder", "terminal")]
+    [InlineData("record", "terminal")]
     public async Task GivenHiddenTypedInitialRelationship_WhenCreating_ThenNonrevealing404WithoutChanges(string kind, string state)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(owner); var foreign = await Setup(owner); var targetOwner = state == "foreign" ? foreign : s;
@@ -109,7 +137,15 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         var before = await Snapshot(s); var other = await Snapshot(foreign); using var response = await Send(s, input); await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(s)); Assert.Equal(other, await Snapshot(foreign));
     }
 
-    [FunctionalTheory][InlineData("closing", 404)][InlineData("terminal", 404)][InlineData("revoked", 403)][InlineData("expired", 403)][InlineData("future", 403)][InlineData("policy", 403)][InlineData("generation", 403)][InlineData("selection", 403)]
+    [FunctionalTheory]
+    [InlineData("closing", 404)]
+    [InlineData("terminal", 404)]
+    [InlineData("revoked", 403)]
+    [InlineData("expired", 403)]
+    [InlineData("future", 403)]
+    [InlineData("policy", 403)]
+    [InlineData("generation", 403)]
+    [InlineData("selection", 403)]
     public async Task GivenInvalidCurrentAccountOrSession_WhenCreating_ThenFailClosedWithoutMutation(string kind, int status)
     {
         using var owner = new ProtectionFixture(); var s = await Setup(owner); await using (var db = fixture.Context())
@@ -121,14 +157,22 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         var before = await Snapshot(s); using var response = await Send(s, Input()); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData("missing", 401)][InlineData("wrongScope", 401)][InlineData("deleted", 401)][InlineData("unavailable", 503)]
+    [FunctionalTheory]
+    [InlineData("missing", 401)]
+    [InlineData("wrongScope", 401)]
+    [InlineData("deleted", 401)]
+    [InlineData("unavailable", 503)]
     public async Task GivenInvalidCurrentHeimdallIdentity_WhenCreating_ThenRejectBeforePersistence(string kind, int status)
     {
         using var owner = new ProtectionFixture(); var s = await Setup(owner); if (kind is "deleted" or "unavailable") fixture.Users[s.Actor + "@example.test"] = new(s.Actor, "fixture-password", Deleted: kind == "deleted", IdentityUnavailable: kind == "unavailable");
         var before = await Snapshot(s); using var request = Request(s, Bytes(Input())); request.Headers.Authorization = kind == "missing" ? null : new("Bearer", RegistrationApiFixture.Token(s.Actor, kind == "wrongScope" ? Guid.NewGuid() : null)); using var response = await Gateway.Client.SendAsync(request); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData("active")][InlineData("trash")][InlineData("foreign")][InlineData("terminal")]
+    [FunctionalTheory]
+    [InlineData("active")]
+    [InlineData("trash")]
+    [InlineData("foreign")]
+    [InlineData("terminal")]
     public async Task GivenRetainedOrReservedCollectionId_WhenCreating_ThenConflictAndPreserveWinner(string kind)
     {
         using var owner = new ProtectionFixture(); var s = await Setup(owner); var other = kind == "foreign" ? await Setup(owner) : s; var input = Input();
@@ -137,7 +181,9 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         var before = await Snapshot(s); var foreign = await Snapshot(other); using var response = await Send(s, input); await Failure(response, 409, "revision_conflict"); Assert.Equal(before, await Snapshot(s)); Assert.Equal(foreign, await Snapshot(other));
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenConcurrentCreationAndLostResponseRetry_WhenCreating_ThenOneWinnerAndNoSecondLinks(bool differentOwners)
     {
         using var owner = new ProtectionFixture(); var s = await Setup(owner); var other = differentOwners ? await Setup(owner) : s; var input = Input(); var responses = await Task.WhenAll(Send(s, input), Send(other, input));
@@ -164,7 +210,8 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         var output = await Success<CreateCollectionOutput>(response, 201); await CheckCreated(s, JsonSerializer.Deserialize<CollectionCreateInput>(body, ProtectionFixture.Json)!, before, output);
     }
 
-    [FunctionalTheory][MemberData(nameof(InvalidBodies))]
+    [FunctionalTheory]
+    [MemberData(nameof(InvalidBodies))]
     public async Task GivenMalformedOrForgedBody_WhenCreating_ThenRejectIntendedDefectWithoutMutation(string kind)
     {
         using var owner = new ProtectionFixture(); var s = await Setup(owner); var body = StrictBody(kind); var bytes = kind == "invalidUtf8" ? new byte[] { 255 } : kind == "bom" ? new byte[] { 239, 187, 191 }.Concat(Encoding.UTF8.GetBytes(body)).ToArray() : Encoding.UTF8.GetBytes(body);
@@ -193,7 +240,13 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         return raw;
     }
 
-    [FunctionalTheory][InlineData("missing", 401)][InlineData("bad", 400)][InlineData("duplicate", 400)][InlineData("empty", 400)][InlineData("query", 400)][InlineData("profileOverride", 400)]
+    [FunctionalTheory]
+    [InlineData("missing", 401)]
+    [InlineData("bad", 400)]
+    [InlineData("duplicate", 400)]
+    [InlineData("empty", 400)]
+    [InlineData("query", 400)]
+    [InlineData("profileOverride", 400)]
     public async Task GivenMissingOrMalformedAccessOrQuery_WhenCreating_ThenRejectWithoutChanges(string kind, int status)
     {
         using var owner = new ProtectionFixture(); var s = await Setup(owner); var raw = Bytes(Input()); var before = await Snapshot(s);
@@ -206,20 +259,31 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         else
         {
             using var request = Request(s, raw, kind == "query" ? "/api/collections?unknown=1" : kind == "profileOverride" ? "/api/collections?profileId=" + Guid.NewGuid() : "/api/collections");
-            if (kind == "missing") request.Headers.Remove("X-Cerberus-Vault-Access"); if (kind == "bad") { request.Headers.Remove("X-Cerberus-Vault-Access"); request.Headers.Add("X-Cerberus-Vault-Access", "bad"); } if (kind == "duplicate") request.Headers.Add("X-Cerberus-Vault-Access", s.Access);
+            if (kind == "missing") request.Headers.Remove("X-Cerberus-Vault-Access"); if (kind == "bad") { request.Headers.Remove("X-Cerberus-Vault-Access"); request.Headers.Add("X-Cerberus-Vault-Access", "bad"); }
+            if (kind == "duplicate") request.Headers.Add("X-Cerberus-Vault-Access", s.Access);
             using var response = await Gateway.Client.SendAsync(request); await Failure(response, status);
         }
         Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData("minimum")][InlineData("pre2000")][InlineData("pre2000Last")][InlineData("maximum")][InlineData("precision")]
+    [FunctionalTheory]
+    [InlineData("minimum")]
+    [InlineData("pre2000")]
+    [InlineData("pre2000Last")]
+    [InlineData("maximum")]
+    [InlineData("precision")]
     public async Task GivenSupportedClientTimestamp_WhenCreating_ThenReturnTheStoredMicrosecondFloor(string kind)
     {
         using var owner = new ProtectionFixture(); var s = await Setup(owner); var input = Input() with { EditedAt = kind switch { "minimum" => new(10, TimeSpan.Zero), "pre2000" => new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero).AddTicks(19), "pre2000Last" => new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero).AddTicks(-1), "maximum" => DateTimeOffset.MaxValue, _ => DateTimeOffset.UnixEpoch.AddTicks(19) } };
         var before = await Snapshot(s); using var response = await Send(s, input); await CheckCreated(s, input, before, await Success<CreateCollectionOutput>(response, 201));
     }
 
-    [FunctionalTheory][InlineData("account")][InlineData("profile")][InlineData("folder")][InlineData("record")][InlineData("grant")]
+    [FunctionalTheory]
+    [InlineData("account")]
+    [InlineData("profile")]
+    [InlineData("folder")]
+    [InlineData("record")]
+    [InlineData("grant")]
     public async Task GivenOtherKindTerminalMarker_WhenCreatingCollection_ThenTypedIdentitySurvives(string kind)
     {
         using var owner = new ProtectionFixture(); var s = await Setup(owner); var input = Input(); await using (var db = fixture.Context()) { db.TerminalErasures.Add(new() { ResourceKind = kind, ResourceId = input.CollectionId, DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
@@ -233,7 +297,10 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         var before = await Snapshot(s); using var response = await Send(s, input); await CheckCreated(s, input, before, await Success<CreateCollectionOutput>(response, 201));
     }
 
-    [FunctionalTheory][InlineData("PC")][InlineData("CF")][InlineData("CR")]
+    [FunctionalTheory]
+    [InlineData("PC")]
+    [InlineData("CF")]
+    [InlineData("CR")]
     public async Task GivenActualLinkMutationOutage_WhenCreating_Then503RollsBackAllStateAndSameIdCanRetry(string kind)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(owner); var p = await Profile(s, owner, scoped); var f = await Folder(s); var r = await Record(s);
@@ -254,8 +321,14 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
         Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData("Master", "complete", 200)][InlineData("PerProfile", "complete", 200)]
-    [InlineData("Master", "omit", 400)][InlineData("Master", "extra", 400)][InlineData("Master", "foreign", 400)][InlineData("Master", "stale", 409)][InlineData("Master", "typedAlias", 200)]
+    [FunctionalTheory]
+    [InlineData("Master", "complete", 200)]
+    [InlineData("PerProfile", "complete", 200)]
+    [InlineData("Master", "omit", 400)]
+    [InlineData("Master", "extra", 400)]
+    [InlineData("Master", "foreign", 400)]
+    [InlineData("Master", "stale", 409)]
+    [InlineData("Master", "typedAlias", 200)]
     public async Task GivenActualHttpCreatedCollection_WhenNativeRotating_ThenRequireCompleteCurrentTypedInventoryBeforeProofConsumption(string mode, string kind, int status)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(owner); var p = await Profile(s, owner, scoped, mode); var f = await Folder(s); var r = await Record(s, f.PublicId);
@@ -333,9 +406,22 @@ public class CollectionCreateHttpTests(RegistrationApiFixture fixture, SharedApi
     {
         await using var db = fixture.Context(); return JsonSerializer.Serialize(new
         {
-            Accounts = await db.Accounts.AsNoTracking().Where(x => x.Id == s.InternalId).ToArrayAsync(), Protection = await db.VaultProtections.AsNoTracking().Where(x => x.AccountId == s.InternalId).ToArrayAsync(), Profiles = await db.Profiles.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(), Folders = await db.Folders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(), Records = await db.Records.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(), Collections = await db.Collections.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
-            ProfileFolders = await db.ProfileFolders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.ProfileId).ThenBy(x => x.FolderId).ToArrayAsync(), ProfileRecords = await db.ProfileRecords.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.ProfileId).ThenBy(x => x.RecordId).ToArrayAsync(), ProfileCollections = await db.ProfileCollections.AsNoTracking().Where(x => db.Profiles.Any(p => p.AccountId == s.InternalId && p.Id == x.ProfileId)).OrderBy(x => x.ProfileId).ThenBy(x => x.CollectionId).ToArrayAsync(), CollectionFolders = await db.CollectionFolders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.CollectionId).ThenBy(x => x.FolderId).ToArrayAsync(), CollectionRecords = await db.CollectionRecords.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.CollectionId).ThenBy(x => x.RecordId).ToArrayAsync(),
-            Grants = await db.CollectionGrants.AsNoTracking().Where(x => x.RecipientAccountId == s.InternalId || db.Collections.Any(c => c.Id == x.CollectionId && c.AccountId == s.InternalId)).OrderBy(x => x.Id).ToArrayAsync(), Sessions = await db.VaultAccessSessions.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(), Operations = await db.TrashOperations.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(), Entries = await db.TrashEntries.AsNoTracking().Where(x => db.TrashOperations.Any(o => o.AccountId == s.InternalId && o.Id == x.OperationId)).OrderBy(x => x.Id).ToArrayAsync(), Queue = await db.RetentionWorkItems.AsNoTracking().Where(x => db.TrashOperations.Any(o => o.AccountId == s.InternalId && x.OperationKey == "trash/" + o.PublicId)).OrderBy(x => x.Id).ToArrayAsync()
+            Accounts = await db.Accounts.AsNoTracking().Where(x => x.Id == s.InternalId).ToArrayAsync(),
+            Protection = await db.VaultProtections.AsNoTracking().Where(x => x.AccountId == s.InternalId).ToArrayAsync(),
+            Profiles = await db.Profiles.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
+            Folders = await db.Folders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
+            Records = await db.Records.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
+            Collections = await db.Collections.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
+            ProfileFolders = await db.ProfileFolders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.ProfileId).ThenBy(x => x.FolderId).ToArrayAsync(),
+            ProfileRecords = await db.ProfileRecords.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.ProfileId).ThenBy(x => x.RecordId).ToArrayAsync(),
+            ProfileCollections = await db.ProfileCollections.AsNoTracking().Where(x => db.Profiles.Any(p => p.AccountId == s.InternalId && p.Id == x.ProfileId)).OrderBy(x => x.ProfileId).ThenBy(x => x.CollectionId).ToArrayAsync(),
+            CollectionFolders = await db.CollectionFolders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.CollectionId).ThenBy(x => x.FolderId).ToArrayAsync(),
+            CollectionRecords = await db.CollectionRecords.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.CollectionId).ThenBy(x => x.RecordId).ToArrayAsync(),
+            Grants = await db.CollectionGrants.AsNoTracking().Where(x => x.RecipientAccountId == s.InternalId || db.Collections.Any(c => c.Id == x.CollectionId && c.AccountId == s.InternalId)).OrderBy(x => x.Id).ToArrayAsync(),
+            Sessions = await db.VaultAccessSessions.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
+            Operations = await db.TrashOperations.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
+            Entries = await db.TrashEntries.AsNoTracking().Where(x => db.TrashOperations.Any(o => o.AccountId == s.InternalId && o.Id == x.OperationId)).OrderBy(x => x.Id).ToArrayAsync(),
+            Queue = await db.RetentionWorkItems.AsNoTracking().Where(x => db.TrashOperations.Any(o => o.AccountId == s.InternalId && x.OperationKey == "trash/" + o.PublicId)).OrderBy(x => x.Id).ToArrayAsync()
         });
     }
     private static CollectionCreateInput Input(Guid[]? profiles = null, Guid[]? folders = null, Guid[]? records = null) => new(Guid.NewGuid(), Envelope(), DateTimeOffset.UnixEpoch.AddTicks(19), profiles ?? [], records ?? [], folders ?? []);

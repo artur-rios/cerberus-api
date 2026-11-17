@@ -36,7 +36,8 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
         Assert.Equal(2, await db.Profiles.Where(x => x.PublicId == profile.ResourceId).Select(x => x.Revision).SingleAsync());
     }
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenSharedRecord_WhenUploadingAndReplayingAfterRevocation_ThenRequireCurrentWritePermissionWithoutDisclosingWinningMetadata(bool write)
     {
         using var keys = new ProtectionFixture(); using var recipientKey = new ProtectionFixture();
@@ -52,7 +53,8 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
         Assert.Equal(write ? 2 : 1, await db.Records.Where(x => x.Id == items.Record.Id).Select(x => x.Revision).SingleAsync());
     }
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenSelectedProfile_WhenUploading_ThenCreateOnlyInsideCurrentSelectionAndBindReplayScope(bool associated)
     {
         using var keys = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, keys); var profile = await AssociationSetup.Profile(fixture, s, keys);
@@ -116,7 +118,8 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
         Assert.Equal("applied", result.Details.Outcomes[1].Status);
     }
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenTerminalIdentifier_WhenUploading_ThenNeverResurrectAndDisclosePermanentStatusOnlyWithKnownOperationProof(bool known)
     {
         using var keys = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, keys); var edit = Create(); var store = new SyncEditsStore(fixture, Options);

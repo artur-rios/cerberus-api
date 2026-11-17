@@ -194,8 +194,16 @@ public class OfflinePolicyUpdateStoreConcurrencyTests(PostgresFixture fixture) :
         Profile? profile = null;
         if (selected) { profile = new Profile { PublicId = Guid.NewGuid(), AccountId = account.Id }; db.Profiles.Add(profile); await db.SaveChangesAsync(); }
         var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
-        var session = new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier, ProfileId = profile?.Id,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 };
+        var session = new VaultAccessSession
+        {
+            AccountId = account.Id,
+            HandleVerifier = verifier,
+            ProfileId = profile?.Id,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        };
         db.VaultAccessSessions.Add(session); await db.SaveChangesAsync();
         return new(account.Id, session.Id, profile?.Id, profile?.PublicId ?? Guid.Empty, new(identity, verifier, 1, true, TimeSpan.FromSeconds(1)));
     }

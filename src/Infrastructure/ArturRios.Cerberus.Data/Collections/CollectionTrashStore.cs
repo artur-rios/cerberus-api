@@ -139,11 +139,22 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
                     || await db.Database.SqlQueryRaw<string>("SELECT (to_jsonb(g)-'revision'-'state')::text AS \"Value\" FROM cerberus.collection_grant g WHERE id={0}", grant.Id).SingleAsync(ct) != grant.Stable)
                     return new(Error: "persistence_unavailable");
             }
-            var operation = new TrashOperation { AccountId = account.Id, RootResourceKind = "collection", RootResourceId = row.PublicId,
-                DeletedAt = row.DeletedAt.Value, PurgeAt = row.PurgeAt.Value };
+            var operation = new TrashOperation
+            {
+                AccountId = account.Id,
+                RootResourceKind = "collection",
+                RootResourceId = row.PublicId,
+                DeletedAt = row.DeletedAt.Value,
+                PurgeAt = row.PurgeAt.Value
+            };
             db.TrashOperations.Add(operation); await db.SaveChangesAsync(ct);
-            var entry = new TrashEntry { OperationId = operation.Id, ResourceKind = "collection", ResourceId = row.PublicId,
-                AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(snapshot, Json) };
+            var entry = new TrashEntry
+            {
+                OperationId = operation.Id,
+                ResourceKind = "collection",
+                ResourceId = row.PublicId,
+                AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(snapshot, Json)
+            };
             db.TrashEntries.Add(entry); await db.SaveChangesAsync(ct);
             var work = new RetentionWorkItem { OperationKey = "trash/" + operation.PublicId, DueAt = operation.PurgeAt };
             db.RetentionWorkItems.Add(work); await db.SaveChangesAsync(ct);

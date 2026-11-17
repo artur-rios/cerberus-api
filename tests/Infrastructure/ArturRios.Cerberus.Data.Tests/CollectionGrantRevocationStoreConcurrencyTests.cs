@@ -17,7 +17,9 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public partial class CollectionGrantRevocationStoreTests
 {
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenConcurrentRevocations_WhenAccountPairIsHeld_ThenSerializeAndPreserveWinner(bool reciprocal)
     {
         using var s = await Setup();
@@ -44,7 +46,13 @@ public partial class CollectionGrantRevocationStoreTests
         }
     }
 
-    [FunctionalTheory][InlineData("lifecycle", false)][InlineData("lifecycle", true)][InlineData("protection", false)][InlineData("protection", true)][InlineData("unlock", false)][InlineData("unlock", true)]
+    [FunctionalTheory]
+    [InlineData("lifecycle", false)]
+    [InlineData("lifecycle", true)]
+    [InlineData("protection", false)]
+    [InlineData("protection", true)]
+    [InlineData("unlock", false)]
+    [InlineData("unlock", true)]
     public async Task GivenRecipientWriterInEitherAcquisitionOrder_WhenRevoking_ThenSerializeUsingRealBlocking(string writer, bool changeFirst)
     {
         using var s = await Setup(); var raw = "{}"u8.ToArray(); ProtectionChangeRequest? protection = null; VaultProofChallenge? challenge = null;
@@ -98,10 +106,18 @@ public partial class CollectionGrantRevocationStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData("account", "recipient", "not_found")][InlineData("account", "pins", "revision_conflict")][InlineData("vault_access_session", "policy", "vault_access_denied")]
-    [InlineData("profile", "selection", "not_found")][InlineData("collection", "trash", "not_found")][InlineData("collection_grant", "revoked", "revision_conflict")]
-    [InlineData("collection_grant", "revision", "revision_conflict")][InlineData("account", "expiry", "vault_access_denied")][InlineData("vault_access_session", "expiry", "vault_access_denied")]
-    [InlineData("profile", "expiry", "vault_access_denied")][InlineData("collection", "expiry", "vault_access_denied")][InlineData("collection_grant", "expiry", "vault_access_denied")]
+    [InlineData("account", "recipient", "not_found")]
+    [InlineData("account", "pins", "revision_conflict")]
+    [InlineData("vault_access_session", "policy", "vault_access_denied")]
+    [InlineData("profile", "selection", "not_found")]
+    [InlineData("collection", "trash", "not_found")]
+    [InlineData("collection_grant", "revoked", "revision_conflict")]
+    [InlineData("collection_grant", "revision", "revision_conflict")]
+    [InlineData("account", "expiry", "vault_access_denied")]
+    [InlineData("vault_access_session", "expiry", "vault_access_denied")]
+    [InlineData("profile", "expiry", "vault_access_denied")]
+    [InlineData("collection", "expiry", "vault_access_denied")]
+    [InlineData("collection_grant", "expiry", "vault_access_denied")]
     public async Task GivenStateLossDuringActualLockWait_WhenRevoking_ThenRecheckBeforeMutation(string table, string change, string error)
     {
         using var s = await Setup(); var profile = await AssociationSetup.Profile(fixture, s.Owner, s.OwnerKey);
@@ -155,7 +171,9 @@ public partial class CollectionGrantRevocationStoreTests
         ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => pending); await tx.RollbackAsync(); await held.RollbackAsync(); Assert.Equal(before, await All(s));
     }
 
-    [FunctionalTheory][InlineData(0)][InlineData(24)]
+    [FunctionalTheory]
+    [InlineData(0)]
+    [InlineData(24)]
     public async Task GivenUnrelatedInventory_WhenRevoking_ThenCaptureOnlyExactTargetAndLockCanonicalPairBeforeSessionProfileCollectionGrant(int inventory)
     {
         using var s = await Setup(); var profile = await AssociationSetup.Profile(fixture, s.Owner, s.OwnerKey);
@@ -181,7 +199,9 @@ public partial class CollectionGrantRevocationStoreTests
     }
 
     // Break: changing/revoking from a stale snapshot after an actual account lock wait.
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenPermissionChangeInEitherOrder_WhenRevoking_ThenExactlyOneWriterAdvancesGrantAndGeneration(bool revokeFirst)
     {
         using var s = await Setup(); var stable = await Stable(s);
@@ -205,7 +225,9 @@ public partial class CollectionGrantRevocationStoreTests
         if (revokeFirst) Assert.Empty(saved.RecipientKeyEnvelope); else Assert.Equal(Bytes(input.KeyEnvelope), saved.RecipientKeyEnvelope);
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenStaleRegrantInEitherOrder_WhenRevoking_ThenPreserveSingleRevocationWinner(bool revokeFirst)
     {
         using var s = await Setup(); var stable = await Stable(s);
@@ -247,7 +269,11 @@ public partial class CollectionGrantRevocationStoreTests
         Assert.Equal(3, saved.Revision); Assert.Equal(CollectionGrantState.Active, saved.State); Assert.Equal(Bytes(input.KeyEnvelope), saved.RecipientKeyEnvelope);
     }
 
-    [FunctionalTheory][InlineData(false, false)][InlineData(false, true)][InlineData(true, false)][InlineData(true, true)]
+    [FunctionalTheory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
     public async Task GivenProfileAssociationWriterInEitherOrder_WhenRevoking_ThenKeepExactSelectionAndRecipientGeneration(bool recipient, bool revokeFirst)
     {
         using var s = await Setup(); var actor = recipient ? s.Recipient : s.Owner;

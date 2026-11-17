@@ -17,7 +17,9 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenActiveGrant_WhenChangingEitherDirection_ThenOnlyGrantAndRecipientGenerationChange(bool write)
     {
         using var s = await Setup(write);
@@ -42,7 +44,11 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         Assert.Null((await new CollectionReadStore(fixture).ReadAsync(new(s.Recipient.Actor, fresh, s.Items.Collection.PublicId), default)).Error);
     }
 
-    [FunctionalTheory][InlineData("Master", true)][InlineData("Master", false)][InlineData("PerProfile", true)][InlineData("PerProfile", false)]
+    [FunctionalTheory]
+    [InlineData("Master", true)]
+    [InlineData("Master", false)]
+    [InlineData("PerProfile", true)]
+    [InlineData("PerProfile", false)]
     public async Task GivenSelectedOwner_WhenChanging_ThenRequireExactCurrentLink(string mode, bool linked)
     {
         using var s = await Setup(); using var scoped = new ProtectionFixture();
@@ -54,12 +60,26 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     }
 
     [FunctionalTheory]
-    [InlineData("missing", "not_found")][InlineData("revoked", "not_found")][InlineData("terminal", "not_found")][InlineData("crossCollection", "not_found")]
-    [InlineData("recipientClosing", "not_found")][InlineData("recipientTerminal", "not_found")][InlineData("recipientUnprotected", "not_found")]
-    [InlineData("ownerClosing", "not_found")][InlineData("ownerTerminal", "not_found")][InlineData("collectionTrash", "not_found")][InlineData("collectionTerminal", "not_found")]
-    [InlineData("sessionRevoked", "vault_access_denied")][InlineData("sessionExpired", "vault_access_denied")][InlineData("sessionFuture", "vault_access_denied")]
-    [InlineData("sessionPolicy", "vault_access_denied")][InlineData("sessionGeneration", "vault_access_denied")]
-    [InlineData("stale", "revision_conflict")][InlineData("noop", "revision_conflict")][InlineData("exhausted", "revision_conflict")][InlineData("generationExhausted", "revision_conflict")]
+    [InlineData("missing", "not_found")]
+    [InlineData("revoked", "not_found")]
+    [InlineData("terminal", "not_found")]
+    [InlineData("crossCollection", "not_found")]
+    [InlineData("recipientClosing", "not_found")]
+    [InlineData("recipientTerminal", "not_found")]
+    [InlineData("recipientUnprotected", "not_found")]
+    [InlineData("ownerClosing", "not_found")]
+    [InlineData("ownerTerminal", "not_found")]
+    [InlineData("collectionTrash", "not_found")]
+    [InlineData("collectionTerminal", "not_found")]
+    [InlineData("sessionRevoked", "vault_access_denied")]
+    [InlineData("sessionExpired", "vault_access_denied")]
+    [InlineData("sessionFuture", "vault_access_denied")]
+    [InlineData("sessionPolicy", "vault_access_denied")]
+    [InlineData("sessionGeneration", "vault_access_denied")]
+    [InlineData("stale", "revision_conflict")]
+    [InlineData("noop", "revision_conflict")]
+    [InlineData("exhausted", "revision_conflict")]
+    [InlineData("generationExhausted", "revision_conflict")]
     public async Task GivenHiddenOrConflictingState_WhenChanging_ThenRejectAndPreserveEveryRow(string state, string error)
     {
         using var s = await Setup();
@@ -81,10 +101,29 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     }
 
     [FunctionalTheory]
-    [InlineData("ownerPins")][InlineData("ownerMissing")][InlineData("recipientPins")][InlineData("recipientEpoch")][InlineData("recipientProtectionRevision")]
-    [InlineData("ownerProtectionGeneration")][InlineData("collectionEnvelope")][InlineData("collectionEpoch")][InlineData("collectionRevision")][InlineData("collectionSequence")][InlineData("collectionPurge")]
-    [InlineData("grantEnvelope")][InlineData("grantAccess")][InlineData("grantZero")][InlineData("grantUnsafe")][InlineData("generationZero")][InlineData("generationUnsafe")]
-    [InlineData("storedSignature")][InlineData("storedOwner")][InlineData("storedRecipient")][InlineData("storedEpoch")][InlineData("storedRevision")][InlineData("storedGrant")]
+    [InlineData("ownerPins")]
+    [InlineData("ownerMissing")]
+    [InlineData("recipientPins")]
+    [InlineData("recipientEpoch")]
+    [InlineData("recipientProtectionRevision")]
+    [InlineData("ownerProtectionGeneration")]
+    [InlineData("collectionEnvelope")]
+    [InlineData("collectionEpoch")]
+    [InlineData("collectionRevision")]
+    [InlineData("collectionSequence")]
+    [InlineData("collectionPurge")]
+    [InlineData("grantEnvelope")]
+    [InlineData("grantAccess")]
+    [InlineData("grantZero")]
+    [InlineData("grantUnsafe")]
+    [InlineData("generationZero")]
+    [InlineData("generationUnsafe")]
+    [InlineData("storedSignature")]
+    [InlineData("storedOwner")]
+    [InlineData("storedRecipient")]
+    [InlineData("storedEpoch")]
+    [InlineData("storedRevision")]
+    [InlineData("storedGrant")]
     public async Task GivenRequiredStoredCorruption_WhenChanging_Then503WithoutRepair(string state)
     {
         using var s = await Setup();
@@ -104,7 +143,14 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         await Outcome(s, "persistence_unavailable");
     }
 
-    [FunctionalTheory][InlineData("owner")][InlineData("collection")][InlineData("epoch")][InlineData("identity")][InlineData("recipientPin")][InlineData("authorPin")][InlineData("signature")]
+    [FunctionalTheory]
+    [InlineData("owner")]
+    [InlineData("collection")]
+    [InlineData("epoch")]
+    [InlineData("identity")]
+    [InlineData("recipientPin")]
+    [InlineData("authorPin")]
+    [InlineData("signature")]
     public async Task GivenShapeValidCallerBindingFailure_WhenChanging_Then400WithoutMutation(string state)
     {
         using var s = await Setup(); using var other = new ProtectionFixture();
@@ -115,8 +161,14 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         Assert.True(e.IsValid()); await Outcome(s, "validation_failed", s.Input with { KeyEnvelope = e });
     }
 
-    [FunctionalTheory][InlineData("visible", "vault_access_denied")][InlineData("write", "vault_access_denied")][InlineData("corrupt", "persistence_unavailable")]
-    [InlineData("hidden", "not_found")][InlineData("revoked", "not_found")][InlineData("terminal", "not_found")][InlineData("unselected", "not_found")]
+    [FunctionalTheory]
+    [InlineData("visible", "vault_access_denied")]
+    [InlineData("write", "vault_access_denied")]
+    [InlineData("corrupt", "persistence_unavailable")]
+    [InlineData("hidden", "not_found")]
+    [InlineData("revoked", "not_found")]
+    [InlineData("terminal", "not_found")]
+    [InlineData("unselected", "not_found")]
     public async Task GivenForeignTarget_WhenChanging_ThenClassifyBeforePathGrantAndAcquireNoLocks(string state, string error)
     {
         using var s = await Setup(state == "write");
@@ -134,7 +186,14 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         Assert.Equal(error, result.Error); Assert.Empty(capture.Locks); Assert.Equal(before, await All(s));
     }
 
-    [FunctionalTheory][InlineData("active")][InlineData("trash")][InlineData("terminal")][InlineData("cycle")][InlineData("hiddenCycle")][InlineData("missing")][InlineData("foreign")]
+    [FunctionalTheory]
+    [InlineData("active")]
+    [InlineData("trash")]
+    [InlineData("terminal")]
+    [InlineData("cycle")]
+    [InlineData("hiddenCycle")]
+    [InlineData("missing")]
+    [InlineData("foreign")]
     public async Task GivenDirectMembersAndAncestry_WhenChanging_ThenProjectOnlyCompleteActiveRoots(string state)
     {
         using var s = await Setup(); await Members(s); var parent = await AssociationSetup.Items(fixture, s.Owner);
@@ -158,7 +217,15 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         finally { if (state is "missing" or "foreign") await Sql("UPDATE cerberus.folder SET parent_folder_id=NULL WHERE id={0}", parent.Folder.Id); }
     }
 
-    [FunctionalTheory][InlineData("failure")][InlineData("cancel")][InlineData("grant")][InlineData("generation")][InlineData("account")][InlineData("collection")][InlineData("roots")][InlineData("pins")]
+    [FunctionalTheory]
+    [InlineData("failure")]
+    [InlineData("cancel")]
+    [InlineData("grant")]
+    [InlineData("generation")]
+    [InlineData("account")]
+    [InlineData("collection")]
+    [InlineData("roots")]
+    [InlineData("pins")]
     public async Task GivenPostWriteFault_WhenChanging_ThenRollbackBothMutationsAndRetry(string stage)
     {
         using var s = await Setup(); await Members(s); var before = await All(s); using var ct = new CancellationTokenSource();
@@ -181,7 +248,9 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         Assert.Equal(before, await All(s)); Assert.Null((await Change(s)).Error);
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenExpiryAtAuthorization_WhenChanging_ThenOnlyPostAuthorizationExpiryCanCommit(bool after)
     {
         using var s = await Setup(); var deadline = DateTimeOffset.UtcNow.AddSeconds(1.2);
@@ -191,7 +260,11 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         await Outcome(s, after ? null : "vault_access_denied", factory: new ProfileSetup.Factory(fixture, hook));
     }
 
-    [FunctionalTheory][InlineData(false, false)][InlineData(false, true)][InlineData(true, false)][InlineData(true, true)]
+    [FunctionalTheory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
     public async Task GivenFailureInsideEitherAtomicUpdate_WhenChanging_Then503AndRollbackBeforeCleanRetry(bool grant, bool suppress)
     {
         using var s = await Setup(); var before = await All(s); var name = "uc36_generation_" + Guid.NewGuid().ToString("N");
@@ -214,7 +287,12 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         var result = await Change(s); Assert.Null(result.Error); Assert.Equal(ProtocolBinary.MaxInteger, result.Data!.Revision); Assert.Equal(ProtocolBinary.MaxInteger, await Generation(s));
     }
 
-    [FunctionalTheory][InlineData("policy", "vault_access_denied")][InlineData("recipient", "not_found")][InlineData("grant", "revision_conflict")][InlineData("generation", "revision_conflict")][InlineData("terminal", "not_found")]
+    [FunctionalTheory]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("recipient", "not_found")]
+    [InlineData("grant", "revision_conflict")]
+    [InlineData("generation", "revision_conflict")]
+    [InlineData("terminal", "not_found")]
     public async Task GivenChangeAtGuardedStatement_WhenChanging_ThenRejectAndRollback(string state, string error)
     {
         using var s = await Setup(); var before = await All(s);
@@ -230,7 +308,12 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         Assert.Null((await Change(s)).Error);
     }
 
-    [FunctionalTheory][InlineData("actor", "authentication_required")][InlineData("handle", "vault_access_required")][InlineData("target", "validation_failed")][InlineData("grant", "validation_failed")][InlineData("input", "validation_failed")]
+    [FunctionalTheory]
+    [InlineData("actor", "authentication_required")]
+    [InlineData("handle", "vault_access_required")]
+    [InlineData("target", "validation_failed")]
+    [InlineData("grant", "validation_failed")]
+    [InlineData("input", "validation_failed")]
     public async Task GivenInvalidTrustedBoundary_WhenChanging_ThenRejectBeforeDatabase(string state, string error)
     {
         using var key = new ProtectionFixture(); var collection = Guid.NewGuid(); var grant = Guid.NewGuid();
@@ -239,7 +322,15 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         Assert.Equal(error, (await Store(new ThrowingFactory(new Exception("must not persist"))).ChangeAsync(request, default)).Error);
     }
 
-    [FunctionalTheory][InlineData("timeout")][InlineData("cancel")][InlineData("db")][InlineData("update")][InlineData("json")][InlineData("format")][InlineData("wrapped")][InlineData("unique")]
+    [FunctionalTheory]
+    [InlineData("timeout")]
+    [InlineData("cancel")]
+    [InlineData("db")]
+    [InlineData("update")]
+    [InlineData("json")]
+    [InlineData("format")]
+    [InlineData("wrapped")]
+    [InlineData("unique")]
     public async Task GivenInternalFailure_WhenChanging_ThenReturnSafeError(string kind)
     {
         using var s = await Setup(); Exception exception = kind switch
@@ -263,9 +354,13 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         Assert.Equal("vault_access_denied", (await new CollectionReadStore(fixture).ReadAsync(new(s.Recipient.Actor, selected, s.PathCollection), default)).Error);
     }
 
-    [FunctionalTheory][InlineData(false, "revision", 0L)][InlineData(true, "revision", 9007199254740992L)]
-    [InlineData(false, "policy_revision", 0L)][InlineData(false, "policy_revision", 9007199254740992L)]
-    [InlineData(true, "policy_revision", 9007199254740992L)][InlineData(true, "revocation_generation", 9007199254740992L)]
+    [FunctionalTheory]
+    [InlineData(false, "revision", 0L)]
+    [InlineData(true, "revision", 9007199254740992L)]
+    [InlineData(false, "policy_revision", 0L)]
+    [InlineData(false, "policy_revision", 9007199254740992L)]
+    [InlineData(true, "policy_revision", 9007199254740992L)]
+    [InlineData(true, "revocation_generation", 9007199254740992L)]
     public async Task GivenUnsafePersistedAccountCounters_WhenChanging_Then503WithoutMutation(bool owner, string column, long value)
     {
         using var s = await Setup(); var id = owner ? s.Owner.InternalId : s.Recipient.InternalId;

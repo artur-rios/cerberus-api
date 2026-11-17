@@ -4,11 +4,11 @@ namespace ArturRios.Cerberus.Data.Operations;
 
 internal static class RetentionMaintenanceRights
 {
-    internal static async Task RequireAsync(AppDbContext db,CancellationToken ct)
+    internal static async Task RequireAsync(AppDbContext db, CancellationToken ct)
     {
         // A comma-separated privilege string means ANY in PostgreSQL. Require
         // every capability independently, including UPDATE for row locks.
-        var permitted=await db.Database.SqlQuery<bool>($"""
+        var permitted = await db.Database.SqlQuery<bool>($"""
             SELECT has_schema_privilege(current_user,'cerberus','USAGE')
               AND has_sequence_privilege(current_user,'cerberus.server_sequence','USAGE')
               AND NOT EXISTS(
@@ -37,6 +37,6 @@ internal static class RetentionMaintenanceRights
                 WHERE NOT has_table_privilege(current_user,'cerberus.'||required.table_name,p.permission)
               ) AS "Value"
             """).SingleAsync(ct);
-        if(!permitted)throw new UnauthorizedAccessException("Retention execution rights are unavailable.");
+        if (!permitted) throw new UnauthorizedAccessException("Retention execution rights are unavailable.");
     }
 }

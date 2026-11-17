@@ -8,8 +8,11 @@ namespace ArturRios.Cerberus.Data.Tests;
 public sealed partial class RecordPermanentDeleteStoreTests
 {
     [FunctionalTheory]
-    [InlineData("actor", "authentication_required")][InlineData("record", "validation_failed")]
-    [InlineData("zero", "validation_failed")][InlineData("negative", "validation_failed")][InlineData("unsafe", "validation_failed")]
+    [InlineData("actor", "authentication_required")]
+    [InlineData("record", "validation_failed")]
+    [InlineData("zero", "validation_failed")]
+    [InlineData("negative", "validation_failed")]
+    [InlineData("unsafe", "validation_failed")]
     public async Task GivenInvalidInternalRequest_WhenDeleting_ThenRejectWithoutDependencyOrIntent(string field, string error)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -29,7 +32,9 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData("profile")][InlineData("collection")][InlineData("parent")]
+    [InlineData("profile")]
+    [InlineData("collection")]
+    [InlineData("parent")]
     public async Task GivenNewUnheldEarlierAuthorityBeforeRecordLock_WhenDeleting_Then409WithoutLateLockOrIntent(string kind)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -51,8 +56,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData(CollectionGrantAccess.ReadOnly, false)][InlineData(CollectionGrantAccess.ReadWrite, false)]
-    [InlineData(CollectionGrantAccess.ReadOnly, true)][InlineData(CollectionGrantAccess.ReadWrite, true)]
+    [InlineData(CollectionGrantAccess.ReadOnly, false)]
+    [InlineData(CollectionGrantAccess.ReadWrite, false)]
+    [InlineData(CollectionGrantAccess.ReadOnly, true)]
+    [InlineData(CollectionGrantAccess.ReadWrite, true)]
     public async Task GivenMalformedForeignNativeRoute_WhenDeleting_Then503OnlyIfCurrentTargetVisible(CollectionGrantAccess access, bool visible)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -69,7 +76,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenParentSequenceExhaustionOrRegression_WhenDeleting_ThenRollbackIntentAndParents(bool regress)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "folder", false);
@@ -88,7 +96,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenCancellationAtLedgerBoundary_WhenDeleting_ThenKeepCommittedTerminalIntentAndOutbox(bool caller)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);

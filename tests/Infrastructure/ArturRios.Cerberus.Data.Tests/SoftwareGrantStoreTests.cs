@@ -16,7 +16,9 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
 {
     // These cases detect scope widening, missing epoch/signature checks, partial
     // writes, and accepting a stale or differently owned revoked aggregate.
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenMasterAndMixedOwnedTargets_WhenGranting_ThenSaveExactAggregateWithoutChangingVault(bool equalPublicIds)
     {
         using var s = await SoftwareGrantSetup.Create(fixture, equalPublicIds);
@@ -37,7 +39,9 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
         Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.Targets.Single(x => x.Kind == "collection").KeyEnvelope), collection.RecipientKeyEnvelope);
     }
 
-    [FunctionalTheory][InlineData("record")][InlineData("collection")]
+    [FunctionalTheory]
+    [InlineData("record")]
+    [InlineData("collection")]
     public async Task GivenOneTypedTarget_WhenGranting_ThenPersistOnlyThatKind(string kind)
     {
         using var s = await SoftwareGrantSetup.Create(fixture); var request = s.Request();
@@ -49,8 +53,12 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     }
 
     [FunctionalTheory]
-    [InlineData("direct", true)][InlineData("folder", true)][InlineData("collection", true)][InlineData("PerProfile", true)]
-    [InlineData("unselectedRecord", false)][InlineData("unselectedCollection", false)]
+    [InlineData("direct", true)]
+    [InlineData("folder", true)]
+    [InlineData("collection", true)]
+    [InlineData("PerProfile", true)]
+    [InlineData("unselectedRecord", false)]
+    [InlineData("unselectedCollection", false)]
     public async Task GivenSelectedProfile_WhenGrantingMixedTargets_ThenRequireExactCurrentVisibility(string mode, bool success)
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
@@ -72,14 +80,22 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     }
 
     [FunctionalTheory]
-    [InlineData("record", "missing", "not_found")][InlineData("collection", "missing", "not_found")]
-    [InlineData("record", "trash", "not_found")][InlineData("collection", "trash", "not_found")]
-    [InlineData("record", "terminal", "not_found")][InlineData("collection", "terminal", "not_found")]
-    [InlineData("record", "envelope", "persistence_unavailable")][InlineData("collection", "envelope", "persistence_unavailable")]
-    [InlineData("record", "revision", "persistence_unavailable")][InlineData("collection", "revision", "persistence_unavailable")]
-    [InlineData("record", "sequence", "persistence_unavailable")][InlineData("collection", "sequence", "persistence_unavailable")]
-    [InlineData("record", "purge", "persistence_unavailable")][InlineData("collection", "epoch", "persistence_unavailable")]
-    [InlineData("record", "ancestorTrash", "not_found")][InlineData("record", "cycle", "persistence_unavailable")]
+    [InlineData("record", "missing", "not_found")]
+    [InlineData("collection", "missing", "not_found")]
+    [InlineData("record", "trash", "not_found")]
+    [InlineData("collection", "trash", "not_found")]
+    [InlineData("record", "terminal", "not_found")]
+    [InlineData("collection", "terminal", "not_found")]
+    [InlineData("record", "envelope", "persistence_unavailable")]
+    [InlineData("collection", "envelope", "persistence_unavailable")]
+    [InlineData("record", "revision", "persistence_unavailable")]
+    [InlineData("collection", "revision", "persistence_unavailable")]
+    [InlineData("record", "sequence", "persistence_unavailable")]
+    [InlineData("collection", "sequence", "persistence_unavailable")]
+    [InlineData("record", "purge", "persistence_unavailable")]
+    [InlineData("collection", "epoch", "persistence_unavailable")]
+    [InlineData("record", "ancestorTrash", "not_found")]
+    [InlineData("record", "cycle", "persistence_unavailable")]
     public async Task GivenMissingHiddenOrCorruptTarget_WhenGranting_ThenRejectEntireMixedAggregate(string kind, string mode, string error)
     {
         using var s = await SoftwareGrantSetup.Create(fixture); var request = s.Request();
@@ -101,11 +117,18 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     }
 
     [FunctionalTheory]
-    [InlineData("ownerMissing", "not_found")][InlineData("ownerInactive", "not_found")][InlineData("ownerTerminal", "not_found")]
-    [InlineData("sessionMissing", "vault_access_denied")][InlineData("sessionExpired", "vault_access_denied")]
-    [InlineData("sessionFuture", "vault_access_denied")][InlineData("sessionRevoked", "vault_access_denied")]
-    [InlineData("sessionPolicy", "vault_access_denied")][InlineData("sessionGeneration", "vault_access_denied")]
-    [InlineData("pinsMissing", "persistence_unavailable")][InlineData("pinsBad", "persistence_unavailable")][InlineData("pinsEpoch", "persistence_unavailable")]
+    [InlineData("ownerMissing", "not_found")]
+    [InlineData("ownerInactive", "not_found")]
+    [InlineData("ownerTerminal", "not_found")]
+    [InlineData("sessionMissing", "vault_access_denied")]
+    [InlineData("sessionExpired", "vault_access_denied")]
+    [InlineData("sessionFuture", "vault_access_denied")]
+    [InlineData("sessionRevoked", "vault_access_denied")]
+    [InlineData("sessionPolicy", "vault_access_denied")]
+    [InlineData("sessionGeneration", "vault_access_denied")]
+    [InlineData("pinsMissing", "persistence_unavailable")]
+    [InlineData("pinsBad", "persistence_unavailable")]
+    [InlineData("pinsEpoch", "persistence_unavailable")]
     public async Task GivenInvalidActorSessionOrProtection_WhenGranting_ThenFailClosed(string mode, string error)
     {
         using var s = await SoftwareGrantSetup.Create(fixture); var request = s.Request();
@@ -128,12 +151,18 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     }
 
     [FunctionalTheory]
-    [InlineData("record", "visible", "vault_access_denied")][InlineData("collection", "visible", "vault_access_denied")]
-    [InlineData("record", "hidden", "not_found")][InlineData("collection", "hidden", "not_found")]
-    [InlineData("record", "revoked", "not_found")][InlineData("collection", "revoked", "not_found")]
-    [InlineData("record", "unselected", "not_found")][InlineData("collection", "unselected", "not_found")]
-    [InlineData("record", "badNative", "persistence_unavailable")][InlineData("collection", "badNative", "persistence_unavailable")]
-    [InlineData("record", "badPins", "persistence_unavailable")][InlineData("collection", "badPins", "persistence_unavailable")]
+    [InlineData("record", "visible", "vault_access_denied")]
+    [InlineData("collection", "visible", "vault_access_denied")]
+    [InlineData("record", "hidden", "not_found")]
+    [InlineData("collection", "hidden", "not_found")]
+    [InlineData("record", "revoked", "not_found")]
+    [InlineData("collection", "revoked", "not_found")]
+    [InlineData("record", "unselected", "not_found")]
+    [InlineData("collection", "unselected", "not_found")]
+    [InlineData("record", "badNative", "persistence_unavailable")]
+    [InlineData("collection", "badNative", "persistence_unavailable")]
+    [InlineData("record", "badPins", "persistence_unavailable")]
+    [InlineData("collection", "badPins", "persistence_unavailable")]
     public async Task GivenForeignTarget_WhenGranting_ThenClassifyOnlyVisibleRelevantNativeEvidence(string kind, string mode, string error)
     {
         using var s = await SoftwareGrantSetup.Create(fixture); using var foreignPins = new ProtectionFixture();
@@ -155,9 +184,21 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     }
 
     [FunctionalTheory]
-    [InlineData("owner")][InlineData("kind")][InlineData("id")][InlineData("epoch")][InlineData("grant")]
-    [InlineData("revision")][InlineData("identity")][InlineData("recipient")][InlineData("author")][InlineData("signature")]
-    [InlineData("duplicate")][InlineData("empty")][InlineData("inputMax")][InlineData("actor")][InlineData("access")]
+    [InlineData("owner")]
+    [InlineData("kind")]
+    [InlineData("id")]
+    [InlineData("epoch")]
+    [InlineData("grant")]
+    [InlineData("revision")]
+    [InlineData("identity")]
+    [InlineData("recipient")]
+    [InlineData("author")]
+    [InlineData("signature")]
+    [InlineData("duplicate")]
+    [InlineData("empty")]
+    [InlineData("inputMax")]
+    [InlineData("actor")]
+    [InlineData("access")]
     public async Task GivenInvalidBindingOrInput_WhenGranting_ThenPersistNothing(string mode)
     {
         using var s = await SoftwareGrantSetup.Create(fixture); using var wrong = ECDsa.Create(ECCurve.NamedCurves.nistP256);
@@ -165,12 +206,17 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
             owner: mode == "owner" ? Guid.NewGuid() : null, signedKind: mode == "kind" ? "collection" : null,
             signedId: mode == "id" ? Guid.NewGuid() : null, author: mode == "author" ? wrong : null,
             recipient: mode == "recipient" ? ProtectionFixture.Public(wrong) : null);
-        target = target with { KeyEnvelope = mode switch
+        target = target with
         {
-            "grant" => target.KeyEnvelope with { GrantId = Guid.NewGuid() }, "revision" => target.KeyEnvelope with { GrantRevision = 2 },
-            "identity" => target.KeyEnvelope with { RecipientIdentityId = Guid.NewGuid() },
-            "signature" => target.KeyEnvelope with { Signature = ProtectionFixture.Encode(new byte[64]) }, _ => target.KeyEnvelope
-        } };
+            KeyEnvelope = mode switch
+            {
+                "grant" => target.KeyEnvelope with { GrantId = Guid.NewGuid() },
+                "revision" => target.KeyEnvelope with { GrantRevision = 2 },
+                "identity" => target.KeyEnvelope with { RecipientIdentityId = Guid.NewGuid() },
+                "signature" => target.KeyEnvelope with { Signature = ProtectionFixture.Encode(new byte[64]) },
+                _ => target.KeyEnvelope
+            }
+        };
         request = request with { Input = request.Input with { Targets = [target, request.Input.Targets[1]] } };
         if (mode == "duplicate") request = request with { Input = request.Input with { Targets = [target, target] } };
         if (mode == "empty") request = request with { Input = request.Input with { Targets = [] } };
@@ -180,7 +226,9 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
         await Outcome(s, request, mode == "actor" ? "authentication_required" : mode == "access" ? "vault_access_required" : "validation_failed");
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenExactRevokedAggregate_WhenReactivating_ThenReplaceWholeKeyAndTargetSetOnce(bool differentSet)
     {
         using var s = await SoftwareGrantSetup.Create(fixture); Assert.Null((await Store().GrantAsync(s.Request(), default)).Error);
@@ -202,8 +250,18 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     }
 
     [FunctionalTheory]
-    [InlineData("active")][InlineData("activeForeign")][InlineData("stale")][InlineData("missingExpected")][InlineData("identity")][InlineData("owner")]
-    [InlineData("collision")][InlineData("terminal")][InlineData("missing")][InlineData("exhausted")][InlineData("unsafe")][InlineData("invalidState")]
+    [InlineData("active")]
+    [InlineData("activeForeign")]
+    [InlineData("stale")]
+    [InlineData("missingExpected")]
+    [InlineData("identity")]
+    [InlineData("owner")]
+    [InlineData("collision")]
+    [InlineData("terminal")]
+    [InlineData("missing")]
+    [InlineData("exhausted")]
+    [InlineData("unsafe")]
+    [InlineData("invalidState")]
     public async Task GivenConflictingStoredGrant_WhenGranting_ThenPreserveCompleteAggregate(string mode)
     {
         using var s = await SoftwareGrantSetup.Create(fixture); using var other = await SoftwareGrantSetup.Create(fixture);
@@ -224,9 +282,15 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     }
 
     [FunctionalTheory]
-    [InlineData("grant", false)][InlineData("record", false)][InlineData("collection", false)][InlineData("post", false)]
-    [InlineData("record", true)][InlineData("collection", true)][InlineData("post", true)]
-    [InlineData("mismatchKey", true)][InlineData("mismatchChild", true)]
+    [InlineData("grant", false)]
+    [InlineData("record", false)]
+    [InlineData("collection", false)]
+    [InlineData("post", false)]
+    [InlineData("record", true)]
+    [InlineData("collection", true)]
+    [InlineData("post", true)]
+    [InlineData("mismatchKey", true)]
+    [InlineData("mismatchChild", true)]
     public async Task GivenWriteOrPostVerificationFault_WhenGranting_ThenRollbackAndAllowExactRetry(string stage, bool reactivation)
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
@@ -245,19 +309,29 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     }
 
     [FunctionalTheory]
-    [InlineData("23505", "revision_conflict")][InlineData("23514", "revision_conflict")][InlineData("40001", "revision_conflict")]
-    [InlineData("40P01", "revision_conflict")][InlineData("concurrency", "revision_conflict")]
-    [InlineData("cancel", "persistence_unavailable")][InlineData("database", "persistence_unavailable")][InlineData("update", "persistence_unavailable")]
-    [InlineData("json", "persistence_unavailable")][InlineData("format", "persistence_unavailable")][InlineData("wrapped", "persistence_unavailable")]
+    [InlineData("23505", "revision_conflict")]
+    [InlineData("23514", "revision_conflict")]
+    [InlineData("40001", "revision_conflict")]
+    [InlineData("40P01", "revision_conflict")]
+    [InlineData("concurrency", "revision_conflict")]
+    [InlineData("cancel", "persistence_unavailable")]
+    [InlineData("database", "persistence_unavailable")]
+    [InlineData("update", "persistence_unavailable")]
+    [InlineData("json", "persistence_unavailable")]
+    [InlineData("format", "persistence_unavailable")]
+    [InlineData("wrapped", "persistence_unavailable")]
     public async Task GivenPersistenceFailure_WhenGranting_ThenReturnOnlySafeErrorAndRollback(string kind, string error)
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
         Exception failure = kind switch
         {
             "23505" or "23514" or "40001" or "40P01" => new PostgresException("private database evidence", "ERROR", "ERROR", kind),
-            "concurrency" => new DbUpdateConcurrencyException("private evidence"), "cancel" => new OperationCanceledException("private evidence"),
-            "database" => new NpgsqlException("private evidence"), "update" => new DbUpdateException("private evidence"),
-            "json" => new JsonException("private evidence"), "format" => new FormatException("private evidence"),
+            "concurrency" => new DbUpdateConcurrencyException("private evidence"),
+            "cancel" => new OperationCanceledException("private evidence"),
+            "database" => new NpgsqlException("private evidence"),
+            "update" => new DbUpdateException("private evidence"),
+            "json" => new JsonException("private evidence"),
+            "format" => new FormatException("private evidence"),
             _ => new InvalidOperationException("private evidence", new TimeoutException("private evidence"))
         };
         await Outcome(s, s.Request(), error, new ProfileSetup.Factory(fixture, new Failure(failure)));
@@ -355,9 +429,12 @@ internal sealed class SoftwareGrantSetup : IDisposable
         var signer = author ?? Author;
         var envelope = new RecipientEnvelope("cerberus-recipient-wrap-v1", epoch, grant ?? Grant, (expected ?? 0) + 1,
             identity ?? Identity, (recipient ?? ProtectionFixture.Public(Recipient)).Fingerprint(), ProtectionFixture.Public(signer).Fingerprint(),
-            ProtectionFixture.Encode([4, ..point.X!, ..point.Y!]), ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(48)), "");
-        envelope = envelope with { Signature = ProtectionFixture.Encode(signer.SignData(envelope.SigningBytes(owner ?? Owner.AccountId,
-            signedKind ?? kind, signedId ?? id), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation)) };
+            ProtectionFixture.Encode([4, .. point.X!, .. point.Y!]), ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(48)), "");
+        envelope = envelope with
+        {
+            Signature = ProtectionFixture.Encode(signer.SignData(envelope.SigningBytes(owner ?? Owner.AccountId,
+            signedKind ?? kind, signedId ?? id), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation))
+        };
         return new(kind, id, envelope);
     }
     internal static async Task<string> Vault(PostgresFixture fixture, long owner)

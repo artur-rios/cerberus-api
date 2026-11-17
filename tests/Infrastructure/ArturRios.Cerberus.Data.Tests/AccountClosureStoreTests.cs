@@ -35,8 +35,13 @@ public partial class AccountClosureStoreTests(PostgresFixture fixture) : IClassF
         var owned = await AssociationSetup.Items(fixture, s); var foreign = await AssociationSetup.Items(fixture, other);
         var outgoing = await AssociationSetup.Grant(fixture, s, ownerKey, recipient, recipientKey, owned.Collection);
         var incoming = await AssociationSetup.Grant(fixture, other, otherKey, s, ownerKey, foreign.Collection);
-        await using var db = fixture.CreateContext(); var software = new SoftwareGrant { PublicId = Guid.NewGuid(), AccountId = s.InternalId,
-            HeimdallSoftwarePublicId = Guid.NewGuid(), RecipientKey = [1, 2, 3] };
+        await using var db = fixture.CreateContext(); var software = new SoftwareGrant
+        {
+            PublicId = Guid.NewGuid(),
+            AccountId = s.InternalId,
+            HeimdallSoftwarePublicId = Guid.NewGuid(),
+            RecipientKey = [1, 2, 3]
+        };
         db.SoftwareGrants.Add(software); await db.SaveChangesAsync();
         db.SoftwareGrantRecords.Add(new() { AccountId = s.InternalId, GrantId = software.Id, RecordId = owned.Record.Id, RecipientKeyEnvelope = [4, 5] });
         db.SoftwareGrantCollections.Add(new() { AccountId = s.InternalId, GrantId = software.Id, CollectionId = owned.Collection.Id, RecipientKeyEnvelope = [6, 7] }); await db.SaveChangesAsync();
@@ -50,14 +55,20 @@ public partial class AccountClosureStoreTests(PostgresFixture fixture) : IClassF
         Assert.True(await db.Collections.AnyAsync(x => x.Id == foreign.Collection.Id)); Assert.True(await db.Records.AnyAsync(x => x.Id == foreign.Record.Id));
     }
     [FunctionalTheory]
-    [InlineData("revision", "revision_conflict")][InlineData("missing", "not_found")][InlineData("old", "fresh_authentication_required")]
+    [InlineData("revision", "revision_conflict")]
+    [InlineData("missing", "not_found")]
+    [InlineData("old", "fresh_authentication_required")]
     [InlineData("future", "fresh_authentication_required")]
     public async Task GivenInvalidCurrentClosureAuthority_WhenRequesting_ThenLeaveAllStateUnchanged(string invalid, string error)
     {
         using var key = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, key); var r = Request(s);
-        r = invalid switch { "revision" => r with { ExpectedRevision = 2 }, "missing" => r with { Actor = Guid.NewGuid() },
+        r = invalid switch
+        {
+            "revision" => r with { ExpectedRevision = 2 },
+            "missing" => r with { Actor = Guid.NewGuid() },
             "old" => r with { AuthenticationIssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1).ToUnixTimeSeconds() },
-            _ => r with { AuthenticationIssuedAt = DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeSeconds() } };
+            _ => r with { AuthenticationIssuedAt = DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeSeconds() }
+        };
         var result = await new AccountClosureStore(fixture).RequestAsync(r, default); Assert.Equal(error, result.Error); Assert.Null(result.Details);
         await using var db = fixture.CreateContext(); var account = await db.Accounts.SingleAsync(x => x.Id == s.InternalId);
         Assert.Equal(AccountState.Active, account.State); Assert.Equal(1, account.Revision); Assert.Equal(1, account.RevocationGeneration);

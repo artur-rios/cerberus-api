@@ -26,7 +26,8 @@ public sealed class RegistrationStore(IDbContextFactory<AppDbContext> factory) :
                 {
                     context.RegistrationOperations.Add(new RegistrationOperation
                     {
-                        OperationId = request.OperationId, AccountPublicId = request.AccountId,
+                        OperationId = request.OperationId,
+                        AccountPublicId = request.AccountId,
                         RequestFingerprint = request.RequestFingerprint
                     });
                     await context.SaveChangesAsync(cancellationToken);

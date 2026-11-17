@@ -32,7 +32,12 @@ public sealed class UploadSyncEditsHandler(ISyncEditsStore store, CerberusOption
                 || item.Status == "superseded" && edit.Action == "update" && item.EditedAt < OfflineEditOrder.Normalize(edit.EditedAt))
                 return output.WithError("persistence_unavailable");
         }
-        return output.WithData(new SyncEditsOutput { AccountId = data.AccountId, ProfileId = data.ProfileId,
-            ServerTime = data.ServerTime, Outcomes = data.Outcomes }).WithMessage("sync_edits_processed");
+        return output.WithData(new SyncEditsOutput
+        {
+            AccountId = data.AccountId,
+            ProfileId = data.ProfileId,
+            ServerTime = data.ServerTime,
+            Outcomes = data.Outcomes
+        }).WithMessage("sync_edits_processed");
     }
 }

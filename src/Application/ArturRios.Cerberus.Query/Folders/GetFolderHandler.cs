@@ -24,9 +24,14 @@ public sealed class GetFolderHandler(IFolderReadStore store) : IQueryHandlerAsyn
             return output.WithError("persistence_unavailable");
         return output.WithData(new FolderDetailsOutput
         {
-            FolderId = folder!.FolderId, Revision = folder.Revision, ServerSequence = folder.ServerSequence,
-            EditedAt = folder.EditedAt, Envelope = folder.Envelope,
-            ProfileIds = data.ProfileIds.Order().ToArray(), ParentFolderId = data.ParentFolderId, CollectionIds = data.CollectionIds.Order().ToArray()
+            FolderId = folder!.FolderId,
+            Revision = folder.Revision,
+            ServerSequence = folder.ServerSequence,
+            EditedAt = folder.EditedAt,
+            Envelope = folder.Envelope,
+            ProfileIds = data.ProfileIds.Order().ToArray(),
+            ParentFolderId = data.ParentFolderId,
+            CollectionIds = data.CollectionIds.Order().ToArray()
         }).WithMessage("folder_found");
     }
     private static bool ValidIds(Guid[]? ids) => ids is not null && ids.All(x => x != Guid.Empty) && ids.Distinct().Count() == ids.Length;

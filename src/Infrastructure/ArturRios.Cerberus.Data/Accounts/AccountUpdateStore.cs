@@ -26,7 +26,9 @@ public sealed class AccountUpdateStore(IDbContextFactory<AppDbContext> factory) 
             // Read only authorization metadata; the current envelope is never retrieved.
             var snapshot = await owned.Select(a => new
             {
-                a.PublicId, a.Revision, a.State,
+                a.PublicId,
+                a.Revision,
+                a.State,
                 Erased = context.TerminalErasures.Any(e => (e.ResourceKind == "account" && e.ResourceId == a.PublicId)),
                 Allowed = permitted.Any(p => p.Id == a.Id)
             }).SingleOrDefaultAsync(cancellationToken);

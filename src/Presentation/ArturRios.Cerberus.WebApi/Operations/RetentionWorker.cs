@@ -22,10 +22,10 @@ public sealed class RetentionWorker(IServiceScopeFactory scopes, CerberusOptions
         {
             var result = await scope.ServiceProvider.GetRequiredService<RetentionRunner>()
                 .RunOnceAsync(TimeSpan.ParseExact(options.RetentionInterval!, "c", CultureInfo.InvariantCulture), options.MaxPageSize, cancellationToken);
-            Completed.Add(result.Completed);Scheduled.Add(result.ScheduledJobs);ExpiredStreams.Add(result.ExpiredStreams);
-            if(result.Completed>0||result.ScheduledJobs>0||result.ExpiredStreams>0)
+            Completed.Add(result.Completed); Scheduled.Add(result.ScheduledJobs); ExpiredStreams.Add(result.ExpiredStreams);
+            if (result.Completed > 0 || result.ScheduledJobs > 0 || result.ExpiredStreams > 0)
                 logger.LogInformation("Retention progress. Code={Code}; Completed={Completed}; Scheduled={Scheduled}; ExpiredStreams={ExpiredStreams}",
-                    "retention_progress",result.Completed,result.ScheduledJobs,result.ExpiredStreams);
+                    "retention_progress", result.Completed, result.ScheduledJobs, result.ExpiredStreams);
             if (result.Failed > 0)
             {
                 Failures.Add(result.Failed);
@@ -36,7 +36,7 @@ public sealed class RetentionWorker(IServiceScopeFactory scopes, CerberusOptions
         catch (UnauthorizedAccessException)
         {
             Failures.Add(1);
-            logger.LogWarning("Retention polling refused. Code={Code}","retention_execution_denied");
+            logger.LogWarning("Retention polling refused. Code={Code}", "retention_execution_denied");
         }
         catch (Exception)
         {

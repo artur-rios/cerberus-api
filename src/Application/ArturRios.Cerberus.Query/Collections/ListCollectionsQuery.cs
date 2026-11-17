@@ -1,5 +1,6 @@
 using ArturRios.Mediator.Query;
 namespace ArturRios.Cerberus.Query.Collections;
+
 public sealed class ListCollectionsQuery(Guid actor, string? access, int? pageSize, string? cursor) : BaseQuery
 {
     public Guid Actor { get; } = actor;

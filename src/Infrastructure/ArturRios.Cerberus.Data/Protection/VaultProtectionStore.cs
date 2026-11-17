@@ -55,9 +55,15 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
             var issued = now.ToUnixTimeSeconds();
             var challenge = new VaultProofChallenge("cerberus-challenge-v1", Guid.NewGuid(), ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32)),
                 operation, actor, account.PublicId, "account", account.PublicId, row.KeyEpoch, row.Revision, operation == "recover" ? row.RecoveryGeneration : null, requestHash, issued, issued + 60);
-            db.VaultUnlockChallenges.Add(new VaultUnlockChallenge { AccountId = account.Id, PublicId = challenge.ChallengeId,
-                Challenge = JsonSerializer.SerializeToUtf8Bytes(challenge, Json), PolicyRevision = account.PolicyRevision,
-                RevocationGeneration = account.RevocationGeneration, ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt) });
+            db.VaultUnlockChallenges.Add(new VaultUnlockChallenge
+            {
+                AccountId = account.Id,
+                PublicId = challenge.ChallengeId,
+                Challenge = JsonSerializer.SerializeToUtf8Bytes(challenge, Json),
+                PolicyRevision = account.PolicyRevision,
+                RevocationGeneration = account.RevocationGeneration,
+                ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt)
+            });
             return new(challenge);
         });
     }
@@ -93,8 +99,15 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
                 WHERE id = {row.Id} AND NOT consumed AND expires_at > statement_timestamp()
                 """, ct);
             if (consumed != 1) return new(Error: "vault_proof_rejected");
-            db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                IssuedAt = now, ExpiresAt = expires, PolicyRevision = account.PolicyRevision, RevocationGeneration = account.RevocationGeneration });
+            db.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                IssuedAt = now,
+                ExpiresAt = expires,
+                PolicyRevision = account.PolicyRevision,
+                RevocationGeneration = account.RevocationGeneration
+            });
             return new(new(account.PublicId, access, now, expires));
         });
 

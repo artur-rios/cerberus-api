@@ -196,15 +196,27 @@ public class AccountReadHttpTests(RegistrationApiFixture fixture, SharedApiHost 
         if (state != "missing")
         {
             await using var context = fixture.Context();
-            var account = new Account { PublicId = id, HeimdallPublicId = identity, Revision = 3,
+            var account = new Account
+            {
+                PublicId = id,
+                HeimdallPublicId = identity,
+                Revision = 3,
                 DetailsEnvelope = state == "corrupt" ? Encoding.UTF8.GetBytes("not-json") : JsonSerializer.SerializeToUtf8Bytes(details, new JsonSerializerOptions(JsonSerializerDefaults.Web)),
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            };
             context.Accounts.Add(account);
             await context.SaveChangesAsync();
-            context.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                ProfileId = state == "profile" ? 42 : null, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+            context.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                ProfileId = state == "profile" ? 42 : null,
+                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
                 ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
-                Revoked = state == "revoked", PolicyRevision = state == "stale" ? 0 : 1, RevocationGeneration = 1 });
+                Revoked = state == "revoked",
+                PolicyRevision = state == "stale" ? 0 : 1,
+                RevocationGeneration = 1
+            });
             if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
         }

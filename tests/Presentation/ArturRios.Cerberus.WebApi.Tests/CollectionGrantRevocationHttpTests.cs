@@ -32,10 +32,14 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
 
     // Catch missing route, widened authority, retained online access, leaked material, or partial commits.
     [FunctionalTheory]
-    [InlineData("wide", "wide", "read-only")][InlineData("wide", "wide", "read-write")]
-    [InlineData("Master", "Master", "read-only")][InlineData("Master", "Master", "read-write")]
-    [InlineData("PerProfile", "PerProfile", "read-only")][InlineData("PerProfile", "PerProfile", "read-write")]
-    [InlineData("wide", "Master", "read-only")][InlineData("PerProfile", "wide", "read-write")]
+    [InlineData("wide", "wide", "read-only")]
+    [InlineData("wide", "wide", "read-write")]
+    [InlineData("Master", "Master", "read-only")]
+    [InlineData("Master", "Master", "read-write")]
+    [InlineData("PerProfile", "PerProfile", "read-only")]
+    [InlineData("PerProfile", "PerProfile", "read-write")]
+    [InlineData("wide", "Master", "read-only")]
+    [InlineData("PerProfile", "wide", "read-write")]
     public async Task GivenNativeActiveGrant_WhenRevokingThenRegranting_ThenOnlineAuthorityAndExactProfileScopeFollowCurrentState(
         string ownerMode, string recipientMode, string access)
     {
@@ -127,7 +131,9 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         using (var ownerRead = await Read(actor, "/api/collections/" + target)) await Success<CollectionDetailsOutput>(ownerRead);
     }
 
-    [FunctionalTheory][InlineData("Master")][InlineData("PerProfile")]
+    [FunctionalTheory]
+    [InlineData("Master")]
+    [InlineData("PerProfile")]
     public async Task GivenUnlinkedSelectedOwner_WhenRevoking_Then404WithoutWidening(string mode)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var key = new ProtectionFixture();
@@ -137,7 +143,11 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         await UnchangedFailure(s, r, s with { Access = await Open(s, p, key) }, target, initial.GrantId, 1, 404);
     }
 
-    [FunctionalTheory][InlineData("read-only", false)][InlineData("read-write", false)][InlineData("read-only", true)][InlineData("read-write", true)]
+    [FunctionalTheory]
+    [InlineData("read-only", false)]
+    [InlineData("read-write", false)]
+    [InlineData("read-only", true)]
+    [InlineData("read-write", true)]
     public async Task GivenVisibleForeignTarget_WhenRevoking_ThenNativeEvidencePrecedesDenial(string access, bool corrupt)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -146,7 +156,10 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         await UnchangedFailure(s, r, r, target, Guid.NewGuid(), 1, corrupt ? 503 : 403);
     }
 
-    [FunctionalTheory][InlineData("malformed")][InlineData("empty")][InlineData("unprotected")]
+    [FunctionalTheory]
+    [InlineData("malformed")]
+    [InlineData("empty")]
+    [InlineData("unprotected")]
     public async Task GivenOwnerReductionWithUnusableOldMaterial_WhenRevoking_Then200ErasesWrapper(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -160,12 +173,27 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         Assert.Empty((await db.CollectionGrants.AsNoTracking().SingleAsync(x => x.PublicId == initial.GrantId)).RecipientKeyEnvelope);
     }
 
-    [FunctionalTheory][InlineData("stale",409)][InlineData("grantMaximum",409)][InlineData("generationMaximum",409)]
-    [InlineData("grantMissing",404)][InlineData("grantRevoked",404)][InlineData("grantTerminal",404)][InlineData("crossCollection",404)]
-    [InlineData("recipientClosing",404)][InlineData("recipientTerminal",404)]
-    [InlineData("grantAccess",503)][InlineData("recipientGeneration",503)]
-    [InlineData("ownerClosing",404)][InlineData("ownerTerminal",404)][InlineData("deleted",404)][InlineData("terminal",404)][InlineData("missing",404)]
-    [InlineData("expired",403)][InlineData("revoked",403)][InlineData("policy",403)][InlineData("generation",403)]
+    [FunctionalTheory]
+    [InlineData("stale", 409)]
+    [InlineData("grantMaximum", 409)]
+    [InlineData("generationMaximum", 409)]
+    [InlineData("grantMissing", 404)]
+    [InlineData("grantRevoked", 404)]
+    [InlineData("grantTerminal", 404)]
+    [InlineData("crossCollection", 404)]
+    [InlineData("recipientClosing", 404)]
+    [InlineData("recipientTerminal", 404)]
+    [InlineData("grantAccess", 503)]
+    [InlineData("recipientGeneration", 503)]
+    [InlineData("ownerClosing", 404)]
+    [InlineData("ownerTerminal", 404)]
+    [InlineData("deleted", 404)]
+    [InlineData("terminal", 404)]
+    [InlineData("missing", 404)]
+    [InlineData("expired", 403)]
+    [InlineData("revoked", 403)]
+    [InlineData("policy", 403)]
+    [InlineData("generation", 403)]
     public async Task GivenCurrentState_WhenRevoking_ThenExactSafeStatusAndNoMutation(string kind, int status)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -188,7 +216,10 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         await UnchangedFailure(s, r, kind == "grantAccess" ? r : s, pathTarget, grantId, kind == "stale" ? 2 : 1, status, target);
     }
 
-    [FunctionalTheory][InlineData("outage")][InlineData("grant")][InlineData("generation")]
+    [FunctionalTheory]
+    [InlineData("outage")]
+    [InlineData("grant")]
+    [InlineData("generation")]
     public async Task GivenDatabaseFault_WhenRevoking_Then503RollsBackBothMutationsAndCleanRetrySucceeds(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -209,13 +240,25 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
     }
 
     [FunctionalTheory]
-    [InlineData("{}")][InlineData("[]")][InlineData("null")][InlineData("{")]
-    [InlineData("{\"ExpectedRevision\":1}")][InlineData("{\"expectedRevision\":\"1\"}")][InlineData("{\"expectedRevision\":1.5}")]
-    [InlineData("{\"expectedRevision\":null}")][InlineData("{\"expectedRevision\":0}")][InlineData("{\"expectedRevision\":-1}")]
-    [InlineData("{\"expectedRevision\":9007199254740991}")][InlineData("{\"expectedRevision\":9007199254740992}")][InlineData("{\"expectedRevision\":1,\"expectedRevision\":1}")]
-    [InlineData("{\"expectedRevision\":1,\"access\":\"read-only\"}")][InlineData("{\"expectedRevision\":1,\"keyEnvelope\":{}}")]
-    [InlineData("{\"expectedRevision\":1,\"grantId\":\"secret\"}")][InlineData("{\"expectedRevision\":1,\"actor\":\"secret\"}")]
-    [InlineData("{\"expectedRevision\":1,\"profileId\":\"secret\"}")][InlineData("{\"expectedRevision\":1,\"plaintext\":\"secret\"}")]
+    [InlineData("{}")]
+    [InlineData("[]")]
+    [InlineData("null")]
+    [InlineData("{")]
+    [InlineData("{\"ExpectedRevision\":1}")]
+    [InlineData("{\"expectedRevision\":\"1\"}")]
+    [InlineData("{\"expectedRevision\":1.5}")]
+    [InlineData("{\"expectedRevision\":null}")]
+    [InlineData("{\"expectedRevision\":0}")]
+    [InlineData("{\"expectedRevision\":-1}")]
+    [InlineData("{\"expectedRevision\":9007199254740991}")]
+    [InlineData("{\"expectedRevision\":9007199254740992}")]
+    [InlineData("{\"expectedRevision\":1,\"expectedRevision\":1}")]
+    [InlineData("{\"expectedRevision\":1,\"access\":\"read-only\"}")]
+    [InlineData("{\"expectedRevision\":1,\"keyEnvelope\":{}}")]
+    [InlineData("{\"expectedRevision\":1,\"grantId\":\"secret\"}")]
+    [InlineData("{\"expectedRevision\":1,\"actor\":\"secret\"}")]
+    [InlineData("{\"expectedRevision\":1,\"profileId\":\"secret\"}")]
+    [InlineData("{\"expectedRevision\":1,\"plaintext\":\"secret\"}")]
     public async Task GivenInvalidExactBody_WhenRevoking_Then400AndNoMutation(string raw)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -266,7 +309,13 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
     { using var request = Request(s, RevokePath(target, grant), Bytes(new { expectedRevision = revision }), HttpMethod.Delete); return await Gateway.Client.SendAsync(request); }
     private async Task<HttpResponseMessage> Send(State s, string path, object body, HttpMethod? method = null)
     { using var request = Request(s, path, Bytes(body), method ?? HttpMethod.Put); return await Gateway.Client.SendAsync(request); }
-    [FunctionalTheory][InlineData("bad")][InlineData("zero")][InlineData("uppercase")][InlineData("compact")][InlineData("braced")][InlineData("urn")]
+    [FunctionalTheory]
+    [InlineData("bad")]
+    [InlineData("zero")]
+    [InlineData("uppercase")]
+    [InlineData("compact")]
+    [InlineData("braced")]
+    [InlineData("urn")]
     public async Task GivenNoncanonicalCollectionOrGrantPath_WhenRevoking_Then400(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient);
@@ -279,9 +328,22 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         }
     }
 
-    [FunctionalTheory][InlineData("query",400)][InlineData("duplicate",400)][InlineData("bad",400)][InlineData("missing",401)]
-    [InlineData("utf8",400)][InlineData("bom",400)][InlineData("compression",400)][InlineData("charset",400)][InlineData("oversized",413)][InlineData("empty",400)]
-    [InlineData("noMedia",400)][InlineData("text",400)][InlineData("suffix",400)][InlineData("prefix",400)][InlineData("brokenMedia",400)]
+    [FunctionalTheory]
+    [InlineData("query", 400)]
+    [InlineData("duplicate", 400)]
+    [InlineData("bad", 400)]
+    [InlineData("missing", 401)]
+    [InlineData("utf8", 400)]
+    [InlineData("bom", 400)]
+    [InlineData("compression", 400)]
+    [InlineData("charset", 400)]
+    [InlineData("oversized", 413)]
+    [InlineData("empty", 400)]
+    [InlineData("noMedia", 400)]
+    [InlineData("text", 400)]
+    [InlineData("suffix", 400)]
+    [InlineData("prefix", 400)]
+    [InlineData("brokenMedia", 400)]
     public async Task GivenInvalidTransportOrAccess_WhenRevoking_ThenStrictFailureAndNoMutation(string kind, int status)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -301,7 +363,11 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         Assert.Equal(before, await Stable(s, r)); Assert.Equal(grants, await Grants(target));
     }
 
-    [FunctionalTheory][InlineData("application/json")][InlineData("Application/Json")][InlineData("application/json; charset=utf-8")][InlineData("application/json; charset=\"UTF-8\"")]
+    [FunctionalTheory]
+    [InlineData("application/json")]
+    [InlineData("Application/Json")]
+    [InlineData("application/json; charset=utf-8")]
+    [InlineData("application/json; charset=\"UTF-8\"")]
     public async Task GivenValidJsonMediaType_WhenRevoking_Then200(string media)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);
@@ -323,7 +389,11 @@ public class CollectionGrantRevocationHttpTests(RegistrationApiFixture fixture, 
         Assert.Equal(before, await Stable(s, r)); Assert.Equal(grants, await Grants(target));
     }
 
-    [FunctionalTheory][InlineData("missing",401)][InlineData("scope",401)][InlineData("deleted",401)][InlineData("unavailable",503)]
+    [FunctionalTheory]
+    [InlineData("missing", 401)]
+    [InlineData("scope", 401)]
+    [InlineData("deleted", 401)]
+    [InlineData("unavailable", 503)]
     public async Task GivenRejectedIdentity_WhenRevoking_ThenSafeStatusAndNoMutation(string kind, int status)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var s = await Setup(owner); var r = await Setup(recipient); var target = await Create(s);

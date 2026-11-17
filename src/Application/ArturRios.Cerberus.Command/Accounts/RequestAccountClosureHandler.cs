@@ -20,9 +20,16 @@ public sealed class RequestAccountClosureHandler(IAccountClosureStore store, Tim
         var d = result.Details;
         if (d?.IsValid() != true || !d.AlreadyPending && d.Revision != command.ExpectedRevision + 1)
             return output.WithError("persistence_unavailable");
-        return output.WithData(new AccountClosureOutput { AccountId = d.AccountId, Revision = d.Revision,
-            RevocationGeneration = d.RevocationGeneration, ClosureRequestedAt = d.ClosureRequestedAt,
-            ClosureDeadline = d.ClosureDeadline, ServerTime = d.ServerTime, AlreadyPending = d.AlreadyPending })
+        return output.WithData(new AccountClosureOutput
+        {
+            AccountId = d.AccountId,
+            Revision = d.Revision,
+            RevocationGeneration = d.RevocationGeneration,
+            ClosureRequestedAt = d.ClosureRequestedAt,
+            ClosureDeadline = d.ClosureDeadline,
+            ServerTime = d.ServerTime,
+            AlreadyPending = d.AlreadyPending
+        })
             .WithMessage("account_closure_pending");
     }
 }

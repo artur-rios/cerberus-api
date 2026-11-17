@@ -38,7 +38,10 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         Assert.Equal(1, await db.Accounts.Where(x => x.Id == s.Owner).Select(x => x.PolicyRevision).SingleAsync());
     }
     [FunctionalTheory]
-    [InlineData("updated")][InlineData("trashed")][InlineData("deleted")][InlineData("typedCollision")]
+    [InlineData("updated")]
+    [InlineData("trashed")]
+    [InlineData("deleted")]
+    [InlineData("typedCollision")]
     public async Task GivenPreviouslyDisclosedRecord_WhenItsStateChanges_ThenReturnOnlyCurrentDeltaOrMinimalKnownTombstone(string change)
     {
         var s = await Setup(withRecord: true); var store = new SyncDownloadStore(fixture, Options);
@@ -123,16 +126,28 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         await using var db = fixture.CreateContext();
         await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Request.AccessVerifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revoked, true));
         var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
-        db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = s.Owner, ProfileId = s.Profile, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 });
+        db.VaultAccessSessions.Add(new VaultAccessSession
+        {
+            AccountId = s.Owner,
+            ProfileId = s.Profile,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         await db.SaveChangesAsync();
         var result = await store.DownloadAsync(s.Request with { AccessVerifier = verifier, Checkpoint = first.Page!.Checkpoint }, default);
         Assert.Null(result.Error); Assert.False(result.Page!.ResynchronizationRequired); Assert.Empty(result.Page.Items);
     }
     [FunctionalTheory]
-    [InlineData("identity", "not_found")][InlineData("closing", "not_found")][InlineData("erased", "not_found")]
-    [InlineData("accountwide", "vault_access_denied")][InlineData("expired", "vault_access_denied")]
-    [InlineData("revoked", "vault_access_denied")][InlineData("policy", "vault_access_denied")]
+    [InlineData("identity", "not_found")]
+    [InlineData("closing", "not_found")]
+    [InlineData("erased", "not_found")]
+    [InlineData("accountwide", "vault_access_denied")]
+    [InlineData("expired", "vault_access_denied")]
+    [InlineData("revoked", "vault_access_denied")]
+    [InlineData("policy", "vault_access_denied")]
     [InlineData("profile", "vault_access_denied")]
     public async Task GivenInvalidCurrentAuthority_WhenDownloading_ThenReturnNoContentOrCheckpoint(string state, string error)
     {
@@ -151,8 +166,12 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     }
 
     [FunctionalTheory]
-    [InlineData("same", "record")][InlineData("alternate", "record")][InlineData("direct", "record")]
-    [InlineData("same", "folder")][InlineData("alternate", "folder")][InlineData("direct", "folder")]
+    [InlineData("same", "record")]
+    [InlineData("alternate", "record")]
+    [InlineData("direct", "record")]
+    [InlineData("same", "folder")]
+    [InlineData("alternate", "folder")]
+    [InlineData("direct", "folder")]
     public async Task GivenThirdRecipientEditBetweenInventoryPages_WhenDownloadingDelta_ThenNeverRemoveStillVisibleResource(string route, string kind)
     {
         using var ownerKeys = new ProtectionFixture(); using var readerKeys = new ProtectionFixture();
@@ -163,8 +182,13 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         if (route != "direct") await AssociationSetup.Grant(fixture, owner, ownerKeys, reader, readerKeys, resources.Collection);
         await AssociationSetup.Grant(fixture, owner, ownerKeys, writer, writerKeys, writeCollection, CollectionGrantAccess.ReadWrite);
         await using var db = fixture.CreateContext();
-        var records = Enumerable.Range(0, 101).Select(_ => new VaultRecord { PublicId = Guid.NewGuid(), AccountId = owner.InternalId,
-            Envelope = JsonSerializer.SerializeToUtf8Bytes(ProfileSetup.Envelope(), ProtectionFixture.Json), EditedAt = DateTimeOffset.UnixEpoch }).ToArray();
+        var records = Enumerable.Range(0, 101).Select(_ => new VaultRecord
+        {
+            PublicId = Guid.NewGuid(),
+            AccountId = owner.InternalId,
+            Envelope = JsonSerializer.SerializeToUtf8Bytes(ProfileSetup.Envelope(), ProtectionFixture.Json),
+            EditedAt = DateTimeOffset.UnixEpoch
+        }).ToArray();
         var folders = records.Select(r => new VaultFolder { PublicId = r.PublicId, AccountId = r.AccountId, Envelope = r.Envelope, EditedAt = r.EditedAt }).ToArray();
         if (kind == "record") db.Records.AddRange(records); else db.Folders.AddRange(folders);
         await db.SaveChangesAsync();
@@ -175,13 +199,24 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         }
         await db.SaveChangesAsync();
         var input = ProfileSetup.Input(reader, route == "direct" ? ownerKeys : readerKeys, scopedKeys) with
-        { CollectionIds = route == "direct" ? [] : [resources.Collection.PublicId], RecordIds = route == "direct" && kind == "record" ? records.Select(r => r.PublicId).ToArray() : [],
-            FolderIds = route == "direct" && kind == "folder" ? folders.Select(f => f.PublicId).ToArray() : [] };
+        {
+            CollectionIds = route == "direct" ? [] : [resources.Collection.PublicId],
+            RecordIds = route == "direct" && kind == "record" ? records.Select(r => r.PublicId).ToArray() : [],
+            FolderIds = route == "direct" && kind == "folder" ? folders.Select(f => f.PublicId).ToArray() : []
+        };
         Assert.Null((await new ProfileCreateStore(fixture).CreateAsync(new(reader.Actor, reader.Verifier, input), default)).Error);
         var profile = await db.Profiles.SingleAsync(x => x.PublicId == input.ProfileId);
         var verifier = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));
-        db.VaultAccessSessions.Add(new() { AccountId = reader.InternalId, ProfileId = profile.Id, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 });
+        db.VaultAccessSessions.Add(new()
+        {
+            AccountId = reader.InternalId,
+            ProfileId = profile.Id,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         await db.SaveChangesAsync();
         var request = new SyncDownloadRequest(reader.Actor, verifier, 100);
         var first = await new SyncDownloadStore(fixture, Options).DownloadAsync(request, default); Assert.Null(first.Error);
@@ -247,7 +282,12 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     }
 
     [FunctionalTheory]
-    [InlineData("invalid")][InlineData("profile")][InlineData("missing")][InlineData("pageSize")][InlineData("window")][InlineData("skip")]
+    [InlineData("invalid")]
+    [InlineData("profile")]
+    [InlineData("missing")]
+    [InlineData("pageSize")]
+    [InlineData("window")]
+    [InlineData("skip")]
     public async Task GivenUnusableCheckpoint_WhenContinuing_ThenReturnAuthorizedClearScopeWithoutAdvancingHistory(string kind)
     {
         var s = await Setup(); var store = new SyncDownloadStore(fixture, Options);
@@ -255,8 +295,10 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         var request = s.Request with { Checkpoint = cp };
         request = kind switch
         {
-            "invalid" => request with { InvalidCursor = true }, "profile" => request with { Checkpoint = cp with { ProfileId = Guid.NewGuid() } },
-            "missing" => request with { Checkpoint = cp with { StreamId = Guid.NewGuid() } }, "pageSize" => request with { PageSize = 1 },
+            "invalid" => request with { InvalidCursor = true },
+            "profile" => request with { Checkpoint = cp with { ProfileId = Guid.NewGuid() } },
+            "missing" => request with { Checkpoint = cp with { StreamId = Guid.NewGuid() } },
+            "pageSize" => request with { PageSize = 1 },
             "window" => request with { Checkpoint = cp with { WindowVersion = cp.WindowVersion + 1 } },
             _ => request with { Checkpoint = cp with { After = cp.Boundary + 1, Boundary = cp.Boundary + 1 } }
         };
@@ -266,9 +308,12 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     }
 
     [FunctionalTheory]
-    [InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")]
-    [InlineData("session", "vault_access_denied")][InlineData("profile", "vault_access_denied")]
-    [InlineData("revision", "revision_conflict")][InlineData("closing", "not_found")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("generation", "vault_access_denied")]
+    [InlineData("session", "vault_access_denied")]
+    [InlineData("profile", "vault_access_denied")]
+    [InlineData("revision", "revision_conflict")]
+    [InlineData("closing", "not_found")]
     public async Task GivenAuthorityChangeWhileWaitingForRoot_WhenDownloading_ThenRecheckAndRollbackWithoutContent(string kind, string error)
     {
         var s = await Setup(); await using var writer = fixture.CreateContext();
@@ -319,8 +364,13 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     }
     private async Task AddCollection(State s)
     {
-        await using var db = fixture.CreateContext(); var c = new VaultCollection { PublicId = Guid.NewGuid(), AccountId = s.Owner,
-            Envelope = JsonSerializer.SerializeToUtf8Bytes(ProfileSetup.Envelope(), ProtectionFixture.Json), EditedAt = DateTimeOffset.UnixEpoch };
+        await using var db = fixture.CreateContext(); var c = new VaultCollection
+        {
+            PublicId = Guid.NewGuid(),
+            AccountId = s.Owner,
+            Envelope = JsonSerializer.SerializeToUtf8Bytes(ProfileSetup.Envelope(), ProtectionFixture.Json),
+            EditedAt = DateTimeOffset.UnixEpoch
+        };
         db.Collections.Add(c); await db.SaveChangesAsync(); db.ProfileCollections.Add(new() { ProfileId = s.Profile, CollectionId = c.Id }); await db.SaveChangesAsync();
     }
     private sealed class BothBeforeCollections : DbCommandInterceptor
@@ -348,7 +398,10 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     }
 
     [FunctionalTheory]
-    [InlineData("future")][InlineData("stamp")][InlineData("complete")][InlineData("terminalVisible")]
+    [InlineData("future")]
+    [InlineData("stamp")]
+    [InlineData("complete")]
+    [InlineData("terminalVisible")]
     public async Task GivenCorruptRetainedMetadata_WhenContinuing_ThenFailClosedWithoutCheckpointAdvance(string kind)
     {
         var s = await Setup(); var store = new SyncDownloadStore(fixture, Options); var first = await store.DownloadAsync(s.Request, default);
@@ -364,7 +417,8 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenFailureAfterDescriptorWrites_WhenDownloading_ThenRollbackAndRetryCleanly(bool cancelled)
     {
         var s = await Setup(withRecord: true); using var ct = new CancellationTokenSource();
@@ -388,7 +442,12 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     }
 
     [FunctionalTheory]
-    [InlineData("grant")][InlineData("member")][InlineData("collection")][InlineData("owner")][InlineData("terminal")][InlineData("corruptGrant")]
+    [InlineData("grant")]
+    [InlineData("member")]
+    [InlineData("collection")]
+    [InlineData("owner")]
+    [InlineData("terminal")]
+    [InlineData("corruptGrant")]
     public async Task GivenPreviouslyVisibleSharedContent_WhenPermissionOrNativeProvisioningChanges_ThenReturnRemovalsOrFailClosed(string change)
     {
         using var ownerKeys = new ProtectionFixture(); using var readerKeys = new ProtectionFixture(); using var scoped = new ProtectionFixture();
@@ -400,8 +459,16 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         var input = ProfileSetup.Input(reader, readerKeys, scoped) with { CollectionIds = [items.Collection.PublicId] };
         Assert.Null((await new ProfileCreateStore(fixture).CreateAsync(new(reader.Actor, reader.Verifier, input), default)).Error);
         var profile = await db.Profiles.SingleAsync(x => x.PublicId == input.ProfileId); var verifier = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));
-        db.VaultAccessSessions.Add(new() { AccountId = reader.InternalId, ProfileId = profile.Id, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 });
+        db.VaultAccessSessions.Add(new()
+        {
+            AccountId = reader.InternalId,
+            ProfileId = profile.Id,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         await db.SaveChangesAsync(); var request = new SyncDownloadRequest(reader.Actor, verifier, 10); var store = new SyncDownloadStore(fixture, Options);
         var first = await store.DownloadAsync(request, default); Assert.Null(first.Error); Assert.Equal(5, first.Page!.Items.Count);
         Assert.IsType<SyncGrantData>(Assert.Single(first.Page.Items, x => x.ResourceKind == "grant").Data);
@@ -463,9 +530,12 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     private async Task<string> SyncState(long owner)
     {
         await using var db = fixture.CreateContext(); var ids = await db.SyncStreams.Where(x => x.AccountId == owner).Select(x => x.Id).ToArrayAsync();
-        return JsonSerializer.Serialize(new { Streams = await db.SyncStreams.AsNoTracking().Where(x => x.AccountId == owner).OrderBy(x => x.Id).ToArrayAsync(),
+        return JsonSerializer.Serialize(new
+        {
+            Streams = await db.SyncStreams.AsNoTracking().Where(x => x.AccountId == owner).OrderBy(x => x.Id).ToArrayAsync(),
             Inventory = await db.SyncInventories.AsNoTracking().Where(x => ids.Contains(x.StreamId)).OrderBy(x => x.Id).ToArrayAsync(),
-            Changes = await db.SyncChanges.AsNoTracking().Where(x => ids.Contains(x.StreamId)).OrderBy(x => x.Sequence).ToArrayAsync() });
+            Changes = await db.SyncChanges.AsNoTracking().Where(x => ids.Contains(x.StreamId)).OrderBy(x => x.Sequence).ToArrayAsync()
+        });
     }
     private sealed class BeforeRoot : DbCommandInterceptor
     {
@@ -518,8 +588,14 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         var id = Guid.NewGuid();
         var envelope = new EncryptedEnvelope("cerberus-content-v1", 1, ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16]));
         var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope, ProtectionFixture.Json);
-        var p = new Profile { AccountId = a.Id, PublicId = id, EditedAt = DateTimeOffset.UtcNow, Envelope = bytes,
-            KeyWrappers = JsonSerializer.SerializeToUtf8Bytes(new ProfileKeyWrappers("Master", scoped.Material.UnlockVerifier, client.Wrap(a.PublicId, "profile", id, actor), null), ProtectionFixture.Json) };
+        var p = new Profile
+        {
+            AccountId = a.Id,
+            PublicId = id,
+            EditedAt = DateTimeOffset.UtcNow,
+            Envelope = bytes,
+            KeyWrappers = JsonSerializer.SerializeToUtf8Bytes(new ProfileKeyWrappers("Master", scoped.Material.UnlockVerifier, client.Wrap(a.PublicId, "profile", id, actor), null), ProtectionFixture.Json)
+        };
         db.Profiles.Add(p); await db.SaveChangesAsync();
         VaultRecord? r = null;
         if (withRecord)
@@ -528,8 +604,16 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
             db.Records.Add(r); await db.SaveChangesAsync(); db.ProfileRecords.Add(new ProfileRecord { AccountId = a.Id, ProfileId = p.Id, RecordId = r.Id });
         }
         var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
-        db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = a.Id, ProfileId = p.Id, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 });
+        db.VaultAccessSessions.Add(new VaultAccessSession
+        {
+            AccountId = a.Id,
+            ProfileId = p.Id,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         await db.SaveChangesAsync(); return new(a.Id, p.Id, id, r?.Id ?? 0, r?.PublicId ?? Guid.Empty, new(actor, verifier, 10));
     }
     private sealed record State(long Owner, long Profile, Guid ProfilePublicId, long Record, Guid RecordPublicId, SyncDownloadRequest Request);

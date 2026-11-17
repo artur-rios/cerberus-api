@@ -17,8 +17,11 @@ public class UploadSyncEditsHandlerTests
     private static UploadSyncEditsCommand Command()
     { var command = new UploadSyncEditsCommand { Edits = [Edit()] }; command.SetContext(Actor, Access); return command; }
     [UnitTheory]
-    [InlineData("identity", "authentication_required")][InlineData("missing", "vault_access_required")]
-    [InlineData("handle", "validation_failed")][InlineData("empty", "validation_failed")][InlineData("duplicate", "validation_failed")]
+    [InlineData("identity", "authentication_required")]
+    [InlineData("missing", "vault_access_required")]
+    [InlineData("handle", "validation_failed")]
+    [InlineData("empty", "validation_failed")]
+    [InlineData("duplicate", "validation_failed")]
     public async Task GivenInvalidCurrentContextOrBatch_WhenUploading_ThenRejectBeforePersistence(string kind, string error)
     {
         var command = Command(); command.SetContext(kind == "identity" ? Guid.Empty : Actor, kind == "missing" ? null : kind == "handle" ? "invalid" : Access);
@@ -28,13 +31,19 @@ public class UploadSyncEditsHandlerTests
         Assert.Contains(error, output.Errors); Assert.Null(output.Data);
     }
     [UnitTheory]
-    [InlineData("not_found")][InlineData("vault_access_denied")][InlineData("operation_conflict")][InlineData("persistence_unavailable")]
+    [InlineData("not_found")]
+    [InlineData("vault_access_denied")]
+    [InlineData("operation_conflict")]
+    [InlineData("persistence_unavailable")]
     public async Task GivenStorageOrScopeError_WhenUploading_ThenReturnStableFailureWithoutOutcomes(string error)
     {
         var output = await Handler(new(Error: error)).HandleAsync(Command()); Assert.Contains(error, output.Errors); Assert.Null(output.Data);
     }
     [UnitTheory]
-    [InlineData("applied")][InlineData("superseded")][InlineData("denied")][InlineData("permanently-deleted")]
+    [InlineData("applied")]
+    [InlineData("superseded")]
+    [InlineData("denied")]
+    [InlineData("permanently-deleted")]
     public async Task GivenValidPerItemResult_WhenHandling_ThenPreserveBoundOrderedOutcomes(string status)
     {
         var winning = status is "applied" or "superseded";
@@ -43,16 +52,26 @@ public class UploadSyncEditsHandlerTests
         Assert.True(output.Success); Assert.Equal(item, Assert.Single(output.Data!.Outcomes)); Assert.Equal(Account, output.Data.AccountId);
     }
     [UnitTheory]
-    [InlineData("account")][InlineData("count")][InlineData("operation")][InlineData("kind")][InlineData("identifier")]
-    [InlineData("metadata")][InlineData("timestamp")][InlineData("unknownError")][InlineData("errorData")]
+    [InlineData("account")]
+    [InlineData("count")]
+    [InlineData("operation")]
+    [InlineData("kind")]
+    [InlineData("identifier")]
+    [InlineData("metadata")]
+    [InlineData("timestamp")]
+    [InlineData("unknownError")]
+    [InlineData("errorData")]
     public async Task GivenInconsistentStoredResult_WhenHandling_ThenFailClosed(string kind)
     {
         var item = new SyncEditOutcome(Operation, "record", Id, "applied", 1, 2, Time);
         item = kind switch
         {
-            "operation" => item with { OperationId = Guid.NewGuid() }, "kind" => item with { ResourceKind = "folder" },
-            "identifier" => item with { ResourceId = Guid.NewGuid() }, "metadata" => item with { Status = "denied" },
-            "timestamp" => item with { EditedAt = Time.AddSeconds(1) }, _ => item
+            "operation" => item with { OperationId = Guid.NewGuid() },
+            "kind" => item with { ResourceKind = "folder" },
+            "identifier" => item with { ResourceId = Guid.NewGuid() },
+            "metadata" => item with { Status = "denied" },
+            "timestamp" => item with { EditedAt = Time.AddSeconds(1) },
+            _ => item
         };
         var details = new SyncEditsDetails(kind == "account" ? Guid.Empty : Account, null, Time, kind == "count" ? [] : [item]);
         var result = kind == "unknownError" ? new SyncEditsResult(Error: "internal") : new(details, kind == "errorData" ? "vault_access_denied" : null);

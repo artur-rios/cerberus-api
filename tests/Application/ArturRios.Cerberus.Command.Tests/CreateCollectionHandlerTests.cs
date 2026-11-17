@@ -77,7 +77,8 @@ public class CreateCollectionHandlerTests
         var command = Command();
         command.EditedAt = kind switch
         {
-            "minimum" => new(10, TimeSpan.Zero), "firstSubmicro" => new(19, TimeSpan.Zero),
+            "minimum" => new(10, TimeSpan.Zero),
+            "firstSubmicro" => new(19, TimeSpan.Zero),
             "precision" => DateTimeOffset.UnixEpoch.AddTicks(19),
             "pre2000" => new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero).AddTicks(19),
             "pre2000Last" => new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero).AddTicks(-1),
@@ -105,7 +106,11 @@ public class CreateCollectionHandlerTests
         Assert.Equal(201, CreateCollectionMessages.StatusCodes[result.Messages.Single()]);
     }
 
-    [UnitTheory][InlineData("empty")][InlineData("multipleProfiles")][InlineData("typedAlias")][InlineData("mixed")]
+    [UnitTheory]
+    [InlineData("empty")]
+    [InlineData("multipleProfiles")]
+    [InlineData("typedAlias")]
+    [InlineData("mixed")]
     public async Task GivenValidTypedLinks_WhenCreating_ThenPreserveEverySubmittedKind(string kind)
     {
         var command = Command(); var id = Guid.NewGuid();
@@ -121,10 +126,17 @@ public class CreateCollectionHandlerTests
     }
 
     [UnitTheory]
-    [InlineData("validation_failed", 400)][InlineData("authentication_required", 401)][InlineData("vault_access_required", 401)]
-    [InlineData("vault_access_denied", 403)][InlineData("not_found", 404)][InlineData("revision_conflict", 409)]
-    [InlineData("persistence_unavailable", 503)][InlineData("identity_unavailable", 503)]
-    [InlineData("secret_internal_error", 503)][InlineData("collection_created", 503)][InlineData("", 503)]
+    [InlineData("validation_failed", 400)]
+    [InlineData("authentication_required", 401)]
+    [InlineData("vault_access_required", 401)]
+    [InlineData("vault_access_denied", 403)]
+    [InlineData("not_found", 404)]
+    [InlineData("revision_conflict", 409)]
+    [InlineData("persistence_unavailable", 503)]
+    [InlineData("identity_unavailable", 503)]
+    [InlineData("secret_internal_error", 503)]
+    [InlineData("collection_created", 503)]
+    [InlineData("", 503)]
     public async Task GivenStoreErrorWithData_WhenCreating_ThenAllowlistErrorAndDiscardData(string error, int status)
     {
         var command = Command(); var store = new Mock<ICollectionCreateStore>();
@@ -136,17 +148,33 @@ public class CreateCollectionHandlerTests
     }
 
     [UnitTheory]
-    [InlineData("nullResult")][InlineData("nullData")][InlineData("id")][InlineData("revision0")][InlineData("revision2")]
-    [InlineData("sequence0")][InlineData("unsafe")][InlineData("time")][InlineData("offset")][InlineData("defaultTime")][InlineData("unnormalized")]
+    [InlineData("nullResult")]
+    [InlineData("nullData")]
+    [InlineData("id")]
+    [InlineData("revision0")]
+    [InlineData("revision2")]
+    [InlineData("sequence0")]
+    [InlineData("unsafe")]
+    [InlineData("time")]
+    [InlineData("offset")]
+    [InlineData("defaultTime")]
+    [InlineData("unnormalized")]
     public async Task GivenMalformedStoreDetails_WhenCreating_ThenFailClosed(string kind)
     {
         var command = Command(); var data = new CollectionCreateDetails(command.CollectionId, 1, 7, DateTimeOffset.UnixEpoch.AddTicks(10));
         data = kind switch
         {
-            "nullData" => null!, "id" => data with { CollectionId = Guid.NewGuid() }, "revision0" => data with { Revision = 0 },
-            "revision2" => data with { Revision = 2 }, "sequence0" => data with { ServerSequence = 0 }, "unsafe" => data with { ServerSequence = 9007199254740992 },
-            "time" => data with { EditedAt = data.EditedAt.AddTicks(10) }, "offset" => data with { EditedAt = data.EditedAt.ToOffset(TimeSpan.FromHours(1)) },
-            "defaultTime" => data with { EditedAt = default }, "unnormalized" => data with { EditedAt = data.EditedAt.AddTicks(1) }, _ => data
+            "nullData" => null!,
+            "id" => data with { CollectionId = Guid.NewGuid() },
+            "revision0" => data with { Revision = 0 },
+            "revision2" => data with { Revision = 2 },
+            "sequence0" => data with { ServerSequence = 0 },
+            "unsafe" => data with { ServerSequence = 9007199254740992 },
+            "time" => data with { EditedAt = data.EditedAt.AddTicks(10) },
+            "offset" => data with { EditedAt = data.EditedAt.ToOffset(TimeSpan.FromHours(1)) },
+            "defaultTime" => data with { EditedAt = default },
+            "unnormalized" => data with { EditedAt = data.EditedAt.AddTicks(1) },
+            _ => data
         };
         var store = new Mock<ICollectionCreateStore>();
         store.Setup(x => x.CreateAsync(It.IsAny<CollectionCreateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(kind == "nullResult" ? null! : new VaultResult<CollectionCreateDetails>(data));
@@ -155,21 +183,47 @@ public class CreateCollectionHandlerTests
     }
 
     [UnitTheory]
-    [InlineData("collectionId")][InlineData("envelope")][InlineData("editedAt")][InlineData("profileIds")][InlineData("recordIds")][InlineData("folderIds")]
+    [InlineData("collectionId")]
+    [InlineData("envelope")]
+    [InlineData("editedAt")]
+    [InlineData("profileIds")]
+    [InlineData("recordIds")]
+    [InlineData("folderIds")]
     public void GivenOmittedRequiredField_WhenParsing_ThenReject(string name)
     { var body = Body(); body.Remove(name); Assert.Throws<JsonException>(() => Parse(body.ToJsonString())); }
 
     [UnitTheory]
-    [InlineData("actor")][InlineData("accountId")][InlineData("vaultAccess")][InlineData("name")][InlineData("fields")][InlineData("keyWrappers")]
-    [InlineData("expectedRevision")][InlineData("grants")][InlineData("proof")][InlineData("sourceKind")][InlineData("unknown")]
+    [InlineData("actor")]
+    [InlineData("accountId")]
+    [InlineData("vaultAccess")]
+    [InlineData("name")]
+    [InlineData("fields")]
+    [InlineData("keyWrappers")]
+    [InlineData("expectedRevision")]
+    [InlineData("grants")]
+    [InlineData("proof")]
+    [InlineData("sourceKind")]
+    [InlineData("unknown")]
     public void GivenForgedOrUnknownField_WhenParsing_ThenReject(string name)
     { var body = Body(); body[name] = null; Assert.Throws<JsonException>(() => Parse(body.ToJsonString())); }
 
     [UnitTheory]
-    [InlineData("collectionId", "upper")][InlineData("collectionId", "compact")][InlineData("collectionId", "zero")][InlineData("collectionId", "numeric")]
-    [InlineData("profileIds", "upper")][InlineData("profileIds", "compact")][InlineData("profileIds", "zero")][InlineData("profileIds", "numeric")]
-    [InlineData("recordIds", "upper")][InlineData("recordIds", "compact")][InlineData("recordIds", "zero")][InlineData("recordIds", "numeric")]
-    [InlineData("folderIds", "upper")][InlineData("folderIds", "compact")][InlineData("folderIds", "zero")][InlineData("folderIds", "numeric")]
+    [InlineData("collectionId", "upper")]
+    [InlineData("collectionId", "compact")]
+    [InlineData("collectionId", "zero")]
+    [InlineData("collectionId", "numeric")]
+    [InlineData("profileIds", "upper")]
+    [InlineData("profileIds", "compact")]
+    [InlineData("profileIds", "zero")]
+    [InlineData("profileIds", "numeric")]
+    [InlineData("recordIds", "upper")]
+    [InlineData("recordIds", "compact")]
+    [InlineData("recordIds", "zero")]
+    [InlineData("recordIds", "numeric")]
+    [InlineData("folderIds", "upper")]
+    [InlineData("folderIds", "compact")]
+    [InlineData("folderIds", "zero")]
+    [InlineData("folderIds", "numeric")]
     public void GivenNoncanonicalTypedId_WhenParsing_ThenReject(string name, string kind)
     {
         var body = Body(); var id = kind switch { "upper" => "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA", "compact" => "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "zero" => "00000000-0000-0000-0000-000000000000", _ => null };
@@ -178,20 +232,33 @@ public class CreateCollectionHandlerTests
         Assert.Throws<JsonException>(() => Parse(body.ToJsonString()));
     }
 
-    [UnitTheory][InlineData("profileIds")][InlineData("recordIds")][InlineData("folderIds")][InlineData("envelope")]
+    [UnitTheory]
+    [InlineData("profileIds")]
+    [InlineData("recordIds")]
+    [InlineData("folderIds")]
+    [InlineData("envelope")]
     public void GivenNullRequiredValue_WhenValidating_ThenReject(string name)
     { var body = Body(); body[name] = null; Assert.False(new CreateCollectionValidator().Validate(Parse(body.ToJsonString())).IsValid); }
 
-    [UnitTheory][InlineData("duplicate")][InlineData("case")][InlineData("numeric")][InlineData("nestedUnknown")][InlineData("nestedMissing")][InlineData("nestedCase")][InlineData("nestedDuplicate")]
+    [UnitTheory]
+    [InlineData("duplicate")]
+    [InlineData("case")]
+    [InlineData("numeric")]
+    [InlineData("nestedUnknown")]
+    [InlineData("nestedMissing")]
+    [InlineData("nestedCase")]
+    [InlineData("nestedDuplicate")]
     public void GivenAmbiguousBodyOrEnvelope_WhenParsing_ThenReject(string kind)
     {
         var body = JsonSerializer.Serialize(Command(), Json);
         body = kind switch
         {
-            "duplicate" => body.Insert(1, "\"profileIds\":[],"), "case" => body.Replace("profileIds", "ProfileIds"),
+            "duplicate" => body.Insert(1, "\"profileIds\":[],"),
+            "case" => body.Replace("profileIds", "ProfileIds"),
             "numeric" => body.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""),
             "nestedUnknown" => body.Replace("\"envelope\":{", "\"envelope\":{\"name\":null,"),
-            "nestedMissing" => body.Replace("\"keyEpoch\":1,", ""), "nestedCase" => body.Replace("keyEpoch", "KeyEpoch"),
+            "nestedMissing" => body.Replace("\"keyEpoch\":1,", ""),
+            "nestedCase" => body.Replace("keyEpoch", "KeyEpoch"),
             _ => body.Replace("\"envelope\":{", "\"envelope\":{\"keyEpoch\":1,")
         };
         if (kind == "nestedMissing")

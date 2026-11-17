@@ -90,8 +90,16 @@ public class IdentityUpdateClientTests
     public async Task GivenIncompatibleProviderSuccess_WhenUpdating_ThenFailClosedWithoutForwardingIdentityData(string invalid)
     {
         var data = Data();
-        var removed = invalid switch { "missingId" => "id", "missingName" => "name", "missingEmail" => "email",
-            "missingVerified" => "emailVerified", "missingScope" => "scopeId", "missingRole" => "role", _ => null };
+        var removed = invalid switch
+        {
+            "missingId" => "id",
+            "missingName" => "name",
+            "missingEmail" => "email",
+            "missingVerified" => "emailVerified",
+            "missingScope" => "scopeId",
+            "missingRole" => "role",
+            _ => null
+        };
         if (removed is not null) data.Remove(removed);
         if (invalid == "wrongId") data["id"] = Guid.NewGuid();
         if (invalid == "wrongScope") data["scopeId"] = Guid.NewGuid();
@@ -131,9 +139,15 @@ public class IdentityUpdateClientTests
 
     private static Dictionary<string, object?> Data() => new()
     {
-        ["id"] = Identity, ["name"] = Name, ["email"] = Email, ["role"] = 3,
-        ["scopeId"] = Options().HeimdallScopeId, ["emailVerified"] = false,
-        ["ownedScopeIds"] = Array.Empty<Guid>(), ["createdAt"] = "2026-10-07T00:00:00Z", ["updatedAt"] = "2026-10-08T00:00:00Z"
+        ["id"] = Identity,
+        ["name"] = Name,
+        ["email"] = Email,
+        ["role"] = 3,
+        ["scopeId"] = Options().HeimdallScopeId,
+        ["emailVerified"] = false,
+        ["ownedScopeIds"] = Array.Empty<Guid>(),
+        ["createdAt"] = "2026-10-07T00:00:00Z",
+        ["updatedAt"] = "2026-10-08T00:00:00Z"
     };
     private static CerberusOptions Options() => CerberusOptionsValidatorTests.ValidOptions();
     private static string Token(Guid? scope = null)

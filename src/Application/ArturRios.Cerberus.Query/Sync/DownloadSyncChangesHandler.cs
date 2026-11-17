@@ -63,8 +63,15 @@ public sealed class DownloadSyncChangesHandler(ISyncDownloadStore store, Cerberu
         }
         output.WithData(new SyncChangesOutput
         {
-            AccountId = p.AccountId, ProfileId = p.ProfileId, PolicyRevision = p.PolicyRevision, RevocationGeneration = p.RevocationGeneration,
-            ServerTime = p.ServerTime, Items = p.Items, NextCursor = next, HasMore = p.HasMore, ClearScope = p.ClearScope,
+            AccountId = p.AccountId,
+            ProfileId = p.ProfileId,
+            PolicyRevision = p.PolicyRevision,
+            RevocationGeneration = p.RevocationGeneration,
+            ServerTime = p.ServerTime,
+            Items = p.Items,
+            NextCursor = next,
+            HasMore = p.HasMore,
+            ClearScope = p.ClearScope,
             ResynchronizationRequired = p.ResynchronizationRequired
         });
         return p.ResynchronizationRequired ? output.WithError("resynchronization_required") : output.WithMessage("sync_changes_found");

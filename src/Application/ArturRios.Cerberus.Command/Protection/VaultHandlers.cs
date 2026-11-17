@@ -19,8 +19,13 @@ public sealed class InitializeVaultHandler(IValidator<InitializeVaultCommand> va
         var data = result.Data;
         if (data is null || data.AccountId != command.AccountId || data.ProtectionRevision != 1 || data.KeyEpoch != 1 || data.RecoveryGeneration != 1)
             return output.WithError("persistence_unavailable");
-        return output.WithData(new VaultInitializationOutput { AccountId = data.AccountId, ProtectionRevision = data.ProtectionRevision,
-            KeyEpoch = data.KeyEpoch, RecoveryGeneration = data.RecoveryGeneration }).WithMessage("protection_initialized");
+        return output.WithData(new VaultInitializationOutput
+        {
+            AccountId = data.AccountId,
+            ProtectionRevision = data.ProtectionRevision,
+            KeyEpoch = data.KeyEpoch,
+            RecoveryGeneration = data.RecoveryGeneration
+        }).WithMessage("protection_initialized");
     }
 }
 
@@ -60,7 +65,12 @@ public sealed class UnlockVaultHandler(IValidator<UnlockVaultCommand> validator,
         var data = result.Data;
         if (data is null || data.AccountId == Guid.Empty || !OpaqueAccessHandle.TryHash(data.Access, out _)
             || data.ExpiresAt <= data.IssuedAt) return output.WithError("persistence_unavailable");
-        return output.WithData(new VaultUnlockOutput { AccountId = data.AccountId, VaultAccess = data.Access,
-            IssuedAt = data.IssuedAt, ExpiresAt = data.ExpiresAt }).WithMessage("vault_unlocked");
+        return output.WithData(new VaultUnlockOutput
+        {
+            AccountId = data.AccountId,
+            VaultAccess = data.Access,
+            IssuedAt = data.IssuedAt,
+            ExpiresAt = data.ExpiresAt
+        }).WithMessage("vault_unlocked");
     }
 }

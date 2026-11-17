@@ -34,9 +34,12 @@ public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFi
     }
 
     [FunctionalTheory]
-    [InlineData("record", "target")][InlineData("folder", "target")]
-    [InlineData("record", "collection")][InlineData("folder", "collection")]
-    [InlineData("record", "marker")][InlineData("folder", "marker")]
+    [InlineData("record", "target")]
+    [InlineData("folder", "target")]
+    [InlineData("record", "collection")]
+    [InlineData("folder", "collection")]
+    [InlineData("record", "marker")]
+    [InlineData("folder", "marker")]
     public async Task GivenCrossOwnerOrForgedMembership_WhenSaving_ThenDatabaseRejectsOwnershipEscape(string kind, string invalid)
     {
         using var owner = new ProtectionFixture();
@@ -59,7 +62,9 @@ public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFi
         Assert.False(await db.CollectionFolders.AnyAsync(x => x.CollectionId == collection));
     }
 
-    [FunctionalTheory][InlineData("record")][InlineData("folder")]
+    [FunctionalTheory]
+    [InlineData("record")]
+    [InlineData("folder")]
     public async Task GivenExistingTypedMembership_WhenSavingDuplicate_ThenDatabaseRejectsDuplicateWithoutChangingContent(string kind)
     {
         using var owner = new ProtectionFixture();
@@ -80,7 +85,10 @@ public class CollectionMembershipSchemaTests(PostgresFixture fixture) : IClassFi
         Assert.Equal(kind == "folder" ? 1 : 0, await db.CollectionFolders.CountAsync(x => x.CollectionId == items.Collection.Id));
     }
 
-    [FunctionalTheory][InlineData("record")][InlineData("folder")][InlineData("collection")]
+    [FunctionalTheory]
+    [InlineData("record")]
+    [InlineData("folder")]
+    [InlineData("collection")]
     public async Task GivenTypedMemberships_WhenDeletingOneResource_ThenCascadeOnlyItsLinksAndPreserveOtherKinds(string kind)
     {
         using var owner = new ProtectionFixture();

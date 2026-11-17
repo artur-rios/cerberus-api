@@ -26,10 +26,16 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
 
     // Missing terminal/purge/ledger side effects or an owner-scope escape fails these cases.
     [FunctionalTheory]
-    [InlineData("wide", false)][InlineData("direct", false)][InlineData("folder", false)]
-    [InlineData("collection", false)][InlineData("descendant", false)]
-    [InlineData("wide", true)][InlineData("direct", true)][InlineData("folder", true)]
-    [InlineData("collection", true)][InlineData("descendant", true)]
+    [InlineData("wide", false)]
+    [InlineData("direct", false)]
+    [InlineData("folder", false)]
+    [InlineData("collection", false)]
+    [InlineData("descendant", false)]
+    [InlineData("wide", true)]
+    [InlineData("direct", true)]
+    [InlineData("folder", true)]
+    [InlineData("collection", true)]
+    [InlineData("descendant", true)]
     public async Task GivenCurrentOwnedActiveOrTrashedScope_WhenPermanentlyDeleting_ThenDurableTerminalEventAndOnlyTargetRemoved(string route, bool trash)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, route, trash);
@@ -59,13 +65,20 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
     }
 
     [FunctionalTheory]
-    [InlineData("stale", "revision_conflict")][InlineData("missing", "not_found")]
-    [InlineData("unselected", "not_found")][InlineData("expired", "vault_access_denied")]
-    [InlineData("revoked", "vault_access_denied")][InlineData("future", "vault_access_denied")]
-    [InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")]
-    [InlineData("dangling", "vault_access_denied")][InlineData("closing", "not_found")]
-    [InlineData("actor", "not_found")][InlineData("handle", "vault_access_denied")]
-    [InlineData("terminal", "not_found")][InlineData("ancestorTrash", "not_found")]
+    [InlineData("stale", "revision_conflict")]
+    [InlineData("missing", "not_found")]
+    [InlineData("unselected", "not_found")]
+    [InlineData("expired", "vault_access_denied")]
+    [InlineData("revoked", "vault_access_denied")]
+    [InlineData("future", "vault_access_denied")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("generation", "vault_access_denied")]
+    [InlineData("dangling", "vault_access_denied")]
+    [InlineData("closing", "not_found")]
+    [InlineData("actor", "not_found")]
+    [InlineData("handle", "vault_access_denied")]
+    [InlineData("terminal", "not_found")]
+    [InlineData("ancestorTrash", "not_found")]
     public async Task GivenInvalidCurrentAuthorityOrState_WhenPermanentlyDeleting_ThenNoIntentOrLedgerOrRemoval(string kind, string error)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -99,8 +112,10 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
     }
 
     [FunctionalTheory]
-    [InlineData(CollectionGrantAccess.ReadOnly, false)][InlineData(CollectionGrantAccess.ReadWrite, false)]
-    [InlineData(CollectionGrantAccess.ReadOnly, true)][InlineData(CollectionGrantAccess.ReadWrite, true)]
+    [InlineData(CollectionGrantAccess.ReadOnly, false)]
+    [InlineData(CollectionGrantAccess.ReadWrite, false)]
+    [InlineData(CollectionGrantAccess.ReadOnly, true)]
+    [InlineData(CollectionGrantAccess.ReadWrite, true)]
     public async Task GivenNativeVisibleForeignOwner_WhenDeletingWithStaleRevisionAndBadCipher_Then403WithoutLedger(CollectionGrantAccess access, bool selected)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -126,7 +141,8 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenOwnedDamagedCipherAndMaximumRevision_WhenDeleting_ThenEraseWithoutDecryptionOrRevisionIncrement(bool trash)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", trash);
@@ -137,7 +153,9 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
     }
 
     [FunctionalTheory]
-    [InlineData("profile")][InlineData("collection")][InlineData("folder")]
+    [InlineData("profile")]
+    [InlineData("collection")]
+    [InlineData("folder")]
     public async Task GivenActiveDirectParent_WhenDeleting_ThenAdvanceStructuralMetadataOnceAndKeepCipher(string parent)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, parent == "profile" ? "direct" : parent, false);
@@ -154,7 +172,8 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenLedgerFailureAfterCommittedIntent_WhenDeletingThenRunningWorker_ThenDenyAllWritersAndRecoverDurably(bool failAfterLedger)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -185,7 +204,8 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenOtherKindsSharingRecordGuid_WhenPermanentlyDeleting_ThenPreserveTheirRowsAndAccess(bool trash)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", trash);
@@ -200,7 +220,12 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
     }
 
     [FunctionalTheory]
-    [InlineData("account")][InlineData("session")][InlineData("profile")][InlineData("collection")][InlineData("folder")][InlineData("record")]
+    [InlineData("account")]
+    [InlineData("session")]
+    [InlineData("profile")]
+    [InlineData("collection")]
+    [InlineData("folder")]
+    [InlineData("record")]
     public async Task GivenExpiryDuringAnyRequiredLockWait_WhenDeletingStaleRevision_Then403BeforeConflictAndNoIntent(string kind)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "direct", false);
@@ -216,7 +241,7 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         var table = kind == "session" ? "vault_access_session" : kind;
         var id = kind switch { "account" => w.State.InternalId, "profile" => w.Selection!.Value, "collection" => w.Items.Collection.Id, "folder" => w.Items.Folder.Id, _ => w.Record.Id };
         if (kind == "session") await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE handle_verifier={w.State.Verifier} FOR UPDATE");
-        else { var lockSql="SELECT FROM cerberus." + table + " WHERE id={0} FOR UPDATE"; await held.Database.ExecuteSqlRawAsync(lockSql, id); }
+        else { var lockSql = "SELECT FROM cerberus." + table + " WHERE id={0} FOR UPDATE"; await held.Database.ExecuteSqlRawAsync(lockSql, id); }
         var signal = new PermanentDeleteSetup.LockSignal(table);
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var pending = Store(factory: new ProfileSetup.Factory(fixture, signal)).DeleteAsync(w.Request() with { ExpectedRevision = 99 }, ct.Token);
@@ -287,7 +312,8 @@ internal static class PermanentDeleteSetup
     internal static async Task<string> Snapshot(PostgresFixture fixture, long account)
     {
         await using var db = fixture.CreateContext();
-        return JsonSerializer.Serialize(new {
+        return JsonSerializer.Serialize(new
+        {
             Records = await db.Records.AsNoTracking().Where(x => x.AccountId == account).OrderBy(x => x.Id).ToListAsync(),
             Profiles = await db.Profiles.AsNoTracking().Where(x => x.AccountId == account).OrderBy(x => x.Id).ToListAsync(),
             Folders = await db.Folders.AsNoTracking().Where(x => x.AccountId == account).OrderBy(x => x.Id).ToListAsync(),

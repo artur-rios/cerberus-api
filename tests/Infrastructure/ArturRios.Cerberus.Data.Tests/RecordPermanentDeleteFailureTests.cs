@@ -42,7 +42,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData("badSnapshot")][InlineData("expiredRetention")]
+    [InlineData("badSnapshot")]
+    [InlineData("expiredRetention")]
     public async Task GivenAccountwideOwnedTrash_WhenDeleting_ThenEraseDespiteUnusedHistoryOrElapsedRestoreWindow(string kind)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", true);
@@ -78,7 +79,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData("record")][InlineData("profile")][InlineData("collection")][InlineData("folder")]
+    [InlineData("record")]
+    [InlineData("profile")]
+    [InlineData("collection")]
+    [InlineData("folder")]
     public async Task GivenFailureAfterIntentMutation_WhenDeleting_ThenRollbackEverythingAndAllowRetry(string table)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "direct", false);
@@ -94,8 +98,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData("recordTerminal", "not_found")][InlineData("ownerTerminal", "not_found")]
-    [InlineData("ancestorHidden", "not_found")][InlineData("ancestorCycle", "persistence_unavailable")]
+    [InlineData("recordTerminal", "not_found")]
+    [InlineData("ownerTerminal", "not_found")]
+    [InlineData("ancestorHidden", "not_found")]
+    [InlineData("ancestorCycle", "persistence_unavailable")]
     public async Task GivenAuthorityChangesBeforeFinalIntent_WhenDeleting_ThenReclassifyWithoutMutation(string change, string error)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "folder", false);
@@ -132,7 +138,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData("edit")][InlineData("move")][InlineData("trash")][InlineData("permanent")]
+    [InlineData("edit")]
+    [InlineData("move")]
+    [InlineData("trash")]
+    [InlineData("permanent")]
     public async Task GivenActualConcurrentExpectedRevisionWriters_WhenDeleting_ThenKeepOneWinnerAndNoResurrection(string writer)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -146,7 +155,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var deletion = Store().DeleteAsync(w.Request(), default);
         await Task.WhenAll(other, deletion);
         var failures = new[] { await other, (await deletion).Error };
-        Assert.Single(failures,x => x is null);
+        Assert.Single(failures, x => x is null);
         Assert.Contains(failures.Single(x => x is not null), new[] { "revision_conflict", "not_found" });
         await using var check = fixture.CreateContext();
         if (await check.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId)) Assert.False(await check.Records.AnyAsync(x => x.Id == w.Record.Id));

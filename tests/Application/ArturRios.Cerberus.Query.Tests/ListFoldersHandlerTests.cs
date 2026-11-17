@@ -21,12 +21,18 @@ public class ListFoldersHandlerTests
     private static CerberusOptions Options() => new() { MaxPageSize = 100, RegistrationFingerprintKey = "fixture-dedicated-key-at-least-32-chars" };
 
     [UnitTheory]
-    [InlineData("actor", "authentication_required")][InlineData("missing", "vault_access_required")]
-    [InlineData("access", "validation_failed")][InlineData("emptyAccess", "validation_failed")]
-    [InlineData("paddedAccess", "validation_failed")][InlineData("zero", "validation_failed")]
-    [InlineData("negative", "validation_failed")][InlineData("large", "validation_failed")]
-    [InlineData("empty", "validation_failed")][InlineData("cursor", "validation_failed")]
-    [InlineData("huge", "validation_failed")][InlineData("paddedCursor", "validation_failed")]
+    [InlineData("actor", "authentication_required")]
+    [InlineData("missing", "vault_access_required")]
+    [InlineData("access", "validation_failed")]
+    [InlineData("emptyAccess", "validation_failed")]
+    [InlineData("paddedAccess", "validation_failed")]
+    [InlineData("zero", "validation_failed")]
+    [InlineData("negative", "validation_failed")]
+    [InlineData("large", "validation_failed")]
+    [InlineData("empty", "validation_failed")]
+    [InlineData("cursor", "validation_failed")]
+    [InlineData("huge", "validation_failed")]
+    [InlineData("paddedCursor", "validation_failed")]
     public async Task GivenInvalidContext_WhenListing_ThenRejectBeforePersistence(string kind, string error)
     {
         var store = new Mock<IFolderListStore>(MockBehavior.Strict);
@@ -38,8 +44,12 @@ public class ListFoldersHandlerTests
         Assert.Contains(error, result.Errors); Assert.Null(result.Data); store.VerifyNoOtherCalls();
     }
 
-    [UnitTheory][InlineData(null, 100, 50)][InlineData(null, 2, 2)][InlineData(1, 100, 1)]
-    [InlineData(100, 100, 100)][InlineData(int.MaxValue, int.MaxValue, int.MaxValue)]
+    [UnitTheory]
+    [InlineData(null, 100, 50)]
+    [InlineData(null, 2, 2)]
+    [InlineData(1, 100, 1)]
+    [InlineData(100, 100, 100)]
+    [InlineData(int.MaxValue, int.MaxValue, int.MaxValue)]
     public async Task GivenValidPageBound_WhenListing_ThenForwardHashBoundAndCallerToken(int? requested, int maximum, int expected)
     {
         var options = Options(); options.MaxPageSize = maximum;
@@ -76,8 +86,14 @@ public class ListFoldersHandlerTests
         Assert.True(next.Success); Assert.Equal(3, Assert.Single(next.Data!.Items).ServerSequence); Assert.Null(next.Data.NextCursor);
     }
 
-    [UnitTheory][InlineData("actor")][InlineData("access")][InlineData("size")][InlineData("tamper")]
-    [InlineData("key")][InlineData("profilePurpose")][InlineData("recordPurpose")]
+    [UnitTheory]
+    [InlineData("actor")]
+    [InlineData("access")]
+    [InlineData("size")]
+    [InlineData("tamper")]
+    [InlineData("key")]
+    [InlineData("profilePurpose")]
+    [InlineData("recordPurpose")]
     public async Task GivenCursorSubstitution_WhenContinuing_ThenRejectBeforePersistence(string kind)
     {
         var options = Options(); var codec = new FolderListCursor(options);
@@ -92,9 +108,19 @@ public class ListFoldersHandlerTests
         Assert.Contains("validation_failed", result.Errors); Assert.Null(result.Data); store.VerifyNoOtherCalls();
     }
 
-    [UnitTheory][InlineData("afterZero")][InlineData("afterNegative")][InlineData("afterBoundary")][InlineData("afterPast")]
-    [InlineData("boundaryUnsafe")][InlineData("boundaryNegative")][InlineData("sizeZero")][InlineData("sizeNegative")]
-    [InlineData("actor")][InlineData("verifierLength")][InlineData("verifierCase")][InlineData("verifierNonHex")]
+    [UnitTheory]
+    [InlineData("afterZero")]
+    [InlineData("afterNegative")]
+    [InlineData("afterBoundary")]
+    [InlineData("afterPast")]
+    [InlineData("boundaryUnsafe")]
+    [InlineData("boundaryNegative")]
+    [InlineData("sizeZero")]
+    [InlineData("sizeNegative")]
+    [InlineData("actor")]
+    [InlineData("verifierLength")]
+    [InlineData("verifierCase")]
+    [InlineData("verifierNonHex")]
     public void GivenAuthenticatedInvalidCursorTuple_WhenDecoding_ThenReject(string kind)
     {
         var tuple = new FolderListContinuation(kind == "actor" ? Guid.Empty : Actor,
@@ -105,85 +131,172 @@ public class ListFoldersHandlerTests
         var codec = new FolderListCursor(Options()); Assert.False(codec.TryDecode(codec.Encode(tuple), out _));
     }
 
-    [UnitTheory][InlineData("duplicate")][InlineData("unknown")][InlineData("case")][InlineData("numericString")]
-    [InlineData("unsafeInteger")][InlineData("null")][InlineData("missingActor")][InlineData("missingVerifier")]
-    [InlineData("missingSize")][InlineData("missingAfter")][InlineData("missingBoundary")]
+    [UnitTheory]
+    [InlineData("duplicate")]
+    [InlineData("unknown")]
+    [InlineData("case")]
+    [InlineData("numericString")]
+    [InlineData("unsafeInteger")]
+    [InlineData("null")]
+    [InlineData("missingActor")]
+    [InlineData("missingVerifier")]
+    [InlineData("missingSize")]
+    [InlineData("missingAfter")]
+    [InlineData("missingBoundary")]
     public void GivenAuthenticatedMalformedCursorJson_WhenDecoding_ThenReject(string kind)
     {
         var json = JsonSerializer.Serialize(new FolderListContinuation(Actor, Verifier, 1, 1, 3), ProtectionFixture.Json);
-        json = kind switch {
-            "duplicate" => json.Replace("{", "{\"after\":1,"), "unknown" => json.Replace("{", "{\"secret\":1,"),
-            "case" => json.Replace("\"actor\"", "\"Actor\""), "numericString" => json.Replace("\"after\":1", "\"after\":\"1\""),
-            "unsafeInteger" => json.Replace("\"after\":1", "\"after\":9223372036854775808"), "null" => "null",
-            "missingActor" => json.Replace($"\"actor\":\"{Actor}\",", ""), "missingVerifier" => json.Replace($"\"accessVerifier\":\"{Verifier}\",", ""),
-            "missingSize" => json.Replace("\"pageSize\":1,", ""), "missingAfter" => json.Replace("\"after\":1,", ""),
-            "missingBoundary" => json.Replace(",\"boundary\":3", ""), _ => json };
+        json = kind switch
+        {
+            "duplicate" => json.Replace("{", "{\"after\":1,"),
+            "unknown" => json.Replace("{", "{\"secret\":1,"),
+            "case" => json.Replace("\"actor\"", "\"Actor\""),
+            "numericString" => json.Replace("\"after\":1", "\"after\":\"1\""),
+            "unsafeInteger" => json.Replace("\"after\":1", "\"after\":9223372036854775808"),
+            "null" => "null",
+            "missingActor" => json.Replace($"\"actor\":\"{Actor}\",", ""),
+            "missingVerifier" => json.Replace($"\"accessVerifier\":\"{Verifier}\",", ""),
+            "missingSize" => json.Replace("\"pageSize\":1,", ""),
+            "missingAfter" => json.Replace("\"after\":1,", ""),
+            "missingBoundary" => json.Replace(",\"boundary\":3", ""),
+            _ => json
+        };
         Assert.False(new FolderListCursor(Options()).TryDecode(AuthenticatedJson(json), out _));
     }
 
-    [UnitTheory][InlineData("not_found")][InlineData("vault_access_denied")][InlineData("persistence_unavailable")]
+    [UnitTheory]
+    [InlineData("not_found")]
+    [InlineData("vault_access_denied")]
+    [InlineData("persistence_unavailable")]
     public async Task GivenAllowlistedStoreError_WhenListing_ThenReturnSafeErrorWithoutPayload(string error)
     { var result = await Handler(MockStore(new(Error: error))).HandleAsync(new(Actor, Access, null, null)); Assert.Contains(error, result.Errors); Assert.Null(result.Data); }
 
-    [UnitTheory][InlineData("nullResult")][InlineData("nullData")][InlineData("unknownError")][InlineData("errorWithData")]
-    [InlineData("successAsError")][InlineData("authenticationAsError")]
+    [UnitTheory]
+    [InlineData("nullResult")]
+    [InlineData("nullData")]
+    [InlineData("unknownError")]
+    [InlineData("errorWithData")]
+    [InlineData("successAsError")]
+    [InlineData("authenticationAsError")]
     public async Task GivenBrokenStoreContract_WhenListing_ThenFailClosedWithoutLeakingErrors(string kind)
     {
-        VaultResult<FolderListPage>? page = kind switch {
-            "nullResult" => null, "nullData" => new(), "unknownError" => new(Error: "SELECT private table failed"),
-            "errorWithData" => new(new([Row(1)], 1, false), "not_found"), "successAsError" => new(Error: "folders_found"),
-            _ => new(Error: "authentication_required") };
+        VaultResult<FolderListPage>? page = kind switch
+        {
+            "nullResult" => null,
+            "nullData" => new(),
+            "unknownError" => new(Error: "SELECT private table failed"),
+            "errorWithData" => new(new([Row(1)], 1, false), "not_found"),
+            "successAsError" => new(Error: "folders_found"),
+            _ => new(Error: "authentication_required")
+        };
         var result = await Handler(MockStore(page!)).HandleAsync(new(Actor, Access, null, null));
         Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
         Assert.DoesNotContain("SELECT private table failed", result.Errors);
     }
 
-    [UnitTheory][InlineData("nullItems")][InlineData("nullRow")][InlineData("id")][InlineData("revisionZero")]
-    [InlineData("revisionUnsafe")][InlineData("sequenceZero")][InlineData("sequenceUnsafe")][InlineData("defaultTime")]
-    [InlineData("infinityTime")][InlineData("offset")][InlineData("precision")][InlineData("order")][InlineData("duplicate")]
-    [InlineData("count")][InlineData("boundaryNegative")][InlineData("boundaryUnsafe")][InlineData("outsideBoundary")]
-    [InlineData("emptyMore")][InlineData("shortMore")][InlineData("atBoundaryMore")]
+    [UnitTheory]
+    [InlineData("nullItems")]
+    [InlineData("nullRow")]
+    [InlineData("id")]
+    [InlineData("revisionZero")]
+    [InlineData("revisionUnsafe")]
+    [InlineData("sequenceZero")]
+    [InlineData("sequenceUnsafe")]
+    [InlineData("defaultTime")]
+    [InlineData("infinityTime")]
+    [InlineData("offset")]
+    [InlineData("precision")]
+    [InlineData("order")]
+    [InlineData("duplicate")]
+    [InlineData("count")]
+    [InlineData("boundaryNegative")]
+    [InlineData("boundaryUnsafe")]
+    [InlineData("outsideBoundary")]
+    [InlineData("emptyMore")]
+    [InlineData("shortMore")]
+    [InlineData("atBoundaryMore")]
     public async Task GivenCorruptPageMetadata_WhenListing_ThenRejectWholePayload(string kind)
     {
-        var row = Row(1); row = kind switch {
-            "id" => row with { FolderId = Guid.Empty }, "revisionZero" => row with { Revision = 0 },
-            "revisionUnsafe" => row with { Revision = ProtocolBinary.MaxInteger + 1 }, "sequenceZero" => row with { ServerSequence = 0 },
-            "sequenceUnsafe" => row with { ServerSequence = ProtocolBinary.MaxInteger + 1 }, "defaultTime" => row with { EditedAt = default },
+        var row = Row(1); row = kind switch
+        {
+            "id" => row with { FolderId = Guid.Empty },
+            "revisionZero" => row with { Revision = 0 },
+            "revisionUnsafe" => row with { Revision = ProtocolBinary.MaxInteger + 1 },
+            "sequenceZero" => row with { ServerSequence = 0 },
+            "sequenceUnsafe" => row with { ServerSequence = ProtocolBinary.MaxInteger + 1 },
+            "defaultTime" => row with { EditedAt = default },
             "infinityTime" => row with { EditedAt = new DateTimeOffset(5, TimeSpan.Zero) },
             "offset" => row with { EditedAt = row.EditedAt.ToOffset(TimeSpan.FromHours(1)) },
-            "precision" => row with { EditedAt = row.EditedAt.AddTicks(1) }, _ => row };
-        IReadOnlyList<FolderListRow> rows = kind switch {
-            "nullItems" => null!, "nullRow" => [null!], "order" => [Row(2), row],
-            "duplicate" => [row, row with { ServerSequence = 2 }], "count" => Enumerable.Range(1, 51).Select(x => Row(x)).ToArray(),
-            "emptyMore" => [], _ => [row] };
+            "precision" => row with { EditedAt = row.EditedAt.AddTicks(1) },
+            _ => row
+        };
+        IReadOnlyList<FolderListRow> rows = kind switch
+        {
+            "nullItems" => null!,
+            "nullRow" => [null!],
+            "order" => [Row(2), row],
+            "duplicate" => [row, row with { ServerSequence = 2 }],
+            "count" => Enumerable.Range(1, 51).Select(x => Row(x)).ToArray(),
+            "emptyMore" => [],
+            _ => [row]
+        };
         var boundary = kind switch { "boundaryNegative" => -1, "boundaryUnsafe" => ProtocolBinary.MaxInteger + 1, "outsideBoundary" => 0, "atBoundaryMore" => 1, _ => 100 };
         var result = await Handler(MockStore(new(new(rows, boundary, kind is "emptyMore" or "shortMore" or "atBoundaryMore"))))
             .HandleAsync(new(Actor, Access, kind == "atBoundaryMore" ? 1 : null, null));
         Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
     }
 
-    [UnitTheory][InlineData("nullBytes")][InlineData("badJson")][InlineData("nullJson")][InlineData("unknown")]
-    [InlineData("duplicate")][InlineData("case")][InlineData("numericString")][InlineData("format")][InlineData("epochZero")]
-    [InlineData("epochUnsafe")][InlineData("salt")][InlineData("nonce")][InlineData("ciphertext")][InlineData("tag")][InlineData("padded")]
+    [UnitTheory]
+    [InlineData("nullBytes")]
+    [InlineData("badJson")]
+    [InlineData("nullJson")]
+    [InlineData("unknown")]
+    [InlineData("duplicate")]
+    [InlineData("case")]
+    [InlineData("numericString")]
+    [InlineData("format")]
+    [InlineData("epochZero")]
+    [InlineData("epochUnsafe")]
+    [InlineData("salt")]
+    [InlineData("nonce")]
+    [InlineData("ciphertext")]
+    [InlineData("tag")]
+    [InlineData("padded")]
     public async Task GivenCorruptNativeEnvelope_WhenListing_ThenRejectEveryItemWithoutPartialPayload(string kind)
     {
         var row = Row(2); var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json)!;
-        envelope = kind switch {
-            "format" => envelope with { Format = "foreign" }, "epochZero" => envelope with { KeyEpoch = 0 },
-            "epochUnsafe" => envelope with { KeyEpoch = ProtocolBinary.MaxInteger + 1 }, "salt" => envelope with { KeySalt = "AQ" },
-            "nonce" => envelope with { Nonce = "AQ" }, "ciphertext" => envelope with { Ciphertext = "" },
-            "tag" => envelope with { Tag = "AQ" }, "padded" => envelope with { KeySalt = envelope.KeySalt + "=" }, _ => envelope };
+        envelope = kind switch
+        {
+            "format" => envelope with { Format = "foreign" },
+            "epochZero" => envelope with { KeyEpoch = 0 },
+            "epochUnsafe" => envelope with { KeyEpoch = ProtocolBinary.MaxInteger + 1 },
+            "salt" => envelope with { KeySalt = "AQ" },
+            "nonce" => envelope with { Nonce = "AQ" },
+            "ciphertext" => envelope with { Ciphertext = "" },
+            "tag" => envelope with { Tag = "AQ" },
+            "padded" => envelope with { KeySalt = envelope.KeySalt + "=" },
+            _ => envelope
+        };
         var json = JsonSerializer.Serialize(envelope, ProtectionFixture.Json);
-        json = kind switch {
-            "badJson" => "bad", "nullJson" => "null", "unknown" => json.Replace("{", "{\"secret\":1,"),
-            "duplicate" => json.Replace("{", "{\"keyEpoch\":1,"), "case" => json.Replace("\"format\"", "\"Format\""),
-            "numericString" => json.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""), _ => json };
+        json = kind switch
+        {
+            "badJson" => "bad",
+            "nullJson" => "null",
+            "unknown" => json.Replace("{", "{\"secret\":1,"),
+            "duplicate" => json.Replace("{", "{\"keyEpoch\":1,"),
+            "case" => json.Replace("\"format\"", "\"Format\""),
+            "numericString" => json.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""),
+            _ => json
+        };
         row = row with { Envelope = kind == "nullBytes" ? null! : Encoding.UTF8.GetBytes(json) };
         var result = await Handler(MockStore(new(new([Row(1), row], 2, false)))).HandleAsync(new(Actor, Access, null, null));
         Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
     }
 
-    [UnitTheory][InlineData("boundaryChanged")][InlineData("boundaryBehind")][InlineData("afterRepeated")]
+    [UnitTheory]
+    [InlineData("boundaryChanged")]
+    [InlineData("boundaryBehind")]
+    [InlineData("afterRepeated")]
     public async Task GivenInvalidContinuationPage_WhenListing_ThenRejectStoreViolation(string kind)
     {
         var cursor = new FolderListCursor(Options()).Encode(new(Actor, Verifier, 1, 1, 3));

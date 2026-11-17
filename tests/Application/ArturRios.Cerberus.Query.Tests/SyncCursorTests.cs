@@ -10,7 +10,10 @@ public class SyncCursorTests
     { RegistrationFingerprintKey = key ?? "independent-durable-sync-fixture-key-32-bytes" };
     private static SyncContinuation State() => new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 1, 0, 25, 10);
     [UnitTheory]
-    [InlineData(0, 0)][InlineData(0, 25)][InlineData(10, 25)][InlineData(25, 25)]
+    [InlineData(0, 0)]
+    [InlineData(0, 25)]
+    [InlineData(10, 25)]
+    [InlineData(25, 25)]
     public void GivenDurableProfileCheckpoint_WhenEncoding_ThenRoundTripWithoutAnOnlineHandle(long after, long boundary)
     {
         var s = State() with { After = after, Boundary = boundary };
@@ -23,25 +26,43 @@ public class SyncCursorTests
         Assert.False(new ProfileListCursor(Options()).TryDecode(token, out _));
     }
     [UnitTheory]
-    [InlineData("actor")][InlineData("profile")][InlineData("stream")][InlineData("version")]
-    [InlineData("unsafeVersion")][InlineData("after")][InlineData("boundary")][InlineData("unsafeBoundary")]
-    [InlineData("skip")][InlineData("page")]
+    [InlineData("actor")]
+    [InlineData("profile")]
+    [InlineData("stream")]
+    [InlineData("version")]
+    [InlineData("unsafeVersion")]
+    [InlineData("after")]
+    [InlineData("boundary")]
+    [InlineData("unsafeBoundary")]
+    [InlineData("skip")]
+    [InlineData("page")]
     public void GivenInvalidCheckpoint_WhenEncoding_ThenReject(string invalid)
     {
         var s = State();
         s = invalid switch
         {
-            "actor" => s with { Actor = Guid.Empty }, "profile" => s with { ProfileId = Guid.Empty },
-            "stream" => s with { StreamId = Guid.Empty }, "version" => s with { WindowVersion = 0 },
-            "unsafeVersion" => s with { WindowVersion = 9007199254740992 }, "after" => s with { After = -1 },
-            "boundary" => s with { Boundary = -1 }, "unsafeBoundary" => s with { Boundary = 9007199254740992 },
-            "skip" => s with { After = 26 }, _ => s with { PageSize = 0 }
+            "actor" => s with { Actor = Guid.Empty },
+            "profile" => s with { ProfileId = Guid.Empty },
+            "stream" => s with { StreamId = Guid.Empty },
+            "version" => s with { WindowVersion = 0 },
+            "unsafeVersion" => s with { WindowVersion = 9007199254740992 },
+            "after" => s with { After = -1 },
+            "boundary" => s with { Boundary = -1 },
+            "unsafeBoundary" => s with { Boundary = 9007199254740992 },
+            "skip" => s with { After = 26 },
+            _ => s with { PageSize = 0 }
         };
         Assert.Throws<ArgumentException>(() => new SyncCursor(Options()).Encode(s));
     }
     [UnitTheory]
-    [InlineData("empty")][InlineData("format")][InlineData("padding")][InlineData("oversized")]
-    [InlineData("nonce")][InlineData("tag")][InlineData("payload")][InlineData("wrongKey")]
+    [InlineData("empty")]
+    [InlineData("format")]
+    [InlineData("padding")]
+    [InlineData("oversized")]
+    [InlineData("nonce")]
+    [InlineData("tag")]
+    [InlineData("payload")]
+    [InlineData("wrongKey")]
     public void GivenMalformedOrTamperedCursor_WhenDecoding_ThenRequireResynchronization(string invalid)
     {
         var c = new SyncCursor(Options()); var token = c.Encode(State());

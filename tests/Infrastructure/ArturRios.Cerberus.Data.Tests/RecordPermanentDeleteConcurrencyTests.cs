@@ -16,15 +16,22 @@ namespace ArturRios.Cerberus.Data.Tests;
 public sealed partial class RecordPermanentDeleteStoreTests
 {
     [FunctionalTheory]
-    [InlineData("create")][InlineData("association")]
+    [InlineData("create")]
+    [InlineData("association")]
     public async Task GivenPermanentIntentHoldsOwnedParents_WhenAnotherActualWriterStarts_ThenSerializeWithoutDeadlock(string writer)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "direct", false);
         await using var db = fixture.CreateContext();
         var verifier = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));
-        db.VaultAccessSessions.Add(new() { AccountId = w.State.InternalId, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
-            PolicyRevision = 1, RevocationGeneration = 1 });
+        db.VaultAccessSessions.Add(new()
+        {
+            AccountId = w.State.InternalId,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         await db.SaveChangesAsync();
         w.State = w.State with { Verifier = verifier };
         await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.FolderId, w.Items.Folder.Id));
@@ -46,7 +53,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenControlledRecipientEditAndOwnerPermanentDelete_WhenWaitingOnCollections_ThenOneWinnerWithoutDeadlock(bool deleteFirst)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
@@ -84,7 +92,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenTerminalRecordAwaitingLedger_WhenRotatingSurvivingInventory_ThenTrashIsRequiredButTerminalCipherIsExcluded(bool includeTerminal)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);

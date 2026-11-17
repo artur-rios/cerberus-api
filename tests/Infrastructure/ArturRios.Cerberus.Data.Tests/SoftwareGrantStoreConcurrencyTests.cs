@@ -18,7 +18,9 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
 {
     // Explicit barriers and pg_blocking_pids prove a waiter actually encountered
     // the held PostgreSQL row; timing alone is never the concurrency oracle.
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenSameIdOrRevokedRevisionRace_WhenGranting_ThenOneWinnerAndExactLoserVisibleAggregate(bool revoked)
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
@@ -60,7 +62,8 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         }
     }
 
-    [FunctionalTheory][MemberData(nameof(WaitChanges))]
+    [FunctionalTheory]
+    [MemberData(nameof(WaitChanges))]
     public async Task GivenAuthorityOrTargetChangeAtEveryLockWait_WhenGranting_ThenPreserveRevokedAggregate(string phase, string change, string error)
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
@@ -96,14 +99,22 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         Assert.Equal(error, (await pending).Error); Assert.Equal(before, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
     }
 
-    [FunctionalTheory][InlineData("collection")][InlineData("record")]
+    [FunctionalTheory]
+    [InlineData("collection")]
+    [InlineData("record")]
     public async Task GivenLowerTargetHeldAndReversedInput_WhenGranting_ThenHigherTargetsRemainUnlockedAndCancellationRollsBack(string kind)
     {
         using var s = await SoftwareGrantSetup.Create(fixture); var other = await AssociationSetup.Items(fixture, s.Owner);
         var collections = new[] { s.Items.Collection, other.Collection }.OrderBy(x => x.PublicId).ToArray();
         var records = new[] { s.Items.Record, other.Record }.OrderBy(x => x.PublicId).ToArray();
-        var request = s.Request(); request = request with { Input = request.Input with { Targets =
-            [s.Target("record", other.Record.PublicId), s.Target("collection", collections[1].PublicId), s.Target("record", s.Items.Record.PublicId), s.Target("collection", collections[0].PublicId)] } };
+        var request = s.Request(); request = request with
+        {
+            Input = request.Input with
+            {
+                Targets =
+            [s.Target("record", other.Record.PublicId), s.Target("collection", collections[1].PublicId), s.Target("record", s.Items.Record.PublicId), s.Target("collection", collections[0].PublicId)]
+            }
+        };
         await using var blocker = fixture.CreateContext(); await using var tx = await blocker.Database.BeginTransactionAsync();
         var lockSql = "SELECT FROM cerberus." + kind + " WHERE id={0} FOR UPDATE";
         await blocker.Database.ExecuteSqlRawAsync(lockSql, kind == "record" ? records[0].Id : collections[0].Id);
@@ -146,12 +157,19 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         Assert.Equal(SoftwareGrantSetup.Bytes(winningRequest.Input.RecipientKey), saved.RecipientKey);
     }
 
-    [FunctionalTheory][InlineData("recordUpdate", false)][InlineData("recordUpdate", true)]
-    [InlineData("collectionUpdate", false)][InlineData("collectionUpdate", true)]
-    [InlineData("membership", false)][InlineData("membership", true)]
-    [InlineData("recordTrash", false)][InlineData("recordTrash", true)]
-    [InlineData("collectionTrash", false)][InlineData("collectionTrash", true)]
-    [InlineData("protection", false)][InlineData("protection", true)]
+    [FunctionalTheory]
+    [InlineData("recordUpdate", false)]
+    [InlineData("recordUpdate", true)]
+    [InlineData("collectionUpdate", false)]
+    [InlineData("collectionUpdate", true)]
+    [InlineData("membership", false)]
+    [InlineData("membership", true)]
+    [InlineData("recordTrash", false)]
+    [InlineData("recordTrash", true)]
+    [InlineData("collectionTrash", false)]
+    [InlineData("collectionTrash", true)]
+    [InlineData("protection", false)]
+    [InlineData("protection", true)]
     public async Task GivenNativeWriterInEitherAcquisitionOrder_WhenGranting_ThenSerializeWithoutDeadlock(string writer, bool grantFirst)
     {
         using var s = await SoftwareGrantSetup.Create(fixture); var request = s.Request();
@@ -190,7 +208,9 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         await using var db = fixture.CreateContext(); Assert.Equal(grantFirst ? 1 : 0, await db.SoftwareGrants.CountAsync(x => x.PublicId == s.Grant));
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenExpiryAroundGuardedWrite_WhenGranting_ThenOnlyPreviouslyAuthorizedAggregateCommits(bool after)
     {
         using var s = await SoftwareGrantSetup.Create(fixture); var deadline = DateTimeOffset.UtcNow.AddSeconds(2);
@@ -203,7 +223,11 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         await using var db = fixture.CreateContext(); Assert.Equal(after ? 1 : 0, await db.SoftwareGrants.CountAsync(x => x.PublicId == s.Grant));
     }
 
-    [FunctionalTheory][InlineData("record", false)][InlineData("record", true)][InlineData("collection", false)][InlineData("collection", true)]
+    [FunctionalTheory]
+    [InlineData("record", false)]
+    [InlineData("record", true)]
+    [InlineData("collection", false)]
+    [InlineData("collection", true)]
     public async Task GivenGrantLockWait_WhenTargetUpdaterOrTrashWriterRuns_ThenTargetRemainsLockedUntilAggregateCommit(string kind, bool trash)
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
@@ -229,8 +253,8 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
     {
         using var s = await SoftwareGrantSetup.Create(fixture); var extra = await AssociationSetup.Items(fixture, s.Owner); var otherId = Guid.NewGuid();
         var first = s.Request(); var second = s.Request(grant: otherId);
-        first = first with { Input = first.Input with { Targets = [..first.Input.Targets, s.Target("collection", extra.Collection.PublicId), s.Target("record", extra.Record.PublicId)] } };
-        second = second with { Input = second.Input with { Targets = [s.Target("record", extra.Record.PublicId, grant: otherId), s.Target("collection", extra.Collection.PublicId, grant: otherId), ..second.Input.Targets.Reverse()] } };
+        first = first with { Input = first.Input with { Targets = [.. first.Input.Targets, s.Target("collection", extra.Collection.PublicId), s.Target("record", extra.Record.PublicId)] } };
+        second = second with { Input = second.Input with { Targets = [s.Target("record", extra.Record.PublicId, grant: otherId), s.Target("collection", extra.Collection.PublicId, grant: otherId), .. second.Input.Targets.Reverse()] } };
         var capture1 = new Capture(); var capture2 = new Capture();
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(25));
         var results = await Task.WhenAll(Store(new ProfileSetup.Factory(fixture, capture1)).GrantAsync(first, ct.Token), Store(new ProfileSetup.Factory(fixture, capture2)).GrantAsync(second, ct.Token));

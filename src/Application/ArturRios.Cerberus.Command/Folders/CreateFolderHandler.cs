@@ -26,7 +26,12 @@ public sealed class CreateFolderHandler(IValidator<CreateFolderCommand> validato
             || data.ServerSequence is <= 0 or > ProtocolBinary.MaxInteger || data.EditedAt.Offset != TimeSpan.Zero
             || data.EditedAt.Ticks < TimeSpan.TicksPerMicrosecond || data.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond != 0
             || data.EditedAt != expectedTime) return output.WithError("persistence_unavailable");
-        return output.WithData(new CreateFolderOutput { FolderId = data.FolderId, Revision = data.Revision,
-            ServerSequence = data.ServerSequence, EditedAt = data.EditedAt }).WithMessage("folder_created");
+        return output.WithData(new CreateFolderOutput
+        {
+            FolderId = data.FolderId,
+            Revision = data.Revision,
+            ServerSequence = data.ServerSequence,
+            EditedAt = data.EditedAt
+        }).WithMessage("folder_created");
     }
 }

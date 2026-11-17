@@ -126,14 +126,25 @@ public sealed class OfflineAuthorizationStore(IDbContextFactory<AppDbContext> fa
         """).SingleAsync(ct);
     private sealed class Snapshot
     {
-        public long OwnerId { get; set; } public Guid AccountId { get; set; } public long AccountRevision { get; set; }
-        public bool ActorActive { get; set; } public bool SessionAllowed { get; set; } public bool ProfileActive { get; set; }
-        public long? SessionId { get; set; } public long? Selection { get; set; }
-        public DateTimeOffset? SessionIssuedAt { get; set; } public DateTimeOffset? SessionExpiresAt { get; set; }
-        public long? ProfileInternalId { get; set; } public Guid? ProfileId { get; set; } public long? ProfileRevision { get; set; }
-        public long PolicyRevision { get; set; } public long Generation { get; set; }
-        public bool RenewalEnabled { get; set; } public TimeSpan? RenewalInterval { get; set; }
-        public DateTimeOffset DatabaseNow { get; set; } public string Related { get; set; } = "[]";
+        public long OwnerId { get; set; }
+        public Guid AccountId { get; set; }
+        public long AccountRevision { get; set; }
+        public bool ActorActive { get; set; }
+        public bool SessionAllowed { get; set; }
+        public bool ProfileActive { get; set; }
+        public long? SessionId { get; set; }
+        public long? Selection { get; set; }
+        public DateTimeOffset? SessionIssuedAt { get; set; }
+        public DateTimeOffset? SessionExpiresAt { get; set; }
+        public long? ProfileInternalId { get; set; }
+        public Guid? ProfileId { get; set; }
+        public long? ProfileRevision { get; set; }
+        public long PolicyRevision { get; set; }
+        public long Generation { get; set; }
+        public bool RenewalEnabled { get; set; }
+        public TimeSpan? RenewalInterval { get; set; }
+        public DateTimeOffset DatabaseNow { get; set; }
+        public string Related { get; set; } = "[]";
     }
     private sealed record RelatedCollection(long Id, Guid PublicId, Guid OwnerPublicId, long Revision, long KeyEpoch,
         bool CollectionActive, bool GrantActive, long? GrantId, Guid? GrantPublicId, long? GrantRevision);

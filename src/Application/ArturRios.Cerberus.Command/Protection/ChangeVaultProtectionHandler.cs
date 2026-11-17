@@ -25,7 +25,13 @@ public sealed class ChangeVaultProtectionHandler(IValidator<ChangeVaultProtectio
             || data.AccountRevision != command.ExpectedAccountRevision + (command.Mode == "rotate-content" ? 1 : 0)
             || data.ProtectionRevision > ProtocolBinary.MaxInteger || data.AccountRevision > ProtocolBinary.MaxInteger)
             return output.WithError("persistence_unavailable");
-        return output.WithData(new ChangeVaultProtectionOutput { AccountId = data.AccountId, ProtectionRevision = data.ProtectionRevision,
-            KeyEpoch = data.KeyEpoch, RecoveryGeneration = data.RecoveryGeneration, AccountRevision = data.AccountRevision }).WithMessage("protection_changed");
+        return output.WithData(new ChangeVaultProtectionOutput
+        {
+            AccountId = data.AccountId,
+            ProtectionRevision = data.ProtectionRevision,
+            KeyEpoch = data.KeyEpoch,
+            RecoveryGeneration = data.RecoveryGeneration,
+            AccountRevision = data.AccountRevision
+        }).WithMessage("protection_changed");
     }
 }

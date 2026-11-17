@@ -52,7 +52,8 @@ public class RegisterAccountValidatorTests
 
     internal static RegisterAccountCommand Valid() => new()
     {
-        AccountId = Guid.NewGuid(), IdempotencyKey = Guid.NewGuid(),
+        AccountId = Guid.NewGuid(),
+        IdempotencyKey = Guid.NewGuid(),
         Identity = new HeimdallRegistration("Fixture Owner", "fixture@example.test", "fixture-password"),
         Details = new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA")
     };

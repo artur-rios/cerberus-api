@@ -94,13 +94,13 @@ public sealed class PostgresFixture : IAsyncLifetime, IDbContextFactory<AppDbCon
     {
         var path = "/tmp/cerberus-test-backup-" + Guid.NewGuid().ToString("N") + ".sql";
         var result = await PostgresServer.Current.ExecAsync(["pg_dump", "--username=postgres", "--dbname=" + Database, "--schema=cerberus", "--clean", "--if-exists", "--file=" + path]);
-        Assert.True(result.ExitCode==0,result.Stderr);
+        Assert.True(result.ExitCode == 0, result.Stderr);
         return path;
     }
     public async Task RestoreAsync(string path)
     {
         var result = await PostgresServer.Current.ExecAsync(["psql", "--username=postgres", "--dbname=" + Database, "--set=ON_ERROR_STOP=1", "--file=" + path]);
-        Assert.True(result.ExitCode==0,result.Stderr);
+        Assert.True(result.ExitCode == 0, result.Stderr);
     }
     public async ValueTask InitializeAsync() => _database = await PostgresServer.Current.CreateDatabaseAsync();
     public async ValueTask DisposeAsync()

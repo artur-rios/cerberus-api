@@ -121,10 +121,17 @@ public sealed class SoftwareGrantRevocationStore(IDbContextFactory<AppDbContext>
         (await db.Database.SqlQueryRaw<Snapshot>(Authority + SnapshotSelect, Parameters(r, authorized)).ToListAsync(ct)).Single();
     private sealed class Snapshot
     {
-        public bool ActorActive { get; set; } public bool SessionAllowed { get; set; } public bool GrantVisible { get; set; }
-        public bool RelationallyCorrupt { get; set; } public long OwnerId { get; set; } public long? Selection { get; set; }
-        public long GrantId { get; set; } public Guid Identity { get; set; } public long Revision { get; set; }
-        public int RecordCount { get; set; } public int CollectionCount { get; set; }
+        public bool ActorActive { get; set; }
+        public bool SessionAllowed { get; set; }
+        public bool GrantVisible { get; set; }
+        public bool RelationallyCorrupt { get; set; }
+        public long OwnerId { get; set; }
+        public long? Selection { get; set; }
+        public long GrantId { get; set; }
+        public Guid Identity { get; set; }
+        public long Revision { get; set; }
+        public int RecordCount { get; set; }
+        public int CollectionCount { get; set; }
         public string Stable { get; set; } = "{}"; public string Aggregate { get; set; } = "{}"; public string Collateral { get; set; } = "{}";
     }
     private const string Authority = """

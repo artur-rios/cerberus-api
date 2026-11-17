@@ -99,8 +99,11 @@ public class UpdateAccountHandlerTests
 
     private static UpdateAccountCommand Valid()
     {
-        var command = new UpdateAccountCommand { ExpectedRevision = 3,
-            Details = new("cerberus-content-v1", 1, Handle, "AAAAAAAAAAAAAAAA", "BAUG", "AAAAAAAAAAAAAAAAAAAAAA") };
+        var command = new UpdateAccountCommand
+        {
+            ExpectedRevision = 3,
+            Details = new("cerberus-content-v1", 1, Handle, "AAAAAAAAAAAAAAAA", "BAUG", "AAAAAAAAAAAAAAAAAAAAAA")
+        };
         command.SetAccess(Identity, Handle);
         return command;
     }

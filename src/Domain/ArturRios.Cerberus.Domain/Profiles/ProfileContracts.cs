@@ -11,8 +11,8 @@ public sealed record ProfileKeyWrappers(string UnlockMode, PublicJwk UnlockVerif
         && (UnlockMode == "Master" ? PasswordWrapper is null : UnlockMode == "PerProfile" && PasswordWrapper?.IsValid() == true);
     public bool IsBound(Guid owner, Guid profile, long epoch, long revision, Guid identity, ProtectionMaterial pins) =>
         IsValid() && pins?.IsValid() == true
-        && new[] {pins.UnlockVerifier,pins.RecoveryVerifier,pins.RecipientKey,pins.AuthorKey}.All(x=>x.Fingerprint()!=UnlockVerifier.Fingerprint())
-        && MasterKeyWrapper.Verify(owner,"profile",profile,epoch,profile,revision,identity,pins.RecipientKey,pins.AuthorKey);
+        && new[] { pins.UnlockVerifier, pins.RecoveryVerifier, pins.RecipientKey, pins.AuthorKey }.All(x => x.Fingerprint() != UnlockVerifier.Fingerprint())
+        && MasterKeyWrapper.Verify(owner, "profile", profile, epoch, profile, revision, identity, pins.RecipientKey, pins.AuthorKey);
     public bool IsValidRotation(ProfileKeyWrappers current) => IsValid() && current?.IsValid() == true
         && UnlockMode == current.UnlockMode && UnlockVerifier == current.UnlockVerifier
         && MasterKeyWrapper.Enc != current.MasterKeyWrapper.Enc && MasterKeyWrapper.Ciphertext != current.MasterKeyWrapper.Ciphertext
@@ -32,7 +32,7 @@ public sealed record ProfileCreateInput(Guid ProfileId, EncryptedEnvelope Envelo
         && (KeyWrappers.PasswordWrapper is null || KeyWrappers.PasswordWrapper.KeyEpoch == 1)
         && EditedAt.Ticks >= TimeSpan.TicksPerMicrosecond && EditedAt.Offset == TimeSpan.Zero
         && ValidIds(RecordIds) && ValidIds(FolderIds) && ValidIds(CollectionIds);
-    private static bool ValidIds(Guid[]? ids) => ids is not null && ids.All(x=>x!=Guid.Empty) && ids.Distinct().Count()==ids.Length;
+    private static bool ValidIds(Guid[]? ids) => ids is not null && ids.All(x => x != Guid.Empty) && ids.Distinct().Count() == ids.Length;
 }
 public sealed record ProfileCreateRequest(Guid Actor, string AccessVerifier, ProfileCreateInput Input);
 public sealed record ProfileCreateDetails(Guid ProfileId, long Revision, long ServerSequence, DateTimeOffset EditedAt);

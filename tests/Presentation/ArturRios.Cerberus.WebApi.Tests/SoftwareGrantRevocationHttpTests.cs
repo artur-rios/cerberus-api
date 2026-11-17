@@ -26,30 +26,30 @@ public sealed class SoftwareGrantRevocationContractTests
     public void GivenSoftwareRevocationRoute_WhenGeneratingOpenApi_ThenExactDeleteContract()
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-        { ApplicationName = typeof(Startup).Assembly.GetName().Name,Args = [] });
+        { ApplicationName = typeof(Startup).Assembly.GetName().Name, Args = [] });
         builder.Services.AddCerberusContracts(); using var host = builder.Build();
         var document = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
         using var writer = new StringWriter(); document.SerializeAsV3(new OpenApiJsonWriter(writer));
         using var json = JsonDocument.Parse(writer.ToString()); var root = json.RootElement;
         var operation = root.GetProperty("paths").GetProperty("/api/software-grants/{id}").GetProperty("delete");
-        var path = Assert.Single(operation.GetProperty("parameters").EnumerateArray(),x => x.GetProperty("in").GetString() == "path");
-        Assert.Equal("id",path.GetProperty("name").GetString()); Assert.True(path.GetProperty("required").GetBoolean());
-        Assert.Equal("uuid",path.GetProperty("schema").GetProperty("format").GetString());
+        var path = Assert.Single(operation.GetProperty("parameters").EnumerateArray(), x => x.GetProperty("in").GetString() == "path");
+        Assert.Equal("id", path.GetProperty("name").GetString()); Assert.True(path.GetProperty("required").GetBoolean());
+        Assert.Equal("uuid", path.GetProperty("schema").GetProperty("format").GetString());
         var body = operation.GetProperty("requestBody"); Assert.True(body.GetProperty("required").GetBoolean());
-        Assert.Equal("application/json",Assert.Single(body.GetProperty("content").EnumerateObject()).Name);
+        Assert.Equal("application/json", Assert.Single(body.GetProperty("content").EnumerateObject()).Name);
         var schemas = root.GetProperty("components").GetProperty("schemas");
         var command = schemas.GetProperty("RevokeSoftwareAccessCommand");
-        Assert.Equal(new[] { "expectedRevision" },command.GetProperty("properties").EnumerateObject().Select(x => x.Name));
-        Assert.Equal(new[] { "expectedRevision" },command.GetProperty("required").EnumerateArray().Select(x => x.GetString()));
+        Assert.Equal(new[] { "expectedRevision" }, command.GetProperty("properties").EnumerateObject().Select(x => x.Name));
+        Assert.Equal(new[] { "expectedRevision" }, command.GetProperty("required").EnumerateArray().Select(x => x.GetString()));
         Assert.False(command.GetProperty("additionalProperties").GetBoolean());
-        Assert.Equal("integer",command.GetProperty("properties").GetProperty("expectedRevision").GetProperty("type").GetString());
-        Assert.Equal(new[] { "grantId","revision" },schemas.GetProperty("RevokeSoftwareAccessOutput").GetProperty("properties").EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal("integer", command.GetProperty("properties").GetProperty("expectedRevision").GetProperty("type").GetString());
+        Assert.Equal(new[] { "grantId", "revision" }, schemas.GetProperty("RevokeSoftwareAccessOutput").GetProperty("properties").EnumerateObject().Select(x => x.Name).Order());
         var responses = operation.GetProperty("responses");
-        Assert.Equal(new[] { "200","400","401","403","404","409","413","503" },responses.EnumerateObject().Select(x => x.Name).Order());
-        Assert.EndsWith("/RevokeSoftwareAccessOutputDataOutput",responses.GetProperty("200").GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString());
-        foreach (var status in new[] { "400","401","403","404","409","503" })
-            Assert.EndsWith("/ProcessOutput",responses.GetProperty(status).GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString());
-        Assert.False(responses.GetProperty("413").TryGetProperty("content",out _));
+        Assert.Equal(new[] { "200", "400", "401", "403", "404", "409", "413", "503" }, responses.EnumerateObject().Select(x => x.Name).Order());
+        Assert.EndsWith("/RevokeSoftwareAccessOutputDataOutput", responses.GetProperty("200").GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString());
+        foreach (var status in new[] { "400", "401", "403", "404", "409", "503" })
+            Assert.EndsWith("/ProcessOutput", responses.GetProperty(status).GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString());
+        Assert.False(responses.GetProperty("413").TryGetProperty("content", out _));
     }
 }
 
@@ -86,7 +86,7 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
         var identityCalls = fixture.IdentityCalls;
         using var request = Request(s); using var response = await Gateway.Client.SendAsync(request);
         await Success(response, s);
-        Assert.Equal(identityCalls + 1,fixture.IdentityCalls);
+        Assert.Equal(identityCalls + 1, fixture.IdentityCalls);
         var saved = await db.SoftwareGrants.AsNoTracking().SingleAsync(x => x.PublicId == s.Grant);
         Assert.Equal(old.Id, saved.Id); Assert.Equal(old.AccountId, saved.AccountId);
         Assert.Equal(old.HeimdallSoftwarePublicId, saved.HeimdallSoftwarePublicId);
@@ -100,108 +100,157 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
 
     // Break: accepting forged transport/identity or mutating a grant before visible input is valid.
     [FunctionalTheory]
-    [InlineData("query",400)][InlineData("duplicateHeader",400)][InlineData("malformedHeader",400)]
-    [InlineData("missingHeader",401)][InlineData("empty",400)][InlineData("oversized",413)]
-    [InlineData("noMedia",400)][InlineData("text",400)][InlineData("suffix",400)][InlineData("prefix",400)]
-    [InlineData("parameter",400)][InlineData("charset",400)][InlineData("duplicateCharset",400)][InlineData("brokenMedia",400)]
-    [InlineData("compression",400)][InlineData("bom",400)][InlineData("utf8",400)]
-    [InlineData("noToken",401)][InlineData("invalidToken",401)][InlineData("zeroActor",401)][InlineData("scope",401)]
-    [InlineData("missingActor",401)][InlineData("malformedActor",401)]
-    [InlineData("upperRoute",400)][InlineData("bracedRoute",400)][InlineData("compactRoute",400)]
-    [InlineData("zeroRoute",400)][InlineData("malformedRoute",400)]
+    [InlineData("query", 400)]
+    [InlineData("duplicateHeader", 400)]
+    [InlineData("malformedHeader", 400)]
+    [InlineData("missingHeader", 401)]
+    [InlineData("empty", 400)]
+    [InlineData("oversized", 413)]
+    [InlineData("noMedia", 400)]
+    [InlineData("text", 400)]
+    [InlineData("suffix", 400)]
+    [InlineData("prefix", 400)]
+    [InlineData("parameter", 400)]
+    [InlineData("charset", 400)]
+    [InlineData("duplicateCharset", 400)]
+    [InlineData("brokenMedia", 400)]
+    [InlineData("compression", 400)]
+    [InlineData("bom", 400)]
+    [InlineData("utf8", 400)]
+    [InlineData("noToken", 401)]
+    [InlineData("invalidToken", 401)]
+    [InlineData("zeroActor", 401)]
+    [InlineData("scope", 401)]
+    [InlineData("missingActor", 401)]
+    [InlineData("malformedActor", 401)]
+    [InlineData("upperRoute", 400)]
+    [InlineData("bracedRoute", 400)]
+    [InlineData("compactRoute", 400)]
+    [InlineData("zeroRoute", 400)]
+    [InlineData("malformedRoute", 400)]
     public async Task GivenRejectedTransportOrIdentity_WhenDeleting_ThenSafeFailureAndNoMutation(string kind, int status)
     {
         var s = await Setup(); var before = await Snapshot(s);
         byte[] body = kind switch
         {
-            "empty" => [], "oversized" => Encoding.UTF8.GetBytes(new string(' ',65537)),
-            "utf8" => [0xc3,0x28], _ => Encoding.UTF8.GetBytes("{\"expectedRevision\":1}")
+            "empty" => [],
+            "oversized" => Encoding.UTF8.GetBytes(new string(' ', 65537)),
+            "utf8" => [0xc3, 0x28],
+            _ => Encoding.UTF8.GetBytes("{\"expectedRevision\":1}")
         };
-        if (kind == "bom") body = [239,187,191,..body];
+        if (kind == "bom") body = [239, 187, 191, .. body];
         var id = kind switch
         {
-            "upperRoute" => s.Grant.ToString("D").ToUpperInvariant(), "bracedRoute" => s.Grant.ToString("B"),
-            "compactRoute" => s.Grant.ToString("N"), "zeroRoute" => Guid.Empty.ToString("D"),
-            "malformedRoute" => "malformed", _ => s.Grant.ToString("D")
+            "upperRoute" => s.Grant.ToString("D").ToUpperInvariant(),
+            "bracedRoute" => s.Grant.ToString("B"),
+            "compactRoute" => s.Grant.ToString("N"),
+            "zeroRoute" => Guid.Empty.ToString("D"),
+            "malformedRoute" => "malformed",
+            _ => s.Grant.ToString("D")
         };
-        using var request = Request(s,body,id);
-        if (kind == "query") request.RequestUri = new("/api/software-grants/" + id + "?expectedRevision=1",UriKind.Relative);
+        using var request = Request(s, body, id);
+        if (kind == "query") request.RequestUri = new("/api/software-grants/" + id + "?expectedRevision=1", UriKind.Relative);
         if (kind is "missingHeader" or "malformedHeader") request.Headers.Remove("X-Cerberus-Vault-Access");
-        if (kind == "malformedHeader") request.Headers.Add("X-Cerberus-Vault-Access","bad");
-        if (kind == "duplicateHeader") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access",s.Access);
+        if (kind == "malformedHeader") request.Headers.Add("X-Cerberus-Vault-Access", "bad");
+        if (kind == "duplicateHeader") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access);
         if (kind == "noToken") request.Headers.Authorization = null;
-        if (kind == "invalidToken") request.Headers.Authorization = new("Bearer","invalid");
-        if (kind is "zeroActor" or "scope") request.Headers.Authorization = new("Bearer",RegistrationApiFixture.Token(
-            kind == "zeroActor" ? Guid.Empty : s.Actor,kind == "scope" ? Guid.NewGuid() : null));
+        if (kind == "invalidToken") request.Headers.Authorization = new("Bearer", "invalid");
+        if (kind is "zeroActor" or "scope") request.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(
+            kind == "zeroActor" ? Guid.Empty : s.Actor, kind == "scope" ? Guid.NewGuid() : null));
         if (kind is "missingActor" or "malformedActor")
         {
-            var claims = new Dictionary<string,string> { ["roleId"] = "3",["scopeId"] = RegistrationApiFixture.Scope.ToString() };
+            var claims = new Dictionary<string, string> { ["roleId"] = "3", ["scopeId"] = RegistrationApiFixture.Scope.ToString() };
             if (kind == "malformedActor") claims["id"] = "malformed";
-            request.Headers.Authorization = new("Bearer",new JwtHandler().CreateToken(new JwtConfiguration(60,
-                "fixture-issuer","fixture-audience","fixture-only-signing-key-32-characters",claims)));
+            request.Headers.Authorization = new("Bearer", new JwtHandler().CreateToken(new JwtConfiguration(60,
+                "fixture-issuer", "fixture-audience", "fixture-only-signing-key-32-characters", claims)));
         }
         if (kind == "compression") request.Content!.Headers.ContentEncoding.Add("gzip");
         if (kind is "noMedia" or "text" or "suffix" or "prefix" or "parameter" or "charset" or "duplicateCharset" or "brokenMedia")
         {
             request.Content!.Headers.Remove("Content-Type");
-            if (kind != "noMedia") request.Content.Headers.TryAddWithoutValidation("Content-Type",kind switch
+            if (kind != "noMedia") request.Content.Headers.TryAddWithoutValidation("Content-Type", kind switch
             {
-                "text" => "text/json", "suffix" => "application/problem+json", "prefix" => "application/json-forged",
-                "parameter" => "application/json; boundary=forged", "charset" => "application/json; charset=utf-16",
-                "duplicateCharset" => "application/json; charset=utf-8; charset=utf-8", _ => "application/json; charset=\"utf-8"
+                "text" => "text/json",
+                "suffix" => "application/problem+json",
+                "prefix" => "application/json-forged",
+                "parameter" => "application/json; boundary=forged",
+                "charset" => "application/json; charset=utf-16",
+                "duplicateCharset" => "application/json; charset=utf-8; charset=utf-8",
+                _ => "application/json; charset=\"utf-8"
             });
         }
         using var response = await Gateway.Client.SendAsync(request);
-        await Failure(response,s,status,kind == "missingHeader" ? "vault_access_required" : status == 401 ? "authentication_required" : status == 400 ? "validation_failed" : null);
-        Assert.Equal(before,await Snapshot(s));
+        await Failure(response, s, status, kind == "missingHeader" ? "vault_access_required" : status == 401 ? "authentication_required" : status == 400 ? "validation_failed" : null);
+        Assert.Equal(before, await Snapshot(s));
     }
 
     // Break: widened JSON names/numbers or optional revision permits an unintended state transition.
     [FunctionalTheory]
-    [InlineData("{}")][InlineData("null")][InlineData("[]")][InlineData("{")]
+    [InlineData("{}")]
+    [InlineData("null")]
+    [InlineData("[]")]
+    [InlineData("{")]
     [InlineData("{\"expectedRevision\":1,\"expectedRevision\":1}")]
     [InlineData("{\"expectedRevision\":1,\"actor\":\"forged\"}")]
-    [InlineData("{\"ExpectedRevision\":1}")][InlineData("{\"expectedrevision\":1}")]
-    [InlineData("{\"expectedRevision\":\"1\"}")][InlineData("{\"expectedRevision\":1.0}")]
-    [InlineData("{\"expectedRevision\":1e0}")][InlineData("{\"expectedRevision\":null}")]
-    [InlineData("{\"expectedRevision\":true}")][InlineData("{\"expectedRevision\":0}")]
-    [InlineData("{\"expectedRevision\":-1}")][InlineData("{\"expectedRevision\":9007199254740991}")]
-    [InlineData("{\"expectedRevision\":9007199254740992}")][InlineData("{\"expectedRevision\":9223372036854775808}")]
+    [InlineData("{\"ExpectedRevision\":1}")]
+    [InlineData("{\"expectedrevision\":1}")]
+    [InlineData("{\"expectedRevision\":\"1\"}")]
+    [InlineData("{\"expectedRevision\":1.0}")]
+    [InlineData("{\"expectedRevision\":1e0}")]
+    [InlineData("{\"expectedRevision\":null}")]
+    [InlineData("{\"expectedRevision\":true}")]
+    [InlineData("{\"expectedRevision\":0}")]
+    [InlineData("{\"expectedRevision\":-1}")]
+    [InlineData("{\"expectedRevision\":9007199254740991}")]
+    [InlineData("{\"expectedRevision\":9007199254740992}")]
+    [InlineData("{\"expectedRevision\":9223372036854775808}")]
     public async Task GivenMalformedStrictBody_WhenDeleting_Then400WithoutMutation(string body)
     {
         var s = await Setup(); var before = await Snapshot(s);
-        using var request = Request(s,Encoding.UTF8.GetBytes(body)); using var response = await Gateway.Client.SendAsync(request);
-        await Failure(response,s,400,"validation_failed"); Assert.Equal(before,await Snapshot(s));
+        using var request = Request(s, Encoding.UTF8.GetBytes(body)); using var response = await Gateway.Client.SendAsync(request);
+        await Failure(response, s, 400, "validation_failed"); Assert.Equal(before, await Snapshot(s));
     }
 
     [FunctionalTheory]
-    [InlineData("application/json")][InlineData("Application/Json")]
-    [InlineData("application/json; charset=utf-8")][InlineData("application/json; charset=\"UTF-8\"")]
+    [InlineData("application/json")]
+    [InlineData("Application/Json")]
+    [InlineData("application/json; charset=utf-8")]
+    [InlineData("application/json; charset=\"UTF-8\"")]
     public async Task GivenAllowedMedia_WhenDeleting_Then200(string media)
     {
         var s = await Setup(); using var request = Request(s);
         request.Content!.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(media);
-        using var response = await Gateway.Client.SendAsync(request); await Success(response,s);
+        using var response = await Gateway.Client.SendAsync(request); await Success(response, s);
     }
 
     // Break: unsafe status precedence, disclosing hidden ownership, or changing state on a denied request.
     [FunctionalTheory]
-    [InlineData("missing",404)][InlineData("foreign",404)][InlineData("revoked",404)]
-    [InlineData("terminal",404)][InlineData("inactive",404)][InlineData("accountTerminal",404)]
-    [InlineData("expired",403)][InlineData("sessionRevoked",403)][InlineData("policy",403)]
-    [InlineData("generation",403)][InlineData("sessionMissing",403)][InlineData("stale",409)]
-    [InlineData("deletedIdentity",401)][InlineData("missingIdentity",401)][InlineData("identityUnavailable",503)]
-    [InlineData("storedRevision",503)]
-    public async Task GivenUnavailableAuthorityOrState_WhenDeleting_ThenExactSafeStatusAndNoMutation(string kind,int status)
+    [InlineData("missing", 404)]
+    [InlineData("foreign", 404)]
+    [InlineData("revoked", 404)]
+    [InlineData("terminal", 404)]
+    [InlineData("inactive", 404)]
+    [InlineData("accountTerminal", 404)]
+    [InlineData("expired", 403)]
+    [InlineData("sessionRevoked", 403)]
+    [InlineData("policy", 403)]
+    [InlineData("generation", 403)]
+    [InlineData("sessionMissing", 403)]
+    [InlineData("stale", 409)]
+    [InlineData("deletedIdentity", 401)]
+    [InlineData("missingIdentity", 401)]
+    [InlineData("identityUnavailable", 503)]
+    [InlineData("storedRevision", 503)]
+    public async Task GivenUnavailableAuthorityOrState_WhenDeleting_ThenExactSafeStatusAndNoMutation(string kind, int status)
     {
         var s = await Setup(); var actor = s; var id = s.Grant;
         await using var db = fixture.Context();
         if (kind == "missing") id = Guid.NewGuid();
         if (kind == "foreign") actor = await Setup();
-        if (kind == "revoked") await db.SoftwareGrants.Where(x => x.PublicId == s.Grant).ExecuteUpdateAsync(x => x.SetProperty(g => g.State,SoftwareGrantState.Revoked));
-        if (kind == "inactive") await db.Accounts.Where(x => x.Id == s.AccountId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State,AccountState.ClosurePending));
+        if (kind == "revoked") await db.SoftwareGrants.Where(x => x.PublicId == s.Grant).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, SoftwareGrantState.Revoked));
+        if (kind == "inactive") await db.Accounts.Where(x => x.Id == s.AccountId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending));
         if (kind is "terminal" or "accountTerminal")
-            db.TerminalErasures.Add(new() { ResourceKind = kind == "terminal" ? "grant" : "account",ResourceId = kind == "terminal" ? s.Grant : s.Account,DeletedAt = DateTimeOffset.UtcNow });
+            db.TerminalErasures.Add(new() { ResourceKind = kind == "terminal" ? "grant" : "account", ResourceId = kind == "terminal" ? s.Grant : s.Account, DeletedAt = DateTimeOffset.UtcNow });
         if (kind is "expired" or "sessionRevoked" or "policy" or "generation")
         {
             var session = await db.VaultAccessSessions.SingleAsync(x => x.AccountId == s.AccountId);
@@ -211,21 +260,24 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
             if (kind == "generation") session.RevocationGeneration++;
         }
         if (kind == "sessionMissing") actor = s with { Access = ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32)) };
-        if (kind == "storedRevision") await db.SoftwareGrants.Where(x => x.PublicId == s.Grant).ExecuteUpdateAsync(x => x.SetProperty(g => g.Revision,0));
+        if (kind == "storedRevision") await db.SoftwareGrants.Where(x => x.PublicId == s.Grant).ExecuteUpdateAsync(x => x.SetProperty(g => g.Revision, 0));
         if (kind is "deletedIdentity" or "identityUnavailable")
-            fixture.Users[s.Actor + "@example.test"] = new(s.Actor,"fixture-password",Deleted:kind == "deletedIdentity",IdentityUnavailable:kind == "identityUnavailable");
-        if (kind == "missingIdentity") fixture.Users.TryRemove(s.Actor + "@example.test",out _);
+            fixture.Users[s.Actor + "@example.test"] = new(s.Actor, "fixture-password", Deleted: kind == "deletedIdentity", IdentityUnavailable: kind == "identityUnavailable");
+        if (kind == "missingIdentity") fixture.Users.TryRemove(s.Actor + "@example.test", out _);
         await db.SaveChangesAsync(); var before = await Snapshot(s); var actorBefore = await Snapshot(actor);
-        using var request = Request(actor,Encoding.UTF8.GetBytes(kind == "stale" ? "{\"expectedRevision\":2}" : "{\"expectedRevision\":1}"),id.ToString("D"));
+        using var request = Request(actor, Encoding.UTF8.GetBytes(kind == "stale" ? "{\"expectedRevision\":2}" : "{\"expectedRevision\":1}"), id.ToString("D"));
         using var response = await Gateway.Client.SendAsync(request);
-        await Failure(response,s,status,status switch
-        { 401 => "authentication_required",403 => "vault_access_denied",404 => "not_found",409 => "revision_conflict",_ => kind == "identityUnavailable" ? "identity_unavailable" : "persistence_unavailable" });
-        NoDisclosure(await response.Content.ReadAsStringAsync(),actor);
-        Assert.Equal(before,await Snapshot(s)); Assert.Equal(actorBefore,await Snapshot(actor));
+        await Failure(response, s, status, status switch
+        { 401 => "authentication_required", 403 => "vault_access_denied", 404 => "not_found", 409 => "revision_conflict", _ => kind == "identityUnavailable" ? "identity_unavailable" : "persistence_unavailable" });
+        NoDisclosure(await response.Content.ReadAsStringAsync(), actor);
+        Assert.Equal(before, await Snapshot(s)); Assert.Equal(actorBefore, await Snapshot(actor));
     }
 
     // Break: storage exceptions leaking details or committing any partial erase.
-    [FunctionalTheory][InlineData("update")][InlineData("recordDelete")][InlineData("collectionDelete")]
+    [FunctionalTheory]
+    [InlineData("update")]
+    [InlineData("recordDelete")]
+    [InlineData("collectionDelete")]
     public async Task GivenPersistenceFault_WhenDeleting_Then503RollbackAndCleanRetry(string kind)
     {
         var s = await Setup(); var before = await Snapshot(s); await using var db = fixture.Context();
@@ -237,16 +289,16 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
         try
         {
             using var request = Request(s); using var response = await Gateway.Client.SendAsync(request);
-            await Failure(response,s,503,"persistence_unavailable");
-            Assert.DoesNotContain("private fixture fault",await response.Content.ReadAsStringAsync());
+            await Failure(response, s, 503, "persistence_unavailable");
+            Assert.DoesNotContain("private fixture fault", await response.Content.ReadAsStringAsync());
         }
         finally
         {
             var remove = $"DROP TRIGGER IF EXISTS software_revoke_http_fault ON cerberus.{table}; DROP FUNCTION IF EXISTS cerberus.software_revoke_http_fault()";
             await db.Database.ExecuteSqlRawAsync(remove);
         }
-        Assert.Equal(before,await Snapshot(s));
-        using var retry = Request(s); using var retried = await Gateway.Client.SendAsync(retry); await Success(retried,s);
+        Assert.Equal(before, await Snapshot(s));
+        using var retry = Request(s); using var retried = await Gateway.Client.SendAsync(retry); await Success(retried, s);
     }
 
     // Break: confusing a present empty raw header with an absent header.
@@ -261,10 +313,10 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
             c.Request.Headers["X-Cerberus-Vault-Access"] = "";
             c.Request.ContentType = "application/json"; c.Request.ContentLength = body.Length; c.Request.Body = new MemoryStream(body);
         });
-        Assert.Equal(400,context.Response.StatusCode); Assert.Equal("no-store",context.Response.Headers.CacheControl.ToString());
-        using var reader = new StreamReader(context.Response.Body); var raw = await reader.ReadToEndAsync(); NoDisclosure(raw,s);
-        using var doc = JsonDocument.Parse(raw); Assert.Equal(new[] { "validation_failed" },doc.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
-        Assert.Equal(before,await Snapshot(s));
+        Assert.Equal(400, context.Response.StatusCode); Assert.Equal("no-store", context.Response.Headers.CacheControl.ToString());
+        using var reader = new StreamReader(context.Response.Body); var raw = await reader.ReadToEndAsync(); NoDisclosure(raw, s);
+        using var doc = JsonDocument.Parse(raw); Assert.Equal(new[] { "validation_failed" }, doc.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
+        Assert.Equal(before, await Snapshot(s));
     }
 
     private sealed record State(Guid Actor, Guid Account, long AccountId, string Access, Guid Grant,
@@ -282,19 +334,45 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
         var ciphertext = "private-ciphertext-" + Guid.NewGuid();
         var record = new VaultRecord { PublicId = Guid.NewGuid(), AccountId = account.Id, Envelope = Encoding.UTF8.GetBytes(ciphertext) };
         var collection = new VaultCollection { PublicId = Guid.NewGuid(), AccountId = account.Id, Envelope = Encoding.UTF8.GetBytes(ciphertext) };
-        var grant = new SoftwareGrant { PublicId = Guid.NewGuid(), AccountId = account.Id,
-            HeimdallSoftwarePublicId = Guid.NewGuid(), RecipientKey = Encoding.UTF8.GetBytes(key) };
-        db.VaultAccessSessions.Add(new() { AccountId = account.Id, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
-            PolicyRevision = 1, RevocationGeneration = 1 });
+        var grant = new SoftwareGrant
+        {
+            PublicId = Guid.NewGuid(),
+            AccountId = account.Id,
+            HeimdallSoftwarePublicId = Guid.NewGuid(),
+            RecipientKey = Encoding.UTF8.GetBytes(key)
+        };
+        db.VaultAccessSessions.Add(new()
+        {
+            AccountId = account.Id,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         db.Records.Add(record); db.Collections.Add(collection); db.SoftwareGrants.Add(grant);
-        db.SoftwareGrants.Add(new() { PublicId = Guid.NewGuid(), AccountId = account.Id,
-            HeimdallSoftwarePublicId = Guid.NewGuid(), RecipientKey = Encoding.UTF8.GetBytes(key) });
+        db.SoftwareGrants.Add(new()
+        {
+            PublicId = Guid.NewGuid(),
+            AccountId = account.Id,
+            HeimdallSoftwarePublicId = Guid.NewGuid(),
+            RecipientKey = Encoding.UTF8.GetBytes(key)
+        });
         await db.SaveChangesAsync();
-        db.SoftwareGrantRecords.Add(new() { AccountId = account.Id, GrantId = grant.Id, RecordId = record.Id,
-            RecipientKeyEnvelope = Encoding.UTF8.GetBytes(envelope) });
-        db.SoftwareGrantCollections.Add(new() { AccountId = account.Id, GrantId = grant.Id, CollectionId = collection.Id,
-            RecipientKeyEnvelope = Encoding.UTF8.GetBytes(envelope) });
+        db.SoftwareGrantRecords.Add(new()
+        {
+            AccountId = account.Id,
+            GrantId = grant.Id,
+            RecordId = record.Id,
+            RecipientKeyEnvelope = Encoding.UTF8.GetBytes(envelope)
+        });
+        db.SoftwareGrantCollections.Add(new()
+        {
+            AccountId = account.Id,
+            GrantId = grant.Id,
+            CollectionId = collection.Id,
+            RecipientKeyEnvelope = Encoding.UTF8.GetBytes(envelope)
+        });
         await db.SaveChangesAsync();
         return new(actor, account.PublicId, account.Id, access, grant.PublicId, grant.HeimdallSoftwarePublicId,
             record.PublicId, collection.PublicId, key, envelope, ciphertext);

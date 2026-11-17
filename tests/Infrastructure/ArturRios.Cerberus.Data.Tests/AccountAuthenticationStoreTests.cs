@@ -18,8 +18,14 @@ public class AccountAuthenticationStoreTests(PostgresFixture fixture) : IClassFi
         var accountId = Guid.NewGuid();
         await using (var setup = fixture.CreateContext())
         {
-            setup.Accounts.Add(new Account { PublicId = accountId, HeimdallPublicId = identity, DetailsEnvelope = [1, 2, 3], Revision = 7,
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active });
+            setup.Accounts.Add(new Account
+            {
+                PublicId = accountId,
+                HeimdallPublicId = identity,
+                DetailsEnvelope = [1, 2, 3],
+                Revision = 7,
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            });
             if (state == "erased") setup.TerminalErasures.Add(new TerminalErasure { ResourceId = accountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await setup.SaveChangesAsync();
         }

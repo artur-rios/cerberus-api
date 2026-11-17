@@ -121,9 +121,21 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
                 if (existing is null)
                 {
                     var now = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
-                    db.SyncOperations.Add(new() { AccountId = original.InternalId, OperationId = edit.OperationId, ScopeProfileId = original.ProfileId,
-                        RequestFingerprint = fingerprint, ResourceKind = edit.ResourceKind, ResourceId = edit.ResourceId, Action = edit.Action,
-                        Status = outcome.Status, Revision = outcome.Revision, ServerSequence = outcome.ServerSequence, EditedAt = outcome.EditedAt, CreatedAt = now });
+                    db.SyncOperations.Add(new()
+                    {
+                        AccountId = original.InternalId,
+                        OperationId = edit.OperationId,
+                        ScopeProfileId = original.ProfileId,
+                        RequestFingerprint = fingerprint,
+                        ResourceKind = edit.ResourceKind,
+                        ResourceId = edit.ResourceId,
+                        Action = edit.Action,
+                        Status = outcome.Status,
+                        Revision = outcome.Revision,
+                        ServerSequence = outcome.ServerSequence,
+                        EditedAt = outcome.EditedAt,
+                        CreatedAt = now
+                    });
                     await db.SaveChangesAsync(ct);
                 }
                 outcomes.Add(outcome);
@@ -134,7 +146,8 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
             return new(new(final!.AccountId, final.ProfileId, final.DatabaseNow, outcomes));
         }
         catch (Exception e) when (e is PostgresException { SqlState: "2200H" }
-            or DbUpdateException { InnerException: PostgresException { SqlState: "2200H" } }) { return new(Error: "revision_conflict"); }
+            or DbUpdateException { InnerException: PostgresException { SqlState: "2200H" } })
+        { return new(Error: "revision_conflict"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
         catch (DbUpdateConcurrencyException) { return new(Error: "revision_conflict"); }
         catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException or JsonException or FormatException
@@ -167,9 +180,15 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
     }
     private static Task<NativeResult> Inspect(IDbContextFactory<AppDbContext> contexts, SyncEditsRequest r, SyncEditInput e, CancellationToken ct)
     {
-        var envelope = e switch { SyncContentUpdate u => u.Input.Envelope, SyncRecordCreate c => c.Input.Envelope,
-            SyncFolderCreate c => c.Input.Envelope, SyncCollectionCreate c => c.Input.Envelope, SyncProfileCreate c => c.Input.Envelope,
-            _ => throw new JsonException() };
+        var envelope = e switch
+        {
+            SyncContentUpdate u => u.Input.Envelope,
+            SyncRecordCreate c => c.Input.Envelope,
+            SyncFolderCreate c => c.Input.Envelope,
+            SyncCollectionCreate c => c.Input.Envelope,
+            SyncProfileCreate c => c.Input.Envelope,
+            _ => throw new JsonException()
+        };
         return Update(contexts, r, e.ResourceKind, new(e.ResourceId, envelope, e.EditedAt), true, ct);
     }
     private static async Task<NativeResult> Update(IDbContextFactory<AppDbContext> contexts, SyncEditsRequest r, string kind, SyncContentEditInput input, bool inspect, CancellationToken ct)
@@ -196,9 +215,16 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
         (await db.Database.SqlQueryRaw<Scope>(ScopeSql, new NpgsqlParameter("actor", r.Actor), new NpgsqlParameter("verifier", r.AccessVerifier)).ToListAsync(ct)).SingleOrDefault();
     private sealed class Scope
     {
-        public long InternalId { get; set; } public Guid AccountId { get; set; } public bool Active { get; set; } public bool Allowed { get; set; }
-        public long? SessionId { get; set; } public long? ProfileInternalId { get; set; } public Guid? ProfileId { get; set; }
-        public long PolicyRevision { get; set; } public long Generation { get; set; } public DateTimeOffset DatabaseNow { get; set; }
+        public long InternalId { get; set; }
+        public Guid AccountId { get; set; }
+        public bool Active { get; set; }
+        public bool Allowed { get; set; }
+        public long? SessionId { get; set; }
+        public long? ProfileInternalId { get; set; }
+        public Guid? ProfileId { get; set; }
+        public long PolicyRevision { get; set; }
+        public long Generation { get; set; }
+        public DateTimeOffset DatabaseNow { get; set; }
         public Guid[] ForeignOwners { get; set; } = [];
     }
     private const string ScopeSql = """

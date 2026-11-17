@@ -10,5 +10,5 @@ public sealed class DeleteProfileCommand : BaseCommand
     internal Guid Actor { get; private set; }
     internal Guid ProfileId { get; private set; }
     internal string? VaultAccess { get; private set; }
-    public void SetContext(Guid actor,string? access,Guid profileId){Actor=actor;VaultAccess=access;ProfileId=profileId;}
+    public void SetContext(Guid actor, string? access, Guid profileId) { Actor = actor; VaultAccess = access; ProfileId = profileId; }
 }

@@ -34,16 +34,25 @@ public class SyncDownloadHttpTests(RegistrationApiFixture fixture, SharedApiHost
     }
 
     [FunctionalTheory]
-    [InlineData("extra=1")][InlineData("Cursor=anything")][InlineData("pageSize=1&pageSize=2")]
-    [InlineData("cursor=a&cursor=b")][InlineData("pageSize=01")][InlineData("pageSize=+1")]
-    [InlineData("pageSize=-1")][InlineData("pageSize=0")][InlineData("pageSize=101")][InlineData("pageSize=garbage")]
+    [InlineData("extra=1")]
+    [InlineData("Cursor=anything")]
+    [InlineData("pageSize=1&pageSize=2")]
+    [InlineData("cursor=a&cursor=b")]
+    [InlineData("pageSize=01")]
+    [InlineData("pageSize=+1")]
+    [InlineData("pageSize=-1")]
+    [InlineData("pageSize=0")]
+    [InlineData("pageSize=101")]
+    [InlineData("pageSize=garbage")]
     public async Task GivenUnsupportedQuery_WhenDownloading_ThenReturnStrictNoStoreValidationError(string query)
     {
         var s = await Setup(); Authorize(RegistrationApiFixture.Token(s.Actor));
         using var response = await Send(query, s.Access); await Failure(response, HttpStatusCode.BadRequest, "validation_failed");
     }
     [FunctionalTheory]
-    [InlineData("body")][InlineData("duplicateHeader")][InlineData("invalidHandle")]
+    [InlineData("body")]
+    [InlineData("duplicateHeader")]
+    [InlineData("invalidHandle")]
     public async Task GivenInvalidRequestShape_WhenDownloading_ThenRejectWithoutContent(string kind)
     {
         var s = await Setup(); Authorize(RegistrationApiFixture.Token(s.Actor));
@@ -51,8 +60,10 @@ public class SyncDownloadHttpTests(RegistrationApiFixture fixture, SharedApiHost
         await Failure(response, HttpStatusCode.BadRequest, "validation_failed");
     }
     [FunctionalTheory]
-    [InlineData("identity", HttpStatusCode.Unauthorized)][InlineData("missing", HttpStatusCode.Unauthorized)]
-    [InlineData("revoked", HttpStatusCode.Forbidden)][InlineData("accountwide", HttpStatusCode.Forbidden)]
+    [InlineData("identity", HttpStatusCode.Unauthorized)]
+    [InlineData("missing", HttpStatusCode.Unauthorized)]
+    [InlineData("revoked", HttpStatusCode.Forbidden)]
+    [InlineData("accountwide", HttpStatusCode.Forbidden)]
     [InlineData("closing", HttpStatusCode.NotFound)]
     public async Task GivenMissingCurrentAuthority_WhenDownloading_ThenDenyWithoutCursor(string kind, HttpStatusCode status)
     {
@@ -65,7 +76,8 @@ public class SyncDownloadHttpTests(RegistrationApiFixture fixture, SharedApiHost
         await Failure(response, status);
     }
     [FunctionalTheory]
-    [InlineData("")][InlineData("invalid")]
+    [InlineData("")]
+    [InlineData("invalid")]
     public async Task GivenUnusableCursor_WhenDownloading_ThenReturnTypedResynchronizationInstructions(string cursor)
     {
         var s = await Setup(); Authorize(RegistrationApiFixture.Token(s.Actor));
@@ -116,9 +128,14 @@ public class SyncDownloadHttpTests(RegistrationApiFixture fixture, SharedApiHost
         var a = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = actor }; db.Accounts.Add(a); await db.SaveChangesAsync();
         var id = Guid.NewGuid();
         var envelope = new EncryptedEnvelope("cerberus-content-v1", 1, ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16]));
-        var p = new Profile { AccountId = a.Id, PublicId = id, EditedAt = DateTimeOffset.UtcNow,
+        var p = new Profile
+        {
+            AccountId = a.Id,
+            PublicId = id,
+            EditedAt = DateTimeOffset.UtcNow,
             Envelope = JsonSerializer.SerializeToUtf8Bytes(envelope, ProtectionFixture.Json),
-            KeyWrappers = JsonSerializer.SerializeToUtf8Bytes(new ProfileKeyWrappers("Master", scoped.Material.UnlockVerifier, client.Wrap(a.PublicId, "profile", id, actor), null), ProtectionFixture.Json) };
+            KeyWrappers = JsonSerializer.SerializeToUtf8Bytes(new ProfileKeyWrappers("Master", scoped.Material.UnlockVerifier, client.Wrap(a.PublicId, "profile", id, actor), null), ProtectionFixture.Json)
+        };
         db.Profiles.Add(p); await db.SaveChangesAsync();
         var recordId = Guid.Empty;
         if (withRecord)
@@ -126,8 +143,16 @@ public class SyncDownloadHttpTests(RegistrationApiFixture fixture, SharedApiHost
             var record = new VaultRecord { PublicId = Guid.NewGuid(), AccountId = a.Id, Envelope = JsonSerializer.SerializeToUtf8Bytes(envelope, ProtectionFixture.Json), EditedAt = DateTimeOffset.UtcNow };
             db.Records.Add(record); await db.SaveChangesAsync(); db.ProfileRecords.Add(new() { AccountId = a.Id, ProfileId = p.Id, RecordId = record.Id }); recordId = record.PublicId;
         }
-        db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = a.Id, ProfileId = p.Id, HandleVerifier = verifier,
-            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 });
+        db.VaultAccessSessions.Add(new VaultAccessSession
+        {
+            AccountId = a.Id,
+            ProfileId = p.Id,
+            HandleVerifier = verifier,
+            IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
+            PolicyRevision = 1,
+            RevocationGeneration = 1
+        });
         await db.SaveChangesAsync(); return new(actor, access, verifier, id, a.Id, recordId);
     }
     private async Task<HttpResponseMessage> Send(string query, string? access, string kind = "")

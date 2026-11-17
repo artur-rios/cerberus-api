@@ -28,9 +28,11 @@ internal static class TrashProjection
             if (envelope?.IsValid() != true) return false;
             switch (row.Kind)
             {
-                case "record": item = new TrashRecordItem(row.OperationId, row.ResourceId, row.Revision, row.ServerSequence,
+                case "record":
+                    item = new TrashRecordItem(row.OperationId, row.ResourceId, row.Revision, row.ServerSequence,
                     row.EditedAt, row.DeletedAt, row.PurgeAt, envelope); break;
-                case "folder": item = new TrashFolderItem(row.OperationId, row.ResourceId, row.Revision, row.ServerSequence,
+                case "folder":
+                    item = new TrashFolderItem(row.OperationId, row.ResourceId, row.Revision, row.ServerSequence,
                     row.EditedAt, row.DeletedAt, row.PurgeAt, envelope); break;
                 case "collection":
                     if (row.KeyEpoch != envelope.KeyEpoch) return false;

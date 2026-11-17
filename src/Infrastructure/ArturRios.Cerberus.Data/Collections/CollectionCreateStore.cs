@@ -121,7 +121,8 @@ public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factor
         catch (PostgresException e) when (e.SqlState is PostgresErrorCodes.UniqueViolation or "2200H") { return new(Error: "revision_conflict"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
         catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException
-            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException }) { return new(Error: "persistence_unavailable"); }
+            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException })
+        { return new(Error: "persistence_unavailable"); }
     }
 
     private static bool Safe(long n) => n is > 0 and <= ProtocolBinary.MaxInteger;
@@ -146,8 +147,14 @@ public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factor
     private sealed class Written { public long Revision { get; set; } public long ServerSequence { get; set; } public Guid ConcurrencyStamp { get; set; } }
     private sealed class Snapshot
     {
-        public bool ActorActive { get; set; } public bool Allowed { get; set; } public bool SelectedEmpty { get; set; } public bool Permitted { get; set; } public bool Corrupt { get; set; } public bool Reserved { get; set; }
-        public bool StructuralCorrupt { get; set; } public bool Exhausted { get; set; }
+        public bool ActorActive { get; set; }
+        public bool Allowed { get; set; }
+        public bool SelectedEmpty { get; set; }
+        public bool Permitted { get; set; }
+        public bool Corrupt { get; set; }
+        public bool Reserved { get; set; }
+        public bool StructuralCorrupt { get; set; }
+        public bool Exhausted { get; set; }
         public long[] ProfileIds { get; set; } = []; public long[] CollectionIds { get; set; } = []; public long[] FolderIds { get; set; } = []; public long[] RecordIds { get; set; } = [];
         public string Frozen { get; set; } = "{}";
     }

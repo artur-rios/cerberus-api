@@ -21,7 +21,8 @@ namespace ArturRios.Cerberus.Data.Tests;
 public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper output) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenOwnedCollection_WhenGetting_ThenReturnOpaqueTargetAndOnlyCurrentDirectReferences(bool selected)
     {
         using var owner = new ProtectionFixture(); using var key = new ProtectionFixture(); using var secondKey = new ProtectionFixture(); using var outsideKey = new ProtectionFixture();
@@ -51,8 +52,10 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
     }
 
     [FunctionalTheory]
-    [InlineData(CollectionGrantAccess.ReadOnly, false)][InlineData(CollectionGrantAccess.ReadOnly, true)]
-    [InlineData(CollectionGrantAccess.ReadWrite, false)][InlineData(CollectionGrantAccess.ReadWrite, true)]
+    [InlineData(CollectionGrantAccess.ReadOnly, false)]
+    [InlineData(CollectionGrantAccess.ReadOnly, true)]
+    [InlineData(CollectionGrantAccess.ReadWrite, false)]
+    [InlineData(CollectionGrantAccess.ReadWrite, true)]
     public async Task GivenNativeGrant_WhenGetting_ThenExposeOnlyRecipientProfilesAndDirectOwnerMembers(CollectionGrantAccess access, bool selected)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var key = new ProtectionFixture(); using var secondKey = new ProtectionFixture();
@@ -75,7 +78,9 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData("record")][InlineData("folder")]
+    [FunctionalTheory]
+    [InlineData("record")]
+    [InlineData("folder")]
     public async Task GivenActualSelectedMemberAccessWithoutCollectionLink_WhenGettingCollection_Then404(string kind)
     {
         using var owner = new ProtectionFixture(); using var key = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner);
@@ -89,7 +94,11 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         var result = await Read(request, a.Collection.PublicId); Assert.Equal("not_found", result.Error); Assert.Null(result.Data);
     }
 
-    [FunctionalTheory][InlineData("missing")][InlineData("foreign")][InlineData("unselectedOwned")][InlineData("unselectedNative")]
+    [FunctionalTheory]
+    [InlineData("missing")]
+    [InlineData("foreign")]
+    [InlineData("unselectedOwned")]
+    [InlineData("unselectedNative")]
     public async Task GivenInaccessibleTarget_WhenGetting_Then404BeforeInspectingCorruptContent(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var key = new ProtectionFixture();
@@ -106,9 +115,18 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
     }
 
     [FunctionalTheory]
-    [InlineData("recordTrash")][InlineData("recordTerminal")][InlineData("folderTrash")][InlineData("folderTerminal")]
-    [InlineData("ancestorTrash")][InlineData("ancestorTerminal")][InlineData("incomplete")][InlineData("foreignAncestor")]
-    [InlineData("foreignRecord")][InlineData("foreignFolder")][InlineData("profileTrash")][InlineData("profileTerminal")]
+    [InlineData("recordTrash")]
+    [InlineData("recordTerminal")]
+    [InlineData("folderTrash")]
+    [InlineData("folderTerminal")]
+    [InlineData("ancestorTrash")]
+    [InlineData("ancestorTerminal")]
+    [InlineData("incomplete")]
+    [InlineData("foreignAncestor")]
+    [InlineData("foreignRecord")]
+    [InlineData("foreignFolder")]
+    [InlineData("profileTrash")]
+    [InlineData("profileTerminal")]
     public async Task GivenHiddenOrIncompleteDirectRelationships_WhenGetting_ThenOmitOnlyAffectedKinds(string kind)
     {
         using var owner = new ProtectionFixture(); using var key = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner);
@@ -154,7 +172,12 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         }
     }
 
-    [FunctionalTheory][InlineData("record", false)][InlineData("folder", false)][InlineData("record", true)][InlineData("folder", true)][InlineData("unrelated", false)]
+    [FunctionalTheory]
+    [InlineData("record", false)]
+    [InlineData("folder", false)]
+    [InlineData("record", true)]
+    [InlineData("folder", true)]
+    [InlineData("unrelated", false)]
     public async Task GivenCyclicAncestry_WhenGetting_Then503OnlyForRelevantFullyActiveMembers(string kind, bool hidden)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s);
@@ -186,7 +209,13 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         Assert.Equal(new[] { a.Record.PublicId }, result.Data!.RecordIds); Assert.Equal(new[] { a.Folder.PublicId }, result.Data.FolderIds);
     }
 
-    [FunctionalTheory][InlineData("account")][InlineData("profile")][InlineData("record")][InlineData("folder")][InlineData("collection")][InlineData("grant")]
+    [FunctionalTheory]
+    [InlineData("account")]
+    [InlineData("profile")]
+    [InlineData("record")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
     public async Task GivenSamePublicIdInAllKinds_WhenGetting_ThenHonorTypedTerminalIdentity(string kind)
     {
         using var owner = new ProtectionFixture(); using var key = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner);
@@ -205,7 +234,10 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         }
     }
 
-    [FunctionalTheory][InlineData(0L)][InlineData(-1L)][InlineData(9007199254740992L)]
+    [FunctionalTheory]
+    [InlineData(0L)]
+    [InlineData(-1L)]
+    [InlineData(9007199254740992L)]
     public async Task GivenInvalidTargetOrdering_WhenGetting_Then503(long sequence)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var target = await Collection(s);
@@ -213,7 +245,11 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         var result = await Read(s, target.PublicId); Assert.Equal("persistence_unavailable", result.Error); Assert.Null(result.Data);
     }
 
-    [FunctionalTheory][InlineData("revision")][InlineData("time")][InlineData("envelope")][InlineData("epoch")]
+    [FunctionalTheory]
+    [InlineData("revision")]
+    [InlineData("time")]
+    [InlineData("envelope")]
+    [InlineData("epoch")]
     public async Task GivenMalformedOwnedTargetProjection_WhenGetting_ThenForwardOnlyTargetForAuthoritativeQueryValidation(string kind)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var target = await Collection(s); var unrelated = await Collection(s);
@@ -232,7 +268,10 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         Assert.Equal(target.EditedAt, row.EditedAt); Assert.Equal(target.KeyEpoch, row.KeyEpoch);
     }
 
-    [FunctionalTheory][InlineData("zero")][InlineData("unsafe")][InlineData("duplicate")]
+    [FunctionalTheory]
+    [InlineData("zero")]
+    [InlineData("unsafe")]
+    [InlineData("duplicate")]
     public async Task GivenUnrelatedCollectionCorruption_WhenGetting_ThenKeepValidTargetIndependent(string kind)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var target = await Collection(s); var other = await Collection(s);
@@ -241,11 +280,20 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
     }
 
     [FunctionalTheory]
-    [InlineData("missing", "not_found")][InlineData("closing", "not_found")][InlineData("terminal", "not_found")]
-    [InlineData("access", "vault_access_denied")][InlineData("revoked", "vault_access_denied")][InlineData("expired", "vault_access_denied")]
-    [InlineData("future", "vault_access_denied")][InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")]
-    [InlineData("zeroPolicy", "vault_access_denied")][InlineData("zeroGeneration", "vault_access_denied")]
-    [InlineData("nullExpiry", "vault_access_denied")][InlineData("disabledExpiry", "vault_access_denied")][InlineData("noExpiry", null)]
+    [InlineData("missing", "not_found")]
+    [InlineData("closing", "not_found")]
+    [InlineData("terminal", "not_found")]
+    [InlineData("access", "vault_access_denied")]
+    [InlineData("revoked", "vault_access_denied")]
+    [InlineData("expired", "vault_access_denied")]
+    [InlineData("future", "vault_access_denied")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("generation", "vault_access_denied")]
+    [InlineData("zeroPolicy", "vault_access_denied")]
+    [InlineData("zeroGeneration", "vault_access_denied")]
+    [InlineData("nullExpiry", "vault_access_denied")]
+    [InlineData("disabledExpiry", "vault_access_denied")]
+    [InlineData("noExpiry", null)]
     public async Task GivenCurrentActorOrSessionLifecycle_WhenGetting_ThenRevalidateWithoutMutation(string kind, string? error)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var target = await Collection(s);
@@ -265,7 +313,12 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData("valid", null)][InlineData("dangling", "vault_access_denied")][InlineData("foreign", "vault_access_denied")][InlineData("trash", "vault_access_denied")][InlineData("terminal", "vault_access_denied")]
+    [FunctionalTheory]
+    [InlineData("valid", null)]
+    [InlineData("dangling", "vault_access_denied")]
+    [InlineData("foreign", "vault_access_denied")]
+    [InlineData("trash", "vault_access_denied")]
+    [InlineData("terminal", "vault_access_denied")]
     public async Task GivenSelectedProfileLifecycle_WhenGetting_ThenRequireCurrentActiveOwnedSelection(string kind, string? error)
     {
         using var owner = new ProtectionFixture(); using var key = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var foreign = await ProfileSetup.Create(fixture, owner);
@@ -281,8 +334,16 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
     }
 
     [FunctionalTheory]
-    [InlineData("revoked")][InlineData("wrongRecipient")][InlineData("unknownAccess")][InlineData("zeroRevision")][InlineData("unsafeRevision")]
-    [InlineData("grantTerminal")][InlineData("collectionTrash")][InlineData("collectionTerminal")][InlineData("ownerClosing")][InlineData("ownerTerminal")]
+    [InlineData("revoked")]
+    [InlineData("wrongRecipient")]
+    [InlineData("unknownAccess")]
+    [InlineData("zeroRevision")]
+    [InlineData("unsafeRevision")]
+    [InlineData("grantTerminal")]
+    [InlineData("collectionTrash")]
+    [InlineData("collectionTerminal")]
+    [InlineData("ownerClosing")]
+    [InlineData("ownerTerminal")]
     public async Task GivenHiddenNativeAuthority_WhenGetting_Then404BeforeNativeEvidence(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var foreign = await ProfileSetup.Create(fixture, owner); var s = await ProfileSetup.Create(fixture, recipient);
@@ -301,9 +362,22 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
     }
 
     [FunctionalTheory]
-    [InlineData("blob")][InlineData("signature")][InlineData("owner")][InlineData("collection")][InlineData("grant")][InlineData("recipient")]
-    [InlineData("revision")][InlineData("epoch")][InlineData("nativeEpoch")][InlineData("signedEpoch")][InlineData("signedRevision")]
-    [InlineData("collectionEnvelope")][InlineData("ownerPins")][InlineData("recipientPins")][InlineData("missingOwnerPins")][InlineData("missingRecipientPins")]
+    [InlineData("blob")]
+    [InlineData("signature")]
+    [InlineData("owner")]
+    [InlineData("collection")]
+    [InlineData("grant")]
+    [InlineData("recipient")]
+    [InlineData("revision")]
+    [InlineData("epoch")]
+    [InlineData("nativeEpoch")]
+    [InlineData("signedEpoch")]
+    [InlineData("signedRevision")]
+    [InlineData("collectionEnvelope")]
+    [InlineData("ownerPins")]
+    [InlineData("recipientPins")]
+    [InlineData("missingOwnerPins")]
+    [InlineData("missingRecipientPins")]
     public async Task GivenInvalidNativeBinding_WhenGetting_Then503WithoutPartialContent(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var foreign = await ProfileSetup.Create(fixture, owner); var s = await ProfileSetup.Create(fixture, recipient);
@@ -329,9 +403,16 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
     }
 
     [FunctionalTheory]
-    [InlineData(true, "epoch")][InlineData(false, "epoch")][InlineData(true, "generation")][InlineData(false, "generation")]
-    [InlineData(true, "zeroRevision")][InlineData(false, "zeroRevision")][InlineData(true, "unsafeRevision")][InlineData(false, "unsafeRevision")]
-    [InlineData(true, "key")][InlineData(false, "key")]
+    [InlineData(true, "epoch")]
+    [InlineData(false, "epoch")]
+    [InlineData(true, "generation")]
+    [InlineData(false, "generation")]
+    [InlineData(true, "zeroRevision")]
+    [InlineData(false, "zeroRevision")]
+    [InlineData(true, "unsafeRevision")]
+    [InlineData(false, "unsafeRevision")]
+    [InlineData(true, "key")]
+    [InlineData(false, "key")]
     public async Task GivenStaleProtectionPins_WhenGetting_Then503(bool ownerPins, string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var replacement = new ProtectionFixture();
@@ -348,10 +429,22 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
     }
 
     [FunctionalTheory]
-    [InlineData("collection", "numericString")][InlineData("collection", "unknown")][InlineData("collection", "duplicate")][InlineData("collection", "case")]
-    [InlineData("wrapper", "numericString")][InlineData("wrapper", "unknown")][InlineData("wrapper", "duplicate")][InlineData("wrapper", "case")]
-    [InlineData("owner", "numericString")][InlineData("owner", "unknown")][InlineData("owner", "duplicate")][InlineData("owner", "case")]
-    [InlineData("recipient", "numericString")][InlineData("recipient", "unknown")][InlineData("recipient", "duplicate")][InlineData("recipient", "case")]
+    [InlineData("collection", "numericString")]
+    [InlineData("collection", "unknown")]
+    [InlineData("collection", "duplicate")]
+    [InlineData("collection", "case")]
+    [InlineData("wrapper", "numericString")]
+    [InlineData("wrapper", "unknown")]
+    [InlineData("wrapper", "duplicate")]
+    [InlineData("wrapper", "case")]
+    [InlineData("owner", "numericString")]
+    [InlineData("owner", "unknown")]
+    [InlineData("owner", "duplicate")]
+    [InlineData("owner", "case")]
+    [InlineData("recipient", "numericString")]
+    [InlineData("recipient", "unknown")]
+    [InlineData("recipient", "duplicate")]
+    [InlineData("recipient", "case")]
     public async Task GivenNoncanonicalNativeJson_WhenGetting_Then503(string targetKind, string shape)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var foreign = await ProfileSetup.Create(fixture, owner); var s = await ProfileSetup.Create(fixture, recipient);
@@ -371,7 +464,9 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         var result = await Read(s, target.PublicId); Assert.Equal("persistence_unavailable", result.Error); Assert.Null(result.Data);
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenUnrelatedCorruptNativeGrant_WhenGettingTarget_ThenDoNotInspectOtherEvidence(bool sharedTarget)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); var foreign = await ProfileSetup.Create(fixture, owner); var s = await ProfileSetup.Create(fixture, recipient);
@@ -387,7 +482,13 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         var result = await Read(s, target.PublicId); Assert.Null(result.Error); Assert.Equal(target.PublicId, result.Data!.Collection.CollectionId);
     }
 
-    [FunctionalTheory][InlineData("grant")][InlineData("profile")][InlineData("member")][InlineData("ownerPin")][InlineData("recipientPin")][InlineData("session")]
+    [FunctionalTheory]
+    [InlineData("grant")]
+    [InlineData("profile")]
+    [InlineData("member")]
+    [InlineData("ownerPin")]
+    [InlineData("recipientPin")]
+    [InlineData("session")]
     public async Task GivenCurrentStateChangesAfterSql_WhenGetting_ThenKeepSnapshotAndNextGetObservesChange(string kind)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var key = new ProtectionFixture();
@@ -410,7 +511,10 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         else { Assert.Equal(kind == "session" ? "vault_access_denied" : kind is "ownerPin" or "recipientPin" ? "persistence_unavailable" : "not_found", next.Error); Assert.Null(next.Data); }
     }
 
-    [FunctionalTheory][InlineData(false, false)][InlineData(true, false)][InlineData(true, true)]
+    [FunctionalTheory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
     public async Task GivenHundredUnrelatedDeepFoldersAndCollections_WhenExplainingGet_ThenBoundCandidatesToTargetDirectMembersAndAncestry(bool selected, bool shared)
     {
         using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var key = new ProtectionFixture();
@@ -444,7 +548,9 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         Assert.Equal("vault_access_denied", result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenInternalTimeoutOrCancellation_WhenGetting_Then503WithoutMutation(bool cancellation)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var target = await Collection(s); var before = await Snapshot(s);
@@ -452,7 +558,9 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         Assert.Equal("persistence_unavailable", result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenCallerCancellation_WhenGetting_ThenPropagate(bool duringRead)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var target = await Collection(s); using var ct = new CancellationTokenSource();
@@ -470,7 +578,9 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData("actor", "authentication_required")][InlineData("target", "validation_failed")]
+    [FunctionalTheory]
+    [InlineData("actor", "authentication_required")]
+    [InlineData("target", "validation_failed")]
     public async Task GivenInvalidTrustedRequest_WhenGetting_ThenRejectBeforePersistence(string kind, string error)
     {
         var result = await new CollectionReadStore(null!).ReadAsync(new(kind == "actor" ? Guid.Empty : Guid.NewGuid(), new string('a', 64), kind == "target" ? Guid.Empty : Guid.NewGuid()), default);
@@ -518,7 +628,8 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         await using var db = fixture.CreateContext(); var id = state.InternalId;
         return JsonSerializer.Serialize(new
         {
-            Account = await db.Accounts.AsNoTracking().SingleAsync(x => x.Id == id), Protection = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == id),
+            Account = await db.Accounts.AsNoTracking().SingleAsync(x => x.Id == id),
+            Protection = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == id),
             Sessions = await db.VaultAccessSessions.AsNoTracking().Where(x => x.AccountId == id).OrderBy(x => x.Id).ToArrayAsync(),
             Collections = await db.Collections.AsNoTracking().Where(x => x.AccountId == id).OrderBy(x => x.Id).ToArrayAsync(),
             Records = await db.Records.AsNoTracking().Where(x => x.AccountId == id).OrderBy(x => x.Id).ToArrayAsync(),
@@ -534,7 +645,8 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
     }
     private sealed class CaptureRead : DbCommandInterceptor
     {
-        public int Readers { get; private set; } public int Writes { get; private set; }
+        public int Readers { get; private set; }
+        public int Writes { get; private set; }
         public string Sql { get; private set; } = ""; public NpgsqlParameter[] Parameters { get; private set; } = [];
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
         { Readers++; Sql = command.CommandText; Parameters = command.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone()).ToArray(); return ValueTask.FromResult(result); }

@@ -1,5 +1,6 @@
 using ArturRios.Mediator.Command;
 namespace ArturRios.Cerberus.Command.Profiles;
+
 public sealed class DeleteProfileOutput : CommandOutput
 {
     public Guid ProfileId { get; set; }

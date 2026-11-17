@@ -35,8 +35,15 @@ public class SyncSchemaTests(PostgresFixture fixture) : IClassFixture<PostgresFi
         db.Accounts.Add(a); await db.SaveChangesAsync();
         var p = new Profile { AccountId = a.Id, PublicId = Guid.NewGuid() };
         db.Profiles.Add(p); await db.SaveChangesAsync();
-        var stream = new SyncStream { PublicId = Guid.NewGuid(), AccountId = a.Id, ProfileId = p.Id,
-            CreatedAt = DateTimeOffset.UtcNow, ExpiresAt = DateTimeOffset.UtcNow.AddDays(30), PageSize = 10 };
+        var stream = new SyncStream
+        {
+            PublicId = Guid.NewGuid(),
+            AccountId = a.Id,
+            ProfileId = p.Id,
+            CreatedAt = DateTimeOffset.UtcNow,
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(30),
+            PageSize = 10
+        };
         db.SyncStreams.Add(stream); await db.SaveChangesAsync();
         var id = Guid.NewGuid();
         var change = new SyncChange { StreamId = stream.Id, WindowVersion = 1, ResourceKind = "record", ResourceId = id, EventType = "upsert" };
@@ -59,8 +66,15 @@ public class SyncSchemaTests(PostgresFixture fixture) : IClassFixture<PostgresFi
         db.Accounts.AddRange(own, other); await db.SaveChangesAsync();
         var p = new Profile { PublicId = Guid.NewGuid(), AccountId = other.Id };
         db.Profiles.Add(p); await db.SaveChangesAsync();
-        db.SyncStreams.Add(new SyncStream { PublicId = Guid.NewGuid(), AccountId = own.Id, ProfileId = p.Id,
-            CreatedAt = DateTimeOffset.UtcNow, ExpiresAt = DateTimeOffset.UtcNow.AddDays(30), PageSize = 10 });
+        db.SyncStreams.Add(new SyncStream
+        {
+            PublicId = Guid.NewGuid(),
+            AccountId = own.Id,
+            ProfileId = p.Id,
+            CreatedAt = DateTimeOffset.UtcNow,
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(30),
+            PageSize = 10
+        });
         await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
     }
 }

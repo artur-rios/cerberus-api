@@ -29,7 +29,7 @@ internal static class ProfileProjection
             || wrappers.MasterKeyWrapper.RecipientIdentityId != actor || wrappers.MasterKeyWrapper.GrantRevision > row.Revision
             || wrappers.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch) return false;
         item = new(row.ProfileId, row.Revision, row.ServerSequence, row.EditedAt, envelope, wrappers)
-        {RecordIds=row.RecordIds,FolderIds=row.FolderIds,CollectionIds=row.CollectionIds};
+        { RecordIds = row.RecordIds, FolderIds = row.FolderIds, CollectionIds = row.CollectionIds };
         return true;
     }
 }

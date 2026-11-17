@@ -17,7 +17,9 @@ namespace ArturRios.Cerberus.Data.Tests;
 public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
-    [InlineData("read-only", false)][InlineData("read-write", false)][InlineData("read-only", true)]
+    [InlineData("read-only", false)]
+    [InlineData("read-write", false)]
+    [InlineData("read-only", true)]
     public async Task GivenCurrentOwnerAndRecipient_WhenGranting_ThenInsertOrRegrantExactlyOneRow(string access, bool regrant)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture();
@@ -49,7 +51,10 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData("Master", true)][InlineData("PerProfile", true)][InlineData("Master", false)][InlineData("PerProfile", false)]
+    [InlineData("Master", true)]
+    [InlineData("PerProfile", true)]
+    [InlineData("Master", false)]
+    [InlineData("PerProfile", false)]
     public async Task GivenSelectedOwner_WhenGranting_ThenRequireExactCurrentCollectionLink(string mode, bool linked)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture();
@@ -63,11 +68,21 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData("missing", "not_found")][InlineData("closing", "not_found")][InlineData("terminal", "not_found")]
-    [InlineData("unprotected", "not_found")][InlineData("self", "validation_failed")][InlineData("noSession", null)]
-    [InlineData("ownerClosing", "not_found")][InlineData("ownerTerminal", "not_found")][InlineData("collectionTrash", "not_found")]
-    [InlineData("collectionTerminal", "not_found")][InlineData("revoked", "vault_access_denied")][InlineData("expired", "vault_access_denied")]
-    [InlineData("future", "vault_access_denied")][InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")]
+    [InlineData("missing", "not_found")]
+    [InlineData("closing", "not_found")]
+    [InlineData("terminal", "not_found")]
+    [InlineData("unprotected", "not_found")]
+    [InlineData("self", "validation_failed")]
+    [InlineData("noSession", null)]
+    [InlineData("ownerClosing", "not_found")]
+    [InlineData("ownerTerminal", "not_found")]
+    [InlineData("collectionTrash", "not_found")]
+    [InlineData("collectionTerminal", "not_found")]
+    [InlineData("revoked", "vault_access_denied")]
+    [InlineData("expired", "vault_access_denied")]
+    [InlineData("future", "vault_access_denied")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("generation", "vault_access_denied")]
     public async Task GivenRecipientOrAuthorityState_WhenGranting_ThenEnforceCurrentLifecycle(string mode, string? error)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -84,9 +99,19 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData("active")][InlineData("activeSame")][InlineData("stale")][InlineData("missingExpected")][InlineData("wrongId")]
-    [InlineData("noPairExpected")][InlineData("collision")][InlineData("terminal")][InlineData("revokedTerminal")]
-    [InlineData("zero")][InlineData("unsafe")][InlineData("exhausted")][InlineData("invalidState")]
+    [InlineData("active")]
+    [InlineData("activeSame")]
+    [InlineData("stale")]
+    [InlineData("missingExpected")]
+    [InlineData("wrongId")]
+    [InlineData("noPairExpected")]
+    [InlineData("collision")]
+    [InlineData("terminal")]
+    [InlineData("revokedTerminal")]
+    [InlineData("zero")]
+    [InlineData("unsafe")]
+    [InlineData("exhausted")]
+    [InlineData("invalidState")]
     public async Task GivenReservedOrNonmatchingGrantState_WhenGranting_Then409AndPreserveEveryRow(string mode)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -102,9 +127,16 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData("ownerPins")][InlineData("recipientPins")][InlineData("ownerMissing")][InlineData("ownerRevision")]
-    [InlineData("recipientRevision")][InlineData("recipientEpoch")][InlineData("recipientGeneration")]
-    [InlineData("collectionEnvelope")][InlineData("collectionEpoch")][InlineData("collectionPurge")]
+    [InlineData("ownerPins")]
+    [InlineData("recipientPins")]
+    [InlineData("ownerMissing")]
+    [InlineData("ownerRevision")]
+    [InlineData("recipientRevision")]
+    [InlineData("recipientEpoch")]
+    [InlineData("recipientGeneration")]
+    [InlineData("collectionEnvelope")]
+    [InlineData("collectionEpoch")]
+    [InlineData("collectionPurge")]
     public async Task GivenRequiredStoredCorruption_WhenGranting_Then503BeforeCallerBinding(string mode)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -115,8 +147,13 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData("owner")][InlineData("collection")][InlineData("epoch")][InlineData("identity")]
-    [InlineData("recipientPin")][InlineData("authorPin")][InlineData("signature")]
+    [InlineData("owner")]
+    [InlineData("collection")]
+    [InlineData("epoch")]
+    [InlineData("identity")]
+    [InlineData("recipientPin")]
+    [InlineData("authorPin")]
+    [InlineData("signature")]
     public async Task GivenShapeValidUnboundCallerEnvelope_WhenGranting_Then400AndNoMutation(string mode)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var other = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -129,7 +166,10 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData(false, false)][InlineData(true, false)][InlineData(false, true)][InlineData(true, true)]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
     public async Task GivenVisibleForeignCollection_WhenGranting_ThenValidateNativeEvidenceBefore403WithoutRecipientLocks(bool write, bool corrupt)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -139,7 +179,11 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
         Assert.Equal(corrupt ? "persistence_unavailable" : "vault_access_denied", result.Error); Assert.Empty(capture.Locks);
     }
 
-    [FunctionalTheory][InlineData("hidden")][InlineData("revoked")][InlineData("terminal")][InlineData("unselected")]
+    [FunctionalTheory]
+    [InlineData("hidden")]
+    [InlineData("revoked")]
+    [InlineData("terminal")]
+    [InlineData("unselected")]
     public async Task GivenHiddenForeignTarget_WhenGranting_Then404WithoutInspectingRequestedRecipient(string mode)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -151,8 +195,14 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData("active", false)][InlineData("trash", false)][InlineData("terminal", false)][InlineData("cycle", false)]
-    [InlineData("hiddenCycle", false)][InlineData("missing", false)][InlineData("foreign", false)][InlineData("trash", true)]
+    [InlineData("active", false)]
+    [InlineData("trash", false)]
+    [InlineData("terminal", false)]
+    [InlineData("cycle", false)]
+    [InlineData("hiddenCycle", false)]
+    [InlineData("missing", false)]
+    [InlineData("foreign", false)]
+    [InlineData("trash", true)]
     public async Task GivenDirectMembersWithAncestry_WhenGranting_ThenProjectOnlyCompleteActiveDirectRoots(string state, bool recordOnly)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s); var b = await AssociationSetup.Items(fixture, s);
@@ -177,7 +227,9 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
         finally { if (state is "missing" or "foreign") await Sql("UPDATE cerberus.folder SET parent_folder_id=NULL WHERE id={0}", b.Folder.Id); }
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenConcurrentSamePair_WhenGranting_ThenExactlyOneWinnerAndReplayConflicts(bool regrant)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -204,7 +256,12 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData("account")][InlineData("recipient")][InlineData("vault_access_session")][InlineData("profile")][InlineData("collection")][InlineData("collection_grant")]
+    [InlineData("account")]
+    [InlineData("recipient")]
+    [InlineData("vault_access_session")]
+    [InlineData("profile")]
+    [InlineData("collection")]
+    [InlineData("collection_grant")]
     public async Task GivenNaturalExpiryDuringEachLockWait_WhenGranting_ThenCurrent403AndNoMutation(string table)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -222,7 +279,9 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
         Assert.Equal("vault_access_denied", (await pending).Error); Assert.Equal(before, await Stable(s, r, a.Collection)); Assert.Equal(grants, await Grants(a.Collection));
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenExpiryAroundGuardedWrite_WhenGranting_ThenOnlyPreAuthorizationExpiryDenies(bool after)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -233,9 +292,16 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData("lifecycle", false)][InlineData("lifecycle", true)][InlineData("protection", false)][InlineData("protection", true)]
-    [InlineData("membership", false)][InlineData("membership", true)][InlineData("trash", false)][InlineData("trash", true)]
-    [InlineData("rotation", false)][InlineData("rotation", true)]
+    [InlineData("lifecycle", false)]
+    [InlineData("lifecycle", true)]
+    [InlineData("protection", false)]
+    [InlineData("protection", true)]
+    [InlineData("membership", false)]
+    [InlineData("membership", true)]
+    [InlineData("trash", false)]
+    [InlineData("trash", true)]
+    [InlineData("rotation", false)]
+    [InlineData("rotation", true)]
     public async Task GivenRecipientOrOwnerWriterInEitherOrder_WhenGranting_ThenSerializeWithoutDeadlock(string writer, bool grantFirst)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -276,7 +342,14 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
         if (grant.Result.Error is null) Assert.Equal(grantFirst && writer == "trash" ? CollectionGrantState.Revoked : CollectionGrantState.Active, Assert.Single(rows).State); else Assert.Empty(rows);
     }
 
-    [FunctionalTheory][InlineData("insert")][InlineData("regrant")][InlineData("projection")][InlineData("lateGrant")][InlineData("collection")][InlineData("members")][InlineData("pins")]
+    [FunctionalTheory]
+    [InlineData("insert")]
+    [InlineData("regrant")]
+    [InlineData("projection")]
+    [InlineData("lateGrant")]
+    [InlineData("collection")]
+    [InlineData("members")]
+    [InlineData("pins")]
     public async Task GivenPostWriteFault_WhenGranting_ThenRollbackEveryChangeAndCleanRetrySucceeds(string stage)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s); await Members(s, a);
@@ -359,8 +432,13 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData("recipientState", "not_found")][InlineData("recipientTerminal", "not_found")][InlineData("recipientKey", "validation_failed")]
-    [InlineData("ownerPolicy", "vault_access_denied")][InlineData("selection", "not_found")][InlineData("target", "not_found")][InlineData("grant", "revision_conflict")]
+    [InlineData("recipientState", "not_found")]
+    [InlineData("recipientTerminal", "not_found")]
+    [InlineData("recipientKey", "validation_failed")]
+    [InlineData("ownerPolicy", "vault_access_denied")]
+    [InlineData("selection", "not_found")]
+    [InlineData("target", "not_found")]
+    [InlineData("grant", "revision_conflict")]
     public async Task GivenStateLossWhileWaiting_WhenGranting_ThenRecheckBeforeMutation(string state, string error)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var other = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -384,7 +462,11 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
         await using var check = fixture.CreateContext(); Assert.Equal(CollectionGrantState.Revoked, (await check.CollectionGrants.SingleAsync(x => x.Id == g.Id)).State);
     }
 
-    [FunctionalTheory][InlineData("actor", "authentication_required")][InlineData("handle", "vault_access_required")][InlineData("target", "validation_failed")][InlineData("input", "validation_failed")]
+    [FunctionalTheory]
+    [InlineData("actor", "authentication_required")]
+    [InlineData("handle", "vault_access_required")]
+    [InlineData("target", "validation_failed")]
+    [InlineData("input", "validation_failed")]
     public async Task GivenInvalidTrustedBoundary_WhenGranting_ThenRejectBeforePersistence(string state, string error)
     {
         using var owner = new ProtectionFixture(); var id = Guid.NewGuid(); var input = new CollectionGrantInput(id, Guid.NewGuid(), null, "read-only", owner.WrapGrant(Guid.NewGuid(), Guid.NewGuid(), id, Guid.NewGuid(), owner.Material.RecipientKey));
@@ -392,7 +474,15 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
         Assert.Equal(error, (await new CollectionGrantStore(new ThrowingFactory(new Exception("must not persist"))).GrantAsync(request, default)).Error);
     }
 
-    [FunctionalTheory][InlineData("timeout")][InlineData("cancel")][InlineData("db")][InlineData("update")][InlineData("json")][InlineData("format")][InlineData("wrapped")][InlineData("unique")]
+    [FunctionalTheory]
+    [InlineData("timeout")]
+    [InlineData("cancel")]
+    [InlineData("db")]
+    [InlineData("update")]
+    [InlineData("json")]
+    [InlineData("format")]
+    [InlineData("wrapped")]
+    [InlineData("unique")]
     public async Task GivenInternalFailure_WhenGranting_ThenSafeErrorOnly(string kind)
     {
         using var owner = new ProtectionFixture(); var id = Guid.NewGuid(); var input = new CollectionGrantInput(id, Guid.NewGuid(), null, "read-only", owner.WrapGrant(Guid.NewGuid(), Guid.NewGuid(), id, Guid.NewGuid(), owner.Material.RecipientKey));
@@ -430,8 +520,12 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     }
 
     [FunctionalTheory]
-    [InlineData("policy", "vault_access_denied")][InlineData("recipient", "not_found")][InlineData("selection", "not_found")]
-    [InlineData("collection", "revision_conflict")][InlineData("grant", "revision_conflict")][InlineData("terminal", "revision_conflict")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("recipient", "not_found")]
+    [InlineData("selection", "not_found")]
+    [InlineData("collection", "revision_conflict")]
+    [InlineData("grant", "revision_conflict")]
+    [InlineData("terminal", "revision_conflict")]
     public async Task GivenLateChangeAtGuardedStatement_WhenGranting_ThenFailClosedAndRollback(string state, string error)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);

@@ -12,7 +12,13 @@ namespace ArturRios.Cerberus.Data.Tests;
 public partial class AccountClosureStoreTests
 {
     [FunctionalTheory]
-    [InlineData("account")][InlineData("revision")][InlineData("ciphertext")][InlineData("target")][InlineData("foreignCollection")][InlineData("sibling")][InlineData("terminal")]
+    [InlineData("account")]
+    [InlineData("revision")]
+    [InlineData("ciphertext")]
+    [InlineData("target")]
+    [InlineData("foreignCollection")]
+    [InlineData("sibling")]
+    [InlineData("terminal")]
     public async Task GivenPostWriteStorageFault_WhenClosing_ThenRollbackBeforeCleanRetry(string fault)
     {
         using var key = new ProtectionFixture(); using var recipientKey = new ProtectionFixture();
@@ -23,8 +29,13 @@ public partial class AccountClosureStoreTests
         await AssociationSetup.Grant(fixture, foreign, foreignKey, s, key, foreignItems.Collection);
         var sibling = await AssociationSetup.Grant(fixture, foreign, foreignKey, recipient, recipientKey, foreignItems.Collection);
         var grant = await AssociationSetup.Grant(fixture, s, key, recipient, recipientKey, items.Collection);
-        await using var db = fixture.CreateContext(); var software = new SoftwareGrant { PublicId = Guid.NewGuid(), AccountId = s.InternalId,
-            HeimdallSoftwarePublicId = Guid.NewGuid(), RecipientKey = [1, 2] };
+        await using var db = fixture.CreateContext(); var software = new SoftwareGrant
+        {
+            PublicId = Guid.NewGuid(),
+            AccountId = s.InternalId,
+            HeimdallSoftwarePublicId = Guid.NewGuid(),
+            RecipientKey = [1, 2]
+        };
         db.SoftwareGrants.Add(software); await db.SaveChangesAsync();
         db.SoftwareGrantRecords.Add(new() { AccountId = s.InternalId, GrantId = software.Id, RecordId = items.Record.Id, RecipientKeyEnvelope = [3, 4] });
         await db.SaveChangesAsync();
@@ -55,7 +66,7 @@ public partial class AccountClosureStoreTests
         Assert.Equal(CollectionGrantState.Active, original.State); Assert.Equal(1, original.Revision); Assert.NotEmpty(original.RecipientKeyEnvelope);
         Assert.Equal(items.Record.Envelope, await db.Records.Where(x => x.Id == items.Record.Id).Select(x => x.Envelope).SingleAsync());
         Assert.True(await db.SoftwareGrantRecords.AnyAsync(x => x.GrantId == software.Id));
-        Assert.False(await db.TerminalErasures.AnyAsync(x=>x.ResourceKind=="record"&&x.ResourceId==items.Record.PublicId));
+        Assert.False(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == items.Record.PublicId));
         Assert.Equal(foreignItems.Collection.Envelope, await db.Collections.Where(x => x.Id == foreignItems.Collection.Id).Select(x => x.Envelope).SingleAsync());
         Assert.Equal(sibling.RecipientKeyEnvelope, await db.CollectionGrants.Where(x => x.Id == sibling.Id).Select(x => x.RecipientKeyEnvelope).SingleAsync());
         Assert.False(await db.RetentionWorkItems.AnyAsync(x => x.OperationKey == "account-purge/" + s.AccountId));
@@ -65,19 +76,19 @@ public partial class AccountClosureStoreTests
     [FunctionalFact]
     public async Task GivenCorruptedWorkAfterSaving_WhenClosing_ThenRollbackAndPermitRetry()
     {
-        using var key = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture,key);
+        using var key = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, key);
         var hook = new WorkFault(s.AccountId);
-        var result = await new AccountClosureStore(new ProfileSetup.Factory(fixture,hook)).RequestAsync(Request(s),default);
-        Assert.Equal("persistence_unavailable",result.Error);
-        await using var db = fixture.CreateContext(); Assert.Equal(AccountState.Active,await db.Accounts.Where(x=>x.Id==s.InternalId).Select(x=>x.State).SingleAsync());
-        Assert.False(await db.RetentionWorkItems.AnyAsync(x=>x.OperationKey=="account-purge/"+s.AccountId));
-        Assert.Null((await new AccountClosureStore(fixture).RequestAsync(Request(s),default)).Error);
+        var result = await new AccountClosureStore(new ProfileSetup.Factory(fixture, hook)).RequestAsync(Request(s), default);
+        Assert.Equal("persistence_unavailable", result.Error);
+        await using var db = fixture.CreateContext(); Assert.Equal(AccountState.Active, await db.Accounts.Where(x => x.Id == s.InternalId).Select(x => x.State).SingleAsync());
+        Assert.False(await db.RetentionWorkItems.AnyAsync(x => x.OperationKey == "account-purge/" + s.AccountId));
+        Assert.Null((await new AccountClosureStore(fixture).RequestAsync(Request(s), default)).Error);
     }
     private sealed class WorkFault(Guid id) : SaveChangesInterceptor
     {
-        public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData data,int result,CancellationToken ct=default)
+        public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData data, int result, CancellationToken ct = default)
         {
-            await data.Context!.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.retention_work_item SET attempts={int.MaxValue} WHERE operation_key={"account-purge/"+id}",ct);
+            await data.Context!.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.retention_work_item SET attempts={int.MaxValue} WHERE operation_key={"account-purge/" + id}", ct);
             return result;
         }
     }
@@ -85,7 +96,10 @@ public partial class AccountClosureStoreTests
     {
         private bool used;
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int result, CancellationToken ct = default)
-        { if (!used && c.CommandText.Contains(match, StringComparison.Ordinal)
-                && (target is null || c.Parameters.Cast<DbParameter>().Any(x => Equals(x.Value,target.Value)))) { used = true; await action(c); } return result; }
+        {
+            if (!used && c.CommandText.Contains(match, StringComparison.Ordinal)
+                && (target is null || c.Parameters.Cast<DbParameter>().Any(x => Equals(x.Value, target.Value)))) { used = true; await action(c); }
+            return result;
+        }
     }
 }

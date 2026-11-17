@@ -178,11 +178,20 @@ public sealed class CollectionGrantRevocationStore(IDbContextFactory<AppDbContex
         string? RecipientMaterial, long? RecipientRevision, long? RecipientEpoch, long? RecipientGeneration);
     private sealed class Snapshot
     {
-        public bool ActorActive { get; set; } public bool Allowed { get; set; } public bool ForeignTarget { get; set; }
-        public long OwnerId { get; set; } public Guid OwnerPublicId { get; set; } public long? RecipientId { get; set; }
-        public Guid? RecipientPublicId { get; set; } public long? RecipientGeneration { get; set; }
-        public Guid? RecipientIdentity { get; set; } public long? Selection { get; set; } public string? Item { get; set; }
-        public string? Native { get; set; } public bool CorruptAncestry { get; set; } public bool CorruptAccounts { get; set; }
+        public bool ActorActive { get; set; }
+        public bool Allowed { get; set; }
+        public bool ForeignTarget { get; set; }
+        public long OwnerId { get; set; }
+        public Guid OwnerPublicId { get; set; }
+        public long? RecipientId { get; set; }
+        public Guid? RecipientPublicId { get; set; }
+        public long? RecipientGeneration { get; set; }
+        public Guid? RecipientIdentity { get; set; }
+        public long? Selection { get; set; }
+        public string? Item { get; set; }
+        public string? Native { get; set; }
+        public bool CorruptAncestry { get; set; }
+        public bool CorruptAccounts { get; set; }
         public string Stable { get; set; } = "{}"; public string Grants { get; set; } = "[]"; public string Rows { get; set; } = "[]";
         public string Collateral { get; set; } = "{}";
         public Guid[] RecordIds { get; set; } = []; public Guid[] FolderIds { get; set; } = [];

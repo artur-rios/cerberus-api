@@ -173,7 +173,8 @@ public class RegistrationHttpTests(RegistrationApiFixture fixture, SharedApiHost
 
     private static RegisterAccountCommand Request(string prefix = "owner") => new()
     {
-        AccountId = Guid.NewGuid(), IdempotencyKey = Guid.NewGuid(),
+        AccountId = Guid.NewGuid(),
+        IdempotencyKey = Guid.NewGuid(),
         Identity = new HeimdallRegistration("Fixture Owner", prefix + "-" + Guid.NewGuid().ToString("N") + "@example.test", "fixture-password"),
         Details = new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA")
     };

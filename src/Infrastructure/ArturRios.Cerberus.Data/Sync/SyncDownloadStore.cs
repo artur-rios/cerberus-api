@@ -46,8 +46,15 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
             if (fresh)
             {
                 if (retention > DateTimeOffset.MaxValue - scope.DatabaseNow) return new(Error: "persistence_unavailable");
-                stream = new() { PublicId = Guid.NewGuid(), AccountId = scope.OwnerId, ProfileId = scope.ProfileInternalId,
-                    CreatedAt = scope.DatabaseNow, ExpiresAt = scope.DatabaseNow + retention, PageSize = request.PageSize };
+                stream = new()
+                {
+                    PublicId = Guid.NewGuid(),
+                    AccountId = scope.OwnerId,
+                    ProfileId = scope.ProfileInternalId,
+                    CreatedAt = scope.DatabaseNow,
+                    ExpiresAt = scope.DatabaseNow + retention,
+                    PageSize = request.PageSize
+                };
                 db.SyncStreams.Add(stream); await db.SaveChangesAsync(ct);
             }
             else
@@ -173,7 +180,8 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
                 new(final.ProfileId, stream.PublicId, stream.WindowVersion, last, stream.Boundary), more, fresh, false));
         }
         catch (Exception e) when (e is PostgresException { SqlState: "2200H" }
-            or DbUpdateException { InnerException: PostgresException { SqlState: "2200H" } }) { return new(Error: "revision_conflict"); }
+            or DbUpdateException { InnerException: PostgresException { SqlState: "2200H" } })
+        { return new(Error: "revision_conflict"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
         catch (DbUpdateConcurrencyException) { return new(Error: "revision_conflict"); }
         catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException or JsonException or FormatException
@@ -184,7 +192,10 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
     private static bool TerminalResourceIdentity(string kind, Guid id) => id != Guid.Empty && kind is "profile" or "record" or "folder" or "collection" or "grant";
     private static byte[] VisibilityStamp(Scope s, Dictionary<SyncResourceIdentity, SyncResourceData> items) => SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(new
     {
-        s.ProfileId, s.ProfileRevision, s.PolicyRevision, s.Generation,
+        s.ProfileId,
+        s.ProfileRevision,
+        s.PolicyRevision,
+        s.Generation,
         resources = items.OrderBy(x => x.Key.Kind, StringComparer.Ordinal).ThenBy(x => x.Key.Id.ToString("D"), StringComparer.Ordinal)
             .Select(x => new { x.Key.Kind, x.Key.Id, grantRevision = x.Value is SyncGrantData g ? g.Revision : 0 })
     }, CurrentSyncInventory.Json));
@@ -209,9 +220,17 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
         (await db.Database.SqlQueryRaw<Scope>(ScopeSql, new NpgsqlParameter("actor", r.Actor), new NpgsqlParameter("verifier", r.AccessVerifier)).ToListAsync(ct)).SingleOrDefault();
     private sealed class Scope
     {
-        public long OwnerId { get; set; } public Guid AccountId { get; set; } public bool ActorActive { get; set; } public bool Allowed { get; set; }
-        public long? SessionId { get; set; } public long ProfileInternalId { get; set; } public Guid ProfileId { get; set; } public long ProfileRevision { get; set; }
-        public long PolicyRevision { get; set; } public long Generation { get; set; } public DateTimeOffset DatabaseNow { get; set; }
+        public long OwnerId { get; set; }
+        public Guid AccountId { get; set; }
+        public bool ActorActive { get; set; }
+        public bool Allowed { get; set; }
+        public long? SessionId { get; set; }
+        public long ProfileInternalId { get; set; }
+        public Guid ProfileId { get; set; }
+        public long ProfileRevision { get; set; }
+        public long PolicyRevision { get; set; }
+        public long Generation { get; set; }
+        public DateTimeOffset DatabaseNow { get; set; }
         public Guid[] ForeignOwners { get; set; } = [];
     }
     private const string ScopeSql = """

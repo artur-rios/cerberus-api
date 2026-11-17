@@ -19,8 +19,8 @@ public sealed record ProtectionChange(Guid AccountId, long ExpectedProtectionRev
         && ExpectedProtectionRevision is > 0 and <= ProtocolBinary.MaxInteger
         && ExpectedAccountRevision is > 0 and <= ProtocolBinary.MaxInteger
         && Material?.IsValid() == true && ContentReplacements is not null && GrantReplacements is not null
-        && GrantReplacements.All(g=>g is not null && g.GrantId!=Guid.Empty && g.ExpectedRevision is >0 and <=ProtocolBinary.MaxInteger && g.KeyEnvelope?.IsValid()==true)
-        && GrantReplacements.Select(g=>g.GrantId).Distinct().Count()==GrantReplacements.Length
+        && GrantReplacements.All(g => g is not null && g.GrantId != Guid.Empty && g.ExpectedRevision is > 0 and <= ProtocolBinary.MaxInteger && g.KeyEnvelope?.IsValid() == true)
+        && GrantReplacements.Select(g => g.GrantId).Distinct().Count() == GrantReplacements.Length
         && (Mode == "rewrap" ? ContentReplacements.Length == 0 && GrantReplacements.Length == 0
             : Mode == "rotate-content" && ContentReplacements.Length > 0
                 && ContentReplacements.All(item => item is not null && item.ResourceId != Guid.Empty
@@ -29,7 +29,7 @@ public sealed record ProtectionChange(Guid AccountId, long ExpectedProtectionRev
                         : item.ResourceKind == "profile" ? item.KeyWrappers?.IsValid() == true
                         : item.ResourceKind is "record" or "folder" or "collection" && item.KeyWrappers is null))
                 && ContentReplacements.Count(item => item.ResourceKind == "account") == 1
-                && ContentReplacements.Select(item => (item.ResourceKind,item.ResourceId)).Distinct().Count() == ContentReplacements.Length);
+                && ContentReplacements.Select(item => (item.ResourceKind, item.ResourceId)).Distinct().Count() == ContentReplacements.Length);
 
 
     public bool IsValidTransition(ProtectionMaterial current) => IsValid() && current?.IsValid() == true

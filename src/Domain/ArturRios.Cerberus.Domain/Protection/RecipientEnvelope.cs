@@ -12,16 +12,16 @@ public sealed record RecipientEnvelope(string Format, long KeyEpoch, Guid GrantI
     {
         if (Format != "cerberus-recipient-wrap-v1" || KeyEpoch is <= 0 or > ProtocolBinary.MaxInteger
             || GrantRevision is <= 0 or > ProtocolBinary.MaxInteger || GrantId == Guid.Empty || RecipientIdentityId == Guid.Empty
-            || !ProtocolBinary.TryDecode(RecipientKeyFingerprint,32,out _) || !ProtocolBinary.TryDecode(AuthorKeyFingerprint,32,out _)
-            || !ProtocolBinary.TryDecode(Enc,65,out var point) || point[0] != 4
-            || !ProtocolBinary.TryDecode(Ciphertext,48,out _) || !ProtocolBinary.TryDecode(Signature,64,out _)) return false;
-        return new PublicJwk("P-256","EC",ProtocolBinary.Encode(point[1..33]),ProtocolBinary.Encode(point[33..65])).IsValid();
+            || !ProtocolBinary.TryDecode(RecipientKeyFingerprint, 32, out _) || !ProtocolBinary.TryDecode(AuthorKeyFingerprint, 32, out _)
+            || !ProtocolBinary.TryDecode(Enc, 65, out var point) || point[0] != 4
+            || !ProtocolBinary.TryDecode(Ciphertext, 48, out _) || !ProtocolBinary.TryDecode(Signature, 64, out _)) return false;
+        return new PublicJwk("P-256", "EC", ProtocolBinary.Encode(point[1..33]), ProtocolBinary.Encode(point[33..65])).IsValid();
     }
     public byte[] SigningBytes(Guid owner, string kind, Guid resource)
     {
-        var info=JsonSerializer.SerializeToUtf8Bytes(new object[] {"cerberus-recipient-wrap-v1",owner.ToString("D"),kind,resource.ToString("D"),
+        var info = JsonSerializer.SerializeToUtf8Bytes(new object[] {"cerberus-recipient-wrap-v1",owner.ToString("D"),kind,resource.ToString("D"),
             KeyEpoch,GrantId.ToString("D"),GrantRevision,RecipientIdentityId.ToString("D"),RecipientKeyFingerprint,AuthorKeyFingerprint});
-        return JsonSerializer.SerializeToUtf8Bytes(new[] {"cerberus-recipient-signature-v1",ProtocolBinary.Encode(info),Enc,Ciphertext});
+        return JsonSerializer.SerializeToUtf8Bytes(new[] { "cerberus-recipient-signature-v1", ProtocolBinary.Encode(info), Enc, Ciphertext });
     }
     public bool Verify(Guid owner, string kind, Guid resource, long epoch, Guid grant, long revision, Guid identity, PublicJwk recipient, PublicJwk author)
     {
@@ -29,7 +29,7 @@ public sealed record RecipientEnvelope(string Format, long KeyEpoch, Guid GrantI
             || KeyEpoch != epoch || GrantId != grant || GrantRevision != revision || RecipientIdentityId != identity
             || recipient?.IsValid() != true || author?.IsValid() != true || RecipientKeyFingerprint != recipient.Fingerprint()
             || AuthorKeyFingerprint != author.Fingerprint() || RecipientKeyFingerprint == AuthorKeyFingerprint) return false;
-        ProtocolBinary.TryDecode(Signature,64,out var signature);
-        return author.Verify(SigningBytes(owner,kind,resource),signature);
+        ProtocolBinary.TryDecode(Signature, 64, out var signature);
+        return author.Verify(SigningBytes(owner, kind, resource), signature);
     }
 }

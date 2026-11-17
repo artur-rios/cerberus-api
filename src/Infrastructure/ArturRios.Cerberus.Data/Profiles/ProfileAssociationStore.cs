@@ -7,51 +7,57 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 namespace ArturRios.Cerberus.Data.Profiles;
 
-public sealed class ProfileAssociationStore(IDbContextFactory<AppDbContext> factory):IProfileAssociationStore
+public sealed class ProfileAssociationStore(IDbContextFactory<AppDbContext> factory) : IProfileAssociationStore
 {
-    public async Task<VaultResult<ProfileAssociationDetails>> SetAsync(ProfileAssociationRequest request,CancellationToken cancellationToken)
+    public async Task<VaultResult<ProfileAssociationDetails>> SetAsync(ProfileAssociationRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if(request.Actor==Guid.Empty)return new(Error:"authentication_required");
-        var input=request.Input;
-        if(request.ProfileId==Guid.Empty || input?.IsValid()!=true)return new(Error:"validation_failed");
+        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
+        var input = request.Input;
+        if (request.ProfileId == Guid.Empty || input?.IsValid() != true) return new(Error: "validation_failed");
         try
         {
-            await using var db=await factory.CreateDbContextAsync(cancellationToken);
-            await using var tx=await db.Database.BeginTransactionAsync(cancellationToken);
-            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE",cancellationToken);
-            var account=await db.Accounts.AsNoTracking().Where(x=>x.HeimdallPublicId==request.Actor)
-                .Select(x=>new{x.Id,x.PublicId,x.State,x.PolicyRevision,x.RevocationGeneration,x.RenewalEnabled}).SingleOrDefaultAsync(cancellationToken);
-            if(account is null || account.State!=AccountState.Active || await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "account" && x.ResourceId == account.PublicId),cancellationToken))return new(Error:"not_found");
-            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE",cancellationToken);
-            var session=await db.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==account.Id && x.HandleVerifier==request.AccessVerifier,cancellationToken);
-            bool Permitted(DateTimeOffset now)=>session is not null && !session.Revoked && session.PolicyRevision>0 && session.RevocationGeneration>0
-                && session.PolicyRevision==account.PolicyRevision && session.RevocationGeneration==account.RevocationGeneration
-                && session.IssuedAt<=now && (account.RenewalEnabled?session.ExpiresAt>now:session.ExpiresAt is null);
-            if(!Permitted(await Now(db,cancellationToken)))return new(Error:"vault_access_denied");
-            if(session!.ProfileId is not null && !await db.Profiles.AnyAsync(p=>p.Id==session.ProfileId && p.AccountId==account.Id && p.DeletedAt==null
-                && !db.TerminalErasures.Any(e=>(e.ResourceKind == "profile" && e.ResourceId == p.PublicId)),cancellationToken))return new(Error:"vault_access_denied");
-            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.profile WHERE account_id={account.Id} AND public_id={request.ProfileId} FOR UPDATE",cancellationToken);
-            if(!Permitted(await Now(db,cancellationToken)))return new(Error:"vault_access_denied");
-            var profile=await db.Profiles.AsNoTracking().SingleOrDefaultAsync(x=>x.AccountId==account.Id && x.PublicId==request.ProfileId,cancellationToken);
-            if(profile is null || profile.DeletedAt is not null || session.ProfileId is not null && session.ProfileId!=profile.Id
-                || await db.TerminalErasures.AnyAsync(x=>(x.ResourceKind == "profile" && x.ResourceId == profile.PublicId),cancellationToken))return new(Error:"not_found");
-            if(profile.Revision is <=0 or >ProtocolBinary.MaxInteger || profile.ServerSequence is <=0 or >ProtocolBinary.MaxInteger)return new(Error:"persistence_unavailable");
-            if(profile.Revision!=input.ExpectedRevision || profile.Revision==ProtocolBinary.MaxInteger)return new(Error:"revision_conflict");
+            await using var db = await factory.CreateDbContextAsync(cancellationToken);
+            await using var tx = await db.Database.BeginTransactionAsync(cancellationToken);
+            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", cancellationToken);
+            var account = await db.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == request.Actor)
+                .Select(x => new { x.Id, x.PublicId, x.State, x.PolicyRevision, x.RevocationGeneration, x.RenewalEnabled }).SingleOrDefaultAsync(cancellationToken);
+            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), cancellationToken)) return new(Error: "not_found");
+            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", cancellationToken);
+            var session = await db.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.HandleVerifier == request.AccessVerifier, cancellationToken);
+            bool Permitted(DateTimeOffset now) => session is not null && !session.Revoked && session.PolicyRevision > 0 && session.RevocationGeneration > 0
+                && session.PolicyRevision == account.PolicyRevision && session.RevocationGeneration == account.RevocationGeneration
+                && session.IssuedAt <= now && (account.RenewalEnabled ? session.ExpiresAt > now : session.ExpiresAt is null);
+            if (!Permitted(await Now(db, cancellationToken))) return new(Error: "vault_access_denied");
+            if (session!.ProfileId is not null && !await db.Profiles.AnyAsync(p => p.Id == session.ProfileId && p.AccountId == account.Id && p.DeletedAt == null
+                && !db.TerminalErasures.Any(e => (e.ResourceKind == "profile" && e.ResourceId == p.PublicId)), cancellationToken)) return new(Error: "vault_access_denied");
+            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.profile WHERE account_id={account.Id} AND public_id={request.ProfileId} FOR UPDATE", cancellationToken);
+            if (!Permitted(await Now(db, cancellationToken))) return new(Error: "vault_access_denied");
+            var profile = await db.Profiles.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.PublicId == request.ProfileId, cancellationToken);
+            if (profile is null || profile.DeletedAt is not null || session.ProfileId is not null && session.ProfileId != profile.Id
+                || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "profile" && x.ResourceId == profile.PublicId), cancellationToken)) return new(Error: "not_found");
+            if (profile.Revision is <= 0 or > ProtocolBinary.MaxInteger || profile.ServerSequence is <= 0 or > ProtocolBinary.MaxInteger) return new(Error: "persistence_unavailable");
+            if (profile.Revision != input.ExpectedRevision || profile.Revision == ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
             // Reject additions before inspecting native metadata outside the selected profile.
-            if(session.ProfileId is not null)
+            if (session.ProfileId is not null)
             {
-                if(await (from link in db.ProfileRecords join resource in db.Records on link.RecordId equals resource.Id
-                        where link.ProfileId==profile.Id && input.RecordIds.Contains(resource.PublicId) select link).CountAsync(cancellationToken)!=input.RecordIds.Length
-                    || await (from link in db.ProfileFolders join resource in db.Folders on link.FolderId equals resource.Id
-                        where link.ProfileId==profile.Id && input.FolderIds.Contains(resource.PublicId) select link).CountAsync(cancellationToken)!=input.FolderIds.Length
-                    || await (from link in db.ProfileCollections join resource in db.Collections on link.CollectionId equals resource.Id
-                        where link.ProfileId==profile.Id && input.CollectionIds.Contains(resource.PublicId) select link).CountAsync(cancellationToken)!=input.CollectionIds.Length)return new(Error:"not_found");
+                if (await (from link in db.ProfileRecords
+                           join resource in db.Records on link.RecordId equals resource.Id
+                           where link.ProfileId == profile.Id && input.RecordIds.Contains(resource.PublicId)
+                           select link).CountAsync(cancellationToken) != input.RecordIds.Length
+                    || await (from link in db.ProfileFolders
+                              join resource in db.Folders on link.FolderId equals resource.Id
+                              where link.ProfileId == profile.Id && input.FolderIds.Contains(resource.PublicId)
+                              select link).CountAsync(cancellationToken) != input.FolderIds.Length
+                    || await (from link in db.ProfileCollections
+                              join resource in db.Collections on link.CollectionId equals resource.Id
+                              where link.ProfileId == profile.Id && input.CollectionIds.Contains(resource.PublicId)
+                              select link).CountAsync(cancellationToken) != input.CollectionIds.Length) return new(Error: "not_found");
             }
-            var resolved=await ProfileAssociationResolver.ResolveAsync(db,account.Id,request.Actor,input.RecordIds,input.FolderIds,input.CollectionIds,cancellationToken);
-            if(!Permitted(await Now(db,cancellationToken)))return new(Error:"vault_access_denied");
-            if(resolved.Error is not null)return new(Error:resolved.Error);
-            var changed=await db.Database.ExecuteSqlInterpolatedAsync($"""
+            var resolved = await ProfileAssociationResolver.ResolveAsync(db, account.Id, request.Actor, input.RecordIds, input.FolderIds, input.CollectionIds, cancellationToken);
+            if (!Permitted(await Now(db, cancellationToken))) return new(Error: "vault_access_denied");
+            if (resolved.Error is not null) return new(Error: resolved.Error);
+            var changed = await db.Database.ExecuteSqlInterpolatedAsync($"""
                 UPDATE cerberus.profile AS p SET revision=p.revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={Guid.NewGuid()}
                 WHERE p.id={profile.Id} AND p.account_id={account.Id} AND p.revision={input.ExpectedRevision} AND p.deleted_at IS NULL
                     AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='profile' AND e.resource_id=p.public_id))
@@ -80,23 +86,24 @@ public sealed class ProfileAssociationStore(IDbContextFactory<AppDbContext> fact
                             AND (g.access={CollectionGrantAccess.ReadOnly} OR g.access={CollectionGrantAccess.ReadWrite})
                             AND g.revision>0 AND g.revision<={ProtocolBinary.MaxInteger}
                             AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='grant' AND e.resource_id=g.public_id)))))=cardinality({input.CollectionIds})
-                """,cancellationToken);
-            if(changed!=1)return new(Error:Permitted(await Now(db,cancellationToken))?"not_found":"vault_access_denied");
-            var metadata=await db.Profiles.AsNoTracking().Where(x=>x.Id==profile.Id).Select(x=>new{x.Revision,x.ServerSequence}).SingleAsync(cancellationToken);
-            if(metadata.Revision!=profile.Revision+1 || metadata.ServerSequence<=profile.ServerSequence || metadata.ServerSequence>ProtocolBinary.MaxInteger)return new(Error:"persistence_unavailable");
-            await db.ProfileRecords.Where(x=>x.ProfileId==profile.Id).ExecuteDeleteAsync(cancellationToken);
-            await db.ProfileFolders.Where(x=>x.ProfileId==profile.Id).ExecuteDeleteAsync(cancellationToken);
-            await db.ProfileCollections.Where(x=>x.ProfileId==profile.Id).ExecuteDeleteAsync(cancellationToken);
-            db.ProfileRecords.AddRange(resolved.Records.Select(id=>new ProfileRecord{AccountId=account.Id,ProfileId=profile.Id,RecordId=id}));
-            db.ProfileFolders.AddRange(resolved.Folders.Select(id=>new ProfileFolder{AccountId=account.Id,ProfileId=profile.Id,FolderId=id}));
-            db.ProfileCollections.AddRange(resolved.Collections.Select(id=>new ProfileCollection{ProfileId=profile.Id,CollectionId=id}));
-            await db.SaveChangesAsync(cancellationToken);await tx.CommitAsync(cancellationToken);
-            return new(new(profile.PublicId,metadata.Revision,metadata.ServerSequence,input.RecordIds.Order().ToArray(),input.FolderIds.Order().ToArray(),input.CollectionIds.Order().ToArray()));
+                """, cancellationToken);
+            if (changed != 1) return new(Error: Permitted(await Now(db, cancellationToken)) ? "not_found" : "vault_access_denied");
+            var metadata = await db.Profiles.AsNoTracking().Where(x => x.Id == profile.Id).Select(x => new { x.Revision, x.ServerSequence }).SingleAsync(cancellationToken);
+            if (metadata.Revision != profile.Revision + 1 || metadata.ServerSequence <= profile.ServerSequence || metadata.ServerSequence > ProtocolBinary.MaxInteger) return new(Error: "persistence_unavailable");
+            await db.ProfileRecords.Where(x => x.ProfileId == profile.Id).ExecuteDeleteAsync(cancellationToken);
+            await db.ProfileFolders.Where(x => x.ProfileId == profile.Id).ExecuteDeleteAsync(cancellationToken);
+            await db.ProfileCollections.Where(x => x.ProfileId == profile.Id).ExecuteDeleteAsync(cancellationToken);
+            db.ProfileRecords.AddRange(resolved.Records.Select(id => new ProfileRecord { AccountId = account.Id, ProfileId = profile.Id, RecordId = id }));
+            db.ProfileFolders.AddRange(resolved.Folders.Select(id => new ProfileFolder { AccountId = account.Id, ProfileId = profile.Id, FolderId = id }));
+            db.ProfileCollections.AddRange(resolved.Collections.Select(id => new ProfileCollection { ProfileId = profile.Id, CollectionId = id }));
+            await db.SaveChangesAsync(cancellationToken); await tx.CommitAsync(cancellationToken);
+            return new(new(profile.PublicId, metadata.Revision, metadata.ServerSequence, input.RecordIds.Order().ToArray(), input.FolderIds.Order().ToArray(), input.CollectionIds.Order().ToArray()));
         }
-        catch(PostgresException e) when(e.SqlState=="2200H"){return new(Error:"revision_conflict");}
-        catch(Exception e) when(e is DbException or DbUpdateException or TimeoutException
-            || e is InvalidOperationException {InnerException:DbException or DbUpdateException or TimeoutException}){return new(Error:"persistence_unavailable");}
-        catch(OperationCanceledException) when(!cancellationToken.IsCancellationRequested){return new(Error:"persistence_unavailable");}
+        catch (PostgresException e) when (e.SqlState == "2200H") { return new(Error: "revision_conflict"); }
+        catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException
+            || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException })
+        { return new(Error: "persistence_unavailable"); }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
     }
-    private static Task<DateTimeOffset> Now(AppDbContext db,CancellationToken ct)=>db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
+    private static Task<DateTimeOffset> Now(AppDbContext db, CancellationToken ct) => db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
 }

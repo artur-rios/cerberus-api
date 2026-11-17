@@ -72,7 +72,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
 
     // Unrelated terminal kinds must never erase the actor account's namespace.
     [FunctionalTheory]
-    [InlineData("profile")][InlineData("record")][InlineData("folder")][InlineData("collection")][InlineData("grant")]
+    [InlineData("profile")]
+    [InlineData("record")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
     public async Task GivenOtherKindErasedWithAccountGuid_WhenReadingAccount_ThenReturnOwnedCiphertext(string kind)
     {
         using var client = new ProtectionFixture();
@@ -85,7 +89,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("account")][InlineData("record")][InlineData("folder")][InlineData("collection")][InlineData("grant")]
+    [InlineData("account")]
+    [InlineData("record")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
     public async Task GivenOtherKindErasedWithProfileGuid_WhenReadingProfile_ThenKeepVisibleOwnedProfile(string kind)
     {
         using var client = new ProtectionFixture();
@@ -100,7 +108,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("account")][InlineData("profile")][InlineData("folder")][InlineData("collection")][InlineData("grant")]
+    [InlineData("account")]
+    [InlineData("profile")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
     public async Task GivenOtherKindErasedWithRecordGuid_WhenReadingAndMovingRecord_ThenKeepItsOwnIdentityActive(string kind)
     {
         using var client = new ProtectionFixture();
@@ -118,7 +130,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("account")][InlineData("profile")][InlineData("folder")][InlineData("collection")][InlineData("grant")]
+    [InlineData("account")]
+    [InlineData("profile")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
     public async Task GivenOtherKindTerminalGuid_WhenCreatingRecord_ThenDoNotReserveItsRecordIdentity(string kind)
     {
         using var client = new ProtectionFixture();
@@ -160,7 +176,10 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("unknown", false)][InlineData("Record", false)][InlineData("", false)][InlineData("record", true)]
+    [InlineData("unknown", false)]
+    [InlineData("Record", false)]
+    [InlineData("", false)]
+    [InlineData("record", true)]
     public async Task GivenInvalidTerminalIdentity_WhenPersistingOrLookingUp_ThenRejectBeforeDatabase(string kind, bool empty)
     {
         var id = empty ? Guid.Empty : Guid.NewGuid();
@@ -184,7 +203,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("owner")][InlineData("collection")][InlineData("grant")][InlineData("folder")][InlineData("record")]
+    [InlineData("owner")]
+    [InlineData("collection")]
+    [InlineData("grant")]
+    [InlineData("folder")]
+    [InlineData("record")]
     public async Task GivenUnrelatedTypedErasureOfNativeRouteGuid_WhenReadingSharedRecord_ThenPreserveCurrentNativeVisibility(string target)
     {
         using var owner = new ProtectionFixture();
@@ -209,7 +232,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("record")][InlineData("folder")][InlineData("collection")][InlineData("grant")][InlineData("account")]
+    [InlineData("record")]
+    [InlineData("folder")]
+    [InlineData("collection")]
+    [InlineData("grant")]
+    [InlineData("account")]
     public async Task GivenOtherKindErasedSelectionGuid_WhenReadingSelectedProfile_ThenKeepSelectionNonnullAndValid(string kind)
     {
         using var owner = new ProtectionFixture();
@@ -226,7 +253,8 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenLegacyDatabase_WhenUpgradingTypedIdentity_ThenPreserveValidRowsAndFailUnknownKindClosed(bool invalid)
     {
         // An empty database of its own on the shared server, migrated only up to the legacy schema.
@@ -252,7 +280,10 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     }
 
     [FunctionalTheory]
-    [InlineData("wrongKind")][InlineData("wrongId")][InlineData("unknownKind")][InlineData("symlink")]
+    [InlineData("wrongKind")]
+    [InlineData("wrongId")]
+    [InlineData("unknownKind")]
+    [InlineData("symlink")]
     public async Task GivenMalformedTypedLedgerFile_WhenReading_ThenFailClosed(string kind)
     {
         var id = Guid.NewGuid();

@@ -12,8 +12,10 @@ public class RequestAccountClosureHandlerTests
     private static RequestAccountClosureCommand Command()
     { var c = new RequestAccountClosureCommand { ExpectedRevision = 1 }; c.SetContext(Actor, Now.ToUnixTimeSeconds()); return c; }
     [UnitTheory]
-    [InlineData("actor", "authentication_required")][InlineData("old", "fresh_authentication_required")]
-    [InlineData("future", "fresh_authentication_required")][InlineData("revision", "validation_failed")]
+    [InlineData("actor", "authentication_required")]
+    [InlineData("old", "fresh_authentication_required")]
+    [InlineData("future", "fresh_authentication_required")]
+    [InlineData("revision", "validation_failed")]
     public async Task GivenInvalidClosureContext_WhenRequesting_ThenRejectBeforePersistence(string invalid, string error)
     {
         var c = Command(); c.SetContext(invalid == "actor" ? Guid.Empty : Actor,
@@ -23,7 +25,8 @@ public class RequestAccountClosureHandlerTests
         Assert.Contains(error, result.Errors); Assert.Null(result.Data);
     }
     [UnitTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenCommittedOrOriginalPendingDeadline_WhenHandling_ThenReturnOnlyValidatedMetadata(bool replay)
     {
         var details = Details(replay); var result = await Handler(new(details)).HandleAsync(Command());
@@ -32,20 +35,34 @@ public class RequestAccountClosureHandlerTests
         Assert.DoesNotContain(result.Data.GetType().GetProperties(), p => p.Name.Contains("Envelope", StringComparison.Ordinal) || p.Name.Contains("Token", StringComparison.Ordinal));
     }
     [UnitTheory]
-    [InlineData("not_found")][InlineData("revision_conflict")][InlineData("fresh_authentication_required")]
+    [InlineData("not_found")]
+    [InlineData("revision_conflict")]
+    [InlineData("fresh_authentication_required")]
     [InlineData("persistence_unavailable")]
     public async Task GivenSafePersistenceDenial_WhenClosing_ThenReturnErrorWithoutDeadline(string error)
     { var result = await Handler(new(Error: error)).HandleAsync(Command()); Assert.Contains(error, result.Errors); Assert.Null(result.Data); }
 
     [UnitTheory]
-    [InlineData("missing")][InlineData("identifier")][InlineData("revision")][InlineData("generation")]
-    [InlineData("deadline")][InlineData("clock")][InlineData("unknown")][InlineData("error-data")]
+    [InlineData("missing")]
+    [InlineData("identifier")]
+    [InlineData("revision")]
+    [InlineData("generation")]
+    [InlineData("deadline")]
+    [InlineData("clock")]
+    [InlineData("unknown")]
+    [InlineData("error-data")]
     public async Task GivenInconsistentStoredClosure_WhenHandling_ThenFailClosed(string invalid)
     {
         var d = Details(false);
-        d = invalid switch { "identifier" => d with { AccountId = Guid.Empty }, "revision" => d with { Revision = 3 },
-            "generation" => d with { RevocationGeneration = 0 }, "deadline" => d with { ClosureDeadline = Now.AddDays(31) },
-            "clock" => d with { ServerTime = Now.AddTicks(1) }, _ => d };
+        d = invalid switch
+        {
+            "identifier" => d with { AccountId = Guid.Empty },
+            "revision" => d with { Revision = 3 },
+            "generation" => d with { RevocationGeneration = 0 },
+            "deadline" => d with { ClosureDeadline = Now.AddDays(31) },
+            "clock" => d with { ServerTime = Now.AddTicks(1) },
+            _ => d
+        };
         var r = invalid == "missing" ? new AccountClosureResult() : invalid == "unknown" ? new(Error: "internal_failure")
             : new(d, invalid == "error-data" ? "not_found" : null);
         var result = await Handler(r).HandleAsync(Command()); Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);

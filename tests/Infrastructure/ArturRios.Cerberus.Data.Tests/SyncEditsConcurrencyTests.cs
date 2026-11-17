@@ -64,7 +64,9 @@ public class SyncEditsConcurrencyTests(PostgresFixture fixture) : IClassFixture<
         Assert.Equal(1, await db.Records.Where(x => x.PublicId == edit.ResourceId).Select(x => x.Revision).SingleAsync());
     }
     [FunctionalTheory]
-    [InlineData("closing", "not_found")][InlineData("policy", "vault_access_denied")][InlineData("expiry", "vault_access_denied")]
+    [InlineData("closing", "not_found")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("expiry", "vault_access_denied")]
     public async Task GivenAuthorityLostDuringRealAccountLockWait_WhenUploading_ThenRecheckAndRollbackBeforeMutation(string change, string error)
     {
         using var key = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, key);

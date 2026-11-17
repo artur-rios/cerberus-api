@@ -136,16 +136,27 @@ public sealed class OfflinePolicyUpdateStore(IDbContextFactory<AppDbContext> fac
 
     private sealed class Snapshot
     {
-        public long OwnerId { get; set; } public Guid PublicId { get; set; } public long AccountRevision { get; set; }
-        public bool ActorActive { get; set; } public bool SessionAllowed { get; set; }
+        public long OwnerId { get; set; }
+        public Guid PublicId { get; set; }
+        public long AccountRevision { get; set; }
+        public bool ActorActive { get; set; }
+        public bool SessionAllowed { get; set; }
         public bool SelectionActive { get; set; }
-        public bool RenewalEnabled { get; set; } public TimeSpan? RenewalInterval { get; set; }
-        public long PolicyRevision { get; set; } public long RevocationGeneration { get; set; }
-        public long? SessionId { get; set; } public long? Selection { get; set; } public bool? SessionRevoked { get; set; }
-        public DateTimeOffset? SessionIssuedAt { get; set; } public DateTimeOffset? SessionExpiresAt { get; set; }
-        public long? SessionPolicyRevision { get; set; } public long? SessionGeneration { get; set; }
-        public Guid? ProfileId { get; set; } public long? ProfileRevision { get; set; }
-        public DateTimeOffset? ProfileDeletedAt { get; set; } public DateTimeOffset? ProfilePurgeAt { get; set; }
+        public bool RenewalEnabled { get; set; }
+        public TimeSpan? RenewalInterval { get; set; }
+        public long PolicyRevision { get; set; }
+        public long RevocationGeneration { get; set; }
+        public long? SessionId { get; set; }
+        public long? Selection { get; set; }
+        public bool? SessionRevoked { get; set; }
+        public DateTimeOffset? SessionIssuedAt { get; set; }
+        public DateTimeOffset? SessionExpiresAt { get; set; }
+        public long? SessionPolicyRevision { get; set; }
+        public long? SessionGeneration { get; set; }
+        public Guid? ProfileId { get; set; }
+        public long? ProfileRevision { get; set; }
+        public DateTimeOffset? ProfileDeletedAt { get; set; }
+        public DateTimeOffset? ProfilePurgeAt { get; set; }
         public DateTimeOffset DatabaseNow { get; set; }
     }
     private const string SnapshotSql = """

@@ -205,12 +205,18 @@ public class OfflinePolicyHttpTests(RegistrationApiFixture fixture, SharedApiHos
         if (state != "missing")
         {
             await using var context = fixture.Context();
-            var account = new Account { PublicId = id, HeimdallPublicId = identity, Revision = 3,
-                PolicyRevision = state == "stale" ? 2 : 1, RevocationGeneration = state == "staleGeneration" ? 2 : 1,
+            var account = new Account
+            {
+                PublicId = id,
+                HeimdallPublicId = identity,
+                Revision = 3,
+                PolicyRevision = state == "stale" ? 2 : 1,
+                RevocationGeneration = state == "staleGeneration" ? 2 : 1,
                 DetailsEnvelope = Encoding.UTF8.GetBytes("not-json"),
                 RenewalEnabled = state != "disabled",
                 RenewalInterval = state == "disabled" ? null : state == "corruptPolicy" ? TimeSpan.Zero : state == "configured" ? TimeSpan.FromSeconds(1) : TimeSpan.FromHours(24),
-                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active };
+                State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
+            };
             context.Accounts.Add(account);
             await context.SaveChangesAsync();
             long? selected = null;
@@ -221,10 +227,17 @@ public class OfflinePolicyHttpTests(RegistrationApiFixture fixture, SharedApiHos
                 await context.SaveChangesAsync();
                 selected = profile.Id;
             }
-            context.VaultAccessSessions.Add(new VaultAccessSession { AccountId = account.Id, HandleVerifier = verifier,
-                ProfileId = state == "profile" ? 42 : selected, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+            context.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = account.Id,
+                HandleVerifier = verifier,
+                ProfileId = state == "profile" ? 42 : selected,
+                IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
                 ExpiresAt = state == "disabled" ? null : state == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1),
-                Revoked = state == "revoked", PolicyRevision = state == "zeroPolicy" ? 0 : 1, RevocationGeneration = 1 });
+                Revoked = state == "revoked",
+                PolicyRevision = state == "zeroPolicy" ? 0 : 1,
+                RevocationGeneration = 1
+            });
             if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
         }

@@ -15,7 +15,9 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
 {
     // Break: a captured loser reporting not_found, advancing twice, or leaving a mixed aggregate.
     // PostgreSQL's blocking graph, not elapsed time, proves that each contender really waited.
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenTwoCapturedRevokers_WhenGuardedWriteCommits_ThenOneWinnerAndLaterRequestIsNotFound(bool selectedProfile)
     {
         using var s = await Setup();
@@ -42,7 +44,9 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     }
 
     // Break: a stale revoker erasing UC-42's replacement key/targets or treating captured loss as absence.
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenReactivationFromRevisionTwo_WhenStaleRevokerRaces_ThenPreserveCompleteRevisionThree(bool capturedActive)
     {
         using var s = await Setup(); using var replacementKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
@@ -101,7 +105,9 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     }
 
     // Break: authorizing at capture time or rolling back an already-authorized transition on natural expiry.
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenDatabaseTimeExpiryAroundGuardedWrite_WhenRevoking_ThenOnlyAlreadyAuthorizedTransitionCommits(bool after)
     {
         using var s = await Setup(); var original = await Grant(s);
@@ -157,7 +163,8 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     }
 
     // Break: stale captured evidence authorizing any write, or loss of session authority masked as conflict.
-    [FunctionalTheory][MemberData(nameof(WaitChanges))]
+    [FunctionalTheory]
+    [MemberData(nameof(WaitChanges))]
     public async Task GivenCommittedChangeAtLockWait_WhenRevoking_ThenClassifyCurrentAuthorityAndPreserveExactWinner(string phase, string change, string error)
     {
         using var s = await Setup(); var profile = await SelectProfile(s);
@@ -192,9 +199,12 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
 
     // Break: a guarded write trusting the final recheck after an independent writer changed its inputs.
     [FunctionalTheory]
-    [InlineData("actorTerminal", "revision_conflict")][InlineData("profileTerminal", "vault_access_denied")]
-    [InlineData("grantTerminal", "revision_conflict")][InlineData("recordDelete", "revision_conflict")]
-    [InlineData("collectionDelete", "revision_conflict")][InlineData("recordEnvelope", "revision_conflict")]
+    [InlineData("actorTerminal", "revision_conflict")]
+    [InlineData("profileTerminal", "vault_access_denied")]
+    [InlineData("grantTerminal", "revision_conflict")]
+    [InlineData("recordDelete", "revision_conflict")]
+    [InlineData("collectionDelete", "revision_conflict")]
+    [InlineData("recordEnvelope", "revision_conflict")]
     [InlineData("collectionEnvelope", "revision_conflict")]
     public async Task GivenCommittedChangeAfterFinalRecheck_WhenGuardedWriteRuns_ThenPreserveWinnerWithoutRevoking(string change, string error)
     {
@@ -223,7 +233,8 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     }
 
     // Break: reversing/skipping the account -> session -> optional profile -> grant prefix.
-    [FunctionalTheory][MemberData(nameof(HeldAuthority))]
+    [FunctionalTheory]
+    [MemberData(nameof(HeldAuthority))]
     public async Task GivenLaterLockWait_WhenEarlierAuthorityWriterCompetes_ThenKeepCanonicalPrefixLocked(string phase, string authority)
     {
         using var s = await Setup(); var profile = await SelectProfile(s); var original = await Grant(s);
@@ -250,9 +261,17 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
 
     // Break: treating successful CAS as permission to skip non-time authority checks or ownership.
     [FunctionalTheory]
-    [InlineData("actorInactive")][InlineData("actorTerminal")][InlineData("accountPolicy")][InlineData("accountGeneration")]
-    [InlineData("sessionRevoked")][InlineData("sessionPolicy")][InlineData("sessionGeneration")][InlineData("selection")]
-    [InlineData("profileDeleted")][InlineData("profileTerminal")][InlineData("grantTerminal")]
+    [InlineData("actorInactive")]
+    [InlineData("actorTerminal")]
+    [InlineData("accountPolicy")]
+    [InlineData("accountGeneration")]
+    [InlineData("sessionRevoked")]
+    [InlineData("sessionPolicy")]
+    [InlineData("sessionGeneration")]
+    [InlineData("selection")]
+    [InlineData("profileDeleted")]
+    [InlineData("profileTerminal")]
+    [InlineData("grantTerminal")]
     public async Task GivenNonTimeAuthorityChangeAfterGuardedWrite_WhenVerifying_ThenRollbackEntireTransition(string change)
     {
         using var s = await Setup(); var profile = await SelectProfile(s);
@@ -302,8 +321,11 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     {
         var where = phase switch
         {
-            "account" => "id=@owner", "vault_access_session" => "handle_verifier=@verifier",
-            "profile" => "id=@profile", "software_grant" => "public_id=@grant", _ => throw new ArgumentOutOfRangeException(nameof(phase))
+            "account" => "id=@owner",
+            "vault_access_session" => "handle_verifier=@verifier",
+            "profile" => "id=@profile",
+            "software_grant" => "public_id=@grant",
+            _ => throw new ArgumentOutOfRangeException(nameof(phase))
         };
         var sql = "SELECT FROM cerberus." + phase + " WHERE " + where + " FOR UPDATE" + (nowait ? " NOWAIT" : "");
         return db.Database.ExecuteSqlRawAsync(sql, ChangeParameters(s, profile));

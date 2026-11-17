@@ -10,11 +10,16 @@ namespace ArturRios.Cerberus.Data.Tests;
 public class OfflineAuthorizationStoreConcurrencyTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
-    [InlineData("closure", "revision_conflict")][InlineData("revision", "revision_conflict")]
-    [InlineData("profile", "revision_conflict")][InlineData("profileRevision", "revision_conflict")]
-    [InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")]
-    [InlineData("session", "vault_access_denied")][InlineData("grant", "revision_conflict")]
-    [InlineData("grantRevision", "revision_conflict")][InlineData("foreignClosure", "revision_conflict")]
+    [InlineData("closure", "revision_conflict")]
+    [InlineData("revision", "revision_conflict")]
+    [InlineData("profile", "revision_conflict")]
+    [InlineData("profileRevision", "revision_conflict")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("generation", "vault_access_denied")]
+    [InlineData("session", "vault_access_denied")]
+    [InlineData("grant", "revision_conflict")]
+    [InlineData("grantRevision", "revision_conflict")]
+    [InlineData("foreignClosure", "revision_conflict")]
     public async Task GivenAuthorityChangedDuringAccountLockWait_WhenRenewing_ThenDenyWithoutSigning(string change, string error)
     {
         var s = await OfflineAuthorizationTestData.Setup(fixture, sharing: true);
@@ -48,7 +53,8 @@ public class OfflineAuthorizationStoreConcurrencyTests(PostgresFixture fixture) 
     }
 
     [FunctionalTheory]
-    [InlineData("vault_access_session", "vault_access_denied")][InlineData("profile", "revision_conflict")]
+    [InlineData("vault_access_session", "vault_access_denied")]
+    [InlineData("profile", "revision_conflict")]
     [InlineData("collection_grant", "revision_conflict")]
     public async Task GivenIndependentMetadataChangeDuringLaterLockWait_WhenRenewing_ThenRecheckCurrentAuthority(string table, string error)
     {

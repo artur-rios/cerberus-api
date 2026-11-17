@@ -22,7 +22,12 @@ namespace ArturRios.Cerberus.Data.Tests;
 public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
-    [InlineData("replace")][InlineData("empty")][InlineData("retain")][InlineData("promote")][InlineData("typed")][InlineData("sameEnvelope")]
+    [InlineData("replace")]
+    [InlineData("empty")]
+    [InlineData("retain")]
+    [InlineData("promote")]
+    [InlineData("typed")]
+    [InlineData("sameEnvelope")]
     public async Task GivenOwnedMemberships_WhenReplacing_ThenOnlyTargetAndDirectSymmetricDifferenceAdvance(string mode)
     {
         using var owner = new ProtectionFixture();
@@ -36,7 +41,14 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("PF")][InlineData("PR")][InlineData("CF")][InlineData("CR")][InlineData("targetFolder")][InlineData("targetRecord")][InlineData("descendant")][InlineData("typed")]
+    [InlineData("PF")]
+    [InlineData("PR")]
+    [InlineData("CF")]
+    [InlineData("CR")]
+    [InlineData("targetFolder")]
+    [InlineData("targetRecord")]
+    [InlineData("descendant")]
+    [InlineData("typed")]
     public async Task GivenSelectedAlreadyEffectiveMember_WhenReplacing_ThenRetainOrPromoteWithoutClearingSelection(string route)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s, route == "typed" ? Guid.NewGuid() : null); var other = await AssociationSetup.Items(fixture, s);
@@ -53,7 +65,14 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("privateFolder")][InlineData("privateRecord")][InlineData("PRContainer")][InlineData("CRContainer")][InlineData("parent")][InlineData("sibling")][InlineData("missingPC")][InlineData("privateCycle")]
+    [InlineData("privateFolder")]
+    [InlineData("privateRecord")]
+    [InlineData("PRContainer")]
+    [InlineData("CRContainer")]
+    [InlineData("parent")]
+    [InlineData("sibling")]
+    [InlineData("missingPC")]
+    [InlineData("privateCycle")]
     public async Task GivenSelectedScopeExpansion_WhenReplacing_Then404BeforeStaleRevisionOrPrivateCorruption(string mode)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var child = await Folder(s, a.Folder.Id); var sibling = await Folder(s, a.Folder.Id); var r = await Record(s, child.Id);
@@ -66,10 +85,18 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("folder", "missing")][InlineData("record", "missing")][InlineData("collection", "missing")]
-    [InlineData("folder", "foreign")][InlineData("record", "foreign")][InlineData("collection", "foreign")]
-    [InlineData("folder", "trash")][InlineData("record", "trash")][InlineData("collection", "trash")]
-    [InlineData("folder", "terminal")][InlineData("record", "terminal")][InlineData("collection", "terminal")]
+    [InlineData("folder", "missing")]
+    [InlineData("record", "missing")]
+    [InlineData("collection", "missing")]
+    [InlineData("folder", "foreign")]
+    [InlineData("record", "foreign")]
+    [InlineData("collection", "foreign")]
+    [InlineData("folder", "trash")]
+    [InlineData("record", "trash")]
+    [InlineData("collection", "trash")]
+    [InlineData("folder", "terminal")]
+    [InlineData("record", "terminal")]
+    [InlineData("collection", "terminal")]
     public async Task GivenHiddenTypedTarget_WhenReplacing_Then404AndNoMutation(string kind, string state)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var foreign = await ProfileSetup.Create(fixture, owner);
@@ -83,12 +110,18 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("cycle", false, "persistence_unavailable")][InlineData("cycle", true, "persistence_unavailable")]
-    [InlineData("trash", false, "not_found")][InlineData("trash", true, "not_found")]
-    [InlineData("terminal", false, "not_found")][InlineData("terminal", true, "not_found")]
-    [InlineData("hiddenCycle", false, "not_found")][InlineData("hiddenCycle", true, "not_found")]
-    [InlineData("missing", false, "not_found")][InlineData("missing", true, "not_found")]
-    [InlineData("foreign", false, "not_found")][InlineData("foreign", true, "not_found")]
+    [InlineData("cycle", false, "persistence_unavailable")]
+    [InlineData("cycle", true, "persistence_unavailable")]
+    [InlineData("trash", false, "not_found")]
+    [InlineData("trash", true, "not_found")]
+    [InlineData("terminal", false, "not_found")]
+    [InlineData("terminal", true, "not_found")]
+    [InlineData("hiddenCycle", false, "not_found")]
+    [InlineData("hiddenCycle", true, "not_found")]
+    [InlineData("missing", false, "not_found")]
+    [InlineData("missing", true, "not_found")]
+    [InlineData("foreign", false, "not_found")]
+    [InlineData("foreign", true, "not_found")]
     public async Task GivenIncompleteOrCyclicAncestry_WhenReplacing_ThenFailClosed(string mode, bool record, string error)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var child = await Folder(s, a.Folder.Id); var r = await Record(s, child.Id);
@@ -109,7 +142,12 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         finally { if (mode is "missing" or "foreign") await Sql("UPDATE cerberus.folder SET parent_folder_id=NULL WHERE id={0}", a.Folder.Id); }
     }
 
-    [FunctionalTheory][InlineData("unrelatedCycle")][InlineData("otherTerminalType")][InlineData("retainedExhausted")][InlineData("removedInactive")][InlineData("opaqueMember")]
+    [FunctionalTheory]
+    [InlineData("unrelatedCycle")]
+    [InlineData("otherTerminalType")]
+    [InlineData("retainedExhausted")]
+    [InlineData("removedInactive")]
+    [InlineData("opaqueMember")]
     public async Task GivenIrrelevantEvidence_WhenReplacing_ThenOnlyRequiredCurrentEvidenceMatters(string mode)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var b = await AssociationSetup.Items(fixture, s);
@@ -124,9 +162,24 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("collection", "revision")][InlineData("collection", "sequence")][InlineData("collection", "unsafe")][InlineData("collection", "time")][InlineData("collection", "purge")][InlineData("collection", "max")]
-    [InlineData("folder", "revision")][InlineData("folder", "sequence")][InlineData("folder", "unsafe")][InlineData("folder", "time")][InlineData("folder", "purge")][InlineData("folder", "max")]
-    [InlineData("record", "revision")][InlineData("record", "sequence")][InlineData("record", "unsafe")][InlineData("record", "time")][InlineData("record", "purge")][InlineData("record", "max")]
+    [InlineData("collection", "revision")]
+    [InlineData("collection", "sequence")]
+    [InlineData("collection", "unsafe")]
+    [InlineData("collection", "time")]
+    [InlineData("collection", "purge")]
+    [InlineData("collection", "max")]
+    [InlineData("folder", "revision")]
+    [InlineData("folder", "sequence")]
+    [InlineData("folder", "unsafe")]
+    [InlineData("folder", "time")]
+    [InlineData("folder", "purge")]
+    [InlineData("folder", "max")]
+    [InlineData("record", "revision")]
+    [InlineData("record", "sequence")]
+    [InlineData("record", "unsafe")]
+    [InlineData("record", "time")]
+    [InlineData("record", "purge")]
+    [InlineData("record", "max")]
     public async Task GivenRequiredStructuralCorruptionOrExhaustion_WhenReplacing_ThenRollback(string kind, string field)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s);
@@ -136,8 +189,16 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("stale", "revision_conflict")][InlineData("bad", "persistence_unavailable")][InlineData("duplicate", "persistence_unavailable")][InlineData("unknown", "persistence_unavailable")][InlineData("case", "persistence_unavailable")][InlineData("number", "persistence_unavailable")][InlineData("storedEpoch", "persistence_unavailable")]
-    [InlineData("epoch", "validation_failed")][InlineData("nonce", "validation_failed")][InlineData("salt", "validation_failed")]
+    [InlineData("stale", "revision_conflict")]
+    [InlineData("bad", "persistence_unavailable")]
+    [InlineData("duplicate", "persistence_unavailable")]
+    [InlineData("unknown", "persistence_unavailable")]
+    [InlineData("case", "persistence_unavailable")]
+    [InlineData("number", "persistence_unavailable")]
+    [InlineData("storedEpoch", "persistence_unavailable")]
+    [InlineData("epoch", "validation_failed")]
+    [InlineData("nonce", "validation_failed")]
+    [InlineData("salt", "validation_failed")]
     public async Task GivenInvalidEnvelopeOrRevision_WhenReplacing_ThenNoMutation(string mode, string error)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var old = JsonSerializer.Deserialize<EncryptedEnvelope>(a.Collection.Envelope, ProtectionFixture.Json)!; var input = Input();
@@ -153,7 +214,17 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("closing", "not_found")][InlineData("terminal", "not_found")][InlineData("revoked", "vault_access_denied")][InlineData("expired", "vault_access_denied")][InlineData("future", "vault_access_denied")][InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")][InlineData("zeroPolicy", "vault_access_denied")][InlineData("nullExpiry", "vault_access_denied")][InlineData("disabledExpiry", "vault_access_denied")][InlineData("selection", "vault_access_denied")]
+    [InlineData("closing", "not_found")]
+    [InlineData("terminal", "not_found")]
+    [InlineData("revoked", "vault_access_denied")]
+    [InlineData("expired", "vault_access_denied")]
+    [InlineData("future", "vault_access_denied")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("generation", "vault_access_denied")]
+    [InlineData("zeroPolicy", "vault_access_denied")]
+    [InlineData("nullExpiry", "vault_access_denied")]
+    [InlineData("disabledExpiry", "vault_access_denied")]
+    [InlineData("selection", "vault_access_denied")]
     public async Task GivenLostCurrentAuthority_WhenReplacing_ThenDenialPrecedesStaleRevision(string mode, string error)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s);
@@ -170,7 +241,9 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         await Denied(s, a.Collection, Input() with { ExpectedRevision = 77 }, error);
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenNativeRecipientsAndOverlappingCollection_WhenReplacing_ThenCurrentReadsChangeAndEveryGrantStaysExact(bool selected)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var second = new ProtectionFixture();
@@ -201,7 +274,17 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("wrapper")][InlineData("revision")][InlineData("ownerPins")][InlineData("recipientPins")][InlineData("missingOwner")][InlineData("missingRecipient")][InlineData("ownerRevision")][InlineData("recipientEpoch")][InlineData("recipientGeneration")][InlineData("identity")][InlineData("access")]
+    [InlineData("wrapper")]
+    [InlineData("revision")]
+    [InlineData("ownerPins")]
+    [InlineData("recipientPins")]
+    [InlineData("missingOwner")]
+    [InlineData("missingRecipient")]
+    [InlineData("ownerRevision")]
+    [InlineData("recipientEpoch")]
+    [InlineData("recipientGeneration")]
+    [InlineData("identity")]
+    [InlineData("access")]
     public async Task GivenMalformedSecondActiveGrant_WhenReplacing_ThenValidateAllRequiredNativeEvidence(string mode)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var second = new ProtectionFixture();
@@ -219,7 +302,10 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         await Denied(s, a.Collection, Input([a.Folder.PublicId], [a.Record.PublicId]), "persistence_unavailable");
     }
 
-    [FunctionalTheory][InlineData("revoked")][InlineData("unrelated")][InlineData("terminal")]
+    [FunctionalTheory]
+    [InlineData("revoked")]
+    [InlineData("unrelated")]
+    [InlineData("terminal")]
     public async Task GivenIrrelevantMalformedGrant_WhenReplacing_ThenDoNotInspectOrChangeIt(string mode)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s); var b = await AssociationSetup.Items(fixture, s);
@@ -230,7 +316,11 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         var input = Input([a.Folder.PublicId]); var before = await Snapshot(s); await Success(s, a.Collection, input, before, await Set(s, a.Collection, input));
     }
 
-    [FunctionalTheory][InlineData(false, false)][InlineData(true, false)][InlineData(false, true)][InlineData(true, true)]
+    [FunctionalTheory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
     public async Task GivenVisibleForeignCollection_WhenReplacing_ThenNativeValidated403RegardlessOfAccess(bool write, bool malformed)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -239,7 +329,16 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         var before = await Snapshot(s); await Denied(r, a.Collection, Input() with { ExpectedRevision = 77 }, malformed ? "persistence_unavailable" : "vault_access_denied"); Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData("target")][InlineData("deleteFolder")][InlineData("deleteRecord")][InlineData("insertFolder")][InlineData("insertRecord")][InlineData("folder1")][InlineData("folder2")][InlineData("record1")][InlineData("record2")]
+    [FunctionalTheory]
+    [InlineData("target")]
+    [InlineData("deleteFolder")]
+    [InlineData("deleteRecord")]
+    [InlineData("insertFolder")]
+    [InlineData("insertRecord")]
+    [InlineData("folder1")]
+    [InlineData("folder2")]
+    [InlineData("record1")]
+    [InlineData("record2")]
     public async Task GivenFaultAfterActualMutation_WhenReplacing_ThenEntireGraphRollsBackAndCleanRetrySucceeds(string stage)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var b = await AssociationSetup.Items(fixture, s); await Members(s, a.Collection.Id, [a.Folder.Id], [a.Record.Id]);
@@ -248,7 +347,9 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         Assert.True(hook.Triggered); Assert.Equal(before, await Snapshot(s)); await Success(s, a.Collection, input, before, await Set(s, a.Collection, input));
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenExhaustedOrRegressedSequence_WhenReplacing_ThenAtomicFailure(bool exhausted)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); await using var db = fixture.CreateContext();
@@ -257,7 +358,14 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         finally { await db.Database.ExecuteSqlInterpolatedAsync($"SELECT setval('cerberus.server_sequence',{old},true)"); }
     }
 
-    [FunctionalTheory][InlineData("cancel")][InlineData("timeout")][InlineData("db")][InlineData("update")][InlineData("json")][InlineData("format")][InlineData("wrapped")]
+    [FunctionalTheory]
+    [InlineData("cancel")]
+    [InlineData("timeout")]
+    [InlineData("db")]
+    [InlineData("update")]
+    [InlineData("json")]
+    [InlineData("format")]
+    [InlineData("wrapped")]
     public async Task GivenInternalProviderFailure_WhenReplacing_Then503(string kind)
     {
         Exception failure = kind switch { "cancel" => new OperationCanceledException("private"), "timeout" => new TimeoutException("private"), "db" => new NpgsqlException("private"), "update" => new DbUpdateException("private"), "json" => new JsonException("private"), "format" => new FormatException("private"), _ => new InvalidOperationException("private", new TimeoutException("private")) };
@@ -283,7 +391,15 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("account")][InlineData("vault_access_session")][InlineData("profile")][InlineData("collection")][InlineData("collection_grant")][InlineData("folder")][InlineData("record")][InlineData("collection_folder")][InlineData("collection_record")]
+    [InlineData("account")]
+    [InlineData("vault_access_session")]
+    [InlineData("profile")]
+    [InlineData("collection")]
+    [InlineData("collection_grant")]
+    [InlineData("folder")]
+    [InlineData("record")]
+    [InlineData("collection_folder")]
+    [InlineData("collection_record")]
     public async Task GivenAuthorityExpiresWhileWaitingAtEachLockPhase_WhenReplacing_ThenCurrent403AndNoMutation(string table)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var recipient = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -302,9 +418,24 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("collectionUpdate", false)][InlineData("collectionUpdate", true)][InlineData("collectionTrash", false)][InlineData("collectionTrash", true)]
-    [InlineData("association", false)][InlineData("association", true)][InlineData("recordMove", false)][InlineData("recordMove", true)][InlineData("folderMove", false)][InlineData("folderMove", true)]
-    [InlineData("recordTrash", false)][InlineData("recordTrash", true)][InlineData("folderTrash", false)][InlineData("folderTrash", true)][InlineData("recordUpdate", false)][InlineData("recordUpdate", true)][InlineData("folderUpdate", false)][InlineData("folderUpdate", true)]
+    [InlineData("collectionUpdate", false)]
+    [InlineData("collectionUpdate", true)]
+    [InlineData("collectionTrash", false)]
+    [InlineData("collectionTrash", true)]
+    [InlineData("association", false)]
+    [InlineData("association", true)]
+    [InlineData("recordMove", false)]
+    [InlineData("recordMove", true)]
+    [InlineData("folderMove", false)]
+    [InlineData("folderMove", true)]
+    [InlineData("recordTrash", false)]
+    [InlineData("recordTrash", true)]
+    [InlineData("folderTrash", false)]
+    [InlineData("folderTrash", true)]
+    [InlineData("recordUpdate", false)]
+    [InlineData("recordUpdate", true)]
+    [InlineData("folderUpdate", false)]
+    [InlineData("folderUpdate", true)]
     public async Task GivenActualOwnerWriter_WhenRacingMembership_ThenSerializeAndPreserveWinner(string writer, bool membershipFirst)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var destination = await Folder(s); var p = await AssociationSetup.Profile(fixture, s, owner);
@@ -342,7 +473,11 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         if (writer == "folderMove") Assert.Equal(membershipFirst ? null : destination.Id, (await check.Folders.SingleAsync(x => x.Id == a.Folder.Id)).ParentFolderId);
     }
 
-    [FunctionalTheory][InlineData(false, false)][InlineData(false, true)][InlineData(true, false)][InlineData(true, true)]
+    [FunctionalTheory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
     public async Task GivenNativeRecipientWriter_WhenRacingRemoval_ThenCollectionBeforeContentLocksPreserveWinner(bool record, bool membershipFirst)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -367,7 +502,15 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("newFolder")][InlineData("newRecord")][InlineData("newGrant")][InlineData("grantPin")][InlineData("grantWrapper")][InlineData("parent")][InlineData("PC")][InlineData("revision")][InlineData("corruption")]
+    [InlineData("newFolder")]
+    [InlineData("newRecord")]
+    [InlineData("newGrant")]
+    [InlineData("grantPin")]
+    [InlineData("grantWrapper")]
+    [InlineData("parent")]
+    [InlineData("PC")]
+    [InlineData("revision")]
+    [InlineData("corruption")]
     public async Task GivenGraphOrNativeEvidenceChangesAtFinalWrite_WhenReplacing_ThenGuardRejectsAndRollsBack(string kind)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s); var b = await AssociationSetup.Items(fixture, s);
@@ -395,7 +538,9 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         Assert.True(hook.Triggered); Assert.Equal(kind is "corruption" or "grantWrapper" ? "persistence_unavailable" : "revision_conflict", result.Error); Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenActualProtectionRotation_WhenRacingMembership_ThenCurrentAuthorityOrInventoryWins(bool rotationFirst)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s);
@@ -436,9 +581,18 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("actor", "authentication_required")][InlineData("handle", "vault_access_required")][InlineData("target", "validation_failed")][InlineData("input", "validation_failed")]
-    [InlineData("revision", "validation_failed")][InlineData("time", "validation_failed")][InlineData("offset", "validation_failed")][InlineData("envelope", "validation_failed")]
-    [InlineData("folders", "validation_failed")][InlineData("records", "validation_failed")][InlineData("duplicate", "validation_failed")][InlineData("emptyId", "validation_failed")]
+    [InlineData("actor", "authentication_required")]
+    [InlineData("handle", "vault_access_required")]
+    [InlineData("target", "validation_failed")]
+    [InlineData("input", "validation_failed")]
+    [InlineData("revision", "validation_failed")]
+    [InlineData("time", "validation_failed")]
+    [InlineData("offset", "validation_failed")]
+    [InlineData("envelope", "validation_failed")]
+    [InlineData("folders", "validation_failed")]
+    [InlineData("records", "validation_failed")]
+    [InlineData("duplicate", "validation_failed")]
+    [InlineData("emptyId", "validation_failed")]
     public async Task GivenInvalidInternalBoundary_WhenReplacing_ThenRejectBeforePersistence(string mode, string error)
     {
         var input = Input(); input = mode switch { "revision" => input with { ExpectedRevision = 0 }, "time" => input with { EditedAt = DateTimeOffset.MinValue }, "offset" => input with { EditedAt = input.EditedAt.ToOffset(TimeSpan.FromHours(1)) }, "envelope" => input with { Envelope = null! }, "folders" => input with { FolderIds = null! }, "records" => input with { RecordIds = null! }, "duplicate" => input with { FolderIds = [Guid.Parse("00000000-0000-0000-0000-000000000001"), Guid.Parse("00000000-0000-0000-0000-000000000001")] }, "emptyId" => input with { RecordIds = [Guid.Empty] }, _ => input };
@@ -446,7 +600,13 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         Assert.Equal(error, result.Error); Assert.Null(result.Data);
     }
 
-    [FunctionalTheory][InlineData("target")][InlineData("member")][InlineData("retained")][InlineData("grant")][InlineData("links")][InlineData("count")]
+    [FunctionalTheory]
+    [InlineData("target")]
+    [InlineData("member")]
+    [InlineData("retained")]
+    [InlineData("grant")]
+    [InlineData("links")]
+    [InlineData("count")]
     public async Task GivenLateUnexpectedCommittedProjection_WhenReplacing_ThenPostVerifyAllWritesAndRollback(string kind)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s); var b = await AssociationSetup.Items(fixture, s);
@@ -495,7 +655,9 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         await using var db = fixture.CreateContext(); Assert.Equal(2, (await db.Collections.SingleAsync(x => x.Id == a.Collection.Id)).KeyEpoch); Assert.Empty(await db.CollectionFolders.Where(x => x.CollectionId == a.Collection.Id).ToArrayAsync()); Assert.Single(await db.CollectionRecords.Where(x => x.CollectionId == a.Collection.Id).ToArrayAsync());
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenGrantGrowthAtCollectionLock_WhenRacingMembership_ThenRejectUnheldGrantOrSerializeInsertion(bool membershipFirst)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var r = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
@@ -521,7 +683,9 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         Assert.Null((await new FolderReadStore(fixture).ReadAsync(new(r.Actor, r.Verifier, a.Folder.PublicId), default)).Error);
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenExpiryAtAuthorizationLinearization_WhenReplacing_ThenBeforeDeniedAndAfterCommits(bool after)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var deadline = DateTimeOffset.UtcNow.AddSeconds(1.2);
@@ -531,7 +695,9 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         if (after) await Success(s, a.Collection, input, before, result); else { Assert.Equal("vault_access_denied", result.Error); Assert.Equal(before, await Snapshot(s)); }
     }
 
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenSequenceFailsAfterTargetWrite_WhenBumpingMembers_ThenWholeTransactionRollsBack(bool exhausted)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var before = await Snapshot(s); await using var db = fixture.CreateContext();
@@ -546,8 +712,14 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
 
     [FunctionalTheory]
-    [InlineData("folder", false)][InlineData("folder", true)][InlineData("record", false)][InlineData("record", true)]
-    [InlineData("folderAncestor", false)][InlineData("folderAncestor", true)][InlineData("recordAncestor", false)][InlineData("recordAncestor", true)]
+    [InlineData("folder", false)]
+    [InlineData("folder", true)]
+    [InlineData("record", false)]
+    [InlineData("record", true)]
+    [InlineData("folderAncestor", false)]
+    [InlineData("folderAncestor", true)]
+    [InlineData("recordAncestor", false)]
+    [InlineData("recordAncestor", true)]
     [InlineData("private", true)]
     public async Task GivenActiveRequestedOrRequiredAncestorWithPurgeDeadline_WhenRetaining_ThenRequired503OrHidden404(string kind, bool selected)
     {
@@ -560,7 +732,11 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         await Denied(s, a.Collection, input, kind == "private" ? "not_found" : "persistence_unavailable");
     }
 
-    [FunctionalTheory][InlineData("target")][InlineData("folder")][InlineData("record")][InlineData("lateFolder")]
+    [FunctionalTheory]
+    [InlineData("target")]
+    [InlineData("folder")]
+    [InlineData("record")]
+    [InlineData("lateFolder")]
     public async Task GivenMissingPostWriteProjection_WhenReplacing_Then503AndFullRollback(string kind)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s);
@@ -686,11 +862,13 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     { public AppDbContext CreateDbContext() => throw failure; public Task<AppDbContext> CreateDbContextAsync(CancellationToken ct = default) => Task.FromException<AppDbContext>(failure); }
     private sealed class Fault(string stage) : DbCommandInterceptor
     {
-        public bool Triggered { get; private set; } private int matches;
+        public bool Triggered { get; private set; }
+        private int matches;
         public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int result, CancellationToken ct = default)
         {
             var sql = stage switch { "target" => "UPDATE cerberus.collection AS", "deleteFolder" => "DELETE FROM cerberus.collection_folder", "deleteRecord" => "DELETE FROM cerberus.collection_record", "insertFolder" => "INSERT INTO cerberus.collection_folder", "insertRecord" => "INSERT INTO cerberus.collection_record", _ => "UPDATE cerberus." + (stage.StartsWith("folder") ? "folder" : "record") + " SET" };
-            if (result > 0 && c.CommandText.Contains(sql) && ++matches == (stage.EndsWith('2') ? 2 : 1)) { Triggered = true; throw new TimeoutException("controlled post-mutation failure"); } return ValueTask.FromResult(result);
+            if (result > 0 && c.CommandText.Contains(sql) && ++matches == (stage.EndsWith('2') ? 2 : 1)) { Triggered = true; throw new TimeoutException("controlled post-mutation failure"); }
+            return ValueTask.FromResult(result);
         }
     }
 }

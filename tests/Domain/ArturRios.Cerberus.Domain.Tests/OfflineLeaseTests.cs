@@ -58,10 +58,22 @@ public class OfflineLeaseTests
     }
 
     [UnitTheory]
-    [InlineData("identity")][InlineData("account")][InlineData("profile")][InlineData("epoch")]
-    [InlineData("revision")][InlineData("policy")][InlineData("generation")][InlineData("safeCounter")]
-    [InlineData("zeroDuration")][InlineData("fraction")][InlineData("disabledInterval")][InlineData("overflow")]
-    [InlineData("duplicateGrant")][InlineData("grantId")][InlineData("grantRevision")][InlineData("beforeEpoch")]
+    [InlineData("identity")]
+    [InlineData("account")]
+    [InlineData("profile")]
+    [InlineData("epoch")]
+    [InlineData("revision")]
+    [InlineData("policy")]
+    [InlineData("generation")]
+    [InlineData("safeCounter")]
+    [InlineData("zeroDuration")]
+    [InlineData("fraction")]
+    [InlineData("disabledInterval")]
+    [InlineData("overflow")]
+    [InlineData("duplicateGrant")]
+    [InlineData("grantId")]
+    [InlineData("grantRevision")]
+    [InlineData("beforeEpoch")]
     public void GivenInvalidSnapshot_WhenSigning_ThenReject(string invalid)
     {
         using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
@@ -69,13 +81,20 @@ public class OfflineLeaseTests
         var grant = new OfflineGrantRevision(Guid.NewGuid(), 1);
         s = invalid switch
         {
-            "identity" => s with { IdentityId = Guid.Empty }, "account" => s with { AccountId = Guid.Empty },
-            "profile" => s with { ProfileId = Guid.Empty }, "epoch" => s with { KeyEpoch = 0 },
-            "revision" => s with { ProtectionRevision = 0 }, "policy" => s with { PolicyRevision = 0 },
-            "generation" => s with { RevocationGeneration = 0 }, "safeCounter" => s with { PolicyRevision = ProtocolBinary.MaxInteger + 1 },
-            "zeroDuration" => s with { RenewalInterval = TimeSpan.Zero }, "fraction" => s with { RenewalInterval = TimeSpan.FromTicks(1) },
-            "disabledInterval" => s with { RenewalEnabled = false }, "overflow" => s with { RenewalInterval = TimeSpan.MaxValue },
-            "duplicateGrant" => s with { GrantRevisions = [grant, grant] }, "grantId" => s with { GrantRevisions = [grant with { GrantId = Guid.Empty }] },
+            "identity" => s with { IdentityId = Guid.Empty },
+            "account" => s with { AccountId = Guid.Empty },
+            "profile" => s with { ProfileId = Guid.Empty },
+            "epoch" => s with { KeyEpoch = 0 },
+            "revision" => s with { ProtectionRevision = 0 },
+            "policy" => s with { PolicyRevision = 0 },
+            "generation" => s with { RevocationGeneration = 0 },
+            "safeCounter" => s with { PolicyRevision = ProtocolBinary.MaxInteger + 1 },
+            "zeroDuration" => s with { RenewalInterval = TimeSpan.Zero },
+            "fraction" => s with { RenewalInterval = TimeSpan.FromTicks(1) },
+            "disabledInterval" => s with { RenewalEnabled = false },
+            "overflow" => s with { RenewalInterval = TimeSpan.MaxValue },
+            "duplicateGrant" => s with { GrantRevisions = [grant, grant] },
+            "grantId" => s with { GrantRevisions = [grant with { GrantId = Guid.Empty }] },
             "grantRevision" => s with { GrantRevisions = [grant with { Revision = 0 }] },
             _ => s with { IssuedAt = DateTimeOffset.FromUnixTimeSeconds(-1) }
         };

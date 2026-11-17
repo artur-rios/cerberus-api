@@ -100,13 +100,22 @@ public static class OfflineLease
         long? expires = snapshot.RenewalEnabled ? checked(issued + snapshot.RenewalInterval!.Value.Ticks / TimeSpan.TicksPerSecond) : null;
         var claims = new Dictionary<string, object>
         {
-            ["iss"] = issuer, ["aud"] = Audience, ["sub"] = snapshot.IdentityId.ToString("D"),
-            ["accountId"] = snapshot.AccountId.ToString("D"), ["scopeKind"] = "profile", ["scopeId"] = snapshot.ProfileId.ToString("D"),
-            ["keyEpoch"] = snapshot.KeyEpoch, ["protectionRevision"] = snapshot.ProtectionRevision,
-            ["policyRevision"] = snapshot.PolicyRevision, ["revocationGeneration"] = snapshot.RevocationGeneration,
+            ["iss"] = issuer,
+            ["aud"] = Audience,
+            ["sub"] = snapshot.IdentityId.ToString("D"),
+            ["accountId"] = snapshot.AccountId.ToString("D"),
+            ["scopeKind"] = "profile",
+            ["scopeId"] = snapshot.ProfileId.ToString("D"),
+            ["keyEpoch"] = snapshot.KeyEpoch,
+            ["protectionRevision"] = snapshot.ProtectionRevision,
+            ["policyRevision"] = snapshot.PolicyRevision,
+            ["revocationGeneration"] = snapshot.RevocationGeneration,
             ["grantRevisions"] = snapshot.GrantRevisions.OrderBy(g => g.GrantId.ToString("D"), StringComparer.Ordinal)
                 .Select(g => new { grantId = g.GrantId.ToString("D"), revision = g.Revision }).ToArray(),
-            ["renewalEnabled"] = snapshot.RenewalEnabled, ["iat"] = issued, ["nbf"] = issued, ["jti"] = Guid.NewGuid().ToString("D")
+            ["renewalEnabled"] = snapshot.RenewalEnabled,
+            ["iat"] = issued,
+            ["nbf"] = issued,
+            ["jti"] = Guid.NewGuid().ToString("D")
         };
         if (expires is { } expiry) claims.Add("exp", expiry);
         var header = new { alg = "ES256", typ = Type, kid = publicKey!.Fingerprint() };

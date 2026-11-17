@@ -163,10 +163,18 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
         string? RecipientMaterial, long? RecipientRevision, long? RecipientEpoch, long? RecipientGeneration);
     private sealed class Snapshot
     {
-        public bool ActorActive { get; set; } public bool Allowed { get; set; } public bool ForeignTarget { get; set; }
-        public long OwnerId { get; set; } public Guid OwnerPublicId { get; set; } public long? RecipientId { get; set; }
-        public Guid? RecipientIdentity { get; set; } public long? Selection { get; set; } public string? Item { get; set; }
-        public string? Native { get; set; } public bool CorruptAncestry { get; set; } public bool Reserved { get; set; }
+        public bool ActorActive { get; set; }
+        public bool Allowed { get; set; }
+        public bool ForeignTarget { get; set; }
+        public long OwnerId { get; set; }
+        public Guid OwnerPublicId { get; set; }
+        public long? RecipientId { get; set; }
+        public Guid? RecipientIdentity { get; set; }
+        public long? Selection { get; set; }
+        public string? Item { get; set; }
+        public string? Native { get; set; }
+        public bool CorruptAncestry { get; set; }
+        public bool Reserved { get; set; }
         public string Stable { get; set; } = "{}"; public string Grants { get; set; } = "[]"; public string Rows { get; set; } = "[]";
         public long[] GrantIds { get; set; } = []; public Guid[] RecordIds { get; set; } = []; public Guid[] FolderIds { get; set; } = [];
     }

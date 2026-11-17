@@ -120,8 +120,12 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
                 var pair = Users.SingleOrDefault(x => x.Value.Id == id);
                 if (pair.Value is null || pair.Value.Deleted) return Results.StatusCode(404);
                 if (Users.TryGetValue(email, out var existing) && existing.Id != id) return Results.StatusCode(409);
-                var updated = pair.Value with { Name = name, Email = email,
-                    EmailVerified = pair.Value.EmailVerified && string.Equals(pair.Key, email, StringComparison.OrdinalIgnoreCase) };
+                var updated = pair.Value with
+                {
+                    Name = name,
+                    Email = email,
+                    EmailVerified = pair.Value.EmailVerified && string.Equals(pair.Key, email, StringComparison.OrdinalIgnoreCase)
+                };
                 Users.TryRemove(pair.Key, out _);
                 Users[email] = updated;
                 return name == "response-loss" ? Results.Text("invalid provider response", "application/json") : Person(updated);
@@ -138,15 +142,21 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
             ["CERBERUS_HEIMDALL_BASE_URL"] = address,
             ["CERBERUS_HEIMDALL_SCOPE_ID"] = Scope.ToString(),
             ["CERBERUS_HEIMDALL_SERVICE_CREDENTIAL"] = _serviceToken,
-            ["CERBERUS_AUTH_ISSUER"] = "fixture-issuer", ["CERBERUS_AUTH_AUDIENCE"] = "fixture-audience",
+            ["CERBERUS_AUTH_ISSUER"] = "fixture-issuer",
+            ["CERBERUS_AUTH_AUDIENCE"] = "fixture-audience",
             ["CERBERUS_AUTH_APPLICATION_AUDIENCE"] = "fixture-applications",
             ["CERBERUS_AUTH_VALIDATION_SECRET"] = Secret,
             ["CERBERUS_REGISTRATION_FINGERPRINT_KEY"] = "independent-durable-fixture-key-32-bytes",
-            ["CERBERUS_OFFLINE_LEASE_ISSUER"] = "fixture-lease-issuer", ["CERBERUS_OFFLINE_LEASE_PRIVATE_KEY_PEM"] = LeasePrivatePem,
-            ["CERBERUS_BACKUP_RETENTION"] = "7.00:00:00", ["CERBERUS_LOG_RETENTION"] = "7.00:00:00",
-            ["CERBERUS_SYNC_RETENTION"] = "30.00:00:00", ["CERBERUS_RETENTION_INTERVAL"] = "1.00:00:00",
-            ["CERBERUS_BACKUP_PATH"] = "/srv/cerberus/backups", ["CERBERUS_ERASURE_LEDGER_PATH"] = _ledger,
-            ["CERBERUS_MAX_REQUEST_BYTES"] = "65536", ["CERBERUS_MAX_PAGE_SIZE"] = "100",
+            ["CERBERUS_OFFLINE_LEASE_ISSUER"] = "fixture-lease-issuer",
+            ["CERBERUS_OFFLINE_LEASE_PRIVATE_KEY_PEM"] = LeasePrivatePem,
+            ["CERBERUS_BACKUP_RETENTION"] = "7.00:00:00",
+            ["CERBERUS_LOG_RETENTION"] = "7.00:00:00",
+            ["CERBERUS_SYNC_RETENTION"] = "30.00:00:00",
+            ["CERBERUS_RETENTION_INTERVAL"] = "1.00:00:00",
+            ["CERBERUS_BACKUP_PATH"] = "/srv/cerberus/backups",
+            ["CERBERUS_ERASURE_LEDGER_PATH"] = _ledger,
+            ["CERBERUS_MAX_REQUEST_BYTES"] = "65536",
+            ["CERBERUS_MAX_PAGE_SIZE"] = "100",
             ["CERBERUS_RESTORE_REQUIRED"] = "false"
         };
         foreach (var (key, value) in values)

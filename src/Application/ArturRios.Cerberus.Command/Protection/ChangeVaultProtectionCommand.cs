@@ -21,7 +21,7 @@ public sealed class ChangeVaultProtectionCommand : BaseCommand
     internal Guid ChallengeId { get; private set; }
     internal string Proof { get; private set; } = null!;
     internal byte[] RawBody { get; private set; } = [];
-    public ProtectionChange ToChange() => new(AccountId, ExpectedProtectionRevision, ExpectedAccountRevision, Mode, Material, ContentReplacements) {GrantReplacements=GrantReplacements};
+    public ProtectionChange ToChange() => new(AccountId, ExpectedProtectionRevision, ExpectedAccountRevision, Mode, Material, ContentReplacements) { GrantReplacements = GrantReplacements };
     public void SetContext(Guid actor, string? access, Guid challengeId, string proof, byte[] rawBody)
     { Actor = actor; Access = access; ChallengeId = challengeId; Proof = proof; RawBody = rawBody; }
 }

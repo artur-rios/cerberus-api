@@ -13,8 +13,11 @@ public class DownloadSyncChangesHandlerTests
     private static SyncDownloadPage Page(bool reset = false) => new(Account, Profile, 1, 1, DateTimeOffset.FromUnixTimeSeconds(1000), [],
         reset ? null : new(Profile, Stream, 1, 0, 0), false, true, reset);
     [UnitTheory]
-    [InlineData("identity", "authentication_required")][InlineData("missing", "vault_access_required")]
-    [InlineData("handle", "validation_failed")][InlineData("zero", "validation_failed")][InlineData("size", "validation_failed")]
+    [InlineData("identity", "authentication_required")]
+    [InlineData("missing", "vault_access_required")]
+    [InlineData("handle", "validation_failed")]
+    [InlineData("zero", "validation_failed")]
+    [InlineData("size", "validation_failed")]
     public async Task GivenInvalidContextOrPageSize_WhenDownloading_ThenRejectBeforePersistence(string invalid, string error)
     {
         var handler = new DownloadSyncChangesHandler(new Mock<ISyncDownloadStore>(MockBehavior.Strict).Object, Options, new SyncCursor(Options));
@@ -23,7 +26,9 @@ public class DownloadSyncChangesHandlerTests
         Assert.Contains(error, output.Errors); Assert.Null(output.Data);
     }
     [UnitTheory]
-    [InlineData("not_found")][InlineData("vault_access_denied")][InlineData("persistence_unavailable")]
+    [InlineData("not_found")]
+    [InlineData("vault_access_denied")]
+    [InlineData("persistence_unavailable")]
     public async Task GivenStorageOrAuthorityDenial_WhenDownloading_ThenReturnStableErrorWithoutContent(string error)
     {
         var result = await Handler(new(Error: error)).HandleAsync(new(Actor, Handle, null, 10));
@@ -39,7 +44,9 @@ public class DownloadSyncChangesHandlerTests
         Assert.Equal(10, c.PageSize); Assert.Equal(0, c.After); Assert.Equal(0, c.Boundary);
     }
     [UnitTheory]
-    [InlineData("invalid")][InlineData("actor")][InlineData("page")]
+    [InlineData("invalid")]
+    [InlineData("actor")]
+    [InlineData("page")]
     public async Task GivenUnusableContinuation_WhenDownloading_ThenRevalidateCurrentScopeAndReturnExplicitReset(string invalid)
     {
         var cursor = invalid == "invalid" ? "invalid" : new SyncCursor(Options).Encode(new(invalid == "actor" ? Guid.NewGuid() : Actor, Profile, Stream, 1, 0, 0, invalid == "page" ? 20 : 10));
@@ -51,15 +58,21 @@ public class DownloadSyncChangesHandlerTests
         Assert.Null(output.Data.NextCursor); Assert.Empty(output.Data.Items);
     }
     [UnitTheory]
-    [InlineData("empty")][InlineData("policy")][InlineData("profile")][InlineData("counter")][InlineData("resetContent")]
+    [InlineData("empty")]
+    [InlineData("policy")]
+    [InlineData("profile")]
+    [InlineData("counter")]
+    [InlineData("resetContent")]
     public async Task GivenInvalidStoredPage_WhenDownloading_ThenFailClosed(string invalid)
     {
         var p = Page();
         p = invalid switch
         {
-            "policy" => p with { PolicyRevision = 0 }, "profile" => p with { ProfileId = Guid.Empty },
+            "policy" => p with { PolicyRevision = 0 },
+            "profile" => p with { ProfileId = Guid.Empty },
             "counter" => p with { Checkpoint = p.Checkpoint! with { Boundary = 9007199254740992 } },
-            "resetContent" => p with { ResynchronizationRequired = true }, _ => p
+            "resetContent" => p with { ResynchronizationRequired = true },
+            _ => p
         };
         var output = await Handler(new(invalid == "empty" ? null : p)).HandleAsync(new(Actor, Handle, null, 10));
         Assert.Contains("persistence_unavailable", output.Errors); Assert.Null(output.Data);
@@ -75,15 +88,27 @@ public class DownloadSyncChangesHandlerTests
     {
         var checkpoint = new SyncCheckpoint(Profile, Stream, 1, 100, 100);
         var cursor = new SyncCursor(Options).Encode(new(Actor, Profile, Stream, 1, 100, 100, 10));
-        var p = Page() with { Checkpoint = checkpoint with { WindowVersion = 2, After = 2, Boundary = 2 }, ClearScope = false,
-            Items = [new(2, "record", Guid.NewGuid(), "removed", null, null)] };
+        var p = Page() with
+        {
+            Checkpoint = checkpoint with { WindowVersion = 2, After = 2, Boundary = 2 },
+            ClearScope = false,
+            Items = [new(2, "record", Guid.NewGuid(), "removed", null, null)]
+        };
         var result = await Handler(new(p)).HandleAsync(new(Actor, Handle, cursor, 10));
         Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
     }
 
     [UnitTheory]
-    [InlineData("stream")][InlineData("profile")][InlineData("window")][InlineData("boundary")][InlineData("clear")]
-    [InlineData("emptySkip")][InlineData("duplicate")][InlineData("order")][InlineData("removalAfterUpsert")][InlineData("type")]
+    [InlineData("stream")]
+    [InlineData("profile")]
+    [InlineData("window")]
+    [InlineData("boundary")]
+    [InlineData("clear")]
+    [InlineData("emptySkip")]
+    [InlineData("duplicate")]
+    [InlineData("order")]
+    [InlineData("removalAfterUpsert")]
+    [InlineData("type")]
     public async Task GivenMalformedContinuationPage_WhenContinuing_ThenRejectWithoutPublicData(string invalid)
     {
         var cursor = new SyncCursor(Options).Encode(new(Actor, Profile, Stream, 1, 100, 100, 10));
@@ -92,14 +117,21 @@ public class DownloadSyncChangesHandlerTests
         p = invalid switch
         {
             "stream" => p with { Checkpoint = p.Checkpoint! with { StreamId = Guid.NewGuid() } },
-            "profile" => p with { ProfileId = Guid.NewGuid() }, "window" => p with { Checkpoint = p.Checkpoint! with { WindowVersion = 3 } },
-            "boundary" => p with { Checkpoint = p.Checkpoint! with { WindowVersion = 1 } }, "clear" => p with { ClearScope = true },
-            "emptySkip" => p with { Items = [] }, "type" => p with { Items = [removed with { ResourceKind = "account" }] },
+            "profile" => p with { ProfileId = Guid.NewGuid() },
+            "window" => p with { Checkpoint = p.Checkpoint! with { WindowVersion = 3 } },
+            "boundary" => p with { Checkpoint = p.Checkpoint! with { WindowVersion = 1 } },
+            "clear" => p with { ClearScope = true },
+            "emptySkip" => p with { Items = [] },
+            "type" => p with { Items = [removed with { ResourceKind = "account" }] },
             "duplicate" => p with { Items = [removed, removed with { Sequence = 102 }], Checkpoint = p.Checkpoint! with { After = 102, Boundary = 102 } },
             "order" => p with { Items = [removed with { Sequence = 102 }, removed with { ResourceId = Guid.NewGuid() }], Checkpoint = p.Checkpoint! with { After = 101, Boundary = 102 } },
-            _ => p with { Items = [new(101, "record", id, "upsert", new SyncRecordData(id, 1, 1, DateTimeOffset.FromUnixTimeSeconds(1000),
+            _ => p with
+            {
+                Items = [new(101, "record", id, "upsert", new SyncRecordData(id, 1, 1, DateTimeOffset.FromUnixTimeSeconds(1000),
                 new("cerberus-content-v1", 1, new string('A', 43), new string('A', 16), "AQID", new string('A', 22)))),
-                removed with { Sequence = 102, ResourceId = Guid.NewGuid() }], Checkpoint = p.Checkpoint! with { After = 102, Boundary = 102 } }
+                removed with { Sequence = 102, ResourceId = Guid.NewGuid() }],
+                Checkpoint = p.Checkpoint! with { After = 102, Boundary = 102 }
+            }
         };
         var output = await Handler(new(p)).HandleAsync(new(Actor, Handle, cursor, 10));
         Assert.Contains("persistence_unavailable", output.Errors); Assert.Null(output.Data);

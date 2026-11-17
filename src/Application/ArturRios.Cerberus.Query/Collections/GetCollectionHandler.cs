@@ -32,9 +32,14 @@ public sealed class GetCollectionHandler(ICollectionReadStore store) : IQueryHan
 
         return output.WithData(new CollectionDetailsOutput
         {
-            CollectionId = collection!.CollectionId, Revision = collection.Revision, ServerSequence = collection.ServerSequence,
-            EditedAt = collection.EditedAt, Envelope = collection.Envelope,
-            ProfileIds = data.ProfileIds.Order().ToArray(), RecordIds = data.RecordIds.Order().ToArray(), FolderIds = data.FolderIds.Order().ToArray()
+            CollectionId = collection!.CollectionId,
+            Revision = collection.Revision,
+            ServerSequence = collection.ServerSequence,
+            EditedAt = collection.EditedAt,
+            Envelope = collection.Envelope,
+            ProfileIds = data.ProfileIds.Order().ToArray(),
+            RecordIds = data.RecordIds.Order().ToArray(),
+            FolderIds = data.FolderIds.Order().ToArray()
         }).WithMessage("collection_found");
     }
 

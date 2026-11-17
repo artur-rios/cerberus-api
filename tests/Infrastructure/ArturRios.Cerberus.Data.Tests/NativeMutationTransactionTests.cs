@@ -8,7 +8,8 @@ namespace ArturRios.Cerberus.Data.Tests;
 public class NativeMutationTransactionTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenExternalTransaction_WhenInnerMutationEnds_ThenCommitOnlyItsSavepointAndLeaveOuterOwnership(bool committed)
     {
         await using var db = fixture.CreateContext(); await using var outer = await db.Database.BeginTransactionAsync();
@@ -38,7 +39,8 @@ public class NativeMutationTransactionTests(PostgresFixture fixture) : IClassFix
         await using var final = fixture.CreateContext(); Assert.True(await final.Accounts.AnyAsync(x => x.Id == survivor.Id));
     }
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenStandaloneMutation_WhenEnding_ThenRetainOrdinaryCommitAndRollbackSemantics(bool committed)
     {
         await using var db = fixture.CreateContext(); var id = Guid.NewGuid();

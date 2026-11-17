@@ -15,7 +15,9 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public partial class CollectionGrantChangeStoreTests
 {
-    [FunctionalTheory][InlineData(false)][InlineData(true)]
+    [FunctionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenConcurrentChanges_WhenAccountPairIsHeld_ThenSerializeAndPreserveWinner(bool reciprocal)
     {
         using var s = await Setup();
@@ -42,7 +44,13 @@ public partial class CollectionGrantChangeStoreTests
         }
     }
 
-    [FunctionalTheory][InlineData("lifecycle", false)][InlineData("lifecycle", true)][InlineData("protection", false)][InlineData("protection", true)][InlineData("unlock", false)][InlineData("unlock", true)]
+    [FunctionalTheory]
+    [InlineData("lifecycle", false)]
+    [InlineData("lifecycle", true)]
+    [InlineData("protection", false)]
+    [InlineData("protection", true)]
+    [InlineData("unlock", false)]
+    [InlineData("unlock", true)]
     public async Task GivenRecipientWriterInEitherAcquisitionOrder_WhenChanging_ThenSerializeUsingRealBlocking(string writer, bool changeFirst)
     {
         using var s = await Setup(); var raw = "{}"u8.ToArray(); ProtectionChangeRequest? protection = null; VaultProofChallenge? challenge = null;
@@ -88,10 +96,18 @@ public partial class CollectionGrantChangeStoreTests
     }
 
     [FunctionalTheory]
-    [InlineData("account", "recipient", "not_found")][InlineData("account", "pins", "persistence_unavailable")][InlineData("vault_access_session", "policy", "vault_access_denied")]
-    [InlineData("profile", "selection", "not_found")][InlineData("collection", "trash", "not_found")][InlineData("collection_grant", "revoked", "not_found")]
-    [InlineData("collection_grant", "revision", "revision_conflict")][InlineData("account", "expiry", "vault_access_denied")][InlineData("vault_access_session", "expiry", "vault_access_denied")]
-    [InlineData("profile", "expiry", "vault_access_denied")][InlineData("collection", "expiry", "vault_access_denied")][InlineData("collection_grant", "expiry", "vault_access_denied")]
+    [InlineData("account", "recipient", "not_found")]
+    [InlineData("account", "pins", "persistence_unavailable")]
+    [InlineData("vault_access_session", "policy", "vault_access_denied")]
+    [InlineData("profile", "selection", "not_found")]
+    [InlineData("collection", "trash", "not_found")]
+    [InlineData("collection_grant", "revoked", "not_found")]
+    [InlineData("collection_grant", "revision", "revision_conflict")]
+    [InlineData("account", "expiry", "vault_access_denied")]
+    [InlineData("vault_access_session", "expiry", "vault_access_denied")]
+    [InlineData("profile", "expiry", "vault_access_denied")]
+    [InlineData("collection", "expiry", "vault_access_denied")]
+    [InlineData("collection_grant", "expiry", "vault_access_denied")]
     public async Task GivenStateLossDuringActualLockWait_WhenChanging_ThenRecheckBeforeMutation(string table, string change, string error)
     {
         using var s = await Setup(); var profile = await AssociationSetup.Profile(fixture, s.Owner, s.OwnerKey);

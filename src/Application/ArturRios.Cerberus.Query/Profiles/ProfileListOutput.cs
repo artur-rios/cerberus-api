@@ -1,6 +1,7 @@
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Profiles;
 namespace ArturRios.Cerberus.Query.Profiles;
+
 public sealed record ProfileListItem(Guid ProfileId, long Revision, long ServerSequence, DateTimeOffset EditedAt, EncryptedEnvelope Envelope, ProfileKeyWrappers KeyWrappers)
 {
     public Guid[] RecordIds { get; init; } = [];

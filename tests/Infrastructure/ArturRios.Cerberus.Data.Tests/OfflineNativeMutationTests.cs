@@ -26,11 +26,22 @@ public class OfflineNativeMutationTests(PostgresFixture fixture) : IClassFixture
         await outer.RollbackAsync(); await using var final = fixture.CreateContext(); Assert.False(await final.Records.AnyAsync(x => x.PublicId == id));
     }
     [FunctionalTheory]
-    [InlineData("record", -1)][InlineData("record", 0)][InlineData("record", 1)]
-    [InlineData("folder", -1)][InlineData("folder", 0)][InlineData("folder", 1)]
-    [InlineData("collection", -1)][InlineData("collection", 0)][InlineData("collection", 1)]
-    [InlineData("profile", -1)][InlineData("profile", 0)][InlineData("profile", 1)]
-    [InlineData("record", 2)][InlineData("folder", 2)][InlineData("collection", 2)][InlineData("profile", 2)]
+    [InlineData("record", -1)]
+    [InlineData("record", 0)]
+    [InlineData("record", 1)]
+    [InlineData("folder", -1)]
+    [InlineData("folder", 0)]
+    [InlineData("folder", 1)]
+    [InlineData("collection", -1)]
+    [InlineData("collection", 0)]
+    [InlineData("collection", 1)]
+    [InlineData("profile", -1)]
+    [InlineData("profile", 0)]
+    [InlineData("profile", 1)]
+    [InlineData("record", 2)]
+    [InlineData("folder", 2)]
+    [InlineData("collection", 2)]
+    [InlineData("profile", 2)]
     public async Task GivenNativeLockedResource_WhenApplyingOfflineTimestamp_ThenOlderLosesAndEqualOrNewerAdvancesPersistedSequence(string kind, int offset)
     {
         using var keys = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, keys);

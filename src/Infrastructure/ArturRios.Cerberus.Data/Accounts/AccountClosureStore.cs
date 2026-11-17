@@ -17,7 +17,7 @@ public sealed class AccountClosureStore(IDbContextFactory<AppDbContext> factory)
         if (!new AccountClosureInput(request.ExpectedRevision).IsValid()) return new(Error: "validation_failed");
         try
         {
-            await using var db = await factory.CreateDbContextAsync(ct); await using var tx = await NativeMutationTransaction.BeginAsync(db,ct);
+            await using var db = await factory.CreateDbContextAsync(ct); await using var tx = await NativeMutationTransaction.BeginAsync(db, ct);
             var initial = await Actor(db, request.Actor, ct);
             if (initial is null || await Erased(db, initial, ct)) return new(Error: "not_found");
             var ids = (await Connections(db, initial.Id, ct)).Append(initial.Id).Distinct().ToArray();
@@ -42,7 +42,8 @@ public sealed class AccountClosureStore(IDbContextFactory<AppDbContext> factory)
                 """, ct);
             now = await Now(db, ct);
             if (!FreshAuthentication.IsFresh(request.AuthenticationIssuedAt, now)) return new(Error: "fresh_authentication_required");
-            var grants = await (from g in db.CollectionGrants.AsNoTracking() join c in db.Collections on g.CollectionId equals c.Id
+            var grants = await (from g in db.CollectionGrants.AsNoTracking()
+                                join c in db.Collections on g.CollectionId equals c.Id
                                 where c.AccountId == owner.Id || g.RecipientAccountId == owner.Id
                                 select new Grant(g.Id, g.PublicId, g.CollectionId, c.AccountId, g.RecipientAccountId, g.Access, g.State, g.Revision)).ToListAsync(ct);
             var software = await db.SoftwareGrants.AsNoTracking().Where(x => x.AccountId == owner.Id).ToListAsync(ct);
@@ -126,8 +127,10 @@ public sealed class AccountClosureStore(IDbContextFactory<AppDbContext> factory)
                 || await db.SoftwareGrantRecords.AnyAsync(x => x.AccountId == owner.Id, ct)
                 || await db.SoftwareGrantCollections.AnyAsync(x => x.AccountId == owner.Id, ct))
                 return new(Error: "persistence_unavailable");
-            var finalGrants = await (from g in db.CollectionGrants.AsNoTracking() join c in db.Collections on g.CollectionId equals c.Id
-                                     where c.AccountId == owner.Id || g.RecipientAccountId == owner.Id select g).ToListAsync(ct);
+            var finalGrants = await (from g in db.CollectionGrants.AsNoTracking()
+                                     join c in db.Collections on g.CollectionId equals c.Id
+                                     where c.AccountId == owner.Id || g.RecipientAccountId == owner.Id
+                                     select g).ToListAsync(ct);
             if (finalGrants.Count != grants.Count) return new(Error: "persistence_unavailable");
             foreach (var grant in grants)
             {
@@ -168,7 +171,8 @@ public sealed class AccountClosureStore(IDbContextFactory<AppDbContext> factory)
     private static Task<bool> Erased(AppDbContext db, Account owner, CancellationToken ct) => db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == owner.PublicId, ct);
     private static Task<DateTimeOffset> Now(AppDbContext db, CancellationToken ct) => db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
     private static Task<long[]> Connections(AppDbContext db, long owner, CancellationToken ct) =>
-        (from g in db.CollectionGrants join c in db.Collections on g.CollectionId equals c.Id
+        (from g in db.CollectionGrants
+         join c in db.Collections on g.CollectionId equals c.Id
          where c.AccountId == owner || g.RecipientAccountId == owner
          select c.AccountId == owner ? g.RecipientAccountId : c.AccountId).Distinct().ToArrayAsync(ct);
     private static bool Safe(long value) => value is > 0 and <= ProtocolBinary.MaxInteger;

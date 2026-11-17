@@ -11,10 +11,14 @@ namespace ArturRios.Cerberus.Data.Tests;
 public partial class SyncEditsStoreTests
 {
     [FunctionalTheory]
-    [InlineData("expired", "vault_access_denied")][InlineData("revoked", "vault_access_denied")]
-    [InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")]
-    [InlineData("closing", "not_found")][InlineData("terminal", "not_found")]
-    [InlineData("future", "vault_access_denied")][InlineData("disabled", null)]
+    [InlineData("expired", "vault_access_denied")]
+    [InlineData("revoked", "vault_access_denied")]
+    [InlineData("policy", "vault_access_denied")]
+    [InlineData("generation", "vault_access_denied")]
+    [InlineData("closing", "not_found")]
+    [InlineData("terminal", "not_found")]
+    [InlineData("future", "vault_access_denied")]
+    [InlineData("disabled", null)]
     public async Task GivenCurrentAccountAuthority_WhenUploading_ThenRecheckPersistedPolicyBeforeAnyWrite(string state, string? error)
     {
         using var keys = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, keys); var edit = Create();
@@ -37,7 +41,8 @@ public partial class SyncEditsStoreTests
         Assert.Equal(error is null, await db.SyncOperations.AnyAsync(x => x.AccountId == s.InternalId));
     }
     [FunctionalTheory]
-    [InlineData(false)][InlineData(true)]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task GivenLedgerFailureAfterNativeWrite_WhenUploading_ThenRollbackResourceAndOperationAndAllowCleanRetry(bool cancel)
     {
         using var keys = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, keys); var edit = Create();

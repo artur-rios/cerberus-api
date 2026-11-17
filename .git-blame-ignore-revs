@@ -12,3 +12,6 @@ bba813c09bd54805065bef3b449dac35c386338d
 
 # refactor: use collection expressions (IDE0028, IDE0300-IDE0306)
 88bf964e1e1bf20298fa55b32b685630b6b04b1f
+
+# refactor: prefix private fields (IDE1006 s_ and _ prefixes)
+15dfe4b0296d0db6c2bb9ef0139274d7f26c5980

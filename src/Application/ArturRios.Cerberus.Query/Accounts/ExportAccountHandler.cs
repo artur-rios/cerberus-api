@@ -11,13 +11,19 @@ public sealed class ExportAccountHandler(IAccountExportStore store) : IQueryHand
     {
         cancellationToken.ThrowIfCancellationRequested();
         var output = DataOutput<AccountExportOutput?>.New;
-        if (query.Actor == Guid.Empty) return output.WithError("authentication_required");
-        if (!new AccountExportInput(query.ExpectedRevision).IsValid()) return output.WithError("validation_failed");
-        if (query.Access is null) return output.WithError("vault_access_required");
-        if (!OpaqueAccessHandle.TryHash(query.Access, out var verifier)) return output.WithError("validation_failed");
-        if (query.AuthenticationIssuedAt <= 0) return output.WithError("fresh_authentication_required");
+        if (query.Actor == Guid.Empty)
+            return output.WithError("authentication_required");
+        if (!new AccountExportInput(query.ExpectedRevision).IsValid())
+            return output.WithError("validation_failed");
+        if (query.Access is null)
+            return output.WithError("vault_access_required");
+        if (!OpaqueAccessHandle.TryHash(query.Access, out var verifier))
+            return output.WithError("validation_failed");
+        if (query.AuthenticationIssuedAt <= 0)
+            return output.WithError("fresh_authentication_required");
         var result = await store.OpenAsync(new(query.Actor, verifier, query.AuthenticationIssuedAt, query.ExpectedRevision), cancellationToken);
-        var lease = result?.Lease; var published = false;
+        var lease = result?.Lease;
+        var published = false;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -26,22 +32,26 @@ public sealed class ExportAccountHandler(IAccountExportStore store) : IQueryHand
                     ? error : "persistence_unavailable");
             var header = lease.Header;
             if (header is null || !header.IsValid(query.Actor, query.ExpectedRevision)
-                || !FreshAuthentication.IsFresh(query.AuthenticationIssuedAt, header.ServerTime)) return output.WithError("persistence_unavailable");
+                || !FreshAuthentication.IsFresh(query.AuthenticationIssuedAt, header.ServerTime))
+                return output.WithError("persistence_unavailable");
             var ready = output.WithData(new AccountExportOutput { Lease = lease }).WithMessage("account_export_ready");
-            published = true; return ready;
+            published = true;
+            return ready;
         }
         finally
         {
             if (!published)
             {
-                if (lease is not null) await DiscardAsync(lease);
+                if (lease is not null)
+                    await DiscardAsync(lease);
                 cancellationToken.ThrowIfCancellationRequested();
             }
         }
     }
     private static async Task DiscardAsync(IAccountExportLease lease)
     {
-        try { await lease.DisposeAsync(); }
+        try
+        { await lease.DisposeAsync(); }
         catch (Exception) {/* Rejected producer/cleanup details never replace the safe unavailable result. */}
     }
 }

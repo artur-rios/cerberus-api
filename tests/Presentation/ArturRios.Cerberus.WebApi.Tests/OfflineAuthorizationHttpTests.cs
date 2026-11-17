@@ -68,7 +68,8 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
         Authorize(RegistrationApiFixture.Token(s.Identity));
         using var request = Request(s, "{\"profileId\":\"" + (state == "missing" ? Guid.NewGuid() : s.Profile) + "\",\"expectedProfileRevision\":" + (state == "expected" ? "2" : "3") + "}");
         using var response = await Gateway.Client.SendAsync(request);
-        Assert.Equal(status, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore);
+        Assert.Equal(status, response.StatusCode);
+        Assert.True(response.Headers.CacheControl?.NoStore);
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         if (status == HttpStatusCode.OK)
         {
@@ -81,7 +82,8 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
             using var claims = JsonDocument.Parse(payload);
             Assert.Equal(state != "disabled", claims.RootElement.TryGetProperty("exp", out _));
         }
-        else Assert.True(!json.RootElement.TryGetProperty("data", out var data) || data.ValueKind == JsonValueKind.Null);
+        else
+            Assert.True(!json.RootElement.TryGetProperty("data", out var data) || data.ValueKind == JsonValueKind.Null);
         await Unchanged(s);
     }
 
@@ -100,10 +102,12 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
     [InlineData("{\"ProfileId\":\"{profile}\",\"expectedProfileRevision\":3}")]
     public async Task GivenInvalidStrictBody_WhenRenewing_ThenRejectWithoutLeaseOrMutation(string body)
     {
-        var s = await Setup(); Authorize(RegistrationApiFixture.Token(s.Identity));
+        var s = await Setup();
+        Authorize(RegistrationApiFixture.Token(s.Identity));
         using var request = Request(s, body.Replace("{profile}", s.Profile.ToString("D")));
         using var response = await Gateway.Client.SendAsync(request);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.True(response.Headers.CacheControl?.NoStore);
         await Unchanged(s);
     }
 
@@ -123,25 +127,37 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
     [InlineData("empty", HttpStatusCode.BadRequest)]
     public async Task GivenInvalidTransport_WhenRenewing_ThenFailClosed(string invalid, HttpStatusCode status)
     {
-        var s = await Setup(); if (invalid != "noIdentity") Authorize(RegistrationApiFixture.Token(s.Identity));
+        var s = await Setup();
+        if (invalid != "noIdentity")
+            Authorize(RegistrationApiFixture.Token(s.Identity));
         using var request = Request(s, invalid == "empty" ? "" : (invalid == "bom" ? "\uFEFF" : "") + "{\"profileId\":\"" + s.Profile + "\",\"expectedProfileRevision\":3}");
-        if (invalid == "noHandle") request.Headers.Remove("X-Cerberus-Vault-Access");
-        if (invalid == "handle") { request.Headers.Remove("X-Cerberus-Vault-Access"); request.Headers.Add("X-Cerberus-Vault-Access", "invalid"); }
-        if (invalid == "duplicate") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Handle);
-        if (invalid == "query") request.RequestUri = new("/api/offline-authorizations?profileId=" + s.Profile, UriKind.Relative);
-        if (invalid == "compression") request.Content!.Headers.ContentEncoding.Add("gzip");
-        if (invalid is "media" or "textJson" or "vendorJson") request.Content!.Headers.ContentType = new(invalid == "media" ? "text/plain" : invalid == "textJson" ? "text/json" : "application/cerberus+json");
-        if (invalid == "charset") request.Content!.Headers.ContentType!.CharSet = "utf-16";
-        if (invalid == "parameter") request.Content!.Headers.ContentType!.Parameters.Add(new("extra", "value"));
+        if (invalid == "noHandle")
+            request.Headers.Remove("X-Cerberus-Vault-Access");
+        if (invalid == "handle")
+        { request.Headers.Remove("X-Cerberus-Vault-Access"); request.Headers.Add("X-Cerberus-Vault-Access", "invalid"); }
+        if (invalid == "duplicate")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Handle);
+        if (invalid == "query")
+            request.RequestUri = new("/api/offline-authorizations?profileId=" + s.Profile, UriKind.Relative);
+        if (invalid == "compression")
+            request.Content!.Headers.ContentEncoding.Add("gzip");
+        if (invalid is "media" or "textJson" or "vendorJson")
+            request.Content!.Headers.ContentType = new(invalid == "media" ? "text/plain" : invalid == "textJson" ? "text/json" : "application/cerberus+json");
+        if (invalid == "charset")
+            request.Content!.Headers.ContentType!.CharSet = "utf-16";
+        if (invalid == "parameter")
+            request.Content!.Headers.ContentType!.Parameters.Add(new("extra", "value"));
         using var response = await Gateway.Client.SendAsync(request);
-        Assert.Equal(status, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore);
+        Assert.Equal(status, response.StatusCode);
+        Assert.True(response.Headers.CacheControl?.NoStore);
         await Unchanged(s);
     }
 
     [FunctionalFact]
     public async Task GivenOversizedBody_WhenRenewing_ThenReturnEmpty413()
     {
-        var s = await Setup(); Authorize(RegistrationApiFixture.Token(s.Identity));
+        var s = await Setup();
+        Authorize(RegistrationApiFixture.Token(s.Identity));
         using var request = Request(s, new string(' ', 65537));
         using var response = await Gateway.Client.SendAsync(request);
         Assert.Equal(HttpStatusCode.RequestEntityTooLarge, response.StatusCode);
@@ -151,7 +167,8 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
     private static HttpRequestMessage Request(SetupState s, string body)
     {
         var r = new HttpRequestMessage(HttpMethod.Post, "/api/offline-authorizations") { Content = new StringContent(body, Encoding.UTF8, "application/json") };
-        r.Headers.Add("X-Cerberus-Vault-Access", s.Handle); return r;
+        r.Headers.Add("X-Cerberus-Vault-Access", s.Handle);
+        return r;
     }
     private async Task Unchanged(SetupState s)
     {
@@ -180,7 +197,8 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
             RenewalEnabled = state != "disabled",
             RenewalInterval = state == "disabled" ? null : TimeSpan.FromHours(24)
         };
-        db.Accounts.Add(account); await db.SaveChangesAsync();
+        db.Accounts.Add(account);
+        await db.SaveChangesAsync();
         var profile = new Profile
         {
             AccountId = account.Id,
@@ -190,7 +208,8 @@ public class OfflineAuthorizationHttpTests(RegistrationApiFixture fixture, Share
             Envelope = JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", state == "invalidEpoch" ? 0 : 2,
                 ProtocolBinary.Encode(new byte[32]), ProtocolBinary.Encode(new byte[12]), "AQID", ProtocolBinary.Encode(new byte[16])), new JsonSerializerOptions(JsonSerializerDefaults.Web))
         };
-        db.Profiles.Add(profile); await db.SaveChangesAsync();
+        db.Profiles.Add(profile);
+        await db.SaveChangesAsync();
         db.VaultAccessSessions.Add(new VaultAccessSession
         {
             AccountId = account.Id,

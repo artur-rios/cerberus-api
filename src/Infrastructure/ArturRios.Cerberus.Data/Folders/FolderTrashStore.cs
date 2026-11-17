@@ -20,8 +20,10 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
     public async Task<VaultResult<FolderTrashDetails>> TrashAsync(FolderTrashRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (request.FolderId == Guid.Empty || !Safe(request.ExpectedRevision)) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (request.FolderId == Guid.Empty || !Safe(request.ExpectedRevision))
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -30,41 +32,65 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
             // implicit account FK checks. Cross-owner editors never lock this account.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", ct);
             var account = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.HeimdallPublicId == request.Actor, ct);
-            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == account.PublicId, ct)) return new(Error: "not_found");
+            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == account.PublicId, ct))
+                return new(Error: "not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
-            var initial = await SnapshotAsync(db, request, ct); var error = StateError(initial); if (error is not null) return new(Error: error);
+            var initial = await SnapshotAsync(db, request, ct);
+            var error = StateError(initial);
+            if (error is not null)
+                return new(Error: error);
             var target = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
-            if (target.AccountId != account.Id) return new(Error: ValidNative(initial) ? "vault_access_denied" : "persistence_unavailable");
-            var captured = await InventoryAsync(db, request, ct); var inventory = JsonSerializer.Deserialize<Inventory>(captured, Json)!;
-            if (inventory.Cycle) return new(Error: "persistence_unavailable");
-            var folderIds = inventory.Folders.Select(x => x.Id).ToArray(); var recordIds = inventory.Records.Select(x => x.Id).ToArray();
-            var profileIds = inventory.Profiles.Select(x => x.Id).ToArray(); var collectionIds = inventory.Collections.Select(x => x.Id).ToArray();
+            if (target.AccountId != account.Id)
+                return new(Error: ValidNative(initial) ? "vault_access_denied" : "persistence_unavailable");
+            var captured = await InventoryAsync(db, request, ct);
+            var inventory = JsonSerializer.Deserialize<Inventory>(captured, Json)!;
+            if (inventory.Cycle)
+                return new(Error: "persistence_unavailable");
+            var folderIds = inventory.Folders.Select(x => x.Id).ToArray();
+            var recordIds = inventory.Records.Select(x => x.Id).ToArray();
+            var profileIds = inventory.Profiles.Select(x => x.Id).ToArray();
+            var collectionIds = inventory.Collections.Select(x => x.Id).ToArray();
             var structuralFolders = folderIds.Concat(inventory.Parent is null ? [] : new[] { inventory.Parent.Id }).Distinct().ToArray();
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE account_id={account.Id} AND id=ANY({profileIds}) ORDER BY public_id FOR NO KEY UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE account_id={account.Id} AND id=ANY({collectionIds}) ORDER BY public_id FOR NO KEY UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.folder WHERE account_id={account.Id} AND id=ANY({structuralFolders}) ORDER BY public_id FOR UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.record WHERE account_id={account.Id} AND id=ANY({recordIds}) ORDER BY public_id FOR UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile_folder WHERE folder_id=ANY({folderIds}) ORDER BY profile_id,folder_id FOR UPDATE", ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_folder WHERE folder_id=ANY({folderIds}) ORDER BY collection_id,folder_id FOR UPDATE", ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile_record WHERE record_id=ANY({recordIds}) ORDER BY profile_id,record_id FOR UPDATE", ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_record WHERE record_id=ANY({recordIds}) ORDER BY collection_id,record_id FOR UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
-            if (captured != await InventoryAsync(db, request, ct)) return new(Error: "revision_conflict");
+            error = StateError(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
+            if (captured != await InventoryAsync(db, request, ct))
+                return new(Error: "revision_conflict");
             var root = inventory.Folders.Single(x => x.PublicId == request.FolderId);
             var linkedProfiles = inventory.ProfileFolders.Select(x => x.ProfileId).Concat(inventory.ProfileRecords.Select(x => x.ProfileId)).ToHashSet();
             var parents = inventory.Profiles.Where(x => linkedProfiles.Contains(x.Id) && x.DeletedAt is null && !x.Terminal).Select(x => new Parent("profile", x))
                 .Concat(inventory.Collections.Where(x => x.DeletedAt is null && !x.Terminal).Select(x => new Parent("collection", x)))
                 .Concat(inventory.Parent is null ? [] : new[] { new Parent("folder", inventory.Parent) }).ToArray();
             if (inventory.Folders.Concat(inventory.Records).Any(x => !Safe(x.Revision) || !Safe(x.Sequence) || !Time(x.EditedAt) || x.PurgeAt is not null)
-                || parents.Any(x => !Safe(x.Row.Revision) || !Safe(x.Row.Sequence) || !Time(x.Row.EditedAt))) return new(Error: "persistence_unavailable");
+                || parents.Any(x => !Safe(x.Row.Revision) || !Safe(x.Row.Sequence) || !Time(x.Row.EditedAt)))
+                return new(Error: "persistence_unavailable");
             if (root.Revision != request.ExpectedRevision || inventory.Folders.Concat(inventory.Records).Any(x => x.Revision == ProtocolBinary.MaxInteger)
-                || parents.Any(x => x.Row.Revision == ProtocolBinary.MaxInteger)) return new(Error: "revision_conflict");
-            var folderGuids = inventory.Folders.Select(x => x.PublicId).ToArray(); var recordGuids = inventory.Records.Select(x => x.PublicId).ToArray();
-            if (await db.TrashEntries.AnyAsync(x => x.ResourceKind == "folder" && folderGuids.Contains(x.ResourceId) || x.ResourceKind == "record" && recordGuids.Contains(x.ResourceId), ct)) return new(Error: "revision_conflict");
+                || parents.Any(x => x.Row.Revision == ProtocolBinary.MaxInteger))
+                return new(Error: "revision_conflict");
+            var folderGuids = inventory.Folders.Select(x => x.PublicId).ToArray();
+            var recordGuids = inventory.Records.Select(x => x.PublicId).ToArray();
+            if (await db.TrashEntries.AnyAsync(x => x.ResourceKind == "folder" && folderGuids.Contains(x.ResourceId) || x.ResourceKind == "record" && recordGuids.Contains(x.ResourceId), ct))
+                return new(Error: "revision_conflict");
             var args = Parameters(request).Concat(RowParameters(root)).Concat(new object[] { new NpgsqlParameter("inventory", NpgsqlDbType.Jsonb) { Value = captured } }).ToArray();
             var changed = await db.Database.ExecuteSqlRawAsync(Authority + InventoryCtes + ", payload AS (" + InventorySelect + ") " + """
                 UPDATE cerberus.folder AS root SET deleted_at=statement_timestamp(),purge_at=statement_timestamp()+interval '720 hours',
@@ -73,44 +99,56 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
                     AND root.id=@id AND root.revision=@revision AND root.server_sequence=@sequence AND root.envelope=@envelope
                     AND root.parent_folder_id IS NOT DISTINCT FROM @parent AND root.purge_at IS NULL AND p.value::jsonb=@inventory
                 """, args, ct);
-            if (changed != 1) return new(Error: StateError(await SnapshotAsync(db, request, ct)) ?? "revision_conflict");
+            if (changed != 1)
+                return new(Error: StateError(await SnapshotAsync(db, request, ct)) ?? "revision_conflict");
             var result = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == root.Id, ct);
-            if (!Changed(root, result.PublicId, result.AccountId, result.Revision, result.ServerSequence, result.Envelope, result.EditedAt, result.DeletedAt, result.PurgeAt, result.ParentFolderId)) return new(Error: "persistence_unavailable");
-            var deleted = result.DeletedAt!.Value; var purge = result.PurgeAt!.Value;
+            if (!Changed(root, result.PublicId, result.AccountId, result.Revision, result.ServerSequence, result.Envelope, result.EditedAt, result.DeletedAt, result.PurgeAt, result.ParentFolderId))
+                return new(Error: "persistence_unavailable");
+            var deleted = result.DeletedAt!.Value;
+            var purge = result.PurgeAt!.Value;
             foreach (var row in inventory.Folders.Where(x => x.Id != root.Id))
             {
-                error = await TrashMemberAsync(db, "folder", row, deleted, purge, ct); if (error is not null) return new(Error: error);
+                error = await TrashMemberAsync(db, "folder", row, deleted, purge, ct);
+                if (error is not null)
+                    return new(Error: error);
             }
             foreach (var row in inventory.Records)
             {
-                error = await TrashMemberAsync(db, "record", row, deleted, purge, ct); if (error is not null) return new(Error: error);
+                error = await TrashMemberAsync(db, "record", row, deleted, purge, ct);
+                if (error is not null)
+                    return new(Error: error);
             }
             await db.ProfileFolders.Where(x => folderIds.Contains(x.FolderId)).ExecuteDeleteAsync(ct);
             await db.CollectionFolders.Where(x => folderIds.Contains(x.FolderId)).ExecuteDeleteAsync(ct);
             await db.ProfileRecords.Where(x => recordIds.Contains(x.RecordId)).ExecuteDeleteAsync(ct);
             await db.CollectionRecords.Where(x => recordIds.Contains(x.RecordId)).ExecuteDeleteAsync(ct);
-            foreach (var parent in parents) { error = await BumpAsync(db, account.Id, parent, ct); if (error is not null) return new(Error: error); }
+            foreach (var parent in parents)
+            { error = await BumpAsync(db, account.Id, parent, ct); if (error is not null) return new(Error: error); }
             var operation = new TrashOperation { AccountId = account.Id, RootResourceKind = "folder", RootResourceId = root.PublicId, DeletedAt = deleted, PurgeAt = purge };
-            db.TrashOperations.Add(operation); await db.SaveChangesAsync(ct);
+            db.TrashOperations.Add(operation);
+            await db.SaveChangesAsync(ct);
             Guid? FolderGuid(long? id) => id is null ? null : inventory.Folders.SingleOrDefault(x => x.Id == id)?.PublicId ?? (inventory.Parent?.Id == id ? inventory.Parent.PublicId : null);
             Guid[] Profiles(IEnumerable<long> ids) => ids.Select(id => inventory.Profiles.Single(x => x.Id == id).PublicId).Order().ToArray();
             Guid[] Collections(IEnumerable<long> ids) => ids.Select(id => inventory.Collections.Single(x => x.Id == id).PublicId).Order().ToArray();
-            foreach (var row in inventory.Folders) db.TrashEntries.Add(new()
-            {
-                OperationId = operation.Id,
-                ResourceKind = "folder",
-                ResourceId = row.PublicId,
-                AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new FolderAssociationSnapshot(FolderGuid(row.Parent), Profiles(inventory.ProfileFolders.Where(x => x.FolderId == row.Id).Select(x => x.ProfileId)), Collections(inventory.CollectionFolders.Where(x => x.FolderId == row.Id).Select(x => x.CollectionId))), Json)
-            });
-            foreach (var row in inventory.Records) db.TrashEntries.Add(new()
-            {
-                OperationId = operation.Id,
-                ResourceKind = "record",
-                ResourceId = row.PublicId,
-                AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(FolderGuid(row.Parent), Profiles(inventory.ProfileRecords.Where(x => x.RecordId == row.Id).Select(x => x.ProfileId)), Collections(inventory.CollectionRecords.Where(x => x.RecordId == row.Id).Select(x => x.CollectionId))), Json)
-            });
+            foreach (var row in inventory.Folders)
+                db.TrashEntries.Add(new()
+                {
+                    OperationId = operation.Id,
+                    ResourceKind = "folder",
+                    ResourceId = row.PublicId,
+                    AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new FolderAssociationSnapshot(FolderGuid(row.Parent), Profiles(inventory.ProfileFolders.Where(x => x.FolderId == row.Id).Select(x => x.ProfileId)), Collections(inventory.CollectionFolders.Where(x => x.FolderId == row.Id).Select(x => x.CollectionId))), Json)
+                });
+            foreach (var row in inventory.Records)
+                db.TrashEntries.Add(new()
+                {
+                    OperationId = operation.Id,
+                    ResourceKind = "record",
+                    ResourceId = row.PublicId,
+                    AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(FolderGuid(row.Parent), Profiles(inventory.ProfileRecords.Where(x => x.RecordId == row.Id).Select(x => x.ProfileId)), Collections(inventory.CollectionRecords.Where(x => x.RecordId == row.Id).Select(x => x.CollectionId))), Json)
+                });
             await db.SaveChangesAsync(ct);
-            db.RetentionWorkItems.Add(new RetentionWorkItem { OperationKey = "trash/" + operation.PublicId, DueAt = purge }); await db.SaveChangesAsync(ct);
+            db.RetentionWorkItems.Add(new RetentionWorkItem { OperationKey = "trash/" + operation.PublicId, DueAt = purge });
+            await db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
             return new(new(root.PublicId, operation.PublicId, result.Revision, result.ServerSequence, deleted, purge));
         }
@@ -130,7 +168,8 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
     {
         var parent = kind == "folder" ? "parent_folder_id" : "folder_id";
         var sql = $"UPDATE cerberus.{kind} AS child SET deleted_at=@deleted,purge_at=@purge,{parent}=NULL,revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp=@stamp WHERE id=@id AND account_id=@owner AND revision=@revision AND server_sequence=@sequence AND envelope=@envelope AND {parent} IS NOT DISTINCT FROM @parent AND deleted_at IS NULL AND purge_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_kind='{kind}' AND e.resource_id=child.public_id)";
-        if (await db.Database.ExecuteSqlRawAsync(sql, RowParameters(row).Concat(new object[] { new NpgsqlParameter("deleted", deleted), new NpgsqlParameter("purge", purge) }).ToArray(), ct) != 1) return "revision_conflict";
+        if (await db.Database.ExecuteSqlRawAsync(sql, RowParameters(row).Concat(new object[] { new NpgsqlParameter("deleted", deleted), new NpgsqlParameter("purge", purge) }).ToArray(), ct) != 1)
+            return "revision_conflict";
         if (kind == "folder")
         { var r = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == row.Id, ct); return Changed(row, r.PublicId, r.AccountId, r.Revision, r.ServerSequence, r.Envelope, r.EditedAt, r.DeletedAt, r.PurgeAt, r.ParentFolderId) && r.DeletedAt == deleted && r.PurgeAt == purge ? null : "persistence_unavailable"; }
         else
@@ -157,7 +196,8 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
             _ => "UPDATE cerberus.folder SET revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp=@stamp WHERE id=@id AND account_id=@owner AND revision=@revision AND server_sequence=@sequence AND deleted_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE (e.resource_kind='folder' AND e.resource_id=cerberus.folder.public_id))"
         };
         object[] args = [new NpgsqlParameter("stamp", Guid.NewGuid()), new NpgsqlParameter("id", parent.Row.Id), new NpgsqlParameter("owner", account), new NpgsqlParameter("revision", parent.Row.Revision), new NpgsqlParameter("sequence", parent.Row.Sequence)];
-        if (await db.Database.ExecuteSqlRawAsync(update, args, ct) != 1) return "revision_conflict";
+        if (await db.Database.ExecuteSqlRawAsync(update, args, ct) != 1)
+            return "revision_conflict";
         var select = parent.Kind switch { "profile" => "SELECT revision,server_sequence FROM cerberus.profile WHERE id=@id", "collection" => "SELECT revision,server_sequence FROM cerberus.collection WHERE id=@id", _ => "SELECT revision,server_sequence FROM cerberus.folder WHERE id=@id" };
         var current = (await db.Database.SqlQueryRaw<ParentMetadata>(select, new NpgsqlParameter("id", parent.Row.Id)).ToListAsync(ct)).Single();
         return current.Revision != parent.Row.Revision + 1 || !Safe(current.ServerSequence) || current.ServerSequence <= parent.Row.Sequence ? "persistence_unavailable" : null;
@@ -192,10 +232,12 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
     private static bool ValidNative(Snapshot snapshot)
     {
         var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
-        if (grants.Length == 0) return true;
+        if (grants.Length == 0)
+            return true;
         var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, Json);
         if (p is null || !CollectionGrantBinding.TryReadPins(Pins(p.OwnerMaterial, p.OwnerRevision, p.OwnerEpoch, p.OwnerGeneration), out var owner)
-            || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient)) return false;
+            || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient))
+            return false;
         return grants.All(g => CollectionGrantBinding.IsBound(new() { PublicId = g.GrantId, Revision = g.GrantRevision, RecipientKeyEnvelope = Convert.FromHexString(g.GrantEnvelope) },
             new() { PublicId = g.CollectionId, KeyEpoch = g.CollectionEpoch, Envelope = Convert.FromHexString(g.CollectionEnvelope) }, p.OwnerId, p.RecipientIdentity, owner!, recipient!));
     }

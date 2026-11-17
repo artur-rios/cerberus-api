@@ -66,9 +66,12 @@ public class RegistrationHttpTests(RegistrationApiFixture fixture, SharedApiHost
         _ = Gateway.Client;
         var identityCalls = fixture.IdentityCalls;
         var node = JsonSerializer.SerializeToNode(command, new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
-        if (invalid == "badEnvelope") node["details"]!["nonce"] = "bad";
-        else if (invalid == "missingGuid") node["accountId"] = Guid.Empty.ToString();
-        else node[invalid] = "untrusted";
+        if (invalid == "badEnvelope")
+            node["details"]!["nonce"] = "bad";
+        else if (invalid == "missingGuid")
+            node["accountId"] = Guid.Empty.ToString();
+        else
+            node[invalid] = "untrusted";
         using var response = await Gateway.Client.PostAsJsonAsync("/api/accounts", node);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.False(fixture.Users.ContainsKey(command.Identity.Email));

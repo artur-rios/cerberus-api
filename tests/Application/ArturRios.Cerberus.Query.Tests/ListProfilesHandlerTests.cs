@@ -27,19 +27,37 @@ public class ListProfilesHandlerTests
     [InlineData("huge", "validation_failed")]
     public async Task GivenInvalidContext_WhenListing_ThenRejectBeforeStore(string kind, string error)
     {
-        var store = new Mock<IProfileListStore>(MockBehavior.Strict); var q = new ListProfilesQuery(kind == "actor" ? Guid.Empty : Actor, kind == "missing" ? null : kind == "access" ? "bad" : Access,
+        var store = new Mock<IProfileListStore>(MockBehavior.Strict);
+        var q = new ListProfilesQuery(kind == "actor" ? Guid.Empty : Actor, kind == "missing" ? null : kind == "access" ? "bad" : Access,
             kind switch { "zero" => 0, "negative" => -1, "large" => 101, _ => null }, kind switch { "empty" => "", "cursor" => "invalid", "huge" => new string('A', 2049), _ => null });
-        var r = await Handler(store).HandleAsync(q); Assert.Contains(error, r.Errors); Assert.Null(r.Data); store.VerifyNoOtherCalls();
+        var r = await Handler(store).HandleAsync(q);
+        Assert.Contains(error, r.Errors);
+        Assert.Null(r.Data);
+        store.VerifyNoOtherCalls();
     }
     [UnitFact]
     public async Task GivenPermittedPage_WhenContinuing_ThenReturnExactOpaqueContractsAndBoundCursor()
     {
-        var row = Row(1) with { RecordIds = [Guid.NewGuid()], FolderIds = [Guid.NewGuid()], CollectionIds = [Guid.NewGuid()] }; var store = new Mock<IProfileListStore>(MockBehavior.Strict);
+        var row = Row(1) with { RecordIds = [Guid.NewGuid()], FolderIds = [Guid.NewGuid()], CollectionIds = [Guid.NewGuid()] };
+        var store = new Mock<IProfileListStore>(MockBehavior.Strict);
         store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 0, null), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<ProfileListPage>(new([row], 3, true)));
         store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 1, 3), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<ProfileListPage>(new([Row(3)], 3, false)));
-        var handler = Handler(store); var r = await handler.HandleAsync(new(Actor, Access, 1, null)); Assert.True(r.Success); var item = Assert.Single(r.Data!.Items); Assert.Equal(row.ProfileId, item.ProfileId);
-        Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json), item.Envelope); Assert.Equal(JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, ProtectionFixture.Json), item.KeyWrappers);
-        Assert.Equal(row.RecordIds, item.RecordIds); Assert.Equal(row.FolderIds, item.FolderIds); Assert.Equal(row.CollectionIds, item.CollectionIds); Assert.NotNull(r.Data.NextCursor); Assert.DoesNotContain(Actor.ToString(), r.Data.NextCursor); var next = await handler.HandleAsync(new(Actor, Access, 1, r.Data.NextCursor)); Assert.True(next.Success); Assert.Null(next.Data!.NextCursor); Assert.Equal(3, Assert.Single(next.Data.Items).ServerSequence);
+        var handler = Handler(store);
+        var r = await handler.HandleAsync(new(Actor, Access, 1, null));
+        Assert.True(r.Success);
+        var item = Assert.Single(r.Data!.Items);
+        Assert.Equal(row.ProfileId, item.ProfileId);
+        Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json), item.Envelope);
+        Assert.Equal(JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, ProtectionFixture.Json), item.KeyWrappers);
+        Assert.Equal(row.RecordIds, item.RecordIds);
+        Assert.Equal(row.FolderIds, item.FolderIds);
+        Assert.Equal(row.CollectionIds, item.CollectionIds);
+        Assert.NotNull(r.Data.NextCursor);
+        Assert.DoesNotContain(Actor.ToString(), r.Data.NextCursor);
+        var next = await handler.HandleAsync(new(Actor, Access, 1, r.Data.NextCursor));
+        Assert.True(next.Success);
+        Assert.Null(next.Data!.NextCursor);
+        Assert.Equal(3, Assert.Single(next.Data.Items).ServerSequence);
     }
     [UnitTheory]
     [InlineData("actor")]
@@ -49,11 +67,18 @@ public class ListProfilesHandlerTests
     [InlineData("key")]
     public async Task GivenCursorSubstitution_WhenContinuing_ThenRejectBeforePersistence(string kind)
     {
-        var codec = new ProfileListCursor(Options()); var cursor = codec.Encode(new(Actor, Verifier, 1, 1, 3));
-        if (kind == "tamper") { var b = Convert.FromBase64String(cursor.Replace('-', '+').Replace('_', '/') + new string('=', (4 - cursor.Length % 4) % 4)); b[^1] ^= 1; cursor = ProtocolBinary.Encode(b); }
-        var options = Options(); if (kind == "key") options.RegistrationFingerprintKey = new string('z', 40);
-        var store = new Mock<IProfileListStore>(MockBehavior.Strict); var r = await new ListProfilesHandler(store.Object, options, new(options)).HandleAsync(new(kind == "actor" ? Guid.NewGuid() : Actor, kind == "access" ? ProtocolBinary.Encode(new byte[32].Select(_ => (byte)1).ToArray()) : Access, kind == "size" ? 2 : 1, cursor));
-        Assert.Contains("validation_failed", r.Errors); Assert.Null(r.Data); store.VerifyNoOtherCalls();
+        var codec = new ProfileListCursor(Options());
+        var cursor = codec.Encode(new(Actor, Verifier, 1, 1, 3));
+        if (kind == "tamper")
+        { var b = Convert.FromBase64String(cursor.Replace('-', '+').Replace('_', '/') + new string('=', (4 - cursor.Length % 4) % 4)); b[^1] ^= 1; cursor = ProtocolBinary.Encode(b); }
+        var options = Options();
+        if (kind == "key")
+            options.RegistrationFingerprintKey = new string('z', 40);
+        var store = new Mock<IProfileListStore>(MockBehavior.Strict);
+        var r = await new ListProfilesHandler(store.Object, options, new(options)).HandleAsync(new(kind == "actor" ? Guid.NewGuid() : Actor, kind == "access" ? ProtocolBinary.Encode(new byte[32].Select(_ => (byte)1).ToArray()) : Access, kind == "size" ? 2 : 1, cursor));
+        Assert.Contains("validation_failed", r.Errors);
+        Assert.Null(r.Data);
+        store.VerifyNoOtherCalls();
     }
     [UnitTheory]
     [InlineData("after")]
@@ -101,7 +126,8 @@ public class ListProfilesHandlerTests
     [InlineData("duplicateCollection")]
     public async Task GivenCorruptStoredPage_WhenListing_ThenFailWholePageClosed(string kind)
     {
-        var row = Row(1); var wrapper = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, ProtectionFixture.Json)!;
+        var row = Row(1);
+        var wrapper = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, ProtectionFixture.Json)!;
         row = kind switch
         {
             "nullRecords" => row with { RecordIds = null! },
@@ -130,7 +156,9 @@ public class ListProfilesHandlerTests
         };
         IReadOnlyList<ProfileListRow> rows = kind switch { "recipient" => [Row(1), row with { ServerSequence = 2 }], "nullItems" => null!, "order" => [Row(2), row], "duplicate" => [row, row with { ServerSequence = 2 }], "count" => Enumerable.Range(1, 51).Select(x => Row(x)).ToArray(), "emptyMore" => [], _ => [row] };
         var store = MockStore(kind == "missing" ? new() : new(new(rows, kind == "boundary" ? -1 : 100, kind == "emptyMore")));
-        var r = await Handler(store).HandleAsync(new(Actor, Access, null, null)); Assert.Contains("persistence_unavailable", r.Errors); Assert.Null(r.Data);
+        var r = await Handler(store).HandleAsync(new(Actor, Access, null, null));
+        Assert.Contains("persistence_unavailable", r.Errors);
+        Assert.Null(r.Data);
     }
     [UnitFact]
     public async Task GivenEmptyPageAndSmallDeploymentBound_WhenListing_ThenUseBoundedDefaultAndEnd()

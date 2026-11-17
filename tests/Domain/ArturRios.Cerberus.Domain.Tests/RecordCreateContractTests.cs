@@ -18,7 +18,8 @@ public class RecordCreateContractTests
     [InlineData("pre2000")]
     public void GivenNativeRecordWithPermittedRelationshipShape_WhenValidating_ThenAccept(string kind)
     {
-        var input = Input(); input = kind switch
+        var input = Input();
+        input = kind switch
         {
             "folder" => input with { FolderId = Guid.NewGuid() },
             "multipleProfiles" => input with { ProfileIds = [Guid.NewGuid(), Guid.NewGuid()] },
@@ -51,7 +52,9 @@ public class RecordCreateContractTests
     [InlineData("nonUtcTime")]
     public void GivenInvalidVisibleRecordInput_WhenValidating_ThenReject(string kind)
     {
-        var input = Input(); var id = Guid.NewGuid(); input = kind switch
+        var input = Input();
+        var id = Guid.NewGuid();
+        input = kind switch
         {
             "recordId" => input with { RecordId = Guid.Empty },
             "nullEnvelope" => input with { Envelope = null! },
@@ -81,7 +84,8 @@ public class RecordCreateContractTests
     [InlineData("profileIds")]
     public void GivenMissingRequiredCreationMember_WhenParsing_ThenReject(string field)
     {
-        var body = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(Input(), Json), Json)!; body.Remove(field);
+        var body = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(Input(), Json), Json)!;
+        body.Remove(field);
         Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RecordCreateInput>(JsonSerializer.Serialize(body), Json));
     }
     [UnitTheory]
@@ -108,7 +112,9 @@ public class RecordCreateContractTests
     [InlineData("unknownEnvelope")]
     public void GivenAmbiguousOrNonNativeWireBody_WhenParsing_ThenReject(string kind)
     {
-        var input = Input(); var body = JsonSerializer.Serialize(input, Json); body = kind switch
+        var input = Input();
+        var body = JsonSerializer.Serialize(input, Json);
+        body = kind switch
         {
             "duplicate" => body.Insert(1, "\"recordId\":\"" + input.RecordId + "\","),
             "wrongCase" => body.Replace("recordId", "RecordId"),
@@ -123,8 +129,15 @@ public class RecordCreateContractTests
     [InlineData(true)]
     public void GivenAbsentOrExplicitNullFolder_WhenParsing_ThenAcceptUnfolderedRecord(bool absent)
     {
-        var input = Input(); var body = JsonSerializer.Serialize(input, Json); if (absent) body = body.Replace(",\"folderId\":null", "");
-        var parsed = JsonSerializer.Deserialize<RecordCreateInput>(body, Json)!; Assert.True(parsed.IsValid()); Assert.Null(parsed.FolderId); Assert.Equal(input.RecordId, parsed.RecordId); Assert.Equal(input.Envelope, parsed.Envelope);
+        var input = Input();
+        var body = JsonSerializer.Serialize(input, Json);
+        if (absent)
+            body = body.Replace(",\"folderId\":null", "");
+        var parsed = JsonSerializer.Deserialize<RecordCreateInput>(body, Json)!;
+        Assert.True(parsed.IsValid());
+        Assert.Null(parsed.FolderId);
+        Assert.Equal(input.RecordId, parsed.RecordId);
+        Assert.Equal(input.Envelope, parsed.Envelope);
     }
     private static RecordCreateInput Input() => new(Guid.NewGuid(), new EncryptedEnvelope("cerberus-content-v1", 1, ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16])), DateTimeOffset.UnixEpoch, []);
 }

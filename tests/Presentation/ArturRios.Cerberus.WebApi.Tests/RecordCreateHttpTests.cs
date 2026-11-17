@@ -31,12 +31,37 @@ public class RecordCreateHttpTests(RegistrationApiFixture fixture, SharedApiHost
     [InlineData(true, true)]
     public async Task GivenAccountWideHandle_WhenCreatingOpaqueRecord_ThenPersistOwnedContentAndReturnOnlyMetadata(bool profiles, bool folder)
     {
-        using var owner = new ProtectionFixture(); using var first = new ProtectionFixture(); using var second = new ProtectionFixture(); var s = await Setup(owner); var f = folder ? await Folder(s) : null; var parents = profiles ? new[] { await Profile(s, owner, first, f), await Profile(s, owner, second, f) } : []; var input = Input(parents.Select(x => x.PublicId).ToArray(), f?.PublicId); var protectedBefore = await Protected(s);
-        using var response = await Send(s, input); var result = await Success<CreateRecordOutput>(response, 201); Fields(result, "recordId", "revision", "serverSequence", "editedAt"); Assert.Equal(input.RecordId, result.RecordId); Assert.Equal(1, result.Revision); Assert.True(result.ServerSequence > 0); Assert.Equal(Normalize(input.EditedAt), result.EditedAt); Assert.Equal(protectedBefore, await Protected(s));
-        await using var db = fixture.Context(); var row = await db.Records.SingleAsync(x => x.PublicId == input.RecordId); Assert.Equal(s.InternalId, row.AccountId); Assert.Equal(Bytes(input.Envelope), row.Envelope); Assert.Equal(f?.Id, row.FolderId); Assert.Equal(result.ServerSequence, row.ServerSequence); Assert.Equal(result.EditedAt, row.EditedAt);
-        foreach (var p in parents) { using var get = await Read(s, "/api/profiles/" + p.PublicId); var detail = await Success<ProfileDetailsOutput>(get, 200); Assert.Contains(input.RecordId, detail.RecordIds); Assert.Equal(2, detail.Revision); var current = await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id); Assert.Equal(p.Envelope, current.Envelope); Assert.Equal(p.KeyWrappers, current.KeyWrappers); Assert.Equal(p.EditedAt, current.EditedAt); }
-        using var list = await Read(s, "/api/profiles"); var visible = await Success<ProfileListOutput>(list, 200); foreach (var p in parents) Assert.Contains(input.RecordId, visible.Items.Single(x => x.ProfileId == p.PublicId).RecordIds);
-        if (f is not null) { var current = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == f.Id); Assert.Equal(2, current.Revision); Assert.Equal(f.EditedAt, current.EditedAt); Assert.Equal(f.Envelope, current.Envelope); }
+        using var owner = new ProtectionFixture();
+        using var first = new ProtectionFixture();
+        using var second = new ProtectionFixture();
+        var s = await Setup(owner);
+        var f = folder ? await Folder(s) : null;
+        var parents = profiles ? new[] { await Profile(s, owner, first, f), await Profile(s, owner, second, f) } : [];
+        var input = Input(parents.Select(x => x.PublicId).ToArray(), f?.PublicId);
+        var protectedBefore = await Protected(s);
+        using var response = await Send(s, input);
+        var result = await Success<CreateRecordOutput>(response, 201);
+        Fields(result, "recordId", "revision", "serverSequence", "editedAt");
+        Assert.Equal(input.RecordId, result.RecordId);
+        Assert.Equal(1, result.Revision);
+        Assert.True(result.ServerSequence > 0);
+        Assert.Equal(Normalize(input.EditedAt), result.EditedAt);
+        Assert.Equal(protectedBefore, await Protected(s));
+        await using var db = fixture.Context();
+        var row = await db.Records.SingleAsync(x => x.PublicId == input.RecordId);
+        Assert.Equal(s.InternalId, row.AccountId);
+        Assert.Equal(Bytes(input.Envelope), row.Envelope);
+        Assert.Equal(f?.Id, row.FolderId);
+        Assert.Equal(result.ServerSequence, row.ServerSequence);
+        Assert.Equal(result.EditedAt, row.EditedAt);
+        foreach (var p in parents)
+        { using var get = await Read(s, "/api/profiles/" + p.PublicId); var detail = await Success<ProfileDetailsOutput>(get, 200); Assert.Contains(input.RecordId, detail.RecordIds); Assert.Equal(2, detail.Revision); var current = await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id); Assert.Equal(p.Envelope, current.Envelope); Assert.Equal(p.KeyWrappers, current.KeyWrappers); Assert.Equal(p.EditedAt, current.EditedAt); }
+        using var list = await Read(s, "/api/profiles");
+        var visible = await Success<ProfileListOutput>(list, 200);
+        foreach (var p in parents)
+            Assert.Contains(input.RecordId, visible.Items.Single(x => x.ProfileId == p.PublicId).RecordIds);
+        if (f is not null)
+        { var current = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == f.Id); Assert.Equal(2, current.Revision); Assert.Equal(f.EditedAt, current.EditedAt); Assert.Equal(f.Envelope, current.Envelope); }
     }
     [FunctionalTheory]
     [InlineData("Master", "none")]
@@ -47,9 +72,33 @@ public class RecordCreateHttpTests(RegistrationApiFixture fixture, SharedApiHost
     [InlineData("PerProfile", "descendant")]
     public async Task GivenFreshNativeSelectedHandle_WhenCreating_ThenOnlyNewContentInsideSelectionBecomesVisible(string mode, string placement)
     {
-        using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); using var otherKey = new ProtectionFixture(); var s = await Setup(owner); var root = await Folder(s); var target = placement == "descendant" ? await Folder(s, root.Id) : root; var p = await Profile(s, owner, scoped, root, mode); var other = await Profile(s, owner, otherKey); var access = await Open(s, p, scoped); var selected = s with { Access = access }; var input = Input([p.PublicId], placement == "none" ? null : target.PublicId); using var response = await Send(selected, input); await Success<CreateRecordOutput>(response, 201);
-        using var get = await Read(selected, "/api/profiles/" + p.PublicId); var detail = await Success<ProfileDetailsOutput>(get, 200); Assert.Equal(input.RecordId, Assert.Single(detail.RecordIds)); Assert.Equal(2, detail.Revision); using var list = await Read(selected, "/api/profiles"); var item = Assert.Single((await Success<ProfileListOutput>(list, 200)).Items); Assert.Equal(p.PublicId, item.ProfileId); Assert.Contains(input.RecordId, item.RecordIds); using var outside = await Read(selected, "/api/profiles/" + other.PublicId); await Failure(outside, 404);
-        await using var db = fixture.Context(); OpaqueAccessHandle.TryHash(access, out var verifier); Assert.Equal(p.Id, (await db.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == verifier)).ProfileId); Assert.Equal(1, (await db.Profiles.SingleAsync(x => x.Id == other.Id)).Revision);
+        using var owner = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        using var otherKey = new ProtectionFixture();
+        var s = await Setup(owner);
+        var root = await Folder(s);
+        var target = placement == "descendant" ? await Folder(s, root.Id) : root;
+        var p = await Profile(s, owner, scoped, root, mode);
+        var other = await Profile(s, owner, otherKey);
+        var access = await Open(s, p, scoped);
+        var selected = s with { Access = access };
+        var input = Input([p.PublicId], placement == "none" ? null : target.PublicId);
+        using var response = await Send(selected, input);
+        await Success<CreateRecordOutput>(response, 201);
+        using var get = await Read(selected, "/api/profiles/" + p.PublicId);
+        var detail = await Success<ProfileDetailsOutput>(get, 200);
+        Assert.Equal(input.RecordId, Assert.Single(detail.RecordIds));
+        Assert.Equal(2, detail.Revision);
+        using var list = await Read(selected, "/api/profiles");
+        var item = Assert.Single((await Success<ProfileListOutput>(list, 200)).Items);
+        Assert.Equal(p.PublicId, item.ProfileId);
+        Assert.Contains(input.RecordId, item.RecordIds);
+        using var outside = await Read(selected, "/api/profiles/" + other.PublicId);
+        await Failure(outside, 404);
+        await using var db = fixture.Context();
+        OpaqueAccessHandle.TryHash(access, out var verifier);
+        Assert.Equal(p.Id, (await db.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == verifier)).ProfileId);
+        Assert.Equal(1, (await db.Profiles.SingleAsync(x => x.Id == other.Id)).Revision);
     }
     [FunctionalTheory]
     [InlineData("empty", 403)]
@@ -76,9 +125,20 @@ public class RecordCreateHttpTests(RegistrationApiFixture fixture, SharedApiHost
     [InlineData("ancestorTerminal")]
     public async Task GivenHiddenRelationship_WhenCreating_Then404WithoutPartialChanges(string kind)
     {
-        using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(owner); var foreign = await Setup(owner); var p = await Profile(kind == "profileForeign" ? foreign : s, owner, scoped); var root = await Folder(kind == "folderForeign" ? foreign : s); var folder = kind.StartsWith("ancestor", StringComparison.Ordinal) ? await Folder(s, root.Id) : root; var input = Input([kind == "profileMissing" ? Guid.NewGuid() : p.PublicId], kind == "folderMissing" ? Guid.NewGuid() : folder.PublicId);
-        await using (var db = fixture.Context()) { if (kind == "profileTrash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind is "folderTrash" or "ancestorTrash") await db.Folders.Where(x => x.Id == (kind == "folderTrash" ? folder.Id : root.Id)).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind.EndsWith("Terminal", StringComparison.Ordinal)) db.TerminalErasures.Add(new() { ResourceId = kind == "profileTerminal" ? p.PublicId : kind == "ancestorTerminal" ? root.PublicId : folder.PublicId, ResourceKind = kind == "profileTerminal" ? "profile" : "folder", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
-        var before = await Snapshot(s); using var r = await Send(s, input); await Failure(r, 404, "not_found"); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(owner);
+        var foreign = await Setup(owner);
+        var p = await Profile(kind == "profileForeign" ? foreign : s, owner, scoped);
+        var root = await Folder(kind == "folderForeign" ? foreign : s);
+        var folder = kind.StartsWith("ancestor", StringComparison.Ordinal) ? await Folder(s, root.Id) : root;
+        var input = Input([kind == "profileMissing" ? Guid.NewGuid() : p.PublicId], kind == "folderMissing" ? Guid.NewGuid() : folder.PublicId);
+        await using (var db = fixture.Context())
+        { if (kind == "profileTrash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind is "folderTrash" or "ancestorTrash") await db.Folders.Where(x => x.Id == (kind == "folderTrash" ? folder.Id : root.Id)).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind.EndsWith("Terminal", StringComparison.Ordinal)) db.TerminalErasures.Add(new() { ResourceId = kind == "profileTerminal" ? p.PublicId : kind == "ancestorTerminal" ? root.PublicId : folder.PublicId, ResourceKind = kind == "profileTerminal" ? "profile" : "folder", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
+        var before = await Snapshot(s);
+        using var r = await Send(s, input);
+        await Failure(r, 404, "not_found");
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("missing", 404)]
@@ -122,12 +182,75 @@ public class RecordCreateHttpTests(RegistrationApiFixture fixture, SharedApiHost
     [MemberData(nameof(InvalidBodies))]
     public async Task GivenMalformedOrForgedBody_WhenCreating_ThenRejectWithoutMutation(string kind)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var input = Input(); var body = JsonSerializer.SerializeToNode(input, ProtectionFixture.Json)!.AsObject(); var envelope = body["envelope"]!.AsObject();
-        var missing = kind switch { "missingRecordId" => "recordId", "missingEnvelope" => "envelope", "missingEditedAt" => "editedAt", "missingProfileIds" => "profileIds", _ => null }; if (missing is not null) body.Remove(missing);
-        if (kind == "nullEnvelope") body["envelope"] = null; if (kind == "nullProfiles") body["profileIds"] = null; if (kind == "emptyId") body["recordId"] = Guid.Empty; if (kind == "emptyFolder") body["folderId"] = Guid.Empty; if (kind == "duplicateProfiles") body["profileIds"] = new JsonArray(JsonValue.Create(s.Actor), JsonValue.Create(s.Actor)); if (kind == "zeroProfile") body["profileIds"] = new JsonArray(JsonValue.Create(Guid.Empty));
-        if (kind == "badFormat") envelope["format"] = "unknown"; if (kind is "epoch0" or "epoch2") envelope["keyEpoch"] = kind == "epoch0" ? 0 : 2; if (kind == "badSalt") envelope["keySalt"] = "bad"; if (kind == "paddedNonce") envelope["nonce"] = envelope["nonce"]!.GetValue<string>() + "="; if (kind == "emptyCiphertext") envelope["ciphertext"] = ""; if (kind == "badTag") envelope["tag"] = "bad";
-        if (kind == "timeOffset") body["editedAt"] = DateTimeOffset.UnixEpoch.ToOffset(TimeSpan.FromHours(1)); if (kind == "timeDefault") body["editedAt"] = default(DateTimeOffset); if (kind == "time9Ticks") body["editedAt"] = new DateTimeOffset(9, TimeSpan.Zero); if (kind is "actor" or "accountId" or "vaultAccess" or "name" or "fields" or "templateId" or "collectionIds" or "unknown") body[kind] = null; if (kind == "nestedUnknown") envelope["name"] = "plaintext"; if (kind == "numeric") envelope["keyEpoch"] = "1"; if (kind == "fraction") envelope["keyEpoch"] = 1.5; if (kind == "uppercaseId") body["recordId"] = "ABCDEFAB-1234-1234-1234-ABCDEFABCDEF";
-        var raw = body.ToJsonString(); if (kind == "duplicate") raw = raw.Insert(1, "\"profileIds\":[],"); if (kind == "case") raw = raw.Replace("profileIds", "ProfileIds"); if (kind == "null") raw = "null"; if (kind == "array") raw = "[]"; if (kind == "oversized") raw = new string(' ', 65537) + raw; var bytes = kind == "invalidUtf8" ? new byte[] { 255 } : kind == "bom" ? new byte[] { 239, 187, 191 }.Concat(Encoding.UTF8.GetBytes(raw)).ToArray() : Encoding.UTF8.GetBytes(raw); var before = await Snapshot(s); using var request = Request(s, bytes); if (kind == "gzip") request.Content!.Headers.ContentEncoding.Add("gzip"); if (kind == "charset") request.Content!.Headers.ContentType!.CharSet = "iso-8859-1"; using var r = await Gateway.Client.SendAsync(request); await Failure(r, kind == "oversized" ? 413 : 400, kind == "oversized" ? null : "validation_failed"); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var input = Input();
+        var body = JsonSerializer.SerializeToNode(input, ProtectionFixture.Json)!.AsObject();
+        var envelope = body["envelope"]!.AsObject();
+        var missing = kind switch { "missingRecordId" => "recordId", "missingEnvelope" => "envelope", "missingEditedAt" => "editedAt", "missingProfileIds" => "profileIds", _ => null };
+        if (missing is not null)
+            body.Remove(missing);
+        if (kind == "nullEnvelope")
+            body["envelope"] = null;
+        if (kind == "nullProfiles")
+            body["profileIds"] = null;
+        if (kind == "emptyId")
+            body["recordId"] = Guid.Empty;
+        if (kind == "emptyFolder")
+            body["folderId"] = Guid.Empty;
+        if (kind == "duplicateProfiles")
+            body["profileIds"] = new JsonArray(JsonValue.Create(s.Actor), JsonValue.Create(s.Actor));
+        if (kind == "zeroProfile")
+            body["profileIds"] = new JsonArray(JsonValue.Create(Guid.Empty));
+        if (kind == "badFormat")
+            envelope["format"] = "unknown";
+        if (kind is "epoch0" or "epoch2")
+            envelope["keyEpoch"] = kind == "epoch0" ? 0 : 2;
+        if (kind == "badSalt")
+            envelope["keySalt"] = "bad";
+        if (kind == "paddedNonce")
+            envelope["nonce"] = envelope["nonce"]!.GetValue<string>() + "=";
+        if (kind == "emptyCiphertext")
+            envelope["ciphertext"] = "";
+        if (kind == "badTag")
+            envelope["tag"] = "bad";
+        if (kind == "timeOffset")
+            body["editedAt"] = DateTimeOffset.UnixEpoch.ToOffset(TimeSpan.FromHours(1));
+        if (kind == "timeDefault")
+            body["editedAt"] = default(DateTimeOffset);
+        if (kind == "time9Ticks")
+            body["editedAt"] = new DateTimeOffset(9, TimeSpan.Zero);
+        if (kind is "actor" or "accountId" or "vaultAccess" or "name" or "fields" or "templateId" or "collectionIds" or "unknown")
+            body[kind] = null;
+        if (kind == "nestedUnknown")
+            envelope["name"] = "plaintext";
+        if (kind == "numeric")
+            envelope["keyEpoch"] = "1";
+        if (kind == "fraction")
+            envelope["keyEpoch"] = 1.5;
+        if (kind == "uppercaseId")
+            body["recordId"] = "ABCDEFAB-1234-1234-1234-ABCDEFABCDEF";
+        var raw = body.ToJsonString();
+        if (kind == "duplicate")
+            raw = raw.Insert(1, "\"profileIds\":[],");
+        if (kind == "case")
+            raw = raw.Replace("profileIds", "ProfileIds");
+        if (kind == "null")
+            raw = "null";
+        if (kind == "array")
+            raw = "[]";
+        if (kind == "oversized")
+            raw = new string(' ', 65537) + raw;
+        var bytes = kind == "invalidUtf8" ? new byte[] { 255 } : kind == "bom" ? new byte[] { 239, 187, 191 }.Concat(Encoding.UTF8.GetBytes(raw)).ToArray() : Encoding.UTF8.GetBytes(raw);
+        var before = await Snapshot(s);
+        using var request = Request(s, bytes);
+        if (kind == "gzip")
+            request.Content!.Headers.ContentEncoding.Add("gzip");
+        if (kind == "charset")
+            request.Content!.Headers.ContentType!.CharSet = "iso-8859-1";
+        using var r = await Gateway.Client.SendAsync(request);
+        await Failure(r, kind == "oversized" ? 413 : 400, kind == "oversized" ? null : "validation_failed");
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("missing", 401)]
@@ -148,9 +271,32 @@ public class RecordCreateHttpTests(RegistrationApiFixture fixture, SharedApiHost
     [InlineData(true)]
     public async Task GivenHttpCreatedRecord_WhenRotatingContent_ThenRequireCompleteInventoryAndPreserveEditedAt(bool complete)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var input = Input(); using (var created = await Send(s, input)) await Success<CreateRecordOutput>(created, 201); var content = new List<ContentReplacement> { new("account", s.AccountId, 1, Envelope(2)) }; if (complete) content.Add(new("record", input.RecordId, 1, Envelope(2))); var change = new ProtectionChange(s.AccountId, 1, 1, "rotate-content", owner.Rewrap(), content.ToArray()); var raw = Bytes(change);
-        using var challengeRequest = new HttpRequestMessage(HttpMethod.Post, "/api/vault/challenges") { Content = JsonContent.Create(new { operation = "change-protection", requestHash = ProtocolBinary.Encode(SHA256.HashData(raw)) }) }; challengeRequest.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor)); using var issued = await Gateway.Client.SendAsync(challengeRequest); Assert.Equal(HttpStatusCode.Created, issued.StatusCode); using var document = JsonDocument.Parse(await issued.Content.ReadAsStringAsync()); var challenge = document.RootElement.GetProperty("data").GetProperty("challenge").Deserialize<VaultProofChallenge>(ProtectionFixture.Json)!; var before = await Snapshot(s);
-        using var request = Request(s, raw, "/api/vault/protection"); request.Method = HttpMethod.Put; request.Headers.Add("X-Cerberus-Challenge-Id", challenge.ChallengeId.ToString()); request.Headers.Add("X-Cerberus-Proof", owner.Sign(challenge)); using var response = await Gateway.Client.SendAsync(request); if (!complete) { await Failure(response, 400, "validation_failed"); Assert.Equal(before, await Snapshot(s)); } else { Assert.Equal(HttpStatusCode.OK, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore); await using var db = fixture.Context(); var record = await db.Records.SingleAsync(x => x.PublicId == input.RecordId); Assert.Equal(2, record.Revision); Assert.Equal(Bytes(content[1].Envelope), record.Envelope); Assert.Equal(Normalize(input.EditedAt), record.EditedAt); Assert.True((await db.VaultUnlockChallenges.SingleAsync(x => x.PublicId == challenge.ChallengeId)).Consumed); using var stale = await Send(s, Input()); await Failure(stale, 403); }
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var input = Input();
+        using (var created = await Send(s, input))
+            await Success<CreateRecordOutput>(created, 201);
+        var content = new List<ContentReplacement> { new("account", s.AccountId, 1, Envelope(2)) };
+        if (complete)
+            content.Add(new("record", input.RecordId, 1, Envelope(2)));
+        var change = new ProtectionChange(s.AccountId, 1, 1, "rotate-content", owner.Rewrap(), content.ToArray());
+        var raw = Bytes(change);
+        using var challengeRequest = new HttpRequestMessage(HttpMethod.Post, "/api/vault/challenges") { Content = JsonContent.Create(new { operation = "change-protection", requestHash = ProtocolBinary.Encode(SHA256.HashData(raw)) }) };
+        challengeRequest.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor));
+        using var issued = await Gateway.Client.SendAsync(challengeRequest);
+        Assert.Equal(HttpStatusCode.Created, issued.StatusCode);
+        using var document = JsonDocument.Parse(await issued.Content.ReadAsStringAsync());
+        var challenge = document.RootElement.GetProperty("data").GetProperty("challenge").Deserialize<VaultProofChallenge>(ProtectionFixture.Json)!;
+        var before = await Snapshot(s);
+        using var request = Request(s, raw, "/api/vault/protection");
+        request.Method = HttpMethod.Put;
+        request.Headers.Add("X-Cerberus-Challenge-Id", challenge.ChallengeId.ToString());
+        request.Headers.Add("X-Cerberus-Proof", owner.Sign(challenge));
+        using var response = await Gateway.Client.SendAsync(request);
+        if (!complete)
+        { await Failure(response, 400, "validation_failed"); Assert.Equal(before, await Snapshot(s)); }
+        else
+        { Assert.Equal(HttpStatusCode.OK, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore); await using var db = fixture.Context(); var record = await db.Records.SingleAsync(x => x.PublicId == input.RecordId); Assert.Equal(2, record.Revision); Assert.Equal(Bytes(content[1].Envelope), record.Envelope); Assert.Equal(Normalize(input.EditedAt), record.EditedAt); Assert.True((await db.VaultUnlockChallenges.SingleAsync(x => x.PublicId == challenge.ChallengeId)).Consumed); using var stale = await Send(s, Input()); await Failure(stale, 403); }
     }
     private sealed record State(Guid Actor, Guid AccountId, long InternalId, string Access);
     private async Task<State> Setup(ProtectionFixture client)

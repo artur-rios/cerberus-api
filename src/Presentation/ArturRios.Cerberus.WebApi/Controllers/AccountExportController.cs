@@ -40,8 +40,10 @@ public sealed class AccountExportController(QueryMediator queries) : ControllerB
         access = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
         var result = await queries.ExecuteQueryAsync<ExportAccountQuery, AccountExportOutput>(new(actor, issuedAt, access, input.ExpectedRevision), cancellationToken);
         var lease = result.Data?.Lease;
-        if (result.Success && lease is not null) return new AccountExportStreamResult(lease);
-        if (lease is not null) { try { await lease.DisposeAsync(); } catch (Exception) {/* Unpublished ownership never escapes. */} }
+        if (result.Success && lease is not null)
+            return new AccountExportStreamResult(lease);
+        if (lease is not null)
+        { try { await lease.DisposeAsync(); } catch (Exception) {/* Unpublished ownership never escapes. */} }
         var code = result.Errors.FirstOrDefault(e => AccountExportMessages.StatusCodes.ContainsKey(e)) ?? "persistence_unavailable";
         return StatusCode(AccountExportMessages.StatusCodes[code], ProcessOutput.New.WithError(code));
     }

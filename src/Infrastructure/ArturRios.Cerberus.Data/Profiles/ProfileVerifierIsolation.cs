@@ -10,7 +10,8 @@ internal static class ProfileVerifierIsolation
     // The caller holds the owning account lock through check and admission.
     internal static async Task<bool> IsUniqueAsync(AppDbContext db, long accountId, PublicJwk candidate, long? excludedProfileId, CancellationToken ct)
     {
-        if (candidate?.IsValid() != true) throw new JsonException("Invalid scoped verifier.");
+        if (candidate?.IsValid() != true)
+            throw new JsonException("Invalid scoped verifier.");
         var fingerprint = candidate.Fingerprint();
         var retained = await db.Profiles.AsNoTracking().Where(x => x.AccountId == accountId && (excludedProfileId == null || x.Id != excludedProfileId))
             .Select(x => x.KeyWrappers).ToArrayAsync(ct);
@@ -18,8 +19,10 @@ internal static class ProfileVerifierIsolation
         foreach (var bytes in retained)
         {
             var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(bytes, Json);
-            if (wrappers?.UnlockVerifier?.IsValid() != true) throw new JsonException("Invalid retained scoped verifier.");
-            if (wrappers.UnlockVerifier.Fingerprint() == fingerprint) unique = false;
+            if (wrappers?.UnlockVerifier?.IsValid() != true)
+                throw new JsonException("Invalid retained scoped verifier.");
+            if (wrappers.UnlockVerifier.Fingerprint() == fingerprint)
+                unique = false;
         }
         return unique;
     }

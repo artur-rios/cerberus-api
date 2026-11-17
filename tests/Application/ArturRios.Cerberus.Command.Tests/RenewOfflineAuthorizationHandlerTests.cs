@@ -22,11 +22,15 @@ public class RenewOfflineAuthorizationHandlerTests
     {
         var c = Command();
         c.SetContext(invalid == "identity" ? Guid.Empty : Identity, invalid == "missing" ? null : invalid == "handle" ? "invalid" : Handle);
-        if (invalid == "profile") c.ProfileId = Guid.Empty;
-        if (invalid == "revision") c.ExpectedProfileRevision = 0;
-        if (invalid == "unsafeRevision") c.ExpectedProfileRevision = 9007199254740992;
+        if (invalid == "profile")
+            c.ProfileId = Guid.Empty;
+        if (invalid == "revision")
+            c.ExpectedProfileRevision = 0;
+        if (invalid == "unsafeRevision")
+            c.ExpectedProfileRevision = 9007199254740992;
         var result = await new RenewOfflineAuthorizationHandler(new RenewOfflineAuthorizationValidator(), new Mock<IOfflineAuthorizationStore>(MockBehavior.Strict).Object).HandleAsync(c);
-        Assert.Contains(error, result.Errors); Assert.Null(result.Data);
+        Assert.Contains(error, result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitTheory]
     [InlineData("not_found")]
@@ -36,7 +40,8 @@ public class RenewOfflineAuthorizationHandlerTests
     public async Task GivenDeniedRenewal_WhenHandling_ThenReturnStableErrorWithoutLease(string error)
     {
         var result = await Handler(new(Error: error)).HandleAsync(Command());
-        Assert.Contains(error, result.Errors); Assert.Null(result.Data);
+        Assert.Contains(error, result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitTheory]
     [InlineData(true)]
@@ -76,12 +81,14 @@ public class RenewOfflineAuthorizationHandlerTests
             _ => d
         };
         var result = await Handler(new(invalid == "empty" ? null : d)).HandleAsync(Command());
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenRenewing_ThenPropagateCancellation()
     {
-        using var c = new CancellationTokenSource(); c.Cancel();
+        using var c = new CancellationTokenSource();
+        c.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new()).HandleAsync(Command(), c.Token));
     }
     private static OfflineAuthorizationDetails Details(bool enabled)

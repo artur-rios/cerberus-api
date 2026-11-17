@@ -9,7 +9,9 @@ public sealed class AccountClosureRecoveryStore(IDbContextFactory<AppDbContext> 
 {
     public async Task<AccountClosureRecoveryResult> ReadAsync(AccountClosureRecoveryRequest request, CancellationToken ct)
     {
-        ct.ThrowIfCancellationRequested(); if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
+        ct.ThrowIfCancellationRequested();
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -22,12 +24,18 @@ public sealed class AccountClosureRecoveryStore(IDbContextFactory<AppDbContext> 
                 FROM cerberus.account a LEFT JOIN cerberus.retention_work_item w ON w.operation_key='account-purge/'||a.public_id::text
                 WHERE a.heimdall_public_id={request.Actor}
                 """).ToListAsync(ct);
-            var a = rows.SingleOrDefault(); if (a is null || a.Erased || a.State != (int)AccountState.ClosurePending) return new(Error: "authentication_required");
-            if (!FreshAuthentication.IsFresh(request.AuthenticationIssuedAt, a.Now)) return new(Error: "fresh_authentication_required");
+            var a = rows.SingleOrDefault();
+            if (a is null || a.Erased || a.State != (int)AccountState.ClosurePending)
+                return new(Error: "authentication_required");
+            if (!FreshAuthentication.IsFresh(request.AuthenticationIssuedAt, a.Now))
+                return new(Error: "fresh_authentication_required");
             if (a.Start is not { } start || a.Deadline is not { } deadline || a.Policy is <= 0 or > ProtocolBinary.MaxInteger
-                || !new AccountClosureDetails(a.AccountId, a.Revision, a.Generation, start, deadline, a.Now, true).IsValid()) return new(Error: "persistence_unavailable");
-            if (deadline <= a.Now) return new(Error: "closure_expired");
-            if (a.WorkId is null || a.WorkId == Guid.Empty || a.Due != deadline || a.Completed is not null) return new(Error: "persistence_unavailable");
+                || !new AccountClosureDetails(a.AccountId, a.Revision, a.Generation, start, deadline, a.Now, true).IsValid())
+                return new(Error: "persistence_unavailable");
+            if (deadline <= a.Now)
+                return new(Error: "closure_expired");
+            if (a.WorkId is null || a.WorkId == Guid.Empty || a.Due != deadline || a.Completed is not null)
+                return new(Error: "persistence_unavailable");
             var details = new AccountClosureRecoveryDetails(a.AccountId, a.Revision, deadline, a.Now);
             return details.IsValid() ? new(details) : new(Error: "persistence_unavailable");
         }

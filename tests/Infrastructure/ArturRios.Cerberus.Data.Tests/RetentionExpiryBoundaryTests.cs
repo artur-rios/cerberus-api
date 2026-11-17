@@ -18,7 +18,8 @@ public sealed class RetentionExpiryBoundaryTests
     [InlineData(10L, true)]
     public void GivenOriginalThirtyDayDeadline_WhenCheckingEachBoundary_ThenExpiryBeginsAtDeadline(long offset, bool expected)
     {
-        var start = new DateTimeOffset(2026, 9, 15, 12, 0, 0, TimeSpan.Zero); var deadline = new DateTimeOffset(2026, 10, 15, 12, 0, 0, TimeSpan.Zero);
+        var start = new DateTimeOffset(2026, 9, 15, 12, 0, 0, TimeSpan.Zero);
+        var deadline = new DateTimeOffset(2026, 10, 15, 12, 0, 0, TimeSpan.Zero);
         Assert.Equal(expected, Due(start, deadline, deadline.AddTicks(offset)));
     }
     [UnitTheory]
@@ -31,12 +32,23 @@ public sealed class RetentionExpiryBoundaryTests
     [InlineData("beforeEpoch")]
     public void GivenMalformedOriginalRetentionWindow_WhenCheckingExpiry_ThenFailClosed(string damage)
     {
-        DateTimeOffset? start = new DateTimeOffset(2026, 9, 15, 12, 0, 0, TimeSpan.Zero); DateTimeOffset? end = new DateTimeOffset(2026, 10, 15, 12, 0, 0, TimeSpan.Zero); var now = end.Value.AddDays(100);
-        if (damage == "missingStart") start = null; if (damage == "missingEnd") end = null;
-        if (damage == "short") start = start!.Value.AddHours(1); if (damage == "long") start = start!.Value.AddHours(-1);
-        if (damage == "nonUtc") start = start!.Value.ToOffset(TimeSpan.FromHours(1));
-        if (damage == "precision") { start = start!.Value.AddTicks(1); end = end!.Value.AddTicks(1); }
-        if (damage == "beforeEpoch") { start = DateTimeOffset.UnixEpoch.AddDays(-1); end = DateTimeOffset.UnixEpoch.AddDays(29); }
+        DateTimeOffset? start = new DateTimeOffset(2026, 9, 15, 12, 0, 0, TimeSpan.Zero);
+        DateTimeOffset? end = new DateTimeOffset(2026, 10, 15, 12, 0, 0, TimeSpan.Zero);
+        var now = end.Value.AddDays(100);
+        if (damage == "missingStart")
+            start = null;
+        if (damage == "missingEnd")
+            end = null;
+        if (damage == "short")
+            start = start!.Value.AddHours(1);
+        if (damage == "long")
+            start = start!.Value.AddHours(-1);
+        if (damage == "nonUtc")
+            start = start!.Value.ToOffset(TimeSpan.FromHours(1));
+        if (damage == "precision")
+        { start = start!.Value.AddTicks(1); end = end!.Value.AddTicks(1); }
+        if (damage == "beforeEpoch")
+        { start = DateTimeOffset.UnixEpoch.AddDays(-1); end = DateTimeOffset.UnixEpoch.AddDays(29); }
         Assert.False(Due(start, end, now));
     }
 }

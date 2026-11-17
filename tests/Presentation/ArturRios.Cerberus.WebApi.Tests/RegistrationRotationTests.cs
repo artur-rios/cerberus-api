@@ -1,6 +1,6 @@
 using ArturRios.Cerberus.Command.Accounts;
-using ArturRios.Cerberus.Data.Accounts;
 using ArturRios.Cerberus.Data;
+using ArturRios.Cerberus.Data.Accounts;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Shared.Configuration;
 using ArturRios.Cerberus.Shared.Identity;

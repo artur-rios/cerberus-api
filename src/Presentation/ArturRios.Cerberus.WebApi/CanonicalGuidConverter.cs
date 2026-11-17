@@ -7,7 +7,8 @@ public sealed class CanonicalGuidConverter : JsonConverter<Guid>
 {
     public override Guid Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType != JsonTokenType.String) throw new JsonException();
+        if (reader.TokenType != JsonTokenType.String)
+            throw new JsonException();
         var text = reader.GetString();
         if (!Guid.TryParseExact(text, "D", out var value) || value == Guid.Empty || value.ToString("D") != text)
             throw new JsonException();

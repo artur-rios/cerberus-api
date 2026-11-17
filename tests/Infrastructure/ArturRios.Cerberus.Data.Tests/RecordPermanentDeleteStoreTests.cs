@@ -52,7 +52,8 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         var terminal = await db.TerminalErasures.SingleAsync(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId);
         Assert.Equal(result.Data.DeletedAt, terminal.DeletedAt);
         var events = new List<ErasureEntry>();
-        await foreach (var entry in Ledger.ReadAsync(default)) events.Add(entry);
+        await foreach (var entry in Ledger.ReadAsync(default))
+            events.Add(entry);
         Assert.Equal(new ErasureEntry(w.Record.PublicId, "record", terminal.DeletedAt), Assert.Single(events));
         Assert.NotNull(await db.Folders.SingleOrDefaultAsync(x => x.Id == w.Items.Folder.Id));
         Assert.NotNull(await db.Collections.SingleOrDefaultAsync(x => x.Id == w.Items.Collection.Id));
@@ -84,22 +85,33 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
         await using var db = fixture.CreateContext();
         var request = w.Request();
-        if (kind == "stale") request = request with { ExpectedRevision = 99 };
-        if (kind == "missing") request = request with { RecordId = Guid.NewGuid() };
-        if (kind == "actor") request = request with { Actor = Guid.NewGuid() };
-        if (kind == "handle") request = request with { AccessVerifier = new string('a', 64) };
+        if (kind == "stale")
+            request = request with { ExpectedRevision = 99 };
+        if (kind == "missing")
+            request = request with { RecordId = Guid.NewGuid() };
+        if (kind == "actor")
+            request = request with { Actor = Guid.NewGuid() };
+        if (kind == "handle")
+            request = request with { AccessVerifier = new string('a', 64) };
         if (kind is "unselected" or "dangling")
         {
             var p = await AssociationSetup.Profile(fixture, w.State, w.Owner);
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ProfileId, kind == "dangling" ? long.MaxValue : p));
         }
-        if (kind == "expired") await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, DateTimeOffset.UtcNow.AddSeconds(-1)));
-        if (kind == "future") await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.IssuedAt, DateTimeOffset.UtcNow.AddHours(1)));
-        if (kind == "revoked") await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revoked, true));
-        if (kind == "policy") await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.PolicyRevision, 99));
-        if (kind == "generation") await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.RevocationGeneration, 99));
-        if (kind == "closing") await db.Accounts.Where(x => x.Id == w.State.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending));
-        if (kind == "terminal") { db.TerminalErasures.Add(new() { ResourceKind = "record", ResourceId = w.Record.PublicId, DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
+        if (kind == "expired")
+            await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, DateTimeOffset.UtcNow.AddSeconds(-1)));
+        if (kind == "future")
+            await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.IssuedAt, DateTimeOffset.UtcNow.AddHours(1)));
+        if (kind == "revoked")
+            await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revoked, true));
+        if (kind == "policy")
+            await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.PolicyRevision, 99));
+        if (kind == "generation")
+            await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.RevocationGeneration, 99));
+        if (kind == "closing")
+            await db.Accounts.Where(x => x.Id == w.State.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending));
+        if (kind == "terminal")
+        { db.TerminalErasures.Add(new() { ResourceKind = "record", ResourceId = w.Record.PublicId, DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
         if (kind == "ancestorTrash")
         {
             await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.FolderId, w.Items.Folder.Id));
@@ -183,7 +195,8 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
             Assert.True(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId));
             Assert.True(await db.Records.AnyAsync(x => x.Id == w.Record.Id));
             Assert.Equal("not_found", (await new RecordReadStore(fixture).ReadAsync(new(w.State.Actor, w.State.Verifier, w.Record.PublicId), default)).Error);
-            if (!failAfterLedger) throw new IOException("fixture ledger unavailable");
+            if (!failAfterLedger)
+                throw new IOException("fixture ledger unavailable");
         }, failAfterLedger ? () => throw new IOException("fixture crash after fsync") : null);
         Assert.Equal("persistence_unavailable", (await Store(ledger).DeleteAsync(w.Request(), default)).Error);
         await using var db = fixture.CreateContext();
@@ -240,8 +253,10 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         await using var transaction = await held.Database.BeginTransactionAsync();
         var table = kind == "session" ? "vault_access_session" : kind;
         var id = kind switch { "account" => w.State.InternalId, "profile" => w.Selection!.Value, "collection" => w.Items.Collection.Id, "folder" => w.Items.Folder.Id, _ => w.Record.Id };
-        if (kind == "session") await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE handle_verifier={w.State.Verifier} FOR UPDATE");
-        else { var lockSql = "SELECT FROM cerberus." + table + " WHERE id={0} FOR UPDATE"; await held.Database.ExecuteSqlRawAsync(lockSql, id); }
+        if (kind == "session")
+            await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE handle_verifier={w.State.Verifier} FOR UPDATE");
+        else
+        { var lockSql = "SELECT FROM cerberus." + table + " WHERE id={0} FOR UPDATE"; await held.Database.ExecuteSqlRawAsync(lockSql, id); }
         var signal = new PermanentDeleteSetup.LockSignal(table);
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var pending = Store(factory: new ProfileSetup.Factory(fixture, signal)).DeleteAsync(w.Request() with { ExpectedRevision = 99 }, ct.Token);
@@ -290,8 +305,10 @@ internal static class PermanentDeleteSetup
         var target = new VaultRecord { AccountId = s.InternalId, PublicId = Guid.NewGuid(), Envelope = JsonSerializer.SerializeToUtf8Bytes(ProfileSetup.Envelope(), ProtectionFixture.Json), EditedAt = DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()), FolderId = route is "folder" or "descendant" ? items.Folder.Id : null };
         db.Records.Add(target);
         await db.SaveChangesAsync();
-        if (route == "collection") db.CollectionRecords.Add(new() { AccountId = s.InternalId, CollectionId = items.Collection.Id, RecordId = target.Id });
-        if (route == "descendant") db.CollectionFolders.Add(new() { AccountId = s.InternalId, CollectionId = items.Collection.Id, FolderId = items.Folder.Id });
+        if (route == "collection")
+            db.CollectionRecords.Add(new() { AccountId = s.InternalId, CollectionId = items.Collection.Id, RecordId = target.Id });
+        if (route == "descendant")
+            db.CollectionFolders.Add(new() { AccountId = s.InternalId, CollectionId = items.Collection.Id, FolderId = items.Folder.Id });
         await db.SaveChangesAsync();
         long? selection = null;
         if (route != "wide")
@@ -305,7 +322,8 @@ internal static class PermanentDeleteSetup
             Assert.Null((await new RecordTrashStore(fixture).TrashAsync(new(s.Actor, s.Verifier, target.PublicId, target.Revision), default)).Error);
             target = await db.Records.AsNoTracking().SingleAsync(x => x.Id == target.Id);
         }
-        if (selection is not null) await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ProfileId, selection));
+        if (selection is not null)
+            await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ProfileId, selection));
         return new(owner, key, s, items, target, selection);
     }
     internal static async Task<string> Snapshot(PostgresFixture fixture, long account)
@@ -329,9 +347,12 @@ internal static class PermanentDeleteSetup
     internal static async Task<ParentState> Parent(PostgresFixture fixture, World w, string kind)
     {
         await using var db = fixture.CreateContext();
-        if (kind == "profile") { var p = await db.Profiles.SingleAsync(x => x.Id == w.Selection); return new(p.Revision, p.ServerSequence, Convert.ToHexString(p.Envelope), p.EditedAt); }
-        if (kind == "collection") { var c = await db.Collections.SingleAsync(x => x.Id == w.Items.Collection.Id); return new(c.Revision, c.ServerSequence, Convert.ToHexString(c.Envelope), c.EditedAt); }
-        var f = await db.Folders.SingleAsync(x => x.Id == w.Items.Folder.Id); return new(f.Revision, f.ServerSequence, Convert.ToHexString(f.Envelope), f.EditedAt);
+        if (kind == "profile")
+        { var p = await db.Profiles.SingleAsync(x => x.Id == w.Selection); return new(p.Revision, p.ServerSequence, Convert.ToHexString(p.Envelope), p.EditedAt); }
+        if (kind == "collection")
+        { var c = await db.Collections.SingleAsync(x => x.Id == w.Items.Collection.Id); return new(c.Revision, c.ServerSequence, Convert.ToHexString(c.Envelope), c.EditedAt); }
+        var f = await db.Folders.SingleAsync(x => x.Id == w.Items.Folder.Id);
+        return new(f.Revision, f.ServerSequence, Convert.ToHexString(f.Envelope), f.EditedAt);
     }
     internal sealed class LedgerBoundary(IErasureLedger inner, Func<Task> before, Action? after = null) : IErasureLedger
     {

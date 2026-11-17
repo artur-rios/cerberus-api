@@ -30,7 +30,8 @@ public class Program
         catch (HostAbortedException) { throw; } // WebApplicationFactory intercepts host construction.
         catch (OptionsValidationException exception)
         {
-            foreach (var failure in exception.Failures) Console.Error.WriteLine(failure);
+            foreach (var failure in exception.Failures)
+                Console.Error.WriteLine(failure);
             return 1;
         }
         catch (Exception)

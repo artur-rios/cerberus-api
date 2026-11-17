@@ -28,11 +28,13 @@ public sealed record SoftwareSecretDetails(
     {
         if (identity?.IsValid() != true || input?.IsValid() != true || OwnerAccountId == Guid.Empty || GrantId != input.GrantId
             || GrantRevision is <= 0 or > ProtocolBinary.MaxInteger || Target?.IsValid() != true || Target.Kind != input.Kind || Target.Id != input.Id
-            || Provisioning?.Resource?.IsValid() != true || RecipientKey?.IsValid() != true || AuthorKey?.IsValid() != true) return false;
+            || Provisioning?.Resource?.IsValid() != true || RecipientKey?.IsValid() != true || AuthorKey?.IsValid() != true)
+            return false;
         var resource = Provisioning.Resource;
         if (input.CollectionId is { } collection)
         { if (resource.Kind != "collection" || resource.Id != collection) return false; }
-        else if (resource != Target) return false;
+        else if (resource != Target)
+            return false;
         return Provisioning.KeyEnvelope?.Verify(OwnerAccountId, resource.Kind, resource.Id, resource.KeyEpoch, GrantId, GrantRevision,
             identity.ApplicationId, RecipientKey.ToPublicJwk(), AuthorKey) == true;
     }

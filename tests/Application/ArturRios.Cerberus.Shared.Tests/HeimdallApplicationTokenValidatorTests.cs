@@ -15,9 +15,14 @@ public class HeimdallApplicationTokenValidatorTests
     [InlineData(true)]
     public async Task GivenCurrentOrPreviousApplicationSigningKey_WhenValidating_ThenBindApplicationScopeAndCredentialWithoutPersonRole(bool previous)
     {
-        var o = ApplicationAuthFixture.Options(); var p = ApplicationAuthFixture.Payload(o); var token = ApplicationAuthFixture.Token(o, p, previous ? o.AuthValidationSecretPrevious : null);
-        var principal = await new HeimdallApplicationTokenValidator(o).ValidateAsync(token); Assert.NotNull(principal);
-        Assert.Equal(p["id"], principal.FindFirst("id")!.Value); Assert.Equal(p["credentialId"], principal.FindFirst("credentialId")!.Value); Assert.Null(principal.FindFirst("roleId"));
+        var o = ApplicationAuthFixture.Options();
+        var p = ApplicationAuthFixture.Payload(o);
+        var token = ApplicationAuthFixture.Token(o, p, previous ? o.AuthValidationSecretPrevious : null);
+        var principal = await new HeimdallApplicationTokenValidator(o).ValidateAsync(token);
+        Assert.NotNull(principal);
+        Assert.Equal(p["id"], principal.FindFirst("id")!.Value);
+        Assert.Equal(p["credentialId"], principal.FindFirst("credentialId")!.Value);
+        Assert.Null(principal.FindFirst("roleId"));
     }
     [UnitTheory]
     [InlineData("issuer")]
@@ -50,31 +55,76 @@ public class HeimdallApplicationTokenValidatorTests
     [InlineData("algorithm")]
     public async Task GivenUntrustedOrPersonAuthorityApplicationToken_WhenValidating_ThenReject(string kind)
     {
-        var o = ApplicationAuthFixture.Options(); var p = ApplicationAuthFixture.Payload(o); var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var o = ApplicationAuthFixture.Options();
+        var p = ApplicationAuthFixture.Payload(o);
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         switch (kind)
         {
-            case "issuer": p["iss"] = "other"; break;
-            case "audience": p["aud"] = "other"; break;
-            case "personAudience": p["aud"] = o.AuthAudience!; break;
-            case "scope": p["scopeId"] = Guid.NewGuid().ToString(); break;
-            case "application": p["id"] = Guid.Empty.ToString(); break;
-            case "credential": p["credentialId"] = Guid.Empty.ToString(); break;
-            case "missingCredential": p.Remove("credentialId"); break;
-            case "missingKind": p.Remove("tokenKind"); break;
-            case "kind": p["tokenKind"] = "person"; break;
-            case "roleId": case "role": case "roles": case "ownedScopeIds": case "mfaPending": p[kind] = "3"; break;
-            case "expired": p["exp"] = now - 1; break;
-            case "futureIssued": p["iat"] = now + 30; break;
-            case "futureNotBefore": p["nbf"] = now + 30; break;
-            case "missingExpiry": p.Remove("exp"); break;
-            case "missingIssued": p.Remove("iat"); break;
-            case "missingNotBefore": p.Remove("nbf"); break;
-            case "stringExpiry": p["exp"] = (now + 60).ToString(); break;
-            case "expiryRange": p["exp"] = long.MaxValue; break;
-            case "fractionalIssued": p["iat"] = now - 0.5; break;
+            case "issuer":
+                p["iss"] = "other";
+                break;
+            case "audience":
+                p["aud"] = "other";
+                break;
+            case "personAudience":
+                p["aud"] = o.AuthAudience!;
+                break;
+            case "scope":
+                p["scopeId"] = Guid.NewGuid().ToString();
+                break;
+            case "application":
+                p["id"] = Guid.Empty.ToString();
+                break;
+            case "credential":
+                p["credentialId"] = Guid.Empty.ToString();
+                break;
+            case "missingCredential":
+                p.Remove("credentialId");
+                break;
+            case "missingKind":
+                p.Remove("tokenKind");
+                break;
+            case "kind":
+                p["tokenKind"] = "person";
+                break;
+            case "roleId":
+            case "role":
+            case "roles":
+            case "ownedScopeIds":
+            case "mfaPending":
+                p[kind] = "3";
+                break;
+            case "expired":
+                p["exp"] = now - 1;
+                break;
+            case "futureIssued":
+                p["iat"] = now + 30;
+                break;
+            case "futureNotBefore":
+                p["nbf"] = now + 30;
+                break;
+            case "missingExpiry":
+                p.Remove("exp");
+                break;
+            case "missingIssued":
+                p.Remove("iat");
+                break;
+            case "missingNotBefore":
+                p.Remove("nbf");
+                break;
+            case "stringExpiry":
+                p["exp"] = (now + 60).ToString();
+                break;
+            case "expiryRange":
+                p["exp"] = long.MaxValue;
+                break;
+            case "fractionalIssued":
+                p["iat"] = now - 0.5;
+                break;
         }
         var raw = JsonSerializer.Serialize(p);
-        if (kind.StartsWith("duplicate", StringComparison.Ordinal)) raw = raw[..^1] + "," + JsonSerializer.Serialize(kind == "duplicateId" ? "id" : kind == "duplicateKind" ? "tokenKind" : "aud") + ":" + JsonSerializer.Serialize(kind == "duplicateId" ? Guid.NewGuid().ToString() : kind == "duplicateKind" ? "application" : o.AuthApplicationAudience) + "}";
+        if (kind.StartsWith("duplicate", StringComparison.Ordinal))
+            raw = raw[..^1] + "," + JsonSerializer.Serialize(kind == "duplicateId" ? "id" : kind == "duplicateKind" ? "tokenKind" : "aud") + ":" + JsonSerializer.Serialize(kind == "duplicateId" ? Guid.NewGuid().ToString() : kind == "duplicateKind" ? "application" : o.AuthApplicationAudience) + "}";
         var token = ApplicationAuthFixture.Raw(raw, kind == "signature" ? new string('z', 40) : o.AuthValidationSecret!, kind == "algorithm" ? SecurityAlgorithms.HmacSha384 : SecurityAlgorithms.HmacSha256);
         Assert.Null(await new HeimdallApplicationTokenValidator(o).ValidateAsync(token));
     }
@@ -83,7 +133,9 @@ public class HeimdallApplicationTokenValidatorTests
     [InlineData("same")]
     public async Task GivenMissingOrPersonAudienceConfiguration_WhenValidatingApplication_ThenFailClosed(string kind)
     {
-        var o = ApplicationAuthFixture.Options(); var token = ApplicationAuthFixture.Token(o, ApplicationAuthFixture.Payload(o)); o.AuthApplicationAudience = kind == "missing" ? null : o.AuthAudience;
+        var o = ApplicationAuthFixture.Options();
+        var token = ApplicationAuthFixture.Token(o, ApplicationAuthFixture.Payload(o));
+        o.AuthApplicationAudience = kind == "missing" ? null : o.AuthAudience;
         Assert.Null(await new HeimdallApplicationTokenValidator(o).ValidateAsync(token));
     }
     [UnitTheory]
@@ -93,13 +145,25 @@ public class HeimdallApplicationTokenValidatorTests
     [InlineData(null)]
     public async Task GivenAnyTokenKindOnPersonOrServiceAudience_WhenValidating_ThenNeverAuthorizePersonOrService(string? tokenKind)
     {
-        var o = ApplicationAuthFixture.Options(); var p = ApplicationAuthFixture.Payload(o); p["aud"] = o.AuthAudience!; p["tokenKind"] = tokenKind!; p["roleId"] = "2"; p["ownedScopeIds"] = o.HeimdallScopeId.ToString();
-        var token = ApplicationAuthFixture.Token(o, p); var validator = new HeimdallTokenValidator(o); Assert.Null(await validator.ValidateAsync(token)); Assert.Null(await validator.ValidateServiceAsync(token));
+        var o = ApplicationAuthFixture.Options();
+        var p = ApplicationAuthFixture.Payload(o);
+        p["aud"] = o.AuthAudience!;
+        p["tokenKind"] = tokenKind!;
+        p["roleId"] = "2";
+        p["ownedScopeIds"] = o.HeimdallScopeId.ToString();
+        var token = ApplicationAuthFixture.Token(o, p);
+        var validator = new HeimdallTokenValidator(o);
+        Assert.Null(await validator.ValidateAsync(token));
+        Assert.Null(await validator.ValidateServiceAsync(token));
     }
     [UnitFact]
     public async Task GivenPreviousKeyDuringRotation_WhenValidatingPerson_ThenRetainExistingPersonAuthority()
     {
-        var o = ApplicationAuthFixture.Options(); var p = ApplicationAuthFixture.Payload(o); p["aud"] = o.AuthAudience!; p.Remove("tokenKind"); p.Remove("credentialId");
+        var o = ApplicationAuthFixture.Options();
+        var p = ApplicationAuthFixture.Payload(o);
+        p["aud"] = o.AuthAudience!;
+        p.Remove("tokenKind");
+        p.Remove("credentialId");
         Assert.NotNull(await new HeimdallTokenValidator(o).ValidateAsync(ApplicationAuthFixture.Token(o, p, o.AuthValidationSecretPrevious)));
     }
 }
@@ -114,7 +178,8 @@ internal static class ApplicationAuthFixture
     {
         static string B64(byte[] b) => Convert.ToBase64String(b).TrimEnd('=').Replace('+', '-').Replace('/', '_');
         var input = B64(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { alg = algorithm, typ = "JWT" }))) + "." + B64(Encoding.UTF8.GetBytes(payload));
-        var bytes = Encoding.ASCII.GetBytes(input); var secret = Encoding.ASCII.GetBytes(key);
+        var bytes = Encoding.ASCII.GetBytes(input);
+        var secret = Encoding.ASCII.GetBytes(key);
         var signature = algorithm == SecurityAlgorithms.HmacSha384 ? HMACSHA384.HashData(secret, bytes) : HMACSHA256.HashData(secret, bytes);
         return input + "." + B64(signature);
     }

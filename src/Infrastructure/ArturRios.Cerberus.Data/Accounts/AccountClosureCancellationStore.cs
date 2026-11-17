@@ -14,33 +14,49 @@ public sealed class AccountClosureCancellationStore(IDbContextFactory<AppDbConte
     public async Task<AccountClosureCancellationResult> CancelAsync(AccountClosureCancellationRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (!new AccountClosureCancellationInput(request.ExpectedRevision).IsValid()) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (!new AccountClosureCancellationInput(request.ExpectedRevision).IsValid())
+            return new(Error: "validation_failed");
         try
         {
-            await using var db = await factory.CreateDbContextAsync(ct); await using var tx = await db.Database.BeginTransactionAsync(ct);
-            var initial = await Actor(db, request.Actor, ct); if (initial is null || await Erased(db, initial, ct)) return new(Error: "not_found");
+            await using var db = await factory.CreateDbContextAsync(ct);
+            await using var tx = await db.Database.BeginTransactionAsync(ct);
+            var initial = await Actor(db, request.Actor, ct);
+            if (initial is null || await Erased(db, initial, ct))
+                return new(Error: "not_found");
             var ids = (await Connections(db, initial.Id, ct)).Append(initial.Id).Distinct().ToArray();
             var roots = await db.Accounts.AsNoTracking().Where(x => ids.Contains(x.Id)).Select(x => x.PublicId).ToArrayAsync(ct);
-            if (roots.Length != ids.Length || roots.Any(x => x == Guid.Empty)) return new(Error: "persistence_unavailable");
+            if (roots.Length != ids.Length || roots.Any(x => x == Guid.Empty))
+                return new(Error: "persistence_unavailable");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE public_id=ANY({roots}) ORDER BY public_id FOR UPDATE", ct);
-            var owner = await Actor(db, request.Actor, ct); var now = await Now(db, ct);
-            if (owner is null || owner.Id != initial.Id || await Erased(db, owner, ct)) return new(Error: "not_found");
-            var error = Authority(owner, request, now); if (error is not null) return new(Error: error);
-            if (!(await Connections(db, owner.Id, ct)).Append(owner.Id).ToHashSet().SetEquals(ids)) return new(Error: "revision_conflict");
+            var owner = await Actor(db, request.Actor, ct);
+            var now = await Now(db, ct);
+            if (owner is null || owner.Id != initial.Id || await Erased(db, owner, ct))
+                return new(Error: "not_found");
+            var error = Authority(owner, request, now);
+            if (error is not null)
+                return new(Error: error);
+            if (!(await Connections(db, owner.Id, ct)).Append(owner.Id).ToHashSet().SetEquals(ids))
+                return new(Error: "revision_conflict");
             await db.Database.ExecuteSqlInterpolatedAsync($"""
                 SELECT FROM cerberus.collection c WHERE c.account_id={owner.Id}
                   OR EXISTS(SELECT FROM cerberus.collection_grant g WHERE g.collection_id=c.id AND g.recipient_account_id={owner.Id})
                 ORDER BY c.public_id FOR NO KEY UPDATE OF c
                 """, ct);
-            now = await Now(db, ct); error = Authority(owner, request, now); if (error is not null) return new(Error: error);
+            now = await Now(db, ct);
+            error = Authority(owner, request, now);
+            if (error is not null)
+                return new(Error: error);
             var key = "account-purge/" + owner.PublicId;
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.retention_work_item WHERE operation_key={key} FOR UPDATE", ct);
             var work = await db.RetentionWorkItems.AsNoTracking().SingleOrDefaultAsync(x => x.OperationKey == key, ct);
             if (work is null || work.PublicId == Guid.Empty || work.DueAt != owner.ClosurePurgeAt || work.CompletedAt is not null
                 || work.Attempts is < 0 or int.MaxValue || (work.ClaimToken is null) != (work.ClaimExpiresAt is null)
-                || work.ClaimToken == Guid.Empty || work.ClaimExpiresAt is { } expiry && !Utc(expiry)) return new(Error: "persistence_unavailable");
-            if (!await Reduced(db, owner.Id, ct)) return new(Error: "persistence_unavailable");
+                || work.ClaimToken == Guid.Empty || work.ClaimExpiresAt is { } expiry && !Utc(expiry))
+                return new(Error: "persistence_unavailable");
+            if (!await Reduced(db, owner.Id, ct))
+                return new(Error: "persistence_unavailable");
             var collateral = await AccountLifecycleSnapshot.ReadAsync(db, owner.Id, ids, [], false, ct);
             var workJson = await db.Database.SqlQuery<string>($"SELECT to_jsonb(w)::text AS \"Value\" FROM cerberus.retention_work_item w WHERE w.id={work.Id}").SingleAsync(ct);
             var stamp = Guid.NewGuid();
@@ -69,20 +85,26 @@ public sealed class AccountClosureCancellationStore(IDbContextFactory<AppDbConte
             if (writes.Count != 1)
             {
                 var current = await Actor(db, request.Actor, ct);
-                if (current?.ConcurrencyStamp == stamp) return new(Error: "persistence_unavailable");
+                if (current?.ConcurrencyStamp == stamp)
+                    return new(Error: "persistence_unavailable");
                 return new(Error: current is null ? "not_found" : Authority(current, request, await Now(db, ct)) ?? "persistence_unavailable");
             }
-            var written = writes[0]; var post = await Actor(db, request.Actor, ct); var postWork = await db.RetentionWorkItems.AsNoTracking().SingleOrDefaultAsync(x => x.Id == work.Id, ct);
+            var written = writes[0];
+            var post = await Actor(db, request.Actor, ct);
+            var postWork = await db.RetentionWorkItems.AsNoTracking().SingleOrDefaultAsync(x => x.Id == work.Id, ct);
             now = await Now(db, ct);
             if (written.CancelledAt != written.CompletedAt || post is null || post.Id != owner.Id || post.PublicId != owner.PublicId || post.HeimdallPublicId != owner.HeimdallPublicId
                 || post.State != AccountState.Active || post.Revision != owner.Revision + 1 || post.RevocationGeneration != owner.RevocationGeneration + 1
                 || post.ClosureRequestedAt is not null || post.ClosurePurgeAt is not null || post.ConcurrencyStamp != stamp || await Erased(db, post, ct)
                 || postWork is null || postWork.PublicId != work.PublicId || postWork.OperationKey != key || postWork.DueAt != work.DueAt || postWork.Attempts != work.Attempts
                 || postWork.CompletedAt != written.CancelledAt || postWork.ClaimToken is not null || postWork.ClaimExpiresAt is not null || postWork.ConcurrencyStamp != stamp
-                || await AccountLifecycleSnapshot.ReadAsync(db, owner.Id, ids, [], false, ct) != collateral || !await Reduced(db, owner.Id, ct)) return new(Error: "persistence_unavailable");
+                || await AccountLifecycleSnapshot.ReadAsync(db, owner.Id, ids, [], false, ct) != collateral || !await Reduced(db, owner.Id, ct))
+                return new(Error: "persistence_unavailable");
             var details = new AccountClosureCancellationDetails(post.PublicId, post.Revision, post.RevocationGeneration, written.CancelledAt, now);
-            if (!details.IsValid()) return new(Error: "persistence_unavailable");
-            await tx.CommitAsync(ct); return new(details);
+            if (!details.IsValid())
+                return new(Error: "persistence_unavailable");
+            await tx.CommitAsync(ct);
+            return new(details);
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
         catch (DbUpdateConcurrencyException) { return new(Error: "revision_conflict"); }
@@ -92,12 +114,17 @@ public sealed class AccountClosureCancellationStore(IDbContextFactory<AppDbConte
     }
     private static string? Authority(Account a, AccountClosureCancellationRequest r, DateTimeOffset now)
     {
-        if (!FreshAuthentication.IsFresh(r.AuthenticationIssuedAt, now)) return "fresh_authentication_required";
-        if (a.PublicId == Guid.Empty || !Safe(a.Revision) || !Safe(a.RevocationGeneration) || !Safe(a.PolicyRevision)) return "persistence_unavailable";
-        if (a.State == AccountState.Active) return a.ClosureRequestedAt is null && a.ClosurePurgeAt is null ? "revision_conflict" : "persistence_unavailable";
+        if (!FreshAuthentication.IsFresh(r.AuthenticationIssuedAt, now))
+            return "fresh_authentication_required";
+        if (a.PublicId == Guid.Empty || !Safe(a.Revision) || !Safe(a.RevocationGeneration) || !Safe(a.PolicyRevision))
+            return "persistence_unavailable";
+        if (a.State == AccountState.Active)
+            return a.ClosureRequestedAt is null && a.ClosurePurgeAt is null ? "revision_conflict" : "persistence_unavailable";
         if (a.State != AccountState.ClosurePending || a.ClosureRequestedAt is not { } start || a.ClosurePurgeAt is not { } end
-            || !new AccountClosureDetails(a.PublicId, a.Revision, a.RevocationGeneration, start, end, now, true).IsValid()) return "persistence_unavailable";
-        if (end <= now) return "closure_expired";
+            || !new AccountClosureDetails(a.PublicId, a.Revision, a.RevocationGeneration, start, end, now, true).IsValid())
+            return "persistence_unavailable";
+        if (end <= now)
+            return "closure_expired";
         return a.Revision != r.ExpectedRevision || a.Revision == ProtocolBinary.MaxInteger || a.RevocationGeneration == ProtocolBinary.MaxInteger ? "revision_conflict" : null;
     }
     private static async Task<bool> Reduced(AppDbContext db, long owner, CancellationToken ct) =>

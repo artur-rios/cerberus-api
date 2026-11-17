@@ -1,10 +1,10 @@
 using System.Text.Json;
 using ArturRios.Cerberus.Domain.Accounts;
-using ArturRios.Cerberus.Domain.Sync;
-using ArturRios.Cerberus.Domain.Records;
-using ArturRios.Cerberus.Domain.Folders;
 using ArturRios.Cerberus.Domain.Collections;
+using ArturRios.Cerberus.Domain.Folders;
 using ArturRios.Cerberus.Domain.Profiles;
+using ArturRios.Cerberus.Domain.Records;
+using ArturRios.Cerberus.Domain.Sync;
 using ArturRios.Cerberus.TestSupport;
 
 namespace ArturRios.Cerberus.Domain.Tests;
@@ -28,8 +28,11 @@ public class SyncEditTests
             "collection" => new SyncCollectionUpdate(Guid.NewGuid(), input),
             _ => new SyncProfileUpdate(Guid.NewGuid(), input)
         };
-        Assert.True(edit.IsValid()); Assert.Equal(kind, edit.ResourceKind); Assert.Equal("update", edit.Action);
-        Assert.Equal(input.ResourceId, edit.ResourceId); Assert.Equal(Time, edit.EditedAt);
+        Assert.True(edit.IsValid());
+        Assert.Equal(kind, edit.ResourceKind);
+        Assert.Equal("update", edit.Action);
+        Assert.Equal(input.ResourceId, edit.ResourceId);
+        Assert.Equal(Time, edit.EditedAt);
         Assert.True(new SyncEditsInput([edit]).IsValid(100));
         StrictVariant(edit);
     }
@@ -40,7 +43,9 @@ public class SyncEditTests
     [InlineData("profile")]
     public void GivenValidClientIdentifiers_WhenCreatingOfflineResource_ThenReuseNativeCreationRules(string kind)
     {
-        using var keys = new ProtectionFixture(); var id = Guid.NewGuid(); var actor = Guid.NewGuid();
+        using var keys = new ProtectionFixture();
+        var id = Guid.NewGuid();
+        var actor = Guid.NewGuid();
         SyncEditInput edit = kind switch
         {
             "record" => new SyncRecordCreate(Guid.NewGuid(), new RecordCreateInput(id, Envelope(), Time, [])),
@@ -48,7 +53,10 @@ public class SyncEditTests
             "collection" => new SyncCollectionCreate(Guid.NewGuid(), new CollectionCreateInput(id, Envelope(), Time, [], [], [])),
             _ => new SyncProfileCreate(Guid.NewGuid(), new ProfileCreateInput(id, Envelope(), new("Master", keys.Material.UnlockVerifier, keys.Wrap(Guid.NewGuid(), "profile", id, actor), null), Time, [], [], []))
         };
-        Assert.True(edit.IsValid()); Assert.Equal(kind, edit.ResourceKind); Assert.Equal("create", edit.Action); Assert.Equal(id, edit.ResourceId);
+        Assert.True(edit.IsValid());
+        Assert.Equal(kind, edit.ResourceKind);
+        Assert.Equal("create", edit.Action);
+        Assert.Equal(id, edit.ResourceId);
         StrictVariant(edit);
     }
     private static void StrictVariant(SyncEditInput edit)
@@ -58,7 +66,8 @@ public class SyncEditTests
         var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
         node["OfflineLatestEdit"] = true;
         Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<SyncEditInput>(node.ToJsonString(), options));
-        node.AsObject().Remove("OfflineLatestEdit"); node.AsObject().Remove("input");
+        node.AsObject().Remove("OfflineLatestEdit");
+        node.AsObject().Remove("input");
         Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<SyncEditInput>(node.ToJsonString(), options));
     }
     [UnitTheory]
@@ -79,8 +88,10 @@ public class SyncEditTests
     public void GivenEmptyOversizedOrRepeatedOperations_WhenValidatingBatch_ThenRejectBeforeAnyWrite()
     {
         var edit = new SyncRecordUpdate(Guid.NewGuid(), new(Guid.NewGuid(), Envelope(), Time));
-        Assert.False(new SyncEditsInput([]).IsValid(100)); Assert.False(new SyncEditsInput([edit, edit]).IsValid(100));
-        Assert.False(new SyncEditsInput([edit]).IsValid(0)); Assert.False(new SyncEditsInput([edit, edit with { OperationId = Guid.NewGuid() }]).IsValid(1));
+        Assert.False(new SyncEditsInput([]).IsValid(100));
+        Assert.False(new SyncEditsInput([edit, edit]).IsValid(100));
+        Assert.False(new SyncEditsInput([edit]).IsValid(0));
+        Assert.False(new SyncEditsInput([edit, edit with { OperationId = Guid.NewGuid() }]).IsValid(1));
     }
     [UnitTheory]
     [InlineData(-1, false)]
@@ -109,7 +120,8 @@ public class SyncEditTests
     public void GivenPerItemOutcome_WhenValidating_ThenExposeWinningMetadataOnlyForVisibleResults(string status, bool winning)
     {
         var result = new SyncEditOutcome(Guid.NewGuid(), "record", Guid.NewGuid(), status, winning ? 1 : null, winning ? 2 : null, winning ? Time : null);
-        Assert.True(result.IsValid()); Assert.False((result with { Status = "unknown" }).IsValid());
+        Assert.True(result.IsValid());
+        Assert.False((result with { Status = "unknown" }).IsValid());
         Assert.False((result with { Revision = winning ? null : 1 }).IsValid());
     }
 }

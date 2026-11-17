@@ -33,9 +33,24 @@ public class RecordUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHost
     [InlineData("PerProfile", true)]
     public async Task GivenNativeCurrentOwnedAccess_WhenReplacing_ThenOnlyRecordContentAndFourMetadataFieldsChange(string mode, bool folderRoute)
     {
-        using var owner = new ProtectionFixture(); using var key = new ProtectionFixture(); var s = await Setup(owner); var root = await Folder(s); var child = await Folder(s, root.Id); var p = await Profile(s, owner, key, folderRoute ? root : null, mode == "wide" ? "Master" : mode); var target = await Create(s, folderRoute ? [] : [p.PublicId], child.PublicId); var actor = mode == "wide" ? s : s with { Access = await Open(s, p, key) }; var before = await Unrelated(s, target.RecordId); var input = Replacement();
-        using var response = await Update(actor, target.RecordId, input); var data = await Success<UpdateRecordOutput>(response, 200); Fields(data, "recordId", "revision", "serverSequence", "editedAt"); Assert.Contains("record_updated", await response.Content.ReadAsStringAsync()); await Changed(s, target, input, data); Assert.Equal(before, await Unrelated(s, target.RecordId));
-        using var get = await Read(actor, "/api/records/" + target.RecordId); Assert.Equal(input.Envelope, (await Success<RecordDetailsOutput>(get, 200)).Envelope);
+        using var owner = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var s = await Setup(owner);
+        var root = await Folder(s);
+        var child = await Folder(s, root.Id);
+        var p = await Profile(s, owner, key, folderRoute ? root : null, mode == "wide" ? "Master" : mode);
+        var target = await Create(s, folderRoute ? [] : [p.PublicId], child.PublicId);
+        var actor = mode == "wide" ? s : s with { Access = await Open(s, p, key) };
+        var before = await Unrelated(s, target.RecordId);
+        var input = Replacement();
+        using var response = await Update(actor, target.RecordId, input);
+        var data = await Success<UpdateRecordOutput>(response, 200);
+        Fields(data, "recordId", "revision", "serverSequence", "editedAt");
+        Assert.Contains("record_updated", await response.Content.ReadAsStringAsync());
+        await Changed(s, target, input, data);
+        Assert.Equal(before, await Unrelated(s, target.RecordId));
+        using var get = await Read(actor, "/api/records/" + target.RecordId);
+        Assert.Equal(input.Envelope, (await Success<RecordDetailsOutput>(get, 200)).Envelope);
     }
     [FunctionalTheory]
     [InlineData(CollectionGrantAccess.ReadOnly, false, false)]
@@ -46,8 +61,26 @@ public class RecordUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHost
     [InlineData(CollectionGrantAccess.ReadWrite, true, true)]
     public async Task GivenNativeSharedGrant_WhenReplacing_ThenReadOnly403AndReadWriteUpdatesOriginalOwner(CollectionGrantAccess access, bool selected, bool folderRoute)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var key = new ProtectionFixture(); var o = await Setup(owner); var s = await Setup(client); var root = await Folder(o); var child = await Folder(o, root.Id); var target = await Create(o, folder: child.PublicId); var (collection, _) = await Share(o, owner, s, client, access, folderRoute ? [] : [target.RecordId], folderRoute ? [root.Id] : []); var p = await Profile(s, client, key, collections: [collection.PublicId]); var actor = selected ? s with { Access = await Open(s, p, key) } : s; var before = await Snapshot(o); var unrelated = await Unrelated(o, target.RecordId); var recipient = await Snapshot(s); var input = Replacement(access == CollectionGrantAccess.ReadOnly ? 99 : 1);
-        using var response = await Update(actor, target.RecordId, input); if (access == CollectionGrantAccess.ReadOnly) { await Failure(response, 403, "vault_access_denied"); Assert.Equal(before, await Snapshot(o)); } else { var data = await Success<UpdateRecordOutput>(response, 200); Fields(data, "recordId", "revision", "serverSequence", "editedAt"); await Changed(o, target, input, data); Assert.Equal(unrelated, await Unrelated(o, target.RecordId)); }
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var o = await Setup(owner);
+        var s = await Setup(client);
+        var root = await Folder(o);
+        var child = await Folder(o, root.Id);
+        var target = await Create(o, folder: child.PublicId);
+        var (collection, _) = await Share(o, owner, s, client, access, folderRoute ? [] : [target.RecordId], folderRoute ? [root.Id] : []);
+        var p = await Profile(s, client, key, collections: [collection.PublicId]);
+        var actor = selected ? s with { Access = await Open(s, p, key) } : s;
+        var before = await Snapshot(o);
+        var unrelated = await Unrelated(o, target.RecordId);
+        var recipient = await Snapshot(s);
+        var input = Replacement(access == CollectionGrantAccess.ReadOnly ? 99 : 1);
+        using var response = await Update(actor, target.RecordId, input);
+        if (access == CollectionGrantAccess.ReadOnly)
+        { await Failure(response, 403, "vault_access_denied"); Assert.Equal(before, await Snapshot(o)); }
+        else
+        { var data = await Success<UpdateRecordOutput>(response, 200); Fields(data, "recordId", "revision", "serverSequence", "editedAt"); await Changed(o, target, input, data); Assert.Equal(unrelated, await Unrelated(o, target.RecordId)); }
         Assert.Equal(recipient, await Snapshot(s));
     }
     [FunctionalTheory]
@@ -61,10 +94,24 @@ public class RecordUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHost
     [InlineData("revoked")]
     public async Task GivenHiddenTargetWithBadCipherAndStaleRevision_WhenReplacing_ThenNonrevealing404WithoutMutation(string kind)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var key = new ProtectionFixture(); var o = await Setup(owner); var s = kind == "unselected" ? o : await Setup(client); var folder = await Folder(o); var target = await Create(o, folder: folder.PublicId); CollectionGrant? grant = null; if (kind != "foreign" && s.InternalId != o.InternalId) { var share = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [target.RecordId], []); grant = share.Item2; }
-        if (kind == "unselected") { var p = await Profile(s, owner, key); s = s with { Access = await Open(s, p, key) }; }
-        await using (var db = fixture.Context()) { await db.Records.Where(x => x.PublicId == target.RecordId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, "bad"u8.ToArray()).SetProperty(r => r.DeletedAt, kind == "recordTrash" ? (DateTimeOffset?)DateTimeOffset.UtcNow : null)); if (kind == "ancestorTrash") await db.Folders.Where(x => x.Id == folder.Id).ExecuteUpdateAsync(x => x.SetProperty(f => f.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "recordTerminal") { db.TerminalErasures.Add(new() { ResourceId = target.RecordId, ResourceKind = "record", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } if (kind == "ownerClosing") await db.Accounts.Where(x => x.Id == o.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending)); if (kind == "revoked") await db.CollectionGrants.Where(x => x.Id == grant!.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked)); }
-        var before = await Snapshot(o); using var response = await Update(s, kind == "missing" ? Guid.NewGuid() : target.RecordId, Replacement(88)); await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(o));
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var o = await Setup(owner);
+        var s = kind == "unselected" ? o : await Setup(client);
+        var folder = await Folder(o);
+        var target = await Create(o, folder: folder.PublicId);
+        CollectionGrant? grant = null;
+        if (kind != "foreign" && s.InternalId != o.InternalId)
+        { var share = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [target.RecordId], []); grant = share.Item2; }
+        if (kind == "unselected")
+        { var p = await Profile(s, owner, key); s = s with { Access = await Open(s, p, key) }; }
+        await using (var db = fixture.Context())
+        { await db.Records.Where(x => x.PublicId == target.RecordId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, "bad"u8.ToArray()).SetProperty(r => r.DeletedAt, kind == "recordTrash" ? (DateTimeOffset?)DateTimeOffset.UtcNow : null)); if (kind == "ancestorTrash") await db.Folders.Where(x => x.Id == folder.Id).ExecuteUpdateAsync(x => x.SetProperty(f => f.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "recordTerminal") { db.TerminalErasures.Add(new() { ResourceId = target.RecordId, ResourceKind = "record", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } if (kind == "ownerClosing") await db.Accounts.Where(x => x.Id == o.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending)); if (kind == "revoked") await db.CollectionGrants.Where(x => x.Id == grant!.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked)); }
+        var before = await Snapshot(o);
+        using var response = await Update(s, kind == "missing" ? Guid.NewGuid() : target.RecordId, Replacement(88));
+        await Failure(response, 404, "not_found");
+        Assert.Equal(before, await Snapshot(o));
     }
     [FunctionalTheory]
     [InlineData("bad")]
@@ -102,9 +149,43 @@ public class RecordUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHost
     [InlineData("nonceReuse")]
     public async Task GivenInvalidOrForgedBody_WhenReplacing_Then400AndNoChanges(string kind)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s); var i = Replacement(); if (kind == "format") i = i with { Envelope = i.Envelope with { Format = "unknown" } }; if (kind == "epoch") i = i with { Envelope = i.Envelope with { KeyEpoch = 2 } }; if (kind == "revision") i = i with { ExpectedRevision = 0 }; if (kind == "unsafeRevision") i = i with { ExpectedRevision = ProtocolBinary.MaxInteger + 1 }; if (kind == "time") i = i with { EditedAt = new(9, TimeSpan.Zero) }; if (kind == "offset") i = i with { EditedAt = i.EditedAt.ToOffset(TimeSpan.FromHours(1)) }; if (kind == "saltReuse") i = i with { Envelope = i.Envelope with { KeySalt = target.Envelope.KeySalt } }; if (kind == "nonceReuse") i = i with { Envelope = i.Envelope with { Nonce = target.Envelope.Nonce } };
-        var body = JsonSerializer.SerializeToNode(i, ProtectionFixture.Json)!.AsObject(); if (kind == "missingRevision") body.Remove("expectedRevision"); if (kind == "missingEnvelope") body.Remove("envelope"); if (kind == "missingTime") body.Remove("editedAt"); var field = kind switch { "unknown" => "secret", "owner" => "ownerId", "record" => "recordId", "profile" => "profileIds", "folder" => "folderId", "collection" => "collectionIds", "name" => "name", _ => null }; if (field is not null) body[field] = null; var raw = body.ToJsonString(); raw = kind switch { "null" => "null", "empty" => "{}", "duplicate" => raw.Insert(1, "\"expectedRevision\":1,"), "case" => raw.Replace("expectedRevision", "ExpectedRevision"), "numericRevision" => raw.Replace("\"expectedRevision\":1", "\"expectedRevision\":\"1\""), "numericEpoch" => raw.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""), _ => raw };
-        var before = await Snapshot(s); using var request = Put(s, "/api/records/" + target.RecordId, Encoding.UTF8.GetBytes(raw)); using var r = await Gateway.Client.SendAsync(request); await Failure(r, 400); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        var i = Replacement();
+        if (kind == "format")
+            i = i with { Envelope = i.Envelope with { Format = "unknown" } };
+        if (kind == "epoch")
+            i = i with { Envelope = i.Envelope with { KeyEpoch = 2 } };
+        if (kind == "revision")
+            i = i with { ExpectedRevision = 0 };
+        if (kind == "unsafeRevision")
+            i = i with { ExpectedRevision = ProtocolBinary.MaxInteger + 1 };
+        if (kind == "time")
+            i = i with { EditedAt = new(9, TimeSpan.Zero) };
+        if (kind == "offset")
+            i = i with { EditedAt = i.EditedAt.ToOffset(TimeSpan.FromHours(1)) };
+        if (kind == "saltReuse")
+            i = i with { Envelope = i.Envelope with { KeySalt = target.Envelope.KeySalt } };
+        if (kind == "nonceReuse")
+            i = i with { Envelope = i.Envelope with { Nonce = target.Envelope.Nonce } };
+        var body = JsonSerializer.SerializeToNode(i, ProtectionFixture.Json)!.AsObject();
+        if (kind == "missingRevision")
+            body.Remove("expectedRevision");
+        if (kind == "missingEnvelope")
+            body.Remove("envelope");
+        if (kind == "missingTime")
+            body.Remove("editedAt");
+        var field = kind switch { "unknown" => "secret", "owner" => "ownerId", "record" => "recordId", "profile" => "profileIds", "folder" => "folderId", "collection" => "collectionIds", "name" => "name", _ => null };
+        if (field is not null)
+            body[field] = null;
+        var raw = body.ToJsonString();
+        raw = kind switch { "null" => "null", "empty" => "{}", "duplicate" => raw.Insert(1, "\"expectedRevision\":1,"), "case" => raw.Replace("expectedRevision", "ExpectedRevision"), "numericRevision" => raw.Replace("\"expectedRevision\":1", "\"expectedRevision\":\"1\""), "numericEpoch" => raw.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""), _ => raw };
+        var before = await Snapshot(s);
+        using var request = Put(s, "/api/records/" + target.RecordId, Encoding.UTF8.GetBytes(raw));
+        using var r = await Gateway.Client.SendAsync(request);
+        await Failure(r, 400);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("query", 400)]
@@ -118,8 +199,27 @@ public class RecordUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHost
     [InlineData("oversized", 413)]
     public async Task GivenInvalidTransportOrAccess_WhenReplacing_ThenRejectWithoutMutation(string kind, int status)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s); var before = await Snapshot(s); var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? new byte[] { 0xc3, 0x28 } : Bytes(Replacement()); if (kind == "bom") raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray(); using var req = Put(s, "/api/records/" + target.RecordId + (kind == "query" ? "?ownerId=secret" : ""), raw); if (kind == "missing") req.Headers.Remove("X-Cerberus-Vault-Access"); if (kind == "bad") { req.Headers.Remove("X-Cerberus-Vault-Access"); req.Headers.Add("X-Cerberus-Vault-Access", "bad"); }
-        if (kind == "duplicate") req.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access); if (kind == "compression") req.Content!.Headers.ContentEncoding.Add("gzip"); if (kind == "charset") req.Content!.Headers.ContentType!.CharSet = "utf-16"; using var r = await Gateway.Client.SendAsync(req); await Failure(r, status); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        var before = await Snapshot(s);
+        var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? new byte[] { 0xc3, 0x28 } : Bytes(Replacement());
+        if (kind == "bom")
+            raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray();
+        using var req = Put(s, "/api/records/" + target.RecordId + (kind == "query" ? "?ownerId=secret" : ""), raw);
+        if (kind == "missing")
+            req.Headers.Remove("X-Cerberus-Vault-Access");
+        if (kind == "bad")
+        { req.Headers.Remove("X-Cerberus-Vault-Access"); req.Headers.Add("X-Cerberus-Vault-Access", "bad"); }
+        if (kind == "duplicate")
+            req.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access);
+        if (kind == "compression")
+            req.Content!.Headers.ContentEncoding.Add("gzip");
+        if (kind == "charset")
+            req.Content!.Headers.ContentType!.CharSet = "utf-16";
+        using var r = await Gateway.Client.SendAsync(req);
+        await Failure(r, status);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalFact]
     public async Task GivenRawEmptyAccessHeader_WhenReplacing_Then400()

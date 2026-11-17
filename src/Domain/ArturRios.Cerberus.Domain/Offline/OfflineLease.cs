@@ -26,24 +26,31 @@ public sealed record SignedOfflineLease(string Compact, DateTimeOffset IssuedAt,
     // signature to verify against separately provisioned issuer-bound trust.
     public bool MatchesMetadata(OfflineLeaseSnapshot s)
     {
-        if (s?.IsValid() != true || string.IsNullOrEmpty(Compact) || Compact.Length > 1048576) return false;
+        if (s?.IsValid() != true || string.IsNullOrEmpty(Compact) || Compact.Length > 1048576)
+            return false;
         var issued = s.IssuedAt.ToUnixTimeSeconds();
         var expiry = s.RenewalEnabled ? issued + s.RenewalInterval!.Value.Ticks / TimeSpan.TicksPerSecond : (long?)null;
         if (IssuedAt != DateTimeOffset.FromUnixTimeSeconds(issued)
-            || ExpiresAt != (expiry is { } endTime ? DateTimeOffset.FromUnixTimeSeconds(endTime) : null)) return false;
+            || ExpiresAt != (expiry is { } endTime ? DateTimeOffset.FromUnixTimeSeconds(endTime) : null))
+            return false;
         var parts = Compact.Split('.');
         if (parts.Length != 3 || !ProtocolBinary.TryDecode(parts[0], null, out var header)
-            || !ProtocolBinary.TryDecode(parts[1], null, out var payload) || !ProtocolBinary.TryDecode(parts[2], 64, out _)) return false;
+            || !ProtocolBinary.TryDecode(parts[1], null, out var payload) || !ProtocolBinary.TryDecode(parts[2], 64, out _))
+            return false;
         try
         {
-            using var h = JsonDocument.Parse(header); using var p = JsonDocument.Parse(payload);
-            var head = h.RootElement; var c = p.RootElement;
+            using var h = JsonDocument.Parse(header);
+            using var p = JsonDocument.Parse(payload);
+            var head = h.RootElement;
+            var c = p.RootElement;
             if (!Fields(head, ["alg", "typ", "kid"]) || head.GetProperty("alg").GetString() != "ES256"
                 || head.GetProperty("typ").GetString() != OfflineLease.Type
-                || !ProtocolBinary.TryDecode(head.GetProperty("kid").GetString(), 32, out _)) return false;
+                || !ProtocolBinary.TryDecode(head.GetProperty("kid").GetString(), 32, out _))
+                return false;
             var required = new HashSet<string> { "iss", "aud", "sub", "accountId", "scopeKind", "scopeId", "keyEpoch", "protectionRevision",
                 "policyRevision", "revocationGeneration", "grantRevisions", "renewalEnabled", "iat", "nbf", "jti" };
-            if (expiry is not null) required.Add("exp");
+            if (expiry is not null)
+                required.Add("exp");
             if (!Fields(c, required) || !OfflineLease.ValidIssuer(c.GetProperty("iss").GetString())
                 || c.GetProperty("aud").GetString() != OfflineLease.Audience || c.GetProperty("sub").GetString() != s.IdentityId.ToString("D")
                 || c.GetProperty("accountId").GetString() != s.AccountId.ToString("D") || c.GetProperty("scopeKind").GetString() != "profile"
@@ -51,9 +58,11 @@ public sealed record SignedOfflineLease(string Compact, DateTimeOffset IssuedAt,
                 || c.GetProperty("protectionRevision").GetInt64() != s.ProtectionRevision || c.GetProperty("policyRevision").GetInt64() != s.PolicyRevision
                 || c.GetProperty("revocationGeneration").GetInt64() != s.RevocationGeneration || c.GetProperty("renewalEnabled").GetBoolean() != s.RenewalEnabled
                 || c.GetProperty("iat").GetInt64() != issued || c.GetProperty("nbf").GetInt64() != issued
-                || expiry is { } end && c.GetProperty("exp").GetInt64() != end) return false;
+                || expiry is { } end && c.GetProperty("exp").GetInt64() != end)
+                return false;
             var jti = c.GetProperty("jti").GetString();
-            if (!Guid.TryParseExact(jti, "D", out var id) || id == Guid.Empty || jti != id.ToString("D")) return false;
+            if (!Guid.TryParseExact(jti, "D", out var id) || id == Guid.Empty || jti != id.ToString("D"))
+                return false;
             var expected = s.GrantRevisions.OrderBy(g => g.GrantId.ToString("D"), StringComparer.Ordinal).ToArray();
             var grants = c.GetProperty("grantRevisions").EnumerateArray().ToArray();
             return grants.Length == expected.Length && grants.Select((g, i) => Fields(g, ["grantId", "revision"])
@@ -78,14 +87,16 @@ public static class OfflineLease
     public static bool TrySigningPublicKey(string? pem, out PublicJwk? publicKey)
     {
         publicKey = null;
-        if (string.IsNullOrWhiteSpace(pem)) return false;
+        if (string.IsNullOrWhiteSpace(pem))
+            return false;
         try
         {
             using var key = ECDsa.Create();
             key.ImportFromPem(pem);
             var p = key.ExportParameters(true);
             if (p.D is not { Length: 32 } || p.Curve.Oid.Value != "1.2.840.10045.3.1.7"
-                || p.Q.X is not { Length: 32 } || p.Q.Y is not { Length: 32 }) return false;
+                || p.Q.X is not { Length: 32 } || p.Q.Y is not { Length: 32 })
+                return false;
             publicKey = new("P-256", "EC", ProtocolBinary.Encode(p.Q.X), ProtocolBinary.Encode(p.Q.Y));
             return publicKey.IsValid();
         }
@@ -117,7 +128,8 @@ public static class OfflineLease
             ["nbf"] = issued,
             ["jti"] = Guid.NewGuid().ToString("D")
         };
-        if (expires is { } expiry) claims.Add("exp", expiry);
+        if (expires is { } expiry)
+            claims.Add("exp", expiry);
         var header = new { alg = "ES256", typ = Type, kid = publicKey!.Fingerprint() };
         var prefix = ProtocolBinary.Encode(JsonSerializer.SerializeToUtf8Bytes(header)) + "."
             + ProtocolBinary.Encode(JsonSerializer.SerializeToUtf8Bytes(claims));
@@ -125,7 +137,8 @@ public static class OfflineLease
         key.ImportFromPem(privatePem);
         var signature = key.SignData(Encoding.ASCII.GetBytes(prefix), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation);
         var compact = prefix + "." + ProtocolBinary.Encode(signature);
-        if (compact.Length > 1048576) throw new ArgumentException("Offline lease exceeds the supported wire limit.");
+        if (compact.Length > 1048576)
+            throw new ArgumentException("Offline lease exceeds the supported wire limit.");
         return new(compact, DateTimeOffset.FromUnixTimeSeconds(issued), expires is { } end ? DateTimeOffset.FromUnixTimeSeconds(end) : null);
     }
 }

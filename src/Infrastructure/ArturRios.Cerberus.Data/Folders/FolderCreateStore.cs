@@ -1,6 +1,6 @@
-using ArturRios.Cerberus.Data.Resources;
 using System.Data.Common;
 using System.Text.Json;
+using ArturRios.Cerberus.Data.Resources;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Folders;
 using ArturRios.Cerberus.Domain.Protection;
@@ -17,9 +17,11 @@ public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) :
     public async Task<VaultResult<FolderCreateDetails>> CreateAsync(FolderCreateRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
         var input = request.Input;
-        if (input?.IsValid() != true) return new(Error: "validation_failed");
+        if (input?.IsValid() != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -41,14 +43,17 @@ public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) :
                     && (session.ProfileId is null || await db.Profiles.AnyAsync(p => p.Id == session.ProfileId && p.AccountId == account.Id
                         && p.DeletedAt == null && !db.TerminalErasures.Any(e => e.ResourceKind == "profile" && e.ResourceId == p.PublicId), ct));
             }
-            if (!await Permitted()) return new(Error: "vault_access_denied");
-            if (session!.ProfileId is not null && input.ProfileIds.Length == 0) return new(Error: "vault_access_denied");
+            if (!await Permitted())
+                return new(Error: "vault_access_denied");
+            if (session!.ProfileId is not null && input.ProfileIds.Length == 0)
+                return new(Error: "vault_access_denied");
 
             var profiles = new List<ParentMetadata>();
             foreach (var id in input.ProfileIds.Order())
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.profile WHERE account_id={account.Id} AND public_id={id} FOR UPDATE", ct);
-                if (!await Permitted()) return new(Error: "vault_access_denied");
+                if (!await Permitted())
+                    return new(Error: "vault_access_denied");
                 var profile = await db.Profiles.AsNoTracking().Where(x => x.AccountId == account.Id && x.PublicId == id
                     && x.DeletedAt == null && !db.TerminalErasures.Any(e => e.ResourceKind == "profile" && e.ResourceId == x.PublicId))
                     .Select(x => new ParentMetadata(x.Id, x.PublicId, x.Revision, x.ServerSequence)).SingleOrDefaultAsync(ct);
@@ -59,7 +64,8 @@ public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) :
 
             async Task<bool> ParentPermitted(long[] ancestry)
             {
-                if (session.ProfileId is null) return true;
+                if (session.ProfileId is null)
+                    return true;
                 if (await db.ProfileFolders.AnyAsync(x => x.AccountId == account.Id && x.ProfileId == session.ProfileId && ancestry.Contains(x.FolderId), ct))
                     return true;
                 return await (from pc in db.ProfileCollections
@@ -80,30 +86,39 @@ public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) :
             if (input.ParentFolderId is not null)
             {
                 var folder = await Folder(null, input.ParentFolderId);
-                if (folder is null) return new(Error: "not_found");
+                if (folder is null)
+                    return new(Error: "not_found");
                 var visited = new HashSet<long>();
                 while (true)
                 {
                     if (!visited.Add(folder.Id))
                         return new(Error: await ParentPermitted(folders.Select(x => x.Id).ToArray()) ? "persistence_unavailable" : "not_found");
                     await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.folder WHERE account_id={account.Id} AND id={folder.Id} FOR UPDATE", ct);
-                    if (!await Permitted()) return new(Error: "vault_access_denied");
+                    if (!await Permitted())
+                        return new(Error: "vault_access_denied");
                     folder = await Folder(folder.Id, null);
-                    if (folder is null) return new(Error: "not_found");
+                    if (folder is null)
+                        return new(Error: "not_found");
                     folders.Add(folder);
-                    if (folder.ParentFolderId is null) break;
+                    if (folder.ParentFolderId is null)
+                        break;
                     folder = await Folder(folder.ParentFolderId, null);
-                    if (folder is null) return new(Error: "not_found");
+                    if (folder is null)
+                        return new(Error: "not_found");
                 }
-                if (!await ParentPermitted(folders.Select(x => x.Id).ToArray())) return new(Error: "not_found");
+                if (!await ParentPermitted(folders.Select(x => x.Id).ToArray()))
+                    return new(Error: "not_found");
             }
-            if (!await Permitted()) return new(Error: "vault_access_denied");
+            if (!await Permitted())
+                return new(Error: "vault_access_denied");
             var parent = folders.FirstOrDefault();
             foreach (var metadata in profiles.Select(x => (x.Revision, x.ServerSequence))
                 .Concat(parent is null ? [] : new[] { (parent.Revision, parent.ServerSequence) }))
             {
-                if (!Safe(metadata.Revision) || !Safe(metadata.ServerSequence)) return new(Error: "persistence_unavailable");
-                if (metadata.Revision == ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
+                if (!Safe(metadata.Revision) || !Safe(metadata.ServerSequence))
+                    return new(Error: "persistence_unavailable");
+                if (metadata.Revision == ProtocolBinary.MaxInteger)
+                    return new(Error: "revision_conflict");
             }
             if (await db.Folders.AnyAsync(x => x.PublicId == input.FolderId, ct)
                 || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "folder" && x.ResourceId == input.FolderId, ct))
@@ -142,19 +157,24 @@ public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) :
                 """, ct);
             if (inserted != 1)
             {
-                if (await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == account.PublicId, ct)) return new(Error: "not_found");
-                if (!await Permitted()) return new(Error: "vault_access_denied");
+                if (await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == account.PublicId, ct))
+                    return new(Error: "not_found");
+                if (!await Permitted())
+                    return new(Error: "vault_access_denied");
                 if (await db.Profiles.CountAsync(x => x.AccountId == account.Id && input.ProfileIds.Contains(x.PublicId)
                     && x.DeletedAt == null && !db.TerminalErasures.Any(e => e.ResourceKind == "profile" && e.ResourceId == x.PublicId), ct) != input.ProfileIds.Length)
                     return new(Error: "not_found");
                 foreach (var folder in folders)
-                    if (await Folder(folder.Id, null) is null) return new(Error: "not_found");
-                if (parent is not null && !await ParentPermitted(folderIds)) return new(Error: "not_found");
+                    if (await Folder(folder.Id, null) is null)
+                        return new(Error: "not_found");
+                if (parent is not null && !await ParentPermitted(folderIds))
+                    return new(Error: "not_found");
                 return new(Error: "revision_conflict");
             }
             var created = await db.Folders.AsNoTracking().Where(x => x.PublicId == input.FolderId)
                 .Select(x => new FolderCreateDetails(x.PublicId, x.Revision, x.ServerSequence, x.EditedAt)).SingleAsync(ct);
-            if (created.Revision != 1 || !Safe(created.ServerSequence) || created.EditedAt != editedAt) return new(Error: "persistence_unavailable");
+            if (created.Revision != 1 || !Safe(created.ServerSequence) || created.EditedAt != editedAt)
+                return new(Error: "persistence_unavailable");
             var createdId = await db.Folders.Where(x => x.PublicId == input.FolderId).Select(x => x.Id).SingleAsync(ct);
             db.ProfileFolders.AddRange(profiles.Select(p => new ProfileFolder { AccountId = account.Id, ProfileId = p.Id, FolderId = createdId }));
             await db.SaveChangesAsync(ct);
@@ -163,7 +183,8 @@ public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) :
                 if (await db.Database.ExecuteSqlInterpolatedAsync($"""
                     UPDATE cerberus.profile SET revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={Guid.NewGuid()}
                     WHERE id={profile.Id} AND account_id={account.Id} AND revision={profile.Revision}
-                    """, ct) != 1) return new(Error: "persistence_unavailable");
+                    """, ct) != 1)
+                    return new(Error: "persistence_unavailable");
                 var current = await db.Profiles.Where(x => x.Id == profile.Id).Select(x => new { x.Revision, x.ServerSequence }).SingleAsync(ct);
                 if (current.Revision != profile.Revision + 1 || !Safe(current.ServerSequence) || current.ServerSequence <= profile.ServerSequence)
                     return new(Error: "persistence_unavailable");
@@ -173,7 +194,8 @@ public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) :
                 if (await db.Database.ExecuteSqlInterpolatedAsync($"""
                     UPDATE cerberus.folder SET revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={Guid.NewGuid()}
                     WHERE id={parent.Id} AND account_id={account.Id} AND revision={parent.Revision}
-                    """, ct) != 1) return new(Error: "persistence_unavailable");
+                    """, ct) != 1)
+                    return new(Error: "persistence_unavailable");
                 var current = await db.Folders.Where(x => x.Id == parent.Id).Select(x => new { x.Revision, x.ServerSequence }).SingleAsync(ct);
                 if (current.Revision != parent.Revision + 1 || !Safe(current.ServerSequence) || current.ServerSequence <= parent.ServerSequence)
                     return new(Error: "persistence_unavailable");

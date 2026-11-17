@@ -1,5 +1,5 @@
-using ArturRios.Cerberus.Query.Sync;
 using ArturRios.Cerberus.Query.Profiles;
+using ArturRios.Cerberus.Query.Sync;
 using ArturRios.Cerberus.Shared.Configuration;
 
 namespace ArturRios.Cerberus.Query.Tests;
@@ -19,7 +19,8 @@ public class SyncCursorTests
         var s = State() with { After = after, Boundary = boundary };
         var c = new SyncCursor(Options());
         var token = c.Encode(s);
-        Assert.True(c.TryDecode(token, out var restored)); Assert.Equal(s, restored);
+        Assert.True(c.TryDecode(token, out var restored));
+        Assert.Equal(s, restored);
         Assert.DoesNotContain(s.Actor.ToString("D"), token);
         Assert.DoesNotContain(s.ProfileId.ToString("D"), token);
         Assert.NotEqual(token, c.Encode(s));
@@ -65,18 +66,25 @@ public class SyncCursorTests
     [InlineData("wrongKey")]
     public void GivenMalformedOrTamperedCursor_WhenDecoding_ThenRequireResynchronization(string invalid)
     {
-        var c = new SyncCursor(Options()); var token = c.Encode(State());
-        if (invalid == "empty") token = "";
-        if (invalid == "format") token = "invalid!";
-        if (invalid == "padding") token += "=";
-        if (invalid == "oversized") token = new string('A', 2049);
+        var c = new SyncCursor(Options());
+        var token = c.Encode(State());
+        if (invalid == "empty")
+            token = "";
+        if (invalid == "format")
+            token = "invalid!";
+        if (invalid == "padding")
+            token += "=";
+        if (invalid == "oversized")
+            token = new string('A', 2049);
         if (invalid is "nonce" or "tag" or "payload")
         {
             var raw = Convert.FromBase64String(token.Replace('-', '+').Replace('_', '/') + new string('=', (4 - token.Length % 4) % 4));
             raw[invalid == "nonce" ? 0 : invalid == "tag" ? 12 : 28] ^= 1;
             token = Convert.ToBase64String(raw).TrimEnd('=').Replace('+', '-').Replace('/', '_');
         }
-        if (invalid == "wrongKey") c = new SyncCursor(Options("different-durable-sync-fixture-key-32-bytes"));
-        Assert.False(c.TryDecode(token, out var result)); Assert.Null(result);
+        if (invalid == "wrongKey")
+            c = new SyncCursor(Options("different-durable-sync-fixture-key-32-bytes"));
+        Assert.False(c.TryDecode(token, out var result));
+        Assert.Null(result);
     }
 }

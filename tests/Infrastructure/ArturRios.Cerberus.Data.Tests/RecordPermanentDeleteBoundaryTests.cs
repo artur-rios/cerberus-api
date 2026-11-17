@@ -42,9 +42,12 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var hook = new BeforeTarget(async () =>
         {
             await using var db = fixture.CreateContext();
-            if (kind == "profile") db.ProfileRecords.Add(new() { AccountId = w.State.InternalId, ProfileId = profile, RecordId = w.Record.Id });
-            if (kind == "collection") db.CollectionRecords.Add(new() { AccountId = w.State.InternalId, CollectionId = w.Items.Collection.Id, RecordId = w.Record.Id });
-            if (kind == "parent") await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.FolderId, w.Items.Folder.Id));
+            if (kind == "profile")
+                db.ProfileRecords.Add(new() { AccountId = w.State.InternalId, ProfileId = profile, RecordId = w.Record.Id });
+            if (kind == "collection")
+                db.CollectionRecords.Add(new() { AccountId = w.State.InternalId, CollectionId = w.Items.Collection.Id, RecordId = w.Record.Id });
+            if (kind == "parent")
+                await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.FolderId, w.Items.Folder.Id));
             await db.SaveChangesAsync();
         });
         Assert.Equal("revision_conflict", (await Store(factory: new ProfileSetup.Factory(fixture, hook)).DeleteAsync(w.Request(), default)).Error);
@@ -68,7 +71,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var grant = await AssociationSetup.Grant(fixture, w.State, w.Owner, recipient, client, w.Items.Collection, access);
         await using var db = fixture.CreateContext();
         await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, "bad"u8.ToArray()));
-        if (visible) { db.CollectionRecords.Add(new() { AccountId = w.State.InternalId, CollectionId = w.Items.Collection.Id, RecordId = w.Record.Id }); await db.SaveChangesAsync(); }
+        if (visible)
+        { db.CollectionRecords.Add(new() { AccountId = w.State.InternalId, CollectionId = w.Items.Collection.Id, RecordId = w.Record.Id }); await db.SaveChangesAsync(); }
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal(visible ? "persistence_unavailable" : "not_found", (await Store().DeleteAsync(new(recipient.Actor, recipient.Verifier, w.Record.PublicId, 99), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
@@ -85,8 +89,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var previous = await db.Database.SqlQuery<long>($"SELECT nextval('cerberus.server_sequence') AS \"Value\"").SingleAsync();
         try
         {
-            if (regress) await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, previous + 100000));
-            else await db.Database.ExecuteSqlRawAsync("SELECT setval('cerberus.server_sequence',9007199254740991,true)");
+            if (regress)
+                await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, previous + 100000));
+            else
+                await db.Database.ExecuteSqlRawAsync("SELECT setval('cerberus.server_sequence',9007199254740991,true)");
             var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
             Assert.Equal(regress ? "persistence_unavailable" : "revision_conflict", (await Store().DeleteAsync(w.Request(), default)).Error);
             Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
@@ -104,11 +110,14 @@ public sealed partial class RecordPermanentDeleteStoreTests
         using var ct = new CancellationTokenSource();
         var ledger = new PermanentDeleteSetup.LedgerBoundary(Ledger, () =>
         {
-            if (caller) { ct.Cancel(); throw new OperationCanceledException(ct.Token); }
+            if (caller)
+            { ct.Cancel(); throw new OperationCanceledException(ct.Token); }
             throw new OperationCanceledException();
         });
-        if (caller) await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Store(ledger).DeleteAsync(w.Request(), ct.Token));
-        else Assert.Equal("persistence_unavailable", (await Store(ledger).DeleteAsync(w.Request(), default)).Error);
+        if (caller)
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Store(ledger).DeleteAsync(w.Request(), ct.Token));
+        else
+            Assert.Equal("persistence_unavailable", (await Store(ledger).DeleteAsync(w.Request(), default)).Error);
         await using var db = fixture.CreateContext();
         Assert.True(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId));
         Assert.True(await db.RetentionWorkItems.AnyAsync(x => x.OperationKey == "record-purge/" + w.Record.PublicId && x.CompletedAt == null));

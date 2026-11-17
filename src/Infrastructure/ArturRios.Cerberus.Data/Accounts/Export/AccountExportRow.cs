@@ -22,8 +22,10 @@ internal sealed class AccountExportRow
     };
     internal AccountExportEntry Read(AccountExportHeader header, string capturedHeader)
     {
-        if (Error is not null) throw new AccountExportException(Error is "not_found" or "vault_access_denied" or "fresh_authentication_required" or "revision_conflict" ? Error : "persistence_unavailable");
-        if (Header != capturedHeader || Body is null) throw Unavailable();
+        if (Error is not null)
+            throw new AccountExportException(Error is "not_found" or "vault_access_denied" or "fresh_authentication_required" or "revision_conflict" ? Error : "persistence_unavailable");
+        if (Header != capturedHeader || Body is null)
+            throw Unavailable();
         var entry = JsonSerializer.Deserialize<AccountExportEntry>(Body, Json) ?? throw Unavailable();
         var valid = entry switch
         {
@@ -62,7 +64,8 @@ internal sealed class AccountExportRow
     internal IEnumerable<(string Kind, Guid Id)> Dependencies()
     {
         var fences = Fences is null ? null : JsonSerializer.Deserialize<AccountExportFence[]>(Fences, Json);
-        if (fences is null || fences.Any(f => !Id(f.Id) || !(Kind(f.Kind) || f.Kind is "account" or "grant"))) throw Unavailable();
+        if (fences is null || fences.Any(f => !Id(f.Id) || !(Kind(f.Kind) || f.Kind is "account" or "grant")))
+            throw Unavailable();
         return fences.Select(f => (f.Kind, f.Id));
     }
     private static bool Id(Guid id) => id != Guid.Empty;

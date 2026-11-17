@@ -7,8 +7,8 @@ using ArturRios.Cerberus.Command.Profiles;
 using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Profiles;
-using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Domain.Protection;
+using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.TestSupport;
 using ArturRios.Output;
@@ -26,10 +26,39 @@ public class ProfileAssociationHttpTests(RegistrationApiFixture fixture, SharedA
     public async Task GivenOwnedItemsAndSharedCollection_WhenSettingAndRemoving_ThenOrganizeProfileAndPreserveAllUnderlyingBytes(CollectionGrantAccess access)
     {
         using var additionalScoped1 = new ProtectionFixture();
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var foreign = await Setup(owner); var s = await Setup(client); var own = await Items(s); var shared = await Items(foreign); await Grant(foreign, owner, s, client, shared.Collection, access); var p = await Add(s, client, scoped); var other = await Add(s, client, additionalScoped1); var before = await Content(s, foreign); var input = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId, shared.Collection.PublicId]); Authorize(RegistrationApiFixture.Token(s.Actor));
-        using var response = await Send(p.PublicId.ToString(), s.Access, input); var output = await Success(response); Assert.Equal(p.PublicId, output.ProfileId); Assert.Equal(2, output.Revision); Assert.True(output.ServerSequence > p.ServerSequence); Assert.Equal(input.RecordIds, output.RecordIds); Assert.Equal(input.FolderIds, output.FolderIds); Assert.Equal(input.CollectionIds.Order(), output.CollectionIds); await Visible(s, p.PublicId, input.RecordIds, input.FolderIds, input.CollectionIds); Assert.Equal(before, await Content(s, foreign)); await using (var db = fixture.Context()) { var row = await db.Profiles.SingleAsync(x => x.Id == p.Id); Assert.Equal(p.EditedAt, row.EditedAt); Assert.Equal(p.Envelope, row.Envelope); Assert.Equal(p.KeyWrappers, row.KeyWrappers); Assert.Empty(await db.ProfileRecords.Where(x => x.ProfileId == other.Id).ToArrayAsync()); }
-        using var repeat = await Send(p.PublicId.ToString(), s.Access, input); await Failure(repeat, 409, "revision_conflict"); using var identical = await Send(p.PublicId.ToString(), s.Access, input with { ExpectedRevision = 2 }); Assert.Equal(3, (await Success(identical)).Revision);
-        using var clear = await Send(p.PublicId.ToString(), s.Access, new(3, [], [], [])); Assert.Equal(4, (await Success(clear)).Revision); await Visible(s, p.PublicId, [], [], []); Assert.Equal(before, await Content(s, foreign));
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var foreign = await Setup(owner);
+        var s = await Setup(client);
+        var own = await Items(s);
+        var shared = await Items(foreign);
+        await Grant(foreign, owner, s, client, shared.Collection, access);
+        var p = await Add(s, client, scoped);
+        var other = await Add(s, client, additionalScoped1);
+        var before = await Content(s, foreign);
+        var input = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId, shared.Collection.PublicId]);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        using var response = await Send(p.PublicId.ToString(), s.Access, input);
+        var output = await Success(response);
+        Assert.Equal(p.PublicId, output.ProfileId);
+        Assert.Equal(2, output.Revision);
+        Assert.True(output.ServerSequence > p.ServerSequence);
+        Assert.Equal(input.RecordIds, output.RecordIds);
+        Assert.Equal(input.FolderIds, output.FolderIds);
+        Assert.Equal(input.CollectionIds.Order(), output.CollectionIds);
+        await Visible(s, p.PublicId, input.RecordIds, input.FolderIds, input.CollectionIds);
+        Assert.Equal(before, await Content(s, foreign));
+        await using (var db = fixture.Context())
+        { var row = await db.Profiles.SingleAsync(x => x.Id == p.Id); Assert.Equal(p.EditedAt, row.EditedAt); Assert.Equal(p.Envelope, row.Envelope); Assert.Equal(p.KeyWrappers, row.KeyWrappers); Assert.Empty(await db.ProfileRecords.Where(x => x.ProfileId == other.Id).ToArrayAsync()); }
+        using var repeat = await Send(p.PublicId.ToString(), s.Access, input);
+        await Failure(repeat, 409, "revision_conflict");
+        using var identical = await Send(p.PublicId.ToString(), s.Access, input with { ExpectedRevision = 2 });
+        Assert.Equal(3, (await Success(identical)).Revision);
+        using var clear = await Send(p.PublicId.ToString(), s.Access, new(3, [], [], []));
+        Assert.Equal(4, (await Success(clear)).Revision);
+        await Visible(s, p.PublicId, [], [], []);
+        Assert.Equal(before, await Content(s, foreign));
     }
     [FunctionalTheory]
     [InlineData("grant")]
@@ -37,25 +66,57 @@ public class ProfileAssociationHttpTests(RegistrationApiFixture fixture, SharedA
     [InlineData("recipientPins")]
     public async Task GivenSelectedProfileAndCorruptGrantOutsideSelection_WhenAddingCollectionOverHttp_ThenNotFoundWithoutChangingProfileOrLinks(string kind)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture();
-        var foreign = await Setup(owner); var s = await Setup(client); var own = await Items(s); var shared = await Items(foreign);
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var foreign = await Setup(owner);
+        var s = await Setup(client);
+        var own = await Items(s);
+        var shared = await Items(foreign);
         var grant = await Grant(foreign, owner, s, client, shared.Collection);
         var input = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId]);
-        var profile = await Add(s, client, scoped, input); var selected = await Selected(s, profile.Id);
+        var profile = await Add(s, client, scoped, input);
+        var selected = await Selected(s, profile.Id);
         await using (var db = fixture.Context())
         {
-            if (kind == "grant") await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, new byte[] { 1 }));
-            else await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? foreign.InternalId : s.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 }));
+            if (kind == "grant")
+                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, new byte[] { 1 }));
+            else
+                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? foreign.InternalId : s.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 }));
         }
-        var before = await Snapshot(s); Authorize(RegistrationApiFixture.Token(s.Actor));
+        var before = await Snapshot(s);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
         using var response = await Send(profile.PublicId.ToString(), selected, input with { CollectionIds = [own.Collection.PublicId, shared.Collection.PublicId] });
-        await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(s));
+        await Failure(response, 404, "not_found");
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalFact]
     public async Task GivenNonemptyCreateAndTrash_WhenUsingHttp_ThenReadActualSetsAndRetainResourcesWithSnapshot()
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var own = await Items(s); var ids = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId]); var p = await Add(s, client, scoped, ids); Authorize(RegistrationApiFixture.Token(s.Actor)); await Visible(s, p.PublicId, ids.RecordIds, ids.FolderIds, ids.CollectionIds); var before = await Content(s, s);
-        using var request = new HttpRequestMessage(HttpMethod.Delete, "/api/profiles/" + p.PublicId) { Content = JsonContent.Create(new { expectedRevision = 1 }) }; request.Headers.Add("X-Cerberus-Vault-Access", s.Access); using var response = await Gateway.Client.SendAsync(request); Assert.Equal(HttpStatusCode.OK, response.StatusCode); await using var db = fixture.Context(); Assert.False(await db.ProfileRecords.AnyAsync(x => x.ProfileId == p.Id)); Assert.False(await db.ProfileFolders.AnyAsync(x => x.ProfileId == p.Id)); Assert.False(await db.ProfileCollections.AnyAsync(x => x.ProfileId == p.Id)); var operation = await db.TrashOperations.SingleAsync(x => x.RootResourceId == p.PublicId); var entry = await db.TrashEntries.SingleAsync(x => x.OperationId == operation.Id); var snapshot = JsonSerializer.Deserialize<ProfileAssociationSnapshot>(entry.AssociationSnapshot, ProtectionFixture.Json)!; Assert.Equal(ids.RecordIds, snapshot.RecordIds); Assert.Equal(ids.FolderIds, snapshot.FolderIds); Assert.Equal(ids.CollectionIds, snapshot.CollectionIds); Assert.Equal(before, await Content(s, s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var own = await Items(s);
+        var ids = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId]);
+        var p = await Add(s, client, scoped, ids);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        await Visible(s, p.PublicId, ids.RecordIds, ids.FolderIds, ids.CollectionIds);
+        var before = await Content(s, s);
+        using var request = new HttpRequestMessage(HttpMethod.Delete, "/api/profiles/" + p.PublicId) { Content = JsonContent.Create(new { expectedRevision = 1 }) };
+        request.Headers.Add("X-Cerberus-Vault-Access", s.Access);
+        using var response = await Gateway.Client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        await using var db = fixture.Context();
+        Assert.False(await db.ProfileRecords.AnyAsync(x => x.ProfileId == p.Id));
+        Assert.False(await db.ProfileFolders.AnyAsync(x => x.ProfileId == p.Id));
+        Assert.False(await db.ProfileCollections.AnyAsync(x => x.ProfileId == p.Id));
+        var operation = await db.TrashOperations.SingleAsync(x => x.RootResourceId == p.PublicId);
+        var entry = await db.TrashEntries.SingleAsync(x => x.OperationId == operation.Id);
+        var snapshot = JsonSerializer.Deserialize<ProfileAssociationSnapshot>(entry.AssociationSnapshot, ProtectionFixture.Json)!;
+        Assert.Equal(ids.RecordIds, snapshot.RecordIds);
+        Assert.Equal(ids.FolderIds, snapshot.FolderIds);
+        Assert.Equal(ids.CollectionIds, snapshot.CollectionIds);
+        Assert.Equal(before, await Content(s, s));
     }
     [FunctionalTheory]
     [InlineData("record")]
@@ -68,10 +129,31 @@ public class ProfileAssociationHttpTests(RegistrationApiFixture fixture, SharedA
     [InlineData("missing")]
     public async Task GivenHiddenOrUnknownAssociation_WhenSetting_ThenNonrevealing404AndNoMutation(string kind)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var foreign = await Setup(owner); var s = await Setup(client); var own = await Items(s); var shared = await Items(foreign); var grant = await Grant(foreign, owner, s, client, shared.Collection); var p = await Add(s, client, scoped); var input = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId]);
-        if (kind == "record") input = input with { RecordIds = [shared.Record.PublicId] }; if (kind == "folder") input = input with { FolderIds = [shared.Folder.PublicId] }; if (kind is "collection" or "revoked" or "ownerClosing") input = input with { CollectionIds = [shared.Collection.PublicId] }; if (kind == "missing") input = input with { RecordIds = [Guid.NewGuid()] };
-        await using (var db = fixture.Context()) { if (kind == "collection") await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteDeleteAsync(); if (kind == "revoked") await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, CollectionGrantState.Revoked)); if (kind == "ownerClosing") await db.Accounts.Where(x => x.Id == foreign.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending)); if (kind == "trash") await db.Records.Where(x => x.Id == own.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "erased") { db.TerminalErasures.Add(new() { ResourceId = own.Record.PublicId, ResourceKind = "record", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } }
-        var before = await Snapshot(s); Authorize(RegistrationApiFixture.Token(s.Actor)); using var response = await Send(p.PublicId.ToString(), s.Access, input); await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var foreign = await Setup(owner);
+        var s = await Setup(client);
+        var own = await Items(s);
+        var shared = await Items(foreign);
+        var grant = await Grant(foreign, owner, s, client, shared.Collection);
+        var p = await Add(s, client, scoped);
+        var input = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId]);
+        if (kind == "record")
+            input = input with { RecordIds = [shared.Record.PublicId] };
+        if (kind == "folder")
+            input = input with { FolderIds = [shared.Folder.PublicId] };
+        if (kind is "collection" or "revoked" or "ownerClosing")
+            input = input with { CollectionIds = [shared.Collection.PublicId] };
+        if (kind == "missing")
+            input = input with { RecordIds = [Guid.NewGuid()] };
+        await using (var db = fixture.Context())
+        { if (kind == "collection") await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteDeleteAsync(); if (kind == "revoked") await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, CollectionGrantState.Revoked)); if (kind == "ownerClosing") await db.Accounts.Where(x => x.Id == foreign.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending)); if (kind == "trash") await db.Records.Where(x => x.Id == own.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "erased") { db.TerminalErasures.Add(new() { ResourceId = own.Record.PublicId, ResourceKind = "record", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } }
+        var before = await Snapshot(s);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        using var response = await Send(p.PublicId.ToString(), s.Access, input);
+        await Failure(response, 404, "not_found");
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("foreign")]
@@ -80,8 +162,18 @@ public class ProfileAssociationHttpTests(RegistrationApiFixture fixture, SharedA
     [InlineData("erased")]
     public async Task GivenHiddenProfile_WhenSetting_Then404BeforeRevisionDisclosure(string kind)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var other = kind == "foreign" ? await Setup(client) : s; var p = await Add(other, client, scoped); await using (var db = fixture.Context()) { if (kind == "trash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "erased") { db.TerminalErasures.Add(new() { ResourceId = p.PublicId, ResourceKind = "profile", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } }
-        var before = await Snapshot(s); Authorize(RegistrationApiFixture.Token(s.Actor)); using var response = await Send((kind == "missing" ? Guid.NewGuid() : p.PublicId).ToString(), s.Access, new(9, [], [], [])); await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var other = kind == "foreign" ? await Setup(client) : s;
+        var p = await Add(other, client, scoped);
+        await using (var db = fixture.Context())
+        { if (kind == "trash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "erased") { db.TerminalErasures.Add(new() { ResourceId = p.PublicId, ResourceKind = "profile", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } }
+        var before = await Snapshot(s);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        using var response = await Send((kind == "missing" ? Guid.NewGuid() : p.PublicId).ToString(), s.Access, new(9, [], [], []));
+        await Failure(response, 404, "not_found");
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("revoked", 403)]
@@ -92,19 +184,57 @@ public class ProfileAssociationHttpTests(RegistrationApiFixture fixture, SharedA
     [InlineData("erased", 404)]
     public async Task GivenInvalidCurrentAccessOrAccount_WhenSetting_ThenDenyWithoutMutation(string kind, int status)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); await using (var db = fixture.Context()) { var session = await db.VaultAccessSessions.SingleAsync(x => x.AccountId == s.InternalId); if (kind == "revoked") session.Revoked = true; if (kind == "expired") session.ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(-1); if (kind == "policy") session.PolicyRevision++; if (kind == "generation") session.RevocationGeneration++; if (kind == "closing") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending)); if (kind == "erased") db.TerminalErasures.Add(new() { ResourceId = s.AccountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
-        var before = await Snapshot(s); Authorize(RegistrationApiFixture.Token(s.Actor)); using var response = await Send(p.PublicId.ToString(), s.Access, new(1, [], [], [])); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var p = await Add(s, client, scoped);
+        await using (var db = fixture.Context())
+        { var session = await db.VaultAccessSessions.SingleAsync(x => x.AccountId == s.InternalId); if (kind == "revoked") session.Revoked = true; if (kind == "expired") session.ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(-1); if (kind == "policy") session.PolicyRevision++; if (kind == "generation") session.RevocationGeneration++; if (kind == "closing") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending)); if (kind == "erased") db.TerminalErasures.Add(new() { ResourceId = s.AccountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
+        var before = await Snapshot(s);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        using var response = await Send(p.PublicId.ToString(), s.Access, new(1, [], [], []));
+        await Failure(response, status);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalFact]
     public async Task GivenSelectedAccess_WhenRetainingRemovingOrAddingLinks_ThenNeverExpandOwnScope()
     {
         using var additionalScoped1 = new ProtectionFixture();
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var own = await Items(s); var extra = await Items(s); var input = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId]); var p = await Add(s, client, scoped, input); var other = await Add(s, client, additionalScoped1); var selected = await Selected(s, p.Id); Authorize(RegistrationApiFixture.Token(s.Actor)); using var retained = await Send(p.PublicId.ToString(), selected, input); Assert.Equal(2, (await Success(retained)).Revision); var before = await Snapshot(s); using var expand = await Send(p.PublicId.ToString(), selected, input with { ExpectedRevision = 2, RecordIds = [extra.Record.PublicId] }); await Failure(expand, 404); using var escape = await Send(other.PublicId.ToString(), selected, new(1, [], [], [])); await Failure(escape, 404); Assert.Equal(before, await Snapshot(s)); using var remove = await Send(p.PublicId.ToString(), selected, new(2, [], [], [])); Assert.Equal(3, (await Success(remove)).Revision); await Visible(s, p.PublicId, [], [], []);
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var own = await Items(s);
+        var extra = await Items(s);
+        var input = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId]);
+        var p = await Add(s, client, scoped, input);
+        var other = await Add(s, client, additionalScoped1);
+        var selected = await Selected(s, p.Id);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        using var retained = await Send(p.PublicId.ToString(), selected, input);
+        Assert.Equal(2, (await Success(retained)).Revision);
+        var before = await Snapshot(s);
+        using var expand = await Send(p.PublicId.ToString(), selected, input with { ExpectedRevision = 2, RecordIds = [extra.Record.PublicId] });
+        await Failure(expand, 404);
+        using var escape = await Send(other.PublicId.ToString(), selected, new(1, [], [], []));
+        await Failure(escape, 404);
+        Assert.Equal(before, await Snapshot(s));
+        using var remove = await Send(p.PublicId.ToString(), selected, new(2, [], [], []));
+        Assert.Equal(3, (await Success(remove)).Revision);
+        await Visible(s, p.PublicId, [], [], []);
     }
     [FunctionalFact]
     public async Task GivenConcurrentSetRequests_WhenCommitting_ThenOneWinnerAndOneStaleConflict()
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var own = await Items(s); var p = await Add(s, client, scoped); Authorize(RegistrationApiFixture.Token(s.Actor)); var responses = await Task.WhenAll(Send(p.PublicId.ToString(), s.Access, new(1, [own.Record.PublicId], [], [])), Send(p.PublicId.ToString(), s.Access, new(1, [], [own.Folder.PublicId], []))); try { Assert.Single(responses, x => x.StatusCode == HttpStatusCode.OK); var winner = await Success(responses.Single(x => x.StatusCode == HttpStatusCode.OK)); await Failure(responses.Single(x => x.StatusCode != HttpStatusCode.OK), 409); await Visible(s, p.PublicId, winner.RecordIds, winner.FolderIds, winner.CollectionIds); } finally { foreach (var response in responses) response.Dispose(); }
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var own = await Items(s);
+        var p = await Add(s, client, scoped);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        var responses = await Task.WhenAll(Send(p.PublicId.ToString(), s.Access, new(1, [own.Record.PublicId], [], [])), Send(p.PublicId.ToString(), s.Access, new(1, [], [own.Folder.PublicId], [])));
+        try
+        { Assert.Single(responses, x => x.StatusCode == HttpStatusCode.OK); var winner = await Success(responses.Single(x => x.StatusCode == HttpStatusCode.OK)); await Failure(responses.Single(x => x.StatusCode != HttpStatusCode.OK), 409); await Visible(s, p.PublicId, winner.RecordIds, winner.FolderIds, winner.CollectionIds); }
+        finally { foreach (var response in responses) response.Dispose(); }
     }
     [FunctionalTheory]
     [InlineData("actor", 400)]
@@ -131,11 +261,50 @@ public class ProfileAssociationHttpTests(RegistrationApiFixture fixture, SharedA
     [InlineData("invalidUtf8", 400)]
     public async Task GivenMalformedBody_WhenSetting_Then400WithNoStateChanges(string kind, int status)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); var raw = "{\"expectedRevision\":1,\"recordIds\":[],\"folderIds\":[],\"collectionIds\":[]}";
-        if (kind is "actor" or "vaultAccess" or "profileId" or "envelope" or "editedAt") raw = raw.Insert(1, "\"" + kind + "\":null,");
-        if (kind == "missingRevision") raw = raw.Replace("\"expectedRevision\":1,", ""); if (kind == "missingRecordIds") raw = raw.Replace("\"recordIds\":[],", ""); if (kind == "missingFolderIds") raw = raw.Replace("\"folderIds\":[],", ""); if (kind == "missingCollectionIds") raw = raw.Replace(",\"collectionIds\":[]", "");
-        if (kind == "null") raw = raw.Replace("\"recordIds\":[]", "\"recordIds\":null"); if (kind == "duplicate") raw = raw.Replace("\"folderIds\":[]", "\"folderIds\":[\"" + p.PublicId + "\",\"" + p.PublicId + "\"]"); if (kind == "zeroId") raw = raw.Replace("\"recordIds\":[]", "\"recordIds\":[\"00000000-0000-0000-0000-000000000000\"]"); if (kind == "uppercaseId") raw = raw.Replace("\"recordIds\":[]", "\"recordIds\":[\"ABCDEFAB-1234-1234-1234-ABCDEFABCDEF\"]"); if (kind == "numericString") raw = raw.Replace(":1,", ":\"1\","); if (kind == "unsafe") raw = raw.Replace(":1,", ":9007199254740992,"); if (kind == "fraction") raw = raw.Replace(":1,", ":1.5,"); if (kind == "duplicateProperty") raw = raw.Insert(1, "\"recordIds\":[],"); if (kind == "wrongCase") raw = raw.Replace("recordIds", "RecordIds");
-        var bytes = kind == "invalidUtf8" ? new byte[] { 255 } : kind == "bom" ? new byte[] { 239, 187, 191 }.Concat(Encoding.UTF8.GetBytes(raw)).ToArray() : Encoding.UTF8.GetBytes(raw); Authorize(RegistrationApiFixture.Token(s.Actor)); var before = await Snapshot(s); using var request = new HttpRequestMessage(HttpMethod.Put, "/api/profiles/" + p.PublicId + "/associations") { Content = new ByteArrayContent(bytes) }; request.Content.Headers.ContentType = new("application/json") { CharSet = kind == "charset" ? "iso-8859-1" : "utf-8" }; if (kind == "encoding") request.Content.Headers.ContentEncoding.Add("gzip"); request.Headers.Add("X-Cerberus-Vault-Access", s.Access); using var response = await Gateway.Client.SendAsync(request); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var p = await Add(s, client, scoped);
+        var raw = "{\"expectedRevision\":1,\"recordIds\":[],\"folderIds\":[],\"collectionIds\":[]}";
+        if (kind is "actor" or "vaultAccess" or "profileId" or "envelope" or "editedAt")
+            raw = raw.Insert(1, "\"" + kind + "\":null,");
+        if (kind == "missingRevision")
+            raw = raw.Replace("\"expectedRevision\":1,", "");
+        if (kind == "missingRecordIds")
+            raw = raw.Replace("\"recordIds\":[],", "");
+        if (kind == "missingFolderIds")
+            raw = raw.Replace("\"folderIds\":[],", "");
+        if (kind == "missingCollectionIds")
+            raw = raw.Replace(",\"collectionIds\":[]", "");
+        if (kind == "null")
+            raw = raw.Replace("\"recordIds\":[]", "\"recordIds\":null");
+        if (kind == "duplicate")
+            raw = raw.Replace("\"folderIds\":[]", "\"folderIds\":[\"" + p.PublicId + "\",\"" + p.PublicId + "\"]");
+        if (kind == "zeroId")
+            raw = raw.Replace("\"recordIds\":[]", "\"recordIds\":[\"00000000-0000-0000-0000-000000000000\"]");
+        if (kind == "uppercaseId")
+            raw = raw.Replace("\"recordIds\":[]", "\"recordIds\":[\"ABCDEFAB-1234-1234-1234-ABCDEFABCDEF\"]");
+        if (kind == "numericString")
+            raw = raw.Replace(":1,", ":\"1\",");
+        if (kind == "unsafe")
+            raw = raw.Replace(":1,", ":9007199254740992,");
+        if (kind == "fraction")
+            raw = raw.Replace(":1,", ":1.5,");
+        if (kind == "duplicateProperty")
+            raw = raw.Insert(1, "\"recordIds\":[],");
+        if (kind == "wrongCase")
+            raw = raw.Replace("recordIds", "RecordIds");
+        var bytes = kind == "invalidUtf8" ? new byte[] { 255 } : kind == "bom" ? new byte[] { 239, 187, 191 }.Concat(Encoding.UTF8.GetBytes(raw)).ToArray() : Encoding.UTF8.GetBytes(raw);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        var before = await Snapshot(s);
+        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/profiles/" + p.PublicId + "/associations") { Content = new ByteArrayContent(bytes) };
+        request.Content.Headers.ContentType = new("application/json") { CharSet = kind == "charset" ? "iso-8859-1" : "utf-8" };
+        if (kind == "encoding")
+            request.Content.Headers.ContentEncoding.Add("gzip");
+        request.Headers.Add("X-Cerberus-Vault-Access", s.Access);
+        using var response = await Gateway.Client.SendAsync(request);
+        await Failure(response, status);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("route", 400)]
@@ -147,12 +316,30 @@ public class ProfileAssociationHttpTests(RegistrationApiFixture fixture, SharedA
     [InlineData("missing", 401)]
     public async Task GivenInvalidRouteQueryOrHeader_WhenSetting_ThenRejectWithoutMutation(string kind, int status)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); Authorize(RegistrationApiFixture.Token(s.Actor)); var before = await Snapshot(s); var id = kind == "route" ? "not-a-guid" : kind == "uppercaseRoute" ? "ABCDEFAB-1234-1234-1234-ABCDEFABCDEF" : kind == "zeroRoute" ? Guid.Empty.ToString() : p.PublicId.ToString(); using var request = new HttpRequestMessage(HttpMethod.Put, "/api/profiles/" + id + "/associations" + (kind == "query" ? "?unexpected=1" : "")) { Content = JsonContent.Create(new ProfileAssociationInput(1, [], [], [])) }; if (kind != "missing") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", kind == "malformed" ? "bad" : s.Access); if (kind == "multiple") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access); using var response = await Gateway.Client.SendAsync(request); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var p = await Add(s, client, scoped);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        var before = await Snapshot(s);
+        var id = kind == "route" ? "not-a-guid" : kind == "uppercaseRoute" ? "ABCDEFAB-1234-1234-1234-ABCDEFABCDEF" : kind == "zeroRoute" ? Guid.Empty.ToString() : p.PublicId.ToString();
+        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/profiles/" + id + "/associations" + (kind == "query" ? "?unexpected=1" : "")) { Content = JsonContent.Create(new ProfileAssociationInput(1, [], [], [])) };
+        if (kind != "missing")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", kind == "malformed" ? "bad" : s.Access);
+        if (kind == "multiple")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access);
+        using var response = await Gateway.Client.SendAsync(request);
+        await Failure(response, status);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalFact]
     public async Task GivenExplicitEmptyAccessHeader_WhenSetting_Then400()
     {
-        using var client = new ProtectionFixture(); var state = await Setup(client); using var host = new WebApplicationFactory<Program>(); var context = await host.Server.SendAsync(c => { c.Request.Method = "PUT"; c.Request.Path = "/api/profiles/" + Guid.NewGuid() + "/associations"; c.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(state.Actor); c.Request.Headers["X-Cerberus-Vault-Access"] = ""; c.Request.ContentType = "application/json"; c.Request.Body = new MemoryStream("{\"expectedRevision\":1,\"recordIds\":[],\"folderIds\":[],\"collectionIds\":[]}"u8.ToArray()); c.Request.ContentLength = c.Request.Body.Length; }); Assert.Equal(400, context.Response.StatusCode);
+        using var client = new ProtectionFixture();
+        var state = await Setup(client);
+        using var host = new WebApplicationFactory<Program>();
+        var context = await host.Server.SendAsync(c => { c.Request.Method = "PUT"; c.Request.Path = "/api/profiles/" + Guid.NewGuid() + "/associations"; c.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(state.Actor); c.Request.Headers["X-Cerberus-Vault-Access"] = ""; c.Request.ContentType = "application/json"; c.Request.Body = new MemoryStream("{\"expectedRevision\":1,\"recordIds\":[],\"folderIds\":[],\"collectionIds\":[]}"u8.ToArray()); c.Request.ContentLength = c.Request.Body.Length; });
+        Assert.Equal(400, context.Response.StatusCode);
     }
     [FunctionalTheory]
     [InlineData("missing", 401)]
@@ -161,28 +348,79 @@ public class ProfileAssociationHttpTests(RegistrationApiFixture fixture, SharedA
     [InlineData("unavailable", 503)]
     public async Task GivenInvalidIdentity_WhenSetting_ThenFailClosedBeforeMutation(string kind, int status)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); var before = await Snapshot(s); if (kind is "deleted" or "unavailable") fixture.Users[s.Actor + "@example.test"] = new(s.Actor, "fixture-password", Deleted: kind == "deleted", IdentityUnavailable: kind == "unavailable"); using var request = new HttpRequestMessage(HttpMethod.Put, "/api/profiles/" + p.PublicId + "/associations") { Content = JsonContent.Create(new ProfileAssociationInput(1, [], [], [])) }; if (kind != "missing") request.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor, kind == "foreignScope" ? Guid.NewGuid() : null)); request.Headers.Add("X-Cerberus-Vault-Access", s.Access); using var response = await Gateway.Client.SendAsync(request); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var p = await Add(s, client, scoped);
+        var before = await Snapshot(s);
+        if (kind is "deleted" or "unavailable")
+            fixture.Users[s.Actor + "@example.test"] = new(s.Actor, "fixture-password", Deleted: kind == "deleted", IdentityUnavailable: kind == "unavailable");
+        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/profiles/" + p.PublicId + "/associations") { Content = JsonContent.Create(new ProfileAssociationInput(1, [], [], [])) };
+        if (kind != "missing")
+            request.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor, kind == "foreignScope" ? Guid.NewGuid() : null));
+        request.Headers.Add("X-Cerberus-Vault-Access", s.Access);
+        using var response = await Gateway.Client.SendAsync(request);
+        await Failure(response, status);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalFact]
     public async Task GivenMembershipInsertFailure_WhenSetting_Then503RollsBackAllSetsAndMetadataAndRetrySucceeds()
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var old = await Items(s); var next = await Items(s); var p = await Add(s, client, scoped, new(1, [old.Record.PublicId], [old.Folder.PublicId], [old.Collection.PublicId])); Authorize(RegistrationApiFixture.Token(s.Actor)); var before = await Snapshot(s); await using var db = fixture.Context();
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var old = await Items(s);
+        var next = await Items(s);
+        var p = await Add(s, client, scoped, new(1, [old.Record.PublicId], [old.Folder.PublicId], [old.Collection.PublicId]));
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        var before = await Snapshot(s);
+        await using var db = fixture.Context();
         await db.Database.ExecuteSqlRawAsync("CREATE TABLE cerberus.fixture_reject_profile_link(profile_id bigint NOT NULL); CREATE FUNCTION cerberus.reject_fixture_profile_link() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF EXISTS(SELECT 1 FROM cerberus.fixture_reject_profile_link WHERE profile_id=NEW.profile_id) THEN RAISE EXCEPTION 'synthetic link insert failure' USING ERRCODE='08006'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_fixture_profile_link BEFORE INSERT ON cerberus.profile_record FOR EACH ROW EXECUTE FUNCTION cerberus.reject_fixture_profile_link();");
-        try { await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.fixture_reject_profile_link(profile_id) VALUES ({p.Id})"); using var failed = await Send(p.PublicId.ToString(), s.Access, new(1, [next.Record.PublicId], [next.Folder.PublicId], [next.Collection.PublicId])); await Failure(failed, 503); Assert.Equal(before, await Snapshot(s)); }
+        try
+        { await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.fixture_reject_profile_link(profile_id) VALUES ({p.Id})"); using var failed = await Send(p.PublicId.ToString(), s.Access, new(1, [next.Record.PublicId], [next.Folder.PublicId], [next.Collection.PublicId])); await Failure(failed, 503); Assert.Equal(before, await Snapshot(s)); }
         finally { await db.Database.ExecuteSqlRawAsync("DROP TRIGGER IF EXISTS reject_fixture_profile_link ON cerberus.profile_record; DROP FUNCTION IF EXISTS cerberus.reject_fixture_profile_link(); DROP TABLE IF EXISTS cerberus.fixture_reject_profile_link;"); }
-        using var retry = await Send(p.PublicId.ToString(), s.Access, new(1, [next.Record.PublicId], [next.Folder.PublicId], [next.Collection.PublicId])); await Success(retry); await Visible(s, p.PublicId, [next.Record.PublicId], [next.Folder.PublicId], [next.Collection.PublicId]);
+        using var retry = await Send(p.PublicId.ToString(), s.Access, new(1, [next.Record.PublicId], [next.Folder.PublicId], [next.Collection.PublicId]));
+        await Success(retry);
+        await Visible(s, p.PublicId, [next.Record.PublicId], [next.Folder.PublicId], [next.Collection.PublicId]);
     }
     [FunctionalFact]
     public async Task GivenOwnedResourcesAndNativeGrant_WhenRotatingThroughHttp_ThenCommitCompleteManifestAndRevokeOldAccess()
     {
-        using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(owner); var other = await Setup(recipient); var items = await Items(s); var grant = await Grant(s, owner, other, recipient, items.Collection); var p = await Add(s, owner, scoped); var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(p.KeyWrappers, ProtectionFixture.Json)!;
+        using var owner = new ProtectionFixture();
+        using var recipient = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(owner);
+        var other = await Setup(recipient);
+        var items = await Items(s);
+        var grant = await Grant(s, owner, other, recipient, items.Collection);
+        var p = await Add(s, owner, scoped);
+        var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(p.KeyWrappers, ProtectionFixture.Json)!;
         var c = new ProtectionChange(s.AccountId, 1, 1, "rotate-content", owner.Rewrap(), [
             new("account",s.AccountId,1,Envelope() with {KeyEpoch=2}),new("profile",p.PublicId,1,Envelope() with {KeyEpoch=2},wrappers with {MasterKeyWrapper=owner.Wrap(s.AccountId,"profile",p.PublicId,s.Actor,2,2)}),
             new("record",items.Record.PublicId,1,Envelope() with {KeyEpoch=2}),new("folder",items.Folder.PublicId,1,Envelope() with {KeyEpoch=2}),new("collection",items.Collection.PublicId,1,Envelope() with {KeyEpoch=2})])
         { GrantReplacements = [new(grant.PublicId, 1, owner.WrapGrant(s.AccountId, items.Collection.PublicId, grant.PublicId, other.Actor, recipient.Material.RecipientKey, 2, 2))] };
-        var raw = JsonSerializer.SerializeToUtf8Bytes(c, ProtectionFixture.Json); Authorize(RegistrationApiFixture.Token(s.Actor)); using var issued = await Gateway.Client.PostAsJsonAsync("/api/vault/challenges", new { operation = "change-protection", requestHash = ProtocolBinary.Encode(SHA256.HashData(raw)) }); Assert.Equal(HttpStatusCode.Created, issued.StatusCode); using var doc = JsonDocument.Parse(await issued.Content.ReadAsStringAsync()); var challenge = doc.RootElement.GetProperty("data").GetProperty("challenge").Deserialize<VaultProofChallenge>(ProtectionFixture.Json)!;
-        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/vault/protection") { Content = new ByteArrayContent(raw) }; request.Content.Headers.ContentType = new("application/json"); request.Headers.Add("X-Cerberus-Vault-Access", s.Access); request.Headers.Add("X-Cerberus-Challenge-Id", challenge.ChallengeId.ToString()); request.Headers.Add("X-Cerberus-Proof", owner.Sign(challenge)); using var response = await Gateway.Client.SendAsync(request); Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        await using var db = fixture.Context(); Assert.Equal(2, (await db.Records.SingleAsync(x => x.Id == items.Record.Id)).Revision); Assert.Equal(2, (await db.Folders.SingleAsync(x => x.Id == items.Folder.Id)).Revision); Assert.Equal(2, (await db.Collections.SingleAsync(x => x.Id == items.Collection.Id)).KeyEpoch); var stored = await db.CollectionGrants.SingleAsync(x => x.Id == grant.Id); Assert.Equal(2, stored.Revision); Assert.Equal(c.GrantReplacements[0].KeyEnvelope, JsonSerializer.Deserialize<RecipientEnvelope>(stored.RecipientKeyEnvelope, ProtectionFixture.Json)); using var denied = await Send(p.PublicId.ToString(), s.Access, new(2, [], [], [])); await Failure(denied, 403);
+        var raw = JsonSerializer.SerializeToUtf8Bytes(c, ProtectionFixture.Json);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        using var issued = await Gateway.Client.PostAsJsonAsync("/api/vault/challenges", new { operation = "change-protection", requestHash = ProtocolBinary.Encode(SHA256.HashData(raw)) });
+        Assert.Equal(HttpStatusCode.Created, issued.StatusCode);
+        using var doc = JsonDocument.Parse(await issued.Content.ReadAsStringAsync());
+        var challenge = doc.RootElement.GetProperty("data").GetProperty("challenge").Deserialize<VaultProofChallenge>(ProtectionFixture.Json)!;
+        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/vault/protection") { Content = new ByteArrayContent(raw) };
+        request.Content.Headers.ContentType = new("application/json");
+        request.Headers.Add("X-Cerberus-Vault-Access", s.Access);
+        request.Headers.Add("X-Cerberus-Challenge-Id", challenge.ChallengeId.ToString());
+        request.Headers.Add("X-Cerberus-Proof", owner.Sign(challenge));
+        using var response = await Gateway.Client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        await using var db = fixture.Context();
+        Assert.Equal(2, (await db.Records.SingleAsync(x => x.Id == items.Record.Id)).Revision);
+        Assert.Equal(2, (await db.Folders.SingleAsync(x => x.Id == items.Folder.Id)).Revision);
+        Assert.Equal(2, (await db.Collections.SingleAsync(x => x.Id == items.Collection.Id)).KeyEpoch);
+        var stored = await db.CollectionGrants.SingleAsync(x => x.Id == grant.Id);
+        Assert.Equal(2, stored.Revision);
+        Assert.Equal(c.GrantReplacements[0].KeyEnvelope, JsonSerializer.Deserialize<RecipientEnvelope>(stored.RecipientKeyEnvelope, ProtectionFixture.Json));
+        using var denied = await Send(p.PublicId.ToString(), s.Access, new(2, [], [], []));
+        await Failure(denied, 403);
     }
     private sealed record State(Guid Actor, Guid AccountId, long InternalId, string Access);
     private sealed record ResourceSet(VaultRecord Record, VaultFolder Folder, VaultCollection Collection);

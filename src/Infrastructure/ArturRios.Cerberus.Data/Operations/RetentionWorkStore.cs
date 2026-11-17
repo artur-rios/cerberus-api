@@ -30,10 +30,12 @@ public sealed class RetentionWorkStore(IDbContextFactory<AppDbContext> factory) 
             .ToListAsync(cancellationToken);
         var work = rows.SingleOrDefault();
         var token = Guid.NewGuid();
-        if (work is null || now.Offset != TimeSpan.Zero) return null;
+        if (work is null || now.Offset != TimeSpan.Zero)
+            return null;
         if (IsExpiry(work.OperationKey))
             now = await context.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(cancellationToken);
-        if (!work.TryClaim(token, now, lease)) return null;
+        if (!work.TryClaim(token, now, lease))
+            return null;
         await context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return new RetentionClaim(work.PublicId, token, work.OperationKey, work.ClaimExpiresAt!.Value);
@@ -51,7 +53,8 @@ public sealed class RetentionWorkStore(IDbContextFactory<AppDbContext> factory) 
         var work = rows.SingleOrDefault();
         if (work is not null && (work.OperationKey.StartsWith("record-purge/", StringComparison.Ordinal) || work.OperationKey.StartsWith("account-erase/", StringComparison.Ordinal) || work.OperationKey.StartsWith("trash-erase/", StringComparison.Ordinal) || IsExpiry(work.OperationKey)))
         {
-            if (work.OperationKey != claim.OperationKey || claim.Token == Guid.Empty || now.Offset != TimeSpan.Zero) return false;
+            if (work.OperationKey != claim.OperationKey || claim.Token == Guid.Empty || now.Offset != TimeSpan.Zero)
+                return false;
             // The caller's clock cannot extend a purge lease. This statement starts
             // after the persisted claim-row wait and checks current database expiry.
             var changed = await context.Database.ExecuteSqlInterpolatedAsync($"""
@@ -59,12 +62,14 @@ public sealed class RetentionWorkStore(IDbContextFactory<AppDbContext> factory) 
                 WHERE public_id={claim.WorkId} AND operation_key={claim.OperationKey} AND claim_token={claim.Token}
                   AND completed_at IS NULL AND claim_expires_at>statement_timestamp()
                 """, cancellationToken);
-            if (changed != 1) return false;
+            if (changed != 1)
+                return false;
             await transaction.CommitAsync(cancellationToken);
             return true;
         }
         if (work is null || work.OperationKey != claim.OperationKey
-            || !work.TryComplete(claim.Token, now)) return false;
+            || !work.TryComplete(claim.Token, now))
+            return false;
         await context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return true;

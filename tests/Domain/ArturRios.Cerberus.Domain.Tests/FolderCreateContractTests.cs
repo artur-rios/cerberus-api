@@ -19,7 +19,8 @@ public class FolderCreateContractTests
     [InlineData("maximum")]
     public void GivenNativeFolderWithPermittedRelationshipShape_WhenValidating_ThenAccept(string kind)
     {
-        var input = Input(); input = kind switch
+        var input = Input();
+        input = kind switch
         {
             "folder" => input with { ParentFolderId = Guid.NewGuid() },
             "multipleProfiles" => input with { ProfileIds = [Guid.NewGuid(), Guid.NewGuid()] },
@@ -54,7 +55,9 @@ public class FolderCreateContractTests
     [InlineData("nonUtcTime")]
     public void GivenInvalidVisibleFolderInput_WhenValidating_ThenReject(string kind)
     {
-        var input = Input(); var id = Guid.NewGuid(); input = kind switch
+        var input = Input();
+        var id = Guid.NewGuid();
+        input = kind switch
         {
             "folderId" => input with { FolderId = Guid.Empty },
             "nullEnvelope" => input with { Envelope = null! },
@@ -85,7 +88,8 @@ public class FolderCreateContractTests
     [InlineData("profileIds")]
     public void GivenMissingRequiredCreationMember_WhenParsing_ThenReject(string field)
     {
-        var body = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(Input(), Json), Json)!; body.Remove(field);
+        var body = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(Input(), Json), Json)!;
+        body.Remove(field);
         Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<FolderCreateInput>(JsonSerializer.Serialize(body), Json));
     }
     [UnitTheory]
@@ -112,7 +116,9 @@ public class FolderCreateContractTests
     [InlineData("unknownEnvelope")]
     public void GivenAmbiguousOrNonNativeWireBody_WhenParsing_ThenReject(string kind)
     {
-        var input = Input(); var body = JsonSerializer.Serialize(input, Json); body = kind switch
+        var input = Input();
+        var body = JsonSerializer.Serialize(input, Json);
+        body = kind switch
         {
             "duplicate" => body.Insert(1, "\"folderId\":\"" + input.FolderId + "\","),
             "wrongCase" => body.Replace("folderId", "FolderId"),
@@ -127,8 +133,15 @@ public class FolderCreateContractTests
     [InlineData(true)]
     public void GivenAbsentOrExplicitNullFolder_WhenParsing_ThenAcceptUnfolderedFolder(bool absent)
     {
-        var input = Input(); var body = JsonSerializer.Serialize(input, Json); if (absent) body = body.Replace(",\"parentFolderId\":null", "");
-        var parsed = JsonSerializer.Deserialize<FolderCreateInput>(body, Json)!; Assert.True(parsed.IsValid()); Assert.Null(parsed.ParentFolderId); Assert.Equal(input.FolderId, parsed.FolderId); Assert.Equal(input.Envelope, parsed.Envelope);
+        var input = Input();
+        var body = JsonSerializer.Serialize(input, Json);
+        if (absent)
+            body = body.Replace(",\"parentFolderId\":null", "");
+        var parsed = JsonSerializer.Deserialize<FolderCreateInput>(body, Json)!;
+        Assert.True(parsed.IsValid());
+        Assert.Null(parsed.ParentFolderId);
+        Assert.Equal(input.FolderId, parsed.FolderId);
+        Assert.Equal(input.Envelope, parsed.Envelope);
     }
     private static FolderCreateInput Input() => new(Guid.NewGuid(), new EncryptedEnvelope("cerberus-content-v1", 1, ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16])), DateTimeOffset.UnixEpoch, []);
 }

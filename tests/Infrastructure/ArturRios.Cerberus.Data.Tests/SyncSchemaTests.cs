@@ -14,7 +14,8 @@ public class SyncSchemaTests(PostgresFixture fixture) : IClassFixture<PostgresFi
     {
         await using var db = fixture.CreateContext();
         var a = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
-        db.Accounts.Add(a); await db.SaveChangesAsync();
+        db.Accounts.Add(a);
+        await db.SaveChangesAsync();
         var beforeSync = db.Database.GetMigrations().Last(x => string.CompareOrdinal(x, "20261014020134") < 0);
         var migrator = db.GetService<IMigrator>();
         try
@@ -32,9 +33,11 @@ public class SyncSchemaTests(PostgresFixture fixture) : IClassFixture<PostgresFi
     {
         await using var db = fixture.CreateContext();
         var a = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
-        db.Accounts.Add(a); await db.SaveChangesAsync();
+        db.Accounts.Add(a);
+        await db.SaveChangesAsync();
         var p = new Profile { AccountId = a.Id, PublicId = Guid.NewGuid() };
-        db.Profiles.Add(p); await db.SaveChangesAsync();
+        db.Profiles.Add(p);
+        await db.SaveChangesAsync();
         var stream = new SyncStream
         {
             PublicId = Guid.NewGuid(),
@@ -44,7 +47,8 @@ public class SyncSchemaTests(PostgresFixture fixture) : IClassFixture<PostgresFi
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(30),
             PageSize = 10
         };
-        db.SyncStreams.Add(stream); await db.SaveChangesAsync();
+        db.SyncStreams.Add(stream);
+        await db.SaveChangesAsync();
         var id = Guid.NewGuid();
         var change = new SyncChange { StreamId = stream.Id, WindowVersion = 1, ResourceKind = "record", ResourceId = id, EventType = "upsert" };
         db.SyncChanges.Add(change);
@@ -63,9 +67,11 @@ public class SyncSchemaTests(PostgresFixture fixture) : IClassFixture<PostgresFi
         await using var db = fixture.CreateContext();
         var own = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
         var other = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
-        db.Accounts.AddRange(own, other); await db.SaveChangesAsync();
+        db.Accounts.AddRange(own, other);
+        await db.SaveChangesAsync();
         var p = new Profile { PublicId = Guid.NewGuid(), AccountId = other.Id };
-        db.Profiles.Add(p); await db.SaveChangesAsync();
+        db.Profiles.Add(p);
+        await db.SaveChangesAsync();
         db.SyncStreams.Add(new SyncStream
         {
             PublicId = Guid.NewGuid(),

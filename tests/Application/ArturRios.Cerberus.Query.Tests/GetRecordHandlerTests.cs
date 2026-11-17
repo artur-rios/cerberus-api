@@ -23,20 +23,39 @@ public class GetRecordHandlerTests
     [InlineData("target", "validation_failed")]
     public async Task GivenInvalidContext_WhenGetting_ThenRejectBeforePersistence(string kind, string error)
     {
-        var store = new Mock<IRecordReadStore>(MockBehavior.Strict); var r = await Handler(store).HandleAsync(new(kind == "actor" ? Guid.Empty : Actor, kind switch { "missing" => null, "bad" => "bad", "empty" => "", "padded" => Access + "=", _ => Access }, kind == "target" ? Guid.Empty : Guid.NewGuid()));
-        Assert.Contains(error, r.Errors); Assert.Null(r.Data); store.VerifyNoOtherCalls();
+        var store = new Mock<IRecordReadStore>(MockBehavior.Strict);
+        var r = await Handler(store).HandleAsync(new(kind == "actor" ? Guid.Empty : Actor, kind switch { "missing" => null, "bad" => "bad", "empty" => "", "padded" => Access + "=", _ => Access }, kind == "target" ? Guid.Empty : Guid.NewGuid()));
+        Assert.Contains(error, r.Errors);
+        Assert.Null(r.Data);
+        store.VerifyNoOtherCalls();
     }
     [UnitTheory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task GivenVisibleDetails_WhenGetting_ThenForwardHashAndCallerTokenAndReturnOnlyEightPublicFields(bool references)
     {
-        var row = Row(1); Guid[] profiles = references ? [Guid.NewGuid(), Guid.NewGuid()] : []; Guid[] collections = references ? [row.RecordId] : []; Guid? folder = references ? row.RecordId : null;
-        using var ct = new CancellationTokenSource(); var store = new Mock<IRecordReadStore>(MockBehavior.Strict); store.Setup(x => x.ReadAsync(new(Actor, Verifier, row.RecordId), ct.Token)).ReturnsAsync(new VaultResult<RecordReadDetails>(new(row, profiles, folder, collections)));
-        var result = await Handler(store).HandleAsync(new(Actor, Access, row.RecordId), ct.Token); Assert.True(result.Success); Assert.Contains("record_found", result.Messages);
-        var item = result.Data!; Assert.Equal(row.RecordId, item.RecordId); Assert.Equal(row.Revision, item.Revision); Assert.Equal(row.ServerSequence, item.ServerSequence); Assert.Equal(row.EditedAt, item.EditedAt);
-        Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json), item.Envelope); Assert.Equal(profiles.Order(), item.ProfileIds); Assert.Equal(collections.Order(), item.CollectionIds); Assert.Equal(folder, item.FolderId);
-        using var json = JsonDocument.Parse(JsonSerializer.Serialize(item, ProtectionFixture.Json)); Assert.Equal(new[] { "collectionIds", "editedAt", "envelope", "folderId", "profileIds", "recordId", "revision", "serverSequence" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order()); store.VerifyAll();
+        var row = Row(1);
+        Guid[] profiles = references ? [Guid.NewGuid(), Guid.NewGuid()] : [];
+        Guid[] collections = references ? [row.RecordId] : [];
+        Guid? folder = references ? row.RecordId : null;
+        using var ct = new CancellationTokenSource();
+        var store = new Mock<IRecordReadStore>(MockBehavior.Strict);
+        store.Setup(x => x.ReadAsync(new(Actor, Verifier, row.RecordId), ct.Token)).ReturnsAsync(new VaultResult<RecordReadDetails>(new(row, profiles, folder, collections)));
+        var result = await Handler(store).HandleAsync(new(Actor, Access, row.RecordId), ct.Token);
+        Assert.True(result.Success);
+        Assert.Contains("record_found", result.Messages);
+        var item = result.Data!;
+        Assert.Equal(row.RecordId, item.RecordId);
+        Assert.Equal(row.Revision, item.Revision);
+        Assert.Equal(row.ServerSequence, item.ServerSequence);
+        Assert.Equal(row.EditedAt, item.EditedAt);
+        Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json), item.Envelope);
+        Assert.Equal(profiles.Order(), item.ProfileIds);
+        Assert.Equal(collections.Order(), item.CollectionIds);
+        Assert.Equal(folder, item.FolderId);
+        using var json = JsonDocument.Parse(JsonSerializer.Serialize(item, ProtectionFixture.Json));
+        Assert.Equal(new[] { "collectionIds", "editedAt", "envelope", "folderId", "profileIds", "recordId", "revision", "serverSequence" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        store.VerifyAll();
     }
     [UnitTheory]
     [InlineData("nullRecord")]
@@ -61,7 +80,8 @@ public class GetRecordHandlerTests
     [InlineData("zeroFolder")]
     public async Task GivenCorruptStoredDetails_WhenGetting_Then503WithoutAnyPartialData(string kind)
     {
-        var good = Row(1); var row = kind switch
+        var good = Row(1);
+        var row = kind switch
         {
             "nullRecord" => null!,
             "targetMismatch" => good with { RecordId = Guid.NewGuid() },
@@ -80,7 +100,9 @@ public class GetRecordHandlerTests
         };
         Guid[] profiles = kind switch { "nullProfiles" => null!, "zeroProfile" => [Guid.Empty], "duplicateProfile" => [Actor, Actor], _ => [] };
         Guid[] collections = kind switch { "nullCollections" => null!, "zeroCollection" => [Guid.Empty], "duplicateCollection" => [Actor, Actor], _ => [] };
-        var result = await Handler(MockStore(new(new(row, profiles, kind == "zeroFolder" ? Guid.Empty : null, collections)))).HandleAsync(new(Actor, Access, good.RecordId)); Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        var result = await Handler(MockStore(new(new(row, profiles, kind == "zeroFolder" ? Guid.Empty : null, collections)))).HandleAsync(new(Actor, Access, good.RecordId));
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitTheory]
     [InlineData("not_found")]
@@ -97,8 +119,12 @@ public class GetRecordHandlerTests
     [InlineData("authenticationAsError")]
     public async Task GivenBrokenStoreContract_WhenGetting_ThenFailClosedWithoutLeakingPrivateErrors(string kind)
     {
-        var row = Row(1); VaultResult<RecordReadDetails>? data = kind switch { "nullResult" => null, "nullData" => new(), "unknownError" => new(Error: "SELECT private table failed"), "errorWithData" => new(new(row, [], null, []), "not_found"), "successAsError" => new(Error: "record_found"), _ => new(Error: "authentication_required") };
-        var r = await Handler(MockStore(data!)).HandleAsync(new(Actor, Access, row.RecordId)); Assert.Contains("persistence_unavailable", r.Errors); Assert.Null(r.Data); Assert.DoesNotContain("SELECT private table failed", r.Errors);
+        var row = Row(1);
+        VaultResult<RecordReadDetails>? data = kind switch { "nullResult" => null, "nullData" => new(), "unknownError" => new(Error: "SELECT private table failed"), "errorWithData" => new(new(row, [], null, []), "not_found"), "successAsError" => new(Error: "record_found"), _ => new(Error: "authentication_required") };
+        var r = await Handler(MockStore(data!)).HandleAsync(new(Actor, Access, row.RecordId));
+        Assert.Contains("persistence_unavailable", r.Errors);
+        Assert.Null(r.Data);
+        Assert.DoesNotContain("SELECT private table failed", r.Errors);
     }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenGetting_ThenPropagateBeforeStore()
@@ -124,7 +150,8 @@ public class GetRecordHandlerTests
     [InlineData("padded")]
     public async Task GivenCorruptNativeEnvelope_WhenGetting_ThenRejectWholePayload(string kind)
     {
-        var row = Row(2); var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json)!;
+        var row = Row(2);
+        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json)!;
         envelope = kind switch
         {
             "format" => envelope with { Format = "foreign" },
@@ -150,7 +177,8 @@ public class GetRecordHandlerTests
         };
         row = row with { Envelope = kind == "nullBytes" ? null! : Encoding.UTF8.GetBytes(json) };
         var result = await Handler(MockStore(new(new(row, [], null, [])))).HandleAsync(new(Actor, Access, row.RecordId));
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
 
 

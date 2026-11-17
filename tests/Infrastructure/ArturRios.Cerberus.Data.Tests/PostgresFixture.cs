@@ -43,7 +43,8 @@ public sealed class PostgresServer : IAsyncLifetime
         var name = "cerberus_" + Guid.NewGuid().ToString("N");
         // A copy needs the template to be idle, so copies are made one at a time.
         await _create.WaitAsync();
-        try { await ExecuteAsync($"CREATE DATABASE \"{name}\"" + (migrated ? $" TEMPLATE \"{Template}\"" : "")); }
+        try
+        { await ExecuteAsync($"CREATE DATABASE \"{name}\"" + (migrated ? $" TEMPLATE \"{Template}\"" : "")); }
         finally { _create.Release(); }
         return name;
     }
@@ -118,7 +119,9 @@ public sealed class PostgresFixture : IAsyncLifetime, IDbContextFactory<AppDbCon
     public async ValueTask InitializeAsync() => _database = await PostgresServer.Current.CreateDatabaseAsync();
     public async ValueTask DisposeAsync()
     {
-        foreach (var name in _empty) await PostgresServer.Current.DropDatabaseAsync(name);
-        if (_database is not null) await PostgresServer.Current.DropDatabaseAsync(_database);
+        foreach (var name in _empty)
+            await PostgresServer.Current.DropDatabaseAsync(name);
+        if (_database is not null)
+            await PostgresServer.Current.DropDatabaseAsync(_database);
     }
 }

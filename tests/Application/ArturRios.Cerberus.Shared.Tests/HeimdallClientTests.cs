@@ -1,8 +1,8 @@
-using ArturRios.Cerberus.Shared.Identity;
-using ArturRios.Jwt;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using ArturRios.Cerberus.Shared.Identity;
+using ArturRios.Jwt;
 
 namespace ArturRios.Cerberus.Shared.Tests;
 
@@ -56,9 +56,12 @@ public sealed class HeimdallClientTests
     {
         var options = ApplicationOptions();
         var data = ApplicationData();
-        if (kind is "wrong-id" or "deleted-wrong-id") data["id"] = Identity;
-        if (kind is "wrong-scope" or "deleted-wrong-scope") data["scopeId"] = Identity;
-        if (kind.StartsWith("deleted", StringComparison.Ordinal)) data["isDeleted"] = true;
+        if (kind is "wrong-id" or "deleted-wrong-id")
+            data["id"] = Identity;
+        if (kind is "wrong-scope" or "deleted-wrong-scope")
+            data["scopeId"] = Identity;
+        if (kind.StartsWith("deleted", StringComparison.Ordinal))
+            data["isDeleted"] = true;
         var response = kind switch
         {
             "unauthorized" => new HttpResponseMessage(HttpStatusCode.Unauthorized),
@@ -80,7 +83,8 @@ public sealed class HeimdallClientTests
     {
         var options = ApplicationOptions();
         var applicationId = Application;
-        if (empty == "application") applicationId = Guid.Empty;
+        if (empty == "application")
+            applicationId = Guid.Empty;
         else
         {
             options.HeimdallScopeId = Guid.Empty;
@@ -141,7 +145,8 @@ public sealed class HeimdallClientTests
         var data = ApplicationData();
         var value = data[field];
         data.Remove(field);
-        if (forged) data[char.ToUpperInvariant(field[0]) + field[1..]] = value;
+        if (forged)
+            data[char.ToUpperInvariant(field[0]) + field[1..]] = value;
 
         var status = await Client(new FixtureHandler(_ => Task.FromResult(Envelope(data))), ApplicationOptions())
             .VerifyApplicationAsync(Application, default);
@@ -182,7 +187,8 @@ public sealed class HeimdallClientTests
     {
         var options = ApplicationOptions();
         var json = JsonSerializer.Serialize(ApplicationData());
-        if (kind == "duplicate-data") json = json.Replace("\"isDeleted\":false", "\"isDeleted\":true,\"isDeleted\":false", StringComparison.Ordinal);
+        if (kind == "duplicate-data")
+            json = json.Replace("\"isDeleted\":false", "\"isDeleted\":true,\"isDeleted\":false", StringComparison.Ordinal);
         var body = $"{{\"success\":true,\"errors\":[],\"data\":{json}}}";
         body = kind switch
         {
@@ -192,11 +198,13 @@ public sealed class HeimdallClientTests
             "errors-envelope" => body.Replace("\"errors\":[]", "\"errors\":[\"upstream-secret\"]", StringComparison.Ordinal),
             _ => body
         };
-        if (kind.StartsWith("oversized", StringComparison.Ordinal)) options.MaxRequestBytes = Encoding.UTF8.GetByteCount(body) - 1;
+        if (kind.StartsWith("oversized", StringComparison.Ordinal))
+            options.MaxRequestBytes = Encoding.UTF8.GetByteCount(body) - 1;
         var response = new HttpResponseMessage(HttpStatusCode.OK)
         { Content = kind == "oversized-stream" ? new StreamContent(new NonSeekableStream(Encoding.UTF8.GetBytes(body))) : new StringContent(body, Encoding.UTF8) };
         response.Content.Headers.ContentType = new(kind == "wrong-media" ? "text/plain" : "application/json");
-        if (kind == "oversized-stream") Assert.Null(response.Content.Headers.ContentLength);
+        if (kind == "oversized-stream")
+            Assert.Null(response.Content.Headers.ContentLength);
 
         var status = await Client(new FixtureHandler(_ => Task.FromResult(response)), options).VerifyApplicationAsync(Application, default);
 
@@ -236,7 +244,8 @@ public sealed class HeimdallClientTests
     public async Task GivenCanceledApplicationVerification_WhenVerifying_ThenPropagateCancellation(bool invalidCredential)
     {
         var options = ApplicationOptions();
-        if (invalidCredential) options.HeimdallServiceCredential = null;
+        if (invalidCredential)
+            options.HeimdallServiceCredential = null;
         using var cancellation = new CancellationTokenSource();
         cancellation.Cancel();
         var handler = new FixtureHandler(_ => throw new InvalidOperationException("Canceled request reached transport"));

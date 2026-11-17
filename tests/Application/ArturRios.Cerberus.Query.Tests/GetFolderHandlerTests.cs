@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
 using ArturRios.Cerberus.Domain.Accounts;
-using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Folders;
+using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Query.Folders;
 using ArturRios.Cerberus.TestSupport;
 using Moq;
@@ -23,20 +23,39 @@ public class GetFolderHandlerTests
     [InlineData("target", "validation_failed")]
     public async Task GivenInvalidContext_WhenGetting_ThenRejectBeforePersistence(string kind, string error)
     {
-        var store = new Mock<IFolderReadStore>(MockBehavior.Strict); var r = await Handler(store).HandleAsync(new(kind == "actor" ? Guid.Empty : Actor, kind switch { "missing" => null, "bad" => "bad", "empty" => "", "padded" => Access + "=", _ => Access }, kind == "target" ? Guid.Empty : Guid.NewGuid()));
-        Assert.Contains(error, r.Errors); Assert.Null(r.Data); store.VerifyNoOtherCalls();
+        var store = new Mock<IFolderReadStore>(MockBehavior.Strict);
+        var r = await Handler(store).HandleAsync(new(kind == "actor" ? Guid.Empty : Actor, kind switch { "missing" => null, "bad" => "bad", "empty" => "", "padded" => Access + "=", _ => Access }, kind == "target" ? Guid.Empty : Guid.NewGuid()));
+        Assert.Contains(error, r.Errors);
+        Assert.Null(r.Data);
+        store.VerifyNoOtherCalls();
     }
     [UnitTheory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task GivenVisibleDetails_WhenGetting_ThenForwardHashAndCallerTokenAndReturnOnlyEightPublicFields(bool references)
     {
-        var row = Row(1); Guid[] profiles = references ? [row.FolderId, Guid.NewGuid()] : []; Guid[] collections = references ? [row.FolderId] : []; Guid? folder = references ? Guid.NewGuid() : null;
-        using var ct = new CancellationTokenSource(); var store = new Mock<IFolderReadStore>(MockBehavior.Strict); store.Setup(x => x.ReadAsync(new(Actor, Verifier, row.FolderId), ct.Token)).ReturnsAsync(new VaultResult<FolderReadDetails>(new(row, profiles, folder, collections)));
-        var result = await Handler(store).HandleAsync(new(Actor, Access, row.FolderId), ct.Token); Assert.True(result.Success); Assert.Contains("folder_found", result.Messages);
-        var item = result.Data!; Assert.Equal(row.FolderId, item.FolderId); Assert.Equal(row.Revision, item.Revision); Assert.Equal(row.ServerSequence, item.ServerSequence); Assert.Equal(row.EditedAt, item.EditedAt);
-        Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json), item.Envelope); Assert.Equal(profiles.Order(), item.ProfileIds); Assert.Equal(collections.Order(), item.CollectionIds); Assert.Equal(folder, item.ParentFolderId);
-        using var json = JsonDocument.Parse(JsonSerializer.Serialize(item, ProtectionFixture.Json)); Assert.Equal(new[] { "collectionIds", "editedAt", "envelope", "folderId", "parentFolderId", "profileIds", "revision", "serverSequence" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order()); store.VerifyAll();
+        var row = Row(1);
+        Guid[] profiles = references ? [row.FolderId, Guid.NewGuid()] : [];
+        Guid[] collections = references ? [row.FolderId] : [];
+        Guid? folder = references ? Guid.NewGuid() : null;
+        using var ct = new CancellationTokenSource();
+        var store = new Mock<IFolderReadStore>(MockBehavior.Strict);
+        store.Setup(x => x.ReadAsync(new(Actor, Verifier, row.FolderId), ct.Token)).ReturnsAsync(new VaultResult<FolderReadDetails>(new(row, profiles, folder, collections)));
+        var result = await Handler(store).HandleAsync(new(Actor, Access, row.FolderId), ct.Token);
+        Assert.True(result.Success);
+        Assert.Contains("folder_found", result.Messages);
+        var item = result.Data!;
+        Assert.Equal(row.FolderId, item.FolderId);
+        Assert.Equal(row.Revision, item.Revision);
+        Assert.Equal(row.ServerSequence, item.ServerSequence);
+        Assert.Equal(row.EditedAt, item.EditedAt);
+        Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json), item.Envelope);
+        Assert.Equal(profiles.Order(), item.ProfileIds);
+        Assert.Equal(collections.Order(), item.CollectionIds);
+        Assert.Equal(folder, item.ParentFolderId);
+        using var json = JsonDocument.Parse(JsonSerializer.Serialize(item, ProtectionFixture.Json));
+        Assert.Equal(new[] { "collectionIds", "editedAt", "envelope", "folderId", "parentFolderId", "profileIds", "revision", "serverSequence" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        store.VerifyAll();
     }
     [UnitTheory]
     [InlineData("nullFolder")]
@@ -62,7 +81,8 @@ public class GetFolderHandlerTests
     [InlineData("selfParent")]
     public async Task GivenCorruptStoredDetails_WhenGetting_Then503WithoutAnyPartialData(string kind)
     {
-        var good = Row(1); var row = kind switch
+        var good = Row(1);
+        var row = kind switch
         {
             "nullFolder" => null!,
             "targetMismatch" => good with { FolderId = Guid.NewGuid() },
@@ -81,7 +101,9 @@ public class GetFolderHandlerTests
         };
         Guid[] profiles = kind switch { "nullProfiles" => null!, "zeroProfile" => [Guid.Empty], "duplicateProfile" => [Actor, Actor], _ => [] };
         Guid[] collections = kind switch { "nullCollections" => null!, "zeroCollection" => [Guid.Empty], "duplicateCollection" => [Actor, Actor], _ => [] };
-        var result = await Handler(MockStore(new(new(row, profiles, kind == "zeroParent" ? Guid.Empty : kind == "selfParent" ? good.FolderId : null, collections)))).HandleAsync(new(Actor, Access, good.FolderId)); Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        var result = await Handler(MockStore(new(new(row, profiles, kind == "zeroParent" ? Guid.Empty : kind == "selfParent" ? good.FolderId : null, collections)))).HandleAsync(new(Actor, Access, good.FolderId));
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitTheory]
     [InlineData("not_found")]
@@ -98,8 +120,12 @@ public class GetFolderHandlerTests
     [InlineData("authenticationAsError")]
     public async Task GivenBrokenStoreContract_WhenGetting_ThenFailClosedWithoutLeakingPrivateErrors(string kind)
     {
-        var row = Row(1); VaultResult<FolderReadDetails>? data = kind switch { "nullResult" => null, "nullData" => new(), "unknownError" => new(Error: "SELECT private table failed"), "errorWithData" => new(new(row, [], null, []), "not_found"), "successAsError" => new(Error: "folder_found"), _ => new(Error: "authentication_required") };
-        var r = await Handler(MockStore(data!)).HandleAsync(new(Actor, Access, row.FolderId)); Assert.Contains("persistence_unavailable", r.Errors); Assert.Null(r.Data); Assert.DoesNotContain("SELECT private table failed", r.Errors);
+        var row = Row(1);
+        VaultResult<FolderReadDetails>? data = kind switch { "nullResult" => null, "nullData" => new(), "unknownError" => new(Error: "SELECT private table failed"), "errorWithData" => new(new(row, [], null, []), "not_found"), "successAsError" => new(Error: "folder_found"), _ => new(Error: "authentication_required") };
+        var r = await Handler(MockStore(data!)).HandleAsync(new(Actor, Access, row.FolderId));
+        Assert.Contains("persistence_unavailable", r.Errors);
+        Assert.Null(r.Data);
+        Assert.DoesNotContain("SELECT private table failed", r.Errors);
     }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenGetting_ThenPropagateBeforeStore()
@@ -125,7 +151,8 @@ public class GetFolderHandlerTests
     [InlineData("padded")]
     public async Task GivenCorruptNativeEnvelope_WhenGetting_ThenRejectWholePayload(string kind)
     {
-        var row = Row(2); var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json)!;
+        var row = Row(2);
+        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json)!;
         envelope = kind switch
         {
             "format" => envelope with { Format = "foreign" },
@@ -151,7 +178,8 @@ public class GetFolderHandlerTests
         };
         row = row with { Envelope = kind == "nullBytes" ? null! : Encoding.UTF8.GetBytes(json) };
         var result = await Handler(MockStore(new(new(row, [], null, [])))).HandleAsync(new(Actor, Access, row.FolderId));
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
 
 

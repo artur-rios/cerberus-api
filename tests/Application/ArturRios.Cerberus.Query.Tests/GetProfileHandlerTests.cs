@@ -59,7 +59,10 @@ public class GetProfileHandlerTests
     [InlineData("duplicateId")]
     public async Task GivenCorruptStoredContract_WhenGetting_ThenUnavailableWithoutPartialData(string kind)
     {
-        var d = Details(); var p = d.Profile; var w = JsonSerializer.Deserialize<ProfileKeyWrappers>(p.KeyWrappers, ProtectionFixture.Json)!; var env = JsonSerializer.Deserialize<EncryptedEnvelope>(p.Envelope, ProtectionFixture.Json)!;
+        var d = Details();
+        var p = d.Profile;
+        var w = JsonSerializer.Deserialize<ProfileKeyWrappers>(p.KeyWrappers, ProtectionFixture.Json)!;
+        var env = JsonSerializer.Deserialize<EncryptedEnvelope>(p.Envelope, ProtectionFixture.Json)!;
         p = kind switch
         {
             "nullProfile" => null!,
@@ -86,8 +89,11 @@ public class GetProfileHandlerTests
             "grantRevision" => p with { KeyWrappers = Bytes(w with { MasterKeyWrapper = w.MasterKeyWrapper with { GrantRevision = 2 } }) },
             _ => p
         };
-        d = d with { Profile = p }; d = kind switch { "nullRecords" => d with { RecordIds = null! }, "nullFolders" => d with { FolderIds = null! }, "nullCollections" => d with { CollectionIds = null! }, "emptyId" => d with { RecordIds = [Guid.Empty] }, "duplicateId" => d with { CollectionIds = [Target, Target] }, _ => d };
-        var r = await Handler(kind == "missing" ? new() : new(d)).HandleAsync(new(Actor, Access, Target)); Assert.Contains("persistence_unavailable", r.Errors); Assert.Null(r.Data);
+        d = d with { Profile = p };
+        d = kind switch { "nullRecords" => d with { RecordIds = null! }, "nullFolders" => d with { FolderIds = null! }, "nullCollections" => d with { CollectionIds = null! }, "emptyId" => d with { RecordIds = [Guid.Empty] }, "duplicateId" => d with { CollectionIds = [Target, Target] }, _ => d };
+        var r = await Handler(kind == "missing" ? new() : new(d)).HandleAsync(new(Actor, Access, Target));
+        Assert.Contains("persistence_unavailable", r.Errors);
+        Assert.Null(r.Data);
     }
     [UnitFact]
     public async Task GivenCancellation_WhenGetting_ThenPropagate()

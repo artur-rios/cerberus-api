@@ -23,7 +23,24 @@ public class UpdateProfileHandlerTests
     [InlineData("format", "validation_failed")]
     public async Task GivenInvalidCommandOrAccess_WhenUpdating_ThenRejectBeforeStore(string kind, string error)
     {
-        var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access, kind == "id" ? Guid.Empty : id); if (kind == "envelope") c.Envelope = null!; if (kind == "revision") c.ExpectedRevision = 0; if (kind == "unsafe") c.ExpectedRevision = 9007199254740992; if (kind == "time") c.EditedAt = default; if (kind == "offset") c.EditedAt = c.EditedAt.ToOffset(TimeSpan.FromHours(1)); if (kind == "format") c.Envelope = c.Envelope with { Format = "unknown" }; var r = await Handler(new Mock<IProfileUpdateStore>(MockBehavior.Strict).Object).HandleAsync(c); Assert.Contains(error, r.Errors); Assert.False(r.Success); Assert.Null(r.Data);
+        var c = Command();
+        c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access, kind == "id" ? Guid.Empty : id);
+        if (kind == "envelope")
+            c.Envelope = null!;
+        if (kind == "revision")
+            c.ExpectedRevision = 0;
+        if (kind == "unsafe")
+            c.ExpectedRevision = 9007199254740992;
+        if (kind == "time")
+            c.EditedAt = default;
+        if (kind == "offset")
+            c.EditedAt = c.EditedAt.ToOffset(TimeSpan.FromHours(1));
+        if (kind == "format")
+            c.Envelope = c.Envelope with { Format = "unknown" };
+        var r = await Handler(new Mock<IProfileUpdateStore>(MockBehavior.Strict).Object).HandleAsync(c);
+        Assert.Contains(error, r.Errors);
+        Assert.False(r.Success);
+        Assert.Null(r.Data);
     }
     [UnitTheory]
     [InlineData("2026-10-08T12:00:00Z", "2026-10-08T12:00:00Z")]
@@ -31,7 +48,27 @@ public class UpdateProfileHandlerTests
     [InlineData("2000-01-01T00:00:00.0000009Z", "2000-01-01T00:00:00Z")]
     public async Task GivenValidUpdate_WhenHandling_ThenBindTrustedRequestAndReturnNormalizedMetadata(string submitted, string expected)
     {
-        var c = Command(); c.EditedAt = DateTimeOffset.Parse(submitted); ProfileUpdateRequest? captured = null; var store = new Mock<IProfileUpdateStore>(MockBehavior.Strict); store.Setup(x => x.UpdateAsync(It.IsAny<ProfileUpdateRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileUpdateRequest, CancellationToken>((r, _) => { captured = r; return Task.FromResult(new VaultResult<ProfileCreateDetails>(new(id, 2, 7, DateTimeOffset.Parse(expected)))); }); var result = await Handler(store.Object).HandleAsync(c); Assert.True(result.Success); Assert.Contains("profile_updated", result.Messages); Assert.Equal(id, result.Data!.ProfileId); Assert.Equal(2, result.Data.Revision); Assert.Equal(7, result.Data.ServerSequence); Assert.Equal(DateTimeOffset.Parse(expected), result.Data.EditedAt); Assert.Equal(actor, captured!.Actor); Assert.Equal(id, captured.ProfileId); Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier); Assert.Equal(c.ToInput(), captured.Input); var json = JsonSerializer.Serialize(c); Assert.DoesNotContain("Actor", json); Assert.DoesNotContain("VaultAccess", json); Assert.DoesNotContain("ProfileId", json); Assert.DoesNotContain("Ciphertext", JsonSerializer.Serialize(result.Data));
+        var c = Command();
+        c.EditedAt = DateTimeOffset.Parse(submitted);
+        ProfileUpdateRequest? captured = null;
+        var store = new Mock<IProfileUpdateStore>(MockBehavior.Strict);
+        store.Setup(x => x.UpdateAsync(It.IsAny<ProfileUpdateRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileUpdateRequest, CancellationToken>((r, _) => { captured = r; return Task.FromResult(new VaultResult<ProfileCreateDetails>(new(id, 2, 7, DateTimeOffset.Parse(expected)))); });
+        var result = await Handler(store.Object).HandleAsync(c);
+        Assert.True(result.Success);
+        Assert.Contains("profile_updated", result.Messages);
+        Assert.Equal(id, result.Data!.ProfileId);
+        Assert.Equal(2, result.Data.Revision);
+        Assert.Equal(7, result.Data.ServerSequence);
+        Assert.Equal(DateTimeOffset.Parse(expected), result.Data.EditedAt);
+        Assert.Equal(actor, captured!.Actor);
+        Assert.Equal(id, captured.ProfileId);
+        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier);
+        Assert.Equal(c.ToInput(), captured.Input);
+        var json = JsonSerializer.Serialize(c);
+        Assert.DoesNotContain("Actor", json);
+        Assert.DoesNotContain("VaultAccess", json);
+        Assert.DoesNotContain("ProfileId", json);
+        Assert.DoesNotContain("Ciphertext", JsonSerializer.Serialize(result.Data));
     }
     [UnitTheory]
     [InlineData("not_found")]

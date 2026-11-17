@@ -40,7 +40,9 @@ public class ListTrashHandlerTests
             kind switch { "zero" => 0, "negative" => -1, "large" => 101, _ => null },
             kind switch { "empty" => "", "cursor" => "invalid", "huge" => new string('A', 2049), "paddedCursor" => "AAAA=", _ => null });
         var result = await Handler(store).HandleAsync(query);
-        Assert.Contains(error, result.Errors); Assert.Null(result.Data); store.VerifyNoOtherCalls();
+        Assert.Contains(error, result.Errors);
+        Assert.Null(result.Data);
+        store.VerifyNoOtherCalls();
     }
 
     [UnitTheory]
@@ -51,38 +53,51 @@ public class ListTrashHandlerTests
     [InlineData(int.MaxValue, int.MaxValue, int.MaxValue)]
     public async Task GivenValidPageBound_WhenListing_ThenForwardHashBoundAndCallerToken(int? requested, int maximum, int expected)
     {
-        var options = Options(); options.MaxPageSize = maximum;
-        using var ct = new CancellationTokenSource(); var store = new Mock<ITrashListStore>(MockBehavior.Strict);
+        var options = Options();
+        options.MaxPageSize = maximum;
+        using var ct = new CancellationTokenSource();
+        var store = new Mock<ITrashListStore>(MockBehavior.Strict);
         store.Setup(x => x.ListAsync(new(Actor, Verifier, expected, 0, null), ct.Token))
             .ReturnsAsync(new VaultResult<TrashListPage>(new([], 0, false)));
         var result = await new ListTrashHandler(store.Object, options, new(options)).HandleAsync(new(Actor, Access, requested, null), ct.Token);
-        Assert.True(result.Success); Assert.Contains("trash_found", result.Messages);
-        Assert.Empty(result.Data!.Items); Assert.Null(result.Data.NextCursor); store.VerifyAll();
+        Assert.True(result.Success);
+        Assert.Contains("trash_found", result.Messages);
+        Assert.Empty(result.Data!.Items);
+        Assert.Null(result.Data.NextCursor);
+        store.VerifyAll();
     }
 
     [UnitFact]
     public async Task GivenPermittedPage_WhenContinuing_ThenReturnOnlyFiveItemFieldsAndBoundOpaqueCursor()
     {
-        var row = Row(1); var store = new Mock<ITrashListStore>(MockBehavior.Strict);
+        var row = Row(1);
+        var store = new Mock<ITrashListStore>(MockBehavior.Strict);
         store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 0, null), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new VaultResult<TrashListPage>(new([row], 3, true)));
         store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 1, 3), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new VaultResult<TrashListPage>(new([Row(3)], 3, false)));
-        var handler = Handler(store); var result = await handler.HandleAsync(new(Actor, Access, 1, null));
-        Assert.True(result.Success); var item = Assert.Single(result.Data!.Items);
-        Assert.Equal(row.ResourceId, item.ResourceId); Assert.Equal(row.Revision, item.Revision);
-        Assert.Equal(row.ServerSequence, item.ServerSequence); Assert.Equal(row.EditedAt, item.EditedAt);
+        var handler = Handler(store);
+        var result = await handler.HandleAsync(new(Actor, Access, 1, null));
+        Assert.True(result.Success);
+        var item = Assert.Single(result.Data!.Items);
+        Assert.Equal(row.ResourceId, item.ResourceId);
+        Assert.Equal(row.Revision, item.Revision);
+        Assert.Equal(row.ServerSequence, item.ServerSequence);
+        Assert.Equal(row.EditedAt, item.EditedAt);
         Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json), item.Envelope);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, ProtectionFixture.Json));
         Assert.Equal(new[] { "items", "nextCursor" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
         Assert.Equal(new[] { "deletedAt", "editedAt", "envelope", "kind", "operationId", "purgeAt", "resourceId", "revision", "serverSequence" },
             json.RootElement.GetProperty("items")[0].EnumerateObject().Select(x => x.Name).Order());
         var cursor = Assert.IsType<string>(result.Data.NextCursor);
-        Assert.DoesNotContain(Actor.ToString(), cursor); Assert.DoesNotContain(Verifier, cursor);
+        Assert.DoesNotContain(Actor.ToString(), cursor);
+        Assert.DoesNotContain(Verifier, cursor);
         Assert.True(new TrashListCursor(Options()).TryDecode(cursor, out var decoded));
         Assert.Equal(new TrashListContinuation(Actor, Verifier, 1, 1, 3), decoded);
         var next = await handler.HandleAsync(new(Actor, Access, 1, cursor));
-        Assert.True(next.Success); Assert.Equal(3, Assert.Single(next.Data!.Items).ServerSequence); Assert.Null(next.Data.NextCursor);
+        Assert.True(next.Success);
+        Assert.Equal(3, Assert.Single(next.Data!.Items).ServerSequence);
+        Assert.Null(next.Data.NextCursor);
     }
 
     [UnitTheory]
@@ -94,16 +109,21 @@ public class ListTrashHandlerTests
     [InlineData("profilePurpose")]
     public async Task GivenCursorSubstitution_WhenContinuing_ThenRejectBeforePersistence(string kind)
     {
-        var options = Options(); var codec = new TrashListCursor(options);
+        var options = Options();
+        var codec = new TrashListCursor(options);
         var cursor = kind == "profilePurpose" ? new ProfileListCursor(options).Encode(new(Actor, Verifier, 1, 1, 3)) : codec.Encode(new(Actor, Verifier, 1, 1, 3));
-        if (kind == "tamper") { Assert.True(ProtocolBinary.TryDecode(cursor, null, out var bytes)); bytes[^1] ^= 1; cursor = ProtocolBinary.Encode(bytes); }
-        if (kind == "key") options.RegistrationFingerprintKey = new string('z', 40);
+        if (kind == "tamper")
+        { Assert.True(ProtocolBinary.TryDecode(cursor, null, out var bytes)); bytes[^1] ^= 1; cursor = ProtocolBinary.Encode(bytes); }
+        if (kind == "key")
+            options.RegistrationFingerprintKey = new string('z', 40);
         var store = new Mock<ITrashListStore>(MockBehavior.Strict);
         var result = await new ListTrashHandler(store.Object, options, new(options)).HandleAsync(new(
             kind == "actor" ? Guid.NewGuid() : Actor,
             kind == "access" ? ProtocolBinary.Encode(Enumerable.Repeat((byte)1, 32).ToArray()) : Access,
             kind == "size" ? 2 : 1, cursor));
-        Assert.Contains("validation_failed", result.Errors); Assert.Null(result.Data); store.VerifyNoOtherCalls();
+        Assert.Contains("validation_failed", result.Errors);
+        Assert.Null(result.Data);
+        store.VerifyNoOtherCalls();
     }
 
     [UnitTheory]
@@ -126,7 +146,8 @@ public class ListTrashHandlerTests
             kind switch { "sizeZero" => 0, "sizeNegative" => -1, _ => 1 },
             kind switch { "afterZero" => 0, "afterNegative" => -1, "afterBoundary" => 3, "afterPast" => 4, _ => 1 },
             kind switch { "boundaryUnsafe" => ProtocolBinary.MaxInteger + 1, "boundaryNegative" => -1, _ => 3 });
-        var codec = new TrashListCursor(Options()); Assert.False(codec.TryDecode(codec.Encode(tuple), out _));
+        var codec = new TrashListCursor(Options());
+        Assert.False(codec.TryDecode(codec.Encode(tuple), out _));
     }
 
     [UnitTheory]
@@ -188,7 +209,8 @@ public class ListTrashHandlerTests
             _ => new(Error: "authentication_required")
         };
         var result = await Handler(MockStore(page!)).HandleAsync(new(Actor, Access, null, null));
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
         Assert.DoesNotContain("SELECT private table failed", result.Errors);
     }
 
@@ -222,7 +244,8 @@ public class ListTrashHandlerTests
     [InlineData("atBoundaryMore")]
     public async Task GivenCorruptPageMetadata_WhenListing_ThenRejectWholePayload(string kind)
     {
-        var row = Row(1); row = kind switch
+        var row = Row(1);
+        row = kind switch
         {
             "operationId" => row with { OperationId = Guid.Empty },
             "positionZero" => row with { Position = 0 },
@@ -255,7 +278,8 @@ public class ListTrashHandlerTests
         var boundary = kind switch { "boundaryNegative" => -1, "boundaryUnsafe" => ProtocolBinary.MaxInteger + 1, "outsideBoundary" => 0, "atBoundaryMore" => 1, _ => 100 };
         var result = await Handler(MockStore(new(new(rows, boundary, kind is "emptyMore" or "shortMore" or "atBoundaryMore"))))
             .HandleAsync(new(Actor, Access, kind == "atBoundaryMore" ? 1 : null, null));
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
 
     [UnitTheory]
@@ -276,7 +300,8 @@ public class ListTrashHandlerTests
     [InlineData("padded")]
     public async Task GivenCorruptNativeEnvelope_WhenListing_ThenRejectEveryItemWithoutPartialPayload(string kind)
     {
-        var row = Row(2); var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json)!;
+        var row = Row(2);
+        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json)!;
         envelope = kind switch
         {
             "format" => envelope with { Format = "foreign" },
@@ -302,7 +327,8 @@ public class ListTrashHandlerTests
         };
         row = row with { Envelope = kind == "nullBytes" ? null! : Encoding.UTF8.GetBytes(json) };
         var result = await Handler(MockStore(new(new([Row(1), row], 2, false)))).HandleAsync(new(Actor, Access, null, null));
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
 
     [UnitTheory]
@@ -315,7 +341,9 @@ public class ListTrashHandlerTests
         var store = new Mock<ITrashListStore>(MockBehavior.Strict);
         store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 1, 3), It.IsAny<CancellationToken>())).ReturnsAsync(
             new VaultResult<TrashListPage>(new([Row(kind == "afterRepeated" ? 1 : 2)], kind == "boundaryChanged" ? 4 : kind == "boundaryBehind" ? 0 : 3, false)));
-        var result = await Handler(store).HandleAsync(new(Actor, Access, 1, cursor)); Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        var result = await Handler(store).HandleAsync(new(Actor, Access, 1, cursor));
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
 
     [UnitFact]
@@ -325,7 +353,8 @@ public class ListTrashHandlerTests
     [UnitFact]
     public async Task GivenStoreCancellation_WhenListing_ThenPropagateSameCallerToken()
     {
-        using var ct = new CancellationTokenSource(); var store = new Mock<ITrashListStore>(MockBehavior.Strict);
+        using var ct = new CancellationTokenSource();
+        var store = new Mock<ITrashListStore>(MockBehavior.Strict);
         store.Setup(x => x.ListAsync(new(Actor, Verifier, 50, 0, null), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token));
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store).HandleAsync(new(Actor, Access, null, null), ct.Token));
     }
@@ -337,17 +366,24 @@ public class ListTrashHandlerTests
     [InlineData("profile")]
     public async Task GivenNativeDeletionRoot_WhenListing_ThenTypedCiphertextAndOriginalDeadline(string kind)
     {
-        using var keys = new ProtectionFixture(); using var scoped = new ProtectionFixture();
+        using var keys = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
         var row = TypedRow(kind, keys, scoped);
         var result = await Handler(MockStore(new(new([row], row.Position, false)))).HandleAsync(new(Actor, Access, null, null));
-        Assert.True(result.Success); var item = Assert.Single(result.Data!.Items);
-        Assert.Equal(row.OperationId, item.OperationId); Assert.Equal(row.ResourceId, item.ResourceId);
-        Assert.Equal(row.DeletedAt, item.DeletedAt); Assert.Equal(row.PurgeAt, item.PurgeAt);
+        Assert.True(result.Success);
+        var item = Assert.Single(result.Data!.Items);
+        Assert.Equal(row.OperationId, item.OperationId);
+        Assert.Equal(row.ResourceId, item.ResourceId);
+        Assert.Equal(row.DeletedAt, item.DeletedAt);
+        Assert.Equal(row.PurgeAt, item.PurgeAt);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, ProtectionFixture.Json));
-        var wire = json.RootElement.GetProperty("items")[0]; Assert.Equal(kind, wire.GetProperty("kind").GetString());
+        var wire = json.RootElement.GetProperty("items")[0];
+        Assert.Equal(kind, wire.GetProperty("kind").GetString());
         Assert.Equal(9 + (kind is "profile" or "collection" ? 1 : 0), wire.EnumerateObject().Count());
-        if (kind == "profile") Assert.Equal(Actor, Assert.IsType<TrashProfileItem>(item).KeyWrappers.MasterKeyWrapper.RecipientIdentityId);
-        if (kind == "collection") Assert.Equal(1, Assert.IsType<TrashCollectionItem>(item).KeyEpoch);
+        if (kind == "profile")
+            Assert.Equal(Actor, Assert.IsType<TrashProfileItem>(item).KeyWrappers.MasterKeyWrapper.RecipientIdentityId);
+        if (kind == "collection")
+            Assert.Equal(1, Assert.IsType<TrashCollectionItem>(item).KeyEpoch);
     }
     [UnitTheory]
     [InlineData("profile", "missing")]
@@ -363,8 +399,11 @@ public class ListTrashHandlerTests
     [InlineData("collection", "epoch")]
     public async Task GivenCorruptTypedNativeMetadata_WhenListing_ThenNoPartialPage(string kind, string damage)
     {
-        using var keys = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var row = TypedRow(kind, keys, scoped);
-        if (kind == "collection") row = row with { KeyEpoch = damage == "missing" ? null : 2 };
+        using var keys = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var row = TypedRow(kind, keys, scoped);
+        if (kind == "collection")
+            row = row with { KeyEpoch = damage == "missing" ? null : 2 };
         else if (damage is "missing" or "null" or "bad" or "duplicate")
             row = row with { KeyWrappers = damage == "missing" ? null : Encoding.UTF8.GetBytes(damage == "null" ? "null" : damage == "bad" ? "bad" : Encoding.UTF8.GetString(row.KeyWrappers!).Replace("{", "{\"unlockMode\":\"Master\",", StringComparison.Ordinal)) };
         else
@@ -383,7 +422,8 @@ public class ListTrashHandlerTests
             row = row with { KeyWrappers = JsonSerializer.SerializeToUtf8Bytes(wrappers, ProtectionFixture.Json) };
         }
         var result = await Handler(MockStore(new(new([Row(1), row], 2, false)))).HandleAsync(new(Actor, Access, null, null));
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
     private static TrashListRow TypedRow(string kind, ProtectionFixture keys, ProtectionFixture scoped)
     {
@@ -409,8 +449,11 @@ public class ListTrashHandlerTests
     {
         var purpose = "cerberus-trash-list-cursor-v1"u8.ToArray();
         var key = HMACSHA256.HashData(Encoding.UTF8.GetBytes(Options().RegistrationFingerprintKey!), purpose);
-        var bytes = Encoding.UTF8.GetBytes(plaintext); var encoded = new byte[28 + bytes.Length]; RandomNumberGenerator.Fill(encoded.AsSpan(0, 12));
-        using var aes = new AesGcm(key, 16); aes.Encrypt(encoded.AsSpan(0, 12), bytes, encoded.AsSpan(28), encoded.AsSpan(12, 16), purpose);
+        var bytes = Encoding.UTF8.GetBytes(plaintext);
+        var encoded = new byte[28 + bytes.Length];
+        RandomNumberGenerator.Fill(encoded.AsSpan(0, 12));
+        using var aes = new AesGcm(key, 16);
+        aes.Encrypt(encoded.AsSpan(0, 12), bytes, encoded.AsSpan(28), encoded.AsSpan(12, 16), purpose);
         return ProtocolBinary.Encode(encoded);
     }
 }

@@ -13,8 +13,10 @@ public class ProtectionChangeTests
     [InlineData("rotate-content")]
     public void GivenCompleteFreshReplacement_WhenValidating_ThenAcceptSupportedTransition(string mode)
     {
-        using var client = new ProtectionFixture(); var change = Valid(client, mode);
-        Assert.True(change.IsValid()); Assert.True(change.IsValidTransition(client.Material));
+        using var client = new ProtectionFixture();
+        var change = Valid(client, mode);
+        Assert.True(change.IsValid());
+        Assert.True(change.IsValidTransition(client.Material));
     }
 
     [UnitTheory]
@@ -34,7 +36,9 @@ public class ProtectionChangeTests
     [InlineData("contentEnvelope")]
     public void GivenMalformedReplacementSet_WhenValidating_ThenRejectBeforePersistence(string invalid)
     {
-        using var client = new ProtectionFixture(); var c = Valid(client, "rotate-content"); var item = c.ContentReplacements[0];
+        using var client = new ProtectionFixture();
+        var c = Valid(client, "rotate-content");
+        var item = c.ContentReplacements[0];
         c = invalid switch
         {
             "account" => c with { AccountId = Guid.Empty },
@@ -71,7 +75,10 @@ public class ProtectionChangeTests
     [InlineData("recoveryNonce")]
     public void GivenKeySubstitutionOrReusedWrapperContext_WhenChanging_ThenRejectTransition(string invalid)
     {
-        using var old = new ProtectionFixture(); using var other = new ProtectionFixture(); var c = Valid(old, "rewrap"); var m = c.Material;
+        using var old = new ProtectionFixture();
+        using var other = new ProtectionFixture();
+        var c = Valid(old, "rewrap");
+        var m = c.Material;
         m = invalid switch
         {
             "unlock" => m with { UnlockVerifier = other.Material.UnlockVerifier },
@@ -97,7 +104,8 @@ public class ProtectionChangeTests
     [InlineData("privateKey")]
     public void GivenNoncanonicalWireReplacement_WhenParsing_ThenReject(string invalid)
     {
-        using var client = new ProtectionFixture(); var raw = JsonSerializer.Serialize(Valid(client, "rewrap"), ProtectionFixture.Json);
+        using var client = new ProtectionFixture();
+        var raw = JsonSerializer.Serialize(Valid(client, "rewrap"), ProtectionFixture.Json);
         raw = invalid switch
         {
             "unknown" => raw.Insert(1, "\"password\":\"secret\","),
@@ -113,7 +121,10 @@ public class ProtectionChangeTests
     [InlineData("collection")]
     public void GivenTypedResourceAndNativeGrantManifest_WhenValidating_ThenAcceptCompleteShape(string kind)
     {
-        using var client = new ProtectionFixture(); var c = Valid(client, "rotate-content"); var id = Guid.NewGuid(); var grant = Guid.NewGuid();
+        using var client = new ProtectionFixture();
+        var c = Valid(client, "rotate-content");
+        var id = Guid.NewGuid();
+        var grant = Guid.NewGuid();
         c = c with
         {
             ContentReplacements = [.. c.ContentReplacements, new(kind, id, 1, c.ContentReplacements[0].Envelope)],
@@ -134,16 +145,23 @@ public class ProtectionChangeTests
     [InlineData("resourceWrappers")]
     public void GivenMalformedGrantManifestOrResourceWrapper_WhenValidating_ThenReject(string kind)
     {
-        using var client = new ProtectionFixture(); var c = Valid(client, "rotate-content"); var id = Guid.NewGuid(); var grant = Guid.NewGuid(); var g = new CollectionGrantReplacement(grant, 1, client.WrapGrant(c.AccountId, id, grant, Guid.NewGuid(), client.Material.RecipientKey, 2, 2));
+        using var client = new ProtectionFixture();
+        var c = Valid(client, "rotate-content");
+        var id = Guid.NewGuid();
+        var grant = Guid.NewGuid();
+        var g = new CollectionGrantReplacement(grant, 1, client.WrapGrant(c.AccountId, id, grant, Guid.NewGuid(), client.Material.RecipientKey, 2, 2));
         c = c with { GrantReplacements = kind switch { "null" => null!, "nullItem" => [null!], "emptyId" => [g with { GrantId = Guid.Empty }], "zeroRevision" => [g with { ExpectedRevision = 0 }], "unsafeRevision" => [g with { ExpectedRevision = ProtocolBinary.MaxInteger + 1 }], "nullKey" => [g with { KeyEnvelope = null! }], "invalidKey" => [g with { KeyEnvelope = g.KeyEnvelope with { Format = "bad" } }], "duplicate" => [g, g], _ => [g] } };
-        if (kind == "rewrapGrant") c = c with { Mode = "rewrap", ContentReplacements = [] };
-        if (kind == "resourceWrappers") c = c with { ContentReplacements = [.. c.ContentReplacements, new("record", id, 1, c.ContentReplacements[0].Envelope, new("Master", client.Material.UnlockVerifier, client.Wrap(c.AccountId, "record", id, Guid.NewGuid()), null))] };
+        if (kind == "rewrapGrant")
+            c = c with { Mode = "rewrap", ContentReplacements = [] };
+        if (kind == "resourceWrappers")
+            c = c with { ContentReplacements = [.. c.ContentReplacements, new("record", id, 1, c.ContentReplacements[0].Envelope, new("Master", client.Material.UnlockVerifier, client.Wrap(c.AccountId, "record", id, Guid.NewGuid()), null))] };
         Assert.False(c.IsValid());
     }
 
     private static ProtectionChange Valid(ProtectionFixture client, string mode)
     {
-        var id = Guid.NewGuid(); var envelope = new EncryptedEnvelope("cerberus-content-v1", 2, ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16]));
+        var id = Guid.NewGuid();
+        var envelope = new EncryptedEnvelope("cerberus-content-v1", 2, ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16]));
         return new(id, 1, 3, mode, client.Rewrap(), mode == "rewrap" ? [] : [new("account", id, 3, envelope)]);
     }
 }

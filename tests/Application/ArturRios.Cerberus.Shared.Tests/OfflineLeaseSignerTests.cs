@@ -33,7 +33,8 @@ public class OfflineLeaseSignerTests
         };
         var result = new CerberusOptionsValidator().Validate(null, options);
         Assert.Equal(valid, result.Succeeded);
-        if (!valid) Assert.DoesNotContain(options.OfflineLeasePrivateKeyPem ?? "empty", string.Join("", result.Failures!));
+        if (!valid)
+            Assert.DoesNotContain(options.OfflineLeasePrivateKeyPem ?? "empty", string.Join("", result.Failures!));
     }
 
     [UnitFact]

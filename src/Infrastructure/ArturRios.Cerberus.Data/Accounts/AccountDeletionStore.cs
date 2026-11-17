@@ -16,15 +16,22 @@ public sealed class AccountDeletionStore(IDbContextFactory<AppDbContext> factory
     public async Task<AccountDeletionResult> DeleteAsync(AccountDeletionRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (!new AccountDeletionInput(request.ExpectedRevision).IsValid()) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (!new AccountDeletionInput(request.ExpectedRevision).IsValid())
+            return new(Error: "validation_failed");
         try
         {
-            var intent = await PrepareAsync(request, ct); if (intent.Error is not null) return new(Error: intent.Error);
-            var store = new RetentionWorkStore(factory); var claim = await store.TryClaimAsync(intent.WorkId, clock.GetUtcNow(), TimeSpan.Parse(options.RetentionInterval ?? throw new InvalidOperationException("Retention lease is not configured.")), ct);
-            if (claim is null) return new(intent.Details);
+            var intent = await PrepareAsync(request, ct);
+            if (intent.Error is not null)
+                return new(Error: intent.Error);
+            var store = new RetentionWorkStore(factory);
+            var claim = await store.TryClaimAsync(intent.WorkId, clock.GetUtcNow(), TimeSpan.Parse(options.RetentionInterval ?? throw new InvalidOperationException("Retention lease is not configured.")), ct);
+            if (claim is null)
+                return new(intent.Details);
             await new AccountPurgeHandler(factory, ledger).ExecuteAsync(claim, ct);
-            if (!await store.TryCompleteAsync(claim, clock.GetUtcNow(), ct)) return new(Error: "persistence_unavailable");
+            if (!await store.TryCompleteAsync(claim, clock.GetUtcNow(), ct))
+                return new(Error: "persistence_unavailable");
             return new(intent.Details! with { State = "completed" });
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
@@ -35,15 +42,20 @@ public sealed class AccountDeletionStore(IDbContextFactory<AppDbContext> factory
     private sealed record Intent(AccountDeletionDetails? Details = null, Guid WorkId = default, string? Error = null);
     private async Task<Intent> PrepareAsync(AccountDeletionRequest request, CancellationToken ct)
     {
-        await using var db = await factory.CreateDbContextAsync(ct); await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var db = await factory.CreateDbContextAsync(ct);
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
         var owner = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.HeimdallPublicId == request.Actor, ct);
-        if (owner is null || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == owner.PublicId, ct)) return new(Error: "not_found");
+        if (owner is null || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == owner.PublicId, ct))
+            return new(Error: "not_found");
         var roots = await AccountErasure.LockAsync(db, owner.PublicId, ct);
         owner = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.HeimdallPublicId == request.Actor, ct);
-        if (owner is null || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == owner.PublicId, ct)) return new(Error: "not_found");
+        if (owner is null || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == owner.PublicId, ct))
+            return new(Error: "not_found");
         var now = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
-        if (!FreshAuthentication.IsFresh(request.AuthenticationIssuedAt, now)) return new(Error: "fresh_authentication_required");
-        if (owner.State != AccountState.Active || owner.Revision != request.ExpectedRevision) return new(Error: "revision_conflict");
+        if (!FreshAuthentication.IsFresh(request.AuthenticationIssuedAt, now))
+            return new(Error: "fresh_authentication_required");
+        if (owner.State != AccountState.Active || owner.Revision != request.ExpectedRevision)
+            return new(Error: "revision_conflict");
         await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={owner.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
         var stamp = Guid.NewGuid();
         // This guard admits the account-wide session for the outer transaction.
@@ -66,18 +78,25 @@ public sealed class AccountDeletionStore(IDbContextFactory<AppDbContext> factory
             return new(Error: FreshAuthentication.IsFresh(request.AuthenticationIssuedAt, now) ? "vault_access_denied" : "fresh_authentication_required");
         }
         var closed = await new AccountClosureStore(new TransactionContextFactory(factory, db)).RequestAsync(new(request.Actor, request.AuthenticationIssuedAt, request.ExpectedRevision), ct);
-        if (closed.Error is not null) return new(Error: closed.Error);
+        if (closed.Error is not null)
+            return new(Error: closed.Error);
         var before = JsonNode.Parse(await AccountLifecycleSnapshot.ReadAsync(db, owner.Id, roots, [], false, ct))!;
         var closedOwner = JsonSerializer.Serialize(await db.Accounts.AsNoTracking().SingleAsync(x => x.Id == owner.Id, ct));
         var at = closed.Details!.ClosureRequestedAt;
         await AccountErasure.AddIntentAsync(db, owner.PublicId, at, ct);
         var expectedEntries = await AccountErasure.EntriesAsync(db, owner.PublicId, ct);
         var key = "account-erase/" + owner.PublicId;
-        if (await db.RetentionWorkItems.AnyAsync(x => x.OperationKey == key, ct)) return new(Error: "persistence_unavailable");
-        var job = new RetentionWorkItem { OperationKey = key, DueAt = at }; var workId = job.PublicId; db.RetentionWorkItems.Add(job);
+        if (await db.RetentionWorkItems.AnyAsync(x => x.OperationKey == key, ct))
+            return new(Error: "persistence_unavailable");
+        var job = new RetentionWorkItem { OperationKey = key, DueAt = at };
+        var workId = job.PublicId;
+        db.RetentionWorkItems.Add(job);
         var recoverable = await db.RetentionWorkItems.SingleAsync(x => x.OperationKey == "account-purge/" + owner.PublicId, ct);
-        recoverable.CompletedAt = at; recoverable.ClaimToken = null; recoverable.ClaimExpiresAt = null;
-        var recoverableId = recoverable.PublicId; var recoverableKey = recoverable.OperationKey;
+        recoverable.CompletedAt = at;
+        recoverable.ClaimToken = null;
+        recoverable.ClaimExpiresAt = null;
+        var recoverableId = recoverable.PublicId;
+        var recoverableKey = recoverable.OperationKey;
         await db.SaveChangesAsync(ct);
         var after = JsonNode.Parse(await AccountLifecycleSnapshot.ReadAsync(db, owner.Id, roots, [], false, ct))!;
         // Exclude only the intended typed markers; unrelated terminal state is collateral.
@@ -88,7 +107,8 @@ public sealed class AccountDeletionStore(IDbContextFactory<AppDbContext> factory
                 .Select(x => x!.DeepClone()).ToArray() ?? [];
             snapshot["terminal"] = retained.Length == 0 ? null : new JsonArray(retained);
         }
-        Normalize(before); Normalize(after);
+        Normalize(before);
+        Normalize(after);
         var persistedJob = await db.RetentionWorkItems.AsNoTracking().SingleOrDefaultAsync(x => x.OperationKey == key, ct);
         var persistedRecoverable = await db.RetentionWorkItems.AsNoTracking().SingleOrDefaultAsync(x => x.OperationKey == recoverableKey, ct);
         if (!JsonNode.DeepEquals(before, after)
@@ -100,7 +120,10 @@ public sealed class AccountDeletionStore(IDbContextFactory<AppDbContext> factory
             || persistedRecoverable.DueAt != closed.Details.ClosureDeadline || persistedRecoverable.Attempts != 0 || persistedRecoverable.CompletedAt != at
             || persistedRecoverable.ClaimToken is not null || persistedRecoverable.ClaimExpiresAt is not null)
             return new(Error: "persistence_unavailable");
-        var details = new AccountDeletionDetails(owner.PublicId, at, "pending"); if (!details.IsValid()) return new(Error: "persistence_unavailable");
-        await tx.CommitAsync(ct); return new(details, workId);
+        var details = new AccountDeletionDetails(owner.PublicId, at, "pending");
+        if (!details.IsValid())
+            return new(Error: "persistence_unavailable");
+        await tx.CommitAsync(ct);
+        return new(details, workId);
     }
 }

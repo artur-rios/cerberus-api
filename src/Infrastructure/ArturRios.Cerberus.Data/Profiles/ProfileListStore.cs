@@ -48,9 +48,12 @@ public sealed class ProfileListStore(IDbContextFactory<AppDbContext> factory) : 
                     HasMore = page.Skip(request.PageSize).Any(),
                     Items = rows.ToList()
                 }).AsSingleQuery().SingleOrDefaultAsync(cancellationToken);
-            if (result is null || result.State != AccountState.Active || result.Erased) return new(Error: "not_found");
-            if (!result.Allowed) return new(Error: "vault_access_denied");
-            if (result.CorruptOrdering) return new(Error: "persistence_unavailable");
+            if (result is null || result.State != AccountState.Active || result.Erased)
+                return new(Error: "not_found");
+            if (!result.Allowed)
+                return new(Error: "vault_access_denied");
+            if (result.CorruptOrdering)
+                return new(Error: "persistence_unavailable");
             return new(new(result.Items, result.Boundary, result.HasMore));
         }
         catch (Exception exception) when (exception is DbException or TimeoutException

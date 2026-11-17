@@ -31,8 +31,10 @@ public sealed class AccountReadStore(IDbContextFactory<AppDbContext> factory) : 
                                       Details = account.State == AccountState.Active && !erased && allowed ? account.DetailsEnvelope : null
                                   })
                 .SingleOrDefaultAsync(cancellationToken);
-            if (snapshot is null || snapshot.State != AccountState.Active || snapshot.Erased) return new(Error: "not_found");
-            if (snapshot.Details is null) return new(Error: "vault_access_denied");
+            if (snapshot is null || snapshot.State != AccountState.Active || snapshot.Erased)
+                return new(Error: "not_found");
+            if (snapshot.Details is null)
+                return new(Error: "vault_access_denied");
             return new(new AccountSnapshot(snapshot.PublicId, snapshot.Revision, snapshot.State, snapshot.Details));
         }
         catch (Exception exception) when (exception is DbException or TimeoutException

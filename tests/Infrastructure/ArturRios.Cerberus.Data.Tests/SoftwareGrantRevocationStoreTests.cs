@@ -22,7 +22,8 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
         var create = s.Request();
-        if (kind != "mixed") create = create with { Input = create.Input with { Targets = create.Input.Targets.Where(x => x.Kind == kind).ToArray() } };
+        if (kind != "mixed")
+            create = create with { Input = create.Input with { Targets = create.Input.Targets.Where(x => x.Kind == kind).ToArray() } };
         Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(create, default)).Error);
         var siblingId = Guid.NewGuid();
         Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(s.Request(grant: siblingId, identity: Guid.NewGuid()), default)).Error);
@@ -39,15 +40,20 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
         var sibling = await SoftwareGrantSetup.Aggregate(fixture, siblingId);
         var nativeBefore = JsonSerializer.Serialize(await db.CollectionGrants.AsNoTracking().SingleAsync(x => x.Id == native.Id));
         var result = await Store().RevokeAsync(Request(s), default);
-        Assert.Null(result.Error); Assert.Equal(new SoftwareGrantRevocationDetails(s.Grant, 2), result.Data);
+        Assert.Null(result.Error);
+        Assert.Equal(new SoftwareGrantRevocationDetails(s.Grant, 2), result.Data);
         Assert.Equal(vault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
         Assert.Equal(sibling, await SoftwareGrantSetup.Aggregate(fixture, siblingId));
         Assert.Equal(nativeBefore, JsonSerializer.Serialize(await db.CollectionGrants.AsNoTracking().SingleAsync(x => x.Id == native.Id)));
         var saved = await db.SoftwareGrants.AsNoTracking().SingleAsync(x => x.PublicId == s.Grant);
-        Assert.Equal(old.Id, saved.Id); Assert.Equal(old.AccountId, saved.AccountId); Assert.Equal(old.PublicId, saved.PublicId);
+        Assert.Equal(old.Id, saved.Id);
+        Assert.Equal(old.AccountId, saved.AccountId);
+        Assert.Equal(old.PublicId, saved.PublicId);
         Assert.Equal(old.HeimdallSoftwarePublicId, saved.HeimdallSoftwarePublicId);
-        Assert.Equal(SoftwareGrantState.Revoked, saved.State); Assert.Equal(2, saved.Revision);
-        Assert.NotEqual(old.ConcurrencyStamp, saved.ConcurrencyStamp); Assert.NotEqual(Guid.Empty, saved.ConcurrencyStamp);
+        Assert.Equal(SoftwareGrantState.Revoked, saved.State);
+        Assert.Equal(2, saved.Revision);
+        Assert.NotEqual(old.ConcurrencyStamp, saved.ConcurrencyStamp);
+        Assert.NotEqual(Guid.Empty, saved.ConcurrencyStamp);
         Assert.Empty(saved.RecipientKey);
         Assert.Empty(await db.SoftwareGrantRecords.Where(x => x.GrantId == saved.Id).ToArrayAsync());
         Assert.Empty(await db.SoftwareGrantCollections.Where(x => x.GrantId == saved.Id).ToArrayAsync());
@@ -75,32 +81,62 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     [InlineData("unsafe", "persistence_unavailable")]
     public async Task GivenUnavailableGrantState_WhenRevoking_ThenFailWithoutMutation(string mode, string error)
     {
-        using var s = await Setup(); var request = Request(s);
+        using var s = await Setup();
+        var request = Request(s);
         switch (mode)
         {
-            case "missing": request = request with { GrantId = Guid.NewGuid() }; break;
-            case "foreign":
-                using (var other = await SoftwareGrantSetup.Create(fixture)) request = request with { Actor = other.Owner.Actor, AccessVerifier = other.Owner.Verifier };
+            case "missing":
+                request = request with { GrantId = Guid.NewGuid() };
                 break;
-            case "revoked": await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant); break;
-            case "terminal": await Terminal("grant", s.Grant); break;
-            case "actorTerminal": await Terminal("account", s.Owner.AccountId); break;
-            case "inactive": await Sql("UPDATE cerberus.account SET state=1 WHERE id={0}", s.Owner.InternalId); break;
-            case "sessionMissing": request = request with { AccessVerifier = "missing" }; break;
-            case "sessionRevoked": await Sql("UPDATE cerberus.vault_access_session SET revoked=true WHERE handle_verifier={0}", s.Owner.Verifier); break;
-            case "policy": await Sql("UPDATE cerberus.vault_access_session SET policy_revision=2 WHERE handle_verifier={0}", s.Owner.Verifier); break;
-            case "generation": await Sql("UPDATE cerberus.vault_access_session SET revocation_generation=2 WHERE handle_verifier={0}", s.Owner.Verifier); break;
-            case "expired": await Sql("UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()-interval '1 minute' WHERE handle_verifier={0}", s.Owner.Verifier); break;
-            case "future": await Sql("UPDATE cerberus.vault_access_session SET issued_at=statement_timestamp()+interval '1 hour' WHERE handle_verifier={0}", s.Owner.Verifier); break;
+            case "foreign":
+                using (var other = await SoftwareGrantSetup.Create(fixture))
+                    request = request with { Actor = other.Owner.Actor, AccessVerifier = other.Owner.Verifier };
+                break;
+            case "revoked":
+                await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant);
+                break;
+            case "terminal":
+                await Terminal("grant", s.Grant);
+                break;
+            case "actorTerminal":
+                await Terminal("account", s.Owner.AccountId);
+                break;
+            case "inactive":
+                await Sql("UPDATE cerberus.account SET state=1 WHERE id={0}", s.Owner.InternalId);
+                break;
+            case "sessionMissing":
+                request = request with { AccessVerifier = "missing" };
+                break;
+            case "sessionRevoked":
+                await Sql("UPDATE cerberus.vault_access_session SET revoked=true WHERE handle_verifier={0}", s.Owner.Verifier);
+                break;
+            case "policy":
+                await Sql("UPDATE cerberus.vault_access_session SET policy_revision=2 WHERE handle_verifier={0}", s.Owner.Verifier);
+                break;
+            case "generation":
+                await Sql("UPDATE cerberus.vault_access_session SET revocation_generation=2 WHERE handle_verifier={0}", s.Owner.Verifier);
+                break;
+            case "expired":
+                await Sql("UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()-interval '1 minute' WHERE handle_verifier={0}", s.Owner.Verifier);
+                break;
+            case "future":
+                await Sql("UPDATE cerberus.vault_access_session SET issued_at=statement_timestamp()+interval '1 hour' WHERE handle_verifier={0}", s.Owner.Verifier);
+                break;
             case "profileDeleted":
             case "profileTerminal":
                 var profile = await s.Profile(fixture);
                 await Sql("UPDATE cerberus.vault_access_session SET profile_id={1} WHERE handle_verifier={0}", s.Owner.Verifier, profile);
-                if (mode == "profileDeleted") await Sql("UPDATE cerberus.profile SET deleted_at=statement_timestamp() WHERE id={0}", profile);
-                else await Sql("INSERT INTO cerberus.terminal_erasure(resource_kind,resource_id,deleted_at) SELECT 'profile',public_id,statement_timestamp() FROM cerberus.profile WHERE id={0}", profile);
+                if (mode == "profileDeleted")
+                    await Sql("UPDATE cerberus.profile SET deleted_at=statement_timestamp() WHERE id={0}", profile);
+                else
+                    await Sql("INSERT INTO cerberus.terminal_erasure(resource_kind,resource_id,deleted_at) SELECT 'profile',public_id,statement_timestamp() FROM cerberus.profile WHERE id={0}", profile);
                 break;
-            case "stale": request = request with { Input = new(2) }; break;
-            default: await Sql("UPDATE cerberus.software_grant SET revision={1} WHERE public_id={0}", s.Grant, mode == "zero" ? 0L : mode == "unsafe" ? ProtocolBinary.MaxInteger + 1 : ProtocolBinary.MaxInteger); break;
+            case "stale":
+                request = request with { Input = new(2) };
+                break;
+            default:
+                await Sql("UPDATE cerberus.software_grant SET revision={1} WHERE public_id={0}", s.Grant, mode == "zero" ? 0L : mode == "unsafe" ? ProtocolBinary.MaxInteger + 1 : ProtocolBinary.MaxInteger);
+                break;
         }
         await Outcome(s, request, error);
     }
@@ -114,28 +150,35 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     [InlineData("profileTerminal")]
     public async Task GivenSessionInvalidatedAfterCapture_WhenRevoking_ThenDenyAccessAndPreserveCommittedWinner(string kind)
     {
-        using var s = await Setup(); long? profile = null;
+        using var s = await Setup();
+        long? profile = null;
         if (kind.StartsWith("profile"))
         {
             profile = await s.Profile(fixture);
             await Sql("UPDATE cerberus.vault_access_session SET profile_id={1} WHERE handle_verifier={0}", s.Owner.Verifier, profile.Value);
         }
-        var aggregate = await SoftwareGrantSetup.Aggregate(fixture, s.Grant); string? winnerVault = null;
+        var aggregate = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
+        string? winnerVault = null;
         var hook = new BeforeAccountLock(async () =>
         {
             // This independent context commits after capture and before the first lock.
-            if (kind == "profileDeleted") await Sql("UPDATE cerberus.profile SET deleted_at=statement_timestamp() WHERE id={0}", profile!.Value);
-            else if (kind == "profileTerminal") await Sql("INSERT INTO cerberus.terminal_erasure(resource_kind,resource_id,deleted_at) SELECT 'profile',public_id,statement_timestamp() FROM cerberus.profile WHERE id={0}", profile!.Value);
-            else await Sql(kind switch
-            {
-                "revoked" => "UPDATE cerberus.vault_access_session SET revoked=true WHERE handle_verifier={0}",
-                "policy" => "UPDATE cerberus.vault_access_session SET policy_revision=2 WHERE handle_verifier={0}",
-                _ => "UPDATE cerberus.vault_access_session SET revocation_generation=2 WHERE handle_verifier={0}"
-            }, s.Owner.Verifier);
+            if (kind == "profileDeleted")
+                await Sql("UPDATE cerberus.profile SET deleted_at=statement_timestamp() WHERE id={0}", profile!.Value);
+            else if (kind == "profileTerminal")
+                await Sql("INSERT INTO cerberus.terminal_erasure(resource_kind,resource_id,deleted_at) SELECT 'profile',public_id,statement_timestamp() FROM cerberus.profile WHERE id={0}", profile!.Value);
+            else
+                await Sql(kind switch
+                {
+                    "revoked" => "UPDATE cerberus.vault_access_session SET revoked=true WHERE handle_verifier={0}",
+                    "policy" => "UPDATE cerberus.vault_access_session SET policy_revision=2 WHERE handle_verifier={0}",
+                    _ => "UPDATE cerberus.vault_access_session SET revocation_generation=2 WHERE handle_verifier={0}"
+                }, s.Owner.Verifier);
             winnerVault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
         });
         var result = await Store(new ProfileSetup.Factory(fixture, hook)).RevokeAsync(Request(s), default);
-        Assert.Equal("vault_access_denied", result.Error); Assert.Null(result.Data); Assert.NotNull(winnerVault);
+        Assert.Equal("vault_access_denied", result.Error);
+        Assert.Null(result.Data);
+        Assert.NotNull(winnerVault);
         Assert.Equal(aggregate, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
         Assert.Equal(winnerVault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
     }
@@ -145,17 +188,23 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     [InlineData("grant")]
     public async Task GivenCapturedVisibilityLostBeforeLock_WhenRevoking_ThenConflictAndPreserveCommittedWinner(string kind)
     {
-        using var s = await Setup(); string? winnerAggregate = null; string? winnerVault = null;
+        using var s = await Setup();
+        string? winnerAggregate = null;
+        string? winnerVault = null;
         var hook = new BeforeAccountLock(async () =>
         {
-            if (kind == "actor") await Sql("UPDATE cerberus.account SET state=1 WHERE id={0}", s.Owner.InternalId);
-            else Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
+            if (kind == "actor")
+                await Sql("UPDATE cerberus.account SET state=1 WHERE id={0}", s.Owner.InternalId);
+            else
+                Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
             winnerAggregate = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
             winnerVault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
         });
         var result = await Store(new ProfileSetup.Factory(fixture, hook)).RevokeAsync(Request(s), default);
-        Assert.Equal("revision_conflict", result.Error); Assert.Null(result.Data);
-        Assert.NotNull(winnerAggregate); Assert.NotNull(winnerVault);
+        Assert.Equal("revision_conflict", result.Error);
+        Assert.Null(result.Data);
+        Assert.NotNull(winnerAggregate);
+        Assert.NotNull(winnerVault);
         Assert.Equal(winnerAggregate, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
         Assert.Equal(winnerVault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
     }
@@ -163,7 +212,8 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     [FunctionalFact]
     public async Task GivenSelectedProfileWithoutTargets_WhenRevoking_ThenAdministerAccountGrant()
     {
-        using var s = await Setup(); var profile = await s.Profile(fixture);
+        using var s = await Setup();
+        var profile = await s.Profile(fixture);
         await Sql("UPDATE cerberus.vault_access_session SET profile_id={1} WHERE handle_verifier={0}", s.Owner.Verifier, profile);
         Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
     }
@@ -173,12 +223,14 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     [InlineData(true)]
     public async Task GivenMalformedOpaqueKeys_WhenRevoking_ThenEraseWithoutParsing(bool empty)
     {
-        using var s = await Setup(); var bytes = empty ? Array.Empty<byte>() : new byte[] { 255, 0, 1 };
+        using var s = await Setup();
+        var bytes = empty ? Array.Empty<byte>() : new byte[] { 255, 0, 1 };
         await Sql("UPDATE cerberus.software_grant SET recipient_key={1} WHERE public_id={0}", s.Grant, bytes);
         await Sql("UPDATE cerberus.software_grant_record SET recipient_key_envelope={1} WHERE account_id={0}", s.Owner.InternalId, bytes);
         await Sql("UPDATE cerberus.software_grant_collection SET recipient_key_envelope={1} WHERE account_id={0}", s.Owner.InternalId, bytes);
         Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
-        await using var db = fixture.CreateContext(); Assert.Empty((await db.SoftwareGrants.SingleAsync(x => x.PublicId == s.Grant)).RecipientKey);
+        await using var db = fixture.CreateContext();
+        Assert.Empty((await db.SoftwareGrants.SingleAsync(x => x.PublicId == s.Grant)).RecipientKey);
         Assert.False(await db.SoftwareGrantRecords.AnyAsync(x => x.AccountId == s.Owner.InternalId));
         Assert.False(await db.SoftwareGrantCollections.AnyAsync(x => x.AccountId == s.Owner.InternalId));
     }
@@ -246,7 +298,8 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     [InlineData("duplicate")]
     public async Task GivenRelationalCorruption_WhenRevoking_ThenRollbackWithoutErasingAmbiguousRows(string kind)
     {
-        using var s = await Setup(); using var other = await Setup();
+        using var s = await Setup();
+        using var other = await Setup();
         var hook = new Mutation(true, async c =>
         {
             await Execute(c, "SET LOCAL session_replication_role=replica");
@@ -255,15 +308,16 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
                 await Execute(c, "DROP INDEX cerberus.ix_software_grant_public_id");
                 await Execute(c, "UPDATE cerberus.software_grant SET public_id=@grant WHERE public_id=@other", new("grant", s.Grant), new("other", other.Grant));
             }
-            else await Execute(c, kind switch
-            {
-                "recordOwner" => "UPDATE cerberus.software_grant_record SET account_id=@other WHERE account_id=@owner",
-                "collectionOwner" => "UPDATE cerberus.software_grant_collection SET account_id=@other WHERE account_id=@owner",
-                "recordTarget" => "UPDATE cerberus.software_grant_record SET record_id=@target WHERE account_id=@owner",
-                "collectionTarget" => "UPDATE cerberus.software_grant_collection SET collection_id=@target WHERE account_id=@owner",
-                "wrongGrant" => "UPDATE cerberus.software_grant_record SET grant_id=(SELECT id FROM cerberus.software_grant WHERE public_id=@otherGrant) WHERE account_id=@owner",
-                _ => "UPDATE cerberus.software_grant SET account_id=@other WHERE public_id=@grant"
-            }, new("owner", s.Owner.InternalId), new("other", other.Owner.InternalId), new("grant", s.Grant),
+            else
+                await Execute(c, kind switch
+                {
+                    "recordOwner" => "UPDATE cerberus.software_grant_record SET account_id=@other WHERE account_id=@owner",
+                    "collectionOwner" => "UPDATE cerberus.software_grant_collection SET account_id=@other WHERE account_id=@owner",
+                    "recordTarget" => "UPDATE cerberus.software_grant_record SET record_id=@target WHERE account_id=@owner",
+                    "collectionTarget" => "UPDATE cerberus.software_grant_collection SET collection_id=@target WHERE account_id=@owner",
+                    "wrongGrant" => "UPDATE cerberus.software_grant_record SET grant_id=(SELECT id FROM cerberus.software_grant WHERE public_id=@otherGrant) WHERE account_id=@owner",
+                    _ => "UPDATE cerberus.software_grant SET account_id=@other WHERE public_id=@grant"
+                }, new("owner", s.Owner.InternalId), new("other", other.Owner.InternalId), new("grant", s.Grant),
                 new("otherGrant", other.Grant),
                 new("target", kind == "recordTarget" ? other.Items.Record.Id : other.Items.Collection.Id));
         });
@@ -294,7 +348,8 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     [InlineData("23505")]
     public async Task GivenOtherInternalFailure_WhenRevoking_ThenReturnSafeError(string failure)
     {
-        using var s = await Setup(); await Outcome(s, Request(s), "persistence_unavailable", new ThrowingFactory(Failure(failure)));
+        using var s = await Setup();
+        await Outcome(s, Request(s), "persistence_unavailable", new ThrowingFactory(Failure(failure)));
     }
 
     [FunctionalTheory]
@@ -305,9 +360,12 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     [InlineData("post")]
     public async Task GivenCallerCancellation_WhenRevoking_ThenPropagateAndRollback(string stage)
     {
-        using var s = await Setup(); using var ct = new CancellationTokenSource();
-        var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant); var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
-        if (stage == "before") ct.Cancel();
+        using var s = await Setup();
+        using var ct = new CancellationTokenSource();
+        var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
+        var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
+        if (stage == "before")
+            ct.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Store(new ProfileSetup.Factory(fixture,
             new Fault(stage, new OperationCanceledException(ct.Token), ct))).RevokeAsync(Request(s), ct.Token));
         Assert.Equal(before, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
@@ -318,12 +376,16 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     private async Task<SoftwareGrantSetup> Setup()
     {
         var s = await SoftwareGrantSetup.Create(fixture);
-        Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(s.Request(), default)).Error); return s;
+        Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(s.Request(), default)).Error);
+        return s;
     }
     private async Task Outcome(SoftwareGrantSetup s, SoftwareGrantRevocationRequest request, string error, IDbContextFactory<AppDbContext>? factory = null)
     {
-        var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant); var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
-        var result = await Store(factory).RevokeAsync(request, default); Assert.Equal(error, result.Error); Assert.Null(result.Data);
+        var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
+        var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
+        var result = await Store(factory).RevokeAsync(request, default);
+        Assert.Equal(error, result.Error);
+        Assert.Null(result.Data);
         Assert.Equal(before, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
         Assert.Equal(vault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
     }
@@ -382,8 +444,12 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     }
     private static async Task Execute(DbCommand c, string sql, params NpgsqlParameter[] parameters)
     {
-        await using var command = c.Connection!.CreateCommand(); command.Transaction = c.Transaction; command.CommandText = sql;
-        foreach (var parameter in parameters) command.Parameters.Add(parameter); await command.ExecuteNonQueryAsync();
+        await using var command = c.Connection!.CreateCommand();
+        command.Transaction = c.Transaction;
+        command.CommandText = sql;
+        foreach (var parameter in parameters)
+            command.Parameters.Add(parameter);
+        await command.ExecuteNonQueryAsync();
     }
     private sealed class ThrowingFactory(Exception failure) : IDbContextFactory<AppDbContext>
     { public AppDbContext CreateDbContext() => throw failure; }

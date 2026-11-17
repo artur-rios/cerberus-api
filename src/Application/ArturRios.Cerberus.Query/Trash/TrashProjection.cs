@@ -21,30 +21,38 @@ internal static class TrashProjection
             || !Time(row.PurgeAt) || row.PurgeAt <= row.DeletedAt || row.PurgeAt - row.DeletedAt != TimeSpan.FromDays(30)
             || row.Envelope is null || row.Kind is not ("record" or "folder" or "collection" or "profile")
             || (row.Kind == "collection" ? row.KeyEpoch is null : row.KeyEpoch is not null)
-            || (row.Kind == "profile" ? row.KeyWrappers is null : row.KeyWrappers is not null)) return false;
+            || (row.Kind == "profile" ? row.KeyWrappers is null : row.KeyWrappers is not null))
+            return false;
         try
         {
             var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json);
-            if (envelope?.IsValid() != true) return false;
+            if (envelope?.IsValid() != true)
+                return false;
             switch (row.Kind)
             {
                 case "record":
                     item = new TrashRecordItem(row.OperationId, row.ResourceId, row.Revision, row.ServerSequence,
-                    row.EditedAt, row.DeletedAt, row.PurgeAt, envelope); break;
+                    row.EditedAt, row.DeletedAt, row.PurgeAt, envelope);
+                    break;
                 case "folder":
                     item = new TrashFolderItem(row.OperationId, row.ResourceId, row.Revision, row.ServerSequence,
-                    row.EditedAt, row.DeletedAt, row.PurgeAt, envelope); break;
+                    row.EditedAt, row.DeletedAt, row.PurgeAt, envelope);
+                    break;
                 case "collection":
-                    if (row.KeyEpoch != envelope.KeyEpoch) return false;
+                    if (row.KeyEpoch != envelope.KeyEpoch)
+                        return false;
                     item = new TrashCollectionItem(row.OperationId, row.ResourceId, row.Revision, row.ServerSequence,
-                        row.EditedAt, row.DeletedAt, row.PurgeAt, envelope, row.KeyEpoch.Value); break;
+                        row.EditedAt, row.DeletedAt, row.PurgeAt, envelope, row.KeyEpoch.Value);
+                    break;
                 case "profile":
                     var keys = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers!, Json);
                     if (keys?.IsValid() != true || keys.MasterKeyWrapper.GrantId != row.ResourceId
                         || keys.MasterKeyWrapper.RecipientIdentityId != actor || keys.MasterKeyWrapper.GrantRevision > row.Revision
-                        || keys.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch) return false;
+                        || keys.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch)
+                        return false;
                     item = new TrashProfileItem(row.OperationId, row.ResourceId, row.Revision, row.ServerSequence,
-                        row.EditedAt, row.DeletedAt, row.PurgeAt, envelope, keys); break;
+                        row.EditedAt, row.DeletedAt, row.PurgeAt, envelope, keys);
+                    break;
             }
             return item is not null;
         }

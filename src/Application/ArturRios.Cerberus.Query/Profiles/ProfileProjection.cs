@@ -17,8 +17,10 @@ internal static class ProfileProjection
             || row.EditedAt.Offset != TimeSpan.Zero || row.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond != 0
             || row.Envelope is null || row.KeyWrappers is null
             || !ProfileAssociationInput.ValidIds(row.RecordIds) || !ProfileAssociationInput.ValidIds(row.FolderIds)
-            || !ProfileAssociationInput.ValidIds(row.CollectionIds)) return false;
-        EncryptedEnvelope? envelope; ProfileKeyWrappers? wrappers;
+            || !ProfileAssociationInput.ValidIds(row.CollectionIds))
+            return false;
+        EncryptedEnvelope? envelope;
+        ProfileKeyWrappers? wrappers;
         try
         {
             envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json);
@@ -27,7 +29,8 @@ internal static class ProfileProjection
         catch (JsonException) { return false; }
         if (envelope?.IsValid() != true || wrappers?.IsValid() != true || wrappers.MasterKeyWrapper.GrantId != row.ProfileId
             || wrappers.MasterKeyWrapper.RecipientIdentityId != actor || wrappers.MasterKeyWrapper.GrantRevision > row.Revision
-            || wrappers.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch) return false;
+            || wrappers.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch)
+            return false;
         item = new(row.ProfileId, row.Revision, row.ServerSequence, row.EditedAt, envelope, wrappers)
         { RecordIds = row.RecordIds, FolderIds = row.FolderIds, CollectionIds = row.CollectionIds };
         return true;

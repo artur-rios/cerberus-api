@@ -20,27 +20,36 @@ public sealed class CollectionGrantRevocationStore(IDbContextFactory<AppDbContex
     public async Task<VaultResult<CollectionGrantRevocationDetails>> RevokeAsync(CollectionGrantRevocationRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.AccessVerifier)) return new(Error: "vault_access_required");
-        if (request.CollectionId == Guid.Empty || request.Input?.IsValid(request.GrantId) != true) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.AccessVerifier))
+            return new(Error: "vault_access_required");
+        if (request.CollectionId == Guid.Empty || request.Input?.IsValid(request.GrantId) != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
             await using var tx = await db.Database.BeginTransactionAsync(ct);
             // Foreign classification is target-first and never locks the requested grant.
             var initial = await SnapshotAsync(db, request, ct);
-            var error = OwnerError(initial); if (error is not null) return new(Error: error);
+            var error = OwnerError(initial);
+            if (error is not null)
+                return new(Error: error);
             var accounts = new[] { initial.OwnerPublicId, initial.RecipientPublicId!.Value };
             // Strong, canonical pair locking also serializes recipient session issuance,
             // lifecycle and protection writers without a reciprocal owner-first cycle.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE public_id=ANY({accounts}) ORDER BY public_id FOR UPDATE", ct);
             var locked = await SnapshotAsync(db, request, ct);
-            error = RecheckError(locked, initial); if (error is not null) return new(Error: error);
+            error = RecheckError(locked, initial);
+            if (error is not null)
+                return new(Error: error);
             if (locked.OwnerId != initial.OwnerId || locked.RecipientId != initial.RecipientId || locked.Selection != initial.Selection)
                 return new(Error: "revision_conflict");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={locked.OwnerId} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
             var captured = await SnapshotAsync(db, request, ct);
-            error = RecheckError(captured, locked); if (error is not null) return new(Error: error);
+            error = RecheckError(captured, locked);
+            if (error is not null)
+                return new(Error: error);
             if (captured.Stable != locked.Stable || captured.Grants != locked.Grants || captured.RecipientGeneration != locked.RecipientGeneration)
                 return new(Error: "revision_conflict");
             var item = JsonSerializer.Deserialize<Item>(captured.Item!, Json)!;
@@ -53,12 +62,18 @@ public sealed class CollectionGrantRevocationStore(IDbContextFactory<AppDbContex
             if (captured.Selection is { } profile)
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE account_id={captured.OwnerId} AND id={profile} FOR NO KEY UPDATE", ct);
-                error = await Recheck(); if (error is not null) return new(Error: error);
+                error = await Recheck();
+                if (error is not null)
+                    return new(Error: error);
             }
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE account_id={captured.OwnerId} AND id={item.Id} FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_grant WHERE id={grant.Id} AND collection_id={item.Id} AND public_id={request.GrantId} FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
 
             // Reduction does not trust or parse the old wrapper. It is always erased.
             if (grant.Revision is <= 0 or > ProtocolBinary.MaxInteger
@@ -101,7 +116,9 @@ public sealed class CollectionGrantRevocationStore(IDbContextFactory<AppDbContex
                 if (await db.CollectionGrants.AsNoTracking().AnyAsync(x => x.Id == grant.Id && x.ConcurrencyStamp == stamp, ct))
                     return new(Error: "persistence_unavailable");
                 var current = await SnapshotAsync(db, request, ct);
-                error = RecheckError(current, captured); if (error is not null) return new(Error: error);
+                error = RecheckError(current, captured);
+                if (error is not null)
+                    return new(Error: error);
                 return new(Error: current.Stable == captured.Stable && current.Grants == captured.Grants
                     && current.RecipientGeneration == captured.RecipientGeneration ? "persistence_unavailable" : "revision_conflict");
             }
@@ -137,10 +154,14 @@ public sealed class CollectionGrantRevocationStore(IDbContextFactory<AppDbContex
     }
     private static string? AuthorityError(Snapshot s)
     {
-        if (!s.ActorActive) return "not_found";
-        if (!s.Allowed) return "vault_access_denied";
-        if (s.Item is null) return "not_found";
-        if (!s.ForeignTarget) return null;
+        if (!s.ActorActive)
+            return "not_found";
+        if (!s.Allowed)
+            return "vault_access_denied";
+        if (s.Item is null)
+            return "not_found";
+        if (!s.ForeignTarget)
+            return null;
         var item = JsonSerializer.Deserialize<Item>(s.Item, Json)!;
         var g = s.Native is null ? null : JsonSerializer.Deserialize<Native>(s.Native, Json);
         return g is not null && !s.CorruptAccounts && g.Access is (int)CollectionGrantAccess.ReadOnly or (int)CollectionGrantAccess.ReadWrite
@@ -155,9 +176,11 @@ public sealed class CollectionGrantRevocationStore(IDbContextFactory<AppDbContex
     private static string? RecheckError(Snapshot current, Snapshot captured)
     {
         var authority = AuthorityError(current);
-        if (authority is not null) return authority;
+        if (authority is not null)
+            return authority;
         // Initially hidden grants are 404; loss of the captured active grant is a conflict.
-        if (current.Rows == "[]" && captured.Rows != "[]") return "revision_conflict";
+        if (current.Rows == "[]" && captured.Rows != "[]")
+            return "revision_conflict";
         return OwnerError(current) ?? (current.Stable != captured.Stable || current.Grants != captured.Grants
             || current.RecipientGeneration != captured.RecipientGeneration ? "revision_conflict" : null);
     }

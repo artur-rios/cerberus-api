@@ -48,7 +48,8 @@ public class OfflineLeaseTests
         Assert.Equal(1000, c.GetProperty("nbf").GetInt64());
         Assert.NotEqual(Guid.Empty, c.GetProperty("jti").GetGuid());
         Assert.Equal(enabled, c.TryGetProperty("exp", out var expiry));
-        if (enabled) Assert.Equal(1000 + seconds, expiry.GetInt64());
+        if (enabled)
+            Assert.Equal(1000 + seconds, expiry.GetInt64());
         Assert.Equal(enabled ? snapshot.IssuedAt.AddSeconds(seconds) : null, lease.ExpiresAt);
         Assert.True(ProtocolBinary.TryDecode(parts[2], 64, out var signature));
         Assert.True(publicKey.Verify(Encoding.ASCII.GetBytes(parts[0] + "." + parts[1]), signature));

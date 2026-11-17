@@ -20,21 +20,25 @@ internal static class ProfileAssociationResolver
         var rs = await ProfileAssociationVisibility.Records(db, account).Where(x => records.Contains(x.PublicId)).Select(x => x.Id).ToArrayAsync(ct);
         var fs = await ProfileAssociationVisibility.Folders(db, account).Where(x => folders.Contains(x.PublicId)).Select(x => x.Id).ToArrayAsync(ct);
         var cs = await ProfileAssociationVisibility.Collections(db, account).Where(x => collections.Contains(x.PublicId)).Select(x => x.Id).ToArrayAsync(ct);
-        if (rs.Length != records.Length || fs.Length != folders.Length || cs.Length != collections.Length) return new([], [], [], "not_found");
+        if (rs.Length != records.Length || fs.Length != folders.Length || cs.Length != collections.Length)
+            return new([], [], [], "not_found");
         if (foreign.Length > 0)
         {
             var owners = locked.Where(x => x.AccountId != account).Select(x => x.AccountId).Distinct().ToArray();
             var identities = await db.Accounts.AsNoTracking().Where(x => owners.Contains(x.Id)).ToDictionaryAsync(x => x.Id, ct);
             var pinIds = owners.Append(account).ToArray();
             var pins = await db.VaultProtections.AsNoTracking().Where(x => pinIds.Contains(x.AccountId)).ToDictionaryAsync(x => x.AccountId, ct);
-            if (!CollectionGrantBinding.TryReadPins(pins.GetValueOrDefault(account), out var recipient)) return new([], [], [], "persistence_unavailable");
+            if (!CollectionGrantBinding.TryReadPins(pins.GetValueOrDefault(account), out var recipient))
+                return new([], [], [], "persistence_unavailable");
             foreach (var collection in locked.Where(x => x.AccountId != account))
             {
                 var grant = grants.SingleOrDefault(x => x.CollectionId == collection.Id);
-                if (grant is null) return new([], [], [], "not_found");
+                if (grant is null)
+                    return new([], [], [], "not_found");
                 if (!identities.TryGetValue(collection.AccountId, out var owner)
                     || !CollectionGrantBinding.TryReadPins(pins.GetValueOrDefault(collection.AccountId), out var author)
-                    || !CollectionGrantBinding.IsBound(grant, collection, owner.PublicId, actor, author!, recipient!)) return new([], [], [], "persistence_unavailable");
+                    || !CollectionGrantBinding.IsBound(grant, collection, owner.PublicId, actor, author!, recipient!))
+                    return new([], [], [], "persistence_unavailable");
             }
         }
         return new(rs, fs, cs);

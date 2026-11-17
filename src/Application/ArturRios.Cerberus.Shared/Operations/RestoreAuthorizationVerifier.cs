@@ -12,9 +12,11 @@ public sealed class RestoreAuthorizationVerifier(IHeimdallClient identity, IEnum
 {
     public async Task<bool> VerifyAsync(CancellationToken cancellationToken)
     {
-        if (!await identity.VerifyScopeAsync(cancellationToken)) return false;
+        if (!await identity.VerifyScopeAsync(cancellationToken))
+            return false;
         foreach (var step in steps)
-            if (!await step.VerifyAsync(cancellationToken)) return false;
+            if (!await step.VerifyAsync(cancellationToken))
+                return false;
         return true;
     }
 }

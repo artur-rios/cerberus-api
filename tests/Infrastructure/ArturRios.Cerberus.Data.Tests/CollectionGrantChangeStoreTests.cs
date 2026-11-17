@@ -26,18 +26,30 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         await Members(s);
         var other = await AssociationSetup.Items(fixture, s.Owner);
         await AssociationSetup.Grant(fixture, s.Owner, s.OwnerKey, s.Recipient, s.RecipientKey, other.Collection);
-        var before = await Stable(s); var all = await Grants(s);
-        var input = s.Input; var result = await Change(s, input);
-        Assert.Null(result.Error); Assert.NotNull(result.Data);
-        Assert.Equal(s.Items.Collection.PublicId, result.Data.CollectionId); Assert.Equal(s.Grant.PublicId, result.Data.GrantId);
-        Assert.Equal(2, result.Data.Revision); Assert.Equal(write ? "read-only" : "read-write", result.Data.Access);
-        Assert.Equal(new[] { s.Items.Record.PublicId }, result.Data.RecordIds); Assert.Equal(new[] { s.Items.Folder.PublicId }, result.Data.FolderIds);
-        Assert.Equal(before, await Stable(s)); Assert.NotEqual(all, await Grants(s));
-        await using var db = fixture.CreateContext(); var row = await db.CollectionGrants.SingleAsync(x => x.Id == s.Grant.Id);
-        Assert.Equal(s.Grant.PublicId, row.PublicId); Assert.Equal(s.Grant.CollectionId, row.CollectionId); Assert.Equal(s.Recipient.InternalId, row.RecipientAccountId);
-        Assert.Equal(CollectionGrantState.Active, row.State); Assert.Equal(2, row.Revision);
+        var before = await Stable(s);
+        var all = await Grants(s);
+        var input = s.Input;
+        var result = await Change(s, input);
+        Assert.Null(result.Error);
+        Assert.NotNull(result.Data);
+        Assert.Equal(s.Items.Collection.PublicId, result.Data.CollectionId);
+        Assert.Equal(s.Grant.PublicId, result.Data.GrantId);
+        Assert.Equal(2, result.Data.Revision);
+        Assert.Equal(write ? "read-only" : "read-write", result.Data.Access);
+        Assert.Equal(new[] { s.Items.Record.PublicId }, result.Data.RecordIds);
+        Assert.Equal(new[] { s.Items.Folder.PublicId }, result.Data.FolderIds);
+        Assert.Equal(before, await Stable(s));
+        Assert.NotEqual(all, await Grants(s));
+        await using var db = fixture.CreateContext();
+        var row = await db.CollectionGrants.SingleAsync(x => x.Id == s.Grant.Id);
+        Assert.Equal(s.Grant.PublicId, row.PublicId);
+        Assert.Equal(s.Grant.CollectionId, row.CollectionId);
+        Assert.Equal(s.Recipient.InternalId, row.RecipientAccountId);
+        Assert.Equal(CollectionGrantState.Active, row.State);
+        Assert.Equal(2, row.Revision);
         Assert.Equal(write ? CollectionGrantAccess.ReadOnly : CollectionGrantAccess.ReadWrite, row.Access);
-        Assert.Equal(Bytes(input.KeyEnvelope), row.RecipientKeyEnvelope); Assert.NotEqual(s.Grant.ConcurrencyStamp, row.ConcurrencyStamp);
+        Assert.Equal(Bytes(input.KeyEnvelope), row.RecipientKeyEnvelope);
+        Assert.NotEqual(s.Grant.ConcurrencyStamp, row.ConcurrencyStamp);
         Assert.Equal(2, await Generation(s));
         Assert.Equal("vault_access_denied", (await new CollectionReadStore(fixture).ReadAsync(new(s.Recipient.Actor, s.Recipient.Verifier, s.Items.Collection.PublicId), default)).Error);
         var fresh = await Unlock(s.Recipient, s.RecipientKey);
@@ -51,10 +63,12 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [InlineData("PerProfile", false)]
     public async Task GivenSelectedOwner_WhenChanging_ThenRequireExactCurrentLink(string mode, bool linked)
     {
-        using var s = await Setup(); using var scoped = new ProtectionFixture();
+        using var s = await Setup();
+        using var scoped = new ProtectionFixture();
         var input = ProfileSetup.Input(s.Owner, s.OwnerKey, scoped, mode) with { CollectionIds = linked ? [s.Items.Collection.PublicId] : [] };
         Assert.Null((await new ArturRios.Cerberus.Data.Profiles.ProfileCreateStore(fixture).CreateAsync(new(s.Owner.Actor, s.Owner.Verifier, input), default)).Error);
-        await using var db = fixture.CreateContext(); var profile = await db.Profiles.SingleAsync(x => x.PublicId == input.ProfileId);
+        await using var db = fixture.CreateContext();
+        var profile = await db.Profiles.SingleAsync(x => x.PublicId == input.ProfileId);
         s.Owner = s.Owner with { Verifier = await Selected(s.Owner, profile.Id) };
         await Outcome(s, linked ? null : "not_found");
     }
@@ -83,20 +97,34 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     public async Task GivenHiddenOrConflictingState_WhenChanging_ThenRejectAndPreserveEveryRow(string state, string error)
     {
         using var s = await Setup();
-        if (state == "missing") s.PathGrant = Guid.NewGuid();
-        if (state == "revoked") await Sql("UPDATE cerberus.collection_grant SET state=1 WHERE id={0}", s.Grant.Id);
-        if (state == "terminal") await Terminal("grant", s.Grant.PublicId);
-        if (state == "crossCollection") { var other = await AssociationSetup.Items(fixture, s.Owner); s.PathCollection = other.Collection.PublicId; }
-        if (state.EndsWith("Closing")) await Sql("UPDATE cerberus.account SET state={0} WHERE id={1}", (int)AccountState.ClosurePending, state.StartsWith("owner") ? s.Owner.InternalId : s.Recipient.InternalId);
-        if (state is "ownerTerminal" or "recipientTerminal") await Terminal("account", state.StartsWith("owner") ? s.Owner.AccountId : s.Recipient.AccountId);
-        if (state == "recipientUnprotected") await Sql("DELETE FROM cerberus.vault_protection WHERE account_id={0}", s.Recipient.InternalId);
-        if (state == "collectionTrash") await Sql("UPDATE cerberus.collection SET deleted_at=statement_timestamp() WHERE id={0}", s.Items.Collection.Id);
-        if (state == "collectionTerminal") await Terminal("collection", s.Items.Collection.PublicId);
-        if (state.StartsWith("session")) await Sql("UPDATE cerberus.vault_access_session SET " + (state switch { "sessionRevoked" => "revoked=true", "sessionExpired" => "expires_at=statement_timestamp()", "sessionFuture" => "issued_at=statement_timestamp()+interval '1 hour'", "sessionPolicy" => "policy_revision=2", _ => "revocation_generation=2" }) + " WHERE handle_verifier={0}", s.Owner.Verifier);
-        if (state == "stale") s.Expected = 2;
-        if (state == "noop") s.Access = "read-only";
-        if (state == "exhausted") await Rebind(s, ProtocolBinary.MaxInteger);
-        if (state == "generationExhausted") await Sql("UPDATE cerberus.account SET revocation_generation={0} WHERE id={1}", ProtocolBinary.MaxInteger, s.Recipient.InternalId);
+        if (state == "missing")
+            s.PathGrant = Guid.NewGuid();
+        if (state == "revoked")
+            await Sql("UPDATE cerberus.collection_grant SET state=1 WHERE id={0}", s.Grant.Id);
+        if (state == "terminal")
+            await Terminal("grant", s.Grant.PublicId);
+        if (state == "crossCollection")
+        { var other = await AssociationSetup.Items(fixture, s.Owner); s.PathCollection = other.Collection.PublicId; }
+        if (state.EndsWith("Closing"))
+            await Sql("UPDATE cerberus.account SET state={0} WHERE id={1}", (int)AccountState.ClosurePending, state.StartsWith("owner") ? s.Owner.InternalId : s.Recipient.InternalId);
+        if (state is "ownerTerminal" or "recipientTerminal")
+            await Terminal("account", state.StartsWith("owner") ? s.Owner.AccountId : s.Recipient.AccountId);
+        if (state == "recipientUnprotected")
+            await Sql("DELETE FROM cerberus.vault_protection WHERE account_id={0}", s.Recipient.InternalId);
+        if (state == "collectionTrash")
+            await Sql("UPDATE cerberus.collection SET deleted_at=statement_timestamp() WHERE id={0}", s.Items.Collection.Id);
+        if (state == "collectionTerminal")
+            await Terminal("collection", s.Items.Collection.PublicId);
+        if (state.StartsWith("session"))
+            await Sql("UPDATE cerberus.vault_access_session SET " + (state switch { "sessionRevoked" => "revoked=true", "sessionExpired" => "expires_at=statement_timestamp()", "sessionFuture" => "issued_at=statement_timestamp()+interval '1 hour'", "sessionPolicy" => "policy_revision=2", _ => "revocation_generation=2" }) + " WHERE handle_verifier={0}", s.Owner.Verifier);
+        if (state == "stale")
+            s.Expected = 2;
+        if (state == "noop")
+            s.Access = "read-only";
+        if (state == "exhausted")
+            await Rebind(s, ProtocolBinary.MaxInteger);
+        if (state == "generationExhausted")
+            await Sql("UPDATE cerberus.account SET revocation_generation={0} WHERE id={1}", ProtocolBinary.MaxInteger, s.Recipient.InternalId);
         await Outcome(s, error);
     }
 
@@ -127,19 +155,24 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     public async Task GivenRequiredStoredCorruption_WhenChanging_Then503WithoutRepair(string state)
     {
         using var s = await Setup();
-        if (state == "ownerMissing") await Sql("DELETE FROM cerberus.vault_protection WHERE account_id={0}", s.Owner.InternalId);
+        if (state == "ownerMissing")
+            await Sql("DELETE FROM cerberus.vault_protection WHERE account_id={0}", s.Owner.InternalId);
         else if (state is "ownerPins" or "recipientPins" or "recipientEpoch" or "recipientProtectionRevision" or "ownerProtectionGeneration")
             await Sql("UPDATE cerberus.vault_protection SET " + (state.EndsWith("Pins") ? "material='bad'::bytea" : state.EndsWith("Epoch") ? "key_epoch=2" : state.EndsWith("Revision") ? "revision=0" : "recovery_generation=2") + " WHERE account_id={0}", state.StartsWith("owner") ? s.Owner.InternalId : s.Recipient.InternalId);
-        else if (state.StartsWith("collection")) await Sql("UPDATE cerberus.collection SET " + (state switch { "collectionEnvelope" => "envelope='bad'::bytea", "collectionEpoch" => "key_epoch=2", "collectionRevision" => "revision=0", "collectionSequence" => "server_sequence=0", _ => "purge_at=statement_timestamp()" }) + " WHERE id={0}", s.Items.Collection.Id);
-        else if (state.StartsWith("generation")) await Sql("UPDATE cerberus.account SET revocation_generation={0} WHERE id={1}", state == "generationZero" ? 0L : ProtocolBinary.MaxInteger + 1, s.Recipient.InternalId);
+        else if (state.StartsWith("collection"))
+            await Sql("UPDATE cerberus.collection SET " + (state switch { "collectionEnvelope" => "envelope='bad'::bytea", "collectionEpoch" => "key_epoch=2", "collectionRevision" => "revision=0", "collectionSequence" => "server_sequence=0", _ => "purge_at=statement_timestamp()" }) + " WHERE id={0}", s.Items.Collection.Id);
+        else if (state.StartsWith("generation"))
+            await Sql("UPDATE cerberus.account SET revocation_generation={0} WHERE id={1}", state == "generationZero" ? 0L : ProtocolBinary.MaxInteger + 1, s.Recipient.InternalId);
         else if (state.StartsWith("stored"))
         {
             var e = s.OwnerKey.WrapGrant(state == "storedOwner" ? Guid.NewGuid() : s.Owner.AccountId, s.Items.Collection.PublicId, state == "storedGrant" ? Guid.NewGuid() : s.Grant.PublicId,
                 state == "storedRecipient" ? Guid.NewGuid() : s.Recipient.Actor, s.RecipientKey.Material.RecipientKey, state == "storedEpoch" ? 2 : 1, state == "storedRevision" ? 2 : 1);
-            if (state == "storedSignature") e = e with { Signature = ProtectionFixture.Encode(new byte[64]) };
+            if (state == "storedSignature")
+                e = e with { Signature = ProtectionFixture.Encode(new byte[64]) };
             await Sql("UPDATE cerberus.collection_grant SET recipient_key_envelope={0} WHERE id={1}", Bytes(e), s.Grant.Id);
         }
-        else await Sql("UPDATE cerberus.collection_grant SET " + (state switch { "grantEnvelope" => "recipient_key_envelope='bad'::bytea", "grantAccess" => "access=99", "grantZero" => "revision=0", _ => "revision=9007199254740992" }) + " WHERE id={0}", s.Grant.Id);
+        else
+            await Sql("UPDATE cerberus.collection_grant SET " + (state switch { "grantEnvelope" => "recipient_key_envelope='bad'::bytea", "grantAccess" => "access=99", "grantZero" => "revision=0", _ => "revision=9007199254740992" }) + " WHERE id={0}", s.Grant.Id);
         await Outcome(s, "persistence_unavailable");
     }
 
@@ -153,12 +186,16 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [InlineData("signature")]
     public async Task GivenShapeValidCallerBindingFailure_WhenChanging_Then400WithoutMutation(string state)
     {
-        using var s = await Setup(); using var other = new ProtectionFixture();
+        using var s = await Setup();
+        using var other = new ProtectionFixture();
         var e = s.OwnerKey.WrapGrant(state == "owner" ? Guid.NewGuid() : s.Owner.AccountId, state == "collection" ? Guid.NewGuid() : s.PathCollection,
             s.PathGrant, state == "identity" ? Guid.NewGuid() : s.Recipient.Actor, state == "recipientPin" ? other.Material.RecipientKey : s.RecipientKey.Material.RecipientKey, state == "epoch" ? 2 : 1, 2);
-        if (state == "authorPin") e = other.WrapGrant(s.Owner.AccountId, s.PathCollection, s.PathGrant, s.Recipient.Actor, s.RecipientKey.Material.RecipientKey, 1, 2);
-        if (state == "signature") e = e with { Signature = ProtectionFixture.Encode(new byte[64]) };
-        Assert.True(e.IsValid()); await Outcome(s, "validation_failed", s.Input with { KeyEnvelope = e });
+        if (state == "authorPin")
+            e = other.WrapGrant(s.Owner.AccountId, s.PathCollection, s.PathGrant, s.Recipient.Actor, s.RecipientKey.Material.RecipientKey, 1, 2);
+        if (state == "signature")
+            e = e with { Signature = ProtectionFixture.Encode(new byte[64]) };
+        Assert.True(e.IsValid());
+        await Outcome(s, "validation_failed", s.Input with { KeyEnvelope = e });
     }
 
     [FunctionalTheory]
@@ -172,18 +209,26 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     public async Task GivenForeignTarget_WhenChanging_ThenClassifyBeforePathGrantAndAcquireNoLocks(string state, string error)
     {
         using var s = await Setup(state == "write");
-        if (state is "corrupt" or "hidden") await Sql("UPDATE cerberus.collection_grant SET recipient_key_envelope='bad'::bytea WHERE id={0}", s.Grant.Id);
-        if (state is "hidden" or "revoked") await Sql("UPDATE cerberus.collection_grant SET state=1 WHERE id={0}", s.Grant.Id);
-        if (state == "terminal") await Terminal("grant", s.Grant.PublicId);
+        if (state is "corrupt" or "hidden")
+            await Sql("UPDATE cerberus.collection_grant SET recipient_key_envelope='bad'::bytea WHERE id={0}", s.Grant.Id);
+        if (state is "hidden" or "revoked")
+            await Sql("UPDATE cerberus.collection_grant SET state=1 WHERE id={0}", s.Grant.Id);
+        if (state == "terminal")
+            await Terminal("grant", s.Grant.PublicId);
         var actor = s.Recipient;
-        if (state == "unselected") actor = actor with { Verifier = await Selected(actor, await AssociationSetup.Profile(fixture, actor, s.RecipientKey)) };
-        var capture = new Capture(); var before = await All(s);
+        if (state == "unselected")
+            actor = actor with { Verifier = await Selected(actor, await AssociationSetup.Profile(fixture, actor, s.RecipientKey)) };
+        var capture = new Capture();
+        var before = await All(s);
         var result = await Store(new ProfileSetup.Factory(fixture, capture)).ChangeAsync(new(actor.Actor, actor.Verifier, s.PathCollection, Guid.NewGuid(), s.Input), default);
         // The envelope grant id must agree structurally with the path, even for a denied request.
         Assert.Equal("validation_failed", result.Error);
-        var path = Guid.NewGuid(); var input = s.Input with { KeyEnvelope = s.OwnerKey.WrapGrant(s.Owner.AccountId, s.PathCollection, path, s.Recipient.Actor, s.RecipientKey.Material.RecipientKey, 1, 2) };
+        var path = Guid.NewGuid();
+        var input = s.Input with { KeyEnvelope = s.OwnerKey.WrapGrant(s.Owner.AccountId, s.PathCollection, path, s.Recipient.Actor, s.RecipientKey.Material.RecipientKey, 1, 2) };
         result = await Store(new ProfileSetup.Factory(fixture, capture)).ChangeAsync(new(actor.Actor, actor.Verifier, s.PathCollection, path, input), default);
-        Assert.Equal(error, result.Error); Assert.Empty(capture.Locks); Assert.Equal(before, await All(s));
+        Assert.Equal(error, result.Error);
+        Assert.Empty(capture.Locks);
+        Assert.Equal(before, await All(s));
     }
 
     [FunctionalTheory]
@@ -196,23 +241,35 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [InlineData("foreign")]
     public async Task GivenDirectMembersAndAncestry_WhenChanging_ThenProjectOnlyCompleteActiveRoots(string state)
     {
-        using var s = await Setup(); await Members(s); var parent = await AssociationSetup.Items(fixture, s.Owner);
+        using var s = await Setup();
+        await Members(s);
+        var parent = await AssociationSetup.Items(fixture, s.Owner);
         await Sql("UPDATE cerberus.record SET folder_id={0} WHERE id={1}", parent.Folder.Id, s.Items.Record.Id);
         await Sql("UPDATE cerberus.folder SET parent_folder_id={0} WHERE id={1}", parent.Folder.Id, s.Items.Folder.Id);
-        if (state is "trash" or "hiddenCycle") await Sql("UPDATE cerberus.folder SET deleted_at=statement_timestamp() WHERE id={0}", parent.Folder.Id);
-        if (state == "terminal") await Terminal("folder", parent.Folder.PublicId);
-        if (state is "cycle" or "hiddenCycle") await Sql("UPDATE cerberus.folder SET parent_folder_id=id WHERE id={0}", parent.Folder.Id);
+        if (state is "trash" or "hiddenCycle")
+            await Sql("UPDATE cerberus.folder SET deleted_at=statement_timestamp() WHERE id={0}", parent.Folder.Id);
+        if (state == "terminal")
+            await Terminal("folder", parent.Folder.PublicId);
+        if (state is "cycle" or "hiddenCycle")
+            await Sql("UPDATE cerberus.folder SET parent_folder_id=id WHERE id={0}", parent.Folder.Id);
         if (state is "missing" or "foreign")
         {
-            var other = await AssociationSetup.Items(fixture, s.Recipient); await using var db = fixture.CreateContext(); await using var tx = await db.Database.BeginTransactionAsync();
+            var other = await AssociationSetup.Items(fixture, s.Recipient);
+            await using var db = fixture.CreateContext();
+            await using var tx = await db.Database.BeginTransactionAsync();
             await db.Database.ExecuteSqlRawAsync("SET LOCAL session_replication_role=replica");
-            await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.folder SET parent_folder_id={(state == "missing" ? long.MaxValue : other.Folder.Id)} WHERE id={parent.Folder.Id}"); await tx.CommitAsync();
+            await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.folder SET parent_folder_id={(state == "missing" ? long.MaxValue : other.Folder.Id)} WHERE id={parent.Folder.Id}");
+            await tx.CommitAsync();
         }
         try
         {
-            var before = await All(s); var result = await Change(s); Assert.Equal(state == "cycle" ? "persistence_unavailable" : null, result.Error);
-            if (result.Data is { } d) { Assert.Equal(state == "active" ? [s.Items.Record.PublicId] : Array.Empty<Guid>(), d.RecordIds); Assert.Equal(state == "active" ? [s.Items.Folder.PublicId] : Array.Empty<Guid>(), d.FolderIds); }
-            else Assert.Equal(before, await All(s));
+            var before = await All(s);
+            var result = await Change(s);
+            Assert.Equal(state == "cycle" ? "persistence_unavailable" : null, result.Error);
+            if (result.Data is { } d)
+            { Assert.Equal(state == "active" ? [s.Items.Record.PublicId] : Array.Empty<Guid>(), d.RecordIds); Assert.Equal(state == "active" ? [s.Items.Folder.PublicId] : Array.Empty<Guid>(), d.FolderIds); }
+            else
+                Assert.Equal(before, await All(s));
         }
         finally { if (state is "missing" or "foreign") await Sql("UPDATE cerberus.folder SET parent_folder_id=NULL WHERE id={0}", parent.Folder.Id); }
     }
@@ -228,11 +285,16 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [InlineData("pins")]
     public async Task GivenPostWriteFault_WhenChanging_ThenRollbackBothMutationsAndRetry(string stage)
     {
-        using var s = await Setup(); await Members(s); var before = await All(s); using var ct = new CancellationTokenSource();
+        using var s = await Setup();
+        await Members(s);
+        var before = await All(s);
+        using var ct = new CancellationTokenSource();
         var hook = new After(Write, async c =>
         {
-            if (stage == "failure") throw new TimeoutException("controlled post-write failure");
-            if (stage == "cancel") { ct.Cancel(); ct.Token.ThrowIfCancellationRequested(); }
+            if (stage == "failure")
+                throw new TimeoutException("controlled post-write failure");
+            if (stage == "cancel")
+            { ct.Cancel(); ct.Token.ThrowIfCancellationRequested(); }
             await Execute(c, stage switch
             {
                 "grant" => "UPDATE cerberus.collection_grant SET revision=revision+1 WHERE id=@grant",
@@ -243,9 +305,12 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
                 _ => "UPDATE cerberus.vault_protection SET revision=revision+1 WHERE account_id=@recipient"
             }, new("grant", s.Grant.Id), new("recipient", s.Recipient.InternalId), new("collection", s.Items.Collection.Id));
         });
-        if (stage == "cancel") await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Change(s, factory: new ProfileSetup.Factory(fixture, hook), ct: ct.Token));
-        else Assert.Equal("persistence_unavailable", (await Change(s, factory: new ProfileSetup.Factory(fixture, hook))).Error);
-        Assert.Equal(before, await All(s)); Assert.Null((await Change(s)).Error);
+        if (stage == "cancel")
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Change(s, factory: new ProfileSetup.Factory(fixture, hook), ct: ct.Token));
+        else
+            Assert.Equal("persistence_unavailable", (await Change(s, factory: new ProfileSetup.Factory(fixture, hook))).Error);
+        Assert.Equal(before, await All(s));
+        Assert.Null((await Change(s)).Error);
     }
 
     [FunctionalTheory]
@@ -253,7 +318,8 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [InlineData(true)]
     public async Task GivenExpiryAtAuthorization_WhenChanging_ThenOnlyPostAuthorizationExpiryCanCommit(bool after)
     {
-        using var s = await Setup(); var deadline = RealTime.Soon(RealTime.SetupLead);
+        using var s = await Setup();
+        var deadline = RealTime.Soon(RealTime.SetupLead);
         await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
         Task Pause(DbCommand _) => RealTime.Past(deadline);
         DbCommandInterceptor hook = after ? new After(Write, Pause) : new Before(Write, Pause);
@@ -267,24 +333,34 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [InlineData(true, true)]
     public async Task GivenFailureInsideEitherAtomicUpdate_WhenChanging_Then503AndRollbackBeforeCleanRetry(bool grant, bool suppress)
     {
-        using var s = await Setup(); var before = await All(s); var name = "uc36_generation_" + Guid.NewGuid().ToString("N");
-        var table = grant ? "collection_grant" : "account"; var column = grant ? "revision" : "revocation_generation";
+        using var s = await Setup();
+        var before = await All(s);
+        var name = "uc36_generation_" + Guid.NewGuid().ToString("N");
+        var table = grant ? "collection_grant" : "account";
+        var column = grant ? "revision" : "revocation_generation";
         var install = "CREATE FUNCTION cerberus." + name + "() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN "
             + (suppress ? "RETURN NULL;" : "RAISE EXCEPTION 'controlled generation write failure';") + " END $$; CREATE TRIGGER " + name
             + " BEFORE UPDATE OF " + column + " ON cerberus." + table + " FOR EACH ROW WHEN (OLD.id=" + (grant ? s.Grant.Id : s.Recipient.InternalId)
             + ") EXECUTE FUNCTION cerberus." + name + "()";
         await Sql(install);
-        try { Assert.Equal("persistence_unavailable", (await Change(s)).Error); Assert.Equal(before, await All(s)); }
+        try
+        { Assert.Equal("persistence_unavailable", (await Change(s)).Error); Assert.Equal(before, await All(s)); }
         finally { await Sql("DROP TRIGGER " + name + " ON cerberus." + table + "; DROP FUNCTION cerberus." + name + "()"); }
-        Assert.Equal(before, await All(s)); Assert.Null((await Change(s)).Error);
+        Assert.Equal(before, await All(s));
+        Assert.Null((await Change(s)).Error);
     }
 
     [FunctionalFact]
     public async Task GivenLastSafeCounters_WhenChanging_ThenAdvanceBothToMaximumExactlyOnce()
     {
-        using var s = await Setup(); await Rebind(s, ProtocolBinary.MaxInteger - 1); s.Expected = ProtocolBinary.MaxInteger - 1;
+        using var s = await Setup();
+        await Rebind(s, ProtocolBinary.MaxInteger - 1);
+        s.Expected = ProtocolBinary.MaxInteger - 1;
         await Sql("UPDATE cerberus.account SET revocation_generation={0} WHERE id={1}", ProtocolBinary.MaxInteger - 1, s.Recipient.InternalId);
-        var result = await Change(s); Assert.Null(result.Error); Assert.Equal(ProtocolBinary.MaxInteger, result.Data!.Revision); Assert.Equal(ProtocolBinary.MaxInteger, await Generation(s));
+        var result = await Change(s);
+        Assert.Null(result.Error);
+        Assert.Equal(ProtocolBinary.MaxInteger, result.Data!.Revision);
+        Assert.Equal(ProtocolBinary.MaxInteger, await Generation(s));
     }
 
     [FunctionalTheory]
@@ -295,7 +371,8 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [InlineData("terminal", "not_found")]
     public async Task GivenChangeAtGuardedStatement_WhenChanging_ThenRejectAndRollback(string state, string error)
     {
-        using var s = await Setup(); var before = await All(s);
+        using var s = await Setup();
+        var before = await All(s);
         var hook = new Before(Write, c => Execute(c, state switch
         {
             "policy" => "UPDATE cerberus.account SET policy_revision=2 WHERE id=@owner",
@@ -304,7 +381,8 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
             "generation" => "UPDATE cerberus.account SET revocation_generation=revocation_generation+1 WHERE id=@recipient",
             _ => "INSERT INTO cerberus.terminal_erasure(resource_kind,resource_id,deleted_at) VALUES('grant',@public,statement_timestamp())"
         }, new("owner", s.Owner.InternalId), new("recipient", s.Recipient.InternalId), new("grant", s.Grant.Id), new("public", s.Grant.PublicId)));
-        Assert.Equal(error, (await Change(s, factory: new ProfileSetup.Factory(fixture, hook))).Error); Assert.Equal(before, await All(s));
+        Assert.Equal(error, (await Change(s, factory: new ProfileSetup.Factory(fixture, hook))).Error);
+        Assert.Equal(before, await All(s));
         Assert.Null((await Change(s)).Error);
     }
 
@@ -316,7 +394,9 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [InlineData("input", "validation_failed")]
     public async Task GivenInvalidTrustedBoundary_WhenChanging_ThenRejectBeforeDatabase(string state, string error)
     {
-        using var key = new ProtectionFixture(); var collection = Guid.NewGuid(); var grant = Guid.NewGuid();
+        using var key = new ProtectionFixture();
+        var collection = Guid.NewGuid();
+        var grant = Guid.NewGuid();
         var input = new CollectionGrantChangeInput(1, "read-write", key.WrapGrant(Guid.NewGuid(), collection, grant, Guid.NewGuid(), key.Material.RecipientKey, 1, 2));
         var request = new CollectionGrantChangeRequest(state == "actor" ? Guid.Empty : Guid.NewGuid(), state == "handle" ? "" : "v", state == "target" ? Guid.Empty : collection, state == "grant" ? Guid.Empty : grant, state == "input" ? null! : input);
         Assert.Equal(error, (await Store(new ThrowingFactory(new Exception("must not persist"))).ChangeAsync(request, default)).Error);
@@ -333,7 +413,8 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [InlineData("unique")]
     public async Task GivenInternalFailure_WhenChanging_ThenReturnSafeError(string kind)
     {
-        using var s = await Setup(); Exception exception = kind switch
+        using var s = await Setup();
+        Exception exception = kind switch
         { "cancel" => new OperationCanceledException("private"), "db" => new NpgsqlException("private"), "update" => new DbUpdateException("private"), "json" => new JsonException("private"), "format" => new FormatException("private"), "wrapped" => new InvalidOperationException("private", new TimeoutException("private")), "unique" => new PostgresException("private", "ERROR", "ERROR", "23505"), _ => new TimeoutException("private") };
         await Outcome(s, kind == "unique" ? "revision_conflict" : "persistence_unavailable", factory: new ThrowingFactory(exception));
     }
@@ -341,16 +422,22 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [FunctionalFact]
     public async Task GivenSelectedRecipientAndUnlinkedDescendants_WhenChanging_ThenInvalidateSelectionAndReturnSortedDirectRoots()
     {
-        using var s = await Setup(); await Members(s); var other = await AssociationSetup.Items(fixture, s.Owner); var child = await AssociationSetup.Items(fixture, s.Owner);
+        using var s = await Setup();
+        await Members(s);
+        var other = await AssociationSetup.Items(fixture, s.Owner);
+        var child = await AssociationSetup.Items(fixture, s.Owner);
         await Sql("INSERT INTO cerberus.collection_record(account_id,collection_id,record_id) VALUES({0},{1},{2})", s.Owner.InternalId, s.Items.Collection.Id, other.Record.Id);
         await Sql("INSERT INTO cerberus.collection_folder(account_id,collection_id,folder_id) VALUES({0},{1},{2})", s.Owner.InternalId, s.Items.Collection.Id, other.Folder.Id);
         await Sql("UPDATE cerberus.folder SET parent_folder_id={0} WHERE id={1}", s.Items.Folder.Id, child.Folder.Id);
         await Sql("UPDATE cerberus.record SET folder_id={0} WHERE id={1}", child.Folder.Id, child.Record.Id);
-        var profile = await AssociationSetup.Profile(fixture, s.Recipient, s.RecipientKey); await Sql("INSERT INTO cerberus.profile_collection(profile_id,collection_id) VALUES({0},{1})", profile, s.Items.Collection.Id);
+        var profile = await AssociationSetup.Profile(fixture, s.Recipient, s.RecipientKey);
+        await Sql("INSERT INTO cerberus.profile_collection(profile_id,collection_id) VALUES({0},{1})", profile, s.Items.Collection.Id);
         var selected = await Selected(s.Recipient, profile);
         Assert.Null((await new CollectionReadStore(fixture).ReadAsync(new(s.Recipient.Actor, selected, s.PathCollection), default)).Error);
-        var result = await Change(s); Assert.Null(result.Error);
-        Assert.Equal(new[] { s.Items.Record.PublicId, other.Record.PublicId }.Order(), result.Data!.RecordIds); Assert.Equal(new[] { s.Items.Folder.PublicId, other.Folder.PublicId }.Order(), result.Data.FolderIds);
+        var result = await Change(s);
+        Assert.Null(result.Error);
+        Assert.Equal(new[] { s.Items.Record.PublicId, other.Record.PublicId }.Order(), result.Data!.RecordIds);
+        Assert.Equal(new[] { s.Items.Folder.PublicId, other.Folder.PublicId }.Order(), result.Data.FolderIds);
         Assert.Equal("vault_access_denied", (await new CollectionReadStore(fixture).ReadAsync(new(s.Recipient.Actor, selected, s.PathCollection), default)).Error);
     }
 
@@ -363,9 +450,11 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     [InlineData(true, "revocation_generation", 9007199254740992L)]
     public async Task GivenUnsafePersistedAccountCounters_WhenChanging_Then503WithoutMutation(bool owner, string column, long value)
     {
-        using var s = await Setup(); var id = owner ? s.Owner.InternalId : s.Recipient.InternalId;
+        using var s = await Setup();
+        var id = owner ? s.Owner.InternalId : s.Recipient.InternalId;
         await Sql("UPDATE cerberus.account SET " + column + "={0} WHERE id={1}", value, id);
-        if (owner && column != "revision") await Sql("UPDATE cerberus.vault_access_session SET " + column + "={0} WHERE account_id={1}", value, id);
+        if (owner && column != "revision")
+            await Sql("UPDATE cerberus.vault_access_session SET " + column + "={0} WHERE account_id={1}", value, id);
         await Outcome(s, "persistence_unavailable");
     }
 
@@ -377,10 +466,15 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         => Store(factory).ChangeAsync(new(s.Owner.Actor, s.Owner.Verifier, s.PathCollection, s.PathGrant, input ?? s.Input), ct);
     private async Task Outcome(Scene s, string? error, CollectionGrantChangeInput? input = null, IDbContextFactory<AppDbContext>? factory = null)
     {
-        var before = await All(s); var stable = await Stable(s); var generation = await Generation(s); var result = await Change(s, input, factory);
+        var before = await All(s);
+        var stable = await Stable(s);
+        var generation = await Generation(s);
+        var result = await Change(s, input, factory);
         Assert.Equal(error, result.Error);
-        if (error is not null) { Assert.Null(result.Data); Assert.Equal(before, await All(s)); }
-        else { Assert.Equal(stable, await Stable(s)); Assert.Equal(generation + 1, await Generation(s)); }
+        if (error is not null)
+        { Assert.Null(result.Data); Assert.Equal(before, await All(s)); }
+        else
+        { Assert.Equal(stable, await Stable(s)); Assert.Equal(generation + 1, await Generation(s)); }
     }
     private sealed class Scene(ProtectionFixture ownerKey, ProtectionFixture recipientKey, ProfileSetup.State owner, ProfileSetup.State recipient, AssociationSetup.ResourceSet items, CollectionGrant grant) : IDisposable
     {
@@ -394,8 +488,12 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     }
     private async Task<Scene> Setup(bool write = false)
     {
-        var owner = new ProtectionFixture(); var recipient = new ProtectionFixture(); var a = await ProfileSetup.Create(fixture, owner); var b = await ProfileSetup.Create(fixture, recipient);
-        var items = await AssociationSetup.Items(fixture, a); var grant = await AssociationSetup.Grant(fixture, a, owner, b, recipient, items.Collection, write ? CollectionGrantAccess.ReadWrite : CollectionGrantAccess.ReadOnly);
+        var owner = new ProtectionFixture();
+        var recipient = new ProtectionFixture();
+        var a = await ProfileSetup.Create(fixture, owner);
+        var b = await ProfileSetup.Create(fixture, recipient);
+        var items = await AssociationSetup.Items(fixture, a);
+        var grant = await AssociationSetup.Grant(fixture, a, owner, b, recipient, items.Collection, write ? CollectionGrantAccess.ReadWrite : CollectionGrantAccess.ReadOnly);
         return new(owner, recipient, a, b, items, grant);
     }
     private async Task Rebind(Scene s, long revision) => await Sql("UPDATE cerberus.collection_grant SET revision={0},recipient_key_envelope={1} WHERE id={2}", revision, Bytes(s.OwnerKey.WrapGrant(s.Owner.AccountId, s.PathCollection, s.PathGrant, s.Recipient.Actor, s.RecipientKey.Material.RecipientKey, 1, revision)), s.Grant.Id);
@@ -426,15 +524,21 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     private static byte[] Bytes<T>(T value) => JsonSerializer.SerializeToUtf8Bytes(value, ProtectionFixture.Json);
     private async Task<string> Selected(ProfileSetup.State s, long profile)
     {
-        var verifier = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32)); await using var db = fixture.CreateContext();
-        db.VaultAccessSessions.Add(new() { AccountId = s.InternalId, ProfileId = profile, HandleVerifier = verifier, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 }); await db.SaveChangesAsync(); return verifier;
+        var verifier = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));
+        await using var db = fixture.CreateContext();
+        db.VaultAccessSessions.Add(new() { AccountId = s.InternalId, ProfileId = profile, HandleVerifier = verifier, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 });
+        await db.SaveChangesAsync();
+        return verifier;
     }
     private async Task<string> Unlock(ProfileSetup.State s, ProtectionFixture key)
     {
-        var store = new VaultProtectionStore(fixture); var raw = "{}"u8.ToArray();
+        var store = new VaultProtectionStore(fixture);
+        var raw = "{}"u8.ToArray();
         var challenge = (await store.ChallengeAsync(s.Actor, ProtocolBinary.Encode(SHA256.HashData(raw)), default)).Data!;
-        var result = await store.UnlockAsync(s.Actor, challenge.ProtectionRevision, challenge.ChallengeId, key.Sign(challenge), raw, default); Assert.Null(result.Error);
-        Assert.True(OpaqueAccessHandle.TryHash(result.Data!.Access, out var verifier)); return verifier;
+        var result = await store.UnlockAsync(s.Actor, challenge.ProtectionRevision, challenge.ChallengeId, key.Sign(challenge), raw, default);
+        Assert.Null(result.Error);
+        Assert.True(OpaqueAccessHandle.TryHash(result.Data!.Access, out var verifier));
+        return verifier;
     }
     private static TaskCompletionSource Signal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
     private static bool Lock(DbCommand c, string table) => c.CommandText.Contains("FROM cerberus." + table + " ") && (c.CommandText.Contains("FOR UPDATE") || c.CommandText.Contains("FOR NO KEY UPDATE"));

@@ -14,7 +14,8 @@ public class RequestLimitMiddlewareTests
         var context = new DefaultHttpContext();
         context.Request.Body = new MemoryStream(new byte[16]);
         context.Response.Body = new MemoryStream();
-        if (declaredLength) context.Request.ContentLength = 16;
+        if (declaredLength)
+            context.Request.ContentLength = 16;
         var consumed = false;
         await new RequestLimitMiddleware(async request =>
         {
@@ -64,7 +65,8 @@ public class RequestLimitMiddlewareTests
                 "asyncArray" => await body.ReadAsync(buffer, 0, buffer.Length, CancellationToken.None),
                 _ => await body.ReadAsync(buffer.AsMemory(), CancellationToken.None)
             };
-            if (read == 0) return total;
+            if (read == 0)
+                return total;
             total += read;
         }
     }

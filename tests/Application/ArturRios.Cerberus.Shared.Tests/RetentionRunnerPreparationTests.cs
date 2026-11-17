@@ -12,21 +12,28 @@ public sealed class RetentionRunnerPreparationTests
     [InlineData(1, -1)]
     public async Task GivenInvalidPassBounds_WhenRunning_ThenRejectBeforeDiscoveringOrWriting(int seconds, int pageSize)
     {
-        var store = new EmptyStore(); var runner = new RetentionRunner(store, new Executor(), TimeProvider.System);
+        var store = new EmptyStore();
+        var runner = new RetentionRunner(store, new Executor(), TimeProvider.System);
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => runner.RunOnceAsync(TimeSpan.FromSeconds(seconds), pageSize, default));
         Assert.False(store.Discovered);
     }
     [UnitFact]
     public async Task GivenPreparation_WhenRunning_ThenPrepareBeforeDiscoveryAndReportCounts()
     {
-        var preparation = new Preparation(new(3, 5)); var store = new EmptyStore { BeforeDiscovery = () => Assert.True(preparation.Prepared) };
+        var preparation = new Preparation(new(3, 5));
+        var store = new EmptyStore { BeforeDiscovery = () => Assert.True(preparation.Prepared) };
         var result = await new RetentionRunner(store, new Executor(), TimeProvider.System, preparation).RunOnceAsync(TimeSpan.FromMinutes(1), 17, default);
-        Assert.Equal(0, result.Completed); Assert.Equal(0, result.Failed); Assert.Equal(3, result.ScheduledJobs); Assert.Equal(5, result.ExpiredStreams); Assert.Equal(17, preparation.PageSize);
+        Assert.Equal(0, result.Completed);
+        Assert.Equal(0, result.Failed);
+        Assert.Equal(3, result.ScheduledJobs);
+        Assert.Equal(5, result.ExpiredStreams);
+        Assert.Equal(17, preparation.PageSize);
     }
     [UnitFact]
     public async Task GivenDeniedPreparation_WhenRunning_ThenRefuseBeforeDiscoveringWork()
     {
-        var store = new EmptyStore(); var preparation = new Preparation(new(0, 0)) { Failure = new UnauthorizedAccessException() };
+        var store = new EmptyStore();
+        var preparation = new Preparation(new(0, 0)) { Failure = new UnauthorizedAccessException() };
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => new RetentionRunner(store, new Executor(), TimeProvider.System, preparation).RunOnceAsync(TimeSpan.FromMinutes(1), 5, default));
         Assert.False(store.Discovered);
     }
@@ -42,16 +49,22 @@ public sealed class RetentionRunnerPreparationTests
     [UnitFact]
     public async Task GivenCancellation_WhenRunning_ThenNeverPrepareOrDiscover()
     {
-        var store = new EmptyStore(); var preparation = new Preparation(new(0, 0)); using var cancellation = new CancellationTokenSource(); cancellation.Cancel();
+        var store = new EmptyStore();
+        var preparation = new Preparation(new(0, 0));
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new RetentionRunner(store, new Executor(), TimeProvider.System, preparation).RunOnceAsync(TimeSpan.FromMinutes(1), 5, cancellation.Token));
-        Assert.False(preparation.Prepared); Assert.False(store.Discovered);
+        Assert.False(preparation.Prepared);
+        Assert.False(store.Discovered);
     }
     [UnitFact]
     public async Task GivenCancelledPreparation_WhenRunning_ThenPropagateAndDoNotDiscover()
     {
-        var store = new EmptyStore(); using var cancellation = new CancellationTokenSource();
+        var store = new EmptyStore();
+        using var cancellation = new CancellationTokenSource();
         var preparation = new Preparation(new(0, 0)) { Before = () => { cancellation.Cancel(); cancellation.Token.ThrowIfCancellationRequested(); } };
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new RetentionRunner(store, new Executor(), TimeProvider.System, preparation).RunOnceAsync(TimeSpan.FromMinutes(1), 5, cancellation.Token)); Assert.False(store.Discovered);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new RetentionRunner(store, new Executor(), TimeProvider.System, preparation).RunOnceAsync(TimeSpan.FromMinutes(1), 5, cancellation.Token));
+        Assert.False(store.Discovered);
     }
     private sealed class Preparation(RetentionPreparationResult result) : IRetentionMaintenance
     {

@@ -14,7 +14,9 @@ public class SoftwareSecretContractTests
     [InlineData("record", true)]
     public void GivenExactProvisionedTargetOrCollectionMember_WhenValidatingDisclosure_ThenRequireMatchingNativeResourceBinding(string kind, bool member)
     {
-        var c = Create(kind, member); Assert.True(c.Input.IsValid()); Assert.True(c.Details.IsValid(c.Identity, c.Input));
+        var c = Create(kind, member);
+        Assert.True(c.Input.IsValid());
+        Assert.True(c.Details.IsValid(c.Identity, c.Input));
     }
     [UnitTheory]
     [InlineData("kind")]
@@ -51,8 +53,10 @@ public class SoftwareSecretContractTests
     [InlineData("actor")]
     public void GivenMismatchedDisclosureOrProvisioning_WhenValidating_ThenRejectWithoutPartialData(string kind)
     {
-        var c = Create("record", false); var d = c.Details;
-        using var other = ECDsa.Create(ECCurve.NamedCurves.nistP256); var key = ProtectionFixture.Public(other);
+        var c = Create("record", false);
+        var d = c.Details;
+        using var other = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var key = ProtectionFixture.Public(other);
         d = kind switch
         {
             "owner" => d with { OwnerAccountId = Guid.Empty },
@@ -81,7 +85,8 @@ public class SoftwareSecretContractTests
     [UnitFact]
     public void GivenDifferentCollectionSelection_WhenValidatingMemberRecord_ThenNeverUseAnAlternateProvisioningPath()
     {
-        var c = Create("record", true); Assert.False(c.Details.IsValid(c.Identity, c.Input with { CollectionId = Guid.NewGuid() }));
+        var c = Create("record", true);
+        Assert.False(c.Details.IsValid(c.Identity, c.Input with { CollectionId = Guid.NewGuid() }));
         Assert.False(c.Details.IsValid(c.Identity, c.Input with { CollectionId = null }));
     }
     private static SoftwareSecretFixture.Case Create(string kind, bool member) => SoftwareSecretFixture.Create(kind, member);

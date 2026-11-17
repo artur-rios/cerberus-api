@@ -23,7 +23,8 @@ public sealed class RestoreTrafficGate
     {
         lock (_state)
         {
-            if (_generation != generation) return false;
+            if (_generation != generation)
+                return false;
             _ready = true;
             return true;
         }
@@ -43,7 +44,8 @@ public sealed class RestoreReconciler(IErasureLedger ledger, ITerminalErasureSto
         {
             await foreach (var entry in ledger.ReadAsync(cancellationToken))
                 await erasures.ReapplyAsync(entry, cancellationToken);
-            if (!await authorization.VerifyAsync(cancellationToken)) return false;
+            if (!await authorization.VerifyAsync(cancellationToken))
+                return false;
             return gate.Open(generation);
         }
         finally { _reconciliation.Release(); }

@@ -110,8 +110,10 @@ public class AuthenticationTests
     private static Task<DataOutput<AuthenticationOutput?>> Handle(bool challenge, HeimdallAuthentication result, Mock<IAccountAuthenticationStore> store)
     {
         var identity = new Mock<IHeimdallClient>(MockBehavior.Strict);
-        if (challenge) identity.Setup(x => x.VerifyChallengeAsync("fixture-challenge", null, "fixture-recovery", It.IsAny<CancellationToken>())).ReturnsAsync(result);
-        else identity.Setup(x => x.AuthenticateAsync("fixture@example.test", "fixture-password", It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        if (challenge)
+            identity.Setup(x => x.VerifyChallengeAsync("fixture-challenge", null, "fixture-recovery", It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        else
+            identity.Setup(x => x.AuthenticateAsync("fixture@example.test", "fixture-password", It.IsAny<CancellationToken>())).ReturnsAsync(result);
         var handler = Handler(identity.Object, store.Object);
         return challenge ? handler.HandleAsync(new VerifyChallengeCommand { ChallengeToken = "fixture-challenge", RecoveryCode = "fixture-recovery" })
             : handler.HandleAsync(new LoginCommand { Email = "fixture@example.test", Password = "fixture-password" });

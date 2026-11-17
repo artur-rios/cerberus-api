@@ -38,9 +38,12 @@ public sealed class ProfileReadStore(IDbContextFactory<AppDbContext> factory) : 
                     Allowed = sessions.Any(),
                     Items = rows.ToList()
                 }).AsSingleQuery().SingleOrDefaultAsync(cancellationToken);
-            if (result is null || result.State != AccountState.Active || result.Erased) return new(Error: "not_found");
-            if (!result.Allowed) return new(Error: "vault_access_denied");
-            if (result.Items.Count == 0) return new(Error: "not_found");
+            if (result is null || result.State != AccountState.Active || result.Erased)
+                return new(Error: "not_found");
+            if (!result.Allowed)
+                return new(Error: "vault_access_denied");
+            if (result.Items.Count == 0)
+                return new(Error: "not_found");
             var row = result.Items[0];
             return new(new(row, row.RecordIds, row.FolderIds, row.CollectionIds));
         }

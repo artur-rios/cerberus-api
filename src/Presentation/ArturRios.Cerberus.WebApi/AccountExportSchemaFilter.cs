@@ -27,11 +27,14 @@ internal sealed class AccountExportSchemaFilter : ISchemaFilter
     };
     public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
     {
-        if (schema is not OpenApiSchema { Properties: not null } target) return;
+        if (schema is not OpenApiSchema { Properties: not null } target)
+            return;
         var entry = Kinds.TryGetValue(context.Type, out var kind);
-        if (!entry && context.Type != typeof(AccountExportArchive) && context.Type != typeof(AccountExportHeader) && context.Type != typeof(AccountExportInput)) return;
+        if (!entry && context.Type != typeof(AccountExportArchive) && context.Type != typeof(AccountExportHeader) && context.Type != typeof(AccountExportInput))
+            return;
         target.AdditionalPropertiesAllowed = false;
-        if (entry) { target.AllOf?.Clear(); target.Properties["entryType"] = Text(kind!); }
+        if (entry)
+        { target.AllOf?.Clear(); target.Properties["entryType"] = Text(kind!); }
         if (context.Type == typeof(AccountExportArchive))
         {
             target.Properties["format"] = Text(AccountExportStreamResult.Format);
@@ -40,10 +43,14 @@ internal sealed class AccountExportSchemaFilter : ISchemaFilter
         foreach (var name in new[] { "expectedRevision", "revision", "serverSequence", "policyRevision", "revocationGeneration", "keyEpoch", "recoveryGeneration", "grantRevision", "renewalIntervalSeconds", "entryCount" })
             if (target.Properties.TryGetValue(name, out var property) && property is OpenApiSchema number)
             { number.Minimum = name == "entryCount" ? "0" : "1"; number.Maximum = ProtocolBinary.MaxInteger.ToString(CultureInfo.InvariantCulture); }
-        if (target.Properties.ContainsKey("access")) target.Properties["access"] = Text("read-only", "read-write");
-        if (target.Properties.ContainsKey("state")) target.Properties["state"] = Text("active", "revoked");
-        if (context.Type == typeof(AccountExportSoftwareTarget)) target.Properties["resourceKind"] = Text("record", "collection");
-        if (context.Type == typeof(AccountExportTrashOperation)) target.Properties["rootKind"] = Text("profile", "record", "folder", "collection");
+        if (target.Properties.ContainsKey("access"))
+            target.Properties["access"] = Text("read-only", "read-write");
+        if (target.Properties.ContainsKey("state"))
+            target.Properties["state"] = Text("active", "revoked");
+        if (context.Type == typeof(AccountExportSoftwareTarget))
+            target.Properties["resourceKind"] = Text("record", "collection");
+        if (context.Type == typeof(AccountExportTrashOperation))
+            target.Properties["rootKind"] = Text("profile", "record", "folder", "collection");
         if (context.Type == typeof(AccountExportRelationship))
         { target.Properties["relationshipKind"] = Text("current", "historical"); target.Properties["sourceKind"] = Text("profile", "collection", "record", "folder"); target.Properties["targetKind"] = Text("record", "folder", "collection"); }
         target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);

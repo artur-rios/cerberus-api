@@ -17,9 +17,11 @@ public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : I
     public async Task<VaultResult<RecordListPage>> ListAsync(RecordListRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
         if (request.PageSize <= 0 || request.After < 0 || request.After > ProtocolBinary.MaxInteger
-            || request.Boundary is < 0 or > ProtocolBinary.MaxInteger) return new(Error: "validation_failed");
+            || request.Boundary is < 0 or > ProtocolBinary.MaxInteger)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -138,11 +140,15 @@ public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : I
                         LEFT JOIN cerberus.vault_protection rp ON rp.account_id=a.id),'[]'::jsonb)::text AS grants
                 """).ToListAsync(ct);
             var snapshot = snapshots.Single();
-            if (!snapshot.ActorActive) return new(Error: "not_found");
-            if (!snapshot.Allowed) return new(Error: "vault_access_denied");
-            if (snapshot.CorruptOrdering || snapshot.CorruptAncestry) return new(Error: "persistence_unavailable");
+            if (!snapshot.ActorActive)
+                return new(Error: "not_found");
+            if (!snapshot.Allowed)
+                return new(Error: "vault_access_denied");
+            if (snapshot.CorruptOrdering || snapshot.CorruptAncestry)
+                return new(Error: "persistence_unavailable");
             foreach (var evidence in JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!)
-                if (!evidence.IsBound()) return new(Error: "persistence_unavailable");
+                if (!evidence.IsBound())
+                    return new(Error: "persistence_unavailable");
             var items = JsonSerializer.Deserialize<Item[]>(snapshot.Items, Json)!
                 .Select(x => new RecordListRow(x.RecordId, x.Revision, x.ServerSequence, x.EditedAt, Convert.FromHexString(x.Envelope))).ToArray();
             return new(new(items, snapshot.Boundary, snapshot.HasMore));

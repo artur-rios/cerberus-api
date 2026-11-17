@@ -12,7 +12,8 @@ internal sealed class HealthSchemaFilter : ISchemaFilter, IOperationFilter
     public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
     {
         if (schema is not OpenApiSchema { Properties: not null } target
-            || context.Type != typeof(HealthStatus) && context.Type != typeof(HealthDetails) && context.Type != typeof(HealthComponent)) return;
+            || context.Type != typeof(HealthStatus) && context.Type != typeof(HealthDetails) && context.Type != typeof(HealthComponent))
+            return;
         target.AdditionalPropertiesAllowed = false;
         target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
         target.Properties["status"] = Text("healthy", "unhealthy");
@@ -30,7 +31,8 @@ internal sealed class HealthSchemaFilter : ISchemaFilter, IOperationFilter
 
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        if (context.MethodInfo.DeclaringType != typeof(HealthController)) return;
+        if (context.MethodInfo.DeclaringType != typeof(HealthController))
+            return;
         if (context.MethodInfo.Name == nameof(HealthController.Details))
         {
             ((OpenApiMediaType)operation.Responses!["503"].Content!["application/json"]).Schema = new OpenApiSchema

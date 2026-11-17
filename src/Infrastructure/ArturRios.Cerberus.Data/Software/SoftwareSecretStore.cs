@@ -19,14 +19,17 @@ public sealed class SoftwareSecretStore(IDbContextFactory<AppDbContext> factory)
     public async Task<VaultResult<SoftwareSecretDetails>> ReadAsync(SoftwareSecretRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Identity?.IsValid() != true) return new(Error: "authentication_required");
-        if (request.Input?.IsValid() != true) return new(Error: "validation_failed");
+        if (request.Identity?.IsValid() != true)
+            return new(Error: "authentication_required");
+        if (request.Input?.IsValid() != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
             await using var tx = await db.Database.BeginTransactionAsync(ct);
             var first = await Read(db, request, ct);
-            if (Error(first) is { } error) return new(Error: error);
+            if (Error(first) is { } error)
+                return new(Error: error);
             // Native writers serialize under the owner account before resource/grant locks.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={first.OwnerId} FOR UPDATE", ct);
             if (request.Input.Kind == "collection" || request.Input.CollectionId is not null)
@@ -38,8 +41,10 @@ public sealed class SoftwareSecretStore(IDbContextFactory<AppDbContext> factory)
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.record WHERE account_id={first.OwnerId} AND public_id={request.Input.Id} FOR UPDATE", ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.software_grant WHERE account_id={first.OwnerId} AND public_id={request.Input.GrantId} FOR UPDATE", ct);
             var current = await Read(db, request, ct);
-            if (Error(current) is { } denied) return new(Error: denied);
-            if (current.OwnerId != first.OwnerId) return new(Error: "not_found");
+            if (Error(current) is { } denied)
+                return new(Error: denied);
+            if (current.OwnerId != first.OwnerId)
+                return new(Error: "not_found");
             var evidence = JsonSerializer.Deserialize<Evidence>(current.Payload!, Json);
             if (evidence is null || !CollectionGrantBinding.TryReadPins(new()
             {
@@ -47,16 +52,21 @@ public sealed class SoftwareSecretStore(IDbContextFactory<AppDbContext> factory)
                 Revision = evidence.ProtectionRevision,
                 KeyEpoch = evidence.ProtectionEpoch,
                 RecoveryGeneration = evidence.ProtectionGeneration
-            }, out var pins)) return new(Error: "persistence_unavailable");
-            var target = Resource(evidence.Target); var provisioning = Resource(evidence.Provisioning);
+            }, out var pins))
+                return new(Error: "persistence_unavailable");
+            var target = Resource(evidence.Target);
+            var provisioning = Resource(evidence.Provisioning);
             var key = JsonSerializer.Deserialize<SoftwareRecipientKey>(Convert.FromHexString(evidence.RecipientKey), Json);
             var wrap = JsonSerializer.Deserialize<RecipientEnvelope>(Convert.FromHexString(evidence.KeyEnvelope), Json);
-            if (target is null || provisioning is null || key is null || wrap is null) return new(Error: "persistence_unavailable");
+            if (target is null || provisioning is null || key is null || wrap is null)
+                return new(Error: "persistence_unavailable");
             var details = new SoftwareSecretDetails(evidence.OwnerAccountId, request.Input.GrantId, evidence.GrantRevision, target, new(provisioning, wrap), key, pins!.AuthorKey);
-            if (!details.IsValid(request.Identity, request.Input)) return new(Error: "persistence_unavailable");
+            if (!details.IsValid(request.Identity, request.Input))
+                return new(Error: "persistence_unavailable");
             // Final database-time check follows every wait and cryptographic read.
             var final = await Read(db, request, ct);
-            if (Error(final) is { } finalError) return new(Error: finalError);
+            if (Error(final) is { } finalError)
+                return new(Error: finalError);
             if (final.OwnerId != current.OwnerId || final.Stable != current.Stable || final.Payload != current.Payload)
                 return new(Error: "persistence_unavailable");
             await tx.CommitAsync(ct);
@@ -71,7 +81,8 @@ public sealed class SoftwareSecretStore(IDbContextFactory<AppDbContext> factory)
     private static SoftwareSecretResource? Resource(ResourceEvidence e)
     {
         var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(e.Envelope), Json);
-        if (envelope is null || e.Sequence is <= 0 or > ProtocolBinary.MaxInteger || e.PurgeAt is not null) return null;
+        if (envelope is null || e.Sequence is <= 0 or > ProtocolBinary.MaxInteger || e.PurgeAt is not null)
+            return null;
         var resource = new SoftwareSecretResource(e.Kind, e.Id, e.Revision, e.KeyEpoch ?? envelope.KeyEpoch, envelope);
         return resource.IsValid() ? resource : null;
     }

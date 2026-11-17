@@ -21,7 +21,8 @@ public sealed class RecordPurgeHandler(IDbContextFactory<AppDbContext> factory, 
             await using var tx = await db.Database.BeginTransactionAsync(cancellationToken);
             await RecordErasure.RequireClaimAsync(db, claim, cancellationToken);
             var intent = await db.TerminalErasures.AsNoTracking().SingleOrDefaultAsync(x => x.ResourceKind == "record" && x.ResourceId == id, cancellationToken);
-            if (intent is null) throw new InvalidOperationException("Terminal record intent is required.");
+            if (intent is null)
+                throw new InvalidOperationException("Terminal record intent is required.");
             deleted = intent.DeletedAt;
             await tx.CommitAsync(cancellationToken);
         }

@@ -2,8 +2,8 @@ using System.Data.Common;
 using System.Text.Json;
 using ArturRios.Cerberus.Data.Resources;
 using ArturRios.Cerberus.Domain.Accounts;
-using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Collections;
+using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Resources;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,9 +17,11 @@ public sealed class CollectionListStore(IDbContextFactory<AppDbContext> factory)
     public async Task<VaultResult<CollectionListPage>> ListAsync(CollectionListRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
         if (request.PageSize <= 0 || request.After < 0 || request.After > ProtocolBinary.MaxInteger
-            || request.Boundary is < 0 or > ProtocolBinary.MaxInteger) return new(Error: "validation_failed");
+            || request.Boundary is < 0 or > ProtocolBinary.MaxInteger)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -86,9 +88,12 @@ public sealed class CollectionListStore(IDbContextFactory<AppDbContext> factory)
                         LEFT JOIN cerberus.vault_protection rp ON rp.account_id=a.id),'[]'::jsonb)::text AS grants
                 """).ToListAsync(ct);
             var snapshot = snapshots.Single();
-            if (!snapshot.ActorActive) return new(Error: "not_found");
-            if (!snapshot.Allowed) return new(Error: "vault_access_denied");
-            if (snapshot.CorruptOrdering) return new(Error: "persistence_unavailable");
+            if (!snapshot.ActorActive)
+                return new(Error: "not_found");
+            if (!snapshot.Allowed)
+                return new(Error: "vault_access_denied");
+            if (snapshot.CorruptOrdering)
+                return new(Error: "persistence_unavailable");
             var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
             if (grants.Length > 0)
             {
@@ -106,7 +111,8 @@ public sealed class CollectionListStore(IDbContextFactory<AppDbContext> factory)
                             return new(Error: "persistence_unavailable");
                         owners.Add(evidence.OwnerId, owner!);
                     }
-                    if (!evidence.IsBound(owner!, recipient!)) return new(Error: "persistence_unavailable");
+                    if (!evidence.IsBound(owner!, recipient!))
+                        return new(Error: "persistence_unavailable");
                 }
             }
             var items = JsonSerializer.Deserialize<Item[]>(snapshot.Items, Json)!

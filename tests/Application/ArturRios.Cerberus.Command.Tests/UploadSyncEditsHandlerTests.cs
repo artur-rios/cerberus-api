@@ -24,11 +24,15 @@ public class UploadSyncEditsHandlerTests
     [InlineData("duplicate", "validation_failed")]
     public async Task GivenInvalidCurrentContextOrBatch_WhenUploading_ThenRejectBeforePersistence(string kind, string error)
     {
-        var command = Command(); command.SetContext(kind == "identity" ? Guid.Empty : Actor, kind == "missing" ? null : kind == "handle" ? "invalid" : Access);
-        if (kind == "empty") command.Edits = [];
-        if (kind == "duplicate") command.Edits = [Edit(), Edit()];
+        var command = Command();
+        command.SetContext(kind == "identity" ? Guid.Empty : Actor, kind == "missing" ? null : kind == "handle" ? "invalid" : Access);
+        if (kind == "empty")
+            command.Edits = [];
+        if (kind == "duplicate")
+            command.Edits = [Edit(), Edit()];
         var output = await new UploadSyncEditsHandler(new Mock<ISyncEditsStore>(MockBehavior.Strict).Object, Options).HandleAsync(command);
-        Assert.Contains(error, output.Errors); Assert.Null(output.Data);
+        Assert.Contains(error, output.Errors);
+        Assert.Null(output.Data);
     }
     [UnitTheory]
     [InlineData("not_found")]
@@ -37,7 +41,9 @@ public class UploadSyncEditsHandlerTests
     [InlineData("persistence_unavailable")]
     public async Task GivenStorageOrScopeError_WhenUploading_ThenReturnStableFailureWithoutOutcomes(string error)
     {
-        var output = await Handler(new(Error: error)).HandleAsync(Command()); Assert.Contains(error, output.Errors); Assert.Null(output.Data);
+        var output = await Handler(new(Error: error)).HandleAsync(Command());
+        Assert.Contains(error, output.Errors);
+        Assert.Null(output.Data);
     }
     [UnitTheory]
     [InlineData("applied")]
@@ -49,7 +55,9 @@ public class UploadSyncEditsHandlerTests
         var winning = status is "applied" or "superseded";
         var item = new SyncEditOutcome(Operation, "record", Id, status, winning ? 1 : null, winning ? 2 : null, winning ? Time : null);
         var output = await Handler(new(new(Account, null, Time, [item]))).HandleAsync(Command());
-        Assert.True(output.Success); Assert.Equal(item, Assert.Single(output.Data!.Outcomes)); Assert.Equal(Account, output.Data.AccountId);
+        Assert.True(output.Success);
+        Assert.Equal(item, Assert.Single(output.Data!.Outcomes));
+        Assert.Equal(Account, output.Data.AccountId);
     }
     [UnitTheory]
     [InlineData("account")]
@@ -75,12 +83,15 @@ public class UploadSyncEditsHandlerTests
         };
         var details = new SyncEditsDetails(kind == "account" ? Guid.Empty : Account, null, Time, kind == "count" ? [] : [item]);
         var result = kind == "unknownError" ? new SyncEditsResult(Error: "internal") : new(details, kind == "errorData" ? "vault_access_denied" : null);
-        var output = await Handler(result).HandleAsync(Command()); Assert.Contains("persistence_unavailable", output.Errors); Assert.Null(output.Data);
+        var output = await Handler(result).HandleAsync(Command());
+        Assert.Contains("persistence_unavailable", output.Errors);
+        Assert.Null(output.Data);
     }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenUploading_ThenPropagateBeforeWriting()
     {
-        using var ct = new CancellationTokenSource(); ct.Cancel();
+        using var ct = new CancellationTokenSource();
+        ct.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new()).HandleAsync(Command(), ct.Token));
     }
     private static UploadSyncEditsHandler Handler(SyncEditsResult result)

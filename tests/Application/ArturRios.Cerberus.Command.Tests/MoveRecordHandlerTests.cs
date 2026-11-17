@@ -32,9 +32,34 @@ public class MoveRecordHandlerTests
     [InlineData(true, true)]
     public async Task GivenValidMoveMetadata_WhenHandling_ThenForwardTrustedContextAndReturnExactlyFourFieldsWithNullableParent(bool nullParent, bool largestRevision)
     {
-        var c = Command(); c.FolderId = nullParent ? null : folder; if (largestRevision) c.ExpectedRevision = ProtocolBinary.MaxInteger - 1; var d = new RecordMoveDetails(target, c.FolderId, c.ExpectedRevision + 1, largestRevision ? ProtocolBinary.MaxInteger : 1); using var ct = new CancellationTokenSource(); RecordMoveRequest? received = null; CancellationToken token = default; var store = new Mock<IRecordMoveStore>(MockBehavior.Strict); store.Setup(x => x.MoveAsync(It.IsAny<RecordMoveRequest>(), It.IsAny<CancellationToken>())).Returns<RecordMoveRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<RecordMoveDetails>(d)); }); var result = await Handler(store.Object).HandleAsync(c, ct.Token);
-        Assert.True(result.Success); Assert.Contains("record_moved", result.Messages); Assert.Equal(target, result.Data!.RecordId); Assert.Equal(c.FolderId, result.Data.FolderId); Assert.Equal(d.Revision, result.Data.Revision); Assert.Equal(d.ServerSequence, result.Data.ServerSequence); Assert.Equal(actor, received!.Actor); Assert.Equal(target, received.RecordId); Assert.Equal(c.ExpectedRevision, received.ExpectedRevision); Assert.Equal(c.FolderId, received.FolderId); Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier); Assert.Equal(ct.Token, token);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json)); Assert.Equal(new[] { "folderId", "recordId", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order()); Assert.Equal(nullParent ? JsonValueKind.Null : JsonValueKind.String, output.RootElement.GetProperty("folderId").ValueKind); using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json)); Assert.Equal(new[] { "expectedRevision", "folderId" }, input.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        var c = Command();
+        c.FolderId = nullParent ? null : folder;
+        if (largestRevision)
+            c.ExpectedRevision = ProtocolBinary.MaxInteger - 1;
+        var d = new RecordMoveDetails(target, c.FolderId, c.ExpectedRevision + 1, largestRevision ? ProtocolBinary.MaxInteger : 1);
+        using var ct = new CancellationTokenSource();
+        RecordMoveRequest? received = null;
+        CancellationToken token = default;
+        var store = new Mock<IRecordMoveStore>(MockBehavior.Strict);
+        store.Setup(x => x.MoveAsync(It.IsAny<RecordMoveRequest>(), It.IsAny<CancellationToken>())).Returns<RecordMoveRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<RecordMoveDetails>(d)); });
+        var result = await Handler(store.Object).HandleAsync(c, ct.Token);
+        Assert.True(result.Success);
+        Assert.Contains("record_moved", result.Messages);
+        Assert.Equal(target, result.Data!.RecordId);
+        Assert.Equal(c.FolderId, result.Data.FolderId);
+        Assert.Equal(d.Revision, result.Data.Revision);
+        Assert.Equal(d.ServerSequence, result.Data.ServerSequence);
+        Assert.Equal(actor, received!.Actor);
+        Assert.Equal(target, received.RecordId);
+        Assert.Equal(c.ExpectedRevision, received.ExpectedRevision);
+        Assert.Equal(c.FolderId, received.FolderId);
+        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
+        Assert.Equal(ct.Token, token);
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        Assert.Equal(new[] { "folderId", "recordId", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(nullParent ? JsonValueKind.Null : JsonValueKind.String, output.RootElement.GetProperty("folderId").ValueKind);
+        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        Assert.Equal(new[] { "expectedRevision", "folderId" }, input.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
     [InlineData("validation_failed", 400)]

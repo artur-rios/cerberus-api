@@ -12,7 +12,8 @@ internal static class RecordErasure
     {
         async Task Fence()
         {
-            if (claim is not null) await RequireClaimAsync(db, claim, ct);
+            if (claim is not null)
+                await RequireClaimAsync(db, claim, ct);
             if (!await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == id, ct))
                 throw new InvalidOperationException("Terminal record intent is required.");
         }
@@ -38,12 +39,14 @@ internal static class RecordErasure
             || db.TrashEntries.Any(e => e.OperationId == x.Id && e.ResourceKind == "record" && e.ResourceId == id))
             .Select(x => new { x.Id, x.PublicId }).ToListAsync(ct);
         await Delete("DELETE FROM cerberus.record WHERE public_id=@id", new NpgsqlParameter("id", id));
-        if (await db.Records.AnyAsync(x => x.PublicId == id, ct)) throw new InvalidOperationException("Physical record erasure was not persisted.");
+        if (await db.Records.AnyAsync(x => x.PublicId == id, ct))
+            throw new InvalidOperationException("Physical record erasure was not persisted.");
         // Typed record associations cascade from the physical record FK.
         await Delete("DELETE FROM cerberus.trash_entry WHERE resource_kind='record' AND resource_id=@id", new NpgsqlParameter("id", id));
         foreach (var operation in operations)
         {
-            if (await db.TrashEntries.AnyAsync(x => x.OperationId == operation.Id, ct)) continue;
+            if (await db.TrashEntries.AnyAsync(x => x.OperationId == operation.Id, ct))
+                continue;
             await Delete("DELETE FROM cerberus.retention_work_item WHERE operation_key=@trash_key AND (claim_token IS NULL OR completed_at IS NOT NULL) AND public_id<>@preserve_work AND NOT EXISTS(SELECT FROM cerberus.trash_entry e WHERE e.operation_id=@operation_id)",
                 new NpgsqlParameter("trash_key", "trash/" + operation.PublicId), new NpgsqlParameter("operation_id", operation.Id), new NpgsqlParameter("preserve_work", claim?.WorkId ?? Guid.Empty));
             await Delete("DELETE FROM cerberus.trash_operation WHERE id=@operation_id AND NOT EXISTS(SELECT FROM cerberus.trash_entry e WHERE e.operation_id=@operation_id)", new NpgsqlParameter("operation_id", operation.Id));
@@ -60,6 +63,7 @@ internal static class RecordErasure
               AND operation_key={claim.OperationKey} AND completed_at IS NULL
               AND claim_expires_at>statement_timestamp() FOR UPDATE
             """).ToListAsync(ct);
-        if (valid.Count != 1) throw new InvalidOperationException("Purge claim is unavailable.");
+        if (valid.Count != 1)
+            throw new InvalidOperationException("Purge claim is unavailable.");
     }
 }

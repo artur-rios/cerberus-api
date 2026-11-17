@@ -12,22 +12,29 @@ public sealed partial class ProfileAccessStore : IProfileAccessStore
     public Task<VaultResult<ProfileAccessDetails>> OpenAsync(ProfileAccessRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return Task.FromResult(new VaultResult<ProfileAccessDetails>(Error: "authentication_required"));
-        if (!request.IsValid() || !MatchesBody(request)) return Task.FromResult(new VaultResult<ProfileAccessDetails>(Error: "validation_failed"));
+        if (request.Actor == Guid.Empty)
+            return Task.FromResult(new VaultResult<ProfileAccessDetails>(Error: "authentication_required"));
+        if (!request.IsValid() || !MatchesBody(request))
+            return Task.FromResult(new VaultResult<ProfileAccessDetails>(Error: "validation_failed"));
         return Run<ProfileAccessDetails>(request.Actor, request.ProfileId, request.ExpectedRevision, ct, async (db, account, profile, material, token) =>
         {
             var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.PublicId == request.ChallengeId, token);
-            if (row is null || row.Consumed) return new(Error: "vault_proof_rejected");
+            if (row is null || row.Consumed)
+                return new(Error: "vault_proof_rejected");
             var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, Json) ?? throw new JsonException();
-            if (challenge.ChallengeId != row.PublicId || row.ExpiresAt != DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt)) return new(Error: "persistence_unavailable");
+            if (challenge.ChallengeId != row.PublicId || row.ExpiresAt != DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt))
+                return new(Error: "persistence_unavailable");
             if (row.PolicyRevision != account.PolicyRevision || row.RevocationGeneration != account.RevocationGeneration
-                || challenge.ProtectionRevision != profile.Revision || challenge.KeyEpoch != material.Envelope.KeyEpoch) return new(Error: "revision_conflict");
+                || challenge.ProtectionRevision != profile.Revision || challenge.KeyEpoch != material.Envelope.KeyEpoch)
+                return new(Error: "revision_conflict");
             var now = await Now(db, token);
             var binding = new VaultProofBinding("unlock-profile", request.Actor, account.PublicId, "profile", profile.PublicId, material.Envelope.KeyEpoch, profile.Revision, null);
-            if (!VaultProof.Verify(challenge, binding, request.RawBody, material.KeyWrappers.UnlockVerifier, request.Proof, now.ToUnixTimeSeconds())) return new(Error: "vault_proof_rejected");
+            if (!VaultProof.Verify(challenge, binding, request.RawBody, material.KeyWrappers.UnlockVerifier, request.Proof, now.ToUnixTimeSeconds()))
+                return new(Error: "vault_proof_rejected");
             DateTimeOffset? expires = account.RenewalEnabled ? now.Add(account.RenewalInterval!.Value) : null;
             var access = ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32));
-            if (!OpaqueAccessHandle.TryHash(access, out var verifier)) return new(Error: "persistence_unavailable");
+            if (!OpaqueAccessHandle.TryHash(access, out var verifier))
+                return new(Error: "persistence_unavailable");
             // The one-use decision checks current authority and exclusive expiry at statement time.
             var consumed = await db.Database.ExecuteSqlInterpolatedAsync($"""
                 UPDATE cerberus.vault_unlock_challenge AS c SET consumed=TRUE
@@ -43,16 +50,19 @@ public sealed partial class ProfileAccessStore : IProfileAccessStore
                 """, token);
             if (consumed != 1)
             {
-                if (await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId) || (x.ResourceKind == "profile" && x.ResourceId == profile.PublicId), token)) return new(Error: "not_found");
+                if (await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId) || (x.ResourceKind == "profile" && x.ResourceId == profile.PublicId), token))
+                    return new(Error: "not_found");
                 return new(Error: "vault_proof_rejected");
             }
             var visible = db.Profiles.AsNoTracking().Where(p => p.Id == profile.Id && p.AccountId == account.Id && p.DeletedAt == null
                 && p.Revision == request.ExpectedRevision && !db.TerminalErasures.Any(e => (e.ResourceKind == "profile" && e.ResourceId == p.PublicId) || (e.ResourceKind == "account" && e.ResourceId == account.PublicId)));
             var projected = await ProfileProjectionQuery.Select(db, visible).SingleOrDefaultAsync(token);
-            if (projected is null) return new(Error: "not_found");
+            if (projected is null)
+                return new(Error: "not_found");
             var context = new ProfileAccessContext(projected.ProfileId, projected.Revision, projected.ServerSequence, projected.EditedAt,
                 material.Envelope, material.KeyWrappers, projected.RecordIds, projected.FolderIds, projected.CollectionIds);
-            if (!context.IsValid(account.PublicId, request.Actor, request.ProfileId, request.ExpectedRevision)) return new(Error: "persistence_unavailable");
+            if (!context.IsValid(account.PublicId, request.Actor, request.ProfileId, request.ExpectedRevision))
+                return new(Error: "persistence_unavailable");
             db.VaultAccessSessions.Add(new()
             {
                 AccountId = account.Id,
@@ -68,7 +78,8 @@ public sealed partial class ProfileAccessStore : IProfileAccessStore
     }
     private static bool MatchesBody(ProfileAccessRequest request)
     {
-        try { return JsonSerializer.Deserialize<ProfileAccessInput>(request.RawBody, Json) is { } input && input.IsValid() && input.ExpectedRevision == request.ExpectedRevision; }
+        try
+        { return JsonSerializer.Deserialize<ProfileAccessInput>(request.RawBody, Json) is { } input && input.IsValid() && input.ExpectedRevision == request.ExpectedRevision; }
         catch (JsonException) { return false; }
     }
 }

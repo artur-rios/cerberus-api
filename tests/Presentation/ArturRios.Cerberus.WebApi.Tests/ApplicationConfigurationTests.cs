@@ -14,8 +14,10 @@ public class ApplicationConfigurationTests
             ["CERBERUS_AUTH_APPLICATION_AUDIENCE"] = "configured-app-audience",
             ["Cerberus:AuthValidationSecretPrevious"] = "old-key",
             ["CERBERUS_AUTH_VALIDATION_SECRET_PREVIOUS"] = "protected-previous-key"
-        }).Build(); var o = CerberusConfiguration.Load(c);
-        Assert.Equal("configured-app-audience", o.AuthApplicationAudience); Assert.Equal("protected-previous-key", o.AuthValidationSecretPrevious);
+        }).Build();
+        var o = CerberusConfiguration.Load(c);
+        Assert.Equal("configured-app-audience", o.AuthApplicationAudience);
+        Assert.Equal("protected-previous-key", o.AuthValidationSecretPrevious);
     }
     [UnitFact]
     public void GivenHierarchicalApplicationSettings_WhenLoading_ThenBindWithoutFallbackToPersonAudience()
@@ -25,7 +27,10 @@ public class ApplicationConfigurationTests
             ["Cerberus:AuthApplicationAudience"] = "configured-app-audience",
             ["Cerberus:AuthValidationSecretPrevious"] = "protected-previous-key",
             ["Cerberus:AuthAudience"] = "people"
-        }).Build(); var o = CerberusConfiguration.Load(c);
-        Assert.Equal("configured-app-audience", o.AuthApplicationAudience); Assert.Equal("protected-previous-key", o.AuthValidationSecretPrevious); Assert.Equal("people", o.AuthAudience);
+        }).Build();
+        var o = CerberusConfiguration.Load(c);
+        Assert.Equal("configured-app-audience", o.AuthApplicationAudience);
+        Assert.Equal("protected-previous-key", o.AuthValidationSecretPrevious);
+        Assert.Equal("people", o.AuthAudience);
     }
 }

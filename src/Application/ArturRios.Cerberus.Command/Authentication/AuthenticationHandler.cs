@@ -27,13 +27,17 @@ public sealed class AuthenticationHandler(IValidator<LoginCommand> loginValidato
     private async Task<DataOutput<AuthenticationOutput?>> CompleteAsync(HeimdallAuthentication authentication, CancellationToken cancellationToken)
     {
         var output = DataOutput<AuthenticationOutput?>.New;
-        if (authentication.Error is not null) return output.WithError(authentication.Error);
-        if (authentication.Login is null) return output.WithError("identity_unavailable");
+        if (authentication.Error is not null)
+            return output.WithError(authentication.Error);
+        if (authentication.Login is null)
+            return output.WithError("identity_unavailable");
         if (authentication.Login.RequiresTwoFactor)
             return output.WithData(new AuthenticationOutput { Identity = authentication.Login }).WithMessage("authentication_challenge_required");
-        if (authentication.IdentityId is null) return output.WithError("identity_unavailable");
+        if (authentication.IdentityId is null)
+            return output.WithError("identity_unavailable");
         var account = await accounts.FindAsync(authentication.IdentityId.Value, cancellationToken);
-        if (account.Error is not null) return output.WithError(account.Error);
+        if (account.Error is not null)
+            return output.WithError(account.Error);
         return output.WithData(new AuthenticationOutput { Identity = authentication.Login, Account = account.Account }).WithMessage("authenticated");
     }
 }

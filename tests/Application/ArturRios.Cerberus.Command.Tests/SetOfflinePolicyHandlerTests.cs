@@ -25,13 +25,20 @@ public class SetOfflinePolicyHandlerTests
         var command = Command();
         command.SetContext(invalid == "identity" ? Guid.Empty : Identity,
             invalid == "missing" ? null : invalid == "malformed" ? "invalid" : Handle);
-        if (invalid == "revision") command.ExpectedPolicyRevision = 0;
-        if (invalid == "zero") command.RenewalInterval = TimeSpan.Zero;
-        if (invalid == "negative") command.RenewalInterval = TimeSpan.FromSeconds(-1);
-        if (invalid == "fraction") command.RenewalInterval = TimeSpan.FromMilliseconds(500);
-        if (invalid == "missingInterval") command.RenewalInterval = null;
-        if (invalid == "disabledInterval") command.RenewalEnabled = false;
-        if (invalid == "overflow") command.RenewalInterval = TimeSpan.MaxValue;
+        if (invalid == "revision")
+            command.ExpectedPolicyRevision = 0;
+        if (invalid == "zero")
+            command.RenewalInterval = TimeSpan.Zero;
+        if (invalid == "negative")
+            command.RenewalInterval = TimeSpan.FromSeconds(-1);
+        if (invalid == "fraction")
+            command.RenewalInterval = TimeSpan.FromMilliseconds(500);
+        if (invalid == "missingInterval")
+            command.RenewalInterval = null;
+        if (invalid == "disabledInterval")
+            command.RenewalEnabled = false;
+        if (invalid == "overflow")
+            command.RenewalInterval = TimeSpan.MaxValue;
         var output = await new SetOfflinePolicyHandler(new SetOfflinePolicyValidator(),
             new Mock<IOfflinePolicyUpdateStore>(MockBehavior.Strict).Object, new Clock()).HandleAsync(command);
         Assert.Contains(error, output.Errors);

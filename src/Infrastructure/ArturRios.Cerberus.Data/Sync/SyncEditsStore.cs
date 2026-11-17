@@ -27,15 +27,20 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
     public async Task<SyncEditsResult> UploadAsync(SyncEditsRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.AccessVerifier)) return new(Error: "vault_access_required");
-        if (request.Input?.IsValid(options.MaxPageSize) != true) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.AccessVerifier))
+            return new(Error: "vault_access_required");
+        if (request.Input?.IsValid(options.MaxPageSize) != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
             await using var tx = await db.Database.BeginTransactionAsync(ct);
             var initial = await ReadScope(db, request, ct);
-            var error = AuthorityError(initial); if (error is not null) return new(Error: error);
+            var error = AuthorityError(initial);
+            if (error is not null)
+                return new(Error: error);
             var original = initial!;
             // All roots in the same public-ID order as sharing and download. The
             // Exclusive owner roots also serialize batches from distinct recipients:
@@ -46,11 +51,15 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE public_id={id} FOR UPDATE", ct);
             }
-            error = Recheck(await ReadScope(db, request, ct), original); if (error is not null) return new(Error: error);
+            error = Recheck(await ReadScope(db, request, ct), original);
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE id={original.SessionId} AND account_id={original.InternalId} FOR UPDATE", ct);
             if (original.ProfileInternalId is { } profile)
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE id={profile} AND account_id={original.InternalId} FOR UPDATE", ct);
-            error = Recheck(await ReadScope(db, request, ct), original); if (error is not null) return new(Error: error);
+            error = Recheck(await ReadScope(db, request, ct), original);
+            if (error is not null)
+                return new(Error: error);
             // Standalone shared record/folder writers take collection SHARE locks
             // before target locks, without locking the foreign owner's account.
             // Lock all captured owners' collections before any child target lock:
@@ -60,7 +69,9 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
                 WHERE owner.public_id=ANY({accounts})
                 ORDER BY c.public_id FOR NO KEY UPDATE OF c
                 """, ct);
-            error = Recheck(await ReadScope(db, request, ct), original); if (error is not null) return new(Error: error);
+            error = Recheck(await ReadScope(db, request, ct), original);
+            if (error is not null)
+                return new(Error: error);
             var contexts = new TransactionContextFactory(factory, db);
             var outcomes = new List<SyncEditOutcome>();
             foreach (var edit in request.Input.Edits)
@@ -69,7 +80,8 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
                 var existing = await db.SyncOperations.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == original.InternalId && x.OperationId == edit.OperationId, ct);
                 if (existing is not null)
                 {
-                    if (!StoredValid(existing)) return new(Error: "persistence_unavailable");
+                    if (!StoredValid(existing))
+                        return new(Error: "persistence_unavailable");
                     if (existing.ScopeProfileId != original.ProfileId || !CryptographicOperations.FixedTimeEquals(existing.RequestFingerprint, fingerprint))
                         return new(Error: "operation_conflict");
                     if (existing.ResourceKind != edit.ResourceKind || existing.ResourceId != edit.ResourceId || existing.Action != edit.Action)
@@ -84,15 +96,19 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
                 }
                 else if (existing is not null)
                 {
-                    if (existing.Status == "denied") outcome = new(edit.OperationId, edit.ResourceKind, edit.ResourceId, "denied");
+                    if (existing.Status == "denied")
+                        outcome = new(edit.OperationId, edit.ResourceKind, edit.ResourceId, "denied");
                     else
                     {
                         // Recheck native WRITE authority without executing another
                         // write; current grant/ancestry/protection validation is reused.
                         var permitted = await Inspect(contexts, request, edit, ct);
-                        if (permitted.Error is "not_found" or "vault_access_denied") outcome = new(edit.OperationId, edit.ResourceKind, edit.ResourceId, "denied");
-                        else if (permitted.Error is not null) return new(Error: permitted.Error);
-                        else outcome = Outcome(existing);
+                        if (permitted.Error is "not_found" or "vault_access_denied")
+                            outcome = new(edit.OperationId, edit.ResourceKind, edit.ResourceId, "denied");
+                        else if (permitted.Error is not null)
+                            return new(Error: permitted.Error);
+                        else
+                            outcome = Outcome(existing);
                     }
                 }
                 else
@@ -101,7 +117,8 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
                     if (result.Error is null or "superseded")
                     {
                         var data = result.Data;
-                        if (data is null || data.Id != edit.ResourceId) return new(Error: "persistence_unavailable");
+                        if (data is null || data.Id != edit.ResourceId)
+                            return new(Error: "persistence_unavailable");
                         outcome = new(edit.OperationId, edit.ResourceKind, edit.ResourceId, result.Error == "superseded" ? "superseded" : "applied",
                             data.Revision, data.Sequence, data.EditedAt);
                     }
@@ -110,14 +127,21 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
                     else if (result.Error == "revision_conflict" && edit.Action == "create")
                     {
                         var visible = await Inspect(contexts, request, edit, ct);
-                        if (visible.Error is "not_found" or "vault_access_denied") outcome = new(edit.OperationId, edit.ResourceKind, edit.ResourceId, "denied");
-                        else if (visible.Error is not null) return new(Error: visible.Error);
-                        else outcome = new(edit.OperationId, edit.ResourceKind, edit.ResourceId, "superseded", visible.Data!.Revision, visible.Data.Sequence, visible.Data.EditedAt);
+                        if (visible.Error is "not_found" or "vault_access_denied")
+                            outcome = new(edit.OperationId, edit.ResourceKind, edit.ResourceId, "denied");
+                        else if (visible.Error is not null)
+                            return new(Error: visible.Error);
+                        else
+                            outcome = new(edit.OperationId, edit.ResourceKind, edit.ResourceId, "superseded", visible.Data!.Revision, visible.Data.Sequence, visible.Data.EditedAt);
                     }
-                    else return new(Error: result.Error);
+                    else
+                        return new(Error: result.Error);
                 }
-                if (!outcome.IsValid()) return new(Error: "persistence_unavailable");
-                error = Recheck(await ReadScope(db, request, ct), original); if (error is not null) return new(Error: error);
+                if (!outcome.IsValid())
+                    return new(Error: "persistence_unavailable");
+                error = Recheck(await ReadScope(db, request, ct), original);
+                if (error is not null)
+                    return new(Error: error);
                 if (existing is null)
                 {
                     var now = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
@@ -141,7 +165,9 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
                 outcomes.Add(outcome);
             }
             var final = await ReadScope(db, request, ct);
-            error = Recheck(final, original); if (error is not null) return new(Error: error);
+            error = Recheck(final, original);
+            if (error is not null)
+                return new(Error: error);
             await tx.CommitAsync(ct);
             return new(new(final!.AccountId, final.ProfileId, final.DatabaseNow, outcomes));
         }
@@ -206,7 +232,9 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
         : s.AccountId == Guid.Empty || s.ProfileId == Guid.Empty || !SyncResourceData.Safe(s.PolicyRevision) || !SyncResourceData.Safe(s.Generation) ? "persistence_unavailable" : null;
     private static string? Recheck(Scope? s, Scope original)
     {
-        var error = AuthorityError(s); if (error is not null) return error;
+        var error = AuthorityError(s);
+        if (error is not null)
+            return error;
         return s!.InternalId != original.InternalId || s.AccountId != original.AccountId || s.SessionId != original.SessionId
             || s.ProfileInternalId != original.ProfileInternalId || s.ProfileId != original.ProfileId || s.PolicyRevision != original.PolicyRevision
             || s.Generation != original.Generation || !s.ForeignOwners.ToHashSet().SetEquals(original.ForeignOwners) ? "revision_conflict" : null;

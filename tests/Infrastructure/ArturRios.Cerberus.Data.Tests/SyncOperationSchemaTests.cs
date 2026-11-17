@@ -11,8 +11,11 @@ public class SyncOperationSchemaTests(PostgresFixture fixture) : IClassFixture<P
     [FunctionalFact]
     public async Task GivenOperationMigration_WhenRollingBackAndReapplying_ThenPreserveExistingDataAndHaveNoModelDrift()
     {
-        await using var db = fixture.CreateContext(); var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
-        db.Accounts.Add(account); await db.SaveChangesAsync(); var before = db.Database.GetMigrations().Last(x => string.CompareOrdinal(x, "20261014043823") < 0);
+        await using var db = fixture.CreateContext();
+        var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
+        db.Accounts.Add(account);
+        await db.SaveChangesAsync();
+        var before = db.Database.GetMigrations().Last(x => string.CompareOrdinal(x, "20261014043823") < 0);
         var migrator = db.GetService<IMigrator>();
         try
         {
@@ -27,8 +30,12 @@ public class SyncOperationSchemaTests(PostgresFixture fixture) : IClassFixture<P
     [FunctionalFact]
     public async Task GivenStableOperationId_WhenPersistingForSameAccount_ThenRequireUniqueBindingAndCascadeOnAccountErase()
     {
-        await using var db = fixture.CreateContext(); var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
-        db.Accounts.Add(account); await db.SaveChangesAsync(); var id = Guid.NewGuid(); var resource = Guid.NewGuid();
+        await using var db = fixture.CreateContext();
+        var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
+        db.Accounts.Add(account);
+        await db.SaveChangesAsync();
+        var id = Guid.NewGuid();
+        var resource = Guid.NewGuid();
         SyncOperation Row() => new()
         {
             AccountId = account.Id,
@@ -40,9 +47,13 @@ public class SyncOperationSchemaTests(PostgresFixture fixture) : IClassFixture<P
             Status = "denied",
             CreatedAt = DateTimeOffset.UtcNow
         };
-        db.SyncOperations.Add(Row()); await db.SaveChangesAsync();
-        db.SyncOperations.Add(Row()); await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync()); db.ChangeTracker.Clear();
-        await db.Accounts.Where(x => x.Id == account.Id).ExecuteDeleteAsync(); Assert.False(await db.SyncOperations.AnyAsync(x => x.AccountId == account.Id));
+        db.SyncOperations.Add(Row());
+        await db.SaveChangesAsync();
+        db.SyncOperations.Add(Row());
+        await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
+        db.ChangeTracker.Clear();
+        await db.Accounts.Where(x => x.Id == account.Id).ExecuteDeleteAsync();
+        Assert.False(await db.SyncOperations.AnyAsync(x => x.AccountId == account.Id));
     }
     [FunctionalTheory]
     [InlineData("hash")]
@@ -50,8 +61,10 @@ public class SyncOperationSchemaTests(PostgresFixture fixture) : IClassFixture<P
     [InlineData("outcome")]
     public async Task GivenMalformedOperationMetadata_WhenPersisting_ThenRejectAtDatabaseBoundary(string invalid)
     {
-        await using var db = fixture.CreateContext(); var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
-        db.Accounts.Add(account); await db.SaveChangesAsync();
+        await using var db = fixture.CreateContext();
+        var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
+        db.Accounts.Add(account);
+        await db.SaveChangesAsync();
         db.SyncOperations.Add(new()
         {
             AccountId = account.Id,

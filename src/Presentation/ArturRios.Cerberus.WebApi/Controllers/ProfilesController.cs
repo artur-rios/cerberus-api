@@ -1,12 +1,12 @@
+using System.Globalization;
 using ArturRios.Cerberus.Command.Profiles;
 using ArturRios.Cerberus.Query.Profiles;
-using ArturRios.Mediator.Query;
-using Microsoft.AspNetCore.Http.Features;
-using System.Globalization;
 using ArturRios.Cerberus.WebApi.Middleware;
 using ArturRios.Mediator.Command;
+using ArturRios.Mediator.Query;
 using ArturRios.Output;
 using ArturRios.Util.WebApi.AspNetCore;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 namespace ArturRios.Cerberus.WebApi.Controllers;
 
@@ -29,7 +29,8 @@ public sealed partial class ProfilesController(CommandMediator commands, QueryMe
         if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
             || !Guid.TryParseExact(id, "D", out var profileId) || profileId == Guid.Empty || id != profileId.ToString("D"))
             return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor)) return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
         vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
         command.SetContext(actor, vaultAccess, profileId);
         var result = await commands.ExecuteCommandAsync<DeleteProfileCommand, DeleteProfileOutput>(command, cancellationToken);
@@ -51,7 +52,8 @@ public sealed partial class ProfilesController(CommandMediator commands, QueryMe
         if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
             || !Guid.TryParseExact(id, "D", out var profileId) || profileId == Guid.Empty || id != profileId.ToString("D"))
             return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor)) return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
         vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
         command.SetContext(actor, vaultAccess, profileId);
         var result = await commands.ExecuteCommandAsync<SetProfileAssociationsCommand, SetProfileAssociationsOutput>(command, cancellationToken);
@@ -73,7 +75,8 @@ public sealed partial class ProfilesController(CommandMediator commands, QueryMe
         if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1
             || !Guid.TryParseExact(id, "D", out var profileId) || profileId == Guid.Empty || id != profileId.ToString("D"))
             return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor)) return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
         vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
         command.SetContext(actor, vaultAccess, profileId);
         var result = await commands.ExecuteCommandAsync<UpdateProfileCommand, UpdateProfileOutput>(command, cancellationToken);
@@ -148,8 +151,10 @@ public sealed partial class ProfilesController(CommandMediator commands, QueryMe
     public async Task<ActionResult<DataOutput<CreateProfileOutput?>>> Create([FromBody] CreateProfileCommand command,
         [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess, CancellationToken cancellationToken)
     {
-        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1) return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor)) return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        if (Request.Query.Count != 0 || Request.Headers["X-Cerberus-Vault-Access"].Count > 1)
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
         vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
         command.SetContext(actor, vaultAccess);
         var result = await commands.ExecuteCommandAsync<CreateProfileCommand, CreateProfileOutput>(command, cancellationToken);

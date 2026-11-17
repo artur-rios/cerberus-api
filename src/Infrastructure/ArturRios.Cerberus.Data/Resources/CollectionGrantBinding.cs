@@ -13,7 +13,8 @@ internal static class CollectionGrantBinding
         pins = null;
         try
         {
-            if (row is null || row.Revision is <= 0 or > ProtocolBinary.MaxInteger) return false;
+            if (row is null || row.Revision is <= 0 or > ProtocolBinary.MaxInteger)
+                return false;
             pins = JsonSerializer.Deserialize<ProtectionMaterial>(row.Material, Json);
             return pins?.IsValid() == true && row.KeyEpoch == pins.PasswordWrapper.KeyEpoch && row.RecoveryGeneration == pins.RecoveryWrapper.Generation;
         }

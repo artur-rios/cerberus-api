@@ -19,8 +19,10 @@ public sealed partial class ProfilesController
     public async Task<ActionResult<DataOutput<IssueProfileAccessChallengeOutput?>>> AccessChallenge([FromRoute] string id,
         [FromBody] IssueProfileAccessChallengeCommand command, CancellationToken cancellationToken)
     {
-        if (!AccessProfileRoute(id, out var profileId)) return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if (!FreshIdentity.IsFresh(User, clock.GetUtcNow())) return Unauthorized(ProcessOutput.New.WithError("fresh_authentication_required"));
+        if (!AccessProfileRoute(id, out var profileId))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!FreshIdentity.IsFresh(User, clock.GetUtcNow()))
+            return Unauthorized(ProcessOutput.New.WithError("fresh_authentication_required"));
         command.SetContext(AccessActor(), profileId);
         var result = await commands.ExecuteCommandAsync<IssueProfileAccessChallengeCommand, IssueProfileAccessChallengeOutput>(command, cancellationToken);
         return result.ToActionResult(statusMap: ProfileAccessMessages.StatusCodes);
@@ -39,10 +41,14 @@ public sealed partial class ProfilesController
         [FromHeader(Name = "X-Cerberus-Challenge-Id")] string? challengeId,
         [FromHeader(Name = "X-Cerberus-Proof")] string? proof, CancellationToken cancellationToken)
     {
-        if (!AccessProfileRoute(id, out var profileId)) return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        var ids = Request.Headers["X-Cerberus-Challenge-Id"]; var proofs = Request.Headers["X-Cerberus-Proof"];
-        if (ids.Count == 0 || proofs.Count == 0) return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
-        challengeId = ids.ToString(); proof = proofs.ToString();
+        if (!AccessProfileRoute(id, out var profileId))
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        var ids = Request.Headers["X-Cerberus-Challenge-Id"];
+        var proofs = Request.Headers["X-Cerberus-Proof"];
+        if (ids.Count == 0 || proofs.Count == 0)
+            return Unauthorized(ProcessOutput.New.WithError("vault_proof_rejected"));
+        challengeId = ids.ToString();
+        proof = proofs.ToString();
         if (ids.Count != 1 || proofs.Count != 1 || !Guid.TryParseExact(challengeId, "D", out var challenge) || challenge == Guid.Empty
             || challengeId != challenge.ToString("D") || HttpContext.Items[VaultProofBodyMiddleware.BodyKey] is not byte[] raw)
             return BadRequest(ProcessOutput.New.WithError("validation_failed"));

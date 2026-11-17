@@ -1,6 +1,6 @@
 using ArturRios.Cerberus.Command.Accounts;
-using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Access;
+using ArturRios.Cerberus.Domain.Accounts;
 using Moq;
 
 namespace ArturRios.Cerberus.Command.Tests;
@@ -20,18 +20,26 @@ public class DeleteAccountHandlerTests
     [InlineData("malformed", "validation_failed")]
     public async Task GivenInvalidDeletionAuthority_WhenHandling_ThenRejectBeforeStore(string kind, string error)
     {
-        var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : Actor, Now.ToUnixTimeSeconds() + (kind == "old" ? -60 : kind == "future" ? 1 : 0), kind == "missing" ? null : kind == "malformed" ? "invalid" : Access);
-        if (kind == "revision") c.ExpectedRevision = 0;
+        var c = Command();
+        c.SetContext(kind == "actor" ? Guid.Empty : Actor, Now.ToUnixTimeSeconds() + (kind == "old" ? -60 : kind == "future" ? 1 : 0), kind == "missing" ? null : kind == "malformed" ? "invalid" : Access);
+        if (kind == "revision")
+            c.ExpectedRevision = 0;
         var result = await new DeleteAccountHandler(new Mock<IAccountDeletionStore>(MockBehavior.Strict).Object, new Clock()).HandleAsync(c);
-        Assert.Contains(error, result.Errors); Assert.Null(result.Data);
+        Assert.Contains(error, result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitTheory]
     [InlineData("completed", "account_deleted", 200)]
     [InlineData("pending", "account_deletion_pending", 202)]
     public async Task GivenAcceptedDeletion_WhenHandling_ThenReturnMinimalTrackedState(string state, string message, int status)
     {
-        var result = await Handler(new(new(Account, Now, state))).HandleAsync(Command()); Assert.True(result.Success); Assert.Contains(message, result.Messages);
-        Assert.Equal(Account, result.Data!.AccountId); Assert.Equal(state, result.Data.State); Assert.Equal(Now, result.Data.DeletedAt); Assert.Equal(status, AccountDeletionMessages.StatusCodes[message]);
+        var result = await Handler(new(new(Account, Now, state))).HandleAsync(Command());
+        Assert.True(result.Success);
+        Assert.Contains(message, result.Messages);
+        Assert.Equal(Account, result.Data!.AccountId);
+        Assert.Equal(state, result.Data.State);
+        Assert.Equal(Now, result.Data.DeletedAt);
+        Assert.Equal(status, AccountDeletionMessages.StatusCodes[message]);
         Assert.DoesNotContain(result.Data.GetType().GetProperties(), x => x.Name.Contains("Token") || x.Name.Contains("Access") || x.Name.Contains("Envelope"));
     }
     [UnitTheory]
@@ -51,16 +59,20 @@ public class DeleteAccountHandlerTests
     [InlineData("mixed")]
     public async Task GivenInconsistentErasureResult_WhenHandling_ThenFailClosed(string kind)
     {
-        var d = new AccountDeletionDetails(Account, Now, "completed"); d = kind switch { "id" => d with { AccountId = Guid.Empty }, "state" => d with { State = "active" }, "time" => d with { DeletedAt = Now.AddTicks(1) }, _ => d };
+        var d = new AccountDeletionDetails(Account, Now, "completed");
+        d = kind switch { "id" => d with { AccountId = Guid.Empty }, "state" => d with { State = "active" }, "time" => d with { DeletedAt = Now.AddTicks(1) }, _ => d };
         var result = kind == "missing" ? new AccountDeletionResult() : kind == "unknown" ? new(Error: "private-failure") : new(d, kind == "mixed" ? "not_found" : null);
-        var r = await Handler(result).HandleAsync(Command()); Assert.Contains("persistence_unavailable", r.Errors); Assert.Null(r.Data);
+        var r = await Handler(result).HandleAsync(Command());
+        Assert.Contains("persistence_unavailable", r.Errors);
+        Assert.Null(r.Data);
     }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenDeleting_ThenPropagateBeforeStore()
     { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new()).HandleAsync(Command(), ct.Token)); }
     private static DeleteAccountHandler Handler(AccountDeletionResult value)
     {
-        OpaqueAccessHandle.TryHash(Access, out var verifier); var store = new Mock<IAccountDeletionStore>(MockBehavior.Strict);
+        OpaqueAccessHandle.TryHash(Access, out var verifier);
+        var store = new Mock<IAccountDeletionStore>(MockBehavior.Strict);
         store.Setup(x => x.DeleteAsync(It.Is<AccountDeletionRequest>(r => r.Actor == Actor && r.AuthenticationIssuedAt == Now.ToUnixTimeSeconds() && r.ExpectedRevision == 1 && r.AccessVerifier == verifier), It.IsAny<CancellationToken>())).ReturnsAsync(value);
         return new(store.Object, new Clock());
     }

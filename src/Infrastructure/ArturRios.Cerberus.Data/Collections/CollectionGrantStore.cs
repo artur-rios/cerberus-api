@@ -20,9 +20,12 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
     public async Task<VaultResult<CollectionGrantDetails>> GrantAsync(CollectionGrantRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.AccessVerifier)) return new(Error: "vault_access_required");
-        if (request.CollectionId == Guid.Empty || request.Input?.IsValid() != true) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.AccessVerifier))
+            return new(Error: "vault_access_required");
+        if (request.CollectionId == Guid.Empty || request.Input?.IsValid() != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -30,20 +33,30 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
             // Classify the one target first. Foreign denials acquire no requested
             // recipient lock and validate only their relevant native grant.
             var initial = await SnapshotAsync(db, request, ct);
-            var error = AuthorityError(initial); if (error is not null) return new(Error: error);
-            if (initial.OwnerPublicId == request.Input.RecipientAccountId) return new(Error: "validation_failed");
-            if (initial.RecipientId is null) return new(Error: "not_found");
+            var error = AuthorityError(initial);
+            if (error is not null)
+                return new(Error: error);
+            if (initial.OwnerPublicId == request.Input.RecipientAccountId)
+                return new(Error: "validation_failed");
+            if (initial.RecipientId is null)
+                return new(Error: "not_found");
             var accounts = new[] { initial.OwnerPublicId, request.Input.RecipientAccountId };
             // The INSERT also takes recipient FK KEY SHARE. Lock both accounts in
             // one ordered statement before either collection to avoid reciprocal deadlock.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE public_id=ANY({accounts}) ORDER BY public_id FOR UPDATE", ct);
             var locked = await SnapshotAsync(db, request, ct);
-            error = OwnerError(locked); if (error is not null) return new(Error: error);
-            if (locked.OwnerId != initial.OwnerId || locked.RecipientId != initial.RecipientId) return new(Error: "revision_conflict");
+            error = OwnerError(locked);
+            if (error is not null)
+                return new(Error: error);
+            if (locked.OwnerId != initial.OwnerId || locked.RecipientId != initial.RecipientId)
+                return new(Error: "revision_conflict");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={locked.OwnerId} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
             var captured = await SnapshotAsync(db, request, ct);
-            error = OwnerError(captured); if (error is not null) return new(Error: error);
-            if (captured.Selection != initial.Selection) return new(Error: "revision_conflict");
+            error = OwnerError(captured);
+            if (error is not null)
+                return new(Error: error);
+            if (captured.Selection != initial.Selection)
+                return new(Error: "revision_conflict");
             var item = JsonSerializer.Deserialize<Item>(captured.Item!, Json)!;
             async Task<string?> Recheck()
             {
@@ -53,12 +66,18 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
             if (captured.Selection is { } profile)
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE account_id={captured.OwnerId} AND id={profile} FOR NO KEY UPDATE", ct);
-                error = await Recheck(); if (error is not null) return new(Error: error);
+                error = await Recheck();
+                if (error is not null)
+                    return new(Error: error);
             }
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE account_id={captured.OwnerId} AND id={item.Id} FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_grant WHERE id=ANY({captured.GrantIds}) ORDER BY public_id FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             // Parse each party's current protection once after account locks.
             var protections = await db.VaultProtections.AsNoTracking().Where(x => x.AccountId == captured.OwnerId || x.AccountId == captured.RecipientId).ToArrayAsync(ct);
             if (!CollectionGrantBinding.TryReadPins(protections.SingleOrDefault(x => x.AccountId == captured.OwnerId), out var ownerPins)
@@ -80,7 +99,8 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
             if (!input.KeyEnvelope.Verify(captured.OwnerPublicId, "collection", request.CollectionId, item.KeyEpoch,
                 input.GrantId, revision, captured.RecipientIdentity!.Value, recipientPins!.RecipientKey, ownerPins!.AuthorKey))
                 return new(Error: "validation_failed");
-            var bytes = JsonSerializer.SerializeToUtf8Bytes(input.KeyEnvelope, Json); var stamp = Guid.NewGuid();
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(input.KeyEnvelope, Json);
+            var stamp = Guid.NewGuid();
             var access = input.Access == "read-only" ? CollectionGrantAccess.ReadOnly : CollectionGrantAccess.ReadWrite;
             var parameters = Parameters(request).Concat(new object[]
             {
@@ -108,7 +128,8 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
                   AND frozen.stable=@stable AND frozen.grants=@grants AND NOT EXISTS(SELECT FROM reserved)
                 """);
             var count = await db.Database.ExecuteSqlRawAsync(writeSql, parameters, ct);
-            if (count != 1) return new(Error: OwnerError(await SnapshotAsync(db, request, ct)) ?? "revision_conflict");
+            if (count != 1)
+                return new(Error: OwnerError(await SnapshotAsync(db, request, ct)) ?? "revision_conflict");
             // Natural expiry after authorization cannot cancel the operation.
             // This private post-write snapshot bypasses only the time predicate.
             var post = await SnapshotAsync(db, request, ct, authorized: true);
@@ -132,10 +153,14 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
 
     private static string? AuthorityError(Snapshot s)
     {
-        if (!s.ActorActive) return "not_found";
-        if (!s.Allowed) return "vault_access_denied";
-        if (s.Item is null) return "not_found";
-        if (!s.ForeignTarget) return null;
+        if (!s.ActorActive)
+            return "not_found";
+        if (!s.Allowed)
+            return "vault_access_denied";
+        if (s.Item is null)
+            return "not_found";
+        if (!s.ForeignTarget)
+            return null;
         var item = JsonSerializer.Deserialize<Item>(s.Item, Json)!;
         var g = s.Native is null ? null : JsonSerializer.Deserialize<Native>(s.Native, Json);
         return g is not null && CollectionGrantBinding.TryReadPins(Pins(g.OwnerMaterial, g.OwnerRevision, g.OwnerEpoch, g.OwnerGeneration), out var owner)

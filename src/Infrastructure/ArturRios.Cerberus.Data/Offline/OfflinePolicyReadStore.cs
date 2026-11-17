@@ -36,8 +36,10 @@ public sealed class OfflinePolicyReadStore(IDbContextFactory<AppDbContext> facto
                                  Revision = allowed ? account.PolicyRevision : 0,
                                  Generation = allowed ? account.RevocationGeneration : 0
                              }).SingleOrDefaultAsync(cancellationToken);
-            if (row is null || row.State != AccountState.Active || row.Erased) return new(Error: "not_found");
-            if (row.Enabled is null) return new(Error: "vault_access_denied");
+            if (row is null || row.State != AccountState.Active || row.Erased)
+                return new(Error: "not_found");
+            if (row.Enabled is null)
+                return new(Error: "vault_access_denied");
             return new(new(row.Enabled.Value, row.Interval, row.Revision, row.Generation));
         }
         catch (Exception exception) when (exception is DbException or TimeoutException

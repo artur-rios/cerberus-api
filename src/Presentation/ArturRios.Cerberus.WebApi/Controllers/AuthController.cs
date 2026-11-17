@@ -1,6 +1,6 @@
+using System.Net.Http.Headers;
 using ArturRios.Cerberus.Command.Authentication;
 using ArturRios.Cerberus.WebApi.Middleware;
-using System.Net.Http.Headers;
 using ArturRios.Mediator.Command;
 using ArturRios.Output;
 using ArturRios.Util.WebApi.AspNetCore;
@@ -26,7 +26,8 @@ public sealed class AuthController(CommandMediator commands) : ControllerBase
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<ActionResult<DataOutput<ClosureRecoveryAuthenticationOutput?>>> ClosureLogin([FromBody] ClosureRecoveryLoginCommand command, CancellationToken cancellationToken)
     {
-        if (!StrictRecoveryRequest()) return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!StrictRecoveryRequest())
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
         return (await commands.ExecuteCommandAsync<ClosureRecoveryLoginCommand, ClosureRecoveryAuthenticationOutput>(command, cancellationToken))
             .ToActionResult(statusMap: ClosureRecoveryAuthenticationMessages.StatusCodes);
     }
@@ -37,7 +38,8 @@ public sealed class AuthController(CommandMediator commands) : ControllerBase
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<ActionResult<DataOutput<ClosureRecoveryAuthenticationOutput?>>> ClosureVerifyChallenge([FromBody] ClosureRecoveryVerifyChallengeCommand command, CancellationToken cancellationToken)
     {
-        if (!StrictRecoveryRequest()) return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!StrictRecoveryRequest())
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
         return (await commands.ExecuteCommandAsync<ClosureRecoveryVerifyChallengeCommand, ClosureRecoveryAuthenticationOutput>(command, cancellationToken))
             .ToActionResult(statusMap: ClosureRecoveryAuthenticationMessages.StatusCodes);
     }

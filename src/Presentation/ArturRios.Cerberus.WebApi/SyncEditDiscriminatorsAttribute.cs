@@ -26,13 +26,15 @@ public sealed class SyncEditDiscriminatorsAttribute : Attribute, IAsyncResourceF
         {
             using var document = JsonDocument.Parse(raw);
             var root = document.RootElement;
-            if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("edits", out var edits) || edits.ValueKind != JsonValueKind.Array) return false;
+            if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("edits", out var edits) || edits.ValueKind != JsonValueKind.Array)
+                return false;
             foreach (var edit in edits.EnumerateArray())
             {
                 if (edit.ValueKind != JsonValueKind.Object || edit.EnumerateObject().Count(p => p.Name == "editType") != 1
                     || !edit.TryGetProperty("editType", out var type) || type.ValueKind != JsonValueKind.String
                     || type.GetString() is not ("record-create" or "record-update" or "folder-create" or "folder-update"
-                        or "collection-create" or "collection-update" or "profile-create" or "profile-update")) return false;
+                        or "collection-create" or "collection-update" or "profile-create" or "profile-update"))
+                    return false;
             }
             return true;
         }

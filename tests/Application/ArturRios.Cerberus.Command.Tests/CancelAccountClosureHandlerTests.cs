@@ -16,16 +16,23 @@ public class CancelAccountClosureHandlerTests
     [InlineData("revision", "validation_failed")]
     public async Task GivenInvalidFreshCancellationAuthority_WhenHandling_ThenRejectBeforeStore(string invalid, string error)
     {
-        var c = Command(); c.SetContext(invalid == "actor" ? Guid.Empty : Actor, Now.ToUnixTimeSeconds() + (invalid == "old" ? -60 : invalid == "future" ? 1 : 0));
-        if (invalid == "revision") c.ExpectedRevision = 0;
+        var c = Command();
+        c.SetContext(invalid == "actor" ? Guid.Empty : Actor, Now.ToUnixTimeSeconds() + (invalid == "old" ? -60 : invalid == "future" ? 1 : 0));
+        if (invalid == "revision")
+            c.ExpectedRevision = 0;
         var result = await new CancelAccountClosureHandler(new Mock<IAccountClosureCancellationStore>(MockBehavior.Strict).Object, new Clock()).HandleAsync(c);
-        Assert.Contains(error, result.Errors); Assert.Null(result.Data);
+        Assert.Contains(error, result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitFact]
     public async Task GivenCommittedCancellation_WhenHandling_ThenReturnMinimalActiveMetadata()
     {
-        var result = await Handler(new(Details())).HandleAsync(Command()); Assert.True(result.Success); Assert.Equal(Account, result.Data!.AccountId);
-        Assert.Equal(3, result.Data.Revision); Assert.Equal(3, result.Data.RevocationGeneration); Assert.Equal(Now, result.Data.CancelledAt);
+        var result = await Handler(new(Details())).HandleAsync(Command());
+        Assert.True(result.Success);
+        Assert.Equal(Account, result.Data!.AccountId);
+        Assert.Equal(3, result.Data.Revision);
+        Assert.Equal(3, result.Data.RevocationGeneration);
+        Assert.Equal(Now, result.Data.CancelledAt);
         Assert.DoesNotContain(result.Data.GetType().GetProperties(), p => p.Name.Contains("Envelope") || p.Name.Contains("Token") || p.Name.Contains("Access"));
     }
     [UnitTheory]
@@ -46,7 +53,8 @@ public class CancelAccountClosureHandlerTests
     [InlineData("error-data")]
     public async Task GivenInconsistentCancellationResult_WhenHandling_ThenFailClosed(string kind)
     {
-        var details = Details(); details = kind switch
+        var details = Details();
+        details = kind switch
         {
             "revision" => details with { Revision = 4 },
             "id" => details with { AccountId = Guid.Empty },
@@ -55,7 +63,9 @@ public class CancelAccountClosureHandlerTests
             _ => details
         };
         var stored = kind == "missing" ? new AccountClosureCancellationResult() : kind == "unknown" ? new(Error: "private-failure") : new(details, kind == "error-data" ? "not_found" : null);
-        var result = await Handler(stored).HandleAsync(Command()); Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        var result = await Handler(stored).HandleAsync(Command());
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforeStore()
@@ -63,7 +73,8 @@ public class CancelAccountClosureHandlerTests
     private static AccountClosureCancellationDetails Details() => new(Account, 3, 3, Now, Now);
     private static CancelAccountClosureHandler Handler(AccountClosureCancellationResult result)
     {
-        var store = new Mock<IAccountClosureCancellationStore>(MockBehavior.Strict); store.Setup(x => x.CancelAsync(It.Is<AccountClosureCancellationRequest>(r => r.Actor == Actor && r.ExpectedRevision == 2 && r.AuthenticationIssuedAt == Now.ToUnixTimeSeconds()), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        var store = new Mock<IAccountClosureCancellationStore>(MockBehavior.Strict);
+        store.Setup(x => x.CancelAsync(It.Is<AccountClosureCancellationRequest>(r => r.Actor == Actor && r.ExpectedRevision == 2 && r.AuthenticationIssuedAt == Now.ToUnixTimeSeconds()), It.IsAny<CancellationToken>())).ReturnsAsync(result);
         return new(store.Object, new Clock());
     }
     private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => Now; }

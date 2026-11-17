@@ -32,9 +32,34 @@ public class DeleteRecordHandlerTests
     [InlineData("largestRevision")]
     public async Task GivenValidTrashMetadata_WhenHandling_ThenForwardTrustedContextAndReturnExactSixFields(string kind)
     {
-        var c = Command(); if (kind == "largestRevision") c.ExpectedRevision = ProtocolBinary.MaxInteger - 1; var time = kind == "minimum" ? new DateTimeOffset(10, TimeSpan.Zero) : kind == "pre2000" ? new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero) : DateTimeOffset.UnixEpoch; var d = new RecordTrashDetails(target, operation, c.ExpectedRevision + 1, 7, time, time.AddDays(30)); using var ct = new CancellationTokenSource(); RecordTrashRequest? received = null; CancellationToken token = default; var store = new Mock<IRecordTrashStore>(MockBehavior.Strict); store.Setup(x => x.TrashAsync(It.IsAny<RecordTrashRequest>(), It.IsAny<CancellationToken>())).Returns<RecordTrashRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<RecordTrashDetails>(d)); }); var result = await Handler(store.Object).HandleAsync(c, ct.Token);
-        Assert.True(result.Success); Assert.Contains("record_deleted", result.Messages); Assert.Equal(target, result.Data!.RecordId); Assert.Equal(operation, result.Data.TrashOperationId); Assert.Equal(d.Revision, result.Data.Revision); Assert.Equal(7, result.Data.ServerSequence); Assert.Equal(time, result.Data.DeletedAt); Assert.Equal(time.AddDays(30), result.Data.PurgeAt); Assert.Equal(actor, received!.Actor); Assert.Equal(target, received.RecordId); Assert.Equal(c.ExpectedRevision, received.ExpectedRevision); Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier); Assert.Equal(ct.Token, token);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json)); Assert.Equal(new[] { "deletedAt", "purgeAt", "recordId", "revision", "serverSequence", "trashOperationId" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order()); using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json)); Assert.Equal(new[] { "expectedRevision" }, input.RootElement.EnumerateObject().Select(x => x.Name));
+        var c = Command();
+        if (kind == "largestRevision")
+            c.ExpectedRevision = ProtocolBinary.MaxInteger - 1;
+        var time = kind == "minimum" ? new DateTimeOffset(10, TimeSpan.Zero) : kind == "pre2000" ? new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero) : DateTimeOffset.UnixEpoch;
+        var d = new RecordTrashDetails(target, operation, c.ExpectedRevision + 1, 7, time, time.AddDays(30));
+        using var ct = new CancellationTokenSource();
+        RecordTrashRequest? received = null;
+        CancellationToken token = default;
+        var store = new Mock<IRecordTrashStore>(MockBehavior.Strict);
+        store.Setup(x => x.TrashAsync(It.IsAny<RecordTrashRequest>(), It.IsAny<CancellationToken>())).Returns<RecordTrashRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<RecordTrashDetails>(d)); });
+        var result = await Handler(store.Object).HandleAsync(c, ct.Token);
+        Assert.True(result.Success);
+        Assert.Contains("record_deleted", result.Messages);
+        Assert.Equal(target, result.Data!.RecordId);
+        Assert.Equal(operation, result.Data.TrashOperationId);
+        Assert.Equal(d.Revision, result.Data.Revision);
+        Assert.Equal(7, result.Data.ServerSequence);
+        Assert.Equal(time, result.Data.DeletedAt);
+        Assert.Equal(time.AddDays(30), result.Data.PurgeAt);
+        Assert.Equal(actor, received!.Actor);
+        Assert.Equal(target, received.RecordId);
+        Assert.Equal(c.ExpectedRevision, received.ExpectedRevision);
+        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
+        Assert.Equal(ct.Token, token);
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        Assert.Equal(new[] { "deletedAt", "purgeAt", "recordId", "revision", "serverSequence", "trashOperationId" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        Assert.Equal(new[] { "expectedRevision" }, input.RootElement.EnumerateObject().Select(x => x.Name));
     }
     [UnitTheory]
     [InlineData("validation_failed", 400)]

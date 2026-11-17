@@ -26,21 +26,62 @@ public class SetProfileAssociationsHandlerTests
     [InlineData("duplicateCollection", "validation_failed")]
     public async Task GivenInvalidContextOrTypedSets_WhenHandling_ThenRejectBeforeStore(string kind, string error)
     {
-        var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access, kind == "id" ? Guid.Empty : id);
-        if (kind == "revision") c.ExpectedRevision = 0; if (kind == "unsafe") c.ExpectedRevision = ProtocolBinary.MaxInteger + 1; if (kind == "nullRecords") c.RecordIds = null!; if (kind == "nullFolders") c.FolderIds = null!; if (kind == "nullCollections") c.CollectionIds = null!; if (kind == "zeroRecord") c.RecordIds = [Guid.Empty]; if (kind == "duplicateFolder") c.FolderIds = [id, id]; if (kind == "duplicateCollection") c.CollectionIds = [id, id];
-        var r = await Handler(new Mock<IProfileAssociationStore>(MockBehavior.Strict).Object).HandleAsync(c); Assert.Contains(error, r.Errors); Assert.Null(r.Data); Assert.False(r.Success);
+        var c = Command();
+        c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access, kind == "id" ? Guid.Empty : id);
+        if (kind == "revision")
+            c.ExpectedRevision = 0;
+        if (kind == "unsafe")
+            c.ExpectedRevision = ProtocolBinary.MaxInteger + 1;
+        if (kind == "nullRecords")
+            c.RecordIds = null!;
+        if (kind == "nullFolders")
+            c.FolderIds = null!;
+        if (kind == "nullCollections")
+            c.CollectionIds = null!;
+        if (kind == "zeroRecord")
+            c.RecordIds = [Guid.Empty];
+        if (kind == "duplicateFolder")
+            c.FolderIds = [id, id];
+        if (kind == "duplicateCollection")
+            c.CollectionIds = [id, id];
+        var r = await Handler(new Mock<IProfileAssociationStore>(MockBehavior.Strict).Object).HandleAsync(c);
+        Assert.Contains(error, r.Errors);
+        Assert.Null(r.Data);
+        Assert.False(r.Success);
     }
     [UnitTheory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task GivenValidTypedSets_WhenHandling_ThenBindTrustedContextAndReturnOnlySixOrderedFields(bool empty)
     {
-        var c = Command(); if (empty) { c.RecordIds = []; c.FolderIds = []; c.CollectionIds = []; } else c.RecordIds = [Guid.NewGuid(), Guid.NewGuid()];
-        ProfileAssociationRequest? captured = null; CancellationToken capturedToken = default; using var source = new CancellationTokenSource(); var store = new Mock<IProfileAssociationStore>(MockBehavior.Strict);
+        var c = Command();
+        if (empty)
+        { c.RecordIds = []; c.FolderIds = []; c.CollectionIds = []; }
+        else
+            c.RecordIds = [Guid.NewGuid(), Guid.NewGuid()];
+        ProfileAssociationRequest? captured = null;
+        CancellationToken capturedToken = default;
+        using var source = new CancellationTokenSource();
+        var store = new Mock<IProfileAssociationStore>(MockBehavior.Strict);
         store.Setup(x => x.SetAsync(It.IsAny<ProfileAssociationRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileAssociationRequest, CancellationToken>((request, token) => { captured = request; capturedToken = token; return Task.FromResult(new VaultResult<ProfileAssociationDetails>(new(id, 2, 9, c.RecordIds.Reverse().ToArray(), c.FolderIds, c.CollectionIds))); });
-        var r = await Handler(store.Object).HandleAsync(c, source.Token); Assert.True(r.Success); Assert.Contains("profile_associations_set", r.Messages); Assert.Equal(id, r.Data!.ProfileId); Assert.Equal(2, r.Data.Revision); Assert.Equal(9, r.Data.ServerSequence); Assert.Equal(c.RecordIds.Order(), r.Data.RecordIds); Assert.Equal(c.FolderIds.Order(), r.Data.FolderIds); Assert.Equal(c.CollectionIds.Order(), r.Data.CollectionIds); Assert.Equal(actor, captured!.Actor); Assert.Equal(id, captured.ProfileId); Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier); Assert.Equal(c.ToInput(), captured.Input); Assert.Equal(source.Token, capturedToken);
-        using var body = JsonDocument.Parse(JsonSerializer.Serialize(c, ProtectionFixture.Json)); Assert.Equal(new[] { "collectionIds", "expectedRevision", "folderIds", "recordIds" }, body.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(r.Data, ProtectionFixture.Json)); Assert.Equal(new[] { "collectionIds", "folderIds", "profileId", "recordIds", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        var r = await Handler(store.Object).HandleAsync(c, source.Token);
+        Assert.True(r.Success);
+        Assert.Contains("profile_associations_set", r.Messages);
+        Assert.Equal(id, r.Data!.ProfileId);
+        Assert.Equal(2, r.Data.Revision);
+        Assert.Equal(9, r.Data.ServerSequence);
+        Assert.Equal(c.RecordIds.Order(), r.Data.RecordIds);
+        Assert.Equal(c.FolderIds.Order(), r.Data.FolderIds);
+        Assert.Equal(c.CollectionIds.Order(), r.Data.CollectionIds);
+        Assert.Equal(actor, captured!.Actor);
+        Assert.Equal(id, captured.ProfileId);
+        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier);
+        Assert.Equal(c.ToInput(), captured.Input);
+        Assert.Equal(source.Token, capturedToken);
+        using var body = JsonDocument.Parse(JsonSerializer.Serialize(c, ProtectionFixture.Json));
+        Assert.Equal(new[] { "collectionIds", "expectedRevision", "folderIds", "recordIds" }, body.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(r.Data, ProtectionFixture.Json));
+        Assert.Equal(new[] { "collectionIds", "folderIds", "profileId", "recordIds", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
     [InlineData("not_found")]
@@ -69,7 +110,9 @@ public class SetProfileAssociationsHandlerTests
     [InlineData("wrongCollection")]
     public async Task GivenCorruptOrMismatchedStoreResult_WhenHandling_ThenFailClosedWithoutPartialData(string kind)
     {
-        var c = Command(); var d = new ProfileAssociationDetails(id, 2, 9, c.RecordIds, c.FolderIds, c.CollectionIds); d = kind switch
+        var c = Command();
+        var d = new ProfileAssociationDetails(id, 2, 9, c.RecordIds, c.FolderIds, c.CollectionIds);
+        d = kind switch
         {
             "null" => null!,
             "id" => d with { ProfileId = Guid.NewGuid() },
@@ -88,7 +131,10 @@ public class SetProfileAssociationsHandlerTests
             "wrongFolder" => d with { FolderIds = [Guid.NewGuid()] },
             _ => d with { CollectionIds = [Guid.NewGuid()] }
         };
-        var r = await Handler(Store(new(d)).Object).HandleAsync(c); Assert.Contains("persistence_unavailable", r.Errors); Assert.Null(r.Data); Assert.False(r.Success);
+        var r = await Handler(Store(new(d)).Object).HandleAsync(c);
+        Assert.Contains("persistence_unavailable", r.Errors);
+        Assert.Null(r.Data);
+        Assert.False(r.Success);
     }
     [UnitTheory]
     [InlineData("actor")]

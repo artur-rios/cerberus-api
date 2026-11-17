@@ -49,7 +49,8 @@ public sealed class ProtectionFixture : IDisposable
     };
     public RecipientEnvelope Wrap(Guid owner, string kind, Guid resource, Guid identity, long epoch = 1, long revision = 1)
     {
-        using var ephemeral = ECDsa.Create(ECCurve.NamedCurves.nistP256); var point = ephemeral.ExportParameters(false).Q;
+        using var ephemeral = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var point = ephemeral.ExportParameters(false).Q;
         var wrapper = new RecipientEnvelope("cerberus-recipient-wrap-v1", epoch, resource, revision, identity,
             Material.RecipientKey.Fingerprint(), Material.AuthorKey.Fingerprint(), Encode([4, .. point.X!, .. point.Y!]),
             Encode(RandomNumberGenerator.GetBytes(48)), Encode(new byte[64]));

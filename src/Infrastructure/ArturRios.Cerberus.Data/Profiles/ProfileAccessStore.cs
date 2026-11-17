@@ -13,8 +13,10 @@ public sealed partial class ProfileAccessStore(IDbContextFactory<AppDbContext> f
     public Task<VaultResult<ProfileChallengeDetails>> ChallengeAsync(ProfileChallengeRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return Task.FromResult(new VaultResult<ProfileChallengeDetails>(Error: "authentication_required"));
-        if (!request.IsValid()) return Task.FromResult(new VaultResult<ProfileChallengeDetails>(Error: "validation_failed"));
+        if (request.Actor == Guid.Empty)
+            return Task.FromResult(new VaultResult<ProfileChallengeDetails>(Error: "authentication_required"));
+        if (!request.IsValid())
+            return Task.FromResult(new VaultResult<ProfileChallengeDetails>(Error: "validation_failed"));
         return Run<ProfileChallengeDetails>(request.Actor, request.ProfileId, request.ExpectedRevision, ct, async (db, account, profile, material, token) =>
         {
             var now = await Now(db, token);
@@ -39,22 +41,31 @@ public sealed partial class ProfileAccessStore(IDbContextFactory<AppDbContext> f
     {
         try
         {
-            await using var db = await factory.CreateDbContextAsync(ct); await using var tx = await db.Database.BeginTransactionAsync(ct);
+            await using var db = await factory.CreateDbContextAsync(ct);
+            await using var tx = await db.Database.BeginTransactionAsync(ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={actor} FOR UPDATE", ct);
             var account = await db.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == actor)
                 .Select(x => new AccountView(x.Id, x.PublicId, x.State, x.PolicyRevision, x.RevocationGeneration, x.RenewalEnabled, x.RenewalInterval)).SingleOrDefaultAsync(ct);
-            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), ct)) return new(Error: "not_found");
+            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), ct))
+                return new(Error: "not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.profile WHERE account_id={account.Id} AND public_id={profileId} FOR UPDATE", ct);
             var profile = await db.Profiles.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.PublicId == profileId, ct);
-            if (profile is null || profile.DeletedAt is not null || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "profile" && x.ResourceId == profile.PublicId), ct)) return new(Error: "not_found");
-            if (profile.Revision is <= 0 or > ProtocolBinary.MaxInteger || profile.ServerSequence is <= 0 or > ProtocolBinary.MaxInteger) return new(Error: "persistence_unavailable");
-            if (profile.Revision != expectedRevision) return new(Error: "revision_conflict");
+            if (profile is null || profile.DeletedAt is not null || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "profile" && x.ResourceId == profile.PublicId), ct))
+                return new(Error: "not_found");
+            if (profile.Revision is <= 0 or > ProtocolBinary.MaxInteger || profile.ServerSequence is <= 0 or > ProtocolBinary.MaxInteger)
+                return new(Error: "persistence_unavailable");
+            if (profile.Revision != expectedRevision)
+                return new(Error: "revision_conflict");
             if (account.PolicyRevision is <= 0 or > ProtocolBinary.MaxInteger || account.RevocationGeneration is <= 0 or > ProtocolBinary.MaxInteger
-                || account.RenewalEnabled && account.RenewalInterval is not { Ticks: > 0 }) return new(Error: "persistence_unavailable");
+                || account.RenewalEnabled && account.RenewalInterval is not { Ticks: > 0 })
+                return new(Error: "persistence_unavailable");
             var material = await ProfileUnlockMaterial.ReadAsync(db, account.Id, account.PublicId, actor, profile, ct);
             var result = await execute(db, account, profile, material, ct);
-            if (result.Error is not null) return result;
-            await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return result;
+            if (result.Error is not null)
+                return result;
+            await db.SaveChangesAsync(ct);
+            await tx.CommitAsync(ct);
+            return result;
         }
         catch (Exception e) when (e is DbException or DbUpdateException or TimeoutException or JsonException or ArgumentOutOfRangeException
             || e is InvalidOperationException { InnerException: DbException or DbUpdateException or TimeoutException })

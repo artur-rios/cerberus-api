@@ -21,7 +21,8 @@ public class RegistrationIdentityTests
         using var transport = Transport(request =>
         {
             calls.Add(request.RequestUri!.AbsolutePath);
-            if (calls.Count == 1) return Status(401);
+            if (calls.Count == 1)
+                return Status(401);
             Assert.Equal(options.HeimdallServiceCredential, request.Headers.Authorization?.Parameter);
             return Person(options);
         }, options);
@@ -112,7 +113,8 @@ public class RegistrationIdentityTests
     public async Task GivenInvalidServiceOrIdentityProof_WhenRegistering_ThenDenyWithoutFallback(bool invalidService)
     {
         var options = Options();
-        if (invalidService) options.HeimdallServiceCredential = "invalid-service-proof";
+        if (invalidService)
+            options.HeimdallServiceCredential = "invalid-service-proof";
         using var transport = Transport(_ => throw new InvalidOperationException("No fallback may send credentials."), options);
         var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, invalidService ? null : "invalid-user-proof", default);
         Assert.Equal(invalidService ? RegistrationIdentityStatus.Forbidden : RegistrationIdentityStatus.Denied, result.Status);
@@ -127,8 +129,10 @@ public class RegistrationIdentityTests
         using var transport = Transport(request =>
         {
             var path = request.RequestUri!.AbsolutePath;
-            if (path == "/api/auth/login") return created ? Login(options) : Status(401);
-            if (path == $"/api/persons/{Identity:D}") return Person(options);
+            if (path == "/api/auth/login")
+                return created ? Login(options) : Status(401);
+            if (path == $"/api/persons/{Identity:D}")
+                return Person(options);
             creations++;
             created = true;
             throw new TaskCanceledException("Simulate response lost after upstream commit.");

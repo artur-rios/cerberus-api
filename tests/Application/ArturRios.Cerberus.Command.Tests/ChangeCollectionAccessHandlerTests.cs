@@ -66,33 +66,87 @@ public class ChangeCollectionAccessHandlerTests
             kind == "collection" ? Guid.Empty : collection, kind == "grant" ? Guid.Empty : grant);
         switch (kind)
         {
-            case "zeroRevision": command.ExpectedRevision = 0; break;
-            case "negativeRevision": command.ExpectedRevision = -1; break;
-            case "exhaustedRevision": command.ExpectedRevision = 9007199254740991; break;
-            case "unsafeRevision": command.ExpectedRevision = 9007199254740992; break;
-            case "nullAccess": command.Access = null!; break;
-            case "emptyPermission": command.Access = ""; break;
-            case "casePermission": command.Access = "Read-Only"; break;
-            case "spacedPermission": command.Access = "read-only "; break;
-            case "unknownPermission": command.Access = "owner"; break;
-            case "nullEnvelope": command.KeyEnvelope = null!; break;
-            case "format": command.KeyEnvelope = command.KeyEnvelope with { Format = "other" }; break;
-            case "zeroEpoch": command.KeyEnvelope = command.KeyEnvelope with { KeyEpoch = 0 }; break;
-            case "unsafeEpoch": command.KeyEnvelope = command.KeyEnvelope with { KeyEpoch = 9007199254740992 }; break;
-            case "zeroEnvelopeGrant": command.KeyEnvelope = command.KeyEnvelope with { GrantId = Guid.Empty }; break;
-            case "differentGrant": command.KeyEnvelope = command.KeyEnvelope with { GrantId = Guid.NewGuid() }; break;
-            case "zeroEnvelopeRevision": command.KeyEnvelope = command.KeyEnvelope with { GrantRevision = 0 }; break;
-            case "unsafeEnvelopeRevision": command.KeyEnvelope = command.KeyEnvelope with { GrantRevision = 9007199254740992 }; break;
-            case "initialRevision": command.KeyEnvelope = command.KeyEnvelope with { GrantRevision = 1 }; break;
-            case "regrantRevision": command.ExpectedRevision = 2; break;
-            case "identity": command.KeyEnvelope = command.KeyEnvelope with { RecipientIdentityId = Guid.Empty }; break;
-            case "recipientPin": command.KeyEnvelope = command.KeyEnvelope with { RecipientKeyFingerprint = "bad" }; break;
-            case "authorPin": command.KeyEnvelope = command.KeyEnvelope with { AuthorKeyFingerprint = "bad" }; break;
-            case "enc": command.KeyEnvelope = command.KeyEnvelope with { Enc = "bad" }; break;
-            case "encPrefix": command.KeyEnvelope = command.KeyEnvelope with { Enc = ProtectionFixture.Encode(new byte[65]) }; break;
-            case "encPoint": command.KeyEnvelope = command.KeyEnvelope with { Enc = ProtectionFixture.Encode([4, .. new byte[64]]) }; break;
-            case "ciphertext": command.KeyEnvelope = command.KeyEnvelope with { Ciphertext = "AQID=" }; break;
-            case "signature": command.KeyEnvelope = command.KeyEnvelope with { Signature = "bad" }; break;
+            case "zeroRevision":
+                command.ExpectedRevision = 0;
+                break;
+            case "negativeRevision":
+                command.ExpectedRevision = -1;
+                break;
+            case "exhaustedRevision":
+                command.ExpectedRevision = 9007199254740991;
+                break;
+            case "unsafeRevision":
+                command.ExpectedRevision = 9007199254740992;
+                break;
+            case "nullAccess":
+                command.Access = null!;
+                break;
+            case "emptyPermission":
+                command.Access = "";
+                break;
+            case "casePermission":
+                command.Access = "Read-Only";
+                break;
+            case "spacedPermission":
+                command.Access = "read-only ";
+                break;
+            case "unknownPermission":
+                command.Access = "owner";
+                break;
+            case "nullEnvelope":
+                command.KeyEnvelope = null!;
+                break;
+            case "format":
+                command.KeyEnvelope = command.KeyEnvelope with { Format = "other" };
+                break;
+            case "zeroEpoch":
+                command.KeyEnvelope = command.KeyEnvelope with { KeyEpoch = 0 };
+                break;
+            case "unsafeEpoch":
+                command.KeyEnvelope = command.KeyEnvelope with { KeyEpoch = 9007199254740992 };
+                break;
+            case "zeroEnvelopeGrant":
+                command.KeyEnvelope = command.KeyEnvelope with { GrantId = Guid.Empty };
+                break;
+            case "differentGrant":
+                command.KeyEnvelope = command.KeyEnvelope with { GrantId = Guid.NewGuid() };
+                break;
+            case "zeroEnvelopeRevision":
+                command.KeyEnvelope = command.KeyEnvelope with { GrantRevision = 0 };
+                break;
+            case "unsafeEnvelopeRevision":
+                command.KeyEnvelope = command.KeyEnvelope with { GrantRevision = 9007199254740992 };
+                break;
+            case "initialRevision":
+                command.KeyEnvelope = command.KeyEnvelope with { GrantRevision = 1 };
+                break;
+            case "regrantRevision":
+                command.ExpectedRevision = 2;
+                break;
+            case "identity":
+                command.KeyEnvelope = command.KeyEnvelope with { RecipientIdentityId = Guid.Empty };
+                break;
+            case "recipientPin":
+                command.KeyEnvelope = command.KeyEnvelope with { RecipientKeyFingerprint = "bad" };
+                break;
+            case "authorPin":
+                command.KeyEnvelope = command.KeyEnvelope with { AuthorKeyFingerprint = "bad" };
+                break;
+            case "enc":
+                command.KeyEnvelope = command.KeyEnvelope with { Enc = "bad" };
+                break;
+            case "encPrefix":
+                command.KeyEnvelope = command.KeyEnvelope with { Enc = ProtectionFixture.Encode(new byte[65]) };
+                break;
+            case "encPoint":
+                command.KeyEnvelope = command.KeyEnvelope with { Enc = ProtectionFixture.Encode([4, .. new byte[64]]) };
+                break;
+            case "ciphertext":
+                command.KeyEnvelope = command.KeyEnvelope with { Ciphertext = "AQID=" };
+                break;
+            case "signature":
+                command.KeyEnvelope = command.KeyEnvelope with { Signature = "bad" };
+                break;
         }
 
         var result = await Handler(new Mock<ICollectionGrantChangeStore>(MockBehavior.Strict).Object).HandleAsync(command);
@@ -308,21 +362,47 @@ public class ChangeCollectionAccessHandlerTests
         var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
         switch (kind)
         {
-            case "caseRevision": body.Remove("expectedRevision"); body["ExpectedRevision"] = null; break;
-            case "stringRevision": body["expectedRevision"] = "1"; break;
-            case "fractionRevision": body["expectedRevision"] = 1.5; break;
-            case "uppercaseEnvelopeGrant": body["keyEnvelope"]!["grantId"] = Last.ToString().ToUpperInvariant(); break;
-            case "compactEnvelopeGrant": body["keyEnvelope"]!["grantId"] = grant.ToString("N"); break;
-            case "zeroEnvelopeGrant": body["keyEnvelope"]!["grantId"] = Guid.Empty.ToString(); break;
-            case "numericEnvelopeGrant": body["keyEnvelope"]!["grantId"] = 7; break;
-            case "arrayEnvelope": body["keyEnvelope"] = new System.Text.Json.Nodes.JsonArray(); break;
-            case "unknownEnvelope": body["keyEnvelope"]!["ownerId"] = actor.ToString(); break;
-            case "caseEpoch": body["keyEnvelope"]!.AsObject().Remove("keyEpoch"); body["keyEnvelope"]!["KeyEpoch"] = 1; break;
-            case "stringEpoch": body["keyEnvelope"]!["keyEpoch"] = "1"; break;
+            case "caseRevision":
+                body.Remove("expectedRevision");
+                body["ExpectedRevision"] = null;
+                break;
+            case "stringRevision":
+                body["expectedRevision"] = "1";
+                break;
+            case "fractionRevision":
+                body["expectedRevision"] = 1.5;
+                break;
+            case "uppercaseEnvelopeGrant":
+                body["keyEnvelope"]!["grantId"] = Last.ToString().ToUpperInvariant();
+                break;
+            case "compactEnvelopeGrant":
+                body["keyEnvelope"]!["grantId"] = grant.ToString("N");
+                break;
+            case "zeroEnvelopeGrant":
+                body["keyEnvelope"]!["grantId"] = Guid.Empty.ToString();
+                break;
+            case "numericEnvelopeGrant":
+                body["keyEnvelope"]!["grantId"] = 7;
+                break;
+            case "arrayEnvelope":
+                body["keyEnvelope"] = new System.Text.Json.Nodes.JsonArray();
+                break;
+            case "unknownEnvelope":
+                body["keyEnvelope"]!["ownerId"] = actor.ToString();
+                break;
+            case "caseEpoch":
+                body["keyEnvelope"]!.AsObject().Remove("keyEpoch");
+                body["keyEnvelope"]!["KeyEpoch"] = 1;
+                break;
+            case "stringEpoch":
+                body["keyEnvelope"]!["keyEpoch"] = "1";
+                break;
         }
         var json = body.ToJsonString();
-        if (kind == "duplicateRevision") json = json.Insert(1, "\"expectedRevision\":null,");
-        if (kind == "duplicateEpoch") json = json.Replace("\"keyEpoch\":1", "\"keyEpoch\":1,\"keyEpoch\":1");
+        if (kind == "duplicateRevision")
+            json = json.Insert(1, "\"expectedRevision\":null,");
+        if (kind == "duplicateEpoch")
+            json = json.Replace("\"keyEpoch\":1", "\"keyEpoch\":1,\"keyEpoch\":1");
         AssertRejectedJson(json);
     }
 

@@ -15,10 +15,14 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
     public async Task<SyncDownloadResult> DownloadAsync(SyncDownloadRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request is null) return new(Error: "validation_failed");
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.AccessVerifier)) return new(Error: "vault_access_required");
-        if (request.PageSize <= 0 || request.PageSize > options.MaxPageSize) return new(Error: "validation_failed");
+        if (request is null)
+            return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.AccessVerifier))
+            return new(Error: "vault_access_required");
+        if (request.PageSize <= 0 || request.PageSize > options.MaxPageSize)
+            return new(Error: "validation_failed");
         if (!TimeSpan.TryParseExact(options.SyncRetention, "c", CultureInfo.InvariantCulture, out var retention) || retention <= TimeSpan.Zero)
             return new(Error: "persistence_unavailable");
         try
@@ -26,26 +30,36 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
             await using var db = await factory.CreateDbContextAsync(ct);
             await using var tx = await db.Database.BeginTransactionAsync(ct);
             var initial = await ReadScope(db, request, ct);
-            var error = AuthorityError(initial); if (error is not null) return new(Error: error);
+            var error = AuthorityError(initial);
+            if (error is not null)
+                return new(Error: error);
             var original = initial!;
             var accounts = original.ForeignOwners.Append(original.AccountId).Distinct().ToArray();
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE public_id=ANY({accounts}) ORDER BY public_id FOR SHARE", ct);
-            error = RecheckError(await ReadScope(db, request, ct), original); if (error is not null) return new(Error: error);
+            error = RecheckError(await ReadScope(db, request, ct), original);
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE id={original.SessionId} AND account_id={original.OwnerId} FOR SHARE", ct);
-            error = RecheckError(await ReadScope(db, request, ct), original); if (error is not null) return new(Error: error);
+            error = RecheckError(await ReadScope(db, request, ct), original);
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE id={original.ProfileInternalId} AND account_id={original.OwnerId} FOR SHARE", ct);
             var lockedScope = await ReadScope(db, request, ct);
-            error = RecheckError(lockedScope, original); if (error is not null) return new(Error: error);
+            error = RecheckError(lockedScope, original);
+            if (error is not null)
+                return new(Error: error);
             var scope = lockedScope!;
             SyncDownloadResult Reset() => new(new(scope.AccountId, scope.ProfileId, scope.PolicyRevision, scope.Generation,
                 scope.DatabaseNow, [], null, false, true, true));
-            if (request.InvalidCursor || request.Checkpoint is { } invalid && (!invalid.IsValid() || invalid.ProfileId != scope.ProfileId)) return Reset();
+            if (request.InvalidCursor || request.Checkpoint is { } invalid && (!invalid.IsValid() || invalid.ProfileId != scope.ProfileId))
+                return Reset();
 
             SyncStream stream;
             var fresh = request.Checkpoint is null;
             if (fresh)
             {
-                if (retention > DateTimeOffset.MaxValue - scope.DatabaseNow) return new(Error: "persistence_unavailable");
+                if (retention > DateTimeOffset.MaxValue - scope.DatabaseNow)
+                    return new(Error: "persistence_unavailable");
                 stream = new()
                 {
                     PublicId = Guid.NewGuid(),
@@ -55,20 +69,27 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
                     ExpiresAt = scope.DatabaseNow + retention,
                     PageSize = request.PageSize
                 };
-                db.SyncStreams.Add(stream); await db.SaveChangesAsync(ct);
+                db.SyncStreams.Add(stream);
+                await db.SaveChangesAsync(ct);
             }
             else
             {
                 var cp = request.Checkpoint!;
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.sync_stream WHERE public_id={cp.StreamId} AND account_id={scope.OwnerId} AND profile_id={scope.ProfileInternalId} FOR UPDATE", ct);
                 scope = (await ReadScope(db, request, ct))!;
-                error = RecheckError(scope, original); if (error is not null) return new(Error: error);
+                error = RecheckError(scope, original);
+                if (error is not null)
+                    return new(Error: error);
                 var saved = await db.SyncStreams.SingleOrDefaultAsync(x => x.PublicId == cp.StreamId && x.AccountId == scope.OwnerId && x.ProfileId == scope.ProfileInternalId, ct);
-                if (saved is null) return Reset();
+                if (saved is null)
+                    return Reset();
                 stream = saved;
                 if (stream.ExpiresAt <= scope.DatabaseNow)
                 {
-                    db.SyncStreams.Remove(stream); await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return Reset();
+                    db.SyncStreams.Remove(stream);
+                    await db.SaveChangesAsync(ct);
+                    await tx.CommitAsync(ct);
+                    return Reset();
                 }
                 if (stream.CreatedAt > scope.DatabaseNow || stream.ExpiresAt <= stream.CreatedAt || stream.PublicId == Guid.Empty
                     || !SyncResourceData.Safe(stream.WindowVersion) || stream.Boundary is < 0 or > ProtocolBinary.MaxInteger
@@ -76,7 +97,8 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
                     || stream.WindowComplete != (stream.LastAfter == stream.Boundary))
                     return new(Error: "persistence_unavailable");
                 if (stream.PageSize != request.PageSize || cp.WindowVersion != stream.WindowVersion || cp.Boundary != stream.Boundary
-                    || cp.After > stream.LastAfter || stream.WindowComplete && stream.LastAfter != stream.Boundary) return Reset();
+                    || cp.After > stream.LastAfter || stream.WindowComplete && stream.LastAfter != stream.Boundary)
+                    return Reset();
             }
             // Shared recipient writers lock admitted collections FOR SHARE before
             // editing payload/sequence. Account roots alone do not serialize those
@@ -89,16 +111,21 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
                 ORDER BY c.public_id FOR NO KEY UPDATE OF c
                 """, ct);
             scope = (await ReadScope(db, request, ct))!;
-            error = RecheckError(scope, original); if (error is not null) return new(Error: error);
+            error = RecheckError(scope, original);
+            if (error is not null)
+                return new(Error: error);
             var current = await CurrentSyncInventory.ReadAsync(db, factory, request, scope.OwnerId, scope.ProfileId, ct);
-            if (current.Error is not null) return new(Error: current.Error);
+            if (current.Error is not null)
+                return new(Error: current.Error);
             var visible = current.Items!;
             var visibility = VisibilityStamp(scope, visible);
             if (!fresh && (!stream.WindowComplete || request.Checkpoint!.After < stream.Boundary)
-                && !CryptographicOperations.FixedTimeEquals(stream.VisibilityStamp, visibility)) return Reset();
+                && !CryptographicOperations.FixedTimeEquals(stream.VisibilityStamp, visibility))
+                return Reset();
             var known = await db.SyncInventories.Where(x => x.StreamId == stream.Id).ToListAsync(ct);
             if (known.Any(x => x.Fingerprint.Length != 32 || !TerminalResourceIdentity(x.ResourceKind, x.ResourceId)
-                || x.Terminal && x.Visible)) return new(Error: "persistence_unavailable");
+                || x.Terminal && x.Visible))
+                return new(Error: "persistence_unavailable");
             var inventory = known.ToDictionary(x => new SyncResourceIdentity(x.ResourceKind, x.ResourceId));
             var startWindow = fresh || stream.WindowComplete && request.Checkpoint!.After == stream.Boundary;
             long after = fresh ? 0 : request.Checkpoint!.After;
@@ -112,36 +139,45 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
                 foreach (var k in known)
                 {
                     var identity = new SyncResourceIdentity(k.ResourceKind, k.ResourceId);
-                    if (visible.ContainsKey(identity)) continue;
+                    if (visible.ContainsKey(identity))
+                        continue;
                     if (erased.TryGetValue(identity, out var terminal) && !k.Terminal)
                         removals.Add(new() { ResourceKind = k.ResourceKind, ResourceId = k.ResourceId, EventType = "permanently-deleted", DeletedAt = terminal.DeletedAt });
-                    else if (k.Visible) removals.Add(new() { ResourceKind = k.ResourceKind, ResourceId = k.ResourceId, EventType = "removed" });
+                    else if (k.Visible)
+                        removals.Add(new() { ResourceKind = k.ResourceKind, ResourceId = k.ResourceId, EventType = "removed" });
                 }
                 var upserts = visible.Where(x => !inventory.TryGetValue(x.Key, out var previous) || !previous.Visible
                     || !CryptographicOperations.FixedTimeEquals(previous.Fingerprint, CurrentSyncInventory.Fingerprint(x.Value)))
                     .Select(x => new SyncChange { ResourceKind = x.Key.Kind, ResourceId = x.Key.Id, EventType = "upsert" }).ToList();
                 if (!fresh && removals.Count + upserts.Count > 0)
                 {
-                    if (stream.WindowVersion == ProtocolBinary.MaxInteger) return Reset();
+                    if (stream.WindowVersion == ProtocolBinary.MaxInteger)
+                        return Reset();
                     stream.WindowVersion++;
                 }
                 stream.VisibilityStamp = visibility;
                 if (removals.Count + upserts.Count > 0)
                 {
-                    foreach (var change in removals.Concat(upserts)) { change.StreamId = stream.Id; change.WindowVersion = stream.WindowVersion; }
+                    foreach (var change in removals.Concat(upserts))
+                    { change.StreamId = stream.Id; change.WindowVersion = stream.WindowVersion; }
                     // Separate save phases guarantee all removal sequences precede
                     // upserts, independent of provider batch insertion ordering.
-                    db.SyncChanges.AddRange(removals); await db.SaveChangesAsync(ct);
-                    db.SyncChanges.AddRange(upserts); await db.SaveChangesAsync(ct);
+                    db.SyncChanges.AddRange(removals);
+                    await db.SaveChangesAsync(ct);
+                    db.SyncChanges.AddRange(upserts);
+                    await db.SaveChangesAsync(ct);
                     var generated = removals.Concat(upserts).Select(x => x.Sequence).ToArray();
                     if (generated.Any(x => !SyncResourceData.Safe(x) || x <= previousBoundary)
                         || generated.Distinct().Count() != generated.Length
                         || removals.Count > 0 && upserts.Count > 0 && removals.Max(x => x.Sequence) >= upserts.Min(x => x.Sequence))
                         return new(Error: "persistence_unavailable");
                     stream.Boundary = generated.Max();
-                    stream.LastAfter = 0; stream.WindowComplete = false; after = 0;
+                    stream.LastAfter = 0;
+                    stream.WindowComplete = false;
+                    after = 0;
                 }
-                else { stream.WindowComplete = true; stream.LastAfter = stream.Boundary; after = stream.Boundary; }
+                else
+                { stream.WindowComplete = true; stream.LastAfter = stream.Boundary; after = stream.Boundary; }
             }
             var descriptors = await db.SyncChanges.Where(x => x.StreamId == stream.Id && x.WindowVersion == stream.WindowVersion
                 && x.Sequence > after && x.Sequence <= stream.Boundary).OrderBy(x => x.Sequence).Take(request.PageSize + 1).ToListAsync(ct);
@@ -151,30 +187,42 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
             {
                 var identity = new SyncResourceIdentity(d.ResourceKind, d.ResourceId);
                 SyncResourceData? data = null;
-                if (d.EventType == "upsert" && !visible.TryGetValue(identity, out data)) return Reset();
+                if (d.EventType == "upsert" && !visible.TryGetValue(identity, out data))
+                    return Reset();
                 var item = new SyncChangeItem(d.Sequence, d.ResourceKind, d.ResourceId, d.EventType, data, d.DeletedAt);
-                if (!item.IsValid(request.Actor, scope.ProfileId)) return new(Error: "persistence_unavailable");
+                if (!item.IsValid(request.Actor, scope.ProfileId))
+                    return new(Error: "persistence_unavailable");
                 items.Add(item);
                 if (!inventory.TryGetValue(identity, out var entry))
                 {
-                    if (data is null) return new(Error: "persistence_unavailable");
+                    if (data is null)
+                        return new(Error: "persistence_unavailable");
                     entry = new() { StreamId = stream.Id, ResourceKind = d.ResourceKind, ResourceId = d.ResourceId, Fingerprint = CurrentSyncInventory.Fingerprint(data) };
-                    db.SyncInventories.Add(entry); inventory.Add(identity, entry);
+                    db.SyncInventories.Add(entry);
+                    inventory.Add(identity, entry);
                 }
                 if (data is not null)
                 {
-                    if (entry.Terminal) return new(Error: "persistence_unavailable");
-                    entry.Fingerprint = CurrentSyncInventory.Fingerprint(data); entry.Visible = true;
+                    if (entry.Terminal)
+                        return new(Error: "persistence_unavailable");
+                    entry.Fingerprint = CurrentSyncInventory.Fingerprint(data);
+                    entry.Visible = true;
                 }
-                else { entry.Visible = false; entry.Terminal |= d.EventType == "permanently-deleted"; }
+                else
+                { entry.Visible = false; entry.Terminal |= d.EventType == "permanently-deleted"; }
             }
             var last = items.Count > 0 ? items[^1].Sequence : after;
-            if (!more && last != stream.Boundary) return new(Error: "persistence_unavailable");
-            stream.LastAfter = Math.Max(stream.LastAfter, last); stream.WindowComplete = stream.LastAfter == stream.Boundary;
+            if (!more && last != stream.Boundary)
+                return new(Error: "persistence_unavailable");
+            stream.LastAfter = Math.Max(stream.LastAfter, last);
+            stream.WindowComplete = stream.LastAfter == stream.Boundary;
             await db.SaveChangesAsync(ct);
             var final = await ReadScope(db, request, ct);
-            error = RecheckError(final, original); if (error is not null) return new(Error: error);
-            if (stream.ExpiresAt <= final!.DatabaseNow) { scope = final; return Reset(); }
+            error = RecheckError(final, original);
+            if (error is not null)
+                return new(Error: error);
+            if (stream.ExpiresAt <= final!.DatabaseNow)
+            { scope = final; return Reset(); }
             await tx.CommitAsync(ct);
             return new(new(final!.AccountId, final.ProfileId, final.PolicyRevision, final.Generation, final.DatabaseNow, items,
                 new(final.ProfileId, stream.PublicId, stream.WindowVersion, last, stream.Boundary), more, fresh, false));
@@ -201,15 +249,20 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
     }, CurrentSyncInventory.Json));
     private static string? AuthorityError(Scope? s)
     {
-        if (s is null || !s.ActorActive) return "not_found";
-        if (!s.Allowed) return "vault_access_denied";
+        if (s is null || !s.ActorActive)
+            return "not_found";
+        if (!s.Allowed)
+            return "vault_access_denied";
         if (s.AccountId == Guid.Empty || s.ProfileId == Guid.Empty || !SyncResourceData.Safe(s.PolicyRevision)
-            || !SyncResourceData.Safe(s.Generation) || !SyncResourceData.Safe(s.ProfileRevision)) return "persistence_unavailable";
+            || !SyncResourceData.Safe(s.Generation) || !SyncResourceData.Safe(s.ProfileRevision))
+            return "persistence_unavailable";
         return null;
     }
     private static string? RecheckError(Scope? current, Scope captured)
     {
-        var error = AuthorityError(current); if (error is not null) return error;
+        var error = AuthorityError(current);
+        if (error is not null)
+            return error;
         return current!.OwnerId != captured.OwnerId || current.AccountId != captured.AccountId || current.SessionId != captured.SessionId
             || current.ProfileInternalId != captured.ProfileInternalId || current.ProfileId != captured.ProfileId
             || current.ProfileRevision != captured.ProfileRevision || current.PolicyRevision != captured.PolicyRevision

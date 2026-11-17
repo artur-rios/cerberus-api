@@ -37,6 +37,7 @@ internal static class RetentionMaintenanceRights
                 WHERE NOT has_table_privilege(current_user,'cerberus.'||required.table_name,p.permission)
               ) AS "Value"
             """).SingleAsync(ct);
-        if (!permitted) throw new UnauthorizedAccessException("Retention execution rights are unavailable.");
+        if (!permitted)
+            throw new UnauthorizedAccessException("Retention execution rights are unavailable.");
     }
 }

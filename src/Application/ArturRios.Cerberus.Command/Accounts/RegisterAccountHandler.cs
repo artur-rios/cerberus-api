@@ -19,7 +19,8 @@ public sealed class RegisterAccountHandler(IValidator<RegisterAccountCommand> va
     public async Task<DataOutput<RegisterAccountOutput?>> HandleAsync(RegisterAccountCommand command, CancellationToken cancellationToken = default)
     {
         var output = DataOutput<RegisterAccountOutput?>.New;
-        if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
+        if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid)
+            return output.WithError("validation_failed");
         var key = Encoding.UTF8.GetBytes(options.RegistrationFingerprintKey!);
         var input = JsonSerializer.SerializeToUtf8Bytes(new object[]
         {
@@ -49,7 +50,8 @@ public sealed class RegisterAccountHandler(IValidator<RegisterAccountCommand> va
         }
         var result = await store.RegisterAsync(request,
             token => identity.EstablishRegistrationIdentityAsync(command.Identity, command.IdentityToken, token), cancellationToken);
-        if (result.Error is not null) return output.WithError(result.Error);
+        if (result.Error is not null)
+            return output.WithError(result.Error);
         return output.WithData(new RegisterAccountOutput { Id = result.AccountId!.Value, Revision = result.Revision, Replayed = result.Replayed })
             .WithMessage(result.Replayed ? "account_registration_replayed" : "account_registered");
     }

@@ -26,7 +26,8 @@ public class AccountAuthenticationStoreTests(PostgresFixture fixture) : IClassFi
                 Revision = 7,
                 State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
             });
-            if (state == "erased") setup.TerminalErasures.Add(new TerminalErasure { ResourceId = accountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
+            if (state == "erased")
+                setup.TerminalErasures.Add(new TerminalErasure { ResourceId = accountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await setup.SaveChangesAsync();
         }
         var result = await new AccountAuthenticationStore(fixture).FindAsync(identity, default);
@@ -36,7 +37,8 @@ public class AccountAuthenticationStoreTests(PostgresFixture fixture) : IClassFi
             Assert.Equal(accountId, result.Account!.Id);
             Assert.Equal(7, result.Account.Revision);
         }
-        else Assert.Null(result.Account);
+        else
+            Assert.Null(result.Account);
         await using var after = fixture.CreateContext();
         Assert.Equal(7, (await after.Accounts.SingleAsync(x => x.PublicId == accountId)).Revision);
     }

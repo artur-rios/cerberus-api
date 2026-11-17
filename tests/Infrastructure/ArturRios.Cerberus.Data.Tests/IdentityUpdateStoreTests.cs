@@ -39,8 +39,10 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
             _ => { called = true; return Task.FromResult(Success(input.Identity)); }, default);
         Assert.Equal(error, result.Error);
         Assert.Equal(error is null, called);
-        if (error is null) Assert.Equal(input.Identity, result.Identity!.Id);
-        else Assert.Null(result.Identity);
+        if (error is null)
+            Assert.Equal(input.Identity, result.Identity!.Id);
+        else
+            Assert.Null(result.Identity);
         Assert.Equal(before, await Snapshot(input.Id, input.Verifier));
     }
 
@@ -101,10 +103,14 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
         {
             await using var competing = fixture.CreateContext();
             var account = await competing.Accounts.SingleAsync(x => x.PublicId == input.Id);
-            if (change == "closure") account.State = AccountState.ClosurePending;
-            if (change == "policy") account.PolicyRevision++;
-            if (change == "revocation") (await competing.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == input.Verifier)).Revoked = true;
-            if (change == "erasure") competing.TerminalErasures.Add(new TerminalErasure { ResourceId = input.Id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
+            if (change == "closure")
+                account.State = AccountState.ClosurePending;
+            if (change == "policy")
+                account.PolicyRevision++;
+            if (change == "revocation")
+                (await competing.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == input.Verifier)).Revoked = true;
+            if (change == "erasure")
+                competing.TerminalErasures.Add(new TerminalErasure { ResourceId = input.Id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await competing.SaveChangesAsync();
         });
         var called = false;
@@ -156,7 +162,8 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
         var input = await Setup();
         var before = await Snapshot(input.Id, input.Verifier);
         using var cancelled = new CancellationTokenSource();
-        if (!during) cancelled.Cancel();
+        if (!during)
+            cancelled.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new IdentityUpdateStore(fixture).UpdateAsync(input.Identity, input.Verifier,
             ct => { cancelled.Cancel(); ct.ThrowIfCancellationRequested(); return Task.FromResult(Success(input.Identity)); }, cancelled.Token));
         Assert.Equal(before, await Snapshot(input.Id, input.Verifier));
@@ -188,18 +195,20 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
             await context.SaveChangesAsync();
             sessionOwner = other.Id;
         }
-        if (state != "missingSession") context.VaultAccessSessions.Add(new VaultAccessSession
-        {
-            AccountId = sessionOwner,
-            HandleVerifier = verifier,
-            ProfileId = state == "profile" ? 42 : null,
-            IssuedAt = state == "future" ? now.AddHours(1) : now.AddMinutes(-5),
-            ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expired" ? now.AddMinutes(-1) : now.AddMinutes(5),
-            Revoked = state == "revoked",
-            PolicyRevision = state == "stalePolicy" ? 0 : 1,
-            RevocationGeneration = state == "staleGeneration" ? 0 : 1
-        });
-        if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = now });
+        if (state != "missingSession")
+            context.VaultAccessSessions.Add(new VaultAccessSession
+            {
+                AccountId = sessionOwner,
+                HandleVerifier = verifier,
+                ProfileId = state == "profile" ? 42 : null,
+                IssuedAt = state == "future" ? now.AddHours(1) : now.AddMinutes(-5),
+                ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expired" ? now.AddMinutes(-1) : now.AddMinutes(5),
+                Revoked = state == "revoked",
+                PolicyRevision = state == "stalePolicy" ? 0 : 1,
+                RevocationGeneration = state == "staleGeneration" ? 0 : 1
+            });
+        if (state == "erased")
+            context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = now });
         await context.SaveChangesAsync();
         return (id, identity, verifier);
     }

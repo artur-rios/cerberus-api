@@ -40,7 +40,9 @@ public class ListRecordsHandlerTests
             kind switch { "zero" => 0, "negative" => -1, "large" => 101, _ => null },
             kind switch { "empty" => "", "cursor" => "invalid", "huge" => new string('A', 2049), "paddedCursor" => "AAAA=", _ => null });
         var result = await Handler(store).HandleAsync(query);
-        Assert.Contains(error, result.Errors); Assert.Null(result.Data); store.VerifyNoOtherCalls();
+        Assert.Contains(error, result.Errors);
+        Assert.Null(result.Data);
+        store.VerifyNoOtherCalls();
     }
 
     [UnitTheory]
@@ -51,38 +53,51 @@ public class ListRecordsHandlerTests
     [InlineData(int.MaxValue, int.MaxValue, int.MaxValue)]
     public async Task GivenValidPageBound_WhenListing_ThenForwardHashBoundAndCallerToken(int? requested, int maximum, int expected)
     {
-        var options = Options(); options.MaxPageSize = maximum;
-        using var ct = new CancellationTokenSource(); var store = new Mock<IRecordListStore>(MockBehavior.Strict);
+        var options = Options();
+        options.MaxPageSize = maximum;
+        using var ct = new CancellationTokenSource();
+        var store = new Mock<IRecordListStore>(MockBehavior.Strict);
         store.Setup(x => x.ListAsync(new(Actor, Verifier, expected, 0, null), ct.Token))
             .ReturnsAsync(new VaultResult<RecordListPage>(new([], 0, false)));
         var result = await new ListRecordsHandler(store.Object, options, new(options)).HandleAsync(new(Actor, Access, requested, null), ct.Token);
-        Assert.True(result.Success); Assert.Contains("records_found", result.Messages);
-        Assert.Empty(result.Data!.Items); Assert.Null(result.Data.NextCursor); store.VerifyAll();
+        Assert.True(result.Success);
+        Assert.Contains("records_found", result.Messages);
+        Assert.Empty(result.Data!.Items);
+        Assert.Null(result.Data.NextCursor);
+        store.VerifyAll();
     }
 
     [UnitFact]
     public async Task GivenPermittedPage_WhenContinuing_ThenReturnOnlyFiveItemFieldsAndBoundOpaqueCursor()
     {
-        var row = Row(1); var store = new Mock<IRecordListStore>(MockBehavior.Strict);
+        var row = Row(1);
+        var store = new Mock<IRecordListStore>(MockBehavior.Strict);
         store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 0, null), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new VaultResult<RecordListPage>(new([row], 3, true)));
         store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 1, 3), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new VaultResult<RecordListPage>(new([Row(3)], 3, false)));
-        var handler = Handler(store); var result = await handler.HandleAsync(new(Actor, Access, 1, null));
-        Assert.True(result.Success); var item = Assert.Single(result.Data!.Items);
-        Assert.Equal(row.RecordId, item.RecordId); Assert.Equal(row.Revision, item.Revision);
-        Assert.Equal(row.ServerSequence, item.ServerSequence); Assert.Equal(row.EditedAt, item.EditedAt);
+        var handler = Handler(store);
+        var result = await handler.HandleAsync(new(Actor, Access, 1, null));
+        Assert.True(result.Success);
+        var item = Assert.Single(result.Data!.Items);
+        Assert.Equal(row.RecordId, item.RecordId);
+        Assert.Equal(row.Revision, item.Revision);
+        Assert.Equal(row.ServerSequence, item.ServerSequence);
+        Assert.Equal(row.EditedAt, item.EditedAt);
         Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json), item.Envelope);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, ProtectionFixture.Json));
         Assert.Equal(new[] { "items", "nextCursor" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
         Assert.Equal(new[] { "editedAt", "envelope", "recordId", "revision", "serverSequence" },
             json.RootElement.GetProperty("items")[0].EnumerateObject().Select(x => x.Name).Order());
         var cursor = Assert.IsType<string>(result.Data.NextCursor);
-        Assert.DoesNotContain(Actor.ToString(), cursor); Assert.DoesNotContain(Verifier, cursor);
+        Assert.DoesNotContain(Actor.ToString(), cursor);
+        Assert.DoesNotContain(Verifier, cursor);
         Assert.True(new RecordListCursor(Options()).TryDecode(cursor, out var decoded));
         Assert.Equal(new RecordListContinuation(Actor, Verifier, 1, 1, 3), decoded);
         var next = await handler.HandleAsync(new(Actor, Access, 1, cursor));
-        Assert.True(next.Success); Assert.Equal(3, Assert.Single(next.Data!.Items).ServerSequence); Assert.Null(next.Data.NextCursor);
+        Assert.True(next.Success);
+        Assert.Equal(3, Assert.Single(next.Data!.Items).ServerSequence);
+        Assert.Null(next.Data.NextCursor);
     }
 
     [UnitTheory]
@@ -94,16 +109,21 @@ public class ListRecordsHandlerTests
     [InlineData("profilePurpose")]
     public async Task GivenCursorSubstitution_WhenContinuing_ThenRejectBeforePersistence(string kind)
     {
-        var options = Options(); var codec = new RecordListCursor(options);
+        var options = Options();
+        var codec = new RecordListCursor(options);
         var cursor = kind == "profilePurpose" ? new ProfileListCursor(options).Encode(new(Actor, Verifier, 1, 1, 3)) : codec.Encode(new(Actor, Verifier, 1, 1, 3));
-        if (kind == "tamper") { Assert.True(ProtocolBinary.TryDecode(cursor, null, out var bytes)); bytes[^1] ^= 1; cursor = ProtocolBinary.Encode(bytes); }
-        if (kind == "key") options.RegistrationFingerprintKey = new string('z', 40);
+        if (kind == "tamper")
+        { Assert.True(ProtocolBinary.TryDecode(cursor, null, out var bytes)); bytes[^1] ^= 1; cursor = ProtocolBinary.Encode(bytes); }
+        if (kind == "key")
+            options.RegistrationFingerprintKey = new string('z', 40);
         var store = new Mock<IRecordListStore>(MockBehavior.Strict);
         var result = await new ListRecordsHandler(store.Object, options, new(options)).HandleAsync(new(
             kind == "actor" ? Guid.NewGuid() : Actor,
             kind == "access" ? ProtocolBinary.Encode(Enumerable.Repeat((byte)1, 32).ToArray()) : Access,
             kind == "size" ? 2 : 1, cursor));
-        Assert.Contains("validation_failed", result.Errors); Assert.Null(result.Data); store.VerifyNoOtherCalls();
+        Assert.Contains("validation_failed", result.Errors);
+        Assert.Null(result.Data);
+        store.VerifyNoOtherCalls();
     }
 
     [UnitTheory]
@@ -126,7 +146,8 @@ public class ListRecordsHandlerTests
             kind switch { "sizeZero" => 0, "sizeNegative" => -1, _ => 1 },
             kind switch { "afterZero" => 0, "afterNegative" => -1, "afterBoundary" => 3, "afterPast" => 4, _ => 1 },
             kind switch { "boundaryUnsafe" => ProtocolBinary.MaxInteger + 1, "boundaryNegative" => -1, _ => 3 });
-        var codec = new RecordListCursor(Options()); Assert.False(codec.TryDecode(codec.Encode(tuple), out _));
+        var codec = new RecordListCursor(Options());
+        Assert.False(codec.TryDecode(codec.Encode(tuple), out _));
     }
 
     [UnitTheory]
@@ -188,7 +209,8 @@ public class ListRecordsHandlerTests
             _ => new(Error: "authentication_required")
         };
         var result = await Handler(MockStore(page!)).HandleAsync(new(Actor, Access, null, null));
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
         Assert.DoesNotContain("SELECT private table failed", result.Errors);
     }
 
@@ -215,7 +237,8 @@ public class ListRecordsHandlerTests
     [InlineData("atBoundaryMore")]
     public async Task GivenCorruptPageMetadata_WhenListing_ThenRejectWholePayload(string kind)
     {
-        var row = Row(1); row = kind switch
+        var row = Row(1);
+        row = kind switch
         {
             "id" => row with { RecordId = Guid.Empty },
             "revisionZero" => row with { Revision = 0 },
@@ -241,7 +264,8 @@ public class ListRecordsHandlerTests
         var boundary = kind switch { "boundaryNegative" => -1, "boundaryUnsafe" => ProtocolBinary.MaxInteger + 1, "outsideBoundary" => 0, "atBoundaryMore" => 1, _ => 100 };
         var result = await Handler(MockStore(new(new(rows, boundary, kind is "emptyMore" or "shortMore" or "atBoundaryMore"))))
             .HandleAsync(new(Actor, Access, kind == "atBoundaryMore" ? 1 : null, null));
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
 
     [UnitTheory]
@@ -262,7 +286,8 @@ public class ListRecordsHandlerTests
     [InlineData("padded")]
     public async Task GivenCorruptNativeEnvelope_WhenListing_ThenRejectEveryItemWithoutPartialPayload(string kind)
     {
-        var row = Row(2); var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json)!;
+        var row = Row(2);
+        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, ProtectionFixture.Json)!;
         envelope = kind switch
         {
             "format" => envelope with { Format = "foreign" },
@@ -288,7 +313,8 @@ public class ListRecordsHandlerTests
         };
         row = row with { Envelope = kind == "nullBytes" ? null! : Encoding.UTF8.GetBytes(json) };
         var result = await Handler(MockStore(new(new([Row(1), row], 2, false)))).HandleAsync(new(Actor, Access, null, null));
-        Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
 
     [UnitTheory]
@@ -301,7 +327,9 @@ public class ListRecordsHandlerTests
         var store = new Mock<IRecordListStore>(MockBehavior.Strict);
         store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 1, 3), It.IsAny<CancellationToken>())).ReturnsAsync(
             new VaultResult<RecordListPage>(new([Row(kind == "afterRepeated" ? 1 : 2)], kind == "boundaryChanged" ? 4 : kind == "boundaryBehind" ? 0 : 3, false)));
-        var result = await Handler(store).HandleAsync(new(Actor, Access, 1, cursor)); Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        var result = await Handler(store).HandleAsync(new(Actor, Access, 1, cursor));
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
 
     [UnitFact]
@@ -311,7 +339,8 @@ public class ListRecordsHandlerTests
     [UnitFact]
     public async Task GivenStoreCancellation_WhenListing_ThenPropagateSameCallerToken()
     {
-        using var ct = new CancellationTokenSource(); var store = new Mock<IRecordListStore>(MockBehavior.Strict);
+        using var ct = new CancellationTokenSource();
+        var store = new Mock<IRecordListStore>(MockBehavior.Strict);
         store.Setup(x => x.ListAsync(new(Actor, Verifier, 50, 0, null), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token));
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store).HandleAsync(new(Actor, Access, null, null), ct.Token));
     }
@@ -329,8 +358,11 @@ public class ListRecordsHandlerTests
     {
         var purpose = "cerberus-record-list-cursor-v1"u8.ToArray();
         var key = HMACSHA256.HashData(Encoding.UTF8.GetBytes(Options().RegistrationFingerprintKey!), purpose);
-        var bytes = Encoding.UTF8.GetBytes(plaintext); var encoded = new byte[28 + bytes.Length]; RandomNumberGenerator.Fill(encoded.AsSpan(0, 12));
-        using var aes = new AesGcm(key, 16); aes.Encrypt(encoded.AsSpan(0, 12), bytes, encoded.AsSpan(28), encoded.AsSpan(12, 16), purpose);
+        var bytes = Encoding.UTF8.GetBytes(plaintext);
+        var encoded = new byte[28 + bytes.Length];
+        RandomNumberGenerator.Fill(encoded.AsSpan(0, 12));
+        using var aes = new AesGcm(key, 16);
+        aes.Encrypt(encoded.AsSpan(0, 12), bytes, encoded.AsSpan(28), encoded.AsSpan(12, 16), purpose);
         return ProtocolBinary.Encode(encoded);
     }
 }

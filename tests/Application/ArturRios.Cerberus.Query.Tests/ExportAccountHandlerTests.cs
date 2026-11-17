@@ -32,7 +32,8 @@ public sealed class ExportAccountHandlerTests
         var query = new ExportAccountQuery(invalid == "actor" ? Guid.Empty : Actor, invalid == "zeroIat" ? 0 : invalid == "negativeIat" ? -1 : Now.ToUnixTimeSeconds(), access, 3);
         // When/Then: reject without producing an export lease.
         var result = await new ExportAccountHandler(store.Object).HandleAsync(query);
-        Assert.Equal([error], result.Errors); Assert.Null(result.Data);
+        Assert.Equal([error], result.Errors);
+        Assert.Null(result.Data);
     }
 
     [UnitTheory]
@@ -46,7 +47,8 @@ public sealed class ExportAccountHandlerTests
         var result = await new ExportAccountHandler(new Mock<IAccountExportStore>(MockBehavior.Strict).Object)
             .HandleAsync(new(Actor, Now.ToUnixTimeSeconds(), Handle, revision));
         // Then: no archive is disclosed.
-        Assert.Equal(["validation_failed"], result.Errors); Assert.Null(result.Data);
+        Assert.Equal(["validation_failed"], result.Errors);
+        Assert.Null(result.Data);
     }
 
     [UnitTheory]
@@ -56,13 +58,16 @@ public sealed class ExportAccountHandlerTests
     public async Task GivenCurrentOwner_WhenExporting_ThenBindHashedAccessAndTransferTheOwningLease(long revision)
     {
         // Given: an independently hand-checked SHA256 of the 32 zero handle bytes.
-        var lease = new Lease(Header with { Revision = revision }); var store = new Mock<IAccountExportStore>(MockBehavior.Strict);
+        var lease = new Lease(Header with { Revision = revision });
+        var store = new Mock<IAccountExportStore>(MockBehavior.Strict);
         store.Setup(x => x.OpenAsync(It.Is<AccountExportRequest>(r => r.Actor == Actor && r.AccessVerifier == Verifier
             && r.AuthenticationIssuedAt == Now.ToUnixTimeSeconds() && r.ExpectedRevision == revision), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AccountExportOpenResult(lease));
         // When/Then: preserve ownership for the streaming consumer, without disposal.
         var result = await new ExportAccountHandler(store.Object).HandleAsync(new(Actor, Now.ToUnixTimeSeconds(), Handle, revision));
-        Assert.True(result.Success); Assert.Same(lease, result.Data!.Lease); Assert.False(lease.Disposed);
+        Assert.True(result.Success);
+        Assert.Same(lease, result.Data!.Lease);
+        Assert.False(lease.Disposed);
     }
 
     [UnitTheory]
@@ -79,7 +84,8 @@ public sealed class ExportAccountHandlerTests
         // Given/When: the store has not transferred a lease.
         var result = await Handler(new(Error: error)).HandleAsync(Query);
         // Then: no ciphertext or internal stream object accompanies the refusal.
-        Assert.Equal([error], result.Errors); Assert.Null(result.Data);
+        Assert.Equal([error], result.Errors);
+        Assert.Null(result.Data);
     }
 
     [UnitTheory]
@@ -93,8 +99,10 @@ public sealed class ExportAccountHandlerTests
         var source = new AccountExportOpenResult(lease, kind == "empty" ? null : kind == "mixed" ? "not_found" : "private-sql-credential");
         // When/Then: whitelist the failure and release any owned reader.
         var result = await Handler(source).HandleAsync(Query);
-        Assert.Equal(["persistence_unavailable"], result.Errors); Assert.Null(result.Data);
-        if (lease is not null) Assert.True(lease.Disposed);
+        Assert.Equal(["persistence_unavailable"], result.Errors);
+        Assert.Null(result.Data);
+        if (lease is not null)
+            Assert.True(lease.Disposed);
     }
 
     [UnitTheory]
@@ -135,7 +143,9 @@ public sealed class ExportAccountHandlerTests
         var lease = new Lease(header!);
         // When/Then: fail without exposing even the foreign header and close the reader.
         var result = await Handler(new(lease)).HandleAsync(Query);
-        Assert.Equal(["persistence_unavailable"], result.Errors); Assert.Null(result.Data); Assert.True(lease.Disposed);
+        Assert.Equal(["persistence_unavailable"], result.Errors);
+        Assert.Null(result.Data);
+        Assert.True(lease.Disposed);
     }
 
     [UnitFact]
@@ -145,7 +155,9 @@ public sealed class ExportAccountHandlerTests
         var lease = new Lease(Header with { RenewalEnabled = false, RenewalIntervalSeconds = null });
         var result = await Handler(new(lease)).HandleAsync(Query);
         // Then: the original captured policy/reader is preserved.
-        Assert.True(result.Success); Assert.Same(lease, result.Data!.Lease); Assert.False(lease.Disposed);
+        Assert.True(result.Success);
+        Assert.Same(lease, result.Data!.Lease);
+        Assert.False(lease.Disposed);
     }
 
     [UnitFact]
@@ -155,14 +167,17 @@ public sealed class ExportAccountHandlerTests
         var lease = new Lease(Header with { IdentityId = Foreign }) { ThrowOnDispose = true };
         var result = await Handler(new(lease)).HandleAsync(Query);
         // Then: stable failure and attempted resource release.
-        Assert.Equal(["persistence_unavailable"], result.Errors); Assert.Null(result.Data); Assert.True(lease.Disposed);
+        Assert.Equal(["persistence_unavailable"], result.Errors);
+        Assert.Null(result.Data);
+        Assert.True(lease.Disposed);
     }
 
     [UnitFact]
     public async Task GivenCallerCancellation_WhenExporting_ThenPropagateItBeforeOpeningPersistence()
     {
         // Given/When/Then: caller cancellation must not become a successful empty archive.
-        using var ct = new CancellationTokenSource(); ct.Cancel();
+        using var ct = new CancellationTokenSource();
+        ct.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new ExportAccountHandler(new Mock<IAccountExportStore>(MockBehavior.Strict).Object).HandleAsync(Query, ct.Token));
     }
 
@@ -170,7 +185,8 @@ public sealed class ExportAccountHandlerTests
     public async Task GivenCancellationWhileOpening_WhenExporting_ThenPropagateTheOriginalCancellation()
     {
         // Given: the persistence boundary cancels the in-flight request.
-        using var ct = new CancellationTokenSource(); var store = new Mock<IAccountExportStore>(MockBehavior.Strict);
+        using var ct = new CancellationTokenSource();
+        var store = new Mock<IAccountExportStore>(MockBehavior.Strict);
         store.Setup(x => x.OpenAsync(It.IsAny<AccountExportRequest>(), ct.Token)).Returns(() => { ct.Cancel(); return Task.FromCanceled<AccountExportOpenResult>(ct.Token); });
         // When/Then: the cancellation remains visible to request lifetime management.
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new ExportAccountHandler(store.Object).HandleAsync(Query, ct.Token));
@@ -180,7 +196,9 @@ public sealed class ExportAccountHandlerTests
     public async Task GivenCancellationAtLeaseHandoff_WhenExporting_ThenDisposeTheUnpublishedReaderAndPropagate()
     {
         // Given: cancellation wins immediately after the store transfers ownership.
-        using var ct = new CancellationTokenSource(); var lease = new Lease(Header); var store = new Mock<IAccountExportStore>(MockBehavior.Strict);
+        using var ct = new CancellationTokenSource();
+        var lease = new Lease(Header);
+        var store = new Mock<IAccountExportStore>(MockBehavior.Strict);
         store.Setup(x => x.OpenAsync(It.IsAny<AccountExportRequest>(), ct.Token)).Returns(() => { ct.Cancel(); return Task.FromResult(new AccountExportOpenResult(lease)); });
         // When/Then: a canceled request must neither publish nor leak that reader.
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new ExportAccountHandler(store.Object).HandleAsync(Query, ct.Token));

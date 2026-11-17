@@ -35,11 +35,13 @@ public sealed class SoftwareSecretsController(QueryMediator queries) : Controlle
         Guid? collection = null;
         if (Request.Query.ContainsKey("collectionId"))
         {
-            if (!Canonical(collectionId, out var parsed)) return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+            if (!Canonical(collectionId, out var parsed))
+                return BadRequest(ProcessOutput.New.WithError("validation_failed"));
             collection = parsed;
         }
         var input = new SoftwareSecretInput(grant, kind ?? "", target, collection);
-        if (!input.IsValid()) return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+        if (!input.IsValid())
+            return BadRequest(ProcessOutput.New.WithError("validation_failed"));
         // The middleware authenticated these claims. The live check uses this same original bearer.
         if (!Guid.TryParse(User.FindFirst("id")?.Value, out var application) || !Guid.TryParse(User.FindFirst("scopeId")?.Value, out var scope)
             || !Guid.TryParse(User.FindFirst("credentialId")?.Value, out var credential)

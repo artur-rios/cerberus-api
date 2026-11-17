@@ -29,8 +29,10 @@ public class GrantSoftwareAccessHandlerTests
     {
         foreach (var member in new[] { "grantId", "softwareIdentityId", "expectedRevision", "recipientKey", "targets" })
             yield return ["body", member];
-        foreach (var member in new[] { "crv", "kty", "x", "y" }) yield return ["key", member];
-        foreach (var member in new[] { "kind", "id", "keyEnvelope" }) yield return ["target", member];
+        foreach (var member in new[] { "crv", "kty", "x", "y" })
+            yield return ["key", member];
+        foreach (var member in new[] { "kind", "id", "keyEnvelope" })
+            yield return ["target", member];
     }
 
     [UnitTheory]
@@ -43,8 +45,10 @@ public class GrantSoftwareAccessHandlerTests
             var node = Node(body, path);
             var value = node[member]?.DeepClone();
             node.Remove(member);
-            if (mutation == "case") node[char.ToUpperInvariant(member[0]) + member[1..]] = value;
-            if (mutation == "duplicate") node[member] = value;
+            if (mutation == "case")
+                node[char.ToUpperInvariant(member[0]) + member[1..]] = value;
+            if (mutation == "duplicate")
+                node[member] = value;
             var json = body.ToJsonString();
             if (mutation == "duplicate")
             {
@@ -173,25 +177,63 @@ public class GrantSoftwareAccessHandlerTests
         var envelope = target.KeyEnvelope;
         switch (mutation)
         {
-            case "grant": command.GrantId = Guid.Empty; break;
-            case "identity": command.SoftwareIdentityId = Guid.Empty; break;
-            case "zeroRevision": command.ExpectedRevision = 0; break;
-            case "negativeRevision": command.ExpectedRevision = -1; break;
-            case "exhaustedRevision": command.ExpectedRevision = 9007199254740991; break;
-            case "unsafeRevision": command.ExpectedRevision = long.MaxValue; break;
-            case "nullKey": command.RecipientKey = null!; break;
-            case "curve": command.RecipientKey = key with { Crv = "p-256" }; break;
-            case "keyType": command.RecipientKey = key with { Kty = "ec" }; break;
-            case "coordinate": command.RecipientKey = key with { X = key.X + "=" }; break;
-            case "offCurve": command.RecipientKey = key with { X = Handle, Y = Handle }; break;
-            case "nullTargets": command.Targets = null!; break;
-            case "emptyTargets": command.Targets = []; break;
-            case "nullTarget": command.Targets = [null!]; break;
-            case "duplicate": command.Targets = [target, target]; break;
-            case "kindCase": command.Targets = [target with { Kind = "Record" }]; break;
-            case "kindWhitespace": command.Targets = [target with { Kind = "record " }]; break;
-            case "kindUnknown": command.Targets = [target with { Kind = "folder" }]; break;
-            case "zeroTarget": command.Targets = [target with { Id = Guid.Empty }]; break;
+            case "grant":
+                command.GrantId = Guid.Empty;
+                break;
+            case "identity":
+                command.SoftwareIdentityId = Guid.Empty;
+                break;
+            case "zeroRevision":
+                command.ExpectedRevision = 0;
+                break;
+            case "negativeRevision":
+                command.ExpectedRevision = -1;
+                break;
+            case "exhaustedRevision":
+                command.ExpectedRevision = 9007199254740991;
+                break;
+            case "unsafeRevision":
+                command.ExpectedRevision = long.MaxValue;
+                break;
+            case "nullKey":
+                command.RecipientKey = null!;
+                break;
+            case "curve":
+                command.RecipientKey = key with { Crv = "p-256" };
+                break;
+            case "keyType":
+                command.RecipientKey = key with { Kty = "ec" };
+                break;
+            case "coordinate":
+                command.RecipientKey = key with { X = key.X + "=" };
+                break;
+            case "offCurve":
+                command.RecipientKey = key with { X = Handle, Y = Handle };
+                break;
+            case "nullTargets":
+                command.Targets = null!;
+                break;
+            case "emptyTargets":
+                command.Targets = [];
+                break;
+            case "nullTarget":
+                command.Targets = [null!];
+                break;
+            case "duplicate":
+                command.Targets = [target, target];
+                break;
+            case "kindCase":
+                command.Targets = [target with { Kind = "Record" }];
+                break;
+            case "kindWhitespace":
+                command.Targets = [target with { Kind = "record " }];
+                break;
+            case "kindUnknown":
+                command.Targets = [target with { Kind = "folder" }];
+                break;
+            case "zeroTarget":
+                command.Targets = [target with { Id = Guid.Empty }];
+                break;
             default:
                 envelope = mutation switch
                 {
@@ -260,7 +302,8 @@ public class GrantSoftwareAccessHandlerTests
     public async Task GivenInvalidBoundary_WhenHandling_ThenRejectBeforeIdentityLookup(string mutation, string error)
     {
         var command = Command();
-        if (mutation is "actor" or "missingAccess" or "input") command.Targets = null!;
+        if (mutation is "actor" or "missingAccess" or "input")
+            command.Targets = null!;
         command.SetContext(mutation == "actor" ? Guid.Empty : Actor, mutation switch
         {
             "actor" or "missingAccess" => null,

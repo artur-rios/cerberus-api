@@ -28,7 +28,8 @@ public sealed class SyncCursor
 
     public string Encode(SyncContinuation continuation)
     {
-        if (continuation?.IsValid() != true) throw new ArgumentException("Invalid synchronization continuation.");
+        if (continuation?.IsValid() != true)
+            throw new ArgumentException("Invalid synchronization continuation.");
         var plaintext = JsonSerializer.SerializeToUtf8Bytes(continuation, Json);
         var encoded = new byte[28 + plaintext.Length];
         RandomNumberGenerator.Fill(encoded.AsSpan(0, 12));
@@ -40,14 +41,16 @@ public sealed class SyncCursor
     public bool TryDecode(string? cursor, out SyncContinuation? continuation)
     {
         continuation = null;
-        if (cursor is null || cursor.Length > 2048 || !ProtocolBinary.TryDecode(cursor, null, out var encoded) || encoded.Length <= 28) return false;
+        if (cursor is null || cursor.Length > 2048 || !ProtocolBinary.TryDecode(cursor, null, out var encoded) || encoded.Length <= 28)
+            return false;
         try
         {
             var plaintext = new byte[encoded.Length - 28];
             using var cipher = new AesGcm(_key, 16);
             cipher.Decrypt(encoded.AsSpan(0, 12), encoded.AsSpan(28), encoded.AsSpan(12, 16), plaintext, Purpose);
             var value = JsonSerializer.Deserialize<SyncContinuation>(plaintext, Json);
-            if (value?.IsValid() != true) return false;
+            if (value?.IsValid() != true)
+                return false;
             continuation = value;
             return true;
         }

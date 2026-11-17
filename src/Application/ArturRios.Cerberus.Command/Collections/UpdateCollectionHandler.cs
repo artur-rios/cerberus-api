@@ -15,8 +15,10 @@ public sealed class UpdateCollectionHandler(IValidator<UpdateCollectionCommand> 
     {
         cancellationToken.ThrowIfCancellationRequested();
         var output = DataOutput<UpdateCollectionOutput?>.New;
-        if (command.Actor == Guid.Empty) return output.WithError("authentication_required");
-        if (command.VaultAccess is null) return output.WithError("vault_access_required");
+        if (command.Actor == Guid.Empty)
+            return output.WithError("authentication_required");
+        if (command.VaultAccess is null)
+            return output.WithError("vault_access_required");
         if (!OpaqueAccessHandle.TryHash(command.VaultAccess, out var verifier)
             || !(await validator.ValidateAsync(command, cancellationToken)).IsValid)
             return output.WithError("validation_failed");
@@ -25,7 +27,8 @@ public sealed class UpdateCollectionHandler(IValidator<UpdateCollectionCommand> 
             new(command.Actor, verifier, command.CollectionId, command.ToInput()), cancellationToken);
         if (result is null || result.Error is not null && result.Data is not null)
             return output.WithError("persistence_unavailable");
-        if (result.Error is not null) return output.WithError(CollectionUpdateMessages.SafeError(result.Error));
+        if (result.Error is not null)
+            return output.WithError(CollectionUpdateMessages.SafeError(result.Error));
 
         var data = result.Data;
         var edited = command.EditedAt.AddTicks(-(command.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));

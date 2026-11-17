@@ -18,20 +18,27 @@ public class RequestAccountClosureHandlerTests
     [InlineData("revision", "validation_failed")]
     public async Task GivenInvalidClosureContext_WhenRequesting_ThenRejectBeforePersistence(string invalid, string error)
     {
-        var c = Command(); c.SetContext(invalid == "actor" ? Guid.Empty : Actor,
+        var c = Command();
+        c.SetContext(invalid == "actor" ? Guid.Empty : Actor,
             invalid == "old" ? Now.AddMinutes(-1).ToUnixTimeSeconds() : invalid == "future" ? Now.AddSeconds(1).ToUnixTimeSeconds() : Now.ToUnixTimeSeconds());
-        if (invalid == "revision") c.ExpectedRevision = 0;
+        if (invalid == "revision")
+            c.ExpectedRevision = 0;
         var result = await new RequestAccountClosureHandler(new Mock<IAccountClosureStore>(MockBehavior.Strict).Object, new Clock()).HandleAsync(c);
-        Assert.Contains(error, result.Errors); Assert.Null(result.Data);
+        Assert.Contains(error, result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitTheory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task GivenCommittedOrOriginalPendingDeadline_WhenHandling_ThenReturnOnlyValidatedMetadata(bool replay)
     {
-        var details = Details(replay); var result = await Handler(new(details)).HandleAsync(Command());
-        Assert.True(result.Success); Assert.Equal(Account, result.Data!.AccountId); Assert.Equal(details.ClosureDeadline, result.Data.ClosureDeadline);
-        Assert.Equal(replay, result.Data.AlreadyPending); Assert.Equal(details.Revision, result.Data.Revision);
+        var details = Details(replay);
+        var result = await Handler(new(details)).HandleAsync(Command());
+        Assert.True(result.Success);
+        Assert.Equal(Account, result.Data!.AccountId);
+        Assert.Equal(details.ClosureDeadline, result.Data.ClosureDeadline);
+        Assert.Equal(replay, result.Data.AlreadyPending);
+        Assert.Equal(details.Revision, result.Data.Revision);
         Assert.DoesNotContain(result.Data.GetType().GetProperties(), p => p.Name.Contains("Envelope", StringComparison.Ordinal) || p.Name.Contains("Token", StringComparison.Ordinal));
     }
     [UnitTheory]
@@ -65,7 +72,9 @@ public class RequestAccountClosureHandlerTests
         };
         var r = invalid == "missing" ? new AccountClosureResult() : invalid == "unknown" ? new(Error: "internal_failure")
             : new(d, invalid == "error-data" ? "not_found" : null);
-        var result = await Handler(r).HandleAsync(Command()); Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data);
+        var result = await Handler(r).HandleAsync(Command());
+        Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.Null(result.Data);
     }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenClosing_ThenPropagateWithoutWriting()

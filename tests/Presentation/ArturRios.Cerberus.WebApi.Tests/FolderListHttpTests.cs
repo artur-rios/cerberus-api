@@ -3,18 +3,18 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using ArturRios.Cerberus.Command.Folders;
 using ArturRios.Cerberus.Command.Profiles;
 using ArturRios.Cerberus.Command.Records;
-using ArturRios.Cerberus.Command.Folders;
 using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Accounts;
+using ArturRios.Cerberus.Domain.Folders;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Records;
-using ArturRios.Cerberus.Domain.Folders;
 using ArturRios.Cerberus.Domain.Resources;
-using ArturRios.Cerberus.Query.Records;
 using ArturRios.Cerberus.Query.Folders;
+using ArturRios.Cerberus.Query.Records;
 using ArturRios.Cerberus.TestSupport;
 using ArturRios.Output;
 using Microsoft.AspNetCore.Http;
@@ -30,19 +30,37 @@ public class FolderListHttpTests(RegistrationApiFixture fixture, SharedApiHost a
     [FunctionalFact]
     public async Task GivenHttpCreatedOwnedFolders_WhenPaging_ThenReturnExactOpaqueShapeAndStableHighwaterWithoutMutation()
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var foreign = await Setup(owner);
-        await Create(foreign); var hidden = await Create(s); var terminal = await Create(s); var first = await Create(s); var second = await Create(s);
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var foreign = await Setup(owner);
+        await Create(foreign);
+        var hidden = await Create(s);
+        var terminal = await Create(s);
+        var first = await Create(s);
+        var second = await Create(s);
         await using (var db = fixture.Context())
         {
             await db.Folders.Where(x => x.PublicId == hidden.FolderId).ExecuteUpdateAsync(x => x.SetProperty(r => r.DeletedAt, DateTimeOffset.UtcNow));
-            db.TerminalErasures.Add(new() { ResourceId = terminal.FolderId, ResourceKind = "folder", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync();
+            db.TerminalErasures.Add(new() { ResourceId = terminal.FolderId, ResourceKind = "folder", DeletedAt = DateTimeOffset.UtcNow });
+            await db.SaveChangesAsync();
         }
-        var before = await Snapshot(s); using var response = await Read(s, "/api/folders?pageSize=1"); var page = await Success<FolderListOutput>(response, 200);
-        Fields(page, "items", "nextCursor"); var item = Assert.Single(page.Items); Fields(item, "folderId", "revision", "serverSequence", "editedAt", "envelope");
-        Assert.Equal(first.FolderId, item.FolderId); Assert.Equal(first.Envelope, item.Envelope); Assert.Equal(Normalize(first.EditedAt), item.EditedAt);
-        Assert.NotNull(page.NextCursor); Assert.Equal(before, await Snapshot(s)); var later = await Create(s);
-        using var next = await Read(s, "/api/folders?pageSize=1&cursor=" + page.NextCursor); var end = await Success<FolderListOutput>(next, 200);
-        Assert.Equal(second.FolderId, Assert.Single(end.Items).FolderId); Assert.Null(end.NextCursor); Assert.DoesNotContain(end.Items, x => x.FolderId == later.FolderId);
+        var before = await Snapshot(s);
+        using var response = await Read(s, "/api/folders?pageSize=1");
+        var page = await Success<FolderListOutput>(response, 200);
+        Fields(page, "items", "nextCursor");
+        var item = Assert.Single(page.Items);
+        Fields(item, "folderId", "revision", "serverSequence", "editedAt", "envelope");
+        Assert.Equal(first.FolderId, item.FolderId);
+        Assert.Equal(first.Envelope, item.Envelope);
+        Assert.Equal(Normalize(first.EditedAt), item.EditedAt);
+        Assert.NotNull(page.NextCursor);
+        Assert.Equal(before, await Snapshot(s));
+        var later = await Create(s);
+        using var next = await Read(s, "/api/folders?pageSize=1&cursor=" + page.NextCursor);
+        var end = await Success<FolderListOutput>(next, 200);
+        Assert.Equal(second.FolderId, Assert.Single(end.Items).FolderId);
+        Assert.Null(end.NextCursor);
+        Assert.DoesNotContain(end.Items, x => x.FolderId == later.FolderId);
     }
 
     [FunctionalTheory]
@@ -52,20 +70,36 @@ public class FolderListHttpTests(RegistrationApiFixture fixture, SharedApiHost a
     [InlineData("session")]
     public async Task GivenPermissionRevocationBetweenPages_WhenContinuing_ThenApplyCurrentVisibility(string kind)
     {
-        using var owner = new ProtectionFixture(); using var recipient = new ProtectionFixture(); using var scoped = new ProtectionFixture();
-        var foreign = await Setup(owner); var s = await Setup(recipient); var first = await Create(foreign); var second = await Create(foreign);
+        using var owner = new ProtectionFixture();
+        using var recipient = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var foreign = await Setup(owner);
+        var s = await Setup(recipient);
+        var first = await Create(foreign);
+        var second = await Create(foreign);
         var (collection, grant) = await Share(foreign, owner, s, recipient, CollectionGrantAccess.ReadOnly, [first.FolderId, second.FolderId], []);
-        var p = await Profile(s, recipient, scoped, collections: [collection.PublicId]); var selected = s with { Access = await Open(s, p, scoped) };
-        using var initial = await Read(selected, "/api/folders?pageSize=1"); var page = await Success<FolderListOutput>(initial, 200); Assert.NotNull(page.NextCursor);
+        var p = await Profile(s, recipient, scoped, collections: [collection.PublicId]);
+        var selected = s with { Access = await Open(s, p, scoped) };
+        using var initial = await Read(selected, "/api/folders?pageSize=1");
+        var page = await Success<FolderListOutput>(initial, 200);
+        Assert.NotNull(page.NextCursor);
         await using (var db = fixture.Context())
         {
-            if (kind == "grant") await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked));
-            if (kind == "member") await db.CollectionFolders.Where(x => x.CollectionId == collection.Id).ExecuteDeleteAsync();
-            if (kind == "profileCollection") await db.ProfileCollections.Where(x => x.ProfileId == p.Id).ExecuteDeleteAsync();
-            if (kind == "session") { OpaqueAccessHandle.TryHash(selected.Access, out var verifier); await db.VaultAccessSessions.Where(x => x.HandleVerifier == verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revoked, true)); }
+            if (kind == "grant")
+                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked));
+            if (kind == "member")
+                await db.CollectionFolders.Where(x => x.CollectionId == collection.Id).ExecuteDeleteAsync();
+            if (kind == "profileCollection")
+                await db.ProfileCollections.Where(x => x.ProfileId == p.Id).ExecuteDeleteAsync();
+            if (kind == "session")
+            { OpaqueAccessHandle.TryHash(selected.Access, out var verifier); await db.VaultAccessSessions.Where(x => x.HandleVerifier == verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revoked, true)); }
         }
-        var before = await Snapshot(s); using var next = await Read(selected, "/api/folders?pageSize=1&cursor=" + page.NextCursor);
-        if (kind == "session") await Failure(next, 403, "vault_access_denied"); else { var end = await Success<FolderListOutput>(next, 200); Assert.Empty(end.Items); Assert.Null(end.NextCursor); }
+        var before = await Snapshot(s);
+        using var next = await Read(selected, "/api/folders?pageSize=1&cursor=" + page.NextCursor);
+        if (kind == "session")
+            await Failure(next, 403, "vault_access_denied");
+        else
+        { var end = await Success<FolderListOutput>(next, 200); Assert.Empty(end.Items); Assert.Null(end.NextCursor); }
         Assert.Equal(before, await Snapshot(s));
     }
 
@@ -98,13 +132,22 @@ public class FolderListHttpTests(RegistrationApiFixture fixture, SharedApiHost a
     [InlineData("transfer", 400)]
     public async Task GivenMalformedAccessOrGetBody_WhenListing_ThenRejectWithoutMutation(string kind, int status)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var before = await Snapshot(s);
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/folders"); request.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor));
-        if (kind != "missing") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", kind == "bad" ? "bad" : s.Access);
-        if (kind == "duplicate") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access);
-        if (kind is "body" or "oversized") request.Content = new StringContent(kind == "body" ? "{}" : new string(' ', 65537));
-        if (kind == "transfer") { request.Content = new StringContent("{}"); request.Headers.TransferEncodingChunked = true; }
-        using var response = await Gateway.Client.SendAsync(request); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var before = await Snapshot(s);
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/folders");
+        request.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor));
+        if (kind != "missing")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", kind == "bad" ? "bad" : s.Access);
+        if (kind == "duplicate")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access);
+        if (kind is "body" or "oversized")
+            request.Content = new StringContent(kind == "body" ? "{}" : new string(' ', 65537));
+        if (kind == "transfer")
+        { request.Content = new StringContent("{}"); request.Headers.TransferEncodingChunked = true; }
+        using var response = await Gateway.Client.SendAsync(request);
+        await Failure(response, status);
+        Assert.Equal(before, await Snapshot(s));
     }
 
     [FunctionalTheory]
@@ -112,14 +155,22 @@ public class FolderListHttpTests(RegistrationApiFixture fixture, SharedApiHost a
     [InlineData("http2")]
     public async Task GivenRawEmptyHeaderOrUnknownLengthBody_WhenListing_Then400(string kind)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var before = await Snapshot(s); using var host = new WebApplicationFactory<Program>();
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var before = await Snapshot(s);
+        using var host = new WebApplicationFactory<Program>();
         var context = await host.Server.SendAsync(c =>
         {
-            c.Request.Method = "GET"; c.Request.Path = "/api/folders";
-            c.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(s.Actor); c.Request.Headers["X-Cerberus-Vault-Access"] = kind == "empty" ? "" : s.Access;
-            if (kind == "http2") c.Features.Set<IHttpRequestBodyDetectionFeature>(new BodyFeature());
+            c.Request.Method = "GET";
+            c.Request.Path = "/api/folders";
+            c.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(s.Actor);
+            c.Request.Headers["X-Cerberus-Vault-Access"] = kind == "empty" ? "" : s.Access;
+            if (kind == "http2")
+                c.Features.Set<IHttpRequestBodyDetectionFeature>(new BodyFeature());
         });
-        Assert.Equal(400, context.Response.StatusCode); Assert.Contains("no-store", context.Response.Headers.CacheControl.ToString()); Assert.Equal(before, await Snapshot(s));
+        Assert.Equal(400, context.Response.StatusCode);
+        Assert.Contains("no-store", context.Response.Headers.CacheControl.ToString());
+        Assert.Equal(before, await Snapshot(s));
     }
 
     [FunctionalTheory]
@@ -129,11 +180,18 @@ public class FolderListHttpTests(RegistrationApiFixture fixture, SharedApiHost a
     [InlineData("unavailable", 503)]
     public async Task GivenInvalidCurrentIdentity_WhenListing_ThenRejectWithoutPersistence(string kind, int status)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var before = await Snapshot(s);
-        if (kind is "deleted" or "unavailable") fixture.Users[s.Actor + "@example.test"] = new(s.Actor, "fixture-password", Deleted: kind == "deleted", IdentityUnavailable: kind == "unavailable");
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/folders"); request.Headers.Add("X-Cerberus-Vault-Access", s.Access);
-        if (kind != "missing") request.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor, kind == "wrongScope" ? Guid.NewGuid() : null));
-        using var response = await Gateway.Client.SendAsync(request); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var before = await Snapshot(s);
+        if (kind is "deleted" or "unavailable")
+            fixture.Users[s.Actor + "@example.test"] = new(s.Actor, "fixture-password", Deleted: kind == "deleted", IdentityUnavailable: kind == "unavailable");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/folders");
+        request.Headers.Add("X-Cerberus-Vault-Access", s.Access);
+        if (kind != "missing")
+            request.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor, kind == "wrongScope" ? Guid.NewGuid() : null));
+        using var response = await Gateway.Client.SendAsync(request);
+        await Failure(response, status);
+        Assert.Equal(before, await Snapshot(s));
     }
 
     [FunctionalTheory]
@@ -148,19 +206,36 @@ public class FolderListHttpTests(RegistrationApiFixture fixture, SharedApiHost a
     [InlineData("dangling", 403)]
     public async Task GivenInvalidCurrentAccountOrSession_WhenListing_ThenFailClosed(string kind, int status)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner);
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
         await using (var db = fixture.Context())
         {
             var v = await db.VaultAccessSessions.SingleAsync(x => x.AccountId == s.InternalId);
-            if (kind == "revoked") v.Revoked = true; if (kind == "expired") v.ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(-1);
-            if (kind == "future") v.IssuedAt = DateTimeOffset.UtcNow.AddHours(1); if (kind == "policy") v.PolicyRevision++;
-            if (kind == "generation") v.RevocationGeneration++; if (kind == "dangling") v.ProfileId = long.MaxValue;
-            if (kind == "closing") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending));
-            if (kind == "terminal") db.TerminalErasures.Add(new() { ResourceId = s.AccountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync();
+            if (kind == "revoked")
+                v.Revoked = true;
+            if (kind == "expired")
+                v.ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(-1);
+            if (kind == "future")
+                v.IssuedAt = DateTimeOffset.UtcNow.AddHours(1);
+            if (kind == "policy")
+                v.PolicyRevision++;
+            if (kind == "generation")
+                v.RevocationGeneration++;
+            if (kind == "dangling")
+                v.ProfileId = long.MaxValue;
+            if (kind == "closing")
+                await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending));
+            if (kind == "terminal")
+                db.TerminalErasures.Add(new() { ResourceId = s.AccountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
+            await db.SaveChangesAsync();
         }
-        var before = await Snapshot(s); var request = s;
-        if (kind == "missing") { var actor = Guid.NewGuid(); fixture.Users[actor + "@example.test"] = new(actor, "fixture-password"); request = s with { Actor = actor }; }
-        using var response = await Read(request, "/api/folders"); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
+        var before = await Snapshot(s);
+        var request = s;
+        if (kind == "missing")
+        { var actor = Guid.NewGuid(); fixture.Users[actor + "@example.test"] = new(actor, "fixture-password"); request = s with { Actor = actor }; }
+        using var response = await Read(request, "/api/folders");
+        await Failure(response, status);
+        Assert.Equal(before, await Snapshot(s));
     }
 
     [FunctionalTheory]
@@ -170,17 +245,29 @@ public class FolderListHttpTests(RegistrationApiFixture fixture, SharedApiHost a
     [InlineData("tamper")]
     public async Task GivenCursorSubstitution_WhenContinuing_Then400(string kind)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); await Create(s); await Create(s);
-        using var initial = await Read(s, "/api/folders?pageSize=1"); var cursor = (await Success<FolderListOutput>(initial, 200)).NextCursor!;
-        if (kind == "actor") s = await Setup(owner);
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        await Create(s);
+        await Create(s);
+        using var initial = await Read(s, "/api/folders?pageSize=1");
+        var cursor = (await Success<FolderListOutput>(initial, 200)).NextCursor!;
+        if (kind == "actor")
+            s = await Setup(owner);
         if (kind == "access")
         {
-            var access = ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32)); OpaqueAccessHandle.TryHash(access, out var verifier);
-            await using var db = fixture.Context(); db.VaultAccessSessions.Add(new() { AccountId = s.InternalId, HandleVerifier = verifier, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 }); await db.SaveChangesAsync(); s = s with { Access = access };
+            var access = ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32));
+            OpaqueAccessHandle.TryHash(access, out var verifier);
+            await using var db = fixture.Context();
+            db.VaultAccessSessions.Add(new() { AccountId = s.InternalId, HandleVerifier = verifier, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 });
+            await db.SaveChangesAsync();
+            s = s with { Access = access };
         }
-        if (kind == "tamper") { Assert.True(ProtocolBinary.TryDecode(cursor, null, out var bytes)); bytes[^1] ^= 1; cursor = ProtocolBinary.Encode(bytes); }
-        var before = await Snapshot(s); using var response = await Read(s, "/api/folders?pageSize=" + (kind == "size" ? 2 : 1) + "&cursor=" + cursor);
-        await Failure(response, 400, "validation_failed"); Assert.Equal(before, await Snapshot(s));
+        if (kind == "tamper")
+        { Assert.True(ProtocolBinary.TryDecode(cursor, null, out var bytes)); bytes[^1] ^= 1; cursor = ProtocolBinary.Encode(bytes); }
+        var before = await Snapshot(s);
+        using var response = await Read(s, "/api/folders?pageSize=" + (kind == "size" ? 2 : 1) + "&cursor=" + cursor);
+        await Failure(response, 400, "validation_failed");
+        Assert.Equal(before, await Snapshot(s));
     }
 
     [FunctionalTheory]
@@ -192,18 +279,27 @@ public class FolderListHttpTests(RegistrationApiFixture fixture, SharedApiHost a
     [InlineData("unavailable")]
     public async Task GivenCorruptVisibleContentOrDependency_WhenListing_Then503WithoutPartialPayload(string kind)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var first = await Create(s); var second = await Create(s); await using var db = fixture.Context();
-        if (kind == "envelope") await db.Folders.Where(x => x.PublicId == second.FolderId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, new byte[] { 1 }));
-        if (kind == "revision") await db.Folders.Where(x => x.PublicId == second.FolderId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Revision, 0));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var first = await Create(s);
+        var second = await Create(s);
+        await using var db = fixture.Context();
+        if (kind == "envelope")
+            await db.Folders.Where(x => x.PublicId == second.FolderId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, new byte[] { 1 }));
+        if (kind == "revision")
+            await db.Folders.Where(x => x.PublicId == second.FolderId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Revision, 0));
         if (kind is "zero" or "duplicate")
         {
             var sequence = (await db.Folders.SingleAsync(x => x.PublicId == first.FolderId)).ServerSequence;
             await db.Folders.Where(x => x.PublicId == second.FolderId).ExecuteUpdateAsync(x => x.SetProperty(r => r.ServerSequence, kind == "zero" ? 0 : sequence));
         }
-        if (kind == "time") await db.Folders.Where(x => x.PublicId == second.FolderId).ExecuteUpdateAsync(x => x.SetProperty(r => r.EditedAt, DateTimeOffset.MinValue));
-        if (kind == "unavailable") await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.collection_folder RENAME TO http_fixture_unavailable_collection_folder");
+        if (kind == "time")
+            await db.Folders.Where(x => x.PublicId == second.FolderId).ExecuteUpdateAsync(x => x.SetProperty(r => r.EditedAt, DateTimeOffset.MinValue));
+        if (kind == "unavailable")
+            await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.collection_folder RENAME TO http_fixture_unavailable_collection_folder");
         var before = await Snapshot(s, kind == "unavailable");
-        try { using var response = await Read(s, kind == "duplicate" ? "/api/folders?pageSize=1" : "/api/folders"); await Failure(response, 503, "persistence_unavailable"); }
+        try
+        { using var response = await Read(s, kind == "duplicate" ? "/api/folders?pageSize=1" : "/api/folders"); await Failure(response, 503, "persistence_unavailable"); }
         finally { if (kind == "unavailable") await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.http_fixture_unavailable_collection_folder RENAME TO collection_folder"); }
         Assert.Equal(before, await Snapshot(s, kind == "unavailable"));
     }

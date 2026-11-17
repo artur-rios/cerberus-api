@@ -22,19 +22,26 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     public async Task GivenMasterAndMixedOwnedTargets_WhenGranting_ThenSaveExactAggregateWithoutChangingVault(bool equalPublicIds)
     {
         using var s = await SoftwareGrantSetup.Create(fixture, equalPublicIds);
-        var request = s.Request(); var before = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
+        var request = s.Request();
+        var before = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
         var result = await new SoftwareGrantStore(fixture).GrantAsync(request, default);
-        Assert.Null(result.Error); Assert.Equal(new SoftwareGrantDetails(request.Input.GrantId, 1), result.Data);
+        Assert.Null(result.Error);
+        Assert.Equal(new SoftwareGrantDetails(request.Input.GrantId, 1), result.Data);
         Assert.Equal(before, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
         await using var db = fixture.CreateContext();
         var grant = Assert.Single(await db.SoftwareGrants.Where(x => x.AccountId == s.Owner.InternalId).ToArrayAsync());
-        Assert.Equal(request.Input.GrantId, grant.PublicId); Assert.Equal(request.Input.SoftwareIdentityId, grant.HeimdallSoftwarePublicId);
-        Assert.Equal(SoftwareGrantState.Active, grant.State); Assert.Equal(1, grant.Revision); Assert.NotEqual(Guid.Empty, grant.ConcurrencyStamp);
+        Assert.Equal(request.Input.GrantId, grant.PublicId);
+        Assert.Equal(request.Input.SoftwareIdentityId, grant.HeimdallSoftwarePublicId);
+        Assert.Equal(SoftwareGrantState.Active, grant.State);
+        Assert.Equal(1, grant.Revision);
+        Assert.NotEqual(Guid.Empty, grant.ConcurrencyStamp);
         Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.RecipientKey), grant.RecipientKey);
         var record = Assert.Single(await db.SoftwareGrantRecords.Where(x => x.GrantId == grant.Id).ToArrayAsync());
         var collection = Assert.Single(await db.SoftwareGrantCollections.Where(x => x.GrantId == grant.Id).ToArrayAsync());
-        Assert.Equal(s.Owner.InternalId, record.AccountId); Assert.Equal(s.Owner.InternalId, collection.AccountId);
-        Assert.Equal(s.Items.Record.Id, record.RecordId); Assert.Equal(s.Items.Collection.Id, collection.CollectionId);
+        Assert.Equal(s.Owner.InternalId, record.AccountId);
+        Assert.Equal(s.Owner.InternalId, collection.AccountId);
+        Assert.Equal(s.Items.Record.Id, record.RecordId);
+        Assert.Equal(s.Items.Collection.Id, collection.CollectionId);
         Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.Targets.Single(x => x.Kind == "record").KeyEnvelope), record.RecipientKeyEnvelope);
         Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.Targets.Single(x => x.Kind == "collection").KeyEnvelope), collection.RecipientKeyEnvelope);
     }
@@ -44,9 +51,11 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     [InlineData("collection")]
     public async Task GivenOneTypedTarget_WhenGranting_ThenPersistOnlyThatKind(string kind)
     {
-        using var s = await SoftwareGrantSetup.Create(fixture); var request = s.Request();
+        using var s = await SoftwareGrantSetup.Create(fixture);
+        var request = s.Request();
         request = request with { Input = request.Input with { Targets = request.Input.Targets.Where(x => x.Kind == kind).ToArray() } };
-        await Outcome(s, request, null); await using var db = fixture.CreateContext();
+        await Outcome(s, request, null);
+        await using var db = fixture.CreateContext();
         var grant = await db.SoftwareGrants.SingleAsync(x => x.PublicId == s.Grant);
         Assert.Equal(kind == "record" ? 1 : 0, await db.SoftwareGrantRecords.CountAsync(x => x.GrantId == grant.Id));
         Assert.Equal(kind == "collection" ? 1 : 0, await db.SoftwareGrantCollections.CountAsync(x => x.GrantId == grant.Id));
@@ -65,14 +74,17 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
         var profile = await s.Profile(fixture, mode == "PerProfile" ? "PerProfile" : "Master");
         await using (var db = fixture.CreateContext())
         {
-            if (mode != "unselectedCollection") db.ProfileCollections.Add(new() { ProfileId = profile, CollectionId = s.Items.Collection.Id });
-            if (mode is "direct" or "unselectedCollection" or "PerProfile") db.ProfileRecords.Add(new() { AccountId = s.Owner.InternalId, ProfileId = profile, RecordId = s.Items.Record.Id });
+            if (mode != "unselectedCollection")
+                db.ProfileCollections.Add(new() { ProfileId = profile, CollectionId = s.Items.Collection.Id });
+            if (mode is "direct" or "unselectedCollection" or "PerProfile")
+                db.ProfileRecords.Add(new() { AccountId = s.Owner.InternalId, ProfileId = profile, RecordId = s.Items.Record.Id });
             if (mode == "folder")
             {
                 await db.Records.Where(x => x.Id == s.Items.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(r => r.FolderId, s.Items.Folder.Id));
                 db.ProfileFolders.Add(new() { AccountId = s.Owner.InternalId, ProfileId = profile, FolderId = s.Items.Folder.Id });
             }
-            if (mode == "collection") db.CollectionRecords.Add(new() { AccountId = s.Owner.InternalId, CollectionId = s.Items.Collection.Id, RecordId = s.Items.Record.Id });
+            if (mode == "collection")
+                db.CollectionRecords.Add(new() { AccountId = s.Owner.InternalId, CollectionId = s.Items.Collection.Id, RecordId = s.Items.Record.Id });
             await db.SaveChangesAsync();
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Owner.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ProfileId, profile));
         }
@@ -98,10 +110,13 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     [InlineData("record", "cycle", "persistence_unavailable")]
     public async Task GivenMissingHiddenOrCorruptTarget_WhenGranting_ThenRejectEntireMixedAggregate(string kind, string mode, string error)
     {
-        using var s = await SoftwareGrantSetup.Create(fixture); var request = s.Request();
+        using var s = await SoftwareGrantSetup.Create(fixture);
+        var request = s.Request();
         var id = kind == "record" ? s.Items.Record.Id : s.Items.Collection.Id;
-        if (mode == "missing") request = request with { Input = request.Input with { Targets = request.Input.Targets.Select(t => t.Kind == kind ? s.Target(kind, Guid.NewGuid()) : t).ToArray() } };
-        else if (mode == "terminal") await Terminal(kind, kind == "record" ? s.Items.Record.PublicId : s.Items.Collection.PublicId);
+        if (mode == "missing")
+            request = request with { Input = request.Input with { Targets = request.Input.Targets.Select(t => t.Kind == kind ? s.Target(kind, Guid.NewGuid()) : t).ToArray() } };
+        else if (mode == "terminal")
+            await Terminal(kind, kind == "record" ? s.Items.Record.PublicId : s.Items.Collection.PublicId);
         else if (mode is "ancestorTrash" or "cycle")
         {
             await Sql("UPDATE cerberus.record SET folder_id={0} WHERE id={1}", s.Items.Folder.Id, s.Items.Record.Id);
@@ -131,22 +146,26 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     [InlineData("pinsEpoch", "persistence_unavailable")]
     public async Task GivenInvalidActorSessionOrProtection_WhenGranting_ThenFailClosed(string mode, string error)
     {
-        using var s = await SoftwareGrantSetup.Create(fixture); var request = s.Request();
-        if (mode == "ownerMissing") request = request with { Actor = Guid.NewGuid() };
-        else if (mode == "ownerTerminal") await Terminal("account", s.Owner.AccountId);
-        else await Sql(mode switch
-        {
-            "ownerInactive" => "UPDATE cerberus.account SET state=1 WHERE id={0}",
-            "sessionMissing" => "DELETE FROM cerberus.vault_access_session WHERE account_id={0}",
-            "sessionExpired" => "UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp() WHERE account_id={0}",
-            "sessionFuture" => "UPDATE cerberus.vault_access_session SET issued_at=statement_timestamp()+interval '2 hours' WHERE account_id={0}",
-            "sessionRevoked" => "UPDATE cerberus.vault_access_session SET revoked=true WHERE account_id={0}",
-            "sessionPolicy" => "UPDATE cerberus.vault_access_session SET policy_revision=2 WHERE account_id={0}",
-            "sessionGeneration" => "UPDATE cerberus.vault_access_session SET revocation_generation=2 WHERE account_id={0}",
-            "pinsMissing" => "DELETE FROM cerberus.vault_protection WHERE account_id={0}",
-            "pinsEpoch" => "UPDATE cerberus.vault_protection SET key_epoch=2 WHERE account_id={0}",
-            _ => "UPDATE cerberus.vault_protection SET material='bad'::bytea WHERE account_id={0}"
-        }, s.Owner.InternalId);
+        using var s = await SoftwareGrantSetup.Create(fixture);
+        var request = s.Request();
+        if (mode == "ownerMissing")
+            request = request with { Actor = Guid.NewGuid() };
+        else if (mode == "ownerTerminal")
+            await Terminal("account", s.Owner.AccountId);
+        else
+            await Sql(mode switch
+            {
+                "ownerInactive" => "UPDATE cerberus.account SET state=1 WHERE id={0}",
+                "sessionMissing" => "DELETE FROM cerberus.vault_access_session WHERE account_id={0}",
+                "sessionExpired" => "UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp() WHERE account_id={0}",
+                "sessionFuture" => "UPDATE cerberus.vault_access_session SET issued_at=statement_timestamp()+interval '2 hours' WHERE account_id={0}",
+                "sessionRevoked" => "UPDATE cerberus.vault_access_session SET revoked=true WHERE account_id={0}",
+                "sessionPolicy" => "UPDATE cerberus.vault_access_session SET policy_revision=2 WHERE account_id={0}",
+                "sessionGeneration" => "UPDATE cerberus.vault_access_session SET revocation_generation=2 WHERE account_id={0}",
+                "pinsMissing" => "DELETE FROM cerberus.vault_protection WHERE account_id={0}",
+                "pinsEpoch" => "UPDATE cerberus.vault_protection SET key_epoch=2 WHERE account_id={0}",
+                _ => "UPDATE cerberus.vault_protection SET material='bad'::bytea WHERE account_id={0}"
+            }, s.Owner.InternalId);
         await Outcome(s, request, error);
     }
 
@@ -165,13 +184,18 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     [InlineData("collection", "badPins", "persistence_unavailable")]
     public async Task GivenForeignTarget_WhenGranting_ThenClassifyOnlyVisibleRelevantNativeEvidence(string kind, string mode, string error)
     {
-        using var s = await SoftwareGrantSetup.Create(fixture); using var foreignPins = new ProtectionFixture();
-        var foreign = await ProfileSetup.Create(fixture, foreignPins); var items = await AssociationSetup.Items(fixture, foreign);
+        using var s = await SoftwareGrantSetup.Create(fixture);
+        using var foreignPins = new ProtectionFixture();
+        var foreign = await ProfileSetup.Create(fixture, foreignPins);
+        var items = await AssociationSetup.Items(fixture, foreign);
         var native = await AssociationSetup.Grant(fixture, foreign, foreignPins, s.Owner, s.Protection, items.Collection);
         await Sql("INSERT INTO cerberus.collection_record(account_id,collection_id,record_id) VALUES({0},{1},{2})", foreign.InternalId, items.Collection.Id, items.Record.Id);
-        if (mode is "hidden" or "revoked") await Sql("UPDATE cerberus.collection_grant SET state=1 WHERE id={0}", native.Id);
-        if (mode == "badNative") await Sql("UPDATE cerberus.collection_grant SET recipient_key_envelope='bad'::bytea WHERE id={0}", native.Id);
-        if (mode == "badPins") await Sql("UPDATE cerberus.vault_protection SET material='bad'::bytea WHERE account_id={0}", foreign.InternalId);
+        if (mode is "hidden" or "revoked")
+            await Sql("UPDATE cerberus.collection_grant SET state=1 WHERE id={0}", native.Id);
+        if (mode == "badNative")
+            await Sql("UPDATE cerberus.collection_grant SET recipient_key_envelope='bad'::bytea WHERE id={0}", native.Id);
+        if (mode == "badPins")
+            await Sql("UPDATE cerberus.vault_protection SET material='bad'::bytea WHERE account_id={0}", foreign.InternalId);
         if (mode == "unselected")
         {
             var profile = await s.Profile(fixture);
@@ -179,7 +203,8 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
             // Corruption outside selection must not turn hidden 404 into a probe.
             await Sql("UPDATE cerberus.collection_grant SET recipient_key_envelope='bad'::bytea WHERE id={0}", native.Id);
         }
-        var request = s.Request(); request = request with { Input = request.Input with { Targets = [s.Target(kind, kind == "record" ? items.Record.PublicId : items.Collection.PublicId)] } };
+        var request = s.Request();
+        request = request with { Input = request.Input with { Targets = [s.Target(kind, kind == "record" ? items.Record.PublicId : items.Collection.PublicId)] } };
         await Outcome(s, request, error);
     }
 
@@ -201,8 +226,10 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     [InlineData("access")]
     public async Task GivenInvalidBindingOrInput_WhenGranting_ThenPersistNothing(string mode)
     {
-        using var s = await SoftwareGrantSetup.Create(fixture); using var wrong = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        var request = s.Request(); var target = s.Target("record", s.Items.Record.PublicId, epoch: mode == "epoch" ? 2 : 1,
+        using var s = await SoftwareGrantSetup.Create(fixture);
+        using var wrong = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var request = s.Request();
+        var target = s.Target("record", s.Items.Record.PublicId, epoch: mode == "epoch" ? 2 : 1,
             owner: mode == "owner" ? Guid.NewGuid() : null, signedKind: mode == "kind" ? "collection" : null,
             signedId: mode == "id" ? Guid.NewGuid() : null, author: mode == "author" ? wrong : null,
             recipient: mode == "recipient" ? ProtectionFixture.Public(wrong) : null);
@@ -218,11 +245,16 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
             }
         };
         request = request with { Input = request.Input with { Targets = [target, request.Input.Targets[1]] } };
-        if (mode == "duplicate") request = request with { Input = request.Input with { Targets = [target, target] } };
-        if (mode == "empty") request = request with { Input = request.Input with { Targets = [] } };
-        if (mode == "inputMax") request = request with { Input = request.Input with { ExpectedRevision = ProtocolBinary.MaxInteger } };
-        if (mode == "actor") request = request with { Actor = Guid.Empty };
-        if (mode == "access") request = request with { AccessVerifier = "" };
+        if (mode == "duplicate")
+            request = request with { Input = request.Input with { Targets = [target, target] } };
+        if (mode == "empty")
+            request = request with { Input = request.Input with { Targets = [] } };
+        if (mode == "inputMax")
+            request = request with { Input = request.Input with { ExpectedRevision = ProtocolBinary.MaxInteger } };
+        if (mode == "actor")
+            request = request with { Actor = Guid.Empty };
+        if (mode == "access")
+            request = request with { AccessVerifier = "" };
         await Outcome(s, request, mode == "actor" ? "authentication_required" : mode == "access" ? "vault_access_required" : "validation_failed");
     }
 
@@ -231,19 +263,31 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     [InlineData(true)]
     public async Task GivenExactRevokedAggregate_WhenReactivating_ThenReplaceWholeKeyAndTargetSetOnce(bool differentSet)
     {
-        using var s = await SoftwareGrantSetup.Create(fixture); Assert.Null((await Store().GrantAsync(s.Request(), default)).Error);
+        using var s = await SoftwareGrantSetup.Create(fixture);
+        Assert.Null((await Store().GrantAsync(s.Request(), default)).Error);
         await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant);
-        await using var db = fixture.CreateContext(); var old = await db.SoftwareGrants.AsNoTracking().SingleAsync(x => x.PublicId == s.Grant);
-        using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256); var next = differentSet ? await AssociationSetup.Items(fixture, s.Owner) : s.Items;
-        var request = s.Request(1, items: next, recipient: key); var before = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
-        var result = await Store().GrantAsync(request, default); Assert.Null(result.Error); Assert.Equal(new SoftwareGrantDetails(s.Grant, 2), result.Data);
+        await using var db = fixture.CreateContext();
+        var old = await db.SoftwareGrants.AsNoTracking().SingleAsync(x => x.PublicId == s.Grant);
+        using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var next = differentSet ? await AssociationSetup.Items(fixture, s.Owner) : s.Items;
+        var request = s.Request(1, items: next, recipient: key);
+        var before = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
+        var result = await Store().GrantAsync(request, default);
+        Assert.Null(result.Error);
+        Assert.Equal(new SoftwareGrantDetails(s.Grant, 2), result.Data);
         var saved = await db.SoftwareGrants.AsNoTracking().SingleAsync(x => x.PublicId == s.Grant);
-        Assert.Equal(old.Id, saved.Id); Assert.Equal(old.PublicId, saved.PublicId); Assert.Equal(old.AccountId, saved.AccountId);
-        Assert.Equal(old.HeimdallSoftwarePublicId, saved.HeimdallSoftwarePublicId); Assert.Equal(2, saved.Revision); Assert.Equal(SoftwareGrantState.Active, saved.State);
-        Assert.NotEqual(old.ConcurrencyStamp, saved.ConcurrencyStamp); Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.RecipientKey), saved.RecipientKey);
+        Assert.Equal(old.Id, saved.Id);
+        Assert.Equal(old.PublicId, saved.PublicId);
+        Assert.Equal(old.AccountId, saved.AccountId);
+        Assert.Equal(old.HeimdallSoftwarePublicId, saved.HeimdallSoftwarePublicId);
+        Assert.Equal(2, saved.Revision);
+        Assert.Equal(SoftwareGrantState.Active, saved.State);
+        Assert.NotEqual(old.ConcurrencyStamp, saved.ConcurrencyStamp);
+        Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.RecipientKey), saved.RecipientKey);
         var record = Assert.Single(await db.SoftwareGrantRecords.Where(x => x.GrantId == old.Id).ToArrayAsync());
         var collection = Assert.Single(await db.SoftwareGrantCollections.Where(x => x.GrantId == old.Id).ToArrayAsync());
-        Assert.Equal(next.Record.Id, record.RecordId); Assert.Equal(next.Collection.Id, collection.CollectionId);
+        Assert.Equal(next.Record.Id, record.RecordId);
+        Assert.Equal(next.Collection.Id, collection.CollectionId);
         Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.Targets[0].KeyEnvelope), record.RecipientKeyEnvelope);
         Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.Targets[1].KeyEnvelope), collection.RecipientKeyEnvelope);
         Assert.Equal(before, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
@@ -264,14 +308,18 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     [InlineData("invalidState")]
     public async Task GivenConflictingStoredGrant_WhenGranting_ThenPreserveCompleteAggregate(string mode)
     {
-        using var s = await SoftwareGrantSetup.Create(fixture); using var other = await SoftwareGrantSetup.Create(fixture);
+        using var s = await SoftwareGrantSetup.Create(fixture);
+        using var other = await SoftwareGrantSetup.Create(fixture);
         if (mode is not ("terminal" or "missing"))
         {
             Assert.Null((await Store().GrantAsync(s.Request(), default)).Error);
-            if (mode is not ("active" or "activeForeign")) await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant);
+            if (mode is not ("active" or "activeForeign"))
+                await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant);
         }
-        if (mode == "terminal") await Terminal("grant", s.Grant);
-        if (mode is "exhausted" or "unsafe" or "invalidState") await Sql(mode == "invalidState"
+        if (mode == "terminal")
+            await Terminal("grant", s.Grant);
+        if (mode is "exhausted" or "unsafe" or "invalidState")
+            await Sql(mode == "invalidState"
             ? "UPDATE cerberus.software_grant SET state=7 WHERE public_id={0}"
             : "UPDATE cerberus.software_grant SET revision={1} WHERE public_id={0}", s.Grant, mode == "unsafe" ? ProtocolBinary.MaxInteger + 1 : ProtocolBinary.MaxInteger);
         var request = mode is "owner" or "collision" or "activeForeign" ? other.Request(mode == "owner" ? 1 : null, grant: s.Grant, identity: s.Identity)
@@ -294,8 +342,10 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     public async Task GivenWriteOrPostVerificationFault_WhenGranting_ThenRollbackAndAllowExactRetry(string stage, bool reactivation)
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
-        if (reactivation) { Assert.Null((await Store().GrantAsync(s.Request(), default)).Error); await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant); }
-        var next = await AssociationSetup.Items(fixture, s.Owner); var request = s.Request(reactivation ? 1 : null, items: next);
+        if (reactivation)
+        { Assert.Null((await Store().GrantAsync(s.Request(), default)).Error); await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant); }
+        var next = await AssociationSetup.Items(fixture, s.Owner);
+        var request = s.Request(reactivation ? 1 : null, items: next);
         await Outcome(s, request, "persistence_unavailable", new ProfileSetup.Factory(fixture, new Fault(stage)));
         Assert.Null((await Store().GrantAsync(request, default)).Error);
     }
@@ -303,9 +353,12 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     [FunctionalFact]
     public async Task GivenCallerCancellation_WhenGranting_ThenPropagateWithoutMutation()
     {
-        using var s = await SoftwareGrantSetup.Create(fixture); using var ct = new CancellationTokenSource(); ct.Cancel();
+        using var s = await SoftwareGrantSetup.Create(fixture);
+        using var ct = new CancellationTokenSource();
+        ct.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Store().GrantAsync(s.Request(), ct.Token));
-        await using var db = fixture.CreateContext(); Assert.False(await db.SoftwareGrants.AnyAsync(x => x.PublicId == s.Grant));
+        await using var db = fixture.CreateContext();
+        Assert.False(await db.SoftwareGrants.AnyAsync(x => x.PublicId == s.Grant));
     }
 
     [FunctionalTheory]
@@ -340,10 +393,13 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     private SoftwareGrantStore Store(IDbContextFactory<AppDbContext>? factory = null) => new(factory ?? fixture);
     private async Task Outcome(SoftwareGrantSetup s, SoftwareGrantRequest request, string? error, IDbContextFactory<AppDbContext>? factory = null)
     {
-        var before = await SoftwareGrantSetup.Aggregate(fixture, request.Input.GrantId); var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
-        var result = await Store(factory).GrantAsync(request, default); Assert.Equal(error, result.Error);
+        var before = await SoftwareGrantSetup.Aggregate(fixture, request.Input.GrantId);
+        var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
+        var result = await Store(factory).GrantAsync(request, default);
+        Assert.Equal(error, result.Error);
         Assert.Equal(vault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
-        if (error is not null) { Assert.Null(result.Data); Assert.Equal(before, await SoftwareGrantSetup.Aggregate(fixture, request.Input.GrantId)); }
+        if (error is not null)
+        { Assert.Null(result.Data); Assert.Equal(before, await SoftwareGrantSetup.Aggregate(fixture, request.Input.GrantId)); }
     }
     private async Task Sql(string statement, params object[] values) { await using var db = fixture.CreateContext(); await db.Database.ExecuteSqlRawAsync(statement, values); }
     private async Task Terminal(string kind, Guid id)
@@ -353,25 +409,31 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
         private bool written;
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int result, CancellationToken ct = default)
         {
-            if (c.CommandText.Contains("INSERT INTO cerberus.software_grant(") || c.CommandText.Contains("UPDATE cerberus.software_grant AS")) written = true;
+            if (c.CommandText.Contains("INSERT INTO cerberus.software_grant(") || c.CommandText.Contains("UPDATE cerberus.software_grant AS"))
+                written = true;
             if (stage == "mismatchKey" && c.CommandText.Contains("INSERT INTO cerberus.software_grant_collection"))
             {
-                await using var cmd = c.Connection!.CreateCommand(); cmd.Transaction = c.Transaction;
+                await using var cmd = c.Connection!.CreateCommand();
+                cmd.Transaction = c.Transaction;
                 cmd.CommandText = "UPDATE cerberus.software_grant SET recipient_key='bad'::bytea WHERE id=@id";
-                cmd.Parameters.Add(new NpgsqlParameter("id", c.Parameters[1].Value)); await cmd.ExecuteNonQueryAsync(ct);
+                cmd.Parameters.Add(new NpgsqlParameter("id", c.Parameters[1].Value));
+                await cmd.ExecuteNonQueryAsync(ct);
             }
             if (stage == "mismatchChild" && c.CommandText.Contains("INSERT INTO cerberus.software_grant_record"))
             {
-                await using var cmd = c.Connection!.CreateCommand(); cmd.Transaction = c.Transaction;
+                await using var cmd = c.Connection!.CreateCommand();
+                cmd.Transaction = c.Transaction;
                 cmd.CommandText = "UPDATE cerberus.software_grant_record SET recipient_key_envelope='bad'::bytea WHERE grant_id=@id";
-                cmd.Parameters.Add(new NpgsqlParameter("id", c.Parameters[1].Value)); await cmd.ExecuteNonQueryAsync(ct);
+                cmd.Parameters.Add(new NpgsqlParameter("id", c.Parameters[1].Value));
+                await cmd.ExecuteNonQueryAsync(ct);
             }
             return result;
         }
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> result, CancellationToken ct = default)
         {
             if (stage == "grant" && c.CommandText.Contains("INSERT INTO cerberus.software_grant(")
-                || stage is "record" or "collection" && c.CommandText.Contains("INSERT INTO cerberus.software_grant_" + stage)) throw new TimeoutException("Injected aggregate write failure");
+                || stage is "record" or "collection" && c.CommandText.Contains("INSERT INTO cerberus.software_grant_" + stage))
+                throw new TimeoutException("Injected aggregate write failure");
             return ValueTask.FromResult(result);
         }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
@@ -406,7 +468,8 @@ internal sealed class SoftwareGrantSetup : IDisposable
     internal SoftwareGrantRequest Request(long? expected = null, Guid? grant = null, Guid? identity = null,
         AssociationSetup.ResourceSet? items = null, ECDsa? recipient = null)
     {
-        var key = ProtectionFixture.Public(recipient ?? Recipient); var targets = items ?? Items;
+        var key = ProtectionFixture.Public(recipient ?? Recipient);
+        var targets = items ?? Items;
         return new(Owner.Actor, Owner.Verifier, new(grant ?? Grant, identity ?? Identity, expected,
             new(key.Crv, key.Kty, key.X, key.Y),
             [Target("record", targets.Record.PublicId, expected, grant, identity, key),
@@ -420,12 +483,14 @@ internal sealed class SoftwareGrantSetup : IDisposable
             recipient: Protection.Material.RecipientKey).KeyEnvelope;
         input = input with { KeyWrappers = input.KeyWrappers with { MasterKeyWrapper = wrapper } };
         Assert.Null((await new ArturRios.Cerberus.Data.Profiles.ProfileCreateStore(fixture).CreateAsync(new(Owner.Actor, Owner.Verifier, input), default)).Error);
-        await using var db = fixture.CreateContext(); return await db.Profiles.Where(x => x.PublicId == input.ProfileId).Select(x => x.Id).SingleAsync();
+        await using var db = fixture.CreateContext();
+        return await db.Profiles.Where(x => x.PublicId == input.ProfileId).Select(x => x.Id).SingleAsync();
     }
     internal SoftwareGrantTargetInput Target(string kind, Guid id, long? expected = null, Guid? grant = null, Guid? identity = null,
         PublicJwk? recipient = null, long epoch = 1, Guid? owner = null, string? signedKind = null, Guid? signedId = null, ECDsa? author = null)
     {
-        using var ephemeral = ECDsa.Create(ECCurve.NamedCurves.nistP256); var point = ephemeral.ExportParameters(false).Q;
+        using var ephemeral = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var point = ephemeral.ExportParameters(false).Q;
         var signer = author ?? Author;
         var envelope = new RecipientEnvelope("cerberus-recipient-wrap-v1", epoch, grant ?? Grant, (expected ?? 0) + 1,
             identity ?? Identity, (recipient ?? ProtectionFixture.Public(Recipient)).Fingerprint(), ProtectionFixture.Public(signer).Fingerprint(),

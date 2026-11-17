@@ -1,5 +1,5 @@
-using ArturRios.Cerberus.Shared.Configuration;
 using System.Globalization;
+using ArturRios.Cerberus.Shared.Configuration;
 
 namespace ArturRios.Cerberus.WebApi.Configuration;
 

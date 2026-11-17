@@ -26,10 +26,13 @@ public sealed class PermanentlyDeleteRecordHandlerTests
     [InlineData("unsafe", "validation_failed")]
     public async Task GivenInvalidAuthorityOrRevision_WhenHandling_ThenRejectBeforePersistence(string kind, string error)
     {
-        var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : kind == "noncanonical" ? new string('A', 42) + "B" : Access, kind == "id" ? Guid.Empty : target);
+        var c = Command();
+        c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : kind == "noncanonical" ? new string('A', 42) + "B" : Access, kind == "id" ? Guid.Empty : target);
         c.ExpectedRevision = kind == "zero" ? 0 : kind == "negative" ? -1 : kind == "unsafe" ? ProtocolBinary.MaxInteger + 1 : 1;
         var r = await Handler(new Mock<IRecordPermanentDeleteStore>(MockBehavior.Strict).Object).HandleAsync(c);
-        Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains(error, r.Errors);
+        Assert.False(r.Success);
+        Assert.Null(r.Data);
+        Assert.Contains(error, r.Errors);
     }
     [UnitTheory]
     [InlineData("normal")]
@@ -39,17 +42,29 @@ public sealed class PermanentlyDeleteRecordHandlerTests
     [InlineData("maximumTime")]
     public async Task GivenValidTerminalMetadata_WhenHandling_ThenForwardTrustedContextAndReturnExactlyTwoFields(string kind)
     {
-        var c = Command(); if (kind == "largestRevision") c.ExpectedRevision = ProtocolBinary.MaxInteger;
+        var c = Command();
+        if (kind == "largestRevision")
+            c.ExpectedRevision = ProtocolBinary.MaxInteger;
         var time = kind == "minimum" ? new DateTimeOffset(10, TimeSpan.Zero) : kind == "pre2000" ? new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero) : kind == "maximumTime" ? new DateTimeOffset(DateTimeOffset.MaxValue.Ticks - 9, TimeSpan.Zero) : DateTimeOffset.UnixEpoch;
-        using var ct = new CancellationTokenSource(); RecordPermanentDeleteRequest? received = null; CancellationToken token = default;
+        using var ct = new CancellationTokenSource();
+        RecordPermanentDeleteRequest? received = null;
+        CancellationToken token = default;
         var store = new Mock<IRecordPermanentDeleteStore>(MockBehavior.Strict);
         store.Setup(x => x.DeleteAsync(It.IsAny<RecordPermanentDeleteRequest>(), It.IsAny<CancellationToken>())).Returns<RecordPermanentDeleteRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<RecordPermanentDeleteDetails>(new(target, time))); });
         var result = await Handler(store.Object).HandleAsync(c, ct.Token);
-        Assert.True(result.Success); Assert.Contains("record_permanently_deleted", result.Messages); Assert.Equal(target, result.Data!.RecordId); Assert.Equal(time, result.Data.DeletedAt);
-        Assert.Equal(actor, received!.Actor); Assert.Equal(target, received.RecordId); Assert.Equal(c.ExpectedRevision, received.ExpectedRevision);
-        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier); Assert.Equal(ct.Token, token);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json)); Assert.Equal(new[] { "deletedAt", "recordId" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json)); Assert.Equal(new[] { "expectedRevision" }, input.RootElement.EnumerateObject().Select(x => x.Name));
+        Assert.True(result.Success);
+        Assert.Contains("record_permanently_deleted", result.Messages);
+        Assert.Equal(target, result.Data!.RecordId);
+        Assert.Equal(time, result.Data.DeletedAt);
+        Assert.Equal(actor, received!.Actor);
+        Assert.Equal(target, received.RecordId);
+        Assert.Equal(c.ExpectedRevision, received.ExpectedRevision);
+        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
+        Assert.Equal(ct.Token, token);
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        Assert.Equal(new[] { "deletedAt", "recordId" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        Assert.Equal(new[] { "expectedRevision" }, input.RootElement.EnumerateObject().Select(x => x.Name));
     }
     [UnitTheory]
     [InlineData("validation_failed", 400)]
@@ -65,9 +80,14 @@ public sealed class PermanentlyDeleteRecordHandlerTests
     [InlineData("", 503)]
     public async Task GivenStoreFailure_WhenHandling_ThenOnlyAllowExpectedSafeCodes(string error, int status)
     {
-        var store = new Mock<IRecordPermanentDeleteStore>(); store.Setup(x => x.DeleteAsync(It.IsAny<RecordPermanentDeleteRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecordPermanentDeleteDetails>(Error: error));
-        var r = await Handler(store.Object).HandleAsync(Command()); var expected = error is "validation_failed" or "not_found" or "vault_access_denied" or "revision_conflict" ? error : "persistence_unavailable";
-        Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains(expected, r.Errors); Assert.Equal(status, PermanentlyDeleteRecordMessages.StatusCodes[expected]);
+        var store = new Mock<IRecordPermanentDeleteStore>();
+        store.Setup(x => x.DeleteAsync(It.IsAny<RecordPermanentDeleteRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecordPermanentDeleteDetails>(Error: error));
+        var r = await Handler(store.Object).HandleAsync(Command());
+        var expected = error is "validation_failed" or "not_found" or "vault_access_denied" or "revision_conflict" ? error : "persistence_unavailable";
+        Assert.False(r.Success);
+        Assert.Null(r.Data);
+        Assert.Contains(expected, r.Errors);
+        Assert.Equal(status, PermanentlyDeleteRecordMessages.StatusCodes[expected]);
     }
     [UnitTheory]
     [InlineData("not_found")]
@@ -78,8 +98,12 @@ public sealed class PermanentlyDeleteRecordHandlerTests
     [InlineData("secret_owner_123")]
     public async Task GivenStoreErrorAndData_WhenHandling_Then503WithoutPartialPayload(string error)
     {
-        var store = new Mock<IRecordPermanentDeleteStore>(); store.Setup(x => x.DeleteAsync(It.IsAny<RecordPermanentDeleteRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecordPermanentDeleteDetails>(Details(), error));
-        var r = await Handler(store.Object).HandleAsync(Command()); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains("persistence_unavailable", r.Errors);
+        var store = new Mock<IRecordPermanentDeleteStore>();
+        store.Setup(x => x.DeleteAsync(It.IsAny<RecordPermanentDeleteRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecordPermanentDeleteDetails>(Details(), error));
+        var r = await Handler(store.Object).HandleAsync(Command());
+        Assert.False(r.Success);
+        Assert.Null(r.Data);
+        Assert.Contains("persistence_unavailable", r.Errors);
     }
     [UnitTheory]
     [InlineData("nullResult")]
@@ -92,9 +116,14 @@ public sealed class PermanentlyDeleteRecordHandlerTests
     [InlineData("timeOffset")]
     public async Task GivenMalformedStoreSuccess_WhenHandling_Then503WithoutTerminalMetadata(string kind)
     {
-        RecordPermanentDeleteDetails? d = Details(); d = kind switch { "nullData" => null, "recordId" => d with { RecordId = Guid.NewGuid() }, "emptyId" => d with { RecordId = Guid.Empty }, "defaultTime" => d with { DeletedAt = default }, "submicroTime" => d with { DeletedAt = new(9, TimeSpan.Zero) }, "precision" => d with { DeletedAt = d.DeletedAt.AddTicks(1) }, "timeOffset" => d with { DeletedAt = d.DeletedAt.ToOffset(TimeSpan.FromHours(1)) }, _ => d };
-        var store = new Mock<IRecordPermanentDeleteStore>(); store.Setup(x => x.DeleteAsync(It.IsAny<RecordPermanentDeleteRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(kind == "nullResult" ? null! : new VaultResult<RecordPermanentDeleteDetails>(d));
-        var r = await Handler(store.Object).HandleAsync(Command()); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains("persistence_unavailable", r.Errors);
+        RecordPermanentDeleteDetails? d = Details();
+        d = kind switch { "nullData" => null, "recordId" => d with { RecordId = Guid.NewGuid() }, "emptyId" => d with { RecordId = Guid.Empty }, "defaultTime" => d with { DeletedAt = default }, "submicroTime" => d with { DeletedAt = new(9, TimeSpan.Zero) }, "precision" => d with { DeletedAt = d.DeletedAt.AddTicks(1) }, "timeOffset" => d with { DeletedAt = d.DeletedAt.ToOffset(TimeSpan.FromHours(1)) }, _ => d };
+        var store = new Mock<IRecordPermanentDeleteStore>();
+        store.Setup(x => x.DeleteAsync(It.IsAny<RecordPermanentDeleteRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(kind == "nullResult" ? null! : new VaultResult<RecordPermanentDeleteDetails>(d));
+        var r = await Handler(store.Object).HandleAsync(Command());
+        Assert.False(r.Success);
+        Assert.Null(r.Data);
+        Assert.Contains("persistence_unavailable", r.Errors);
     }
     [UnitFact] public void GivenOmittedExpectedRevision_WhenParsing_ThenRejectRequiredMember() => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<PermanentlyDeleteRecordCommand>("{}", Json));
     [UnitTheory]

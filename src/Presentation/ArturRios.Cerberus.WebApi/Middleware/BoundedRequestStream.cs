@@ -20,7 +20,8 @@ internal sealed class BoundedRequestStream(Stream inner, long maximum) : Stream
     private int Count(int count)
     {
         _read += count;
-        if (_read > maximum) throw new BadHttpRequestException("Request limit exceeded.", StatusCodes.Status413PayloadTooLarge);
+        if (_read > maximum)
+            throw new BadHttpRequestException("Request limit exceeded.", StatusCodes.Status413PayloadTooLarge);
         return count;
     }
 

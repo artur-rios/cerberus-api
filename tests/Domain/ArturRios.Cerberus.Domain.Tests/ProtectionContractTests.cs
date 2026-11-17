@@ -40,8 +40,10 @@ public class ProtectionContractTests
     [InlineData("curve")]
     public void GivenInvalidProtectionMetadata_WhenValidating_ThenReject(string invalid)
     {
-        using var f = new ProtectionFixture(); var m = f.Material;
-        var p = m.PasswordWrapper; var r = m.RecoveryWrapper;
+        using var f = new ProtectionFixture();
+        var m = f.Material;
+        var p = m.PasswordWrapper;
+        var r = m.RecoveryWrapper;
         m = invalid switch
         {
             "passwordFormat" => m with { PasswordWrapper = p with { Format = "unsupported" } },

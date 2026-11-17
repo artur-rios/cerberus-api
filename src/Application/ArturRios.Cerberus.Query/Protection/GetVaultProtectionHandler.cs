@@ -21,14 +21,18 @@ public sealed class GetVaultProtectionHandler(IVaultProtectionStore store) : IQu
 {
     public async Task<DataOutput<VaultProtectionOutput?>> HandleAsync(GetVaultProtectionQuery query, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested(); var output = DataOutput<VaultProtectionOutput?>.New;
-        if (query.Actor == Guid.Empty) return output.WithError("authentication_required");
+        cancellationToken.ThrowIfCancellationRequested();
+        var output = DataOutput<VaultProtectionOutput?>.New;
+        if (query.Actor == Guid.Empty)
+            return output.WithError("authentication_required");
         var result = await store.ReadAsync(query.Actor, cancellationToken);
-        if (result.Error is not null) return output.WithError(result.Error);
+        if (result.Error is not null)
+            return output.WithError(result.Error);
         var data = result.Data;
         if (data is null || data.AccountId == Guid.Empty || data.Material?.IsValid() != true
             || data.ProtectionRevision is <= 0 or > ProtocolBinary.MaxInteger || data.KeyEpoch != data.Material.PasswordWrapper.KeyEpoch
-            || data.RecoveryGeneration != data.Material.RecoveryWrapper.Generation) return output.WithError("persistence_unavailable");
+            || data.RecoveryGeneration != data.Material.RecoveryWrapper.Generation)
+            return output.WithError("persistence_unavailable");
         return output.WithData(new VaultProtectionOutput
         {
             AccountId = data.AccountId,

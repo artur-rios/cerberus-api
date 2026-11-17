@@ -32,9 +32,12 @@ public sealed class AccountUpdateStore(IDbContextFactory<AppDbContext> factory) 
                 Erased = context.TerminalErasures.Any(e => (e.ResourceKind == "account" && e.ResourceId == a.PublicId)),
                 Allowed = permitted.Any(p => p.Id == a.Id)
             }).SingleOrDefaultAsync(cancellationToken);
-            if (snapshot is null || snapshot.State != AccountState.Active || snapshot.Erased) return new(Error: "not_found");
-            if (!snapshot.Allowed) return new(Error: "vault_access_denied");
-            if (snapshot.Revision != request.ExpectedRevision || snapshot.Revision == long.MaxValue) return new(Error: "revision_conflict");
+            if (snapshot is null || snapshot.State != AccountState.Active || snapshot.Erased)
+                return new(Error: "not_found");
+            if (!snapshot.Allowed)
+                return new(Error: "vault_access_denied");
+            if (snapshot.Revision != request.ExpectedRevision || snapshot.Revision == long.MaxValue)
+                return new(Error: "revision_conflict");
 
             // The UPDATE is the linearization point. All authorization predicates and
             // the expected revision are rechecked atomically, including competing edits.

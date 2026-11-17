@@ -1,13 +1,13 @@
-using ArturRios.Cerberus.Command.Records;
 using System.Globalization;
+using ArturRios.Cerberus.Command.Records;
 using ArturRios.Cerberus.Query.Records;
 using ArturRios.Cerberus.WebApi.Middleware;
 using ArturRios.Mediator.Command;
 using ArturRios.Mediator.Query;
 using ArturRios.Output;
 using ArturRios.Util.WebApi.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ArturRios.Cerberus.WebApi.Controllers;
 

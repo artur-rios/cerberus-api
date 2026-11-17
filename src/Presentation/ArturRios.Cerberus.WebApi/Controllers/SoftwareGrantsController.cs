@@ -1,10 +1,10 @@
+using System.Net.Http.Headers;
 using ArturRios.Cerberus.Command.Software;
 using ArturRios.Cerberus.WebApi.Middleware;
 using ArturRios.Mediator.Command;
 using ArturRios.Output;
 using ArturRios.Util.WebApi.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Headers;
 
 namespace ArturRios.Cerberus.WebApi.Controllers;
 

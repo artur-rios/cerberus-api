@@ -54,18 +54,20 @@ public class AccountReadStoreTests(PostgresFixture fixture) : IClassFixture<Post
                 await setup.SaveChangesAsync();
                 sessionAccountId = other.Id;
             }
-            if (state != "missingSession") setup.VaultAccessSessions.Add(new VaultAccessSession
-            {
-                AccountId = sessionAccountId,
-                HandleVerifier = verifier,
-                ProfileId = state == "profileOnly" ? 42 : null,
-                IssuedAt = state == "futureIssue" ? Now.AddSeconds(1) : Now.AddMinutes(-5),
-                ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
-                PolicyRevision = state == "stalePolicy" ? 0 : 1,
-                RevocationGeneration = state == "staleGeneration" ? 0 : 1,
-                Revoked = state == "revoked"
-            });
-            if (state == "erased") setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
+            if (state != "missingSession")
+                setup.VaultAccessSessions.Add(new VaultAccessSession
+                {
+                    AccountId = sessionAccountId,
+                    HandleVerifier = verifier,
+                    ProfileId = state == "profileOnly" ? 42 : null,
+                    IssuedAt = state == "futureIssue" ? Now.AddSeconds(1) : Now.AddMinutes(-5),
+                    ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
+                    PolicyRevision = state == "stalePolicy" ? 0 : 1,
+                    RevocationGeneration = state == "staleGeneration" ? 0 : 1,
+                    Revoked = state == "revoked"
+                });
+            if (state == "erased")
+                setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
             await setup.SaveChangesAsync();
         }
         var result = await new AccountReadStore(fixture).ReadAsync(state == "missingAccount" ? Guid.NewGuid() : identity, verifier, Now, default);
@@ -76,7 +78,8 @@ public class AccountReadStoreTests(PostgresFixture fixture) : IClassFixture<Post
             Assert.Equal(5, result.Account.Revision);
             Assert.Equal(new byte[] { 1, 2, 3 }, result.Account.DetailsEnvelope);
         }
-        else Assert.Null(result.Account);
+        else
+            Assert.Null(result.Account);
         await using var after = fixture.CreateContext();
         var unchanged = await after.Accounts.SingleAsync(x => x.PublicId == id);
         Assert.Equal(5, unchanged.Revision);

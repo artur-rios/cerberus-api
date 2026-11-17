@@ -84,21 +84,25 @@ public class OfflinePolicyReadStoreTests(PostgresFixture fixture) : IClassFixtur
                 setup.Profiles.Add(profile);
                 await setup.SaveChangesAsync();
                 profileId = profile.Id;
-                if (state == "erasedProfile") setup.TerminalErasures.Add(new TerminalErasure { ResourceId = profile.PublicId, ResourceKind = "profile", DeletedAt = Now });
+                if (state == "erasedProfile")
+                    setup.TerminalErasures.Add(new TerminalErasure { ResourceId = profile.PublicId, ResourceKind = "profile", DeletedAt = Now });
             }
-            if (state == "missingProfile") profileId = long.MaxValue;
-            if (state != "missingSession") setup.VaultAccessSessions.Add(new VaultAccessSession
-            {
-                AccountId = sessionAccountId,
-                HandleVerifier = verifier,
-                ProfileId = profileId,
-                IssuedAt = state == "futureIssue" ? Now.AddSeconds(1) : Now.AddMinutes(-5),
-                ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
-                PolicyRevision = state == "zeroPolicy" ? 0 : 1,
-                RevocationGeneration = state == "zeroGeneration" ? 0 : 1,
-                Revoked = state == "revoked"
-            });
-            if (state == "erased") setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
+            if (state == "missingProfile")
+                profileId = long.MaxValue;
+            if (state != "missingSession")
+                setup.VaultAccessSessions.Add(new VaultAccessSession
+                {
+                    AccountId = sessionAccountId,
+                    HandleVerifier = verifier,
+                    ProfileId = profileId,
+                    IssuedAt = state == "futureIssue" ? Now.AddSeconds(1) : Now.AddMinutes(-5),
+                    ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
+                    PolicyRevision = state == "zeroPolicy" ? 0 : 1,
+                    RevocationGeneration = state == "zeroGeneration" ? 0 : 1,
+                    Revoked = state == "revoked"
+                });
+            if (state == "erased")
+                setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
             await setup.SaveChangesAsync();
         }
         var result = await new OfflinePolicyReadStore(fixture).ReadAsync(state == "missingAccount" ? Guid.NewGuid() : identity, verifier, Now, default);
@@ -110,7 +114,8 @@ public class OfflinePolicyReadStoreTests(PostgresFixture fixture) : IClassFixtur
             Assert.Equal(1, result.Policy.PolicyRevision);
             Assert.Equal(1, result.Policy.RevocationGeneration);
         }
-        else Assert.Null(result.Policy);
+        else
+            Assert.Null(result.Policy);
         await using var after = fixture.CreateContext();
         var unchanged = await after.Accounts.SingleAsync(x => x.PublicId == id);
         Assert.Equal(5, unchanged.Revision);

@@ -1,8 +1,8 @@
 using System.Globalization;
 using ArturRios.Cerberus.Command.Trash;
+using ArturRios.Cerberus.Query.Trash;
 using ArturRios.Cerberus.WebApi.Middleware;
 using ArturRios.Mediator.Command;
-using ArturRios.Cerberus.Query.Trash;
 using ArturRios.Mediator.Query;
 using ArturRios.Output;
 using ArturRios.Util.WebApi.AspNetCore;
@@ -31,7 +31,8 @@ public sealed class TrashController(QueryMediator queries, CommandMediator comma
             || Request.Headers.Keys.Any(k => k.StartsWith("X-Cerberus-", StringComparison.OrdinalIgnoreCase)
                 && !k.Equals("X-Cerberus-Vault-Access", StringComparison.OrdinalIgnoreCase)))
             return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor)) return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
         vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
         command.SetContext(actor, vaultAccess);
         var result = await commands.ExecuteCommandAsync<EmptyTrashCommand, EmptyTrashOutput>(command, cancellationToken);
@@ -57,7 +58,8 @@ public sealed class TrashController(QueryMediator queries, CommandMediator comma
                 && !k.Equals("X-Cerberus-Vault-Access", StringComparison.OrdinalIgnoreCase))
             || !Guid.TryParseExact(id, "D", out var operationId) || operationId == Guid.Empty || id != operationId.ToString("D"))
             return BadRequest(ProcessOutput.New.WithError("validation_failed"));
-        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor)) return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
         vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
         command.SetContext(actor, vaultAccess, operationId);
         var result = await commands.ExecuteCommandAsync<RestoreTrashCommand, RestoreTrashOutput>(command, cancellationToken);
@@ -86,12 +88,14 @@ public sealed class TrashController(QueryMediator queries, CommandMediator comma
         {
             pageSize = rawSize.ToString();
             if (!int.TryParse(pageSize, NumberStyles.None, CultureInfo.InvariantCulture, out var parsed)
-                || parsed.ToString(CultureInfo.InvariantCulture) != pageSize) return BadRequest(ProcessOutput.New.WithError("validation_failed"));
+                || parsed.ToString(CultureInfo.InvariantCulture) != pageSize)
+                return BadRequest(ProcessOutput.New.WithError("validation_failed"));
             size = parsed;
         }
         cursor = Request.Query.TryGetValue("cursor", out var rawCursor) ? rawCursor.ToString() : null;
         vaultAccess = Request.Headers.TryGetValue("X-Cerberus-Vault-Access", out var raw) ? raw.ToString() : null;
-        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor)) return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
+        if (!Guid.TryParse(User.FindFirst("id")?.Value, out var actor))
+            return Unauthorized(ProcessOutput.New.WithError("authentication_required"));
         var result = await queries.ExecuteQueryAsync<ListTrashQuery, TrashListOutput>(new(actor, vaultAccess, size, cursor), cancellationToken);
         return result.ToActionResult(statusMap: TrashListMessages.StatusCodes);
     }

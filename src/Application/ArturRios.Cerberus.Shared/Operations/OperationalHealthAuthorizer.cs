@@ -14,10 +14,12 @@ public sealed class OperationalHealthAuthorizer(CerberusOptions options, Heimdal
         var person = await tokens.ValidateOperationalAsync(token);
         var application = person is null ? await applicationTokens.ValidateAsync(token) : null;
         var principal = person ?? application;
-        if (principal is null) return OperationalAuthorization.Unauthenticated;
+        if (principal is null)
+            return OperationalAuthorization.Unauthenticated;
         if (!OperationalGrants.TryParse(person is null ? options.OperationalApplicationIds : options.OperationalPersonIds, out var subjects))
             return OperationalAuthorization.Forbidden;
-        if (!subjects.Contains(Guid.Parse(principal.FindFirst("id")!.Value))) return OperationalAuthorization.Forbidden;
+        if (!subjects.Contains(Guid.Parse(principal.FindFirst("id")!.Value)))
+            return OperationalAuthorization.Forbidden;
         if (person is not null)
             return await people.RevalidateOperationalAsync(token, ct) switch
             {

@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
 using ArturRios.Cerberus.Data;
-using ArturRios.Cerberus.Shared.Identity;
 using ArturRios.Cerberus.Shared.Configuration;
+using ArturRios.Cerberus.Shared.Identity;
 using ArturRios.Jwt;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -55,7 +55,8 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
     public async ValueTask InitializeAsync()
     {
         await _database.StartAsync();
-        await using (var context = Context()) await context.Database.MigrateAsync();
+        await using (var context = Context())
+            await context.Database.MigrateAsync();
         var builder = WebApplication.CreateSlimBuilder();
         builder.Logging.ClearProviders();
         _identity = builder.Build();
@@ -67,9 +68,12 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
         _identity.Urls.Add("http://127.0.0.1:0");
         _identity.MapPost("/api/auth/login", (LoginInput input) =>
         {
-            if (input.Email.StartsWith("unavailable-", StringComparison.Ordinal)) return Results.StatusCode(503);
-            if (input.Email.StartsWith("forbidden-login-", StringComparison.Ordinal)) return Results.StatusCode(403);
-            if (input.Email.StartsWith("malformed-", StringComparison.Ordinal)) return Envelope(new { token = "invalid" });
+            if (input.Email.StartsWith("unavailable-", StringComparison.Ordinal))
+                return Results.StatusCode(503);
+            if (input.Email.StartsWith("forbidden-login-", StringComparison.Ordinal))
+                return Results.StatusCode(403);
+            if (input.Email.StartsWith("malformed-", StringComparison.Ordinal))
+                return Envelope(new { token = "invalid" });
             if (input.ScopeId != Scope || !Users.TryGetValue(input.Email, out var user) || input.Password != user.Password)
                 return Results.StatusCode(401);
             if (user.Mfa)
@@ -88,9 +92,12 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
         });
         _identity.MapPost("/api/scopes/{scope:guid}/persons", (Guid scope, HeimdallRegistration input, HttpContext request) =>
         {
-            if (scope != Scope || input.Email.StartsWith("missing-", StringComparison.Ordinal)) return Results.StatusCode(404);
-            if (input.Email.StartsWith("forbidden-", StringComparison.Ordinal)) return Results.StatusCode(403);
-            if (request.Request.Headers.Authorization != "Bearer " + _serviceToken) return Results.StatusCode(403);
+            if (scope != Scope || input.Email.StartsWith("missing-", StringComparison.Ordinal))
+                return Results.StatusCode(404);
+            if (input.Email.StartsWith("forbidden-", StringComparison.Ordinal))
+                return Results.StatusCode(403);
+            if (request.Request.Headers.Authorization != "Bearer " + _serviceToken)
+                return Results.StatusCode(403);
             var user = new User(Guid.NewGuid(), input.Password);
             return Users.TryAdd(input.Email, user) ? Person(user) : Results.StatusCode(409);
         });
@@ -108,9 +115,11 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
             IdentityUpdates[id] = (request.Request.Headers.Authorization.ToString(), input.GetRawText());
             var bearer = request.Request.Headers.Authorization.ToString();
             var principal = bearer.StartsWith("Bearer ", StringComparison.Ordinal) ? await _tokens.ValidateAsync(bearer[7..]) : null;
-            if (principal?.FindFirst("id")?.Value != id.ToString() || principal.FindFirst("roleId")?.Value != "3") return Results.StatusCode(403);
+            if (principal?.FindFirst("id")?.Value != id.ToString() || principal.FindFirst("roleId")?.Value != "3")
+                return Results.StatusCode(403);
             if (input.EnumerateObject().Count() != 2 || !input.TryGetProperty("name", out var nameValue)
-                || !input.TryGetProperty("email", out var emailValue)) return Results.StatusCode(400);
+                || !input.TryGetProperty("email", out var emailValue))
+                return Results.StatusCode(400);
             var name = nameValue.GetString()!;
             var email = emailValue.GetString()!;
             if (name.StartsWith("provider-", StringComparison.Ordinal) && int.TryParse(name[9..], out var failure))
@@ -118,8 +127,10 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
             lock (Users)
             {
                 var pair = Users.SingleOrDefault(x => x.Value.Id == id);
-                if (pair.Value is null || pair.Value.Deleted) return Results.StatusCode(404);
-                if (Users.TryGetValue(email, out var existing) && existing.Id != id) return Results.StatusCode(409);
+                if (pair.Value is null || pair.Value.Deleted)
+                    return Results.StatusCode(404);
+                if (Users.TryGetValue(email, out var existing) && existing.Id != id)
+                    return Results.StatusCode(409);
                 var updated = pair.Value with
                 {
                     Name = name,
@@ -184,7 +195,8 @@ public sealed class RegistrationApiFixture : IAsyncLifetime
     {
         await _identity.DisposeAsync();
         await _database.DisposeAsync();
-        foreach (var (key, value) in _previous) Environment.SetEnvironmentVariable(key, value);
+        foreach (var (key, value) in _previous)
+            Environment.SetEnvironmentVariable(key, value);
         Directory.Delete(_ledger, recursive: true);
     }
     public static string Token(Guid id, Guid? scope = null) => new JwtHandler().CreateToken(new JwtConfiguration(60, "fixture-issuer", "fixture-audience", Secret,

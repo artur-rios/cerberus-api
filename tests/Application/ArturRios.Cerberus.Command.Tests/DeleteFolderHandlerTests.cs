@@ -2,8 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using ArturRios.Cerberus.Command.Folders;
-using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Folders;
+using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.TestSupport;
 using Moq;
 namespace ArturRios.Cerberus.Command.Tests;
@@ -32,9 +32,34 @@ public class DeleteFolderHandlerTests
     [InlineData("largestRevision")]
     public async Task GivenValidTrashMetadata_WhenHandling_ThenForwardTrustedContextAndReturnExactSixFields(string kind)
     {
-        var c = Command(); if (kind == "largestRevision") c.ExpectedRevision = ProtocolBinary.MaxInteger - 1; var time = kind == "minimum" ? new DateTimeOffset(10, TimeSpan.Zero) : kind == "pre2000" ? new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero) : DateTimeOffset.UnixEpoch; var d = new FolderTrashDetails(target, operation, c.ExpectedRevision + 1, 7, time, time.AddDays(30)); using var ct = new CancellationTokenSource(); FolderTrashRequest? received = null; CancellationToken token = default; var store = new Mock<IFolderTrashStore>(MockBehavior.Strict); store.Setup(x => x.TrashAsync(It.IsAny<FolderTrashRequest>(), It.IsAny<CancellationToken>())).Returns<FolderTrashRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<FolderTrashDetails>(d)); }); var result = await Handler(store.Object).HandleAsync(c, ct.Token);
-        Assert.True(result.Success); Assert.Contains("folder_deleted", result.Messages); Assert.Equal(target, result.Data!.FolderId); Assert.Equal(operation, result.Data.TrashOperationId); Assert.Equal(d.Revision, result.Data.Revision); Assert.Equal(7, result.Data.ServerSequence); Assert.Equal(time, result.Data.DeletedAt); Assert.Equal(time.AddDays(30), result.Data.PurgeAt); Assert.Equal(actor, received!.Actor); Assert.Equal(target, received.FolderId); Assert.Equal(c.ExpectedRevision, received.ExpectedRevision); Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier); Assert.Equal(ct.Token, token);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json)); Assert.Equal(new[] { "deletedAt", "folderId", "purgeAt", "revision", "serverSequence", "trashOperationId" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order()); using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json)); Assert.Equal(new[] { "expectedRevision" }, input.RootElement.EnumerateObject().Select(x => x.Name));
+        var c = Command();
+        if (kind == "largestRevision")
+            c.ExpectedRevision = ProtocolBinary.MaxInteger - 1;
+        var time = kind == "minimum" ? new DateTimeOffset(10, TimeSpan.Zero) : kind == "pre2000" ? new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero) : DateTimeOffset.UnixEpoch;
+        var d = new FolderTrashDetails(target, operation, c.ExpectedRevision + 1, 7, time, time.AddDays(30));
+        using var ct = new CancellationTokenSource();
+        FolderTrashRequest? received = null;
+        CancellationToken token = default;
+        var store = new Mock<IFolderTrashStore>(MockBehavior.Strict);
+        store.Setup(x => x.TrashAsync(It.IsAny<FolderTrashRequest>(), It.IsAny<CancellationToken>())).Returns<FolderTrashRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<FolderTrashDetails>(d)); });
+        var result = await Handler(store.Object).HandleAsync(c, ct.Token);
+        Assert.True(result.Success);
+        Assert.Contains("folder_deleted", result.Messages);
+        Assert.Equal(target, result.Data!.FolderId);
+        Assert.Equal(operation, result.Data.TrashOperationId);
+        Assert.Equal(d.Revision, result.Data.Revision);
+        Assert.Equal(7, result.Data.ServerSequence);
+        Assert.Equal(time, result.Data.DeletedAt);
+        Assert.Equal(time.AddDays(30), result.Data.PurgeAt);
+        Assert.Equal(actor, received!.Actor);
+        Assert.Equal(target, received.FolderId);
+        Assert.Equal(c.ExpectedRevision, received.ExpectedRevision);
+        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
+        Assert.Equal(ct.Token, token);
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        Assert.Equal(new[] { "deletedAt", "folderId", "purgeAt", "revision", "serverSequence", "trashOperationId" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        Assert.Equal(new[] { "expectedRevision" }, input.RootElement.EnumerateObject().Select(x => x.Name));
     }
     [UnitTheory]
     [InlineData("validation_failed", 400)]

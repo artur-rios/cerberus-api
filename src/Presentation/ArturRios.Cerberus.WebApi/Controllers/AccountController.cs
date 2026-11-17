@@ -1,16 +1,16 @@
+using System.Net.Http.Headers;
 using ArturRios.Cerberus.Command.Accounts;
+using ArturRios.Cerberus.Command.Offline;
 using ArturRios.Cerberus.Query.Accounts;
 using ArturRios.Cerberus.Query.Offline;
-using ArturRios.Cerberus.Command.Offline;
 using ArturRios.Cerberus.WebApi.Middleware;
-using System.Net.Http.Headers;
 using ArturRios.Mediator.Command;
 using ArturRios.Mediator.Query;
 using ArturRios.Output;
 using ArturRios.Util.WebApi.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ArturRios.Cerberus.WebApi.Controllers;
 

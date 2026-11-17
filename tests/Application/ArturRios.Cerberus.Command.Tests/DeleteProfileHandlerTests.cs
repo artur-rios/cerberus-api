@@ -21,12 +21,42 @@ public class DeleteProfileHandlerTests
     [InlineData("unsafe", "validation_failed")]
     public async Task GivenInvalidCommandOrAccess_WhenDeleting_ThenRejectBeforeStore(string kind, string error)
     {
-        var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access, kind == "id" ? Guid.Empty : id); if (kind == "revision") c.ExpectedRevision = 0; if (kind == "negative") c.ExpectedRevision = -1; if (kind == "unsafe") c.ExpectedRevision = 9007199254740992; var r = await Handler(new Mock<IProfileTrashStore>(MockBehavior.Strict).Object).HandleAsync(c); Assert.Contains(error, r.Errors); Assert.False(r.Success); Assert.Null(r.Data);
+        var c = Command();
+        c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access, kind == "id" ? Guid.Empty : id);
+        if (kind == "revision")
+            c.ExpectedRevision = 0;
+        if (kind == "negative")
+            c.ExpectedRevision = -1;
+        if (kind == "unsafe")
+            c.ExpectedRevision = 9007199254740992;
+        var r = await Handler(new Mock<IProfileTrashStore>(MockBehavior.Strict).Object).HandleAsync(c);
+        Assert.Contains(error, r.Errors);
+        Assert.False(r.Success);
+        Assert.Null(r.Data);
     }
     [UnitFact]
     public async Task GivenValidDelete_WhenHandling_ThenBindTrustedRequestHashHandleAndReturnSixMetadataFields()
     {
-        var c = Command(); ProfileTrashRequest? captured = null; var d = Details(); var store = new Mock<IProfileTrashStore>(MockBehavior.Strict); store.Setup(x => x.TrashAsync(It.IsAny<ProfileTrashRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileTrashRequest, CancellationToken>((r, _) => { captured = r; return Task.FromResult(new VaultResult<ProfileTrashDetails>(d)); }); var result = await Handler(store.Object).HandleAsync(c); Assert.True(result.Success); Assert.Contains("profile_deleted", result.Messages); Assert.Equal(id, result.Data!.ProfileId); Assert.Equal(d.TrashOperationId, result.Data.TrashOperationId); Assert.Equal(2, result.Data.Revision); Assert.Equal(7, result.Data.ServerSequence); Assert.Equal(Time, result.Data.DeletedAt); Assert.Equal(Time.AddDays(30), result.Data.PurgeAt); Assert.Equal(actor, captured!.Actor); Assert.Equal(id, captured.ProfileId); Assert.Equal(1, captured.ExpectedRevision); Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier); Assert.Single(JsonDocument.Parse(JsonSerializer.Serialize(c)).RootElement.EnumerateObject()); Assert.Equal(6, JsonDocument.Parse(JsonSerializer.Serialize(result.Data)).RootElement.EnumerateObject().Count());
+        var c = Command();
+        ProfileTrashRequest? captured = null;
+        var d = Details();
+        var store = new Mock<IProfileTrashStore>(MockBehavior.Strict);
+        store.Setup(x => x.TrashAsync(It.IsAny<ProfileTrashRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileTrashRequest, CancellationToken>((r, _) => { captured = r; return Task.FromResult(new VaultResult<ProfileTrashDetails>(d)); });
+        var result = await Handler(store.Object).HandleAsync(c);
+        Assert.True(result.Success);
+        Assert.Contains("profile_deleted", result.Messages);
+        Assert.Equal(id, result.Data!.ProfileId);
+        Assert.Equal(d.TrashOperationId, result.Data.TrashOperationId);
+        Assert.Equal(2, result.Data.Revision);
+        Assert.Equal(7, result.Data.ServerSequence);
+        Assert.Equal(Time, result.Data.DeletedAt);
+        Assert.Equal(Time.AddDays(30), result.Data.PurgeAt);
+        Assert.Equal(actor, captured!.Actor);
+        Assert.Equal(id, captured.ProfileId);
+        Assert.Equal(1, captured.ExpectedRevision);
+        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier);
+        Assert.Single(JsonDocument.Parse(JsonSerializer.Serialize(c)).RootElement.EnumerateObject());
+        Assert.Equal(6, JsonDocument.Parse(JsonSerializer.Serialize(result.Data)).RootElement.EnumerateObject().Count());
     }
     [UnitTheory]
     [InlineData("not_found")]

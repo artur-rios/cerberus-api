@@ -19,8 +19,10 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
     public async Task<VaultResult<FolderMoveDetails>> MoveAsync(FolderMoveRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (request.FolderId == Guid.Empty || request.ParentFolderId == Guid.Empty || !Safe(request.ExpectedRevision)) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (request.FolderId == Guid.Empty || request.ParentFolderId == Guid.Empty || !Safe(request.ExpectedRevision))
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -29,10 +31,13 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
             // collection-before-content order below matches recipient content writers.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", ct);
             var account = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.HeimdallPublicId == request.Actor, ct);
-            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == account.PublicId, ct)) return new(Error: "not_found");
+            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == account.PublicId, ct))
+                return new(Error: "not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
-            var initial = await SnapshotAsync(db, request, ct); var error = StateError(initial, account.Id);
-            if (error is not null) return new(Error: error);
+            var initial = await SnapshotAsync(db, request, ct);
+            var error = StateError(initial, account.Id);
+            if (error is not null)
+                return new(Error: error);
             var item = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
             var original = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == item.Id, ct);
             var originalParent = original.ParentFolderId;
@@ -40,19 +45,25 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
             if (selection is not null)
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE account_id={account.Id} AND id={selection} FOR NO KEY UPDATE", ct);
-                error = StateError(await SnapshotAsync(db, request, ct), account.Id); if (error is not null) return new(Error: error);
+                error = StateError(await SnapshotAsync(db, request, ct), account.Id);
+                if (error is not null)
+                    return new(Error: error);
             }
             var collectionIds = initial.SourceCollections.Concat(initial.ResultCollections).Distinct().ToArray();
             var collections = await db.Collections.FromSqlInterpolated($"""
                 SELECT c.* FROM cerberus.collection c WHERE c.account_id={account.Id} AND c.id=ANY({collectionIds})
                 ORDER BY c.public_id FOR NO KEY UPDATE
                 """).AsNoTracking().ToListAsync(ct);
-            error = StateError(await SnapshotAsync(db, request, ct), account.Id); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct), account.Id);
+            if (error is not null)
+                return new(Error: error);
             var grants = await db.CollectionGrants.FromSqlInterpolated($"""
                 SELECT g.* FROM cerberus.collection_grant g JOIN cerberus.collection c ON c.id=g.collection_id
                 WHERE c.account_id={account.Id} AND g.id=ANY({initial.ResultGrantIds}) ORDER BY g.public_id FOR SHARE OF g
                 """).AsNoTracking().ToListAsync(ct);
-            error = StateError(await SnapshotAsync(db, request, ct), account.Id); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct), account.Id);
+            if (error is not null)
+                return new(Error: error);
             var inventory = JsonSerializer.Deserialize<Member[]>(initial.Members, Json)!;
             var capturedFolders = inventory.Where(x => x.Kind == "folder").Select(x => x.Id).ToArray();
             var capturedRecords = inventory.Where(x => x.Kind == "record").Select(x => x.Id).ToArray();
@@ -60,29 +71,49 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
             var folders = await db.Folders.FromSqlInterpolated($"""
                 SELECT f.* FROM cerberus.folder f WHERE f.account_id={account.Id} AND f.id=ANY({folderIds}) ORDER BY f.public_id FOR UPDATE
                 """).AsNoTracking().ToListAsync(ct);
-            error = StateError(await SnapshotAsync(db, request, ct), account.Id); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct), account.Id);
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.record WHERE account_id={account.Id} AND id=ANY({capturedRecords}) ORDER BY public_id FOR UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct), account.Id); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct), account.Id);
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile_folder WHERE account_id={account.Id} AND folder_id=ANY({capturedFolders}) ORDER BY profile_id,folder_id FOR UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct), account.Id); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct), account.Id);
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile_record WHERE account_id={account.Id} AND record_id=ANY({capturedRecords}) ORDER BY profile_id,record_id FOR UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct), account.Id); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct), account.Id);
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_folder WHERE account_id={account.Id} AND folder_id=ANY({capturedFolders}) ORDER BY collection_id,folder_id FOR UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct), account.Id); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct), account.Id);
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_record WHERE account_id={account.Id} AND record_id=ANY({capturedRecords}) ORDER BY collection_id,record_id FOR UPDATE", ct);
-            var current = await SnapshotAsync(db, request, ct); error = StateError(current, account.Id); if (error is not null) return new(Error: error);
-            if (!ValidResultNative(current)) return new(Error: "persistence_unavailable");
-            var heldCollections = collections.Select(x => x.Id).ToArray(); var heldGrants = grants.Select(x => x.Id).ToArray();
+            var current = await SnapshotAsync(db, request, ct);
+            error = StateError(current, account.Id);
+            if (error is not null)
+                return new(Error: error);
+            if (!ValidResultNative(current))
+                return new(Error: "persistence_unavailable");
+            var heldCollections = collections.Select(x => x.Id).ToArray();
+            var heldGrants = grants.Select(x => x.Id).ToArray();
             if (current.Frozen != initial.Frozen || current.SourceCollections.Concat(current.ResultCollections).Except(heldCollections).Any()
-                || current.ResultGrantIds.Except(heldGrants).Any() || current.DestinationId != initial.DestinationId) return new(Error: "revision_conflict");
+                || current.ResultGrantIds.Except(heldGrants).Any() || current.DestinationId != initial.DestinationId)
+                return new(Error: "revision_conflict");
             original = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == item.Id, ct);
             if (!ValidMetadata(original.Revision, original.ServerSequence, original.EditedAt, original.PurgeAt)
                 || inventory.Any(x => !ValidMetadata(x.Revision, x.Sequence, x.EditedAt, x.PurgeAt))
-                || JsonSerializer.Deserialize<EncryptedEnvelope>(original.Envelope, Json)?.IsValid() != true) return new(Error: "persistence_unavailable");
-            if (original.Revision != request.ExpectedRevision || original.Revision == ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
+                || JsonSerializer.Deserialize<EncryptedEnvelope>(original.Envelope, Json)?.IsValid() != true)
+                return new(Error: "persistence_unavailable");
+            if (original.Revision != request.ExpectedRevision || original.Revision == ProtocolBinary.MaxInteger)
+                return new(Error: "revision_conflict");
             var changedParents = originalParent != current.DestinationId ? folders.Where(x => x.Id == originalParent || x.Id == current.DestinationId).ToArray() : [];
-            if (changedParents.Any(x => !ValidMetadata(x.Revision, x.ServerSequence, x.EditedAt, x.PurgeAt) || x.DeletedAt is not null)) return new(Error: "persistence_unavailable");
-            if (changedParents.Any(x => x.Revision == ProtocolBinary.MaxInteger)) return new(Error: "revision_conflict");
+            if (changedParents.Any(x => !ValidMetadata(x.Revision, x.ServerSequence, x.EditedAt, x.PurgeAt) || x.DeletedAt is not null))
+                return new(Error: "persistence_unavailable");
+            if (changedParents.Any(x => x.Revision == ProtocolBinary.MaxInteger))
+                return new(Error: "revision_conflict");
             var parameters = Parameters(request).Concat(new object[]{new NpgsqlParameter("expected",request.ExpectedRevision),
                 new NpgsqlParameter("previous_sequence",original.ServerSequence),new NpgsqlParameter("original",original.Envelope),
                 new NpgsqlParameter("parent",NpgsqlDbType.Bigint){Value=(object?)originalParent??DBNull.Value},
@@ -108,19 +139,22 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
             var row = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == original.Id, ct);
             if (row.PublicId != original.PublicId || row.Revision != original.Revision + 1 || !Safe(row.ServerSequence) || row.ServerSequence <= original.ServerSequence
                 || row.ParentFolderId != current.DestinationId || row.AccountId != original.AccountId || row.EditedAt != original.EditedAt
-                || row.DeletedAt is not null || row.PurgeAt is not null || !row.Envelope.AsSpan().SequenceEqual(original.Envelope)) return new(Error: "persistence_unavailable");
+                || row.DeletedAt is not null || row.PurgeAt is not null || !row.Envelope.AsSpan().SequenceEqual(original.Envelope))
+                return new(Error: "persistence_unavailable");
             foreach (var parent in changedParents)
             {
                 if (await db.Database.ExecuteSqlInterpolatedAsync($"""
                     UPDATE cerberus.folder SET revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={Guid.NewGuid()}
                     WHERE id={parent.Id} AND account_id={account.Id} AND revision={parent.Revision} AND server_sequence={parent.ServerSequence}
                       AND deleted_at IS NULL AND purge_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_kind='folder' AND e.resource_id=cerberus.folder.public_id)
-                    """, ct) != 1) return new(Error: "revision_conflict");
+                    """, ct) != 1)
+                    return new(Error: "revision_conflict");
                 var now = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == parent.Id, ct);
                 if (now.Revision != parent.Revision + 1 || !Safe(now.ServerSequence) || now.ServerSequence <= parent.ServerSequence
                     || now.PublicId != parent.PublicId || now.AccountId != parent.AccountId || now.ParentFolderId != parent.ParentFolderId
                     || now.EditedAt != parent.EditedAt || now.DeletedAt is not null || now.PurgeAt is not null
-                    || !now.Envelope.AsSpan().SequenceEqual(parent.Envelope)) return new(Error: "persistence_unavailable");
+                    || !now.Envelope.AsSpan().SequenceEqual(parent.Envelope))
+                    return new(Error: "persistence_unavailable");
             }
             await tx.CommitAsync(ct);
             return new(new(row.PublicId, request.ParentFolderId, row.Revision, row.ServerSequence));
@@ -136,42 +170,60 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
         => Safe(revision) && Safe(sequence) && editedAt.Offset == TimeSpan.Zero && editedAt.Ticks >= 10 && editedAt.Ticks % 10 == 0 && purgeAt is null;
     private static string? StateError(Snapshot s, long owner)
     {
-        if (!s.ActorActive) return "not_found"; if (!s.Allowed) return "vault_access_denied";
-        if (s.CorruptAncestry) return "persistence_unavailable"; if (s.Item is null) return "not_found";
-        if (JsonSerializer.Deserialize<Item>(s.Item, Json)!.AccountId != owner) return ValidForeignNative(s) ? "vault_access_denied" : "persistence_unavailable";
-        if (s.DestinationCorrupt || s.MemberCorrupt) return "persistence_unavailable";
-        if (!s.DestinationAllowed) return "not_found"; if (s.InvalidCycle) return "validation_failed";
+        if (!s.ActorActive)
+            return "not_found";
+        if (!s.Allowed)
+            return "vault_access_denied";
+        if (s.CorruptAncestry)
+            return "persistence_unavailable";
+        if (s.Item is null)
+            return "not_found";
+        if (JsonSerializer.Deserialize<Item>(s.Item, Json)!.AccountId != owner)
+            return ValidForeignNative(s) ? "vault_access_denied" : "persistence_unavailable";
+        if (s.DestinationCorrupt || s.MemberCorrupt)
+            return "persistence_unavailable";
+        if (!s.DestinationAllowed)
+            return "not_found";
+        if (s.InvalidCycle)
+            return "validation_failed";
         return !s.Subset ? "not_found" : null;
     }
     private static bool ValidResultNative(Snapshot snapshot)
     {
         var evidence = JsonSerializer.Deserialize<ResultEvidence[]>(snapshot.NativeEvidence, Json)!;
-        if (evidence.Length == 0) return true;
+        if (evidence.Length == 0)
+            return true;
         // Parse each current pin bundle once per exact row, including recipients with
         // more than one contributing collection. Never lock a foreign account.
         var pins = new Dictionary<(string?, long?, long?, long?), ProtectionMaterial?>();
         ProtectionMaterial? Read(string? material, long? revision, long? epoch, long? generation)
         {
             var key = (material, revision, epoch, generation);
-            if (pins.TryGetValue(key, out var found)) return found;
-            CollectionGrantBinding.TryReadPins(Pins(material, revision, epoch, generation), out found); pins[key] = found; return found;
+            if (pins.TryGetValue(key, out var found))
+                return found;
+            CollectionGrantBinding.TryReadPins(Pins(material, revision, epoch, generation), out found);
+            pins[key] = found;
+            return found;
         }
         foreach (var e in evidence)
         {
             var owner = Read(e.OwnerMaterial, e.OwnerRevision, e.OwnerEpoch, e.OwnerGeneration);
             var recipient = Read(e.RecipientMaterial, e.RecipientRevision, e.RecipientEpoch, e.RecipientGeneration);
             if (owner is null || recipient is null || !CollectionGrantBinding.IsBound(new() { PublicId = e.GrantId, Revision = e.GrantRevision, RecipientKeyEnvelope = Convert.FromHexString(e.GrantEnvelope) },
-                new() { PublicId = e.CollectionId, KeyEpoch = e.CollectionEpoch, Envelope = Convert.FromHexString(e.CollectionEnvelope) }, e.OwnerId, e.RecipientIdentity, owner, recipient)) return false;
+                new() { PublicId = e.CollectionId, KeyEpoch = e.CollectionEpoch, Envelope = Convert.FromHexString(e.CollectionEnvelope) }, e.OwnerId, e.RecipientIdentity, owner, recipient))
+                return false;
         }
         return true;
     }
     private static bool ValidForeignNative(Snapshot snapshot)
     {
         var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
-        if (grants.Length == 0) return true;
+        if (grants.Length == 0)
+            return true;
         var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, Json);
         if (p is null || !CollectionGrantBinding.TryReadPins(Pins(p.OwnerMaterial, p.OwnerRevision, p.OwnerEpoch, p.OwnerGeneration), out var owner)
-            || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient)) return false;
+            || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient))
+            return false;
         return grants.All(g => CollectionGrantBinding.IsBound(new() { PublicId = g.GrantId, Revision = g.GrantRevision, RecipientKeyEnvelope = Convert.FromHexString(g.GrantEnvelope) },
             new() { PublicId = g.CollectionId, KeyEpoch = g.CollectionEpoch, Envelope = Convert.FromHexString(g.CollectionEnvelope) }, p.OwnerId, p.RecipientIdentity, owner!, recipient!));
     }

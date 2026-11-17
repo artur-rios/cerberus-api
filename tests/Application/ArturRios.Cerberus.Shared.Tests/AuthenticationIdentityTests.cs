@@ -31,7 +31,8 @@ public class AuthenticationIdentityTests
                     Assert.Equal("opaque-challenge", body.RootElement.GetProperty("challengeToken").GetString());
                     Assert.Equal("fixture-recovery", body.RootElement.GetProperty("recoveryCode").GetString());
                 }
-                else Assert.Equal(options.HeimdallScopeId, body.RootElement.GetProperty("scopeId").GetGuid());
+                else
+                    Assert.Equal(options.HeimdallScopeId, body.RootElement.GetProperty("scopeId").GetGuid());
                 return Login(options, challenge, expectedToken);
             }
             Assert.Equal(expectedToken, request.Headers.Authorization?.Parameter);

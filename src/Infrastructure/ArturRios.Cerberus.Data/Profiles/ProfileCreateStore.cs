@@ -1,6 +1,6 @@
-using ArturRios.Cerberus.Data.Resources;
 using System.Data.Common;
 using System.Text.Json;
+using ArturRios.Cerberus.Data.Resources;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Protection;
@@ -17,8 +17,11 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
     public async Task<VaultResult<ProfileCreateDetails>> CreateAsync(ProfileCreateRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        var input = request.Input; if (input?.IsValid() != true) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        var input = request.Input;
+        if (input?.IsValid() != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(cancellationToken);
@@ -26,7 +29,8 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", cancellationToken);
             var account = await db.Accounts.AsNoTracking().Where(x => x.HeimdallPublicId == request.Actor)
                 .Select(x => new { x.Id, x.PublicId, x.State, x.PolicyRevision, x.RevocationGeneration, x.RenewalEnabled }).SingleOrDefaultAsync(cancellationToken);
-            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), cancellationToken)) return new(Error: "not_found");
+            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), cancellationToken))
+                return new(Error: "not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", cancellationToken);
             async Task<bool> Permitted()
             {
@@ -35,20 +39,29 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
                     && x.PolicyRevision > 0 && x.RevocationGeneration > 0 && x.PolicyRevision == account.PolicyRevision && x.RevocationGeneration == account.RevocationGeneration
                     && x.IssuedAt <= now && (account.RenewalEnabled ? x.ExpiresAt > now : x.ExpiresAt == null), cancellationToken);
             }
-            if (!await Permitted()) return new(Error: "vault_access_denied");
+            if (!await Permitted())
+                return new(Error: "vault_access_denied");
             var p = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, cancellationToken);
-            if (p is null) return new(Error: "not_found");
+            if (p is null)
+                return new(Error: "not_found");
             var material = JsonSerializer.Deserialize<ProtectionMaterial>(p.Material, Json);
             if (material?.IsValid() != true || p.KeyEpoch != material.PasswordWrapper.KeyEpoch || p.RecoveryGeneration != material.RecoveryWrapper.Generation
-                || p.Revision is <= 0 or > ProtocolBinary.MaxInteger) return new(Error: "persistence_unavailable");
-            if (!input.KeyWrappers.IsBound(account.PublicId, input.ProfileId, 1, 1, request.Actor, material)) return new(Error: "validation_failed");
+                || p.Revision is <= 0 or > ProtocolBinary.MaxInteger)
+                return new(Error: "persistence_unavailable");
+            if (!input.KeyWrappers.IsBound(account.PublicId, input.ProfileId, 1, 1, request.Actor, material))
+                return new(Error: "validation_failed");
             var resolved = await ProfileAssociationResolver.ResolveAsync(db, account.Id, request.Actor, input.RecordIds, input.FolderIds, input.CollectionIds, cancellationToken);
-            if (!await Permitted()) return new(Error: "vault_access_denied");
-            if (resolved.Error is not null) return new(Error: resolved.Error);
+            if (!await Permitted())
+                return new(Error: "vault_access_denied");
+            if (resolved.Error is not null)
+                return new(Error: resolved.Error);
             if (await db.Profiles.AnyAsync(x => x.PublicId == input.ProfileId, cancellationToken)
-                || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "profile" && x.ResourceId == input.ProfileId), cancellationToken)) return new(Error: "revision_conflict");
-            if (!await ProfileVerifierIsolation.IsUniqueAsync(db, account.Id, input.KeyWrappers.UnlockVerifier, null, cancellationToken)) return new(Error: "validation_failed");
-            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json); var wrappers = JsonSerializer.SerializeToUtf8Bytes(input.KeyWrappers, Json);
+                || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "profile" && x.ResourceId == input.ProfileId), cancellationToken))
+                return new(Error: "revision_conflict");
+            if (!await ProfileVerifierIsolation.IsUniqueAsync(db, account.Id, input.KeyWrappers.UnlockVerifier, null, cancellationToken))
+                return new(Error: "validation_failed");
+            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
+            var wrappers = JsonSerializer.SerializeToUtf8Bytes(input.KeyWrappers, Json);
             // Normalize before binding: provider truncation is relative to its 2000 epoch.
             var editedAt = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             // Atomic permission check uses statement time after lock waits and validation.
@@ -76,7 +89,8 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
                             AND g.revision>0 AND g.revision<={ProtocolBinary.MaxInteger}
                             AND NOT EXISTS(SELECT 1 FROM cerberus.terminal_erasure e WHERE (e.resource_kind='grant' AND e.resource_id=g.public_id)))))=cardinality({input.CollectionIds})
                 """, cancellationToken);
-            if (inserted != 1) return new(Error: await Permitted() ? "not_found" : "vault_access_denied");
+            if (inserted != 1)
+                return new(Error: await Permitted() ? "not_found" : "vault_access_denied");
             var profile = await db.Profiles.AsNoTracking().SingleAsync(x => x.PublicId == input.ProfileId, cancellationToken);
             db.ProfileRecords.AddRange(resolved.Records.Select(id => new ProfileRecord { AccountId = account.Id, ProfileId = profile.Id, RecordId = id }));
             db.ProfileFolders.AddRange(resolved.Folders.Select(id => new ProfileFolder { AccountId = account.Id, ProfileId = profile.Id, FolderId = id }));
@@ -84,7 +98,8 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
             await db.SaveChangesAsync(cancellationToken);
             var result = await db.Profiles.AsNoTracking().Where(x => x.PublicId == input.ProfileId)
                 .Select(x => new ProfileCreateDetails(x.PublicId, x.Revision, x.ServerSequence, x.EditedAt)).SingleAsync(cancellationToken);
-            await tx.CommitAsync(cancellationToken); return new(result);
+            await tx.CommitAsync(cancellationToken);
+            return new(result);
         }
         catch (PostgresException exception) when (exception.SqlState is PostgresErrorCodes.UniqueViolation or "2200H") { return new(Error: "revision_conflict"); }
         catch (Exception exception) when (exception is DbException or DbUpdateException or TimeoutException or JsonException

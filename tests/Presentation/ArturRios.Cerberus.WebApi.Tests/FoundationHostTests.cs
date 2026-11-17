@@ -1,15 +1,15 @@
-using ArturRios.Configuration.Enums;
-using ArturRios.Util.Test.Functional;
-using ArturRios.Cerberus.WebApi;
-using Microsoft.Extensions.Options;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using ArturRios.Cerberus.Data;
 using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.Shared.Identity;
 using ArturRios.Cerberus.Shared.Operations;
+using ArturRios.Cerberus.WebApi;
 using ArturRios.Cerberus.WebApi.Operations;
+using ArturRios.Configuration.Enums;
+using ArturRios.Util.Test.Functional;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using Testcontainers.PostgreSql;
 
@@ -113,7 +113,8 @@ public class FoundationHostTests : WebApiTest<Program>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        if (disposing) TestEnvironment.Restore();
+        if (disposing)
+            TestEnvironment.Restore();
     }
 
     private static class TestEnvironment
@@ -157,9 +158,11 @@ public class FoundationHostTests : WebApiTest<Program>
 
         public static void Restore()
         {
-            foreach (var (key, value) in Previous) Environment.SetEnvironmentVariable(key, value);
+            foreach (var (key, value) in Previous)
+                Environment.SetEnvironmentVariable(key, value);
             Previous.Clear();
-            if (_ledger is not null && Directory.Exists(_ledger)) Directory.Delete(_ledger, recursive: true);
+            if (_ledger is not null && Directory.Exists(_ledger))
+                Directory.Delete(_ledger, recursive: true);
         }
     }
 }

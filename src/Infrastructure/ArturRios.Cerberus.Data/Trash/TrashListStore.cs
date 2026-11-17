@@ -18,7 +18,8 @@ public sealed class TrashListStore(IDbContextFactory<AppDbContext> factory) : IT
     public async Task<VaultResult<TrashListPage>> ListAsync(TrashListRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
         if (request.PageSize <= 0 || request.After < 0 || request.After > ProtocolBinary.MaxInteger
             || request.Boundary is < 0 or > ProtocolBinary.MaxInteger || request.Boundary is { } boundary && boundary < request.After)
             return new(Error: "validation_failed");
@@ -46,9 +47,12 @@ public sealed class TrashListStore(IDbContextFactory<AppDbContext> factory) : IT
             // All waits precede this one current snapshot: authority, retained scope, terminal
             // identities, original deadlines, page ciphertext and independent owner pins.
             var snapshot = (await db.Database.SqlQueryRaw<Snapshot>(TrashListSql.Snapshot, parameters).ToListAsync(ct)).Single();
-            if (!snapshot.ActorActive) return new(Error: "not_found");
-            if (!snapshot.Allowed) return new(Error: "vault_access_denied");
-            if (snapshot.CorruptAncestry || snapshot.CorruptMetadata) return new(Error: "persistence_unavailable");
+            if (!snapshot.ActorActive)
+                return new(Error: "not_found");
+            if (!snapshot.Allowed)
+                return new(Error: "vault_access_denied");
+            if (snapshot.CorruptAncestry || snapshot.CorruptMetadata)
+                return new(Error: "persistence_unavailable");
             var rows = JsonSerializer.Deserialize<Item[]>(snapshot.Items, Json)!.Select(x => new TrashListRow(x.Position, x.OperationId, x.Kind, x.ResourceId,
                 x.Revision, x.ServerSequence, x.EditedAt, x.DeletedAt, x.PurgeAt, Convert.FromHexString(x.Envelope), x.KeyEpoch,
                 x.KeyWrappers is null ? null : Convert.FromHexString(x.KeyWrappers))).ToArray();

@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ArturRios.Cerberus.Command.Folders;
-using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Folders;
+using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.TestSupport;
 using ArturRios.Cerberus.WebApi;
 using Moq;
@@ -34,9 +34,34 @@ public class MoveFolderHandlerTests
     [InlineData(true, true)]
     public async Task GivenValidMoveMetadata_WhenHandling_ThenForwardTrustedContextAndReturnExactFourFields(bool nullParent, bool largestRevision)
     {
-        var c = Command(); c.ParentFolderId = nullParent ? null : parent; if (largestRevision) c.ExpectedRevision = ProtocolBinary.MaxInteger - 1; var d = new FolderMoveDetails(target, c.ParentFolderId, c.ExpectedRevision + 1, largestRevision ? ProtocolBinary.MaxInteger : 1); using var ct = new CancellationTokenSource(); FolderMoveRequest? received = null; CancellationToken token = default; var store = new Mock<IFolderMoveStore>(MockBehavior.Strict); store.Setup(x => x.MoveAsync(It.IsAny<FolderMoveRequest>(), It.IsAny<CancellationToken>())).Returns<FolderMoveRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<FolderMoveDetails>(d)); }); var result = await Handler(store.Object).HandleAsync(c, ct.Token);
-        Assert.True(result.Success); Assert.Contains("folder_moved", result.Messages); Assert.Equal(target, result.Data!.FolderId); Assert.Equal(c.ParentFolderId, result.Data.ParentFolderId); Assert.Equal(d.Revision, result.Data.Revision); Assert.Equal(d.ServerSequence, result.Data.ServerSequence); Assert.Equal(actor, received!.Actor); Assert.Equal(target, received.FolderId); Assert.Equal(c.ExpectedRevision, received.ExpectedRevision); Assert.Equal(c.ParentFolderId, received.ParentFolderId); Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier); Assert.Equal(ct.Token, token);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json)); Assert.Equal(new[] { "folderId", "parentFolderId", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order()); Assert.Equal(nullParent ? JsonValueKind.Null : JsonValueKind.String, output.RootElement.GetProperty("parentFolderId").ValueKind); using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json)); Assert.Equal(new[] { "expectedRevision", "parentFolderId" }, input.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        var c = Command();
+        c.ParentFolderId = nullParent ? null : parent;
+        if (largestRevision)
+            c.ExpectedRevision = ProtocolBinary.MaxInteger - 1;
+        var d = new FolderMoveDetails(target, c.ParentFolderId, c.ExpectedRevision + 1, largestRevision ? ProtocolBinary.MaxInteger : 1);
+        using var ct = new CancellationTokenSource();
+        FolderMoveRequest? received = null;
+        CancellationToken token = default;
+        var store = new Mock<IFolderMoveStore>(MockBehavior.Strict);
+        store.Setup(x => x.MoveAsync(It.IsAny<FolderMoveRequest>(), It.IsAny<CancellationToken>())).Returns<FolderMoveRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<FolderMoveDetails>(d)); });
+        var result = await Handler(store.Object).HandleAsync(c, ct.Token);
+        Assert.True(result.Success);
+        Assert.Contains("folder_moved", result.Messages);
+        Assert.Equal(target, result.Data!.FolderId);
+        Assert.Equal(c.ParentFolderId, result.Data.ParentFolderId);
+        Assert.Equal(d.Revision, result.Data.Revision);
+        Assert.Equal(d.ServerSequence, result.Data.ServerSequence);
+        Assert.Equal(actor, received!.Actor);
+        Assert.Equal(target, received.FolderId);
+        Assert.Equal(c.ExpectedRevision, received.ExpectedRevision);
+        Assert.Equal(c.ParentFolderId, received.ParentFolderId);
+        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
+        Assert.Equal(ct.Token, token);
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        Assert.Equal(new[] { "folderId", "parentFolderId", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(nullParent ? JsonValueKind.Null : JsonValueKind.String, output.RootElement.GetProperty("parentFolderId").ValueKind);
+        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        Assert.Equal(new[] { "expectedRevision", "parentFolderId" }, input.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
     [InlineData("validation_failed", 400)]
@@ -131,7 +156,11 @@ public class MoveFolderHandlerTests
     [InlineData("boolean")]
     public void GivenNoncanonicalParentIdentifier_WhenParsing_ThenReject(string kind)
     {
-        var id = Guid.Parse("abcdefab-1234-4321-abcd-123456789abc"); var value = kind switch { "bad" => "bad", "zero" => Guid.Empty.ToString(), "uppercase" => id.ToString().ToUpperInvariant(), "compact" => id.ToString("N"), "braced" => id.ToString("B"), "urn" => "urn:uuid:" + id, _ => " " + id }; var rawValue = kind switch { "array" => "[]", "object" => "{}", "boolean" => "false", _ => JsonSerializer.Serialize(value) }; var raw = "{\"expectedRevision\":1,\"parentFolderId\":" + rawValue + "}"; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveFolderCommand>(raw, Json));
+        var id = Guid.Parse("abcdefab-1234-4321-abcd-123456789abc");
+        var value = kind switch { "bad" => "bad", "zero" => Guid.Empty.ToString(), "uppercase" => id.ToString().ToUpperInvariant(), "compact" => id.ToString("N"), "braced" => id.ToString("B"), "urn" => "urn:uuid:" + id, _ => " " + id };
+        var rawValue = kind switch { "array" => "[]", "object" => "{}", "boolean" => "false", _ => JsonSerializer.Serialize(value) };
+        var raw = "{\"expectedRevision\":1,\"parentFolderId\":" + rawValue + "}";
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveFolderCommand>(raw, Json));
     }
     [UnitFact] public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforePersistence() { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new Mock<IFolderMoveStore>(MockBehavior.Strict).Object).HandleAsync(Command(), ct.Token)); }
     [UnitFact] public async Task GivenPersistenceCancellation_WhenHandling_ThenPropagateExactToken() { using var ct = new CancellationTokenSource(); var store = new Mock<IFolderMoveStore>(); store.Setup(x => x.MoveAsync(It.IsAny<FolderMoveRequest>(), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token)); var e = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store.Object).HandleAsync(Command(), ct.Token)); Assert.Equal(ct.Token, e.CancellationToken); }

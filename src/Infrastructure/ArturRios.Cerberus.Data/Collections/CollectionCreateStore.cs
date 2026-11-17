@@ -1,6 +1,6 @@
-using ArturRios.Cerberus.Data.Resources;
 using System.Data.Common;
 using System.Text.Json;
+using ArturRios.Cerberus.Data.Resources;
 using ArturRios.Cerberus.Domain.Accounts;
 using ArturRios.Cerberus.Domain.Collections;
 using ArturRios.Cerberus.Domain.Protection;
@@ -17,8 +17,10 @@ public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factor
     public async Task<VaultResult<CollectionCreateDetails>> CreateAsync(CollectionCreateRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (request.Input?.IsValid() != true) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (request.Input?.IsValid() != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -28,20 +30,32 @@ public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factor
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR UPDATE", ct);
             var owner = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.HeimdallPublicId == request.Actor, ct);
             if (owner is null || owner.State != AccountState.Active
-                || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == owner.PublicId, ct)) return new(Error: "not_found");
+                || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == owner.PublicId, ct))
+                return new(Error: "not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={owner.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
-            var initial = await SnapshotAsync(db, request, ct); var error = StateError(initial);
-            if (error is not null) return new(Error: error);
+            var initial = await SnapshotAsync(db, request, ct);
+            var error = StateError(initial);
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE account_id={owner.Id} AND id=ANY({initial.ProfileIds}) ORDER BY public_id FOR NO KEY UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE account_id={owner.Id} AND id=ANY({initial.CollectionIds}) ORDER BY public_id FOR NO KEY UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.folder WHERE account_id={owner.Id} AND id=ANY({initial.FolderIds}) ORDER BY public_id FOR UPDATE", ct);
-            error = StateError(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = StateError(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.record WHERE account_id={owner.Id} AND id=ANY({initial.RecordIds}) ORDER BY public_id FOR UPDATE", ct);
-            var current = await SnapshotAsync(db, request, ct); error = StateError(current);
-            if (error is not null) return new(Error: error);
-            if (current.Frozen != initial.Frozen || current.CollectionIds.Except(initial.CollectionIds).Any()) return new(Error: "revision_conflict");
+            var current = await SnapshotAsync(db, request, ct);
+            error = StateError(current);
+            if (error is not null)
+                return new(Error: error);
+            if (current.Frozen != initial.Frozen || current.CollectionIds.Except(initial.CollectionIds).Any())
+                return new(Error: "revision_conflict");
 
             var profiles = await db.Profiles.AsNoTracking().Where(x => initial.ProfileIds.Contains(x.Id)).ToListAsync(ct);
             var folders = await db.Folders.AsNoTracking().Where(x => initial.FolderIds.Contains(x.Id)).ToListAsync(ct);
@@ -50,13 +64,18 @@ public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factor
                 .Concat(folders.Select(x => new Structural("folder", x.Id, x.PublicId, x.Revision, x.ServerSequence, x.EditedAt, x.PurgeAt)))
                 .Concat(records.Select(x => new Structural("record", x.Id, x.PublicId, x.Revision, x.ServerSequence, x.EditedAt, x.PurgeAt))).ToArray();
             if (changed.Any(x => !Safe(x.Revision) || !Safe(x.Sequence) || x.EditedAt.Offset != TimeSpan.Zero
-                || x.EditedAt.Ticks < 10 || x.EditedAt.Ticks % 10 != 0 || x.PurgeAt is not null)) return new(Error: "persistence_unavailable");
-            if (changed.Any(x => x.Revision == ProtocolBinary.MaxInteger) || current.Reserved) return new(Error: "revision_conflict");
+                || x.EditedAt.Ticks < 10 || x.EditedAt.Ticks % 10 != 0 || x.PurgeAt is not null))
+                return new(Error: "persistence_unavailable");
+            if (changed.Any(x => x.Revision == ProtocolBinary.MaxInteger) || current.Reserved)
+                return new(Error: "revision_conflict");
             var stable = new Dictionary<(string, long), string>();
-            foreach (var item in changed) stable[(item.Kind, item.Id)] = await StableAsync(db, item, ct);
+            foreach (var item in changed)
+                stable[(item.Kind, item.Id)] = await StableAsync(db, item, ct);
 
-            var input = request.Input; var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
-            var time = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond)); var stamp = Guid.NewGuid();
+            var input = request.Input;
+            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
+            var time = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
+            var stamp = Guid.NewGuid();
             var parameters = Parameters(request).Concat(new object[] { new NpgsqlParameter("frozen", NpgsqlDbType.Jsonb) { Value = current.Frozen },
                 new NpgsqlParameter("held_profiles", initial.ProfileIds), new NpgsqlParameter("held_collections", initial.CollectionIds),
                 new NpgsqlParameter("held_folders", initial.FolderIds), new NpgsqlParameter("held_records", initial.RecordIds),
@@ -84,7 +103,8 @@ public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factor
             var created = await db.Collections.AsNoTracking().SingleAsync(x => x.PublicId == input.CollectionId, ct);
             if (created.AccountId != owner.Id || created.Revision != 1 || !Safe(created.ServerSequence) || created.KeyEpoch != 1
                 || created.EditedAt != time || created.DeletedAt is not null || created.PurgeAt is not null
-                || created.ConcurrencyStamp != stamp || !created.Envelope.AsSpan().SequenceEqual(envelope)) return new(Error: "persistence_unavailable");
+                || created.ConcurrencyStamp != stamp || !created.Envelope.AsSpan().SequenceEqual(envelope))
+                return new(Error: "persistence_unavailable");
 
             // Separate counted batches expose genuine post-mutation rollback boundaries.
             if (await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.profile_collection(profile_id,collection_id) SELECT id,{created.Id} FROM cerberus.profile WHERE account_id={owner.Id} AND id=ANY({initial.ProfileIds})", ct) != initial.ProfileIds.Length)
@@ -113,7 +133,8 @@ public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factor
                 };
                 var metadata = (await db.Database.SqlQueryRaw<Written>(readSql, item.Id).ToListAsync(ct)).Single();
                 if (metadata.Revision != item.Revision + 1 || !Safe(metadata.ServerSequence) || metadata.ServerSequence <= item.Sequence
-                    || metadata.ConcurrencyStamp != bumpStamp || await StableAsync(db, item, ct) != stable[(item.Kind, item.Id)]) return new(Error: "persistence_unavailable");
+                    || metadata.ConcurrencyStamp != bumpStamp || await StableAsync(db, item, ct) != stable[(item.Kind, item.Id)])
+                    return new(Error: "persistence_unavailable");
             }
             await tx.CommitAsync(ct);
             return new(new(created.PublicId, created.Revision, created.ServerSequence, created.EditedAt));

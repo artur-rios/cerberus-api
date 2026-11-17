@@ -22,9 +22,25 @@ public class ProfileReadHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("PerProfile")]
     public async Task GivenOwnedEncryptedProfile_WhenGetting_ThenExactPublicOpaqueDataAndEmptyLinks(string mode)
     {
-        using var f = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(f); var input = await Add(s, f, scoped, mode); Authorize(RegistrationApiFixture.Token(s.Actor)); var before = await Snapshot(s);
-        using var response = await Send(input.ProfileId.ToString(), s.Access); var p = await Profile(response); Assert.Equal(input.ProfileId, p.ProfileId); Assert.Equal(input.Envelope, p.Envelope); Assert.Equal(input.KeyWrappers, p.KeyWrappers); Assert.Equal(1, p.Revision); Assert.True(p.ServerSequence > 0); Assert.Empty(p.RecordIds); Assert.Empty(p.FolderIds); Assert.Empty(p.CollectionIds); Assert.Equal(before, await Snapshot(s));
-        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync()); Assert.Equal(new[] { "collectionIds", "editedAt", "envelope", "folderIds", "keyWrappers", "profileId", "recordIds", "revision", "serverSequence" }, doc.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order().ToArray());
+        using var f = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(f);
+        var input = await Add(s, f, scoped, mode);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        var before = await Snapshot(s);
+        using var response = await Send(input.ProfileId.ToString(), s.Access);
+        var p = await Profile(response);
+        Assert.Equal(input.ProfileId, p.ProfileId);
+        Assert.Equal(input.Envelope, p.Envelope);
+        Assert.Equal(input.KeyWrappers, p.KeyWrappers);
+        Assert.Equal(1, p.Revision);
+        Assert.True(p.ServerSequence > 0);
+        Assert.Empty(p.RecordIds);
+        Assert.Empty(p.FolderIds);
+        Assert.Empty(p.CollectionIds);
+        Assert.Equal(before, await Snapshot(s));
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        Assert.Equal(new[] { "collectionIds", "editedAt", "envelope", "folderIds", "keyWrappers", "profileId", "recordIds", "revision", "serverSequence" }, doc.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order().ToArray());
     }
     [FunctionalTheory]
     [InlineData("foreign")]
@@ -33,17 +49,40 @@ public class ProfileReadHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("missing")]
     public async Task GivenHiddenOrAbsentProfile_WhenGetting_ThenSameNonrevealing404(string kind)
     {
-        using var f = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(f); var owner = kind == "foreign" ? await Setup(f) : s; var input = await Add(owner, f, scoped);
-        await using (var db = fixture.Context()) { if (kind == "trash") await db.Profiles.Where(x => x.PublicId == input.ProfileId).ExecuteUpdateAsync(x => x.SetProperty(p => p.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "erased") { db.TerminalErasures.Add(new() { ResourceId = input.ProfileId, ResourceKind = "profile", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } }
-        Authorize(RegistrationApiFixture.Token(s.Actor)); var before = await Snapshot(owner); using var response = await Send((kind == "missing" ? Guid.NewGuid() : input.ProfileId).ToString(), s.Access); await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(owner));
+        using var f = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(f);
+        var owner = kind == "foreign" ? await Setup(f) : s;
+        var input = await Add(owner, f, scoped);
+        await using (var db = fixture.Context())
+        { if (kind == "trash") await db.Profiles.Where(x => x.PublicId == input.ProfileId).ExecuteUpdateAsync(x => x.SetProperty(p => p.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "erased") { db.TerminalErasures.Add(new() { ResourceId = input.ProfileId, ResourceKind = "profile", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } }
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        var before = await Snapshot(owner);
+        using var response = await Send((kind == "missing" ? Guid.NewGuid() : input.ProfileId).ToString(), s.Access);
+        await Failure(response, 404, "not_found");
+        Assert.Equal(before, await Snapshot(owner));
     }
     [FunctionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task GivenValidSelectedSession_WhenGetting_ThenSelectionSucceedsAndOtherOwnProfile404(bool otherTarget)
     {
-        using var additionalScoped1 = new ProtectionFixture(); using var f = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(f); var one = await Add(s, f, scoped); var two = await Add(s, f, additionalScoped1); await using (var db = fixture.Context()) { var p = await db.Profiles.SingleAsync(x => x.PublicId == one.ProfileId); await db.VaultAccessSessions.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.ProfileId, p.Id)); }
-        Authorize(RegistrationApiFixture.Token(s.Actor)); var before = await Snapshot(s); using var response = await Send((otherTarget ? two.ProfileId : one.ProfileId).ToString(), s.Access); if (otherTarget) await Failure(response, 404, "not_found"); else Assert.Equal(one.ProfileId, (await Profile(response)).ProfileId); Assert.Equal(before, await Snapshot(s));
+        using var additionalScoped1 = new ProtectionFixture();
+        using var f = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(f);
+        var one = await Add(s, f, scoped);
+        var two = await Add(s, f, additionalScoped1);
+        await using (var db = fixture.Context())
+        { var p = await db.Profiles.SingleAsync(x => x.PublicId == one.ProfileId); await db.VaultAccessSessions.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.ProfileId, p.Id)); }
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        var before = await Snapshot(s);
+        using var response = await Send((otherTarget ? two.ProfileId : one.ProfileId).ToString(), s.Access);
+        if (otherTarget)
+            await Failure(response, 404, "not_found");
+        else
+            Assert.Equal(one.ProfileId, (await Profile(response)).ProfileId);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("bad")]
@@ -62,8 +101,22 @@ public class ProfileReadHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("missing", 401)]
     public async Task GivenInvalidQueryHeaderOrBody_WhenGetting_ThenRejectWithoutChanges(string kind, int status)
     {
-        using var f = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(f); var p = await Add(s, f, scoped); Authorize(RegistrationApiFixture.Token(s.Actor)); var before = await Snapshot(s);
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/profiles/" + p.ProfileId + (kind == "query" ? "?pageSize=1" : "")); if (kind != "missing") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", kind == "malformed" ? "bad" : s.Access); if (kind == "duplicate") request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access); if (kind == "body") request.Content = new StringContent("{}"); using var response = await Gateway.Client.SendAsync(request); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
+        using var f = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(f);
+        var p = await Add(s, f, scoped);
+        Authorize(RegistrationApiFixture.Token(s.Actor));
+        var before = await Snapshot(s);
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/profiles/" + p.ProfileId + (kind == "query" ? "?pageSize=1" : ""));
+        if (kind != "missing")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", kind == "malformed" ? "bad" : s.Access);
+        if (kind == "duplicate")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access);
+        if (kind == "body")
+            request.Content = new StringContent("{}");
+        using var response = await Gateway.Client.SendAsync(request);
+        await Failure(response, status);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("empty")]
@@ -88,9 +141,18 @@ public class ProfileReadHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("selection", 403)]
     public async Task GivenInvalidCurrentAccountOrSession_WhenGetting_ThenDenyUnchanged(string kind, int status)
     {
-        using var f = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(f); var p = await Add(s, f, scoped); var actor = s.Actor;
-        await using (var db = fixture.Context()) { if (kind == "missing") { actor = Guid.NewGuid(); fixture.Users[actor + "@example.test"] = new(actor, "fixture-password"); } if (kind == "closing") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending)); if (kind == "erased") { db.TerminalErasures.Add(new() { ResourceId = s.AccountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } var v = await db.VaultAccessSessions.SingleAsync(x => x.AccountId == s.InternalId); if (kind == "revoked") v.Revoked = true; if (kind == "expired") v.ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(-1); if (kind == "policy") v.PolicyRevision++; if (kind == "generation") v.RevocationGeneration++; if (kind == "selection") v.ProfileId = long.MaxValue; await db.SaveChangesAsync(); }
-        Authorize(RegistrationApiFixture.Token(actor)); var before = await Snapshot(s); using var response = await Send(p.ProfileId.ToString(), s.Access); await Failure(response, status); Assert.Equal(before, await Snapshot(s));
+        using var f = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(f);
+        var p = await Add(s, f, scoped);
+        var actor = s.Actor;
+        await using (var db = fixture.Context())
+        { if (kind == "missing") { actor = Guid.NewGuid(); fixture.Users[actor + "@example.test"] = new(actor, "fixture-password"); } if (kind == "closing") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending)); if (kind == "erased") { db.TerminalErasures.Add(new() { ResourceId = s.AccountId, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } var v = await db.VaultAccessSessions.SingleAsync(x => x.AccountId == s.InternalId); if (kind == "revoked") v.Revoked = true; if (kind == "expired") v.ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(-1); if (kind == "policy") v.PolicyRevision++; if (kind == "generation") v.RevocationGeneration++; if (kind == "selection") v.ProfileId = long.MaxValue; await db.SaveChangesAsync(); }
+        Authorize(RegistrationApiFixture.Token(actor));
+        var before = await Snapshot(s);
+        using var response = await Send(p.ProfileId.ToString(), s.Access);
+        await Failure(response, status);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("envelope")]

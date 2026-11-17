@@ -10,11 +10,15 @@ public sealed class OpenProfileAccessHandler(IValidator<OpenProfileAccessCommand
 {
     public async Task<DataOutput<OpenProfileAccessOutput?>> HandleAsync(OpenProfileAccessCommand command, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested(); var output = DataOutput<OpenProfileAccessOutput?>.New;
-        if (command.Actor == Guid.Empty) return output.WithError("authentication_required");
-        if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
+        cancellationToken.ThrowIfCancellationRequested();
+        var output = DataOutput<OpenProfileAccessOutput?>.New;
+        if (command.Actor == Guid.Empty)
+            return output.WithError("authentication_required");
+        if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid)
+            return output.WithError("validation_failed");
         var result = await store.OpenAsync(command.ToRequest(), cancellationToken);
-        if (result?.Error is not null) return output.WithError(ProfileAccessMessages.SafeError(result.Error));
+        if (result?.Error is not null)
+            return output.WithError(ProfileAccessMessages.SafeError(result.Error));
         var data = result?.Data;
         if (data?.Profile?.IsValid(data.AccountId, command.Actor, command.ProfileId, command.ExpectedRevision) != true
             || !OpaqueAccessHandle.TryHash(data.Access, out _) || !ValidTime(data.IssuedAt)

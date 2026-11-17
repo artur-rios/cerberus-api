@@ -10,12 +10,18 @@ public sealed class IssueProfileAccessChallengeHandler(IValidator<IssueProfileAc
 {
     public async Task<DataOutput<IssueProfileAccessChallengeOutput?>> HandleAsync(IssueProfileAccessChallengeCommand command, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested(); var output = DataOutput<IssueProfileAccessChallengeOutput?>.New;
-        if (command.Actor == Guid.Empty) return output.WithError("authentication_required");
-        if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid) return output.WithError("validation_failed");
+        cancellationToken.ThrowIfCancellationRequested();
+        var output = DataOutput<IssueProfileAccessChallengeOutput?>.New;
+        if (command.Actor == Guid.Empty)
+            return output.WithError("authentication_required");
+        if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid)
+            return output.WithError("validation_failed");
         var result = await store.ChallengeAsync(command.ToRequest(), cancellationToken);
-        if (result?.Error is not null) return output.WithError(ProfileAccessMessages.SafeError(result.Error));
-        var data = result?.Data; var c = data?.Challenge; var p = data?.Profile;
+        if (result?.Error is not null)
+            return output.WithError(ProfileAccessMessages.SafeError(result.Error));
+        var data = result?.Data;
+        var c = data?.Challenge;
+        var p = data?.Profile;
         if (p?.IsValid(command.Actor, command.ProfileId, command.ExpectedRevision) != true || c is null
             || c.Format != "cerberus-challenge-v1" || c.Operation != "unlock-profile" || c.ScopeKind != "profile"
             || c.IdentityId != command.Actor || c.AccountId != p.AccountId || c.ScopeId != command.ProfileId

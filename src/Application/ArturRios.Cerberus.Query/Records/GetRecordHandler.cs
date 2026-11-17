@@ -10,8 +10,10 @@ public sealed class GetRecordHandler(IRecordReadStore store) : IQueryHandlerAsyn
     {
         cancellationToken.ThrowIfCancellationRequested();
         var output = DataOutput<RecordDetailsOutput?>.New;
-        if (query.Actor == Guid.Empty) return output.WithError("authentication_required");
-        if (query.Access is null) return output.WithError("vault_access_required");
+        if (query.Actor == Guid.Empty)
+            return output.WithError("authentication_required");
+        if (query.Access is null)
+            return output.WithError("vault_access_required");
         if (query.RecordId == Guid.Empty || !OpaqueAccessHandle.TryHash(query.Access, out var verifier))
             return output.WithError("validation_failed");
         var result = await store.ReadAsync(new(query.Actor, verifier, query.RecordId), cancellationToken);

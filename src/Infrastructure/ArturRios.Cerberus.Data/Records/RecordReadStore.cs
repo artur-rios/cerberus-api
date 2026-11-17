@@ -17,8 +17,10 @@ public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : I
     public async Task<VaultResult<RecordReadDetails>> ReadAsync(RecordReadRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (request.RecordId == Guid.Empty) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (request.RecordId == Guid.Empty)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -123,10 +125,14 @@ public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : I
                         JOIN cerberus.collection c ON c.id=g.collection_id),'[]'::jsonb)::text AS grants
                 """).ToListAsync(ct);
             var snapshot = snapshots.Single();
-            if (!snapshot.ActorActive) return new(Error: "not_found");
-            if (!snapshot.Allowed) return new(Error: "vault_access_denied");
-            if (snapshot.CorruptOrdering || snapshot.CorruptAncestry) return new(Error: "persistence_unavailable");
-            if (snapshot.Item is null) return new(Error: "not_found");
+            if (!snapshot.ActorActive)
+                return new(Error: "not_found");
+            if (!snapshot.Allowed)
+                return new(Error: "vault_access_denied");
+            if (snapshot.CorruptOrdering || snapshot.CorruptAncestry)
+                return new(Error: "persistence_unavailable");
+            if (snapshot.Item is null)
+                return new(Error: "not_found");
             var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
             if (grants.Length > 0)
             {

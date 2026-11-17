@@ -27,9 +27,12 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
     public async Task<VaultResult<CollectionTrashDetails>> TrashAsync(CollectionTrashRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.AccessVerifier)) return new(Error: "vault_access_required");
-        if (request.CollectionId == Guid.Empty || !Safe(request.ExpectedRevision)) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.AccessVerifier))
+            return new(Error: "vault_access_required");
+        if (request.CollectionId == Guid.Empty || !Safe(request.ExpectedRevision))
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
@@ -44,7 +47,8 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
             var initial = await SnapshotAsync(db, request, ct);
             var error = Error(initial);
-            if (error is not null) return new(Error: error);
+            if (error is not null)
+                return new(Error: error);
             var target = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
             var captured = await InventoryAsync(db, request, ct);
             var initialGraph = JsonSerializer.Deserialize<Inventory>(captured, Json)!;
@@ -53,23 +57,39 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
             var records = initialGraph.Resources.Where(x => x.Kind == "record" && x.Active && x.AccountId == account.Id).Select(x => x.Id).ToArray();
             var grants = initialGraph.Grants.Select(x => x.Id).ToArray();
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE account_id={account.Id} AND id=ANY({profiles}) ORDER BY public_id FOR NO KEY UPDATE", ct);
-            error = Error(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = Error(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             // The target excludes new FK memberships. Collections precede recipient content locks.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE account_id={account.Id} AND id={target.Id} FOR UPDATE", ct);
-            error = Error(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = Error(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.folder WHERE account_id={account.Id} AND id=ANY({folders}) ORDER BY public_id FOR UPDATE", ct);
-            error = Error(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = Error(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.record WHERE account_id={account.Id} AND id=ANY({records}) ORDER BY public_id FOR UPDATE", ct);
-            error = Error(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = Error(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_grant WHERE id=ANY({grants}) AND collection_id={target.Id} ORDER BY public_id FOR UPDATE", ct);
-            error = Error(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = Error(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile_collection WHERE collection_id={target.Id} ORDER BY profile_id FOR UPDATE", ct);
-            error = Error(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = Error(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_folder WHERE collection_id={target.Id} ORDER BY folder_id FOR UPDATE", ct);
-            error = Error(await SnapshotAsync(db, request, ct)); if (error is not null) return new(Error: error);
+            error = Error(await SnapshotAsync(db, request, ct));
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection_record WHERE collection_id={target.Id} ORDER BY record_id FOR UPDATE", ct);
             var current = await SnapshotAsync(db, request, ct);
-            error = Error(current); if (error is not null) return new(Error: error);
+            error = Error(current);
+            if (error is not null)
+                return new(Error: error);
             var frozen = await InventoryAsync(db, request, ct);
             var graph = JsonSerializer.Deserialize<Inventory>(frozen, Json)!;
             // Disappearance is harmless in wide scope. Never rebuild links from the old graph.
@@ -85,7 +105,8 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
                 && (x.Kind != "profile" || graph.ProfileIds.Contains(x.Id))).ToArray();
             var activeGrants = graph.Grants.Where(x => x.State == (int)CollectionGrantState.Active).ToArray();
             if (affected.Any(x => !Safe(x.Revision) || !Safe(x.Sequence) || !Time(x.EditedAt) || x.PurgeAt is not null)
-                || activeGrants.Any(x => !Safe(x.Revision))) return new(Error: "persistence_unavailable");
+                || activeGrants.Any(x => !Safe(x.Revision)))
+                return new(Error: "persistence_unavailable");
             if (target.Revision != request.ExpectedRevision || target.Revision == ProtocolBinary.MaxInteger
                 || affected.Any(x => x.Revision == ProtocolBinary.MaxInteger) || activeGrants.Any(x => x.Revision == ProtocolBinary.MaxInteger)
                 || await db.TrashEntries.AnyAsync(x => x.ResourceKind == "collection" && x.ResourceId == request.CollectionId, ct))
@@ -115,20 +136,24 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
                   AND s.profile_id IS NOT DISTINCT FROM @selection AND p.value::jsonb=@inventory
                   AND NOT EXISTS(SELECT FROM cerberus.trash_entry e WHERE e.resource_kind='collection' AND e.resource_id=c.public_id)
                 """, parameters, ct);
-            if (changed != 1) return new(Error: Error(await SnapshotAsync(db, request, ct)) ?? "revision_conflict");
+            if (changed != 1)
+                return new(Error: Error(await SnapshotAsync(db, request, ct)) ?? "revision_conflict");
             var row = await db.Collections.AsNoTracking().SingleAsync(x => x.Id == target.Id, ct);
             if (row.PublicId != original.PublicId || row.AccountId != original.AccountId || row.Revision != original.Revision + 1
                 || !Safe(row.ServerSequence) || row.ServerSequence <= original.ServerSequence || row.ConcurrencyStamp != stamp
                 || row.KeyEpoch != original.KeyEpoch || row.EditedAt != original.EditedAt || !row.Envelope.AsSpan().SequenceEqual(original.Envelope)
                 || row.DeletedAt is null || !Time(row.DeletedAt.Value) || row.PurgeAt is null || !Time(row.PurgeAt.Value)
-                || row.PurgeAt - row.DeletedAt != TimeSpan.FromHours(720)) return new(Error: "persistence_unavailable");
+                || row.PurgeAt - row.DeletedAt != TimeSpan.FromHours(720))
+                return new(Error: "persistence_unavailable");
             if (await db.ProfileCollections.Where(x => x.CollectionId == target.Id).ExecuteDeleteAsync(ct) != graph.ProfileIds.Length
                 || await db.CollectionFolders.Where(x => x.CollectionId == target.Id).ExecuteDeleteAsync(ct) != graph.FolderIds.Length
                 || await db.CollectionRecords.Where(x => x.CollectionId == target.Id).ExecuteDeleteAsync(ct) != graph.RecordIds.Length)
                 return new(Error: "persistence_unavailable");
             foreach (var resource in affected.OrderBy(x => x.Kind == "profile" ? 0 : x.Kind == "folder" ? 1 : 2).ThenBy(x => x.PublicId))
             {
-                error = await BumpAsync(db, resource, ct); if (error is not null) return new(Error: error);
+                error = await BumpAsync(db, resource, ct);
+                if (error is not null)
+                    return new(Error: error);
             }
             foreach (var grant in activeGrants)
             {
@@ -147,7 +172,8 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
                 DeletedAt = row.DeletedAt.Value,
                 PurgeAt = row.PurgeAt.Value
             };
-            db.TrashOperations.Add(operation); await db.SaveChangesAsync(ct);
+            db.TrashOperations.Add(operation);
+            await db.SaveChangesAsync(ct);
             var entry = new TrashEntry
             {
                 OperationId = operation.Id,
@@ -155,9 +181,11 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
                 ResourceId = row.PublicId,
                 AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(snapshot, Json)
             };
-            db.TrashEntries.Add(entry); await db.SaveChangesAsync(ct);
+            db.TrashEntries.Add(entry);
+            await db.SaveChangesAsync(ct);
             var work = new RetentionWorkItem { OperationKey = "trash/" + operation.PublicId, DueAt = operation.PurgeAt };
-            db.RetentionWorkItems.Add(work); await db.SaveChangesAsync(ct);
+            db.RetentionWorkItems.Add(work);
+            await db.SaveChangesAsync(ct);
             var savedOperation = await db.TrashOperations.AsNoTracking().SingleAsync(x => x.Id == operation.Id, ct);
             var savedEntry = await db.TrashEntries.AsNoTracking().SingleAsync(x => x.Id == entry.Id, ct);
             var savedWork = await db.RetentionWorkItems.AsNoTracking().SingleAsync(x => x.Id == work.Id, ct);
@@ -165,7 +193,8 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
                 || savedOperation.RootResourceId != row.PublicId || savedOperation.DeletedAt != row.DeletedAt || savedOperation.PurgeAt != row.PurgeAt
                 || savedEntry.OperationId != operation.Id || savedEntry.ResourceKind != "collection" || savedEntry.ResourceId != row.PublicId
                 || !savedEntry.AssociationSnapshot.AsSpan().SequenceEqual(entry.AssociationSnapshot)
-                || savedWork.OperationKey != work.OperationKey || savedWork.DueAt != row.PurgeAt) return new(Error: "persistence_unavailable");
+                || savedWork.OperationKey != work.OperationKey || savedWork.DueAt != row.PurgeAt)
+                return new(Error: "persistence_unavailable");
             await tx.CommitAsync(ct);
             return new(new(row.PublicId, operation.PublicId, row.Revision, row.ServerSequence, row.DeletedAt.Value, row.PurgeAt.Value));
         }

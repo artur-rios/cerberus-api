@@ -48,6 +48,7 @@ public sealed class OperationalHealthConfigurationTests
     public void GivenNoOperationalSettings_WhenLoading_ThenGrantNobody()
     {
         var options = CerberusConfiguration.Load(new ConfigurationBuilder().Build());
-        Assert.Null(options.OperationalPersonIds); Assert.Null(options.OperationalApplicationIds);
+        Assert.Null(options.OperationalPersonIds);
+        Assert.Null(options.OperationalApplicationIds);
     }
 }

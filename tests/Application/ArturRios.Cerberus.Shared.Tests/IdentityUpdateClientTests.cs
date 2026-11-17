@@ -100,18 +100,29 @@ public class IdentityUpdateClientTests
             "missingRole" => "role",
             _ => null
         };
-        if (removed is not null) data.Remove(removed);
-        if (invalid == "wrongId") data["id"] = Guid.NewGuid();
-        if (invalid == "wrongScope") data["scopeId"] = Guid.NewGuid();
-        if (invalid == "wrongRole") data["role"] = 1;
-        if (invalid == "stringRole") data["role"] = "3";
-        if (invalid == "nullName") data["name"] = null;
-        if (invalid == "nameMismatch") data["name"] = "another-person-private-name";
-        if (invalid == "emailMismatch") data["email"] = "another-person@example.test";
+        if (removed is not null)
+            data.Remove(removed);
+        if (invalid == "wrongId")
+            data["id"] = Guid.NewGuid();
+        if (invalid == "wrongScope")
+            data["scopeId"] = Guid.NewGuid();
+        if (invalid == "wrongRole")
+            data["role"] = 1;
+        if (invalid == "stringRole")
+            data["role"] = "3";
+        if (invalid == "nullName")
+            data["name"] = null;
+        if (invalid == "nameMismatch")
+            data["name"] = "another-person-private-name";
+        if (invalid == "emailMismatch")
+            data["email"] = "another-person@example.test";
         var body = JsonSerializer.Serialize(new { success = true, errors = Array.Empty<string>(), data });
-        if (invalid == "duplicateData") body = body.Replace("\"emailVerified\":false", "\"emailVerified\":true,\"emailVerified\":false");
-        if (invalid == "duplicateRoot") body = body.Replace("\"success\":true", "\"success\":false,\"success\":true");
-        if (invalid == "invalidJson") body = "not-json";
+        if (invalid == "duplicateData")
+            body = body.Replace("\"emailVerified\":false", "\"emailVerified\":true,\"emailVerified\":false");
+        if (invalid == "duplicateRoot")
+            body = body.Replace("\"success\":true", "\"success\":false,\"success\":true");
+        if (invalid == "invalidJson")
+            body = "not-json";
         var result = await Client((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
         { Content = new StringContent(body, Encoding.UTF8, "application/json") }))
             .UpdateIdentityAsync(Token(), Identity, Name, Email, default);

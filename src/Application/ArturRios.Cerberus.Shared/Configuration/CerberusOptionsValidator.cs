@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Options;
 using System.Globalization;
 using ArturRios.Cerberus.Domain.Offline;
+using Microsoft.Extensions.Options;
 
 namespace ArturRios.Cerberus.Shared.Configuration;
 
@@ -11,7 +11,8 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
         var errors = new List<string>();
         void Require(bool valid, string setting)
         {
-            if (!valid) errors.Add($"Invalid or missing {setting}.");
+            if (!valid)
+                errors.Add($"Invalid or missing {setting}.");
         }
 
         Require(!string.IsNullOrWhiteSpace(options.ConnectionString), "CERBERUS_DATA_CONNECTIONSTRING");
@@ -63,7 +64,8 @@ public sealed class CerberusOptionsValidator(bool production = true) : IValidate
 
     private static bool IsWithin(string path, string? parent)
     {
-        if (parent is null || !Path.IsPathFullyQualified(parent)) return false;
+        if (parent is null || !Path.IsPathFullyQualified(parent))
+            return false;
         var fullParent = Path.GetFullPath(parent).TrimEnd(Path.DirectorySeparatorChar);
         var fullPath = Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar);
         return fullPath == fullParent || fullPath.StartsWith(fullParent + Path.DirectorySeparatorChar, StringComparison.Ordinal);

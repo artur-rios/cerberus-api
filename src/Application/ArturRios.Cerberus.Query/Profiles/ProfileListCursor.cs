@@ -26,7 +26,8 @@ public sealed class ProfileListCursor
     public bool TryDecode(string cursor, out ProfileListContinuation? continuation)
     {
         continuation = null;
-        if (cursor.Length > 2048 || !ProtocolBinary.TryDecode(cursor, null, out var encoded) || encoded.Length <= 28) return false;
+        if (cursor.Length > 2048 || !ProtocolBinary.TryDecode(cursor, null, out var encoded) || encoded.Length <= 28)
+            return false;
         try
         {
             var plaintext = new byte[encoded.Length - 28];
@@ -35,7 +36,8 @@ public sealed class ProfileListCursor
             var value = JsonSerializer.Deserialize<ProfileListContinuation>(plaintext, Json);
             if (value is null || value.Actor == Guid.Empty || value.AccessVerifier is not { Length: 64 }
                 || value.AccessVerifier.Any(c => c is not (>= '0' and <= '9') and not (>= 'a' and <= 'f'))
-                || value.PageSize <= 0 || value.After <= 0 || value.After >= value.Boundary || value.Boundary > ProtocolBinary.MaxInteger) return false;
+                || value.PageSize <= 0 || value.After <= 0 || value.After >= value.Boundary || value.Boundary > ProtocolBinary.MaxInteger)
+                return false;
             continuation = value;
             return true;
         }

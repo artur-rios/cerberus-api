@@ -12,7 +12,8 @@ public class VaultProofTests
     [UnitFact]
     public void GivenExistingNativePythonProofVector_WhenVerifying_ThenMatchExactWireAndAcceptSignature()
     {
-        using var f = Fixture(); var root = f.RootElement;
+        using var f = Fixture();
+        var root = f.RootElement;
         var challenge = root.GetProperty("challenge").Deserialize<VaultProofChallenge>(ProtectionFixture.Json)!;
         var binding = root.GetProperty("binding").Deserialize<VaultProofBinding>(ProtectionFixture.Json)!;
         var key = root.GetProperty("publicJwk").Deserialize<PublicJwk>(ProtectionFixture.Json)!;
@@ -39,7 +40,8 @@ public class VaultProofTests
     [InlineData("key")]
     public void GivenDifferentBindingBodyTimeOrSignature_WhenVerifying_ThenReject(string invalid)
     {
-        using var f = Fixture(); var root = f.RootElement;
+        using var f = Fixture();
+        var root = f.RootElement;
         var c = root.GetProperty("challenge").Deserialize<VaultProofChallenge>(ProtectionFixture.Json)!;
         var b = root.GetProperty("binding").Deserialize<VaultProofBinding>(ProtectionFixture.Json)!;
         var key = root.GetProperty("publicJwk").Deserialize<PublicJwk>(ProtectionFixture.Json)!;
@@ -60,9 +62,12 @@ public class VaultProofTests
             "format" => c with { Format = "unsupported" },
             _ => c
         };
-        if (invalid == "body") raw = Encoding.UTF8.GetBytes("{ \"expectedProtectionRevision\":1}");
-        if (invalid == "signature") signature = ProtectionFixture.Encode(new byte[64]);
-        if (invalid == "key") { using var wrong = ECDsa.Create(ECCurve.NamedCurves.nistP256); key = ProtectionFixture.Public(wrong); }
+        if (invalid == "body")
+            raw = Encoding.UTF8.GetBytes("{ \"expectedProtectionRevision\":1}");
+        if (invalid == "signature")
+            signature = ProtectionFixture.Encode(new byte[64]);
+        if (invalid == "key")
+        { using var wrong = ECDsa.Create(ECCurve.NamedCurves.nistP256); key = ProtectionFixture.Public(wrong); }
         Assert.False(VaultProof.Verify(c, b, raw, key, signature, invalid == "expiry" ? 1060 : invalid == "future" ? 999 : 1000));
     }
 

@@ -15,34 +15,49 @@ public sealed class SoftwareGrantRevocationStore(IDbContextFactory<AppDbContext>
     public async Task<VaultResult<SoftwareGrantRevocationDetails>> RevokeAsync(SoftwareGrantRevocationRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request is null) return new(Error: "validation_failed");
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (string.IsNullOrWhiteSpace(request.AccessVerifier)) return new(Error: "vault_access_required");
-        if (request.Input?.IsValid(request.GrantId) != true) return new(Error: "validation_failed");
+        if (request is null)
+            return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (string.IsNullOrWhiteSpace(request.AccessVerifier))
+            return new(Error: "vault_access_required");
+        if (request.Input?.IsValid(request.GrantId) != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
             await using var tx = await db.Database.BeginTransactionAsync(ct);
             var captured = await SnapshotAsync(db, request, ct);
-            var error = AuthorityError(captured); if (error is not null) return new(Error: error);
+            var error = AuthorityError(captured);
+            if (error is not null)
+                return new(Error: error);
             async Task<string?> Recheck() => RecheckError(await SnapshotAsync(db, request, ct), captured);
 
             // UC-42 uses this same lock prefix. Re-read after every possible wait.
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={captured.OwnerId} FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={captured.OwnerId} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             if (captured.Selection is { } profile)
             {
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE account_id={captured.OwnerId} AND id={profile} FOR NO KEY UPDATE", ct);
-                error = await Recheck(); if (error is not null) return new(Error: error);
+                error = await Recheck();
+                if (error is not null)
+                    return new(Error: error);
             }
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.software_grant WHERE id={captured.GrantId} AND public_id={request.GrantId} AND account_id={captured.OwnerId} FOR UPDATE", ct);
-            error = await Recheck(); if (error is not null) return new(Error: error);
+            error = await Recheck();
+            if (error is not null)
+                return new(Error: error);
             if (captured.Revision != request.Input.ExpectedRevision || captured.Revision == ProtocolBinary.MaxInteger)
                 return new(Error: "revision_conflict");
 
-            var revision = request.Input.ExpectedRevision + 1; var stamp = Guid.NewGuid();
+            var revision = request.Input.ExpectedRevision + 1;
+            var stamp = Guid.NewGuid();
             var parameters = Parameters(request).Concat(new object[]
             {
                 new NpgsqlParameter("stable", NpgsqlDbType.Jsonb) { Value = captured.Stable },
@@ -107,8 +122,10 @@ public sealed class SoftwareGrantRevocationStore(IDbContextFactory<AppDbContext>
     {
         // Captured actor loss is a conflict; an otherwise current actor must still
         // have session authority before changed evidence can become a conflict.
-        if (!current.ActorActive) return "revision_conflict";
-        if (!current.SessionAllowed) return "vault_access_denied";
+        if (!current.ActorActive)
+            return "revision_conflict";
+        if (!current.SessionAllowed)
+            return "vault_access_denied";
         return current.Stable != captured.Stable || current.Aggregate != captured.Aggregate || current.Collateral != captured.Collateral
             || current.GrantVisible != captured.GrantVisible
             ? "revision_conflict" : AuthorityError(current);

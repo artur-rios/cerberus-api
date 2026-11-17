@@ -15,9 +15,11 @@ public class ProfileContractsTests
     [InlineData("PerProfile")]
     public void GivenNativeOwnerWrapper_WhenCreatingProfile_ThenAcceptBothModes(string mode)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
         var input = Input(client, scoped, mode);
-        Assert.True(input.IsValid()); Assert.True(input.KeyWrappers.IsBound(_owner, _id, 1, 1, _actor, client.Material));
+        Assert.True(input.IsValid());
+        Assert.True(input.KeyWrappers.IsBound(_owner, _id, 1, 1, _actor, client.Material));
         Assert.True(input.KeyWrappers.MasterKeyWrapper.Verify(_owner, "profile", _id, 1, _id, 1, _actor, client.Material.RecipientKey, client.Material.AuthorKey));
     }
     [UnitTheory]
@@ -36,7 +38,8 @@ public class ProfileContractsTests
     [InlineData("padded")]
     public void GivenMalformedNativeWrapper_WhenValidating_ThenReject(string field)
     {
-        using var client = new ProtectionFixture(); var w = client.Wrap(_owner, "profile", _id, _actor);
+        using var client = new ProtectionFixture();
+        var w = client.Wrap(_owner, "profile", _id, _actor);
         w = field switch
         {
             "format" => w with { Format = "other" },
@@ -53,7 +56,8 @@ public class ProfileContractsTests
             "signature" => w with { Signature = "AQ" },
             "padded" => w with { Ciphertext = w.Ciphertext + "=" },
             _ => w
-        }; Assert.False(w.IsValid());
+        };
+        Assert.False(w.IsValid());
     }
     [UnitTheory]
     [InlineData("owner")]
@@ -69,9 +73,13 @@ public class ProfileContractsTests
     [InlineData("signature")]
     public void GivenWrongTrustedBinding_WhenCheckingNativeAuthorProof_ThenReject(string field)
     {
-        using var client = new ProtectionFixture(); using var other = new ProtectionFixture(); var w = client.Wrap(_owner, "profile", _id, _actor);
-        if (field == "ciphertext") w = w with { Ciphertext = ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(48)) };
-        if (field == "signature") w = w with { Signature = ProtectionFixture.Encode(new byte[64]) };
+        using var client = new ProtectionFixture();
+        using var other = new ProtectionFixture();
+        var w = client.Wrap(_owner, "profile", _id, _actor);
+        if (field == "ciphertext")
+            w = w with { Ciphertext = ProtectionFixture.Encode(RandomNumberGenerator.GetBytes(48)) };
+        if (field == "signature")
+            w = w with { Signature = ProtectionFixture.Encode(new byte[64]) };
         Assert.False(w.Verify(field == "owner" ? Guid.NewGuid() : _owner, field == "kind" ? "record" : "profile", field == "resource" ? Guid.NewGuid() : _id,
             field == "epoch" ? 2 : 1, field == "grant" ? Guid.NewGuid() : _id, field == "revision" ? 2 : 1, field == "identity" ? Guid.NewGuid() : _actor,
             field == "recipient" ? other.Material.RecipientKey : client.Material.RecipientKey, field == "author" ? other.Material.AuthorKey : client.Material.AuthorKey));
@@ -94,7 +102,9 @@ public class ProfileContractsTests
     [InlineData("duplicate")]
     public void GivenMalformedProfile_WhenValidating_ThenReject(string field)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var i = Input(client, scoped, "Master");
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var i = Input(client, scoped, "Master");
         i = field switch
         {
             "id" => i with { ProfileId = Guid.Empty },
@@ -113,23 +123,30 @@ public class ProfileContractsTests
             "emptyId" => i with { RecordIds = [Guid.Empty] },
             "duplicate" => i with { RecordIds = [_id, _id] },
             _ => i
-        }; Assert.False(i.IsValid());
+        };
+        Assert.False(i.IsValid());
     }
     [UnitTheory]
     [InlineData("Master")]
     [InlineData("PerProfile")]
     public void GivenProfileRotation_WhenValidating_ThenRequireFreshCompleteScopedMaterial(string mode)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var old = Input(client, scoped, mode).KeyWrappers;
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var old = Input(client, scoped, mode).KeyWrappers;
         var next = old with { MasterKeyWrapper = client.Wrap(_owner, "profile", _id, _actor, 2, 2), PasswordWrapper = mode == "PerProfile" ? scoped.Rewrap().PasswordWrapper : null };
-        Assert.True(next.IsValidRotation(old)); Assert.True(next.IsBound(_owner, _id, 2, 2, _actor, client.Material));
-        Assert.False(old.IsValidRotation(old)); Assert.False((next with { UnlockMode = "other" }).IsValidRotation(old));
+        Assert.True(next.IsValidRotation(old));
+        Assert.True(next.IsBound(_owner, _id, 2, 2, _actor, client.Material));
+        Assert.False(old.IsValidRotation(old));
+        Assert.False((next with { UnlockMode = "other" }).IsValidRotation(old));
         Assert.False((next with { UnlockVerifier = client.Material.UnlockVerifier }).IsValidRotation(old));
-        if (mode == "PerProfile") Assert.False((next with { PasswordWrapper = old.PasswordWrapper }).IsValidRotation(old));
+        if (mode == "PerProfile")
+            Assert.False((next with { PasswordWrapper = old.PasswordWrapper }).IsValidRotation(old));
         var account = new ContentReplacement("account", _owner, 1, Envelope());
         var profile = new ContentReplacement("profile", _id, 1, Envelope() with { KeyEpoch = 2 }, next);
         var change = new ProtectionChange(_owner, 1, 1, "rotate-content", client.Rewrap(), [account, profile]);
-        Assert.True(change.IsValid()); Assert.False((change with { ContentReplacements = [account, profile, profile] }).IsValid());
+        Assert.True(change.IsValid());
+        Assert.False((change with { ContentReplacements = [account, profile, profile] }).IsValid());
         Assert.False((change with { ContentReplacements = [profile] }).IsValid());
         Assert.False((change with { ContentReplacements = [account, profile with { KeyWrappers = null }] }).IsValid());
     }
@@ -139,7 +156,9 @@ public class ProfileContractsTests
     [InlineData("numeric")]
     public void GivenStrictProfileSchema_WhenDeserializing_ThenRejectWireExtras(string invalid)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var raw = JsonSerializer.Serialize(Input(client, scoped, "Master"), ProtectionFixture.Json);
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var raw = JsonSerializer.Serialize(Input(client, scoped, "Master"), ProtectionFixture.Json);
         raw = invalid switch { "unknown" => raw.Insert(1, "\"name\":\"plaintext\","), "duplicate" => raw.Insert(1, "\"profileId\":\"" + _id + "\","), _ => raw.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\"") };
         Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ProfileCreateInput>(raw, ProtectionFixture.Json));
     }

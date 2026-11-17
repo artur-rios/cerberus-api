@@ -10,8 +10,10 @@ public sealed class GetFolderHandler(IFolderReadStore store) : IQueryHandlerAsyn
     {
         cancellationToken.ThrowIfCancellationRequested();
         var output = DataOutput<FolderDetailsOutput?>.New;
-        if (query.Actor == Guid.Empty) return output.WithError("authentication_required");
-        if (query.Access is null) return output.WithError("vault_access_required");
+        if (query.Actor == Guid.Empty)
+            return output.WithError("authentication_required");
+        if (query.Access is null)
+            return output.WithError("vault_access_required");
         if (query.FolderId == Guid.Empty || !OpaqueAccessHandle.TryHash(query.Access, out var verifier))
             return output.WithError("validation_failed");
         var result = await store.ReadAsync(new(query.Actor, verifier, query.FolderId), cancellationToken);

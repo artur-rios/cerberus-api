@@ -14,7 +14,8 @@ public sealed class HeimdallApplicationTokenValidator(CerberusOptions options)
     {
         if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(options.AuthApplicationAudience)
             || options.AuthApplicationAudience == options.AuthAudience || options.HeimdallScopeId == Guid.Empty
-            || string.IsNullOrWhiteSpace(options.AuthValidationSecret)) return null;
+            || string.IsNullOrWhiteSpace(options.AuthValidationSecret))
+            return null;
         try
         {
             var handler = new JwtSecurityTokenHandler { MapInboundClaims = false };
@@ -32,16 +33,20 @@ public sealed class HeimdallApplicationTokenValidator(CerberusOptions options)
                 ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
                 ClockSkew = TimeSpan.Zero
             }, out _);
-            var parts = token.Split('.'); if (parts.Length != 3) return null;
+            var parts = token.Split('.');
+            if (parts.Length != 3)
+                return null;
             using var header = JsonDocument.Parse(Base64UrlEncoder.DecodeBytes(parts[0]));
             using var payload = JsonDocument.Parse(Base64UrlEncoder.DecodeBytes(parts[1]));
-            var h = header.RootElement; var p = payload.RootElement;
+            var h = header.RootElement;
+            var p = payload.RootElement;
             if (!UniqueObject(h) || !UniqueObject(p) || Text(h, "alg") != SecurityAlgorithms.HmacSha256
                 || Text(p, "iss") != options.AuthIssuer || Text(p, "aud") != options.AuthApplicationAudience
                 || Text(p, "tokenKind") != "application" || PersonAuthority.Any(x => p.TryGetProperty(x, out _))
                 || !Id(p, "id", out _) || !Id(p, "credentialId", out _)
                 || !Id(p, "scopeId", out var scope) || scope != options.HeimdallScopeId
-                || !Seconds(p, "iat", out var issued) || !Seconds(p, "nbf", out var notBefore) || !Seconds(p, "exp", out var expires)) return null;
+                || !Seconds(p, "iat", out var issued) || !Seconds(p, "nbf", out var notBefore) || !Seconds(p, "exp", out var expires))
+                return null;
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             return issued <= now && notBefore <= now && expires > now && expires > issued && expires > notBefore ? principal : null;
         }

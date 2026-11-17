@@ -59,8 +59,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var snapshot = JsonSerializer.Deserialize<RecordAssociationSnapshot>(entry.AssociationSnapshot, ProtectionFixture.Json)!;
         entry.AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(snapshot with { FolderId = w.Items.Folder.PublicId }, ProtectionFixture.Json);
         await db.SaveChangesAsync();
-        if (cycle) await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ParentFolderId, w.Items.Folder.Id));
-        else await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
+        if (cycle)
+            await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ParentFolderId, w.Items.Folder.Id));
+        else
+            await db.Folders.Where(x => x.Id == w.Items.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
         Assert.Null((await Store().DeleteAsync(w.Request(), default)).Error);
         Assert.False(await db.Records.AnyAsync(x => x.Id == w.Record.Id));
     }
@@ -71,7 +73,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
     public async Task GivenForeignRecordInTrashWithFormerNativeAccess_WhenDeleting_Then404AndNoIntent(CollectionGrantAccess access)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "collection", false);
-        using var client = new ProtectionFixture(); var recipient = await ProfileSetup.Create(fixture, client);
+        using var client = new ProtectionFixture();
+        var recipient = await ProfileSetup.Create(fixture, client);
         await AssociationSetup.Grant(fixture, w.State, w.Owner, recipient, client, w.Items.Collection, access);
         Assert.Null((await new RecordTrashStore(fixture).TrashAsync(new(w.State.Actor, w.State.Verifier, w.Record.PublicId, 1), default)).Error);
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
@@ -112,7 +115,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
         await using var db = fixture.CreateContext();
         var entry = await db.TrashEntries.SingleAsync(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId);
         entry.AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(null, [Guid.NewGuid()], []), ProtectionFixture.Json);
-        if (link == "profile") db.ProfileRecords.Add(new() { AccountId = w.State.InternalId, ProfileId = w.Selection!.Value, RecordId = w.Record.Id });
+        if (link == "profile")
+            db.ProfileRecords.Add(new() { AccountId = w.State.InternalId, ProfileId = w.Selection!.Value, RecordId = w.Record.Id });
         else
         {
             db.ProfileCollections.Add(new() { ProfileId = w.Selection!.Value, CollectionId = w.Items.Collection.Id });
@@ -147,8 +151,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         var result = await Store().DeleteAsync(request, default);
         Assert.Equal(foreign ? "vault_access_denied" : null, result.Error);
-        if (foreign) Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        else Assert.False(await db.Records.AnyAsync(x => x.Id == w.Record.Id));
+        if (foreign)
+            Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
+        else
+            Assert.False(await db.Records.AnyAsync(x => x.Id == w.Record.Id));
     }
 
     [FunctionalTheory]
@@ -157,16 +163,20 @@ public sealed partial class RecordPermanentDeleteStoreTests
     public async Task GivenOverlappingNativeRoutesWithOneMalformedGrant_WhenDeletingForeignTarget_ThenValidateEveryContributingRouteOnly(bool removeBad)
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
-        using var client = new ProtectionFixture(); var recipient = await ProfileSetup.Create(fixture, client);
+        using var client = new ProtectionFixture();
+        var recipient = await ProfileSetup.Create(fixture, client);
         await using var db = fixture.CreateContext();
         var second = new VaultCollection { AccountId = w.State.InternalId, PublicId = Guid.NewGuid(), Envelope = w.Items.Collection.Envelope, EditedAt = w.Items.Collection.EditedAt };
-        db.Collections.Add(second); await db.SaveChangesAsync();
+        db.Collections.Add(second);
+        await db.SaveChangesAsync();
         db.CollectionRecords.Add(new() { AccountId = w.State.InternalId, CollectionId = w.Items.Collection.Id, RecordId = w.Record.Id });
-        db.CollectionRecords.Add(new() { AccountId = w.State.InternalId, CollectionId = second.Id, RecordId = w.Record.Id }); await db.SaveChangesAsync();
+        db.CollectionRecords.Add(new() { AccountId = w.State.InternalId, CollectionId = second.Id, RecordId = w.Record.Id });
+        await db.SaveChangesAsync();
         await AssociationSetup.Grant(fixture, w.State, w.Owner, recipient, client, w.Items.Collection, CollectionGrantAccess.ReadWrite);
         var bad = await AssociationSetup.Grant(fixture, w.State, w.Owner, recipient, client, second, CollectionGrantAccess.ReadOnly);
         await db.CollectionGrants.Where(x => x.Id == bad.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, "bad"u8.ToArray()));
-        if (removeBad) await db.CollectionRecords.Where(x => x.RecordId == w.Record.Id && x.CollectionId == second.Id).ExecuteDeleteAsync();
+        if (removeBad)
+            await db.CollectionRecords.Where(x => x.RecordId == w.Record.Id && x.CollectionId == second.Id).ExecuteDeleteAsync();
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal(removeBad ? "vault_access_denied" : "persistence_unavailable", (await Store().DeleteAsync(new(recipient.Actor, recipient.Verifier, w.Record.PublicId, 99), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
@@ -189,7 +199,9 @@ public sealed partial class RecordPermanentDeleteStoreTests
         await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
         var blocked = new PermanentDeleteSetup.LockSignal("account");
         var rotation = new VaultProtectionChangeStore(new ProfileSetup.Factory(fixture, blocked)).ChangeAsync(new(w.State.Actor, w.State.Verifier, challenge.ChallengeId, w.Owner.Sign(challenge), raw, change), ct.Token);
-        try { await blocked.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(rotation.IsCompleted); } finally { release.TrySetResult(); }
+        try
+        { await blocked.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(rotation.IsCompleted); }
+        finally { release.TrySetResult(); }
         Assert.Null((await deletion).Error);
         Assert.Equal("validation_failed", (await rotation).Error);
         await using var db = fixture.CreateContext();

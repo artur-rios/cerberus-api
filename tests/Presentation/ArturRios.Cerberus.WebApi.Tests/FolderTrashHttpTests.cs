@@ -4,17 +4,17 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using ArturRios.Cerberus.Command.Profiles;
 using ArturRios.Cerberus.Command.Folders;
+using ArturRios.Cerberus.Command.Profiles;
 using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Accounts;
+using ArturRios.Cerberus.Domain.Folders;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Protection;
-using ArturRios.Cerberus.Domain.Folders;
 using ArturRios.Cerberus.Domain.Resources;
+using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.Query.Folders;
 using ArturRios.Cerberus.Query.Records;
-using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.TestSupport;
 using ArturRios.Output;
 using Microsoft.AspNetCore.Http;
@@ -61,7 +61,21 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("empty")]
     public async Task GivenStrictOrForgedDeleteBody_WhenTrashing_Then400WithoutAnyOperation(string kind)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s); var body = JsonSerializer.SerializeToNode(new { expectedRevision = 1 }, ProtectionFixture.Json)!.AsObject(); var fields = new[] { "actor", "vaultAccess", "folderId", "ownerId", "profileIds", "parentFolderId", "recordId", "cascade", "collectionIds", "name", "fields", "keyWrappers", "envelope", "editedAt", "trashOperationId", "deletedAt", "purgeAt" }; if (fields.Contains(kind)) body[kind] = null; if (kind == "unknown") body["secret"] = null; var raw = kind switch { "zero" => "{\"expectedRevision\":0}", "negative" => "{\"expectedRevision\":-1}", "unsafe" => "{\"expectedRevision\":9007199254740992}", "missing" => "{}", "duplicate" => "{\"expectedRevision\":1,\"expectedRevision\":1}", "case" => "{\"ExpectedRevision\":1}", "numericString" => "{\"expectedRevision\":\"1\"}", "nullRevision" => "{\"expectedRevision\":null}", "fraction" => "{\"expectedRevision\":1.5}", "overflow" => "{\"expectedRevision\":9223372036854775808}", "null" => "null", "array" => "[]", "empty" => "", _ => body.ToJsonString() }; var before = await Snapshot(s); using var req = Delete(s, "/api/folders/" + target.FolderId, Encoding.UTF8.GetBytes(raw)); using var r = await Gateway.Client.SendAsync(req); await Failure(r, 400); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        var body = JsonSerializer.SerializeToNode(new { expectedRevision = 1 }, ProtectionFixture.Json)!.AsObject();
+        var fields = new[] { "actor", "vaultAccess", "folderId", "ownerId", "profileIds", "parentFolderId", "recordId", "cascade", "collectionIds", "name", "fields", "keyWrappers", "envelope", "editedAt", "trashOperationId", "deletedAt", "purgeAt" };
+        if (fields.Contains(kind))
+            body[kind] = null;
+        if (kind == "unknown")
+            body["secret"] = null;
+        var raw = kind switch { "zero" => "{\"expectedRevision\":0}", "negative" => "{\"expectedRevision\":-1}", "unsafe" => "{\"expectedRevision\":9007199254740992}", "missing" => "{}", "duplicate" => "{\"expectedRevision\":1,\"expectedRevision\":1}", "case" => "{\"ExpectedRevision\":1}", "numericString" => "{\"expectedRevision\":\"1\"}", "nullRevision" => "{\"expectedRevision\":null}", "fraction" => "{\"expectedRevision\":1.5}", "overflow" => "{\"expectedRevision\":9223372036854775808}", "null" => "null", "array" => "[]", "empty" => "", _ => body.ToJsonString() };
+        var before = await Snapshot(s);
+        using var req = Delete(s, "/api/folders/" + target.FolderId, Encoding.UTF8.GetBytes(raw));
+        using var r = await Gateway.Client.SendAsync(req);
+        await Failure(r, 400);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("bad")]
@@ -84,8 +98,27 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("oversized", 413)]
     public async Task GivenInvalidTransportOrAccess_WhenTrashing_ThenRejectWithoutMutation(string kind, int status)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s); var before = await Snapshot(s); var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? new byte[] { 0xc3, 0x28 } : Bytes(new { expectedRevision = 1 }); if (kind == "bom") raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray(); using var req = Delete(s, "/api/folders/" + target.FolderId + (kind == "query" ? "?ownerId=secret" : ""), raw); if (kind == "missing") req.Headers.Remove("X-Cerberus-Vault-Access"); if (kind == "bad") { req.Headers.Remove("X-Cerberus-Vault-Access"); req.Headers.Add("X-Cerberus-Vault-Access", "bad"); }
-        if (kind == "duplicate") req.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access); if (kind == "compression") req.Content!.Headers.ContentEncoding.Add("gzip"); if (kind == "charset") req.Content!.Headers.ContentType!.CharSet = "utf-16"; using var r = await Gateway.Client.SendAsync(req); await Failure(r, status); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        var before = await Snapshot(s);
+        var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? new byte[] { 0xc3, 0x28 } : Bytes(new { expectedRevision = 1 });
+        if (kind == "bom")
+            raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray();
+        using var req = Delete(s, "/api/folders/" + target.FolderId + (kind == "query" ? "?ownerId=secret" : ""), raw);
+        if (kind == "missing")
+            req.Headers.Remove("X-Cerberus-Vault-Access");
+        if (kind == "bad")
+        { req.Headers.Remove("X-Cerberus-Vault-Access"); req.Headers.Add("X-Cerberus-Vault-Access", "bad"); }
+        if (kind == "duplicate")
+            req.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access);
+        if (kind == "compression")
+            req.Content!.Headers.ContentEncoding.Add("gzip");
+        if (kind == "charset")
+            req.Content!.Headers.ContentType!.CharSet = "utf-16";
+        using var r = await Gateway.Client.SendAsync(req);
+        await Failure(r, status);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalFact]
     public async Task GivenRawEmptyAccessHeader_WhenTrashing_Then400()
@@ -119,10 +152,24 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("revoked")]
     public async Task GivenHiddenTargetWithBadCipherAndStaleRevision_WhenTrashing_ThenNonrevealing404WithoutMutation(string kind)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var key = new ProtectionFixture(); var o = await Setup(owner); var s = kind == "unselected" ? o : await Setup(client); var folder = await Folder(o); var target = await Create(o, folder: folder.PublicId); CollectionGrant? grant = null; if (kind != "foreign" && s.InternalId != o.InternalId) { var share = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [target.FolderId], []); grant = share.Item2; }
-        if (kind == "unselected") { var p = await Profile(s, owner, key); s = s with { Access = await Open(s, p, key) }; }
-        await using (var db = fixture.Context()) { await db.Folders.Where(x => x.PublicId == target.FolderId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, "bad"u8.ToArray()).SetProperty(r => r.DeletedAt, kind == "folderTrash" ? (DateTimeOffset?)DateTimeOffset.UtcNow : null)); if (kind == "ancestorTrash") await db.Folders.Where(x => x.Id == folder.Id).ExecuteUpdateAsync(x => x.SetProperty(f => f.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "folderTerminal") { db.TerminalErasures.Add(new() { ResourceId = target.FolderId, ResourceKind = "folder", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } if (kind == "ownerClosing") await db.Accounts.Where(x => x.Id == o.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending)); if (kind == "revoked") await db.CollectionGrants.Where(x => x.Id == grant!.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked)); }
-        var before = await Snapshot(o); using var response = await Trash(s, kind == "missing" ? Guid.NewGuid() : target.FolderId, 88); await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(o));
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var o = await Setup(owner);
+        var s = kind == "unselected" ? o : await Setup(client);
+        var folder = await Folder(o);
+        var target = await Create(o, folder: folder.PublicId);
+        CollectionGrant? grant = null;
+        if (kind != "foreign" && s.InternalId != o.InternalId)
+        { var share = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [target.FolderId], []); grant = share.Item2; }
+        if (kind == "unselected")
+        { var p = await Profile(s, owner, key); s = s with { Access = await Open(s, p, key) }; }
+        await using (var db = fixture.Context())
+        { await db.Folders.Where(x => x.PublicId == target.FolderId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, "bad"u8.ToArray()).SetProperty(r => r.DeletedAt, kind == "folderTrash" ? (DateTimeOffset?)DateTimeOffset.UtcNow : null)); if (kind == "ancestorTrash") await db.Folders.Where(x => x.Id == folder.Id).ExecuteUpdateAsync(x => x.SetProperty(f => f.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "folderTerminal") { db.TerminalErasures.Add(new() { ResourceId = target.FolderId, ResourceKind = "folder", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } if (kind == "ownerClosing") await db.Accounts.Where(x => x.Id == o.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending)); if (kind == "revoked") await db.CollectionGrants.Where(x => x.Id == grant!.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked)); }
+        var before = await Snapshot(o);
+        using var response = await Trash(s, kind == "missing" ? Guid.NewGuid() : target.FolderId, 88);
+        await Failure(response, 404, "not_found");
+        Assert.Equal(before, await Snapshot(o));
     }
     [FunctionalTheory]
     [InlineData("grant", 404)]
@@ -142,9 +189,18 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("profileTerminal")]
     public async Task GivenSelectedProfileBecomesHidden_WhenTrashing_Then403WithoutNullingOrWideningSelection(string kind)
     {
-        using var owner = new ProtectionFixture(); using var key = new ProtectionFixture(); var s = await Setup(owner); var p = await Profile(s, owner, key); var target = await Create(s, [p.PublicId]); var selected = s with { Access = await Open(s, p, key) };
-        await using (var db = fixture.Context()) { if (kind == "profileTrash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); else { db.TerminalErasures.Add(new() { ResourceId = p.PublicId, ResourceKind = "profile", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } }
-        var before = await Snapshot(s); using var response = await Trash(selected, target.FolderId, 1); await Failure(response, 403, "vault_access_denied"); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var s = await Setup(owner);
+        var p = await Profile(s, owner, key);
+        var target = await Create(s, [p.PublicId]);
+        var selected = s with { Access = await Open(s, p, key) };
+        await using (var db = fixture.Context())
+        { if (kind == "profileTrash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); else { db.TerminalErasures.Add(new() { ResourceId = p.PublicId, ResourceKind = "profile", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } }
+        var before = await Snapshot(s);
+        using var response = await Trash(selected, target.FolderId, 1);
+        await Failure(response, 403, "vault_access_denied");
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("parent", false)]
@@ -153,10 +209,24 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("sibling", true)]
     public async Task GivenNativeMemberLeafWriteGrant_WhenTrashingUnsharedParentOrSibling_Then404AndNoChanges(string kind, bool selected)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var key = new ProtectionFixture(); var o = await Setup(owner); var s = await Setup(client); var root = await Folder(o); var leaf = await Create(o, folder: root.PublicId); var sibling = await Create(o, folder: root.PublicId); var (collection, _) = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [leaf.FolderId], []); var actor = s;
-        if (selected) { var p = await Profile(s, client, key, collections: [collection.PublicId]); actor = s with { Access = await Open(s, p, key) }; }
-        using (var get = await Read(actor, "/api/folders/" + leaf.FolderId)) { var proof = await Success<FolderDetailsOutput>(get, 200); Assert.Null(proof.ParentFolderId); Assert.Empty(proof.ProfileIds); }
-        var before = await Snapshot(o); using var response = await Trash(actor, kind == "parent" ? root.PublicId : sibling.FolderId, 77); await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(o));
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var o = await Setup(owner);
+        var s = await Setup(client);
+        var root = await Folder(o);
+        var leaf = await Create(o, folder: root.PublicId);
+        var sibling = await Create(o, folder: root.PublicId);
+        var (collection, _) = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [leaf.FolderId], []);
+        var actor = s;
+        if (selected)
+        { var p = await Profile(s, client, key, collections: [collection.PublicId]); actor = s with { Access = await Open(s, p, key) }; }
+        using (var get = await Read(actor, "/api/folders/" + leaf.FolderId))
+        { var proof = await Success<FolderDetailsOutput>(get, 200); Assert.Null(proof.ParentFolderId); Assert.Empty(proof.ProfileIds); }
+        var before = await Snapshot(o);
+        using var response = await Trash(actor, kind == "parent" ? root.PublicId : sibling.FolderId, 77);
+        await Failure(response, 404, "not_found");
+        Assert.Equal(before, await Snapshot(o));
     }
     [FunctionalTheory]
     [InlineData(CollectionGrantAccess.ReadOnly, "wide")]
@@ -167,23 +237,54 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData(CollectionGrantAccess.ReadWrite, "PerProfile")]
     public async Task GivenActualNativeRecordOnlyGrant_WhenTrashingContainingFolder_Then404AfterSuccessfulRecordGet(CollectionGrantAccess access, string mode)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var key = new ProtectionFixture(); var o = await Setup(owner); var s = await Setup(client); var target = await Create(o); var record = await CreateRecord(o, target.FolderId); var (collection, grant) = await Share(o, owner, s, client, access, [], []);
-        await using (var db = fixture.Context()) { var row = await db.Records.SingleAsync(x => x.PublicId == record.RecordId); db.CollectionRecords.Add(new() { AccountId = o.InternalId, CollectionId = collection.Id, RecordId = row.Id }); await db.SaveChangesAsync(); }
-        var actor = s; if (mode != "wide") { var p = await Profile(s, client, key, mode: mode, collections: [collection.PublicId]); actor = s with { Access = await Open(s, p, key) }; }
-        using (var get = await Read(actor, "/api/records/" + record.RecordId)) { var proof = await Success<ArturRios.Cerberus.Query.Records.RecordDetailsOutput>(get, 200); Assert.Equal(record.RecordId, proof.RecordId); Assert.Null(proof.FolderId); }
-        await using (var db = fixture.Context()) { await db.Folders.Where(x => x.PublicId == target.FolderId).ExecuteUpdateAsync(x => x.SetProperty(f => f.Envelope, "bad"u8.ToArray())); await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, "bad"u8.ToArray())); }
-        var before = await Snapshot(o); var recipient = await Snapshot(s); using var response = await Trash(actor, target.FolderId, 77); await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(o)); Assert.Equal(recipient, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var o = await Setup(owner);
+        var s = await Setup(client);
+        var target = await Create(o);
+        var record = await CreateRecord(o, target.FolderId);
+        var (collection, grant) = await Share(o, owner, s, client, access, [], []);
+        await using (var db = fixture.Context())
+        { var row = await db.Records.SingleAsync(x => x.PublicId == record.RecordId); db.CollectionRecords.Add(new() { AccountId = o.InternalId, CollectionId = collection.Id, RecordId = row.Id }); await db.SaveChangesAsync(); }
+        var actor = s;
+        if (mode != "wide")
+        { var p = await Profile(s, client, key, mode: mode, collections: [collection.PublicId]); actor = s with { Access = await Open(s, p, key) }; }
+        using (var get = await Read(actor, "/api/records/" + record.RecordId))
+        { var proof = await Success<ArturRios.Cerberus.Query.Records.RecordDetailsOutput>(get, 200); Assert.Equal(record.RecordId, proof.RecordId); Assert.Null(proof.FolderId); }
+        await using (var db = fixture.Context())
+        { await db.Folders.Where(x => x.PublicId == target.FolderId).ExecuteUpdateAsync(x => x.SetProperty(f => f.Envelope, "bad"u8.ToArray())); await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, "bad"u8.ToArray())); }
+        var before = await Snapshot(o);
+        var recipient = await Snapshot(s);
+        using var response = await Trash(actor, target.FolderId, 77);
+        await Failure(response, 404, "not_found");
+        Assert.Equal(before, await Snapshot(o));
+        Assert.Equal(recipient, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("Master")]
     [InlineData("PerProfile")]
     public async Task GivenSelectedDirectRecordOnly_WhenTrashingContainingFolder_Then404AfterSuccessfulRecordGet(string mode)
     {
-        using var owner = new ProtectionFixture(); using var key = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s); var record = await CreateRecord(s, target.FolderId); var id = Guid.NewGuid(); var input = new ProfileCreateInput(id, Envelope(), new(mode, key.Material.UnlockVerifier, owner.Wrap(s.AccountId, "profile", id, s.Actor), mode == "PerProfile" ? key.Material.PasswordWrapper : null), DateTimeOffset.UnixEpoch, [record.RecordId], [], []);
-        using (var req = Request(s, Bytes(input), "/api/profiles")) using (var response = await Gateway.Client.SendAsync(req)) await Success<CreateProfileOutput>(response, 201);
-        await using var db = fixture.Context(); var p = await db.Profiles.AsNoTracking().SingleAsync(x => x.PublicId == id); var selected = s with { Access = await Open(s, p, key) };
-        using (var get = await Read(selected, "/api/records/" + record.RecordId)) { var proof = await Success<ArturRios.Cerberus.Query.Records.RecordDetailsOutput>(get, 200); Assert.Equal(record.RecordId, proof.RecordId); Assert.Null(proof.FolderId); }
-        var before = await Snapshot(s); using var response2 = await Trash(selected, target.FolderId, 77); await Failure(response2, 404, "not_found"); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        var record = await CreateRecord(s, target.FolderId);
+        var id = Guid.NewGuid();
+        var input = new ProfileCreateInput(id, Envelope(), new(mode, key.Material.UnlockVerifier, owner.Wrap(s.AccountId, "profile", id, s.Actor), mode == "PerProfile" ? key.Material.PasswordWrapper : null), DateTimeOffset.UnixEpoch, [record.RecordId], [], []);
+        using (var req = Request(s, Bytes(input), "/api/profiles"))
+        using (var response = await Gateway.Client.SendAsync(req))
+            await Success<CreateProfileOutput>(response, 201);
+        await using var db = fixture.Context();
+        var p = await db.Profiles.AsNoTracking().SingleAsync(x => x.PublicId == id);
+        var selected = s with { Access = await Open(s, p, key) };
+        using (var get = await Read(selected, "/api/records/" + record.RecordId))
+        { var proof = await Success<ArturRios.Cerberus.Query.Records.RecordDetailsOutput>(get, 200); Assert.Equal(record.RecordId, proof.RecordId); Assert.Null(proof.FolderId); }
+        var before = await Snapshot(s);
+        using var response2 = await Trash(selected, target.FolderId, 77);
+        await Failure(response2, 404, "not_found");
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("sequence")]
@@ -197,9 +298,32 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("PerProfile")]
     public async Task GivenActualCreatedSubtreeAndNativeOwnedAccess_WhenDeleting_ThenOneCascadeWithExactSixMetadataFields(string mode)
     {
-        using var owner = new ProtectionFixture(); using var key = new ProtectionFixture(); var s = await Setup(owner); var root = await Create(s); var child = await Create(s, folder: root.FolderId); var record = await CreateRecord(s, child.FolderId); var rootRow = await FolderRow(root.FolderId); var p = await Profile(s, owner, key, rootRow, mode == "wide" ? "Master" : mode); var actor = mode == "wide" ? s : s with { Access = await Open(s, p, key) }; var childRow = await FolderRow(child.FolderId); var recordRow = await RecordRow(record.RecordId); var protectedBefore = await Protected(s); using var response = await Trash(actor, root.FolderId, rootRow.Revision); var output = await Success<DeleteFolderOutput>(response, 200); Fields(output, "folderId", "trashOperationId", "revision", "serverSequence", "deletedAt", "purgeAt"); Assert.Contains("folder_deleted", await response.Content.ReadAsStringAsync()); await Trashed(s, rootRow, [rootRow, childRow], [recordRow], output); Assert.Equal(protectedBefore, await Protected(s));
-        await using (var db = fixture.Context()) { var entry = await db.TrashEntries.SingleAsync(x => x.ResourceKind == "folder" && x.ResourceId == root.FolderId); var snap = JsonSerializer.Deserialize<FolderAssociationSnapshot>(entry.AssociationSnapshot, ProtectionFixture.Json)!; Assert.Null(snap.ParentFolderId); Assert.Equal(new[] { p.PublicId }, snap.ProfileIds); Assert.Empty(snap.CollectionIds); var current = await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id); Assert.Equal(p.Revision + 1, current.Revision); Assert.Equal(p.Envelope, current.Envelope); Assert.Equal(p.KeyWrappers, current.KeyWrappers); Assert.Equal(p.EditedAt, current.EditedAt); }
-        using var get = await Read(actor, "/api/folders/" + child.FolderId); await Failure(get, 404, "not_found"); using var rg = await Read(actor, "/api/records/" + record.RecordId); await Failure(rg, 404, "not_found"); using var list = await Read(actor, "/api/folders"); Assert.Empty((await Success<FolderListOutput>(list, 200)).Items);
+        using var owner = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var s = await Setup(owner);
+        var root = await Create(s);
+        var child = await Create(s, folder: root.FolderId);
+        var record = await CreateRecord(s, child.FolderId);
+        var rootRow = await FolderRow(root.FolderId);
+        var p = await Profile(s, owner, key, rootRow, mode == "wide" ? "Master" : mode);
+        var actor = mode == "wide" ? s : s with { Access = await Open(s, p, key) };
+        var childRow = await FolderRow(child.FolderId);
+        var recordRow = await RecordRow(record.RecordId);
+        var protectedBefore = await Protected(s);
+        using var response = await Trash(actor, root.FolderId, rootRow.Revision);
+        var output = await Success<DeleteFolderOutput>(response, 200);
+        Fields(output, "folderId", "trashOperationId", "revision", "serverSequence", "deletedAt", "purgeAt");
+        Assert.Contains("folder_deleted", await response.Content.ReadAsStringAsync());
+        await Trashed(s, rootRow, [rootRow, childRow], [recordRow], output);
+        Assert.Equal(protectedBefore, await Protected(s));
+        await using (var db = fixture.Context())
+        { var entry = await db.TrashEntries.SingleAsync(x => x.ResourceKind == "folder" && x.ResourceId == root.FolderId); var snap = JsonSerializer.Deserialize<FolderAssociationSnapshot>(entry.AssociationSnapshot, ProtectionFixture.Json)!; Assert.Null(snap.ParentFolderId); Assert.Equal(new[] { p.PublicId }, snap.ProfileIds); Assert.Empty(snap.CollectionIds); var current = await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id); Assert.Equal(p.Revision + 1, current.Revision); Assert.Equal(p.Envelope, current.Envelope); Assert.Equal(p.KeyWrappers, current.KeyWrappers); Assert.Equal(p.EditedAt, current.EditedAt); }
+        using var get = await Read(actor, "/api/folders/" + child.FolderId);
+        await Failure(get, 404, "not_found");
+        using var rg = await Read(actor, "/api/records/" + record.RecordId);
+        await Failure(rg, 404, "not_found");
+        using var list = await Read(actor, "/api/folders");
+        Assert.Empty((await Success<FolderListOutput>(list, 200)).Items);
     }
     [FunctionalTheory]
     [InlineData(CollectionGrantAccess.ReadOnly, "wide")]
@@ -210,19 +334,78 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData(CollectionGrantAccess.ReadWrite, "PerProfile")]
     public async Task GivenActualNativeForeignFolderScope_WhenDeletingStaleDamagedCipher_Then403ForEveryRecipientMode(CollectionGrantAccess access, string mode)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var key = new ProtectionFixture(); var o = await Setup(owner); var s = await Setup(client); var root = await Create(o); var target = await Create(o, folder: root.FolderId); var (c, _) = await Share(o, owner, s, client, access, [root.FolderId], []); var p = await Profile(s, client, key, mode: mode == "wide" ? "Master" : mode, collections: [c.PublicId]); var actor = mode == "wide" ? s : s with { Access = await Open(s, p, key) }; using (var get = await Read(actor, "/api/folders/" + target.FolderId)) await Success<FolderDetailsOutput>(get, 200); await using (var db = fixture.Context()) await db.Folders.Where(x => x.PublicId == target.FolderId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, "damaged"u8.ToArray())); var before = await Snapshot(o); var recipient = await Snapshot(s); using var r = await Trash(actor, target.FolderId, 99); await Failure(r, 403, "vault_access_denied"); Assert.Equal(before, await Snapshot(o)); Assert.Equal(recipient, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var o = await Setup(owner);
+        var s = await Setup(client);
+        var root = await Create(o);
+        var target = await Create(o, folder: root.FolderId);
+        var (c, _) = await Share(o, owner, s, client, access, [root.FolderId], []);
+        var p = await Profile(s, client, key, mode: mode == "wide" ? "Master" : mode, collections: [c.PublicId]);
+        var actor = mode == "wide" ? s : s with { Access = await Open(s, p, key) };
+        using (var get = await Read(actor, "/api/folders/" + target.FolderId))
+            await Success<FolderDetailsOutput>(get, 200);
+        await using (var db = fixture.Context())
+            await db.Folders.Where(x => x.PublicId == target.FolderId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, "damaged"u8.ToArray()));
+        var before = await Snapshot(o);
+        var recipient = await Snapshot(s);
+        using var r = await Trash(actor, target.FolderId, 99);
+        await Failure(r, 403, "vault_access_denied");
+        Assert.Equal(before, await Snapshot(o));
+        Assert.Equal(recipient, await Snapshot(s));
     }
     [FunctionalFact]
     public async Task GivenActualIndependentRecordAndChildFolderDeletion_WhenLaterDeletingRoot_ThenEarlierTrashOperationsKeepDeadlines()
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var root = await Create(s); var child = await Create(s, folder: root.FolderId); var active = await Create(s, folder: root.FolderId); var independent = await CreateRecord(s, root.FolderId); using var recordDelete = Delete(s, "/api/records/" + independent.RecordId, Bytes(new { expectedRevision = 1 })); using var recordResponse = await Gateway.Client.SendAsync(recordDelete); var rd = await Success<ArturRios.Cerberus.Command.Records.DeleteRecordOutput>(recordResponse, 200); var childRow = await FolderRow(child.FolderId); using var childDelete = await Trash(s, child.FolderId, childRow.Revision); var fd = await Success<DeleteFolderOutput>(childDelete, 200); var oldChild = Bytes(await FolderRow(child.FolderId)); var oldRecord = Bytes(await RecordRow(independent.RecordId)); var rootRow = await FolderRow(root.FolderId); var activeRow = await FolderRow(active.FolderId); using var rootDelete = await Trash(s, root.FolderId, rootRow.Revision); var output = await Success<DeleteFolderOutput>(rootDelete, 200); await Trashed(s, rootRow, [rootRow, activeRow], [], output); Assert.Equal(oldChild, Bytes(await FolderRow(child.FolderId))); Assert.Equal(oldRecord, Bytes(await RecordRow(independent.RecordId))); await using var db = fixture.Context(); Assert.Equal(rd.PurgeAt, (await db.TrashOperations.SingleAsync(x => x.PublicId == rd.TrashOperationId)).PurgeAt); Assert.Equal(fd.PurgeAt, (await db.TrashOperations.SingleAsync(x => x.PublicId == fd.TrashOperationId)).PurgeAt);
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var root = await Create(s);
+        var child = await Create(s, folder: root.FolderId);
+        var active = await Create(s, folder: root.FolderId);
+        var independent = await CreateRecord(s, root.FolderId);
+        using var recordDelete = Delete(s, "/api/records/" + independent.RecordId, Bytes(new { expectedRevision = 1 }));
+        using var recordResponse = await Gateway.Client.SendAsync(recordDelete);
+        var rd = await Success<ArturRios.Cerberus.Command.Records.DeleteRecordOutput>(recordResponse, 200);
+        var childRow = await FolderRow(child.FolderId);
+        using var childDelete = await Trash(s, child.FolderId, childRow.Revision);
+        var fd = await Success<DeleteFolderOutput>(childDelete, 200);
+        var oldChild = Bytes(await FolderRow(child.FolderId));
+        var oldRecord = Bytes(await RecordRow(independent.RecordId));
+        var rootRow = await FolderRow(root.FolderId);
+        var activeRow = await FolderRow(active.FolderId);
+        using var rootDelete = await Trash(s, root.FolderId, rootRow.Revision);
+        var output = await Success<DeleteFolderOutput>(rootDelete, 200);
+        await Trashed(s, rootRow, [rootRow, activeRow], [], output);
+        Assert.Equal(oldChild, Bytes(await FolderRow(child.FolderId)));
+        Assert.Equal(oldRecord, Bytes(await RecordRow(independent.RecordId)));
+        await using var db = fixture.Context();
+        Assert.Equal(rd.PurgeAt, (await db.TrashOperations.SingleAsync(x => x.PublicId == rd.TrashOperationId)).PurgeAt);
+        Assert.Equal(fd.PurgeAt, (await db.TrashOperations.SingleAsync(x => x.PublicId == fd.TrashOperationId)).PurgeAt);
     }
     [FunctionalTheory]
     [InlineData("Master")]
     [InlineData("PerProfile")]
     public async Task GivenCorruptOverlappingContributor_WhenDeleting_ThenSelectedValidRoute403AndWide503WithoutMutation(string mode)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var key = new ProtectionFixture(); var o = await Setup(owner); var s = await Setup(client); var root = await Create(o); var (good, _) = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [root.FolderId], []); var (_, bad) = await Share(o, owner, s, client, CollectionGrantAccess.ReadOnly, [root.FolderId], []); var p = await Profile(s, client, key, mode: mode, collections: [good.PublicId]); var selected = s with { Access = await Open(s, p, key) }; await using (var db = fixture.Context()) await db.CollectionGrants.Where(x => x.Id == bad.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, "bad"u8.ToArray())); var before = await Snapshot(o); using var scoped = await Trash(selected, root.FolderId, 99); await Failure(scoped, 403, "vault_access_denied"); using var wide = await Trash(s, root.FolderId, 99); await Failure(wide, 503, "persistence_unavailable"); Assert.Equal(before, await Snapshot(o));
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var o = await Setup(owner);
+        var s = await Setup(client);
+        var root = await Create(o);
+        var (good, _) = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [root.FolderId], []);
+        var (_, bad) = await Share(o, owner, s, client, CollectionGrantAccess.ReadOnly, [root.FolderId], []);
+        var p = await Profile(s, client, key, mode: mode, collections: [good.PublicId]);
+        var selected = s with { Access = await Open(s, p, key) };
+        await using (var db = fixture.Context())
+            await db.CollectionGrants.Where(x => x.Id == bad.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, "bad"u8.ToArray()));
+        var before = await Snapshot(o);
+        using var scoped = await Trash(selected, root.FolderId, 99);
+        await Failure(scoped, 403, "vault_access_denied");
+        using var wide = await Trash(s, root.FolderId, 99);
+        await Failure(wide, 503, "persistence_unavailable");
+        Assert.Equal(before, await Snapshot(o));
     }
     [FunctionalFact]
     public async Task GivenStaleRootOrLostDeleteSuccess_WhenRetrying_ThenConflictBeforeSuccessAnd404AfterWithoutExtendingDeadline()
@@ -230,8 +413,31 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [FunctionalFact]
     public async Task GivenSharedCascadeAlsoContainsDirectlySharedRecord_WhenOwnerDeletes_ThenRecipientReadsAndListsHideAllContentWithoutRevokingGrant()
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var o = await Setup(owner); var s = await Setup(client); var root = await Create(o); var child = await Create(o, folder: root.FolderId); var record = await CreateRecord(o, child.FolderId); var (c, g) = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [root.FolderId], []); await using (var db = fixture.Context()) { var r = await db.Records.SingleAsync(x => x.PublicId == record.RecordId); db.CollectionRecords.Add(new() { AccountId = o.InternalId, CollectionId = c.Id, RecordId = r.Id }); await db.SaveChangesAsync(); }
-        using (var before = await Read(s, "/api/records/" + record.RecordId)) await Success<RecordDetailsOutput>(before, 200); var row = await FolderRow(root.FolderId); var recipientBefore = await Snapshot(s); using var deleted = await Trash(o, root.FolderId, row.Revision); await Success<DeleteFolderOutput>(deleted, 200); using var get = await Read(s, "/api/records/" + record.RecordId); await Failure(get, 404, "not_found"); using var folder = await Read(s, "/api/folders/" + child.FolderId); await Failure(folder, 404, "not_found"); using var list = await Read(s, "/api/records"); Assert.Empty((await Success<RecordListOutput>(list, 200)).Items); Assert.Equal(recipientBefore, await Snapshot(s)); await using var check = fixture.Context(); Assert.Equal(CollectionGrantState.Active, (await check.CollectionGrants.SingleAsync(x => x.Id == g.Id)).State);
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        var o = await Setup(owner);
+        var s = await Setup(client);
+        var root = await Create(o);
+        var child = await Create(o, folder: root.FolderId);
+        var record = await CreateRecord(o, child.FolderId);
+        var (c, g) = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [root.FolderId], []);
+        await using (var db = fixture.Context())
+        { var r = await db.Records.SingleAsync(x => x.PublicId == record.RecordId); db.CollectionRecords.Add(new() { AccountId = o.InternalId, CollectionId = c.Id, RecordId = r.Id }); await db.SaveChangesAsync(); }
+        using (var before = await Read(s, "/api/records/" + record.RecordId))
+            await Success<RecordDetailsOutput>(before, 200);
+        var row = await FolderRow(root.FolderId);
+        var recipientBefore = await Snapshot(s);
+        using var deleted = await Trash(o, root.FolderId, row.Revision);
+        await Success<DeleteFolderOutput>(deleted, 200);
+        using var get = await Read(s, "/api/records/" + record.RecordId);
+        await Failure(get, 404, "not_found");
+        using var folder = await Read(s, "/api/folders/" + child.FolderId);
+        await Failure(folder, 404, "not_found");
+        using var list = await Read(s, "/api/records");
+        Assert.Empty((await Success<RecordListOutput>(list, 200)).Items);
+        Assert.Equal(recipientBefore, await Snapshot(s));
+        await using var check = fixture.Context();
+        Assert.Equal(CollectionGrantState.Active, (await check.CollectionGrants.SingleAsync(x => x.Id == g.Id)).State);
     }
     [FunctionalFact]
     public async Task GivenDamagedOwnedCipher_WhenDeleting_ThenRetainOpaqueBytesAndRemoveActiveVisibility()
@@ -241,7 +447,30 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     [InlineData("PerProfile")]
     public async Task GivenNativeSelectedOwnedCollectionFolderScope_WhenDeleting_ThenCascadeAndBumpCollectionWithoutChangingSelectedProfile(string mode)
     {
-        using var owner = new ProtectionFixture(); using var key = new ProtectionFixture(); var s = await Setup(owner); var root = await Create(s); var child = await Create(s, folder: root.FolderId); await using var db = fixture.Context(); var rootRow = await FolderRow(root.FolderId); var childRow = await FolderRow(child.FolderId); var c = new VaultCollection { PublicId = Guid.NewGuid(), AccountId = s.InternalId, Envelope = Bytes(Envelope()), EditedAt = DateTimeOffset.UnixEpoch }; db.Collections.Add(c); await db.SaveChangesAsync(); db.CollectionFolders.Add(new() { AccountId = s.InternalId, CollectionId = c.Id, FolderId = rootRow.Id }); await db.SaveChangesAsync(); var p = await Profile(s, owner, key, mode: mode, collections: [c.PublicId]); var selected = s with { Access = await Open(s, p, key) }; using var response = await Trash(selected, root.FolderId, rootRow.Revision); await Trashed(s, rootRow, [rootRow, childRow], [], await Success<DeleteFolderOutput>(response, 200)); var current = await db.Collections.AsNoTracking().SingleAsync(x => x.Id == c.Id); Assert.Equal(c.Revision + 1, current.Revision); Assert.Equal(c.Envelope, current.Envelope); Assert.Equal(c.EditedAt, current.EditedAt); Assert.Equal(c.KeyEpoch, current.KeyEpoch); Assert.Equal(Bytes(p), Bytes(await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id))); Assert.True(await db.ProfileCollections.AnyAsync(x => x.ProfileId == p.Id && x.CollectionId == c.Id));
+        using var owner = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var s = await Setup(owner);
+        var root = await Create(s);
+        var child = await Create(s, folder: root.FolderId);
+        await using var db = fixture.Context();
+        var rootRow = await FolderRow(root.FolderId);
+        var childRow = await FolderRow(child.FolderId);
+        var c = new VaultCollection { PublicId = Guid.NewGuid(), AccountId = s.InternalId, Envelope = Bytes(Envelope()), EditedAt = DateTimeOffset.UnixEpoch };
+        db.Collections.Add(c);
+        await db.SaveChangesAsync();
+        db.CollectionFolders.Add(new() { AccountId = s.InternalId, CollectionId = c.Id, FolderId = rootRow.Id });
+        await db.SaveChangesAsync();
+        var p = await Profile(s, owner, key, mode: mode, collections: [c.PublicId]);
+        var selected = s with { Access = await Open(s, p, key) };
+        using var response = await Trash(selected, root.FolderId, rootRow.Revision);
+        await Trashed(s, rootRow, [rootRow, childRow], [], await Success<DeleteFolderOutput>(response, 200));
+        var current = await db.Collections.AsNoTracking().SingleAsync(x => x.Id == c.Id);
+        Assert.Equal(c.Revision + 1, current.Revision);
+        Assert.Equal(c.Envelope, current.Envelope);
+        Assert.Equal(c.EditedAt, current.EditedAt);
+        Assert.Equal(c.KeyEpoch, current.KeyEpoch);
+        Assert.Equal(Bytes(p), Bytes(await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id)));
+        Assert.True(await db.ProfileCollections.AnyAsync(x => x.ProfileId == p.Id && x.CollectionId == c.Id));
     }
 
     private static HttpRequestMessage Delete(State s, string path, byte[] body) { var r = Request(s, body, path); r.Method = HttpMethod.Delete; return r; }
@@ -250,14 +479,40 @@ public class FolderTrashHttpTests(RegistrationApiFixture fixture, SharedApiHost 
     private async Task<VaultRecord> RecordRow(Guid id) { await using var db = fixture.Context(); return await db.Records.AsNoTracking().SingleAsync(x => x.PublicId == id); }
     private async Task Trashed(State owner, VaultFolder root, VaultFolder[] folders, VaultRecord[] records, DeleteFolderOutput output)
     {
-        Assert.Equal(root.PublicId, output.FolderId); Assert.Equal(root.Revision + 1, output.Revision); Assert.True(output.ServerSequence > root.ServerSequence); Assert.InRange(output.ServerSequence, 1, ProtocolBinary.MaxInteger); Assert.NotEqual(Guid.Empty, output.TrashOperationId); Assert.Equal(TimeSpan.Zero, output.DeletedAt.Offset); Assert.Equal(0, output.DeletedAt.Ticks % 10); Assert.Equal(TimeSpan.FromDays(30), output.PurgeAt - output.DeletedAt); Assert.Equal(TimeSpan.Zero, output.PurgeAt.Offset); await using var db = fixture.Context(); var op = await db.TrashOperations.SingleAsync(x => x.PublicId == output.TrashOperationId); Assert.Equal(owner.InternalId, op.AccountId); Assert.Equal("folder", op.RootResourceKind); Assert.Equal(root.PublicId, op.RootResourceId); Assert.Equal(output.DeletedAt, op.DeletedAt); Assert.Equal(output.PurgeAt, op.PurgeAt); var entries = await db.TrashEntries.Where(x => x.OperationId == op.Id).ToListAsync(); Assert.Equal(folders.Length + records.Length, entries.Count); var queue = await db.RetentionWorkItems.SingleAsync(x => x.OperationKey == "trash/" + output.TrashOperationId); Assert.Equal(output.PurgeAt, queue.DueAt); Assert.Null(queue.CompletedAt);
-        foreach (var old in folders) { var row = await FolderRow(old.PublicId); Assert.Equal(old.Envelope, row.Envelope); Assert.Equal(old.EditedAt, row.EditedAt); Assert.Equal(old.AccountId, row.AccountId); Assert.Equal(old.Revision + 1, row.Revision); Assert.True(row.ServerSequence > old.ServerSequence); Assert.Equal(output.DeletedAt, row.DeletedAt); Assert.Equal(output.PurgeAt, row.PurgeAt); Assert.Null(row.ParentFolderId); Assert.False(await db.ProfileFolders.AnyAsync(x => x.FolderId == row.Id)); Assert.False(await db.CollectionFolders.AnyAsync(x => x.FolderId == row.Id)); Assert.Contains(entries, x => x.ResourceKind == "folder" && x.ResourceId == row.PublicId); var snap = JsonSerializer.Deserialize<FolderAssociationSnapshot>(entries.Single(x => x.ResourceKind == "folder" && x.ResourceId == row.PublicId).AssociationSnapshot, ProtectionFixture.Json)!; Guid? parent = old.ParentFolderId is null ? null : (await db.Folders.SingleAsync(x => x.Id == old.ParentFolderId)).PublicId; Assert.Equal(parent, snap.ParentFolderId); }
-        foreach (var old in records) { var row = await RecordRow(old.PublicId); Assert.Equal(old.Envelope, row.Envelope); Assert.Equal(old.EditedAt, row.EditedAt); Assert.Equal(old.AccountId, row.AccountId); Assert.Equal(old.Revision + 1, row.Revision); Assert.True(row.ServerSequence > old.ServerSequence); Assert.Equal(output.DeletedAt, row.DeletedAt); Assert.Equal(output.PurgeAt, row.PurgeAt); Assert.Null(row.FolderId); Assert.False(await db.ProfileRecords.AnyAsync(x => x.RecordId == row.Id)); Assert.False(await db.CollectionRecords.AnyAsync(x => x.RecordId == row.Id)); Assert.Contains(entries, x => x.ResourceKind == "record" && x.ResourceId == row.PublicId); var snap = JsonSerializer.Deserialize<RecordAssociationSnapshot>(entries.Single(x => x.ResourceKind == "record" && x.ResourceId == row.PublicId).AssociationSnapshot, ProtectionFixture.Json)!; Guid? parent = old.FolderId is null ? null : (await db.Folders.SingleAsync(x => x.Id == old.FolderId)).PublicId; Assert.Equal(parent, snap.FolderId); }
+        Assert.Equal(root.PublicId, output.FolderId);
+        Assert.Equal(root.Revision + 1, output.Revision);
+        Assert.True(output.ServerSequence > root.ServerSequence);
+        Assert.InRange(output.ServerSequence, 1, ProtocolBinary.MaxInteger);
+        Assert.NotEqual(Guid.Empty, output.TrashOperationId);
+        Assert.Equal(TimeSpan.Zero, output.DeletedAt.Offset);
+        Assert.Equal(0, output.DeletedAt.Ticks % 10);
+        Assert.Equal(TimeSpan.FromDays(30), output.PurgeAt - output.DeletedAt);
+        Assert.Equal(TimeSpan.Zero, output.PurgeAt.Offset);
+        await using var db = fixture.Context();
+        var op = await db.TrashOperations.SingleAsync(x => x.PublicId == output.TrashOperationId);
+        Assert.Equal(owner.InternalId, op.AccountId);
+        Assert.Equal("folder", op.RootResourceKind);
+        Assert.Equal(root.PublicId, op.RootResourceId);
+        Assert.Equal(output.DeletedAt, op.DeletedAt);
+        Assert.Equal(output.PurgeAt, op.PurgeAt);
+        var entries = await db.TrashEntries.Where(x => x.OperationId == op.Id).ToListAsync();
+        Assert.Equal(folders.Length + records.Length, entries.Count);
+        var queue = await db.RetentionWorkItems.SingleAsync(x => x.OperationKey == "trash/" + output.TrashOperationId);
+        Assert.Equal(output.PurgeAt, queue.DueAt);
+        Assert.Null(queue.CompletedAt);
+        foreach (var old in folders)
+        { var row = await FolderRow(old.PublicId); Assert.Equal(old.Envelope, row.Envelope); Assert.Equal(old.EditedAt, row.EditedAt); Assert.Equal(old.AccountId, row.AccountId); Assert.Equal(old.Revision + 1, row.Revision); Assert.True(row.ServerSequence > old.ServerSequence); Assert.Equal(output.DeletedAt, row.DeletedAt); Assert.Equal(output.PurgeAt, row.PurgeAt); Assert.Null(row.ParentFolderId); Assert.False(await db.ProfileFolders.AnyAsync(x => x.FolderId == row.Id)); Assert.False(await db.CollectionFolders.AnyAsync(x => x.FolderId == row.Id)); Assert.Contains(entries, x => x.ResourceKind == "folder" && x.ResourceId == row.PublicId); var snap = JsonSerializer.Deserialize<FolderAssociationSnapshot>(entries.Single(x => x.ResourceKind == "folder" && x.ResourceId == row.PublicId).AssociationSnapshot, ProtectionFixture.Json)!; Guid? parent = old.ParentFolderId is null ? null : (await db.Folders.SingleAsync(x => x.Id == old.ParentFolderId)).PublicId; Assert.Equal(parent, snap.ParentFolderId); }
+        foreach (var old in records)
+        { var row = await RecordRow(old.PublicId); Assert.Equal(old.Envelope, row.Envelope); Assert.Equal(old.EditedAt, row.EditedAt); Assert.Equal(old.AccountId, row.AccountId); Assert.Equal(old.Revision + 1, row.Revision); Assert.True(row.ServerSequence > old.ServerSequence); Assert.Equal(output.DeletedAt, row.DeletedAt); Assert.Equal(output.PurgeAt, row.PurgeAt); Assert.Null(row.FolderId); Assert.False(await db.ProfileRecords.AnyAsync(x => x.RecordId == row.Id)); Assert.False(await db.CollectionRecords.AnyAsync(x => x.RecordId == row.Id)); Assert.Contains(entries, x => x.ResourceKind == "record" && x.ResourceId == row.PublicId); var snap = JsonSerializer.Deserialize<RecordAssociationSnapshot>(entries.Single(x => x.ResourceKind == "record" && x.ResourceId == row.PublicId).AssociationSnapshot, ProtectionFixture.Json)!; Guid? parent = old.FolderId is null ? null : (await db.Folders.SingleAsync(x => x.Id == old.FolderId)).PublicId; Assert.Equal(parent, snap.FolderId); }
     }
 
     private async Task<ArturRios.Cerberus.Domain.Records.RecordCreateInput> CreateRecord(State s, Guid folder)
     {
-        var input = new ArturRios.Cerberus.Domain.Records.RecordCreateInput(Guid.NewGuid(), Envelope(), DateTimeOffset.UnixEpoch, [], folder); using var req = Request(s, Bytes(input), "/api/records"); using var response = await Gateway.Client.SendAsync(req); await Success<ArturRios.Cerberus.Command.Records.CreateRecordOutput>(response, 201); return input;
+        var input = new ArturRios.Cerberus.Domain.Records.RecordCreateInput(Guid.NewGuid(), Envelope(), DateTimeOffset.UnixEpoch, [], folder);
+        using var req = Request(s, Bytes(input), "/api/records");
+        using var response = await Gateway.Client.SendAsync(req);
+        await Success<ArturRios.Cerberus.Command.Records.CreateRecordOutput>(response, 201);
+        return input;
     }
     private async Task<FolderCreateInput> Create(State s, Guid[]? profiles = null, Guid? folder = null) { var input = Input(profiles, folder); using var response = await Send(s, input); await Success<CreateFolderOutput>(response, 201); return input; }
     private async Task<(VaultCollection, CollectionGrant)> Share(State owner, ProtectionFixture author, State recipient, ProtectionFixture recipientKeys, CollectionGrantAccess access, Guid[] folderIds, long[] folders) { await using var db = fixture.Context(); var collection = new VaultCollection { PublicId = Guid.NewGuid(), AccountId = owner.InternalId, Envelope = Bytes(Envelope()), EditedAt = DateTimeOffset.UnixEpoch }; db.Collections.Add(collection); await db.SaveChangesAsync(); var grant = new CollectionGrant { PublicId = Guid.NewGuid(), CollectionId = collection.Id, RecipientAccountId = recipient.InternalId, Access = access }; grant.RecipientKeyEnvelope = Bytes(author.WrapGrant(owner.AccountId, collection.PublicId, grant.PublicId, recipient.Actor, recipientKeys.Material.RecipientKey)); db.CollectionGrants.Add(grant); foreach (var id in folderIds) { var folder = await db.Folders.SingleAsync(x => x.PublicId == id); db.CollectionFolders.Add(new() { AccountId = owner.InternalId, CollectionId = collection.Id, FolderId = folder.Id }); } db.CollectionFolders.AddRange(folders.Select(id => new CollectionFolder { AccountId = owner.InternalId, CollectionId = collection.Id, FolderId = id })); await db.SaveChangesAsync(); return (collection, grant); }

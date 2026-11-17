@@ -31,41 +31,134 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
     [InlineData("PerProfile", false)]
     public async Task GivenNativeProfileAndCurrentIdentity_WhenOpeningWithoutPriorHandle_ThenIssueOnlySelectedHashedAccess(string mode, bool renewal)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); using var otherScoped = new ProtectionFixture(); using var author = new ProtectionFixture(); var s = await Setup(client); var foreign = await Setup(author); var own = await Items(s); var shared = await Items(foreign); await Grant(foreign, author, s, client, shared.Collection); var ids = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId, shared.Collection.PublicId]); var p = await Add(s, client, scoped, ids, mode); var other = await Add(s, client, otherScoped);
-        await using (var db = fixture.Context()) { await db.VaultAccessSessions.Where(x => x.AccountId == s.InternalId).ExecuteDeleteAsync(); if (!renewal) await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.RenewalEnabled, false)); }
-        var before = await Snapshot(s); var resources = await Content(s, foreign); var challenge = await Challenge(s, p.PublicId); Assert.Equal(mode, challenge.Profile.KeyWrappers.UnlockMode); Assert.Equal(p.PublicId, challenge.Challenge.ScopeId); Assert.Equal(s.Actor, challenge.Challenge.IdentityId); Assert.Equal(s.AccountId, challenge.Profile.AccountId); Assert.Equal("unlock-profile", challenge.Challenge.Operation); Assert.Equal("profile", challenge.Challenge.ScopeKind); Assert.Equal(60, challenge.Challenge.ExpiresAt - challenge.Challenge.IssuedAt);
-        using var response = await Open(s, p.PublicId, challenge.Challenge, scoped.Sign(challenge.Challenge)); var output = await Success<OpenProfileAccessOutput>(response, 200); Assert.Equal(s.AccountId, output.AccountId); Assert.Equal(p.PublicId, output.Profile.ProfileId); Assert.Equal(1, output.Profile.Revision); Assert.Equal(p.ServerSequence, output.Profile.ServerSequence); Assert.Equal(p.EditedAt, output.Profile.EditedAt); Assert.Equal(ids.RecordIds, output.Profile.RecordIds); Assert.Equal(ids.FolderIds, output.Profile.FolderIds); Assert.Equal(ids.CollectionIds.Order(), output.Profile.CollectionIds); Assert.Equal(renewal, output.ExpiresAt is not null); Assert.Equal(before, await Snapshot(s)); Assert.Equal(resources, await Content(s, foreign));
-        AssertFields(output, "accountId", "expiresAt", "issuedAt", "profile", "vaultAccess"); AssertFields(output.Profile, "collectionIds", "editedAt", "envelope", "folderIds", "keyWrappers", "profileId", "recordIds", "revision", "serverSequence");
-        await using (var db = fixture.Context()) { var session = await db.VaultAccessSessions.SingleAsync(x => x.AccountId == s.InternalId); Assert.Equal(p.Id, session.ProfileId); OpaqueAccessHandle.TryHash(output.VaultAccess, out var verifier); Assert.Equal(verifier, session.HandleVerifier); Assert.NotEqual(output.VaultAccess, session.HandleVerifier); Assert.True((await db.VaultUnlockChallenges.SingleAsync(x => x.PublicId == challenge.Challenge.ChallengeId)).Consumed); }
-        using var get = await WithAccess(s, HttpMethod.Get, "/api/profiles/" + p.PublicId, output.VaultAccess); Assert.Equal(p.PublicId, (await Success<ProfileDetailsOutput>(get, 200)).ProfileId); using var list = await WithAccess(s, HttpMethod.Get, "/api/profiles", output.VaultAccess); Assert.Equal(p.PublicId, Assert.Single((await Success<ProfileListOutput>(list, 200)).Items).ProfileId); using var outside = await WithAccess(s, HttpMethod.Get, "/api/profiles/" + other.PublicId, output.VaultAccess); await Failure(outside, 404); var newProfile = Guid.NewGuid(); using var create = await WithAccess(s, HttpMethod.Post, "/api/profiles", output.VaultAccess, new ProfileCreateInput(newProfile, Envelope(), new("Master", otherScoped.Material.UnlockVerifier, client.Wrap(s.AccountId, "profile", newProfile, s.Actor), null), DateTimeOffset.UtcNow, [], [], [])); await Failure(create, 403); using var replay = await Open(s, p.PublicId, challenge.Challenge, scoped.Sign(challenge.Challenge)); await Failure(replay, 401, "vault_proof_rejected");
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        using var otherScoped = new ProtectionFixture();
+        using var author = new ProtectionFixture();
+        var s = await Setup(client);
+        var foreign = await Setup(author);
+        var own = await Items(s);
+        var shared = await Items(foreign);
+        await Grant(foreign, author, s, client, shared.Collection);
+        var ids = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId, shared.Collection.PublicId]);
+        var p = await Add(s, client, scoped, ids, mode);
+        var other = await Add(s, client, otherScoped);
+        await using (var db = fixture.Context())
+        { await db.VaultAccessSessions.Where(x => x.AccountId == s.InternalId).ExecuteDeleteAsync(); if (!renewal) await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.RenewalEnabled, false)); }
+        var before = await Snapshot(s);
+        var resources = await Content(s, foreign);
+        var challenge = await Challenge(s, p.PublicId);
+        Assert.Equal(mode, challenge.Profile.KeyWrappers.UnlockMode);
+        Assert.Equal(p.PublicId, challenge.Challenge.ScopeId);
+        Assert.Equal(s.Actor, challenge.Challenge.IdentityId);
+        Assert.Equal(s.AccountId, challenge.Profile.AccountId);
+        Assert.Equal("unlock-profile", challenge.Challenge.Operation);
+        Assert.Equal("profile", challenge.Challenge.ScopeKind);
+        Assert.Equal(60, challenge.Challenge.ExpiresAt - challenge.Challenge.IssuedAt);
+        using var response = await Open(s, p.PublicId, challenge.Challenge, scoped.Sign(challenge.Challenge));
+        var output = await Success<OpenProfileAccessOutput>(response, 200);
+        Assert.Equal(s.AccountId, output.AccountId);
+        Assert.Equal(p.PublicId, output.Profile.ProfileId);
+        Assert.Equal(1, output.Profile.Revision);
+        Assert.Equal(p.ServerSequence, output.Profile.ServerSequence);
+        Assert.Equal(p.EditedAt, output.Profile.EditedAt);
+        Assert.Equal(ids.RecordIds, output.Profile.RecordIds);
+        Assert.Equal(ids.FolderIds, output.Profile.FolderIds);
+        Assert.Equal(ids.CollectionIds.Order(), output.Profile.CollectionIds);
+        Assert.Equal(renewal, output.ExpiresAt is not null);
+        Assert.Equal(before, await Snapshot(s));
+        Assert.Equal(resources, await Content(s, foreign));
+        AssertFields(output, "accountId", "expiresAt", "issuedAt", "profile", "vaultAccess");
+        AssertFields(output.Profile, "collectionIds", "editedAt", "envelope", "folderIds", "keyWrappers", "profileId", "recordIds", "revision", "serverSequence");
+        await using (var db = fixture.Context())
+        { var session = await db.VaultAccessSessions.SingleAsync(x => x.AccountId == s.InternalId); Assert.Equal(p.Id, session.ProfileId); OpaqueAccessHandle.TryHash(output.VaultAccess, out var verifier); Assert.Equal(verifier, session.HandleVerifier); Assert.NotEqual(output.VaultAccess, session.HandleVerifier); Assert.True((await db.VaultUnlockChallenges.SingleAsync(x => x.PublicId == challenge.Challenge.ChallengeId)).Consumed); }
+        using var get = await WithAccess(s, HttpMethod.Get, "/api/profiles/" + p.PublicId, output.VaultAccess);
+        Assert.Equal(p.PublicId, (await Success<ProfileDetailsOutput>(get, 200)).ProfileId);
+        using var list = await WithAccess(s, HttpMethod.Get, "/api/profiles", output.VaultAccess);
+        Assert.Equal(p.PublicId, Assert.Single((await Success<ProfileListOutput>(list, 200)).Items).ProfileId);
+        using var outside = await WithAccess(s, HttpMethod.Get, "/api/profiles/" + other.PublicId, output.VaultAccess);
+        await Failure(outside, 404);
+        var newProfile = Guid.NewGuid();
+        using var create = await WithAccess(s, HttpMethod.Post, "/api/profiles", output.VaultAccess, new ProfileCreateInput(newProfile, Envelope(), new("Master", otherScoped.Material.UnlockVerifier, client.Wrap(s.AccountId, "profile", newProfile, s.Actor), null), DateTimeOffset.UtcNow, [], [], []));
+        await Failure(create, 403);
+        using var replay = await Open(s, p.PublicId, challenge.Challenge, scoped.Sign(challenge.Challenge));
+        await Failure(replay, 401, "vault_proof_rejected");
     }
     [FunctionalFact]
     public async Task GivenNewSelectedHandle_WhenUpdatingAssociationsAndTrashing_ThenRestrictSelectionAndRevokeWithoutReviving()
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); using var otherScoped = new ProtectionFixture(); var s = await Setup(client); var own = await Items(s); var extra = await Items(s); var ids = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId]); var p = await Add(s, client, scoped, ids); var other = await Add(s, client, otherScoped); var c = await Challenge(s, p.PublicId); using var opened = await Open(s, p.PublicId, c.Challenge, scoped.Sign(c.Challenge)); var access = (await Success<OpenProfileAccessOutput>(opened, 200)).VaultAccess;
-        using var outsideUpdate = await WithAccess(s, HttpMethod.Put, "/api/profiles/" + other.PublicId, access, new ProfileUpdateInput(1, Envelope(), DateTimeOffset.UtcNow)); await Failure(outsideUpdate, 404); using var outsideTrash = await WithAccess(s, HttpMethod.Delete, "/api/profiles/" + other.PublicId, access, new { expectedRevision = 1 }); await Failure(outsideTrash, 404);
-        using var update = await WithAccess(s, HttpMethod.Put, "/api/profiles/" + p.PublicId, access, new ProfileUpdateInput(1, Envelope(), DateTimeOffset.UtcNow)); Assert.Equal(2, (await Success<UpdateProfileOutput>(update, 200)).Revision);
-        using var retain = await WithAccess(s, HttpMethod.Put, "/api/profiles/" + p.PublicId + "/associations", access, ids with { ExpectedRevision = 2 }); Assert.Equal(3, (await Success<SetProfileAssociationsOutput>(retain, 200)).Revision);
-        var before = await Snapshot(s); using var expand = await WithAccess(s, HttpMethod.Put, "/api/profiles/" + p.PublicId + "/associations", access, ids with { ExpectedRevision = 3, RecordIds = [extra.Record.PublicId] }); await Failure(expand, 404); Assert.Equal(before, await Snapshot(s)); using var clear = await WithAccess(s, HttpMethod.Put, "/api/profiles/" + p.PublicId + "/associations", access, new ProfileAssociationInput(3, [], [], [])); Assert.Equal(4, (await Success<SetProfileAssociationsOutput>(clear, 200)).Revision);
-        using var trash = await WithAccess(s, HttpMethod.Delete, "/api/profiles/" + p.PublicId, access, new { expectedRevision = 4 }); await Success<DeleteProfileOutput>(trash, 200); using var denied = await WithAccess(s, HttpMethod.Get, "/api/profiles/" + other.PublicId, access); await Failure(denied, 403); await using var db = fixture.Context(); Assert.True((await db.VaultAccessSessions.SingleAsync(x => x.AccountId == s.InternalId && x.ProfileId == p.Id)).Revoked); Assert.Null((await db.Profiles.SingleAsync(x => x.Id == other.Id)).DeletedAt); Assert.True(await db.Records.AnyAsync(x => x.Id == own.Record.Id));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        using var otherScoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var own = await Items(s);
+        var extra = await Items(s);
+        var ids = new ProfileAssociationInput(1, [own.Record.PublicId], [own.Folder.PublicId], [own.Collection.PublicId]);
+        var p = await Add(s, client, scoped, ids);
+        var other = await Add(s, client, otherScoped);
+        var c = await Challenge(s, p.PublicId);
+        using var opened = await Open(s, p.PublicId, c.Challenge, scoped.Sign(c.Challenge));
+        var access = (await Success<OpenProfileAccessOutput>(opened, 200)).VaultAccess;
+        using var outsideUpdate = await WithAccess(s, HttpMethod.Put, "/api/profiles/" + other.PublicId, access, new ProfileUpdateInput(1, Envelope(), DateTimeOffset.UtcNow));
+        await Failure(outsideUpdate, 404);
+        using var outsideTrash = await WithAccess(s, HttpMethod.Delete, "/api/profiles/" + other.PublicId, access, new { expectedRevision = 1 });
+        await Failure(outsideTrash, 404);
+        using var update = await WithAccess(s, HttpMethod.Put, "/api/profiles/" + p.PublicId, access, new ProfileUpdateInput(1, Envelope(), DateTimeOffset.UtcNow));
+        Assert.Equal(2, (await Success<UpdateProfileOutput>(update, 200)).Revision);
+        using var retain = await WithAccess(s, HttpMethod.Put, "/api/profiles/" + p.PublicId + "/associations", access, ids with { ExpectedRevision = 2 });
+        Assert.Equal(3, (await Success<SetProfileAssociationsOutput>(retain, 200)).Revision);
+        var before = await Snapshot(s);
+        using var expand = await WithAccess(s, HttpMethod.Put, "/api/profiles/" + p.PublicId + "/associations", access, ids with { ExpectedRevision = 3, RecordIds = [extra.Record.PublicId] });
+        await Failure(expand, 404);
+        Assert.Equal(before, await Snapshot(s));
+        using var clear = await WithAccess(s, HttpMethod.Put, "/api/profiles/" + p.PublicId + "/associations", access, new ProfileAssociationInput(3, [], [], []));
+        Assert.Equal(4, (await Success<SetProfileAssociationsOutput>(clear, 200)).Revision);
+        using var trash = await WithAccess(s, HttpMethod.Delete, "/api/profiles/" + p.PublicId, access, new { expectedRevision = 4 });
+        await Success<DeleteProfileOutput>(trash, 200);
+        using var denied = await WithAccess(s, HttpMethod.Get, "/api/profiles/" + other.PublicId, access);
+        await Failure(denied, 403);
+        await using var db = fixture.Context();
+        Assert.True((await db.VaultAccessSessions.SingleAsync(x => x.AccountId == s.InternalId && x.ProfileId == p.Id)).Revoked);
+        Assert.Null((await db.Profiles.SingleAsync(x => x.Id == other.Id)).DeletedAt);
+        Assert.True(await db.Records.AnyAsync(x => x.Id == own.Record.Id));
     }
     public static TheoryData<bool, string> HiddenCases => Pairs("foreign", "missing", "trash", "erased", "closing", "accountErased", "missingAccount");
     [FunctionalTheory]
     [MemberData(nameof(HiddenCases))]
     public async Task GivenHiddenTarget_WhenChallengingOrOpening_Then404BeforeRevisionOrNativeDisclosure(bool open, string kind)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var owner = kind == "foreign" ? await Setup(client) : s; var p = await Add(owner, client, scoped); var actor = s.Actor;
-        await using (var db = fixture.Context()) { if (kind == "trash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "closing") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending)); if (kind is "erased" or "accountErased") db.TerminalErasures.Add(new() { ResourceId = kind == "erased" ? p.PublicId : s.AccountId, ResourceKind = kind == "erased" ? "profile" : "account", DeletedAt = DateTimeOffset.UtcNow }); if (kind == "missingAccount") { actor = Guid.NewGuid(); fixture.Users[actor + "@example.test"] = new(actor, "fixture-password"); } await db.SaveChangesAsync(); await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 })); }
-        var before = await SecuritySnapshot(s); using var request = Request(s with { Actor = actor }, kind == "missing" ? Guid.NewGuid() : p.PublicId, open, Encoding.UTF8.GetBytes(open ? "{\"expectedRevision\":9}" : "{\"expectedRevision\":9,\"requestHash\":\"" + Hash(Raw) + "\"}")); using var response = await Gateway.Client.SendAsync(request); await Failure(response, 404, "not_found"); Assert.Equal(before, await SecuritySnapshot(s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var owner = kind == "foreign" ? await Setup(client) : s;
+        var p = await Add(owner, client, scoped);
+        var actor = s.Actor;
+        await using (var db = fixture.Context())
+        { if (kind == "trash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "closing") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending)); if (kind is "erased" or "accountErased") db.TerminalErasures.Add(new() { ResourceId = kind == "erased" ? p.PublicId : s.AccountId, ResourceKind = kind == "erased" ? "profile" : "account", DeletedAt = DateTimeOffset.UtcNow }); if (kind == "missingAccount") { actor = Guid.NewGuid(); fixture.Users[actor + "@example.test"] = new(actor, "fixture-password"); } await db.SaveChangesAsync(); await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 })); }
+        var before = await SecuritySnapshot(s);
+        using var request = Request(s with { Actor = actor }, kind == "missing" ? Guid.NewGuid() : p.PublicId, open, Encoding.UTF8.GetBytes(open ? "{\"expectedRevision\":9}" : "{\"expectedRevision\":9,\"requestHash\":\"" + Hash(Raw) + "\"}"));
+        using var response = await Gateway.Client.SendAsync(request);
+        await Failure(response, 404, "not_found");
+        Assert.Equal(before, await SecuritySnapshot(s));
     }
     public static TheoryData<bool, string> CorruptCases => Pairs("envelope", "wrappers", "pins", "sequence", "legacyDuplicate", "legacyTrashDuplicate", "corruptOtherKey");
     [FunctionalTheory]
     [MemberData(nameof(CorruptCases))]
     public async Task GivenCorruptRequiredNativeState_WhenChallengingOrOpening_Then503WithoutConsumptionOrHandle(bool open, string kind)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); using var another = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); var other = await Add(s, client, another); var c = open ? await Challenge(s, p.PublicId) : null;
-        await using (var db = fixture.Context()) { if (kind == "envelope") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 1 })); if (kind == "wrappers") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyWrappers, new byte[] { 1 })); if (kind == "pins") await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 })); if (kind == "sequence") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, 0)); if (kind is "legacyDuplicate" or "legacyTrashDuplicate") { var w = JsonSerializer.Deserialize<ProfileKeyWrappers>(other.KeyWrappers, ProtectionFixture.Json)!; await db.Profiles.Where(x => x.Id == other.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyWrappers, JsonSerializer.SerializeToUtf8Bytes(w with { UnlockVerifier = scoped.Material.UnlockVerifier }, ProtectionFixture.Json))); if (kind == "legacyTrashDuplicate") await db.Profiles.Where(x => x.Id == other.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); } if (kind == "corruptOtherKey") await db.Profiles.Where(x => x.Id == other.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyWrappers, new byte[] { 1 })); }
-        var before = await SecuritySnapshot(s); using var response = open ? await Open(s, p.PublicId, c!.Challenge, scoped.Sign(c.Challenge)) : await Gateway.Client.SendAsync(Request(s, p.PublicId, false, ChallengeBody())); await Failure(response, 503, "persistence_unavailable"); Assert.Equal(before, await SecuritySnapshot(s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        using var another = new ProtectionFixture();
+        var s = await Setup(client);
+        var p = await Add(s, client, scoped);
+        var other = await Add(s, client, another);
+        var c = open ? await Challenge(s, p.PublicId) : null;
+        await using (var db = fixture.Context())
+        { if (kind == "envelope") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 1 })); if (kind == "wrappers") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyWrappers, new byte[] { 1 })); if (kind == "pins") await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 })); if (kind == "sequence") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, 0)); if (kind is "legacyDuplicate" or "legacyTrashDuplicate") { var w = JsonSerializer.Deserialize<ProfileKeyWrappers>(other.KeyWrappers, ProtectionFixture.Json)!; await db.Profiles.Where(x => x.Id == other.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyWrappers, JsonSerializer.SerializeToUtf8Bytes(w with { UnlockVerifier = scoped.Material.UnlockVerifier }, ProtectionFixture.Json))); if (kind == "legacyTrashDuplicate") await db.Profiles.Where(x => x.Id == other.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); } if (kind == "corruptOtherKey") await db.Profiles.Where(x => x.Id == other.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyWrappers, new byte[] { 1 })); }
+        var before = await SecuritySnapshot(s);
+        using var response = open ? await Open(s, p.PublicId, c!.Challenge, scoped.Sign(c.Challenge)) : await Gateway.Client.SendAsync(Request(s, p.PublicId, false, ChallengeBody()));
+        await Failure(response, 503, "persistence_unavailable");
+        Assert.Equal(before, await SecuritySnapshot(s));
     }
     [FunctionalTheory]
     [InlineData("expected")]
@@ -74,8 +167,17 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
     [InlineData("generation")]
     public async Task GivenStaleProfileOrChallengePolicy_WhenOpening_Then409WithoutConsuming(string kind)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); var c = await Challenge(s, p.PublicId); await using (var db = fixture.Context()) { if (kind == "revision") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, 2)); if (kind == "policy") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.PolicyRevision, 2)); if (kind == "generation") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.RevocationGeneration, 2)); }
-        var before = await SecuritySnapshot(s); using var response = await Open(s, p.PublicId, c.Challenge, scoped.Sign(c.Challenge), kind == "expected" ? "{\"expectedRevision\":2}"u8.ToArray() : Raw); await Failure(response, 409, "revision_conflict"); Assert.Equal(before, await SecuritySnapshot(s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var p = await Add(s, client, scoped);
+        var c = await Challenge(s, p.PublicId);
+        await using (var db = fixture.Context())
+        { if (kind == "revision") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, 2)); if (kind == "policy") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.PolicyRevision, 2)); if (kind == "generation") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.RevocationGeneration, 2)); }
+        var before = await SecuritySnapshot(s);
+        using var response = await Open(s, p.PublicId, c.Challenge, scoped.Sign(c.Challenge), kind == "expected" ? "{\"expectedRevision\":2}"u8.ToArray() : Raw);
+        await Failure(response, 409, "revision_conflict");
+        Assert.Equal(before, await SecuritySnapshot(s));
     }
     [FunctionalTheory]
     [InlineData("accountKey")]
@@ -87,15 +189,66 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
     [InlineData("future")]
     public async Task GivenWrongNativeProofOrExpiredChallenge_WhenOpening_Then401AndNoSelectedSession(string kind)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); using var otherScoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); var other = await Add(s, client, otherScoped); var c = await Challenge(s, kind == "otherProfileChallenge" ? other.PublicId : p.PublicId); var signed = c.Challenge; if (kind == "nonce") signed = signed with { Nonce = Hash("different"u8.ToArray()) }; if (kind is "expired" or "future") { signed = signed with { IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (kind == "expired" ? -120 : 120), ExpiresAt = 0 }; signed = signed with { ExpiresAt = signed.IssuedAt + 60 }; await using var db = fixture.Context(); var row = await db.VaultUnlockChallenges.SingleAsync(x => x.PublicId == signed.ChallengeId); row.Challenge = JsonSerializer.SerializeToUtf8Bytes(signed, ProtectionFixture.Json); row.ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(signed.ExpiresAt); await db.SaveChangesAsync(); }
-        var before = await SecuritySnapshot(s); var proof = (kind == "accountKey" ? client : kind is "otherProfileKey" or "otherProfileChallenge" ? otherScoped : scoped).Sign(signed); using var response = await Open(s, p.PublicId, c.Challenge, proof, kind == "body" ? "{ \"expectedRevision\":1}"u8.ToArray() : Raw); await Failure(response, 401, "vault_proof_rejected"); Assert.Equal(before, await SecuritySnapshot(s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        using var otherScoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var p = await Add(s, client, scoped);
+        var other = await Add(s, client, otherScoped);
+        var c = await Challenge(s, kind == "otherProfileChallenge" ? other.PublicId : p.PublicId);
+        var signed = c.Challenge;
+        if (kind == "nonce")
+            signed = signed with { Nonce = Hash("different"u8.ToArray()) };
+        if (kind is "expired" or "future")
+        { signed = signed with { IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (kind == "expired" ? -120 : 120), ExpiresAt = 0 }; signed = signed with { ExpiresAt = signed.IssuedAt + 60 }; await using var db = fixture.Context(); var row = await db.VaultUnlockChallenges.SingleAsync(x => x.PublicId == signed.ChallengeId); row.Challenge = JsonSerializer.SerializeToUtf8Bytes(signed, ProtectionFixture.Json); row.ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(signed.ExpiresAt); await db.SaveChangesAsync(); }
+        var before = await SecuritySnapshot(s);
+        var proof = (kind == "accountKey" ? client : kind is "otherProfileKey" or "otherProfileChallenge" ? otherScoped : scoped).Sign(signed);
+        using var response = await Open(s, p.PublicId, c.Challenge, proof, kind == "body" ? "{ \"expectedRevision\":1}"u8.ToArray() : Raw);
+        await Failure(response, 401, "vault_proof_rejected");
+        Assert.Equal(before, await SecuritySnapshot(s));
     }
     public static TheoryData<bool, string> MalformedCases => Pairs("actor", "profileId", "vaultAccess", "password", "unknown", "missingRevision", "numeric", "unsafe", "zero", "fraction", "duplicate", "case", "null", "array", "bom", "invalidUtf8", "gzip", "charset", "oversized");
     [FunctionalTheory]
     [MemberData(nameof(MalformedCases))]
     public async Task GivenMalformedBody_WhenChallengingOrOpening_ThenRejectWithoutStateChanges(bool open, string kind)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); var raw = open ? Encoding.UTF8.GetString(Raw) : Encoding.UTF8.GetString(ChallengeBody()); if (kind is "actor" or "profileId" or "vaultAccess" or "password" or "unknown") raw = raw.Insert(1, "\"" + kind + "\":null,"); if (kind == "missingRevision") raw = open ? "{}" : raw.Replace("\"expectedRevision\":1,", ""); if (kind == "numeric") raw = raw.Replace(":1", ":\"1\""); if (kind == "unsafe") raw = raw.Replace(":1", ":9007199254740992"); if (kind == "zero") raw = raw.Replace(":1", ":0"); if (kind == "fraction") raw = raw.Replace(":1", ":1.5"); if (kind == "duplicate") raw = raw.Insert(1, "\"expectedRevision\":1,"); if (kind == "case") raw = raw.Replace("expectedRevision", "ExpectedRevision"); if (kind == "null") raw = "null"; if (kind == "array") raw = "[]"; if (kind == "oversized") raw = new string(' ', 65537) + raw; var bytes = kind == "invalidUtf8" ? new byte[] { 255 } : kind == "bom" ? new byte[] { 239, 187, 191 }.Concat(Encoding.UTF8.GetBytes(raw)).ToArray() : Encoding.UTF8.GetBytes(raw); var before = await SecuritySnapshot(s); using var request = Request(s, p.PublicId, open, bytes); if (kind == "gzip") request.Content!.Headers.ContentEncoding.Add("gzip"); if (kind == "charset") request.Content!.Headers.ContentType!.CharSet = "iso-8859-1"; using var response = await Gateway.Client.SendAsync(request); await Failure(response, kind == "oversized" ? 413 : 400, kind == "oversized" ? null : "validation_failed"); Assert.Equal(before, await SecuritySnapshot(s));
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var p = await Add(s, client, scoped);
+        var raw = open ? Encoding.UTF8.GetString(Raw) : Encoding.UTF8.GetString(ChallengeBody());
+        if (kind is "actor" or "profileId" or "vaultAccess" or "password" or "unknown")
+            raw = raw.Insert(1, "\"" + kind + "\":null,");
+        if (kind == "missingRevision")
+            raw = open ? "{}" : raw.Replace("\"expectedRevision\":1,", "");
+        if (kind == "numeric")
+            raw = raw.Replace(":1", ":\"1\"");
+        if (kind == "unsafe")
+            raw = raw.Replace(":1", ":9007199254740992");
+        if (kind == "zero")
+            raw = raw.Replace(":1", ":0");
+        if (kind == "fraction")
+            raw = raw.Replace(":1", ":1.5");
+        if (kind == "duplicate")
+            raw = raw.Insert(1, "\"expectedRevision\":1,");
+        if (kind == "case")
+            raw = raw.Replace("expectedRevision", "ExpectedRevision");
+        if (kind == "null")
+            raw = "null";
+        if (kind == "array")
+            raw = "[]";
+        if (kind == "oversized")
+            raw = new string(' ', 65537) + raw;
+        var bytes = kind == "invalidUtf8" ? new byte[] { 255 } : kind == "bom" ? new byte[] { 239, 187, 191 }.Concat(Encoding.UTF8.GetBytes(raw)).ToArray() : Encoding.UTF8.GetBytes(raw);
+        var before = await SecuritySnapshot(s);
+        using var request = Request(s, p.PublicId, open, bytes);
+        if (kind == "gzip")
+            request.Content!.Headers.ContentEncoding.Add("gzip");
+        if (kind == "charset")
+            request.Content!.Headers.ContentType!.CharSet = "iso-8859-1";
+        using var response = await Gateway.Client.SendAsync(request);
+        await Failure(response, kind == "oversized" ? 413 : 400, kind == "oversized" ? null : "validation_failed");
+        Assert.Equal(before, await SecuritySnapshot(s));
     }
     [FunctionalTheory]
     [InlineData("missing")]
@@ -121,11 +274,35 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
     [InlineData("badProof", 400)]
     public async Task GivenInvalidProofHeaders_WhenOpening_ThenRejectWithoutStateChanges(string kind, int status)
     {
-        using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); var before = await SecuritySnapshot(s); using var request = Request(s, p.PublicId, true, Raw); if (kind is "missingId" or "emptyId" or "badId" or "uppercaseId") request.Headers.Remove("X-Cerberus-Challenge-Id"); if (kind is "missingProof" or "emptyProof" or "badProof") request.Headers.Remove("X-Cerberus-Proof"); if (kind == "badId") request.Headers.TryAddWithoutValidation("X-Cerberus-Challenge-Id", "bad"); if (kind == "uppercaseId") request.Headers.TryAddWithoutValidation("X-Cerberus-Challenge-Id", "ABCDEFAB-1234-1234-1234-ABCDEFABCDEF"); if (kind == "badProof") request.Headers.TryAddWithoutValidation("X-Cerberus-Proof", "bad"); if (kind == "duplicateId") request.Headers.TryAddWithoutValidation("X-Cerberus-Challenge-Id", Guid.NewGuid().ToString()); if (kind == "duplicateProof") request.Headers.TryAddWithoutValidation("X-Cerberus-Proof", ProtocolBinary.Encode(new byte[64])); if (kind is "emptyId" or "emptyProof")
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(client);
+        var p = await Add(s, client, scoped);
+        var before = await SecuritySnapshot(s);
+        using var request = Request(s, p.PublicId, true, Raw);
+        if (kind is "missingId" or "emptyId" or "badId" or "uppercaseId")
+            request.Headers.Remove("X-Cerberus-Challenge-Id");
+        if (kind is "missingProof" or "emptyProof" or "badProof")
+            request.Headers.Remove("X-Cerberus-Proof");
+        if (kind == "badId")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Challenge-Id", "bad");
+        if (kind == "uppercaseId")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Challenge-Id", "ABCDEFAB-1234-1234-1234-ABCDEFABCDEF");
+        if (kind == "badProof")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Proof", "bad");
+        if (kind == "duplicateId")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Challenge-Id", Guid.NewGuid().ToString());
+        if (kind == "duplicateProof")
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Proof", ProtocolBinary.Encode(new byte[64]));
+        if (kind is "emptyId" or "emptyProof")
         {
-            using var host = new WebApplicationFactory<Program>(); var context = await host.Server.SendAsync(c => { c.Request.Method = "POST"; c.Request.Path = "/api/profiles/" + p.PublicId + "/access"; c.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(s.Actor); c.Request.Headers["X-Cerberus-Challenge-Id"] = kind == "emptyId" ? "" : Guid.NewGuid().ToString(); c.Request.Headers["X-Cerberus-Proof"] = kind == "emptyProof" ? "" : ProtocolBinary.Encode(new byte[64]); c.Request.ContentType = "application/json"; c.Request.Body = new MemoryStream(Raw); c.Request.ContentLength = Raw.Length; }); Assert.Equal(status, context.Response.StatusCode); Assert.Contains("no-store", context.Response.Headers.CacheControl.ToString());
+            using var host = new WebApplicationFactory<Program>();
+            var context = await host.Server.SendAsync(c => { c.Request.Method = "POST"; c.Request.Path = "/api/profiles/" + p.PublicId + "/access"; c.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(s.Actor); c.Request.Headers["X-Cerberus-Challenge-Id"] = kind == "emptyId" ? "" : Guid.NewGuid().ToString(); c.Request.Headers["X-Cerberus-Proof"] = kind == "emptyProof" ? "" : ProtocolBinary.Encode(new byte[64]); c.Request.ContentType = "application/json"; c.Request.Body = new MemoryStream(Raw); c.Request.ContentLength = Raw.Length; });
+            Assert.Equal(status, context.Response.StatusCode);
+            Assert.Contains("no-store", context.Response.Headers.CacheControl.ToString());
         }
-        else { using var response = await Gateway.Client.SendAsync(request); await Failure(response, status); }
+        else
+        { using var response = await Gateway.Client.SendAsync(request); await Failure(response, status); }
         Assert.Equal(before, await SecuritySnapshot(s));
     }
     public static TheoryData<bool, string> IdentityCases => Pairs("missing", "wrongScope", "deleted", "unavailable");
@@ -178,7 +355,8 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
     private static string TokenWithIssuedAt(Guid actor, string freshness)
     {
         var claims = new List<Claim> { new("id", actor.ToString()), new("roleId", "3"), new("scopeId", RegistrationApiFixture.Scope.ToString()) };
-        if (freshness != "missing") claims.Add(new("iat", (DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (freshness == "old" ? -120 : 120)).ToString(), ClaimValueTypes.Integer64));
+        if (freshness != "missing")
+            claims.Add(new("iat", (DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (freshness == "old" ? -120 : 120)).ToString(), ClaimValueTypes.Integer64));
         return new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken("fixture-issuer", "fixture-audience", claims,
             DateTime.UtcNow.AddMinutes(-5), DateTime.UtcNow.AddMinutes(5), new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes("fixture-only-signing-key-32-characters")), SecurityAlgorithms.HmacSha256)));
     }

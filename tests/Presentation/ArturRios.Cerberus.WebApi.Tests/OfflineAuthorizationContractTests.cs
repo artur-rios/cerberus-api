@@ -11,7 +11,8 @@ public class OfflineAuthorizationContractTests
     public void GivenStrictRenewalRoute_WhenGeneratingOpenApi_ThenRequireJsonAndAdvertiseEmpty413()
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { ApplicationName = typeof(Startup).Assembly.GetName().Name, Args = [] });
-        builder.Services.AddCerberusContracts(); using var host = builder.Build();
+        builder.Services.AddCerberusContracts();
+        using var host = builder.Build();
         var doc = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
         var operation = doc.Paths["/api/offline-authorizations"].Operations![HttpMethod.Post];
         Assert.True(operation.RequestBody!.Required);

@@ -3,8 +3,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using ArturRios.Cerberus.Data.Resources;
 using ArturRios.Cerberus.Domain.Accounts;
-using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Folders;
+using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Domain.Sync;
 using Microsoft.EntityFrameworkCore;
@@ -18,22 +18,26 @@ public sealed class FolderUpdateStore(IDbContextFactory<AppDbContext> factory) :
     public async Task<VaultResult<FolderCreateDetails>> UpdateAsync(FolderUpdateRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (request.Actor == Guid.Empty) return new(Error: "authentication_required");
-        if (request.FolderId == Guid.Empty || request.Input?.IsValid() != true) return new(Error: "validation_failed");
+        if (request.Actor == Guid.Empty)
+            return new(Error: "authentication_required");
+        if (request.FolderId == Guid.Empty || request.Input?.IsValid() != true)
+            return new(Error: "validation_failed");
         try
         {
             await using var db = await factory.CreateDbContextAsync(ct);
             await using var tx = await NativeMutationTransaction.BeginAsync(db, ct);
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE heimdall_public_id={request.Actor} FOR NO KEY UPDATE", ct);
             var account = await db.Accounts.AsNoTracking().SingleOrDefaultAsync(x => x.HeimdallPublicId == request.Actor, ct);
-            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), ct)) return new(Error: "not_found");
+            if (account is null || account.State != AccountState.Active || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "account" && x.ResourceId == account.PublicId), ct))
+                return new(Error: "not_found");
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={account.Id} AND handle_verifier={request.AccessVerifier} FOR UPDATE", ct);
             var session = await db.VaultAccessSessions.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.HandleVerifier == request.AccessVerifier, ct);
             if (session?.ProfileId is not null)
                 await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.profile WHERE id={session.ProfileId} AND account_id={account.Id} FOR UPDATE", ct);
             var initial = await SnapshotAsync(db, request, ct);
             var error = StateError(initial);
-            if (error is not null) return new(Error: error);
+            if (error is not null)
+                return new(Error: error);
             var target = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
             var selection = session?.ProfileId ?? 0;
             // Cross-owner order: own account/session/selection, collections, grants, target.
@@ -61,25 +65,34 @@ public sealed class FolderUpdateStore(IDbContextFactory<AppDbContext> factory) :
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.folder WHERE public_id={request.FolderId} AND account_id={target.AccountId} FOR NO KEY UPDATE", ct);
             var current = await SnapshotAsync(db, request, ct);
             error = StateError(current);
-            if (error is not null) return new(Error: error);
-            if (current.Collections.Except(lockedCollections).Any() || current.GrantsIds.Except(lockedGrants).Any()) return new(Error: "revision_conflict");
-            if (!ValidNative(current)) return new(Error: "persistence_unavailable");
-            if (!current.Writable) return new(Error: "vault_access_denied");
+            if (error is not null)
+                return new(Error: error);
+            if (current.Collections.Except(lockedCollections).Any() || current.GrantsIds.Except(lockedGrants).Any())
+                return new(Error: "revision_conflict");
+            if (!ValidNative(current))
+                return new(Error: "persistence_unavailable");
+            if (!current.Writable)
+                return new(Error: "vault_access_denied");
             target = JsonSerializer.Deserialize<Item>(current.Item!, Json)!;
             if (!Safe(target.Revision) || !Safe(target.Sequence) || target.EditedAt.Offset != TimeSpan.Zero
-                || target.EditedAt.Ticks < 10 || target.EditedAt.Ticks % 10 != 0) return new(Error: "persistence_unavailable");
+                || target.EditedAt.Ticks < 10 || target.EditedAt.Ticks % 10 != 0)
+                return new(Error: "persistence_unavailable");
             var original = Convert.FromHexString(target.Envelope);
             var old = JsonSerializer.Deserialize<EncryptedEnvelope>(original, Json);
-            if (old?.IsValid() != true) return new(Error: "persistence_unavailable");
+            if (old?.IsValid() != true)
+                return new(Error: "persistence_unavailable");
             if (request.OfflineInspectOnly)
             {
-                if (!request.OfflineLatestEdit) return new(Error: "validation_failed");
+                if (!request.OfflineLatestEdit)
+                    return new(Error: "validation_failed");
                 await tx.CommitAsync(ct);
                 return new(new FolderCreateDetails(target.FolderId, target.Revision, target.Sequence, target.EditedAt));
             }
-            if (!request.OfflineLatestEdit && (target.Revision != request.Input.ExpectedRevision || target.Revision == ProtocolBinary.MaxInteger)) return new(Error: "revision_conflict");
+            if (!request.OfflineLatestEdit && (target.Revision != request.Input.ExpectedRevision || target.Revision == ProtocolBinary.MaxInteger))
+                return new(Error: "revision_conflict");
             var input = request.Input;
-            if (input.Envelope.KeyEpoch != old.KeyEpoch || input.Envelope != old && (input.Envelope.KeySalt == old.KeySalt || input.Envelope.Nonce == old.Nonce)) return new(Error: "validation_failed");
+            if (input.Envelope.KeyEpoch != old.KeyEpoch || input.Envelope != old && (input.Envelope.KeySalt == old.KeySalt || input.Envelope.Nonce == old.Nonce))
+                return new(Error: "validation_failed");
             if (request.OfflineLatestEdit)
             {
                 if (!OfflineEditOrder.ShouldApply(input.EditedAt, target.EditedAt))
@@ -87,7 +100,8 @@ public sealed class FolderUpdateStore(IDbContextFactory<AppDbContext> factory) :
                     await tx.CommitAsync(ct);
                     return new(new FolderCreateDetails(target.FolderId, target.Revision, target.Sequence, target.EditedAt), "superseded");
                 }
-                if (target.Revision == ProtocolBinary.MaxInteger) return new(Error: "revision_conflict");
+                if (target.Revision == ProtocolBinary.MaxInteger)
+                    return new(Error: "revision_conflict");
                 input = input with { ExpectedRevision = target.Revision };
             }
             var edited = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % 10));
@@ -106,8 +120,10 @@ public sealed class FolderUpdateStore(IDbContextFactory<AppDbContext> factory) :
                 return new(Error: StateError(after) ?? (!after.Writable ? "vault_access_denied" : "revision_conflict"));
             }
             var result = await db.Folders.AsNoTracking().Where(x => x.PublicId == request.FolderId).Select(x => new FolderCreateDetails(x.PublicId, x.Revision, x.ServerSequence, x.EditedAt)).SingleAsync(ct);
-            if (result.Revision != target.Revision + 1 || !Safe(result.ServerSequence) || result.ServerSequence <= target.Sequence || result.EditedAt != edited) return new(Error: "persistence_unavailable");
-            await tx.CommitAsync(ct); return new(result);
+            if (result.Revision != target.Revision + 1 || !Safe(result.ServerSequence) || result.ServerSequence <= target.Sequence || result.EditedAt != edited)
+                return new(Error: "persistence_unavailable");
+            await tx.CommitAsync(ct);
+            return new(result);
         }
         catch (PostgresException e) when (e.SqlState == "2200H") { return new(Error: "revision_conflict"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
@@ -120,10 +136,12 @@ public sealed class FolderUpdateStore(IDbContextFactory<AppDbContext> factory) :
     private static bool ValidNative(Snapshot snapshot)
     {
         var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
-        if (grants.Length == 0) return true;
+        if (grants.Length == 0)
+            return true;
         var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, Json);
         if (p is null || !CollectionGrantBinding.TryReadPins(Pins(p.OwnerMaterial, p.OwnerRevision, p.OwnerEpoch, p.OwnerGeneration), out var owner)
-            || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient)) return false;
+            || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient))
+            return false;
         return grants.All(g => CollectionGrantBinding.IsBound(new() { PublicId = g.GrantId, Revision = g.GrantRevision, RecipientKeyEnvelope = Convert.FromHexString(g.GrantEnvelope) },
             new() { PublicId = g.CollectionId, KeyEpoch = g.CollectionEpoch, Envelope = Convert.FromHexString(g.CollectionEnvelope) }, p.OwnerId, p.RecipientIdentity, owner!, recipient!));
     }

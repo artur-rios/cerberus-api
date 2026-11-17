@@ -6,9 +6,9 @@ using ArturRios.Cerberus.Data.Records;
 using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Records;
-using Microsoft.EntityFrameworkCore;
-using ArturRios.Cerberus.TestSupport;
 using ArturRios.Cerberus.Domain.Resources;
+using ArturRios.Cerberus.TestSupport;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
@@ -44,16 +44,20 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
         var id = Guid.NewGuid();
         var first = new ErasureEntry(id, "record", Deleted);
         var ledger = new FileErasureLedger(directory);
-        if (legacy) await File.WriteAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json"), JsonSerializer.Serialize(first));
-        else await ledger.RecordAsync(first, default);
+        if (legacy)
+            await File.WriteAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json"), JsonSerializer.Serialize(first));
+        else
+            await ledger.RecordAsync(first, default);
         await ledger.RecordAsync(new(id, "folder", Deleted.AddHours(1)), default);
         var entries = new List<ErasureEntry>();
-        await foreach (var entry in new FileErasureLedger(directory).ReadAsync(default)) entries.Add(entry);
+        await foreach (var entry in new FileErasureLedger(directory).ReadAsync(default))
+            entries.Add(entry);
         Assert.Equal(2, entries.Count);
         Assert.Contains(first, entries);
         Assert.Contains(new(id, "folder", Deleted.AddHours(1)), entries);
         Assert.True(File.Exists(Path.Combine(directory, "folder-" + id.ToString("N") + ".json")));
-        if (legacy) Assert.Equal(JsonSerializer.Serialize(first), await File.ReadAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json")));
+        if (legacy)
+            Assert.Equal(JsonSerializer.Serialize(first), await File.ReadAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json")));
     }
 
     [FunctionalFact]
@@ -65,7 +69,8 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
         var ledger = new FileErasureLedger(directory);
         await ledger.RecordAsync(entry with { DeletedAt = Deleted.AddHours(1) }, default);
         var entries = new List<ErasureEntry>();
-        await foreach (var item in ledger.ReadAsync(default)) entries.Add(item);
+        await foreach (var item in ledger.ReadAsync(default))
+            entries.Add(item);
         Assert.Single(entries);
         Assert.Equal(entry, entries[0]);
     }
@@ -295,7 +300,8 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
             await File.WriteAllTextAsync(real, JsonSerializer.Serialize(entry));
             File.CreateSymbolicLink(file, real);
         }
-        else await File.WriteAllTextAsync(file, JsonSerializer.Serialize(entry));
+        else
+            await File.WriteAllTextAsync(file, JsonSerializer.Serialize(entry));
         await Assert.ThrowsAsync<InvalidDataException>(async () => { await foreach (var _ in new FileErasureLedger(directory).ReadAsync(default)) { } });
     }
 

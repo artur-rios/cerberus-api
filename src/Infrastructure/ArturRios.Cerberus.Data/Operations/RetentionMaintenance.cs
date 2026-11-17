@@ -10,7 +10,8 @@ public sealed class RetentionMaintenance(IDbContextFactory<AppDbContext> factory
 {
     public async Task<RetentionPreparationResult> PrepareAsync(int pageSize, CancellationToken ct)
     {
-        ct.ThrowIfCancellationRequested(); ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
+        ct.ThrowIfCancellationRequested();
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
         await using var read = await factory.CreateDbContextAsync(ct);
         await RetentionMaintenanceRights.RequireAsync(read, ct);
         var trash = await read.Database.SqlQuery<Candidate>($"""
@@ -23,7 +24,8 @@ public sealed class RetentionMaintenance(IDbContextFactory<AppDbContext> factory
             ORDER BY o.purge_at,o.public_id LIMIT {pageSize}
             """).ToListAsync(ct);
         var scheduled = 0;
-        foreach (var candidate in trash) scheduled += await ScheduleTrashAsync(candidate, ct);
+        foreach (var candidate in trash)
+            scheduled += await ScheduleTrashAsync(candidate, ct);
         if (scheduled < pageSize)
         {
             var accounts = await read.Database.SqlQuery<Candidate>($"""
@@ -36,7 +38,8 @@ public sealed class RetentionMaintenance(IDbContextFactory<AppDbContext> factory
                   AND NOT EXISTS(SELECT FROM cerberus.retention_work_item w WHERE w.operation_key='account-purge/'||a.public_id::text)
                 ORDER BY a.closure_purge_at,a.public_id LIMIT {pageSize - scheduled}
                 """).ToListAsync(ct);
-            foreach (var candidate in accounts) scheduled += await ScheduleAccountAsync(candidate, ct);
+            foreach (var candidate in accounts)
+                scheduled += await ScheduleAccountAsync(candidate, ct);
         }
         // Busy downloads keep their stream lock; cleanup skips them and retries
         // later. Upload idempotency rows are never an age-based cleanup target.
@@ -50,7 +53,8 @@ public sealed class RetentionMaintenance(IDbContextFactory<AppDbContext> factory
     }
     private async Task<int> ScheduleTrashAsync(Candidate candidate, CancellationToken ct)
     {
-        await using var db = await factory.CreateDbContextAsync(ct); await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var db = await factory.CreateDbContextAsync(ct);
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
         await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={candidate.AccountId} FOR SHARE", ct);
         var key = "trash/" + candidate.PublicId;
         var changed = await db.Database.ExecuteSqlInterpolatedAsync($"""
@@ -73,11 +77,13 @@ public sealed class RetentionMaintenance(IDbContextFactory<AppDbContext> factory
                 && await db.Accounts.AnyAsync(x => x.Id == candidate.AccountId && (x.State == AccountState.Active || x.State == AccountState.ClosurePending), ct))
                 throw new InvalidOperationException("Trash expiry scheduling was not persisted.");
         }
-        await tx.CommitAsync(ct); return changed;
+        await tx.CommitAsync(ct);
+        return changed;
     }
     private async Task<int> ScheduleAccountAsync(Candidate candidate, CancellationToken ct)
     {
-        await using var db = await factory.CreateDbContextAsync(ct); await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var db = await factory.CreateDbContextAsync(ct);
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
         await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={candidate.AccountId} FOR SHARE", ct);
         var key = "account-purge/" + candidate.PublicId;
         var changed = await db.Database.ExecuteSqlInterpolatedAsync($"""
@@ -98,9 +104,11 @@ public sealed class RetentionMaintenance(IDbContextFactory<AppDbContext> factory
             var now = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);
             if (owner is not null && owner.State == AccountState.ClosurePending && RetentionExpiry.Due(owner.ClosureRequestedAt, owner.ClosurePurgeAt, now)
                 && owner.Revision is > 0 and <= ProtocolBinary.MaxInteger && owner.RevocationGeneration is > 0 and <= ProtocolBinary.MaxInteger
-                && owner.PolicyRevision is > 0 and <= ProtocolBinary.MaxInteger) throw new InvalidOperationException("Account expiry scheduling was not persisted.");
+                && owner.PolicyRevision is > 0 and <= ProtocolBinary.MaxInteger)
+                throw new InvalidOperationException("Account expiry scheduling was not persisted.");
         }
-        await tx.CommitAsync(ct); return changed;
+        await tx.CommitAsync(ct);
+        return changed;
     }
     private sealed class Candidate { public long AccountId { get; set; } public Guid PublicId { get; set; } }
 }

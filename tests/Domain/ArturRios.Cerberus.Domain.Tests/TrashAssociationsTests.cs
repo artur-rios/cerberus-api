@@ -15,7 +15,8 @@ public class TrashAssociationsTests
     [InlineData("profile")]
     public void GivenTypedOriginalAssociations_WhenDecoding_ThenPreserveExactTypedIdentifiers(string kind)
     {
-        var bytes = Encoding.UTF8.GetBytes(Json(kind)); Assert.True(TrashAssociations.TryRead(kind, bytes, out var data));
+        var bytes = Encoding.UTF8.GetBytes(Json(kind));
+        Assert.True(TrashAssociations.TryRead(kind, bytes, out var data));
         Assert.Equal(kind is "record" or "folder" ? Guid.Parse(F) : null, data!.Parent);
         Assert.Equal(kind == "profile" ? Array.Empty<Guid>() : [Guid.Parse(P)], data.ProfileIds);
         Assert.Equal(kind == "collection" ? Array.Empty<Guid>() : [Guid.Parse(C)], data.CollectionIds);
@@ -52,7 +53,8 @@ public class TrashAssociationsTests
     [InlineData("nullId")]
     public void GivenMalformedRetainedAuthority_WhenDecoding_ThenFailWithoutPartialAuthority(string damage)
     {
-        var json = Json("record"); json = damage switch
+        var json = Json("record");
+        json = damage switch
         {
             "badJson" => "bad",
             "null" => "null",
@@ -71,7 +73,8 @@ public class TrashAssociationsTests
             "nullId" => json.Replace('"' + P + '"', "null"),
             _ => json
         };
-        Assert.False(TrashAssociations.TryRead("record", Encoding.UTF8.GetBytes(json), out var data)); Assert.Null(data);
+        Assert.False(TrashAssociations.TryRead("record", Encoding.UTF8.GetBytes(json), out var data));
+        Assert.Null(data);
     }
     [UnitTheory]
     [InlineData("grant")]

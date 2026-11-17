@@ -21,16 +21,23 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     public async Task GivenTwoCapturedRevokers_WhenGuardedWriteCommits_ThenOneWinnerAndLaterRequestIsNotFound(bool selectedProfile)
     {
         using var s = await Setup();
-        if (selectedProfile) await SelectProfile(s);
-        var original = await Grant(s); var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
-        var ready = Signal(); var release = Signal(); var waiting = Signal(); var holder = 0; var waiter = 0;
+        if (selectedProfile)
+            await SelectProfile(s);
+        var original = await Grant(s);
+        var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
+        var ready = Signal();
+        var release = Signal();
+        var waiting = Signal();
+        var holder = 0;
+        var waiter = 0;
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         var first = Store(new Before(Cas, async c =>
         { holder = Pid(c); ready.TrySetResult(); await release.Task.WaitAsync(ct.Token); })).RevokeAsync(Request(s), ct.Token);
         await ready.Task.WaitAsync(ct.Token);
         var second = Store(new Before(c => Lock(c, "account"), c =>
         { waiter = Pid(c); waiting.TrySetResult(); return Task.CompletedTask; })).RevokeAsync(Request(s), ct.Token);
-        try { await waiting.Task.WaitAsync(ct.Token); await Blocked(holder, waiter, ct.Token); Assert.False(second.IsCompleted); }
+        try
+        { await waiting.Task.WaitAsync(ct.Token); await Blocked(holder, waiter, ct.Token); Assert.False(second.IsCompleted); }
         finally { release.TrySetResult(); }
         var results = await Task.WhenAll(first, second);
         Assert.Single(results, x => x.Data == new SoftwareGrantRevocationDetails(s.Grant, 2) && x.Error is null);
@@ -38,7 +45,8 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
         await AssertRevoked(s, original, 2);
         var winner = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
         var late = await Store().RevokeAsync(Request(s), ct.Token);
-        Assert.Equal("not_found", late.Error); Assert.Null(late.Data);
+        Assert.Equal("not_found", late.Error);
+        Assert.Null(late.Data);
         Assert.Equal(winner, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
         Assert.Equal(vault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
     }
@@ -49,11 +57,18 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     [InlineData(true)]
     public async Task GivenReactivationFromRevisionTwo_WhenStaleRevokerRaces_ThenPreserveCompleteRevisionThree(bool capturedActive)
     {
-        using var s = await Setup(); using var replacementKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        using var s = await Setup();
+        using var replacementKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         var replacement = await AssociationSetup.Items(fixture, s.Owner);
-        var original = await Grant(s); var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
-        var captured = Signal(); var resume = Signal(); var attempting = Signal(); var ready = Signal(); var release = Signal();
-        var holder = 0; var waiter = 0;
+        var original = await Grant(s);
+        var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
+        var captured = Signal();
+        var resume = Signal();
+        var attempting = Signal();
+        var ready = Signal();
+        var release = Signal();
+        var holder = 0;
+        var waiter = 0;
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         Task<VaultResult<SoftwareGrantRevocationDetails>>? stale = null;
         if (capturedActive)
@@ -72,8 +87,10 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
             await ready.Task.WaitAsync(ct.Token);
             if (capturedActive)
             {
-                resume.TrySetResult(); await attempting.Task.WaitAsync(ct.Token);
-                await Blocked(holder, waiter, ct.Token); Assert.False(stale!.IsCompleted);
+                resume.TrySetResult();
+                await attempting.Task.WaitAsync(ct.Token);
+                await Blocked(holder, waiter, ct.Token);
+                Assert.False(stale!.IsCompleted);
             }
             else
             {
@@ -83,19 +100,27 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
         }
         finally { resume.TrySetResult(); release.TrySetResult(); }
         var result = await reactivate;
-        Assert.Null(result.Error); Assert.Equal(new SoftwareGrantDetails(s.Grant, 3), result.Data);
+        Assert.Null(result.Error);
+        Assert.Equal(new SoftwareGrantDetails(s.Grant, 3), result.Data);
         var loser = await stale!;
-        Assert.Equal(capturedActive ? "revision_conflict" : "not_found", loser.Error); Assert.Null(loser.Data);
-        await using var db = fixture.CreateContext(); var saved = await Grant(s);
-        Assert.Equal(original.Id, saved.Id); Assert.Equal(original.AccountId, saved.AccountId);
-        Assert.Equal(original.PublicId, saved.PublicId); Assert.Equal(original.HeimdallSoftwarePublicId, saved.HeimdallSoftwarePublicId);
-        Assert.Equal(SoftwareGrantState.Active, saved.State); Assert.Equal(3, saved.Revision);
+        Assert.Equal(capturedActive ? "revision_conflict" : "not_found", loser.Error);
+        Assert.Null(loser.Data);
+        await using var db = fixture.CreateContext();
+        var saved = await Grant(s);
+        Assert.Equal(original.Id, saved.Id);
+        Assert.Equal(original.AccountId, saved.AccountId);
+        Assert.Equal(original.PublicId, saved.PublicId);
+        Assert.Equal(original.HeimdallSoftwarePublicId, saved.HeimdallSoftwarePublicId);
+        Assert.Equal(SoftwareGrantState.Active, saved.State);
+        Assert.Equal(3, saved.Revision);
         Assert.NotEqual(original.ConcurrencyStamp, saved.ConcurrencyStamp);
         Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.RecipientKey), saved.RecipientKey);
         var record = Assert.Single(await db.SoftwareGrantRecords.Where(x => x.GrantId == saved.Id).ToArrayAsync());
         var collection = Assert.Single(await db.SoftwareGrantCollections.Where(x => x.GrantId == saved.Id).ToArrayAsync());
-        Assert.Equal(s.Owner.InternalId, record.AccountId); Assert.Equal(s.Owner.InternalId, collection.AccountId);
-        Assert.Equal(replacement.Record.Id, record.RecordId); Assert.Equal(replacement.Collection.Id, collection.CollectionId);
+        Assert.Equal(s.Owner.InternalId, record.AccountId);
+        Assert.Equal(s.Owner.InternalId, collection.AccountId);
+        Assert.Equal(replacement.Record.Id, record.RecordId);
+        Assert.Equal(replacement.Collection.Id, collection.CollectionId);
         Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.Targets[0].KeyEnvelope), record.RecipientKeyEnvelope);
         Assert.Equal(SoftwareGrantSetup.Bytes(request.Input.Targets[1].KeyEnvelope), collection.RecipientKeyEnvelope);
         var winner = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
@@ -110,9 +135,11 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     [InlineData(true)]
     public async Task GivenDatabaseTimeExpiryAroundGuardedWrite_WhenRevoking_ThenOnlyAlreadyAuthorizedTransitionCommits(bool after)
     {
-        using var s = await Setup(); var original = await Grant(s);
+        using var s = await Setup();
+        var original = await Grant(s);
         var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
-        string? vault = null; var boundaryEntries = 0;
+        string? vault = null;
+        var boundaryEntries = 0;
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         async Task Expire(DbCommand _)
         {
@@ -123,18 +150,23 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
             // A concurrent reader must never see the uncommitted revoked row with old children.
             Assert.Equal(before, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
             vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
-            while (!await Expired()) await Task.Delay(20, ct.Token);
+            while (!await Expired())
+                await Task.Delay(20, ct.Token);
         }
         DbCommandInterceptor hook = after ? new After(Cas, Expire) : new Before(Cas, Expire);
-        var store = Store(hook); var request = Request(s);
+        var store = Store(hook);
+        var request = Request(s);
         // Arm the database deadline only after fixture/snapshot setup, immediately before
         // capture. Leave time for rechecks, then cross expiry inside the observed hook.
         await Sql("UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+{0} WHERE handle_verifier={1}", TimeSpan.FromSeconds(3), s.Owner.Verifier);
         var result = await store.RevokeAsync(request, ct.Token);
-        Assert.Equal(1, boundaryEntries); Assert.NotNull(vault);
+        Assert.Equal(1, boundaryEntries);
+        Assert.NotNull(vault);
         Assert.Equal(after ? null : "vault_access_denied", result.Error);
-        if (after) { Assert.Equal(new SoftwareGrantRevocationDetails(s.Grant, 2), result.Data); await AssertRevoked(s, original, 2); }
-        else { Assert.Null(result.Data); Assert.Equal(before, await SoftwareGrantSetup.Aggregate(fixture, s.Grant)); }
+        if (after)
+        { Assert.Equal(new SoftwareGrantRevocationDetails(s.Grant, 2), result.Data); await AssertRevoked(s, original, 2); }
+        else
+        { Assert.Null(result.Data); Assert.Equal(before, await SoftwareGrantSetup.Aggregate(fixture, s.Grant)); }
         Assert.Equal(vault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
     }
 
@@ -146,7 +178,8 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
             // are tested as blocked writers below; terminal markers remain independent rows.
             foreach (var change in new[] { "actorTerminal", "profileTerminal", "grantRevision", "grantRevoked", "grantTerminal", "recordDelete", "collectionDelete", "recordEnvelope", "collectionEnvelope" })
                 yield return [phase, change, change == "profileTerminal" ? "vault_access_denied" : "revision_conflict"];
-            if (phase != "software_grant") yield return [phase, "profileDeleted", "vault_access_denied"];
+            if (phase != "software_grant")
+                yield return [phase, "profileDeleted", "vault_access_denied"];
             if (phase is "account" or "vault_access_session")
             {
                 foreach (var change in new[] { "sessionRevoked", "sessionPolicy", "sessionGeneration", "sessionExpiry", "sessionFuture", "sessionMissing" })
@@ -167,27 +200,37 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     [MemberData(nameof(WaitChanges))]
     public async Task GivenCommittedChangeAtLockWait_WhenRevoking_ThenClassifyCurrentAuthorityAndPreserveExactWinner(string phase, string change, string error)
     {
-        using var s = await Setup(); var profile = await SelectProfile(s);
-        await using var blocker = fixture.CreateContext(); await using var tx = await blocker.Database.BeginTransactionAsync();
+        using var s = await Setup();
+        var profile = await SelectProfile(s);
+        await using var blocker = fixture.CreateContext();
+        await using var tx = await blocker.Database.BeginTransactionAsync();
         await Hold(blocker, s, profile, phase);
         var holder = await blocker.Database.SqlQuery<int>($"SELECT pg_backend_pid() AS \"Value\"").SingleAsync();
-        var waiting = Signal(); var acquired = Signal(); var release = Signal(); var waiter = 0;
+        var waiting = Signal();
+        var acquired = Signal();
+        var release = Signal();
+        var waiter = 0;
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         var pending = Store(new AtLock(phase, c => { waiter = Pid(c); waiting.TrySetResult(); }, async () =>
         { acquired.TrySetResult(); await release.Task.WaitAsync(ct.Token); })).RevokeAsync(Request(s), ct.Token);
-        string winner; string vault;
+        string winner;
+        string vault;
         try
         {
-            await waiting.Task.WaitAsync(ct.Token); await Blocked(holder, waiter, ct.Token); Assert.False(pending.IsCompleted);
+            await waiting.Task.WaitAsync(ct.Token);
+            await Blocked(holder, waiter, ct.Token);
+            Assert.False(pending.IsCompleted);
             await Change(blocker, s, profile, change, ct.Token);
-            await tx.CommitAsync(ct.Token); await acquired.Task.WaitAsync(ct.Token);
+            await tx.CommitAsync(ct.Token);
+            await acquired.Task.WaitAsync(ct.Token);
             // Freeze the loser before its recheck so the expected snapshot belongs solely to the winner.
             winner = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
             vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
         }
         finally { release.TrySetResult(); }
         var result = await pending;
-        Assert.Equal(error, result.Error); Assert.Null(result.Data);
+        Assert.Equal(error, result.Error);
+        Assert.Null(result.Data);
         Assert.Equal(winner, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
         Assert.Equal(vault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
         if (change is "actorInactive" or "actorTerminal" or "grantRevoked" or "grantTerminal")
@@ -208,8 +251,10 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     [InlineData("collectionEnvelope", "revision_conflict")]
     public async Task GivenCommittedChangeAfterFinalRecheck_WhenGuardedWriteRuns_ThenPreserveWinnerWithoutRevoking(string change, string error)
     {
-        using var s = await Setup(); var profile = await SelectProfile(s);
-        string? winner = null; string? vault = null;
+        using var s = await Setup();
+        var profile = await SelectProfile(s);
+        string? winner = null;
+        string? vault = null;
         var result = await Store(new Before(Cas, async _ =>
         {
             await using var writer = fixture.CreateContext();
@@ -217,7 +262,10 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
             winner = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
             vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
         })).RevokeAsync(Request(s), default);
-        Assert.Equal(error, result.Error); Assert.Null(result.Data); Assert.NotNull(winner); Assert.NotNull(vault);
+        Assert.Equal(error, result.Error);
+        Assert.Null(result.Data);
+        Assert.NotNull(winner);
+        Assert.NotNull(vault);
         Assert.Equal(winner, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
         Assert.Equal(vault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
     }
@@ -237,25 +285,32 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     [MemberData(nameof(HeldAuthority))]
     public async Task GivenLaterLockWait_WhenEarlierAuthorityWriterCompetes_ThenKeepCanonicalPrefixLocked(string phase, string authority)
     {
-        using var s = await Setup(); var profile = await SelectProfile(s); var original = await Grant(s);
+        using var s = await Setup();
+        var profile = await SelectProfile(s);
+        var original = await Grant(s);
         var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
-        await using var blocker = fixture.CreateContext(); await using var tx = await blocker.Database.BeginTransactionAsync();
+        await using var blocker = fixture.CreateContext();
+        await using var tx = await blocker.Database.BeginTransactionAsync();
         await Hold(blocker, s, profile, phase);
         var holder = await blocker.Database.SqlQuery<int>($"SELECT pg_backend_pid() AS \"Value\"").SingleAsync();
-        var reached = Signal(); var waiter = 0;
+        var reached = Signal();
+        var waiter = 0;
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         var pending = Store(new Before(c => Lock(c, phase), c =>
         { waiter = Pid(c); reached.TrySetResult(); return Task.CompletedTask; })).RevokeAsync(Request(s), ct.Token);
         try
         {
-            await reached.Task.WaitAsync(ct.Token); await Blocked(holder, waiter, ct.Token);
-            await using var writer = fixture.CreateContext(); await using var attempted = await writer.Database.BeginTransactionAsync(ct.Token);
+            await reached.Task.WaitAsync(ct.Token);
+            await Blocked(holder, waiter, ct.Token);
+            await using var writer = fixture.CreateContext();
+            await using var attempted = await writer.Database.BeginTransactionAsync(ct.Token);
             var exception = await Assert.ThrowsAsync<PostgresException>(() => Hold(writer, s, profile, authority, nowait: true));
             Assert.Equal(PostgresErrorCodes.LockNotAvailable, exception.SqlState);
             await attempted.RollbackAsync(ct.Token);
         }
         finally { await tx.CommitAsync(); }
-        Assert.Null((await pending).Error); await AssertRevoked(s, original, 2);
+        Assert.Null((await pending).Error);
+        await AssertRevoked(s, original, 2);
         Assert.Equal(vault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
     }
 
@@ -274,10 +329,13 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     [InlineData("grantTerminal")]
     public async Task GivenNonTimeAuthorityChangeAfterGuardedWrite_WhenVerifying_ThenRollbackEntireTransition(string change)
     {
-        using var s = await Setup(); var profile = await SelectProfile(s);
-        var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant); var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
+        using var s = await Setup();
+        var profile = await SelectProfile(s);
+        var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
+        var vault = await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId);
         var result = await Store(new After(Cas, c => Execute(c, ChangeSql(change), s, profile))).RevokeAsync(Request(s), default);
-        Assert.Equal("persistence_unavailable", result.Error); Assert.Null(result.Data);
+        Assert.Equal("persistence_unavailable", result.Error);
+        Assert.Null(result.Data);
         Assert.Equal(before, await SoftwareGrantSetup.Aggregate(fixture, s.Grant));
         Assert.Equal(vault, await SoftwareGrantSetup.Vault(fixture, s.Owner.InternalId));
         Assert.Null((await Store().RevokeAsync(Request(s), default)).Error);
@@ -313,8 +371,11 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
         db.Database.ExecuteSqlRawAsync(ChangeSql(change), ChangeParameters(s, profile), ct);
     private static async Task Execute(DbCommand parent, string sql, SoftwareGrantSetup s, long profile)
     {
-        await using var command = parent.Connection!.CreateCommand(); command.Transaction = parent.Transaction; command.CommandText = sql;
-        foreach (var parameter in ChangeParameters(s, profile)) command.Parameters.Add(parameter);
+        await using var command = parent.Connection!.CreateCommand();
+        command.Transaction = parent.Transaction;
+        command.CommandText = sql;
+        foreach (var parameter in ChangeParameters(s, profile))
+            command.Parameters.Add(parameter);
         await command.ExecuteNonQueryAsync();
     }
     private static Task Hold(AppDbContext db, SoftwareGrantSetup s, long profile, string phase, bool nowait = false)
@@ -341,7 +402,8 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     private async Task<SoftwareGrantSetup> Setup()
     {
         var s = await SoftwareGrantSetup.Create(fixture);
-        Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(s.Request(), default)).Error); return s;
+        Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(s.Request(), default)).Error);
+        return s;
     }
     private async Task<long> SelectProfile(SoftwareGrantSetup s)
     {
@@ -353,11 +415,16 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     { await using var db = fixture.CreateContext(); return await db.SoftwareGrants.AsNoTracking().SingleAsync(x => x.PublicId == s.Grant); }
     private async Task AssertRevoked(SoftwareGrantSetup s, SoftwareGrant original, long revision)
     {
-        var saved = await Grant(s); await using var db = fixture.CreateContext();
-        Assert.Equal(original.Id, saved.Id); Assert.Equal(original.AccountId, saved.AccountId);
-        Assert.Equal(original.PublicId, saved.PublicId); Assert.Equal(original.HeimdallSoftwarePublicId, saved.HeimdallSoftwarePublicId);
-        Assert.Equal(SoftwareGrantState.Revoked, saved.State); Assert.Equal(revision, saved.Revision);
-        Assert.NotEqual(Guid.Empty, saved.ConcurrencyStamp); Assert.NotEqual(original.ConcurrencyStamp, saved.ConcurrencyStamp);
+        var saved = await Grant(s);
+        await using var db = fixture.CreateContext();
+        Assert.Equal(original.Id, saved.Id);
+        Assert.Equal(original.AccountId, saved.AccountId);
+        Assert.Equal(original.PublicId, saved.PublicId);
+        Assert.Equal(original.HeimdallSoftwarePublicId, saved.HeimdallSoftwarePublicId);
+        Assert.Equal(SoftwareGrantState.Revoked, saved.State);
+        Assert.Equal(revision, saved.Revision);
+        Assert.NotEqual(Guid.Empty, saved.ConcurrencyStamp);
+        Assert.NotEqual(original.ConcurrencyStamp, saved.ConcurrencyStamp);
         Assert.Empty(saved.RecipientKey);
         Assert.Empty(await db.SoftwareGrantRecords.Where(x => x.GrantId == saved.Id).ToArrayAsync());
         Assert.Empty(await db.SoftwareGrantCollections.Where(x => x.GrantId == saved.Id).ToArrayAsync());
@@ -373,7 +440,8 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
     private async Task Blocked(int holder, int waiter, CancellationToken ct)
     {
         await using var observer = fixture.CreateContext();
-        while (!await observer.Database.SqlQuery<bool>($"SELECT {holder}=ANY(pg_blocking_pids({waiter})) AS \"Value\"").SingleAsync(ct)) await Task.Delay(20, ct);
+        while (!await observer.Database.SqlQuery<bool>($"SELECT {holder}=ANY(pg_blocking_pids({waiter})) AS \"Value\"").SingleAsync(ct))
+            await Task.Delay(20, ct);
         Assert.True(await observer.Database.SqlQuery<bool>($"SELECT EXISTS(SELECT FROM pg_locks WHERE pid={waiter} AND NOT granted) AS \"Value\"").SingleAsync(ct));
     }
     private sealed class Before(Func<DbCommand, bool> matches, Func<DbCommand, Task> action) : DbCommandInterceptor

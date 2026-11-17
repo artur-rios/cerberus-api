@@ -18,7 +18,8 @@ internal static class OfflineAuthorizationTestData
         await using var db = fixture.CreateContext();
         var identity = Guid.NewGuid();
         var a = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = identity, Revision = 7, DetailsEnvelope = [11, 22] };
-        db.Accounts.Add(a); await db.SaveChangesAsync();
+        db.Accounts.Add(a);
+        await db.SaveChangesAsync();
         var p = new Profile
         {
             PublicId = Guid.NewGuid(),
@@ -27,7 +28,8 @@ internal static class OfflineAuthorizationTestData
             Envelope = JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", 2,
                 ProtocolBinary.Encode(new byte[32]), ProtocolBinary.Encode(new byte[12]), "AQID", ProtocolBinary.Encode(new byte[16])), new JsonSerializerOptions(JsonSerializerDefaults.Web))
         };
-        db.Profiles.Add(p); await db.SaveChangesAsync();
+        db.Profiles.Add(p);
+        await db.SaveChangesAsync();
         var verifier = Convert.ToHexStringLower(SHA256.HashData(Guid.NewGuid().ToByteArray()));
         var s = new VaultAccessSession
         {
@@ -39,13 +41,17 @@ internal static class OfflineAuthorizationTestData
             PolicyRevision = 1,
             RevocationGeneration = 1
         };
-        db.VaultAccessSessions.Add(s); await db.SaveChangesAsync();
+        db.VaultAccessSessions.Add(s);
+        await db.SaveChangesAsync();
         var result = new State(a.Id, s.Id, p.Id, a.PublicId, p.PublicId, new(identity, verifier, p.PublicId, 3));
-        if (!sharing) return result;
+        if (!sharing)
+            return result;
         var owner = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = Guid.NewGuid() };
-        db.Accounts.Add(owner); await db.SaveChangesAsync();
+        db.Accounts.Add(owner);
+        await db.SaveChangesAsync();
         var c = new VaultCollection { PublicId = Guid.NewGuid(), AccountId = owner.Id, Revision = 2, KeyEpoch = 2 };
-        db.Collections.Add(c); await db.SaveChangesAsync();
+        db.Collections.Add(c);
+        await db.SaveChangesAsync();
         var g = new CollectionGrant
         {
             PublicId = Guid.NewGuid(),
@@ -55,7 +61,8 @@ internal static class OfflineAuthorizationTestData
             State = CollectionGrantState.Active,
             Access = CollectionGrantAccess.ReadOnly
         };
-        db.CollectionGrants.Add(g); db.ProfileCollections.Add(new ProfileCollection { ProfileId = p.Id, CollectionId = c.Id });
+        db.CollectionGrants.Add(g);
+        db.ProfileCollections.Add(new ProfileCollection { ProfileId = p.Id, CollectionId = c.Id });
         await db.SaveChangesAsync();
         return result with { ForeignOwner = owner.Id, ForeignOwnerPublicId = owner.PublicId, Collection = c.Id, Grant = g.Id, GrantPublicId = g.PublicId };
     }

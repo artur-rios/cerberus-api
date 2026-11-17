@@ -27,10 +27,14 @@ public class UpdateIdentityHandlerTests
         var command = Valid();
         command.SetActor(invalid == "actor" ? Guid.Empty : Actor, invalid == "token" ? "" : "original-token",
             invalid == "access" ? null : invalid == "emptyAccess" ? "" : invalid == "badAccess" ? "bad" : Handle);
-        if (invalid == "name") command.Name = " ";
-        if (invalid == "longName") command.Name = new string('x', 201);
-        if (invalid == "email") command.Email = null!;
-        if (invalid == "badEmail") command.Email = "invalid";
+        if (invalid == "name")
+            command.Name = " ";
+        if (invalid == "longName")
+            command.Name = new string('x', 201);
+        if (invalid == "email")
+            command.Email = null!;
+        if (invalid == "badEmail")
+            command.Email = "invalid";
         var result = await Handler(new Mock<IIdentityUpdateStore>(MockBehavior.Strict).Object,
             new Mock<IHeimdallClient>(MockBehavior.Strict).Object).HandleAsync(command);
         Assert.False(result.Success);

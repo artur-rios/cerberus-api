@@ -45,24 +45,56 @@ public class CreateCollectionHandlerTests
             kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access);
         switch (kind)
         {
-            case "id": command.CollectionId = Guid.Empty; break;
-            case "envelope": command.Envelope = null!; break;
-            case "epoch": command.Envelope = command.Envelope with { KeyEpoch = 2 }; break;
-            case "defaultTime": command.EditedAt = default; break;
-            case "submicro": command.EditedAt = new(9, TimeSpan.Zero); break;
-            case "offset": command.EditedAt = command.EditedAt.ToOffset(TimeSpan.FromHours(1)); break;
-            case "nullProfile": command.ProfileIds = null!; break;
-            case "nullRecord": command.RecordIds = null!; break;
-            case "nullFolder": command.FolderIds = null!; break;
-            case "duplicateProfile": command.ProfileIds = [actor, actor]; break;
-            case "duplicateRecord": command.RecordIds = [actor, actor]; break;
-            case "duplicateFolder": command.FolderIds = [actor, actor]; break;
-            case "zeroProfile": command.ProfileIds = [Guid.Empty]; break;
-            case "zeroRecord": command.RecordIds = [Guid.Empty]; break;
-            case "zeroFolder": command.FolderIds = [Guid.Empty]; break;
+            case "id":
+                command.CollectionId = Guid.Empty;
+                break;
+            case "envelope":
+                command.Envelope = null!;
+                break;
+            case "epoch":
+                command.Envelope = command.Envelope with { KeyEpoch = 2 };
+                break;
+            case "defaultTime":
+                command.EditedAt = default;
+                break;
+            case "submicro":
+                command.EditedAt = new(9, TimeSpan.Zero);
+                break;
+            case "offset":
+                command.EditedAt = command.EditedAt.ToOffset(TimeSpan.FromHours(1));
+                break;
+            case "nullProfile":
+                command.ProfileIds = null!;
+                break;
+            case "nullRecord":
+                command.RecordIds = null!;
+                break;
+            case "nullFolder":
+                command.FolderIds = null!;
+                break;
+            case "duplicateProfile":
+                command.ProfileIds = [actor, actor];
+                break;
+            case "duplicateRecord":
+                command.RecordIds = [actor, actor];
+                break;
+            case "duplicateFolder":
+                command.FolderIds = [actor, actor];
+                break;
+            case "zeroProfile":
+                command.ProfileIds = [Guid.Empty];
+                break;
+            case "zeroRecord":
+                command.RecordIds = [Guid.Empty];
+                break;
+            case "zeroFolder":
+                command.FolderIds = [Guid.Empty];
+                break;
         }
         var result = await Handler(new Mock<ICollectionCreateStore>(MockBehavior.Strict).Object).HandleAsync(command);
-        Assert.False(result.Success); Assert.Null(result.Data); Assert.Contains(error, result.Errors);
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.Contains(error, result.Errors);
     }
 
     [UnitTheory]
@@ -85,22 +117,28 @@ public class CreateCollectionHandlerTests
             _ => DateTimeOffset.MaxValue
         };
         using var source = new CancellationTokenSource();
-        CollectionCreateRequest? captured = null; CancellationToken received = default;
+        CollectionCreateRequest? captured = null;
+        CancellationToken received = default;
         var store = new Mock<ICollectionCreateStore>(MockBehavior.Strict);
         store.Setup(x => x.CreateAsync(It.IsAny<CollectionCreateRequest>(), It.IsAny<CancellationToken>()))
             .Returns<CollectionCreateRequest, CancellationToken>((request, token) =>
             {
-                captured = request; received = token;
+                captured = request;
+                received = token;
                 return Task.FromResult(new VaultResult<CollectionCreateDetails>(new(command.CollectionId, 1, 7, new(expectedTicks, TimeSpan.Zero))));
             });
         var result = await Handler(store.Object).HandleAsync(command, source.Token);
-        Assert.True(result.Success); Assert.Contains("collection_created", result.Messages);
-        Assert.Equal(command.CollectionId, result.Data!.CollectionId); Assert.Equal(1, result.Data.Revision);
-        Assert.Equal(7, result.Data.ServerSequence); Assert.Equal(expectedTicks, result.Data.EditedAt.Ticks);
+        Assert.True(result.Success);
+        Assert.Contains("collection_created", result.Messages);
+        Assert.Equal(command.CollectionId, result.Data!.CollectionId);
+        Assert.Equal(1, result.Data.Revision);
+        Assert.Equal(7, result.Data.ServerSequence);
+        Assert.Equal(expectedTicks, result.Data.EditedAt.Ticks);
         Assert.Equal(TimeSpan.Zero, result.Data.EditedAt.Offset);
         Assert.Equal(actor, captured!.Actor);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier);
-        Assert.Equal(command.ToInput(), captured.Input); Assert.Equal(source.Token, received);
+        Assert.Equal(command.ToInput(), captured.Input);
+        Assert.Equal(source.Token, received);
         using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
         Assert.Equal(new[] { "collectionId", "editedAt", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         Assert.Equal(201, CreateCollectionMessages.StatusCodes[result.Messages.Single()]);
@@ -113,16 +151,23 @@ public class CreateCollectionHandlerTests
     [InlineData("mixed")]
     public async Task GivenValidTypedLinks_WhenCreating_ThenPreserveEverySubmittedKind(string kind)
     {
-        var command = Command(); var id = Guid.NewGuid();
-        if (kind == "multipleProfiles") command.ProfileIds = [id, actor];
-        if (kind == "typedAlias") { command.CollectionId = id; command.ProfileIds = [id]; command.RecordIds = [id]; command.FolderIds = [id]; }
-        if (kind == "mixed") { command.ProfileIds = [actor]; command.RecordIds = [id, Guid.NewGuid()]; command.FolderIds = [Guid.NewGuid()]; }
+        var command = Command();
+        var id = Guid.NewGuid();
+        if (kind == "multipleProfiles")
+            command.ProfileIds = [id, actor];
+        if (kind == "typedAlias")
+        { command.CollectionId = id; command.ProfileIds = [id]; command.RecordIds = [id]; command.FolderIds = [id]; }
+        if (kind == "mixed")
+        { command.ProfileIds = [actor]; command.RecordIds = [id, Guid.NewGuid()]; command.FolderIds = [Guid.NewGuid()]; }
         CollectionCreateRequest? captured = null;
         var store = new Mock<ICollectionCreateStore>();
         store.Setup(x => x.CreateAsync(It.IsAny<CollectionCreateRequest>(), It.IsAny<CancellationToken>()))
             .Returns<CollectionCreateRequest, CancellationToken>((r, _) => { captured = r; return Task.FromResult(new VaultResult<CollectionCreateDetails>(new(command.CollectionId, 1, 7, DateTimeOffset.UnixEpoch.AddTicks(10)))); });
-        var result = await Handler(store.Object).HandleAsync(command); Assert.True(result.Success);
-        Assert.Equal(command.ProfileIds, captured!.Input.ProfileIds); Assert.Equal(command.RecordIds, captured.Input.RecordIds); Assert.Equal(command.FolderIds, captured.Input.FolderIds);
+        var result = await Handler(store.Object).HandleAsync(command);
+        Assert.True(result.Success);
+        Assert.Equal(command.ProfileIds, captured!.Input.ProfileIds);
+        Assert.Equal(command.RecordIds, captured.Input.RecordIds);
+        Assert.Equal(command.FolderIds, captured.Input.FolderIds);
     }
 
     [UnitTheory]
@@ -139,12 +184,16 @@ public class CreateCollectionHandlerTests
     [InlineData("", 503)]
     public async Task GivenStoreErrorWithData_WhenCreating_ThenAllowlistErrorAndDiscardData(string error, int status)
     {
-        var command = Command(); var store = new Mock<ICollectionCreateStore>();
+        var command = Command();
+        var store = new Mock<ICollectionCreateStore>();
         store.Setup(x => x.CreateAsync(It.IsAny<CollectionCreateRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new VaultResult<CollectionCreateDetails>(new(command.CollectionId, 1, 7, DateTimeOffset.UnixEpoch.AddTicks(10)), error));
         var result = await Handler(store.Object).HandleAsync(command);
         var safe = error is "secret_internal_error" or "collection_created" or "" ? "persistence_unavailable" : error;
-        Assert.False(result.Success); Assert.Null(result.Data); Assert.Contains(safe, result.Errors); Assert.Equal(status, CreateCollectionMessages.StatusCodes[safe]);
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.Contains(safe, result.Errors);
+        Assert.Equal(status, CreateCollectionMessages.StatusCodes[safe]);
     }
 
     [UnitTheory]
@@ -161,7 +210,8 @@ public class CreateCollectionHandlerTests
     [InlineData("unnormalized")]
     public async Task GivenMalformedStoreDetails_WhenCreating_ThenFailClosed(string kind)
     {
-        var command = Command(); var data = new CollectionCreateDetails(command.CollectionId, 1, 7, DateTimeOffset.UnixEpoch.AddTicks(10));
+        var command = Command();
+        var data = new CollectionCreateDetails(command.CollectionId, 1, 7, DateTimeOffset.UnixEpoch.AddTicks(10));
         data = kind switch
         {
             "nullData" => null!,
@@ -179,7 +229,9 @@ public class CreateCollectionHandlerTests
         var store = new Mock<ICollectionCreateStore>();
         store.Setup(x => x.CreateAsync(It.IsAny<CollectionCreateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(kind == "nullResult" ? null! : new VaultResult<CollectionCreateDetails>(data));
         var result = await Handler(store.Object).HandleAsync(command);
-        Assert.False(result.Success); Assert.Null(result.Data); Assert.Contains("persistence_unavailable", result.Errors);
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.Contains("persistence_unavailable", result.Errors);
     }
 
     [UnitTheory]
@@ -226,7 +278,8 @@ public class CreateCollectionHandlerTests
     [InlineData("folderIds", "numeric")]
     public void GivenNoncanonicalTypedId_WhenParsing_ThenReject(string name, string kind)
     {
-        var body = Body(); var id = kind switch { "upper" => "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA", "compact" => "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "zero" => "00000000-0000-0000-0000-000000000000", _ => null };
+        var body = Body();
+        var id = kind switch { "upper" => "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA", "compact" => "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "zero" => "00000000-0000-0000-0000-000000000000", _ => null };
         JsonNode value = kind == "numeric" ? JsonValue.Create(1)! : JsonValue.Create(id)!;
         body[name] = name == "collectionId" ? value : new JsonArray(value);
         Assert.Throws<JsonException>(() => Parse(body.ToJsonString()));
@@ -270,7 +323,8 @@ public class CreateCollectionHandlerTests
     [UnitFact]
     public void GivenUnmodifiedValidBody_WhenParsing_ThenAcceptExactSixFields()
     {
-        var body = Body(); var command = Parse(body.ToJsonString());
+        var body = Body();
+        var command = Parse(body.ToJsonString());
         Assert.True(new CreateCollectionValidator().Validate(command).IsValid);
         Assert.Equal(new[] { "collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds" }, body.Select(x => x.Key).Order());
     }
@@ -282,15 +336,18 @@ public class CreateCollectionHandlerTests
     [UnitFact]
     public async Task GivenStoreCancellation_WhenCreating_ThenPropagateCallerToken()
     {
-        using var source = new CancellationTokenSource(); var store = new Mock<ICollectionCreateStore>();
+        using var source = new CancellationTokenSource();
+        var store = new Mock<ICollectionCreateStore>();
         store.Setup(x => x.CreateAsync(It.IsAny<CollectionCreateRequest>(), source.Token)).ThrowsAsync(new OperationCanceledException(source.Token));
-        var error = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store.Object).HandleAsync(Command(), source.Token)); Assert.Equal(source.Token, error.CancellationToken);
+        var error = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store.Object).HandleAsync(Command(), source.Token));
+        Assert.Equal(source.Token, error.CancellationToken);
     }
 
     private CreateCollectionCommand Command()
     {
         var command = new CreateCollectionCommand { CollectionId = Guid.NewGuid(), Envelope = new EncryptedEnvelope("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), EditedAt = DateTimeOffset.UnixEpoch.AddTicks(19), ProfileIds = [], RecordIds = [], FolderIds = [] };
-        command.SetContext(actor, Access); return command;
+        command.SetContext(actor, Access);
+        return command;
     }
     private JsonObject Body() => JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
     private static CreateCollectionCommand Parse(string value) => JsonSerializer.Deserialize<CreateCollectionCommand>(value, Json)!;

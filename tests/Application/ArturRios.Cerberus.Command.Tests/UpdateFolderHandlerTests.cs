@@ -3,8 +3,8 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using ArturRios.Cerberus.Command.Folders;
 using ArturRios.Cerberus.Domain.Accounts;
-using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Folders;
+using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.TestSupport;
 using Moq;
 namespace ArturRios.Cerberus.Command.Tests;
@@ -33,9 +33,34 @@ public class UpdateFolderHandlerTests
     [InlineData("offset", "validation_failed")]
     public async Task GivenInvalidAuthorityOrInput_WhenHandling_ThenRejectBeforePersistence(string kind, string error)
     {
-        var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : Access, kind == "id" ? Guid.Empty : target);
-        if (kind == "revision") c.ExpectedRevision = 0; if (kind == "unsafeRevision") c.ExpectedRevision = ProtocolBinary.MaxInteger + 1; if (kind == "envelope") c.Envelope = null!; if (kind == "format") c.Envelope = c.Envelope with { Format = "unknown" }; if (kind == "epoch") c.Envelope = c.Envelope with { KeyEpoch = 0 }; if (kind == "salt") c.Envelope = c.Envelope with { KeySalt = "bad" }; if (kind == "nonce") c.Envelope = c.Envelope with { Nonce = "bad" }; if (kind == "tag") c.Envelope = c.Envelope with { Tag = "bad" }; if (kind == "cipher") c.Envelope = c.Envelope with { Ciphertext = "AQID=" }; if (kind == "time") c.EditedAt = new(9, TimeSpan.Zero); if (kind == "offset") c.EditedAt = c.EditedAt.ToOffset(TimeSpan.FromHours(1));
-        var result = await Handler(new Mock<IFolderUpdateStore>(MockBehavior.Strict).Object).HandleAsync(c); Assert.False(result.Success); Assert.Null(result.Data); Assert.Contains(error, result.Errors);
+        var c = Command();
+        c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : Access, kind == "id" ? Guid.Empty : target);
+        if (kind == "revision")
+            c.ExpectedRevision = 0;
+        if (kind == "unsafeRevision")
+            c.ExpectedRevision = ProtocolBinary.MaxInteger + 1;
+        if (kind == "envelope")
+            c.Envelope = null!;
+        if (kind == "format")
+            c.Envelope = c.Envelope with { Format = "unknown" };
+        if (kind == "epoch")
+            c.Envelope = c.Envelope with { KeyEpoch = 0 };
+        if (kind == "salt")
+            c.Envelope = c.Envelope with { KeySalt = "bad" };
+        if (kind == "nonce")
+            c.Envelope = c.Envelope with { Nonce = "bad" };
+        if (kind == "tag")
+            c.Envelope = c.Envelope with { Tag = "bad" };
+        if (kind == "cipher")
+            c.Envelope = c.Envelope with { Ciphertext = "AQID=" };
+        if (kind == "time")
+            c.EditedAt = new(9, TimeSpan.Zero);
+        if (kind == "offset")
+            c.EditedAt = c.EditedAt.ToOffset(TimeSpan.FromHours(1));
+        var result = await Handler(new Mock<IFolderUpdateStore>(MockBehavior.Strict).Object).HandleAsync(c);
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.Contains(error, result.Errors);
     }
     [UnitTheory]
     [InlineData("minimum")]
@@ -44,10 +69,31 @@ public class UpdateFolderHandlerTests
     [InlineData("laterEpoch")]
     public async Task GivenValidReplacement_WhenHandling_ThenForwardTrustedContextHashAndReturnExactFourMetadataFields(string kind)
     {
-        var c = Command(); c.EditedAt = kind == "minimum" ? new(10, TimeSpan.Zero) : kind == "pre2000" ? new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero).AddTicks(19) : DateTimeOffset.UnixEpoch.AddTicks(19); if (kind == "laterEpoch") c.Envelope = c.Envelope with { KeyEpoch = 7 };
-        using var ct = new CancellationTokenSource(); FolderUpdateRequest? received = null; CancellationToken token = default; var store = new Mock<IFolderUpdateStore>(MockBehavior.Strict); store.Setup(x => x.UpdateAsync(It.IsAny<FolderUpdateRequest>(), It.IsAny<CancellationToken>())).Returns<FolderUpdateRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<FolderCreateDetails>(new(target, 2, 7, Normalize(c.EditedAt)))); });
-        var result = await Handler(store.Object).HandleAsync(c, ct.Token); Assert.True(result.Success); Assert.Contains("folder_updated", result.Messages); Assert.Equal(target, result.Data!.FolderId); Assert.Equal(2, result.Data.Revision); Assert.Equal(7, result.Data.ServerSequence); Assert.Equal(Normalize(c.EditedAt), result.Data.EditedAt); Assert.Equal(actor, received!.Actor); Assert.Equal(target, received.FolderId); Assert.Equal(c.ToInput(), received.Input); Assert.Equal(ct.Token, token); Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
-        using var data = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json)); Assert.Equal(new[] { "editedAt", "folderId", "revision", "serverSequence" }, data.RootElement.EnumerateObject().Select(x => x.Name).Order()); using var wire = JsonDocument.Parse(JsonSerializer.Serialize(c, Json)); Assert.Equal(new[] { "editedAt", "envelope", "expectedRevision" }, wire.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        var c = Command();
+        c.EditedAt = kind == "minimum" ? new(10, TimeSpan.Zero) : kind == "pre2000" ? new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero).AddTicks(19) : DateTimeOffset.UnixEpoch.AddTicks(19);
+        if (kind == "laterEpoch")
+            c.Envelope = c.Envelope with { KeyEpoch = 7 };
+        using var ct = new CancellationTokenSource();
+        FolderUpdateRequest? received = null;
+        CancellationToken token = default;
+        var store = new Mock<IFolderUpdateStore>(MockBehavior.Strict);
+        store.Setup(x => x.UpdateAsync(It.IsAny<FolderUpdateRequest>(), It.IsAny<CancellationToken>())).Returns<FolderUpdateRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<FolderCreateDetails>(new(target, 2, 7, Normalize(c.EditedAt)))); });
+        var result = await Handler(store.Object).HandleAsync(c, ct.Token);
+        Assert.True(result.Success);
+        Assert.Contains("folder_updated", result.Messages);
+        Assert.Equal(target, result.Data!.FolderId);
+        Assert.Equal(2, result.Data.Revision);
+        Assert.Equal(7, result.Data.ServerSequence);
+        Assert.Equal(Normalize(c.EditedAt), result.Data.EditedAt);
+        Assert.Equal(actor, received!.Actor);
+        Assert.Equal(target, received.FolderId);
+        Assert.Equal(c.ToInput(), received.Input);
+        Assert.Equal(ct.Token, token);
+        Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
+        using var data = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        Assert.Equal(new[] { "editedAt", "folderId", "revision", "serverSequence" }, data.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        using var wire = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        Assert.Equal(new[] { "editedAt", "envelope", "expectedRevision" }, wire.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
     [InlineData("validation_failed", 400)]

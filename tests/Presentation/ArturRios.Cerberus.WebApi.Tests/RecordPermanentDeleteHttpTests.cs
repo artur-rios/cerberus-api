@@ -4,21 +4,19 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using ArturRios.Cerberus.Data.Erasure;
-using ArturRios.Cerberus.Domain.Operations;
-using ArturRios.Cerberus.Shared.Operations;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using ArturRios.Cerberus.Command.Profiles;
 using ArturRios.Cerberus.Command.Records;
+using ArturRios.Cerberus.Data.Erasure;
 using ArturRios.Cerberus.Domain.Access;
 using ArturRios.Cerberus.Domain.Accounts;
+using ArturRios.Cerberus.Domain.Operations;
 using ArturRios.Cerberus.Domain.Profiles;
 using ArturRios.Cerberus.Domain.Protection;
 using ArturRios.Cerberus.Domain.Records;
 using ArturRios.Cerberus.Domain.Resources;
 using ArturRios.Cerberus.Domain.Trash;
 using ArturRios.Cerberus.Query.Records;
+using ArturRios.Cerberus.Shared.Operations;
 using ArturRios.Cerberus.TestSupport;
 using ArturRios.Output;
 using Microsoft.AspNetCore.Hosting;
@@ -26,6 +24,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
 
@@ -46,13 +46,31 @@ public class RecordPermanentDeleteHttpTests(RegistrationApiFixture fixture, Shar
     [InlineData("PerProfile", true, true)]
     public async Task GivenActualNativeOwnedActiveOrTrashedProfileScope_WhenPermanentlyDeleting_ThenDurableErasureAndExactlyTwoMetadataFields(string mode, bool folderRoute, bool trashed)
     {
-        using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(owner); var root = await Folder(s); var child = await Folder(s, root.Id);
-        var p = await Profile(s, owner, scoped, folderRoute ? root : null, mode == "wide" ? "Master" : mode); var target = await Create(s, folderRoute ? [] : [p.PublicId], child.PublicId);
-        if (trashed) await Trash(s, target.RecordId); var actor = mode == "wide" ? s : s with { Access = await Open(s, p, scoped) }; var protectedBefore = await Protected(s);
-        using var response = await Permanent(actor, target.RecordId, trashed ? 2 : 1); Assert.Contains("record_permanently_deleted", await response.Content.ReadAsStringAsync()); await Erased(target.RecordId, await Success<PermanentlyDeleteRecordOutput>(response, 200)); Assert.Equal(protectedBefore, await Protected(s));
-        using var get = await Read(actor, "/api/records/" + target.RecordId); await Failure(get, 404, "not_found"); using var list = await Read(actor, "/api/records"); Assert.DoesNotContain((await Success<RecordListOutput>(list, 200)).Items, x => x.RecordId == target.RecordId);
-        await using var db = fixture.Context(); Assert.True(await db.Folders.AnyAsync(x => x.Id == root.Id)); Assert.True(await db.Folders.AnyAsync(x => x.Id == child.Id));
-        var handle = await db.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == Hash(actor.Access)); Assert.Equal(mode == "wide" ? (long?)null : p.Id, handle.ProfileId); Assert.False(handle.Revoked);
+        using var owner = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(owner);
+        var root = await Folder(s);
+        var child = await Folder(s, root.Id);
+        var p = await Profile(s, owner, scoped, folderRoute ? root : null, mode == "wide" ? "Master" : mode);
+        var target = await Create(s, folderRoute ? [] : [p.PublicId], child.PublicId);
+        if (trashed)
+            await Trash(s, target.RecordId);
+        var actor = mode == "wide" ? s : s with { Access = await Open(s, p, scoped) };
+        var protectedBefore = await Protected(s);
+        using var response = await Permanent(actor, target.RecordId, trashed ? 2 : 1);
+        Assert.Contains("record_permanently_deleted", await response.Content.ReadAsStringAsync());
+        await Erased(target.RecordId, await Success<PermanentlyDeleteRecordOutput>(response, 200));
+        Assert.Equal(protectedBefore, await Protected(s));
+        using var get = await Read(actor, "/api/records/" + target.RecordId);
+        await Failure(get, 404, "not_found");
+        using var list = await Read(actor, "/api/records");
+        Assert.DoesNotContain((await Success<RecordListOutput>(list, 200)).Items, x => x.RecordId == target.RecordId);
+        await using var db = fixture.Context();
+        Assert.True(await db.Folders.AnyAsync(x => x.Id == root.Id));
+        Assert.True(await db.Folders.AnyAsync(x => x.Id == child.Id));
+        var handle = await db.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == Hash(actor.Access));
+        Assert.Equal(mode == "wide" ? (long?)null : p.Id, handle.ProfileId);
+        Assert.False(handle.Revoked);
     }
     [FunctionalTheory]
     [InlineData("Master", false)]
@@ -61,11 +79,23 @@ public class RecordPermanentDeleteHttpTests(RegistrationApiFixture fixture, Shar
     [InlineData("PerProfile", true)]
     public async Task GivenNativeSelectedOwnedCollection_WhenPermanentlyDeletingActiveOrTrash_ThenKeepCollectionAndProfileAuthority(string mode, bool trashed)
     {
-        using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s); var c = await OwnedCollection(s, target.RecordId);
-        var p = await Profile(s, owner, scoped, mode: mode, collections: [c.PublicId]); if (trashed) await Trash(s, target.RecordId); var actor = s with { Access = await Open(s, p, scoped) };
-        await using var db = fixture.Context(); var before = await db.Collections.AsNoTracking().SingleAsync(x => x.Id == c.Id);
-        using var response = await Permanent(actor, target.RecordId, trashed ? 2 : 1); await Erased(target.RecordId, await Success<PermanentlyDeleteRecordOutput>(response, 200));
-        var after = await db.Collections.AsNoTracking().SingleAsync(x => x.Id == c.Id); Assert.Equal(before.Revision + (trashed ? 0 : 1), after.Revision); Assert.Equal(before.Envelope, after.Envelope); Assert.Equal(before.EditedAt, after.EditedAt);
+        using var owner = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        var c = await OwnedCollection(s, target.RecordId);
+        var p = await Profile(s, owner, scoped, mode: mode, collections: [c.PublicId]);
+        if (trashed)
+            await Trash(s, target.RecordId);
+        var actor = s with { Access = await Open(s, p, scoped) };
+        await using var db = fixture.Context();
+        var before = await db.Collections.AsNoTracking().SingleAsync(x => x.Id == c.Id);
+        using var response = await Permanent(actor, target.RecordId, trashed ? 2 : 1);
+        await Erased(target.RecordId, await Success<PermanentlyDeleteRecordOutput>(response, 200));
+        var after = await db.Collections.AsNoTracking().SingleAsync(x => x.Id == c.Id);
+        Assert.Equal(before.Revision + (trashed ? 0 : 1), after.Revision);
+        Assert.Equal(before.Envelope, after.Envelope);
+        Assert.Equal(before.EditedAt, after.EditedAt);
         Assert.Equal(Bytes(p), Bytes(await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id)));
     }
     [FunctionalTheory]
@@ -73,39 +103,78 @@ public class RecordPermanentDeleteHttpTests(RegistrationApiFixture fixture, Shar
     [InlineData(true)]
     public async Task GivenDamagedOwnedCipherAndMaximumRevision_WhenPermanentlyDeleting_ThenNoContentParsingOrTargetRevisionAdvance(bool trashed)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s); if (trashed) await Trash(s, target.RecordId);
-        await using var db = fixture.Context(); await db.Records.Where(x => x.PublicId == target.RecordId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, "bad"u8.ToArray()).SetProperty(v => v.Revision, ProtocolBinary.MaxInteger));
-        using var response = await Permanent(s, target.RecordId, ProtocolBinary.MaxInteger); await Erased(target.RecordId, await Success<PermanentlyDeleteRecordOutput>(response, 200));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        if (trashed)
+            await Trash(s, target.RecordId);
+        await using var db = fixture.Context();
+        await db.Records.Where(x => x.PublicId == target.RecordId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, "bad"u8.ToArray()).SetProperty(v => v.Revision, ProtocolBinary.MaxInteger));
+        using var response = await Permanent(s, target.RecordId, ProtocolBinary.MaxInteger);
+        await Erased(target.RecordId, await Success<PermanentlyDeleteRecordOutput>(response, 200));
     }
     [FunctionalFact]
     public async Task GivenRecordGuidAlsoUsedByFolderAndCollection_WhenPermanentlyDeleting_ThenKeepOtherKindsAndRejectRecreationAndLostSuccessRetry()
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s); var folder = await Folder(s); var collection = await OwnedCollection(s, target.RecordId);
-        await using var db = fixture.Context(); await db.Folders.Where(x => x.Id == folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.PublicId, target.RecordId)); await db.Collections.Where(x => x.Id == collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.PublicId, target.RecordId));
-        using (var response = await Permanent(s, target.RecordId)) await Erased(target.RecordId, await Success<PermanentlyDeleteRecordOutput>(response, 200));
-        var before = await Snapshot(s); using (var retry = await Permanent(s, target.RecordId)) await Failure(retry, 404, "not_found"); Assert.Equal(before, await Snapshot(s));
-        using (var recreate = await Send(s, target)) await Failure(recreate, 409, "revision_conflict");
-        using (var edit = Request(s, Bytes(new RecordUpdateInput(1, Envelope(), DateTimeOffset.UnixEpoch)), "/api/records/" + target.RecordId)) { edit.Method = HttpMethod.Put; using var response = await Gateway.Client.SendAsync(edit); await Failure(response, 404, "not_found"); }
-        using (var move = Request(s, Bytes(new { expectedRevision = 1, folderId = (Guid?)null }), "/api/records/" + target.RecordId + "/folder")) { move.Method = HttpMethod.Put; using var response = await Gateway.Client.SendAsync(move); await Failure(response, 404, "not_found"); }
-        using (var trash = Request(s, Bytes(new { expectedRevision = 1 }), "/api/records/" + target.RecordId)) { trash.Method = HttpMethod.Delete; using var response = await Gateway.Client.SendAsync(trash); await Failure(response, 404, "not_found"); }
-        Assert.True(await db.Folders.AnyAsync(x => x.PublicId == target.RecordId)); Assert.True(await db.Collections.AnyAsync(x => x.PublicId == target.RecordId));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        var folder = await Folder(s);
+        var collection = await OwnedCollection(s, target.RecordId);
+        await using var db = fixture.Context();
+        await db.Folders.Where(x => x.Id == folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.PublicId, target.RecordId));
+        await db.Collections.Where(x => x.Id == collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.PublicId, target.RecordId));
+        using (var response = await Permanent(s, target.RecordId))
+            await Erased(target.RecordId, await Success<PermanentlyDeleteRecordOutput>(response, 200));
+        var before = await Snapshot(s);
+        using (var retry = await Permanent(s, target.RecordId))
+            await Failure(retry, 404, "not_found");
+        Assert.Equal(before, await Snapshot(s));
+        using (var recreate = await Send(s, target))
+            await Failure(recreate, 409, "revision_conflict");
+        using (var edit = Request(s, Bytes(new RecordUpdateInput(1, Envelope(), DateTimeOffset.UnixEpoch)), "/api/records/" + target.RecordId))
+        { edit.Method = HttpMethod.Put; using var response = await Gateway.Client.SendAsync(edit); await Failure(response, 404, "not_found"); }
+        using (var move = Request(s, Bytes(new { expectedRevision = 1, folderId = (Guid?)null }), "/api/records/" + target.RecordId + "/folder"))
+        { move.Method = HttpMethod.Put; using var response = await Gateway.Client.SendAsync(move); await Failure(response, 404, "not_found"); }
+        using (var trash = Request(s, Bytes(new { expectedRevision = 1 }), "/api/records/" + target.RecordId))
+        { trash.Method = HttpMethod.Delete; using var response = await Gateway.Client.SendAsync(trash); await Failure(response, 404, "not_found"); }
+        Assert.True(await db.Folders.AnyAsync(x => x.PublicId == target.RecordId));
+        Assert.True(await db.Collections.AnyAsync(x => x.PublicId == target.RecordId));
     }
     [FunctionalFact]
     public async Task GivenActualPutWins_WhenPermanentlyDeletingOldRevision_Then409AndCurrentRevisionCanBeErased()
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s);
-        using (var edit = Request(s, Bytes(new RecordUpdateInput(1, Envelope(), DateTimeOffset.UnixEpoch)), "/api/records/" + target.RecordId)) { edit.Method = HttpMethod.Put; using var response = await Gateway.Client.SendAsync(edit); await Success<UpdateRecordOutput>(response, 200); }
-        var before = await Snapshot(s); using (var response = await Permanent(s, target.RecordId)) await Failure(response, 409, "revision_conflict"); Assert.Equal(before, await Snapshot(s));
-        using var current = await Permanent(s, target.RecordId, 2); await Erased(target.RecordId, await Success<PermanentlyDeleteRecordOutput>(current, 200));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        using (var edit = Request(s, Bytes(new RecordUpdateInput(1, Envelope(), DateTimeOffset.UnixEpoch)), "/api/records/" + target.RecordId))
+        { edit.Method = HttpMethod.Put; using var response = await Gateway.Client.SendAsync(edit); await Success<UpdateRecordOutput>(response, 200); }
+        var before = await Snapshot(s);
+        using (var response = await Permanent(s, target.RecordId))
+            await Failure(response, 409, "revision_conflict");
+        Assert.Equal(before, await Snapshot(s));
+        using var current = await Permanent(s, target.RecordId, 2);
+        await Erased(target.RecordId, await Success<PermanentlyDeleteRecordOutput>(current, 200));
     }
     [FunctionalFact]
     public async Task GivenLedgerOutageAfterCommittedIntent_WhenPermanentlyDeletingOverHttp_Then503KeepsTerminalIntentAndDeniesRetryAndReads()
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s);
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
         using var host = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureServices(services => services.Replace(ServiceDescriptor.Singleton<IErasureLedger>(new UnavailableLedger()))));
-        using var client = host.CreateClient(); using var request = DeletePermanent(s, "/api/records/" + target.RecordId, Bytes(new { expectedRevision = 1 })); using var response = await client.SendAsync(request); await Failure(response, 503, "persistence_unavailable");
-        await using var db = fixture.Context(); Assert.True(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == target.RecordId)); Assert.True(await db.Records.AnyAsync(x => x.PublicId == target.RecordId)); Assert.Null((await db.RetentionWorkItems.SingleAsync(x => x.OperationKey == "record-purge/" + target.RecordId)).CompletedAt);
-        using (var retry = await Permanent(s, target.RecordId)) await Failure(retry, 404, "not_found"); using var get = await Read(s, "/api/records/" + target.RecordId); await Failure(get, 404, "not_found");
+        using var client = host.CreateClient();
+        using var request = DeletePermanent(s, "/api/records/" + target.RecordId, Bytes(new { expectedRevision = 1 }));
+        using var response = await client.SendAsync(request);
+        await Failure(response, 503, "persistence_unavailable");
+        await using var db = fixture.Context();
+        Assert.True(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == target.RecordId));
+        Assert.True(await db.Records.AnyAsync(x => x.PublicId == target.RecordId));
+        Assert.Null((await db.RetentionWorkItems.SingleAsync(x => x.OperationKey == "record-purge/" + target.RecordId)).CompletedAt);
+        using (var retry = await Permanent(s, target.RecordId))
+            await Failure(retry, 404, "not_found");
+        using var get = await Read(s, "/api/records/" + target.RecordId);
+        await Failure(get, 404, "not_found");
     }
     private static string Hash(string access) { Assert.True(OpaqueAccessHandle.TryHash(access, out var verifier)); return verifier; }
     [FunctionalTheory]
@@ -119,7 +188,25 @@ public class RecordPermanentDeleteHttpTests(RegistrationApiFixture fixture, Shar
     [InlineData(CollectionGrantAccess.ReadWrite, true, true)]
     public async Task GivenActualNativeVisibleForeignScope_WhenPermanentlyDeletingStaleCorruptTarget_ThenReadOnlyAndReadWriteBoth403(CollectionGrantAccess access, bool selected, bool inherited)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var o = await Setup(owner); var s = await Setup(client); var root = await Folder(o); var child = await Folder(o, root.Id); var target = await Create(o, folder: child.PublicId); var (c, _) = await Share(o, owner, s, client, access, inherited ? [] : [target.RecordId], inherited ? [root.Id] : []); var p = await Profile(s, client, scoped, collections: [c.PublicId]); var actor = selected ? s with { Access = await Open(s, p, scoped) } : s; await using (var db = fixture.Context()) await db.Records.Where(x => x.PublicId == target.RecordId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, "bad"u8.ToArray())); var before = await Snapshot(o); var recipient = await Snapshot(s); using var response = await Permanent(actor, target.RecordId, 99); await Failure(response, 403, "vault_access_denied"); Assert.Equal(before, await Snapshot(o)); Assert.Equal(recipient, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var scoped = new ProtectionFixture();
+        var o = await Setup(owner);
+        var s = await Setup(client);
+        var root = await Folder(o);
+        var child = await Folder(o, root.Id);
+        var target = await Create(o, folder: child.PublicId);
+        var (c, _) = await Share(o, owner, s, client, access, inherited ? [] : [target.RecordId], inherited ? [root.Id] : []);
+        var p = await Profile(s, client, scoped, collections: [c.PublicId]);
+        var actor = selected ? s with { Access = await Open(s, p, scoped) } : s;
+        await using (var db = fixture.Context())
+            await db.Records.Where(x => x.PublicId == target.RecordId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, "bad"u8.ToArray()));
+        var before = await Snapshot(o);
+        var recipient = await Snapshot(s);
+        using var response = await Permanent(actor, target.RecordId, 99);
+        await Failure(response, 403, "vault_access_denied");
+        Assert.Equal(before, await Snapshot(o));
+        Assert.Equal(recipient, await Snapshot(s));
     }
     [FunctionalTheory]
     [InlineData("unknown")]
@@ -153,7 +240,21 @@ public class RecordPermanentDeleteHttpTests(RegistrationApiFixture fixture, Shar
     [InlineData("empty")]
     public async Task GivenStrictOrForgedDeleteBody_WhenPermanentlyDeleting_Then400WithoutAnyOperation(string kind)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s); var body = JsonSerializer.SerializeToNode(new { expectedRevision = 1 }, ProtectionFixture.Json)!.AsObject(); var fields = new[] { "actor", "vaultAccess", "recordId", "ownerId", "profileIds", "folderId", "collectionIds", "name", "fields", "keyWrappers", "envelope", "editedAt", "trashOperationId", "deletedAt", "purgeAt" }; if (fields.Contains(kind)) body[kind] = null; if (kind == "unknown") body["secret"] = null; var raw = kind switch { "zero" => "{\"expectedRevision\":0}", "negative" => "{\"expectedRevision\":-1}", "unsafe" => "{\"expectedRevision\":9007199254740992}", "missing" => "{}", "duplicate" => "{\"expectedRevision\":1,\"expectedRevision\":1}", "case" => "{\"ExpectedRevision\":1}", "numericString" => "{\"expectedRevision\":\"1\"}", "nullRevision" => "{\"expectedRevision\":null}", "fraction" => "{\"expectedRevision\":1.5}", "overflow" => "{\"expectedRevision\":9223372036854775808}", "null" => "null", "array" => "[]", "empty" => "", _ => body.ToJsonString() }; var before = await Snapshot(s); using var req = DeletePermanent(s, "/api/records/" + target.RecordId, Encoding.UTF8.GetBytes(raw)); using var r = await Gateway.Client.SendAsync(req); await Failure(r, 400); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        var body = JsonSerializer.SerializeToNode(new { expectedRevision = 1 }, ProtectionFixture.Json)!.AsObject();
+        var fields = new[] { "actor", "vaultAccess", "recordId", "ownerId", "profileIds", "folderId", "collectionIds", "name", "fields", "keyWrappers", "envelope", "editedAt", "trashOperationId", "deletedAt", "purgeAt" };
+        if (fields.Contains(kind))
+            body[kind] = null;
+        if (kind == "unknown")
+            body["secret"] = null;
+        var raw = kind switch { "zero" => "{\"expectedRevision\":0}", "negative" => "{\"expectedRevision\":-1}", "unsafe" => "{\"expectedRevision\":9007199254740992}", "missing" => "{}", "duplicate" => "{\"expectedRevision\":1,\"expectedRevision\":1}", "case" => "{\"ExpectedRevision\":1}", "numericString" => "{\"expectedRevision\":\"1\"}", "nullRevision" => "{\"expectedRevision\":null}", "fraction" => "{\"expectedRevision\":1.5}", "overflow" => "{\"expectedRevision\":9223372036854775808}", "null" => "null", "array" => "[]", "empty" => "", _ => body.ToJsonString() };
+        var before = await Snapshot(s);
+        using var req = DeletePermanent(s, "/api/records/" + target.RecordId, Encoding.UTF8.GetBytes(raw));
+        using var r = await Gateway.Client.SendAsync(req);
+        await Failure(r, 400);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalFact]
     public async Task GivenSelectedCollectionLinkRemovedAfterUnlock_WhenPermanentlyDeletingForeignTarget_Then404WithoutExpandingScope()
@@ -182,11 +283,26 @@ public class RecordPermanentDeleteHttpTests(RegistrationApiFixture fixture, Shar
     [InlineData("collectionTrash")]
     public async Task GivenHiddenTargetWithBadCipherAndStaleRevision_WhenPermanentlyDeleting_ThenNonrevealing404WithoutMutation(string kind)
     {
-        using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var key = new ProtectionFixture(); var o = await Setup(owner); var s = kind == "unselected" ? o : await Setup(client); var folder = await Folder(o); var target = await Create(o, folder: folder.PublicId); CollectionGrant? grant = null; if (kind != "foreign" && s.InternalId != o.InternalId) { var share = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [target.RecordId], []); grant = share.Item2; }
-        if (kind == "unselected") { var p = await Profile(s, owner, key); s = s with { Access = await Open(s, p, key) }; }
-        await using (var db = fixture.Context()) { await db.Records.Where(x => x.PublicId == target.RecordId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, "bad"u8.ToArray()).SetProperty(r => r.DeletedAt, kind == "recordTrash" ? (DateTimeOffset?)DateTimeOffset.UtcNow : null)); if (kind == "ancestorTrash") await db.Folders.Where(x => x.Id == folder.Id).ExecuteUpdateAsync(x => x.SetProperty(f => f.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "recordTerminal") { db.TerminalErasures.Add(new() { ResourceId = target.RecordId, ResourceKind = "record", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } if (kind == "ownerClosing") await db.Accounts.Where(x => x.Id == o.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending)); if (kind == "revoked") await db.CollectionGrants.Where(x => x.Id == grant!.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked)); }
-        await using (var db = fixture.Context()) { if (grant is not null) await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, "bad"u8.ToArray())); if (kind is "ancestorTerminal" or "ownerTerminal") { db.TerminalErasures.Add(new() { ResourceId = kind == "ancestorTerminal" ? folder.PublicId : o.AccountId, ResourceKind = kind == "ancestorTerminal" ? "folder" : "account", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } if (kind == "collectionTrash") await db.Collections.Where(x => db.CollectionGrants.Any(g => g.Id == grant!.Id && g.CollectionId == x.Id)).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); }
-        var before = await Snapshot(o); using var response = await Permanent(s, kind == "missing" ? Guid.NewGuid() : target.RecordId, 88); await Failure(response, 404, "not_found"); Assert.Equal(before, await Snapshot(o));
+        using var owner = new ProtectionFixture();
+        using var client = new ProtectionFixture();
+        using var key = new ProtectionFixture();
+        var o = await Setup(owner);
+        var s = kind == "unselected" ? o : await Setup(client);
+        var folder = await Folder(o);
+        var target = await Create(o, folder: folder.PublicId);
+        CollectionGrant? grant = null;
+        if (kind != "foreign" && s.InternalId != o.InternalId)
+        { var share = await Share(o, owner, s, client, CollectionGrantAccess.ReadWrite, [target.RecordId], []); grant = share.Item2; }
+        if (kind == "unselected")
+        { var p = await Profile(s, owner, key); s = s with { Access = await Open(s, p, key) }; }
+        await using (var db = fixture.Context())
+        { await db.Records.Where(x => x.PublicId == target.RecordId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, "bad"u8.ToArray()).SetProperty(r => r.DeletedAt, kind == "recordTrash" ? (DateTimeOffset?)DateTimeOffset.UtcNow : null)); if (kind == "ancestorTrash") await db.Folders.Where(x => x.Id == folder.Id).ExecuteUpdateAsync(x => x.SetProperty(f => f.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "recordTerminal") { db.TerminalErasures.Add(new() { ResourceId = target.RecordId, ResourceKind = "record", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } if (kind == "ownerClosing") await db.Accounts.Where(x => x.Id == o.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending)); if (kind == "revoked") await db.CollectionGrants.Where(x => x.Id == grant!.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked)); }
+        await using (var db = fixture.Context())
+        { if (grant is not null) await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, "bad"u8.ToArray())); if (kind is "ancestorTerminal" or "ownerTerminal") { db.TerminalErasures.Add(new() { ResourceId = kind == "ancestorTerminal" ? folder.PublicId : o.AccountId, ResourceKind = kind == "ancestorTerminal" ? "folder" : "account", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } if (kind == "collectionTrash") await db.Collections.Where(x => db.CollectionGrants.Any(g => g.Id == grant!.Id && g.CollectionId == x.Id)).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); }
+        var before = await Snapshot(o);
+        using var response = await Permanent(s, kind == "missing" ? Guid.NewGuid() : target.RecordId, 88);
+        await Failure(response, 404, "not_found");
+        Assert.Equal(before, await Snapshot(o));
     }
     [FunctionalTheory]
     [InlineData("bad")]
@@ -209,8 +325,27 @@ public class RecordPermanentDeleteHttpTests(RegistrationApiFixture fixture, Shar
     [InlineData("oversized", 413)]
     public async Task GivenInvalidTransportOrAccess_WhenPermanentlyDeleting_ThenRejectWithoutMutation(string kind, int status)
     {
-        using var owner = new ProtectionFixture(); var s = await Setup(owner); var target = await Create(s); var before = await Snapshot(s); var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? new byte[] { 0xc3, 0x28 } : Bytes(new { expectedRevision = 1 }); if (kind == "bom") raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray(); using var req = DeletePermanent(s, "/api/records/" + target.RecordId + (kind == "query" ? "?ownerId=secret" : ""), raw); if (kind == "missing") req.Headers.Remove("X-Cerberus-Vault-Access"); if (kind == "bad") { req.Headers.Remove("X-Cerberus-Vault-Access"); req.Headers.Add("X-Cerberus-Vault-Access", "bad"); }
-        if (kind == "duplicate") req.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access); if (kind == "compression") req.Content!.Headers.ContentEncoding.Add("gzip"); if (kind == "charset") req.Content!.Headers.ContentType!.CharSet = "utf-16"; using var r = await Gateway.Client.SendAsync(req); await Failure(r, status); Assert.Equal(before, await Snapshot(s));
+        using var owner = new ProtectionFixture();
+        var s = await Setup(owner);
+        var target = await Create(s);
+        var before = await Snapshot(s);
+        var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? new byte[] { 0xc3, 0x28 } : Bytes(new { expectedRevision = 1 });
+        if (kind == "bom")
+            raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray();
+        using var req = DeletePermanent(s, "/api/records/" + target.RecordId + (kind == "query" ? "?ownerId=secret" : ""), raw);
+        if (kind == "missing")
+            req.Headers.Remove("X-Cerberus-Vault-Access");
+        if (kind == "bad")
+        { req.Headers.Remove("X-Cerberus-Vault-Access"); req.Headers.Add("X-Cerberus-Vault-Access", "bad"); }
+        if (kind == "duplicate")
+            req.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", s.Access);
+        if (kind == "compression")
+            req.Content!.Headers.ContentEncoding.Add("gzip");
+        if (kind == "charset")
+            req.Content!.Headers.ContentType!.CharSet = "utf-16";
+        using var r = await Gateway.Client.SendAsync(req);
+        await Failure(r, status);
+        Assert.Equal(before, await Snapshot(s));
     }
     [FunctionalFact]
     public async Task GivenRawEmptyAccessHeader_WhenPermanentlyDeleting_Then400()
@@ -253,12 +388,21 @@ public class RecordPermanentDeleteHttpTests(RegistrationApiFixture fixture, Shar
     private async Task Trash(State s, Guid id) { using var req = Request(s, Bytes(new { expectedRevision = 1 }), "/api/records/" + id); req.Method = HttpMethod.Delete; using var response = await Gateway.Client.SendAsync(req); await Success<DeleteRecordOutput>(response, 200); }
     private async Task Erased(Guid id, PermanentlyDeleteRecordOutput output)
     {
-        Fields(output, "recordId", "deletedAt"); Assert.Equal(id, output.RecordId); Assert.Equal(TimeSpan.Zero, output.DeletedAt.Offset); Assert.True(output.DeletedAt.Ticks >= 10); Assert.Equal(0, output.DeletedAt.Ticks % 10);
-        await using var db = fixture.Context(); Assert.False(await db.Records.AnyAsync(x => x.PublicId == id)); Assert.False(await db.TrashEntries.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == id));
+        Fields(output, "recordId", "deletedAt");
+        Assert.Equal(id, output.RecordId);
+        Assert.Equal(TimeSpan.Zero, output.DeletedAt.Offset);
+        Assert.True(output.DeletedAt.Ticks >= 10);
+        Assert.Equal(0, output.DeletedAt.Ticks % 10);
+        await using var db = fixture.Context();
+        Assert.False(await db.Records.AnyAsync(x => x.PublicId == id));
+        Assert.False(await db.TrashEntries.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == id));
         Assert.Equal(output.DeletedAt, (await db.TerminalErasures.SingleAsync(x => x.ResourceKind == "record" && x.ResourceId == id)).DeletedAt);
         Assert.NotNull((await db.RetentionWorkItems.SingleAsync(x => x.OperationKey == "record-purge/" + id)).CompletedAt);
-        var ledger = new FileErasureLedger(Environment.GetEnvironmentVariable("CERBERUS_ERASURE_LEDGER_PATH")!); var entries = new List<ErasureEntry>();
-        await foreach (var entry in ledger.ReadAsync(default)) if (entry.ResourceKind == "record" && entry.ResourceId == id) entries.Add(entry);
+        var ledger = new FileErasureLedger(Environment.GetEnvironmentVariable("CERBERUS_ERASURE_LEDGER_PATH")!);
+        var entries = new List<ErasureEntry>();
+        await foreach (var entry in ledger.ReadAsync(default))
+        if (entry.ResourceKind == "record" && entry.ResourceId == id)
+            entries.Add(entry);
         Assert.Equal(new ErasureEntry(id, "record", output.DeletedAt), Assert.Single(entries));
     }
     private sealed class UnavailableLedger : IErasureLedger

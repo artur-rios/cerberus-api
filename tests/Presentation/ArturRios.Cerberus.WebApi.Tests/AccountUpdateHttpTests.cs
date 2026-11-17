@@ -95,7 +95,8 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
         Authorize(RegistrationApiFixture.Token(input.Identity));
         using var response = await Send(input.Handle);
         await Failure(response, status);
-        if (state != "missing") await AssertStored(input.Id, input.Identity);
+        if (state != "missing")
+            await AssertStored(input.Id, input.Identity);
     }
 
     [FunctionalTheory]
@@ -239,7 +240,8 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
                 PolicyRevision = state == "stale" ? 0 : 1,
                 RevocationGeneration = 1
             });
-            if (state == "erased") context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
+            if (state == "erased")
+                context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
         }
         return (id, identity, handle);
@@ -249,7 +251,8 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
     {
         using var request = new HttpRequestMessage(HttpMethod.Put, "/api/accounts/me")
         { Content = JsonContent.Create(new { expectedRevision = 3, details = Envelope(ciphertext) }) };
-        if (handle is not null) request.Headers.Add(Header, handle);
+        if (handle is not null)
+            request.Headers.Add(Header, handle);
         return await Gateway.Client.SendAsync(request);
     }
     private async Task AssertStored(Guid id, Guid identity, long revision = 3, string ciphertext = "AQID")

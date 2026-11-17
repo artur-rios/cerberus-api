@@ -55,9 +55,12 @@ internal static class TrashRestoreInventory
         try
         {
             var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, TrashJson.Options);
-            if (envelope?.IsValid() != true) return false;
-            if (row.Kind == "collection" && row.KeyEpoch != envelope.KeyEpoch) return false;
-            if (row.Kind != "profile") return true;
+            if (envelope?.IsValid() != true)
+                return false;
+            if (row.Kind == "collection" && row.KeyEpoch != envelope.KeyEpoch)
+                return false;
+            if (row.Kind != "profile")
+                return true;
             var wrappers = row.KeyWrappers is null ? null : JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, TrashJson.Options);
             var protection = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == row.AccountId, ct);
             return CollectionGrantBinding.TryReadPins(protection, out var pins) && wrappers?.IsValid() == true
@@ -117,7 +120,8 @@ internal static class TrashRestoreInventory
         """;
     internal static async Task<bool> BumpAsync(AppDbContext db, TrashRestoreResource row, CancellationToken ct)
     {
-        var stamp = Guid.NewGuid(); var update = row.Kind switch
+        var stamp = Guid.NewGuid();
+        var update = row.Kind switch
         {
             "record" => "UPDATE cerberus.record r SET ",
             "folder" => "UPDATE cerberus.folder r SET ",
@@ -127,7 +131,8 @@ internal static class TrashRestoreInventory
         };
         var sql = update + "revision=r.revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp=@stamp WHERE r.account_id=@owner AND r.public_id=@id AND r.revision=@revision AND r.server_sequence=@sequence AND r.envelope=@envelope AND r.deleted_at IS NULL AND r.purge_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure t WHERE t.resource_kind=@kind AND t.resource_id=r.public_id)";
         var args = Parameters(row, row.Parent, stamp).Append<object>(new NpgsqlParameter("kind", row.Kind)).ToArray();
-        if (await db.Database.ExecuteSqlRawAsync(sql, args, ct) != 1) return false;
+        if (await db.Database.ExecuteSqlRawAsync(sql, args, ct) != 1)
+            return false;
         var after = await ReadAsync(db, row.Kind, row.AccountId, row.PublicId, ct);
         return after is not null && Preserved(row, after, row.Parent, stamp);
     }

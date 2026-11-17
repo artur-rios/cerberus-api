@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.4",
+  "openapi": "3.1.2",
   "info": {
     "title": "Cerberus API",
     "description": "Cerberus encrypted vault API. Identity authentication and vault access are separate.",
@@ -10498,18 +10498,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -10571,18 +10575,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -10656,18 +10664,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -10691,9 +10703,11 @@
         "type": "object",
         "properties": {
           "details": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           },
           "entryType": {
             "enum": [
@@ -10724,7 +10738,10 @@
             "$ref": "#/components/schemas/AccountExportHeader"
           },
           "entries": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "oneOf": [
                 {
@@ -10764,8 +10781,7 @@
                   "$ref": "#/components/schemas/AccountExportTrashOperation"
                 }
               ]
-            },
-            "nullable": true
+            }
           },
           "entryCount": {
             "maximum": 9007199254740991,
@@ -10817,19 +10833,25 @@
             "format": "date-time"
           },
           "deletedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "purgeAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "envelope": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           },
           "keyEpoch": {
             "maximum": 9007199254740991,
@@ -10892,9 +10914,11 @@
             "format": "int64"
           },
           "recipientKeyEnvelope": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           },
           "entryType": {
             "enum": [
@@ -10969,24 +10993,32 @@
             "format": "date-time"
           },
           "deletedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "purgeAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "envelope": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           },
           "parentFolderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "entryType": {
             "enum": [
@@ -11042,9 +11074,11 @@
           "renewalIntervalSeconds": {
             "maximum": 9007199254740991,
             "minimum": 1,
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
           },
           "serverTime": {
             "type": "string",
@@ -11103,24 +11137,32 @@
             "format": "date-time"
           },
           "deletedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "purgeAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "envelope": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           },
           "keyWrappers": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           },
           "entryType": {
             "enum": [
@@ -11160,9 +11202,11 @@
             "format": "int64"
           },
           "material": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           },
           "entryType": {
             "enum": [
@@ -11208,24 +11252,32 @@
             "format": "date-time"
           },
           "deletedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "purgeAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "envelope": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           },
           "folderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "entryType": {
             "enum": [
@@ -11281,9 +11333,11 @@
             "format": "uuid"
           },
           "operationId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "entryType": {
             "enum": [
@@ -11372,9 +11426,11 @@
             "format": "int64"
           },
           "recipientKey": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           },
           "entryType": {
             "enum": [
@@ -11411,9 +11467,11 @@
             "format": "uuid"
           },
           "recipientKeyEnvelope": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           },
           "entryType": {
             "enum": [
@@ -11484,8 +11542,10 @@
             "format": "int64"
           },
           "state": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "details": {
             "$ref": "#/components/schemas/EncryptedEnvelope"
@@ -11497,18 +11557,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -11548,13 +11612,14 @@
             "$ref": "#/components/schemas/HeimdallLogin"
           },
           "account": {
-            "type": "object",
-            "allOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/AuthenticationAccount"
+              },
+              {
+                "type": "null"
               }
-            ],
-            "nullable": true
+            ]
           }
         },
         "additionalProperties": false
@@ -11563,18 +11628,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -11616,8 +11685,10 @@
             "format": "int64"
           },
           "access": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "keyEnvelope": {
             "$ref": "#/components/schemas/RecipientEnvelope"
@@ -11641,24 +11712,30 @@
             "format": "int64"
           },
           "access": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -11667,18 +11744,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -11710,25 +11791,31 @@
             "format": "int64"
           },
           "mode": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "material": {
             "$ref": "#/components/schemas/ProtectionMaterial"
           },
           "contentReplacements": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/ContentReplacement"
-            },
-            "nullable": true
+            }
           },
           "grantReplacements": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/CollectionGrantReplacement"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -11763,18 +11850,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -11800,20 +11891,14 @@
             "$ref": "#/components/schemas/HeimdallLogin"
           },
           "account": {
-            "type": "object",
-            "oneOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/AccountClosureRecoveryDetails"
               },
               {
-                "enum": [
-                  null
-                ],
-                "type": "object",
-                "nullable": true
+                "type": "null"
               }
-            ],
-            "nullable": true
+            ]
           }
         },
         "additionalProperties": false
@@ -11822,18 +11907,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -11857,12 +11946,16 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "password": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -11874,16 +11967,22 @@
         "type": "object",
         "properties": {
           "challengeToken": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "code": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "recoveryCode": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -11911,28 +12010,34 @@
             "format": "date-time"
           },
           "profileIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -11963,28 +12068,34 @@
             "$ref": "#/components/schemas/EncryptedEnvelope"
           },
           "profileIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -11993,18 +12104,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12066,15 +12181,19 @@
         "type": "object",
         "properties": {
           "items": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/CollectionListItem"
-            },
-            "nullable": true
+            }
           },
           "nextCursor": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -12083,18 +12202,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12114,8 +12237,10 @@
         "type": "object",
         "properties": {
           "resourceKind": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "resourceId": {
             "type": "string",
@@ -12129,13 +12254,14 @@
             "$ref": "#/components/schemas/EncryptedEnvelope"
           },
           "keyWrappers": {
-            "type": "object",
-            "allOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/ProfileKeyWrappers"
+              },
+              {
+                "type": "null"
               }
-            ],
-            "nullable": true
+            ]
           }
         },
         "additionalProperties": false
@@ -12163,28 +12289,34 @@
             "format": "date-time"
           },
           "profileIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -12215,18 +12347,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12263,17 +12399,21 @@
             "format": "date-time"
           },
           "profileIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "parentFolderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -12304,18 +12444,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12349,28 +12493,34 @@
             "format": "date-time"
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "collectionIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -12401,18 +12551,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12449,17 +12603,21 @@
             "format": "date-time"
           },
           "profileIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -12490,18 +12648,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12577,18 +12739,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12651,18 +12817,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12722,18 +12892,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12796,18 +12970,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12872,18 +13050,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12903,28 +13085,38 @@
         "type": "object",
         "properties": {
           "format": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "keyEpoch": {
             "type": "integer",
             "format": "int64"
           },
           "keySalt": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "nonce": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "ciphertext": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "tag": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -12933,18 +13125,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -12955,12 +13151,8 @@
             "readOnly": true
           },
           "data": {
-            "enum": [
-              null
-            ],
-            "type": "object",
-            "description": "null when the action's handler failed; absent when the request was refused before it ran.",
-            "nullable": true
+            "type": "null",
+            "description": "null when the action's handler failed; absent when the request was refused before it ran."
           }
         },
         "additionalProperties": false,
@@ -12987,17 +13179,21 @@
             "format": "date-time"
           },
           "profileIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "parentFolderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -13028,25 +13224,31 @@
             "$ref": "#/components/schemas/EncryptedEnvelope"
           },
           "profileIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "parentFolderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "collectionIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -13055,18 +13257,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -13111,15 +13317,19 @@
         "type": "object",
         "properties": {
           "items": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/FolderListItem"
-            },
-            "nullable": true
+            }
           },
           "nextCursor": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -13128,18 +13338,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -13174,13 +13388,17 @@
             "format": "uuid"
           },
           "expectedRevision": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
           },
           "access": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "keyEnvelope": {
             "$ref": "#/components/schemas/RecipientEnvelope"
@@ -13204,24 +13422,30 @@
             "format": "int64"
           },
           "access": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -13230,18 +13454,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -13276,19 +13504,23 @@
             "format": "uuid"
           },
           "expectedRevision": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
           },
           "recipientKey": {
             "$ref": "#/components/schemas/SoftwareRecipientKey"
           },
           "targets": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/SoftwareGrantTargetInput"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -13311,18 +13543,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -13386,11 +13622,13 @@
           "components": {
             "maxItems": 3,
             "minItems": 3,
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/HealthComponent"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -13415,31 +13653,41 @@
         "type": "object",
         "properties": {
           "token": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "expiresAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "emailVerified": {
-            "type": "boolean",
-            "nullable": true
+            "type": [
+              "null",
+              "boolean"
+            ]
           },
           "requiresTwoFactor": {
             "type": "boolean"
           },
           "challengeToken": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "availableMethods": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -13448,16 +13696,22 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "password": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -13491,8 +13745,10 @@
             "format": "int64"
           },
           "requestHash": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -13513,18 +13769,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -13544,12 +13804,16 @@
         "type": "object",
         "properties": {
           "operation": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "requestHash": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -13558,12 +13822,16 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "password": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -13580,9 +13848,11 @@
             "format": "int64"
           },
           "parentFolderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -13595,9 +13865,11 @@
             "format": "uuid"
           },
           "parentFolderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "revision": {
             "type": "integer",
@@ -13614,18 +13886,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -13653,9 +13929,11 @@
             "format": "int64"
           },
           "folderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -13668,9 +13946,11 @@
             "format": "uuid"
           },
           "folderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "revision": {
             "type": "integer",
@@ -13687,18 +13967,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -13718,8 +14002,10 @@
         "type": "object",
         "properties": {
           "lease": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "accountId": {
             "type": "string",
@@ -13746,11 +14032,13 @@
             "format": "int64"
           },
           "grantRevisions": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/OfflineGrantRevision"
-            },
-            "nullable": true
+            }
           },
           "renewalEnabled": {
             "type": "boolean"
@@ -13760,9 +14048,11 @@
             "format": "date-time"
           },
           "expiresAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         },
         "additionalProperties": false
@@ -13771,18 +14061,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -13819,9 +14113,11 @@
             "type": "boolean"
           },
           "renewalInterval": {
-            "type": "string",
-            "format": "date-span",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-span"
           },
           "policyRevision": {
             "type": "integer",
@@ -13838,18 +14134,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -13886,17 +14186,21 @@
             "format": "uuid"
           },
           "vaultAccess": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "issuedAt": {
             "type": "string",
             "format": "date-time"
           },
           "expiresAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "profile": {
             "$ref": "#/components/schemas/ProfileAccessContext"
@@ -13908,18 +14212,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -13939,8 +14247,10 @@
         "type": "object",
         "properties": {
           "algorithm": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "memoryKiB": {
             "type": "integer",
@@ -13955,8 +14265,10 @@
             "format": "int32"
           },
           "salt": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -13965,28 +14277,38 @@
         "type": "object",
         "properties": {
           "format": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "keyEpoch": {
             "type": "integer",
             "format": "int64"
           },
           "keySalt": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "nonce": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "ciphertext": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "tag": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "kdf": {
             "$ref": "#/components/schemas/PasswordKdf"
@@ -14025,18 +14347,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -14056,25 +14382,35 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "title": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "status": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
           },
           "detail": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "instance": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": {}
@@ -14083,18 +14419,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -14133,28 +14473,34 @@
             "$ref": "#/components/schemas/ProfileKeyWrappers"
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "collectionIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -14201,28 +14547,34 @@
             "format": "date-time"
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "collectionIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -14257,28 +14609,34 @@
             "$ref": "#/components/schemas/ProfileKeyWrappers"
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "collectionIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -14287,18 +14645,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -14318,8 +14680,10 @@
         "type": "object",
         "properties": {
           "unlockMode": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "unlockVerifier": {
             "$ref": "#/components/schemas/PublicJwk"
@@ -14328,20 +14692,14 @@
             "$ref": "#/components/schemas/RecipientEnvelope"
           },
           "passwordWrapper": {
-            "type": "object",
-            "oneOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/PasswordWrapper"
               },
               {
-                "enum": [
-                  null
-                ],
-                "type": "object",
-                "nullable": true
+                "type": "null"
               }
-            ],
-            "nullable": true
+            ]
           }
         },
         "additionalProperties": false
@@ -14372,28 +14730,34 @@
             "$ref": "#/components/schemas/ProfileKeyWrappers"
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "collectionIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -14402,15 +14766,19 @@
         "type": "object",
         "properties": {
           "items": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/ProfileListItem"
-            },
-            "nullable": true
+            }
           },
           "nextCursor": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -14419,18 +14787,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -14474,20 +14846,28 @@
         "type": "object",
         "properties": {
           "crv": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "kty": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "x": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "y": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -14496,8 +14876,10 @@
         "type": "object",
         "properties": {
           "format": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "keyEpoch": {
             "type": "integer",
@@ -14516,24 +14898,34 @@
             "format": "uuid"
           },
           "recipientKeyFingerprint": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "authorKeyFingerprint": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "enc": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "ciphertext": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "signature": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -14559,17 +14951,21 @@
             "format": "date-time"
           },
           "profileIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -14600,25 +14996,31 @@
             "$ref": "#/components/schemas/EncryptedEnvelope"
           },
           "profileIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "collectionIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -14627,18 +15029,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -14683,15 +15089,19 @@
         "type": "object",
         "properties": {
           "items": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/RecordListItem"
-            },
-            "nullable": true
+            }
           },
           "nextCursor": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -14700,18 +15110,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -14731,8 +15145,10 @@
         "type": "object",
         "properties": {
           "operation": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "idempotencyKey": {
             "type": "string",
@@ -14758,8 +15174,10 @@
         "type": "object",
         "properties": {
           "status": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "protectionRevision": {
             "type": "integer",
@@ -14780,18 +15198,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -14811,36 +15233,48 @@
         "type": "object",
         "properties": {
           "format": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "keyEpoch": {
             "type": "integer",
             "format": "int64"
           },
           "keySalt": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "nonce": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "ciphertext": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "tag": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "generation": {
             "type": "integer",
             "format": "int64"
           },
           "proofKeyFingerprint": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -14877,8 +15311,10 @@
             "format": "int64"
           },
           "onboardingState": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "replayed": {
             "type": "boolean"
@@ -14890,18 +15326,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -14977,8 +15417,10 @@
             "format": "uuid"
           },
           "rootKind": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "rootResourceId": {
             "type": "string",
@@ -14989,18 +15431,22 @@
             "format": "date-time"
           },
           "items": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/TrashRestoredItem"
-            },
-            "nullable": true
+            }
           },
           "omissions": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/TrashRestoreOmission"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -15009,18 +15455,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -15071,18 +15521,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -15129,18 +15583,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -15178,20 +15636,24 @@
             "format": "date-time"
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -15216,20 +15678,24 @@
             "format": "date-time"
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -15238,18 +15704,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -15281,9 +15751,11 @@
             "type": "boolean"
           },
           "renewalInterval": {
-            "type": "string",
-            "format": "date-span",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-span"
           }
         },
         "additionalProperties": false
@@ -15295,9 +15767,11 @@
             "type": "boolean"
           },
           "renewalInterval": {
-            "type": "string",
-            "format": "date-span",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-span"
           },
           "policyRevision": {
             "type": "integer",
@@ -15314,18 +15788,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -15355,28 +15833,34 @@
             "format": "int64"
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "collectionIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -15397,28 +15881,34 @@
             "format": "int64"
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "collectionIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -15427,18 +15917,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -15463,8 +15957,10 @@
         "type": "object",
         "properties": {
           "kind": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "type": "string",
@@ -15486,20 +15982,28 @@
         "type": "object",
         "properties": {
           "crv": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "kty": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "x": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "y": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -15547,18 +16051,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -15601,8 +16109,10 @@
         "type": "object",
         "properties": {
           "kind": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "type": "string",
@@ -15630,19 +16140,22 @@
             "format": "int64"
           },
           "resourceKind": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "resourceId": {
             "type": "string",
             "format": "uuid"
           },
           "eventType": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "data": {
-            "type": "object",
             "oneOf": [
               {
                 "$ref": "#/components/schemas/SyncProfileData"
@@ -15660,19 +16173,16 @@
                 "$ref": "#/components/schemas/SyncGrantData"
               },
               {
-                "enum": [
-                  null
-                ],
-                "type": "object",
-                "nullable": true
+                "type": "null"
               }
-            ],
-            "nullable": true
+            ]
           },
           "deletedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         },
         "additionalProperties": false
@@ -15701,15 +16211,19 @@
             "format": "date-time"
           },
           "items": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/SyncChangeItem"
-            },
-            "nullable": true
+            }
           },
           "nextCursor": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "hasMore": {
             "type": "boolean"
@@ -15727,18 +16241,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -15937,19 +16455,25 @@
             "type": "string"
           },
           "revision": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
           },
           "serverSequence": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
           },
           "editedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         },
         "additionalProperties": false
@@ -15962,20 +16486,24 @@
             "format": "uuid"
           },
           "profileId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "serverTime": {
             "type": "string",
             "format": "date-time"
           },
           "outcomes": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/SyncEditOutcome"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -15984,18 +16512,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -16186,28 +16718,34 @@
             "$ref": "#/components/schemas/ProfileKeyWrappers"
           },
           "recordIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "folderIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "collectionIds": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "resourceId": {
             "type": "string",
@@ -16540,7 +17078,10 @@
         "type": "object",
         "properties": {
           "items": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "oneOf": [
                 {
@@ -16556,12 +17097,13 @@
                   "$ref": "#/components/schemas/TrashProfileItem"
                 }
               ]
-            },
-            "nullable": true
+            }
           },
           "nextCursor": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -16570,18 +17112,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -16742,16 +17288,20 @@
         "type": "object",
         "properties": {
           "resourceKind": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "resourceId": {
             "type": "string",
             "format": "uuid"
           },
           "associationKind": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "count": {
             "type": "integer",
@@ -16771,8 +17321,10 @@
         "type": "object",
         "properties": {
           "kind": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "resourceId": {
             "type": "string",
@@ -16834,18 +17386,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -16909,18 +17465,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -16984,18 +17544,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -17015,12 +17579,16 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -17033,12 +17601,16 @@
             "format": "uuid"
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "emailVerified": {
             "type": "boolean"
@@ -17050,18 +17622,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -17120,18 +17696,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -17195,18 +17775,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -17279,18 +17863,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -17332,18 +17920,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -17363,20 +17955,26 @@
         "type": "object",
         "properties": {
           "format": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "challengeId": {
             "type": "string",
             "format": "uuid"
           },
           "nonce": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "operation": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "identityId": {
             "type": "string",
@@ -17387,8 +17985,10 @@
             "format": "uuid"
           },
           "scopeKind": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "scopeId": {
             "type": "string",
@@ -17403,13 +18003,17 @@
             "format": "int64"
           },
           "generation": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
           },
           "requestHash": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "issuedAt": {
             "type": "integer",
@@ -17454,18 +18058,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -17492,17 +18100,21 @@
             "format": "uuid"
           },
           "vaultAccess": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "issuedAt": {
             "type": "string",
             "format": "date-time"
           },
           "expiresAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         },
         "additionalProperties": false
@@ -17511,18 +18123,22 @@
         "type": "object",
         "properties": {
           "messages": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "errors": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "timestamp": {
             "type": "string",
@@ -17542,16 +18158,22 @@
         "type": "object",
         "properties": {
           "challengeToken": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "code": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "recoveryCode": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false

@@ -84,8 +84,7 @@ internal sealed class ErrorResponseFilter : IOperationFilter
                 ["data"] = new OpenApiSchema
                 {
                     Description = "null when the action's handler failed; absent when the request was refused before it ran.",
-                    Type = JsonSchemaType.Object | JsonSchemaType.Null,
-                    Enum = [null!]
+                    Type = JsonSchemaType.Null
                 }
             };
             context.SchemaRepository.AddDefinition(FailureSchema, new OpenApiSchema

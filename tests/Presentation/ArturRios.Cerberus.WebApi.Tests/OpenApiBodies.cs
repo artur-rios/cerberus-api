@@ -10,7 +10,7 @@ namespace ArturRios.Cerberus.WebApi.Tests;
 // Checks a JSON body the server wrote against the response schema the published document gives for it.
 // It reads the document as JSON, as a generated client does, and knows the parts of JSON Schema the
 // document uses: $ref, allOf, anyOf, oneOf, type (one, or OpenAPI 3.1's array with "null"), OpenAPI 3.0's
-// nullable, enum, properties, required, additionalProperties and items.
+// nullable (for an older document), enum, properties, required, additionalProperties and items.
 internal static class OpenApiBodies
 {
     // The contract's services, as tools/OpenApiGen builds them.
@@ -32,7 +32,7 @@ internal static class OpenApiBodies
     {
         var document = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
         using var text = new StringWriter();
-        document.SerializeAsV3(new OpenApiJsonWriter(text));
+        ContractRegistration.WriteContract(document, text);
         return JsonNode.Parse(text.ToString())!;
     }
 

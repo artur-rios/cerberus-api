@@ -279,6 +279,17 @@ development into `develop` only; it is still required before any release.
 
 ### Changed
 
+- The OpenAPI document (`docs/contracts/openapi.json`) is now OpenAPI 3.1 (`"openapi": "3.1.2"`, it was 3.0.4), so a
+  client generator that reads 3.1 (swagger_parser 2) accepts the `null`s the API writes: 3.0's `nullable` counts only
+  beside a `type`, which a reference does not have. Nullable fields use 3.1's null type instead of the `nullable`
+  keyword, which 3.1 dropped: `type: ["null", "string"]` and the like for the 321 nullable scalars and arrays, and
+  `anyOf: [{ $ref }, { type: "null" }]` for the 4 nullable references (`AuthenticationOutput.account`,
+  `ContentReplacement.keyWrappers`, `ClosureRecoveryAuthenticationOutput.account` and
+  `ProfileKeyWrappers.passwordWrapper`, the last two hand-written `oneOf`s until now). `SyncChangeItem.data` is
+  `oneOf` its five resource variants and `{ type: "null" }`, and `FailureOutput.data` is `{ type: "null" }`. The
+  API serves no `/swagger` endpoint; `tools/OpenApiGen` writes the document through
+  `ContractRegistration.WriteContract`. Nothing changes on the wire.
+
 - `scripts/openapi.py` names where the generated OpenAPI document drifts from `docs/contracts/openapi.json` (up to
   20 JSON Pointers, each with the committed and the generated value), so a failed check says what to look at.
 
@@ -327,8 +338,8 @@ development into `develop` only; it is still required before any release.
   always answered with 400 `validation_failed`), including `POST /api/accounts`, which answers 201 created or 200
   replayed. A member that can be written as JSON `null` and was published as a bare `$ref`, such as
   `AuthenticationOutput.account` on a login that still needs a second factor, is now a nullable reference
-  (`allOf` with the `$ref`, `nullable: true`). The success codes were already exact and are now checked against
-  the status maps. Nothing changes on the wire: statuses, bodies and JSON are as before.
+  (`anyOf` with the `$ref` and the null type, in OpenAPI 3.1: see Changed). The success codes were already exact
+  and are now checked against the status maps. Nothing changes on the wire: statuses, bodies and JSON are as before.
 
 - The `test` check runs every test once. It ran the unit tests, then the functional tests, then all of them again
   for the `.trx` results: about 21 of its 34 minutes repeated tests already run. One unfiltered run now writes the

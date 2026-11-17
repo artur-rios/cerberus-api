@@ -187,8 +187,12 @@ public sealed class OpenApiAccuracyContractTests
         var document = Serialized();
         var schemas = document["components"]!["schemas"]!;
         var account = schemas["AuthenticationOutput"]!["properties"]!["account"]!;
-        Assert.True(account["nullable"]!.GetValue<bool>());
-        Assert.Equal("#/components/schemas/AuthenticationAccount", Assert.Single(account["allOf"]!.AsArray())!["$ref"]!.GetValue<string>());
+        // OpenAPI 3.1: the reference or null, and nothing beside it.
+        Assert.Equal(["anyOf"], account.AsObject().Select(keyword => keyword.Key));
+        var branches = account["anyOf"]!.AsArray();
+        Assert.Equal(2, branches.Count);
+        Assert.Equal("#/components/schemas/AuthenticationAccount", branches[0]!["$ref"]!.GetValue<string>());
+        Assert.Equal("null", branches[1]!["type"]!.GetValue<string>());
         // Not every reference turns nullable: the login itself is always present.
         Assert.Equal("#/components/schemas/HeimdallLogin", schemas["AuthenticationOutput"]!["properties"]!["identity"]!["$ref"]!.GetValue<string>());
     }
@@ -208,7 +212,7 @@ public sealed class OpenApiAccuracyContractTests
         using var host = Host(out _);
         var document = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
         using var text = new StringWriter();
-        document.SerializeAsV3(new OpenApiJsonWriter(text));
+        ContractRegistration.WriteContract(document, text);
         return JsonNode.Parse(text.ToString())!;
     }
 
@@ -224,7 +228,8 @@ public sealed class OpenApiAccuracyContractTests
     }
 
     private static bool AcceptsNull(IOpenApiSchema schema) => schema is OpenApiSchema
-        && (schema.Type?.HasFlag(JsonSchemaType.Null) == true || schema.OneOf?.Any(AcceptsNull) == true);
+        && (schema.Type?.HasFlag(JsonSchemaType.Null) == true || schema.OneOf?.Any(AcceptsNull) == true
+            || schema.AnyOf?.Any(AcceptsNull) == true);
 
     private sealed class SchemaRecorder : ISchemaFilter
     {

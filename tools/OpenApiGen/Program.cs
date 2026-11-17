@@ -14,4 +14,4 @@ builder.Services.AddCerberusContracts();
 using var host = builder.Build();
 var document = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
 using var output = File.CreateText(args[0]);
-document.SerializeAsV3(new OpenApiJsonWriter(output));
+ContractRegistration.WriteContract(document, output);

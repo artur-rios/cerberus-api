@@ -6,8 +6,8 @@ namespace ArturRios.Cerberus.WebApi;
 
 // Documentation only. The API writes null members as JSON null, and Swashbuckle drops
 // the nullability of a member whose schema is a bare $ref. A member the C# annotations
-// declare nullable (`Type?`) is published as OAS 3.0's nullable reference instead:
-// allOf with the single $ref, nullable. The output envelope's own `data` is left out:
+// declare nullable (`Type?`) is published as OAS 3.1's nullable reference instead:
+// anyOf with the $ref and the null type. The output envelope's own `data` is left out:
 // its `T?` is generic, every success sets it, and failures are documented as
 // FailureOutput (ErrorResponseFilter).
 internal sealed class NullableReferenceSchemaFilter(ISerializerDataContractResolver contracts) : ISchemaFilter
@@ -23,7 +23,7 @@ internal sealed class NullableReferenceSchemaFilter(ISerializerDataContractResol
             if (target.Properties.TryGetValue(member.Name, out var property) && property is OpenApiSchemaReference reference
                 && CanBeNull(member.MemberInfo, nullability))
                 target.Properties[member.Name] = new OpenApiSchema
-                { Type = JsonSchemaType.Object | JsonSchemaType.Null, AllOf = [reference] };
+                { AnyOf = [reference, new OpenApiSchema { Type = JsonSchemaType.Null }] };
         }
     }
 

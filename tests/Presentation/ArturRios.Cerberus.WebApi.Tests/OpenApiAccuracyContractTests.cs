@@ -42,7 +42,7 @@ public sealed class OpenApiAccuracyContractTests
     // Each operation with the status map its action resolves through and the success messages its
     // handler emits (all of the map's success messages when none are named). Operations without a
     // map write their status directly.
-    private static readonly (string Method, string Path, IReadOnlyDictionary<string, int>? Map, string[] Codes)[] s_operations =
+    internal static readonly (string Method, string Path, IReadOnlyDictionary<string, int>? Map, string[] Codes)[] s_operations =
     [
         ("DELETE", "/api/accounts/me/permanent", AccountDeletionMessages.StatusCodes, []),
         ("POST", "/api/accounts/me/closure/cancel", AccountClosureCancellationMessages.StatusCodes, []),

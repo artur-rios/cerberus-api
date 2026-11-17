@@ -79,6 +79,8 @@ public static class ContractRegistration
             // Last, so the hand-shaped members above keep their own null branches.
             options.SchemaFilter<NullableReferenceSchemaFilter>();
             options.OperationFilter<RequiredBodyFilter>();
+            // After the filters above, which shape some of the responses it describes.
+            options.OperationFilter<ErrorResponseFilter>();
         });
         return services;
     }

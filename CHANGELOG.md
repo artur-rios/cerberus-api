@@ -306,6 +306,19 @@ development into `develop` only; it is still required before any release.
 
 ### Fixed
 
+- The OpenAPI document's error responses now describe the bodies the server sends. A request whose handler fails is
+  answered with the action's whole envelope, `"data": null` included, which the documented `ProcessOutput` (no
+  `data`, no other members allowed) refused. Every error response of an action answering an envelope is now
+  `FailureOutput`: `ProcessOutput`'s members and an optional `data` that is only ever `null`, which also covers a
+  request refused before its handler ran (validation, authentication, the restore barrier, the vault proof). The
+  409 of `GET /api/sync/changes` is the page envelope (`resynchronization_required`) or `FailureOutput`
+  (`revision_conflict`). The account export and the health routes write `ProcessOutput` only, and keep it. A 413 is
+  the request limit's, with no body: 25 operations documented a `ProblemDetails` body for it, and 25 did not list
+  it, though any request over the limit gets it; every operation now lists it without a body. The 7 operations
+  whose body the vault-proof check does not read (registration, login and its second factor, account and identity
+  updates, vault initialization and vault challenges) list the 415 `application/problem+json` `ProblemDetails`
+  that MVC answers for an unreadable `Content-Type`. Nothing changes on the wire.
+
 - The OpenAPI document (`docs/contracts/openapi.json`) now tells API clients what the server already does, so a
   client generated from it can trust it strictly. Every `[FromBody]` request body is `required` (a missing body was
   always answered with 400 `validation_failed`), including `POST /api/accounts`, which answers 201 created or 200

@@ -9,7 +9,7 @@ namespace ArturRios.Cerberus.WebApi;
 // declare nullable (`Type?`) is published as OAS 3.0's nullable reference instead:
 // allOf with the single $ref, nullable. The output envelope's own `data` is left out:
 // its `T?` is generic, every success sets it, and failures are documented as
-// ProcessOutput.
+// FailureOutput (ErrorResponseFilter).
 internal sealed class NullableReferenceSchemaFilter(ISerializerDataContractResolver contracts) : ISchemaFilter
 {
     public void Apply(IOpenApiSchema schema, SchemaFilterContext context)

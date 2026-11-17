@@ -7,9 +7,8 @@ root = true
 # Default settings:
 # A newline ending every file
 # Use 4 spaces as indentation
-# LF line endings: the index stores every code file with LF, and CI checks out LF. On Windows with
-# core.autocrlf=true the working tree is CRLF, so the local format check reports every file; check
-# out with LF (core.autocrlf=input or false) to run it there. See CONTRIBUTING.md.
+# LF line endings: the index stores every code file with LF, and .gitattributes checks them out
+# with LF on every platform (also on Windows with core.autocrlf=true), as CI does. See CONTRIBUTING.md.
 [*]
 end_of_line = lf
 insert_final_newline = true
@@ -167,13 +166,10 @@ csharp_space_between_parentheses = false
 csharp_space_between_square_brackets = false
 
 # Analyzers
-# heimdall-api sets these to warning. Here they are suggestions, so the format check stays a
-# formatting check: each fix rewrites code, and Directory.Build.props's TreatWarningsAsErrors would
-# turn a warning into a build error.
-# CA2016: a method that receives a CancellationToken passes it to the overloads that take one. Three
-# Data.Tests calls don't (OpenConnectionAsync, ExecuteSqlRawAsync, ReadAsStringAsync); fix those
-# before raising it to warning.
-dotnet_diagnostic.CA2016.severity = suggestion
+# heimdall-api sets these to warning. A rule at warning fails the format check, and
+# Directory.Build.props's TreatWarningsAsErrors turns it into a build error too.
+# CA2016: a method that receives a CancellationToken passes it to the overloads that take one.
+dotnet_diagnostic.CA2016.severity = warning
 
 # heimdall-api also sets IDE1006 (the naming rules above) to warning so its build reports them.
 # Cerberus doesn't build with EnforceCodeStyleInBuild, so the setting is left out and each naming
@@ -182,8 +178,9 @@ dotnet_diagnostic.CA2016.severity = suggestion
 # Collection expressions: [] and [.. source] in place of collection initializers (IDE0028), array
 # initializers (IDE0300), Array.Empty and Enumerable.Empty (IDE0301), stackalloc (IDE0302), Create
 # methods (IDE0303), builders (IDE0304), .ToList() and .ToArray() chains (IDE0305) and new(source)
-# (IDE0306). At warning they would rewrite about 860 expressions; changing what a collection is built
-# with is a code change.
+# (IDE0306). Here they are suggestions, so the format check stays a formatting check: at warning
+# they would rewrite about 860 expressions, and changing what a collection is built with is a code
+# change.
 dotnet_diagnostic.IDE0028.severity = suggestion
 dotnet_diagnostic.IDE0300.severity = suggestion
 dotnet_diagnostic.IDE0301.severity = suggestion

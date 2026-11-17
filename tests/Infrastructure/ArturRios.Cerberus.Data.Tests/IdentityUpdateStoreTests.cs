@@ -71,11 +71,11 @@ public class IdentityUpdateStoreTests(PostgresFixture fixture) : IClassFixture<P
     {
         var input = await Setup();
         var before = await Snapshot(input.Id, input.Verifier);
-        var result = await new IdentityUpdateStore(fixture).UpdateAsync(input.Identity, input.Verifier, async _ =>
+        var result = await new IdentityUpdateStore(fixture).UpdateAsync(input.Identity, input.Verifier, async cancellationToken =>
         {
             await using var competing = fixture.CreateContext();
-            await competing.Database.OpenConnectionAsync();
-            await competing.Database.ExecuteSqlRawAsync("SET lock_timeout = '100ms'");
+            await competing.Database.OpenConnectionAsync(cancellationToken);
+            await competing.Database.ExecuteSqlRawAsync("SET lock_timeout = '100ms'", cancellationToken);
             var error = await Assert.ThrowsAsync<PostgresException>(() => session
                 ? competing.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET revoked = TRUE WHERE handle_verifier = {input.Verifier}")
                 : competing.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET state = 1 WHERE public_id = {input.Id}"));

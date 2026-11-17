@@ -69,7 +69,7 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         await Sql("INSERT INTO cerberus.profile_collection(profile_id,collection_id) VALUES({0},{1})", profile, s.Items.Collection.Id);
         await Sql("UPDATE cerberus.vault_access_session SET profile_id={0} WHERE handle_verifier={1}", profile, s.Owner.Verifier);
         Assert.Null((await Store().GrantAsync(s.Request(), default)).Error); await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant);
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(3);
+        var deadline = RealTime.Soon(RealTime.SetupLead);
         if (change == "expiry") await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
         var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
         await using var blocker = fixture.CreateContext(); await using var tx = await blocker.Database.BeginTransactionAsync();
@@ -83,7 +83,7 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         try
         {
             await reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); await Blocked(holder, waiter, ct.Token); Assert.False(pending.IsCompleted);
-            if (change == "expiry") { var wait = deadline - DateTimeOffset.UtcNow; if (wait > TimeSpan.Zero) await Task.Delay(wait + TimeSpan.FromMilliseconds(100), ct.Token); }
+            if (change == "expiry") await RealTime.Past(deadline, ct.Token);
             else if (change == "selection") await blocker.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM cerberus.profile_record WHERE profile_id={profile} AND record_id={s.Items.Record.Id}", ct.Token);
             else if (phase == "record") await blocker.Database.ExecuteSqlRawAsync(change == "trash"
                 ? "UPDATE cerberus.record SET deleted_at=statement_timestamp() WHERE id={0}"
@@ -193,9 +193,9 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenExpiryAroundGuardedWrite_WhenGranting_ThenOnlyPreviouslyAuthorizedAggregateCommits(bool after)
     {
-        using var s = await SoftwareGrantSetup.Create(fixture); var deadline = DateTimeOffset.UtcNow.AddSeconds(2);
+        using var s = await SoftwareGrantSetup.Create(fixture); var deadline = RealTime.Soon(RealTime.SetupLead);
         await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
-        async Task Past(DbCommand _) { var remaining = deadline - DateTimeOffset.UtcNow; if (remaining > TimeSpan.Zero) await Task.Delay(remaining + TimeSpan.FromMilliseconds(100)); }
+        Task Past(DbCommand _) => RealTime.Past(deadline);
         DbCommandInterceptor interceptor = after ? new After(c => c.CommandText.Contains("INSERT INTO cerberus.software_grant("), Past)
             : new Before(c => c.CommandText.Contains("INSERT INTO cerberus.software_grant("), Past);
         var factory = new ProfileSetup.Factory(fixture, interceptor);

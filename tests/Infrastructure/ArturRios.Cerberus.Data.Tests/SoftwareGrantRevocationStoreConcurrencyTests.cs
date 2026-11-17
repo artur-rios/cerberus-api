@@ -122,8 +122,8 @@ public class SoftwareGrantRevocationStoreConcurrencyTests(PostgresFixture fixtur
         DbCommandInterceptor hook = after ? new After(Cas, Expire) : new Before(Cas, Expire);
         var store = Store(hook); var request = Request(s);
         // Arm the database deadline only after fixture/snapshot setup, immediately before
-        // capture. Leave ample time for rechecks, then cross expiry inside the observed hook.
-        await Sql("UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+interval '10 seconds' WHERE handle_verifier={0}", s.Owner.Verifier);
+        // capture. Leave time for rechecks, then cross expiry inside the observed hook.
+        await Sql("UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+{0} WHERE handle_verifier={1}", TimeSpan.FromSeconds(3), s.Owner.Verifier);
         var result = await store.RevokeAsync(request, ct.Token);
         Assert.Equal(1, boundaryEntries); Assert.NotNull(vault);
         Assert.Equal(after ? null : "vault_access_denied", result.Error);

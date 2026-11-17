@@ -22,7 +22,7 @@ public class TrashRestoreConcurrencyTests(PostgresFixture fixture) : IClassFixtu
     [InlineData("collection",true)][InlineData("folder",true)][InlineData("record",true)]
     public async Task GivenExpiryDuringRequiredDatabaseLockWait_WhenRestoring_ThenRejectAndPreserveWholeOperation(string table,bool session)
     {
-        using var keys=new ProtectionFixture();var w=await Linked(keys);var deadline=DateTimeOffset.UtcNow.AddSeconds(2);
+        using var keys=new ProtectionFixture();var w=await Linked(keys);var deadline=RealTime.Soon(RealTime.SetupLead);
         await using var db=fixture.CreateContext();
         if(session)await db.VaultAccessSessions.Where(x=>x.HandleVerifier==w.State.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));
         else await TrashRestoreSetup.Deadline(fixture,w.Root,deadline);
@@ -40,7 +40,7 @@ public class TrashRestoreConcurrencyTests(PostgresFixture fixture) : IClassFixtu
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenExpiryImmediatelyBeforeRootStatement_WhenRestoring_ThenFreshDatabaseGuardRejects(bool session)
     {
-        using var keys=new ProtectionFixture();var w=await Linked(keys);var deadline=DateTimeOffset.UtcNow.AddSeconds(2);
+        using var keys=new ProtectionFixture();var w=await Linked(keys);var deadline=RealTime.Soon(RealTime.SetupLead);
         if(session){await using var db=fixture.CreateContext();await db.VaultAccessSessions.Where(x=>x.HandleVerifier==w.State.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));}
         else await TrashRestoreSetup.Deadline(fixture,w.Root,deadline);
         var before=await TrashRestoreSetup.Snapshot(fixture,w.State);
@@ -51,7 +51,7 @@ public class TrashRestoreConcurrencyTests(PostgresFixture fixture) : IClassFixtu
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenPredeadlineRootAdmissionAndLaterNaturalExpiry_WhenRestoringCascade_ThenCompleteAdmittedUnit(bool session)
     {
-        using var keys=new ProtectionFixture();var w=await Linked(keys,true);var deadline=DateTimeOffset.UtcNow.AddSeconds(2);
+        using var keys=new ProtectionFixture();var w=await Linked(keys,true);var deadline=RealTime.Soon(RealTime.SetupLead);
         await using(var db=fixture.CreateContext()){
             if(session)await db.VaultAccessSessions.Where(x=>x.HandleVerifier==w.State.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,deadline));
             else {await TrashRestoreSetup.Deadline(fixture,w.Root,deadline);await db.Records.Where(x=>x.Id==w.Items.Record.Id).ExecuteUpdateAsync(x=>x.SetProperty(r=>r.DeletedAt,DateTimeOffset.FromUnixTimeMilliseconds(deadline.ToUnixTimeMilliseconds()).AddDays(-30)).SetProperty(r=>r.PurgeAt,DateTimeOffset.FromUnixTimeMilliseconds(deadline.ToUnixTimeMilliseconds())));}}
@@ -109,7 +109,7 @@ public class TrashRestoreConcurrencyTests(PostgresFixture fixture) : IClassFixtu
     }
     private sealed record World(ProfileSetup.State State,AssociationSetup.ResourceSet Items,long Profile,TrashRestoreSetup.Root Root);
     private static TrashRestoreRequest Request(World w)=>new(w.State.Actor,w.State.Verifier,w.Root.OperationId,w.Root.Revision);
-    private static async Task Past(DateTimeOffset deadline){var left=deadline-DateTimeOffset.UtcNow;if(left>TimeSpan.Zero)await Task.Delay(left+TimeSpan.FromMilliseconds(100));}
+    private static Task Past(DateTimeOffset deadline) => RealTime.Past(deadline);
     private static Task<int> Lock(AppDbContext db,string table,World w)=>table switch{
         "account"=>db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={w.State.InternalId} FOR UPDATE"),
         "session"=>db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE handle_verifier={w.State.Verifier} FOR UPDATE"),

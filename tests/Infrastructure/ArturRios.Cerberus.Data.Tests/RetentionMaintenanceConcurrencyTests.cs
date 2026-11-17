@@ -21,7 +21,7 @@ public partial class RetentionMaintenanceTests
     [FunctionalFact]
     public async Task GivenPredeadlineRestoreWhileJobIsMissing_WhenMaintenanceWaitsAfterDeadline_ThenNeverRecreateObsoleteExpiry()
     {
-        using var keys=new ProtectionFixture();var s=await Owner(keys);var root=await TrashRestoreSetup.RootAsync(fixture,s,keys,"record");var deadline=DateTimeOffset.UtcNow.AddSeconds(5);await TrashRestoreSetup.Deadline(fixture,root,deadline);await using(var db=fixture.CreateContext())await db.RetentionWorkItems.Where(x=>x.OperationKey=="trash/"+root.OperationId).ExecuteDeleteAsync();
+        using var keys=new ProtectionFixture();var s=await Owner(keys);var root=await TrashRestoreSetup.RootAsync(fixture,s,keys,"record");var deadline=RealTime.Soon(RealTime.SetupLead);await TrashRestoreSetup.Deadline(fixture,root,deadline);await using(var db=fixture.CreateContext())await db.RetentionWorkItems.Where(x=>x.OperationKey=="trash/"+root.OperationId).ExecuteDeleteAsync();
         var admitted=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var release=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var gate=new AfterMaintenanceRestore(async()=>{admitted.TrySetResult();await release.Task.WaitAsync(TimeSpan.FromSeconds(25));});
         using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(35));var restoring=new TrashRestoreStore(new ProfileSetup.Factory(fixture,gate)).RestoreAsync(new(s.Actor,s.Verifier,root.OperationId,root.Revision),timeout.Token);Task<ArturRios.Cerberus.Shared.Operations.RetentionRunResult>? pending=null;
         try{await admitted.Task.WaitAsync(TimeSpan.FromSeconds(15));await MaintenanceWaitPast(deadline);var signal=new PermanentDeleteSetup.LockSignal("account");pending=Run(new ProfileSetup.Factory(fixture,signal));await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);}finally{release.TrySetResult();}
@@ -43,7 +43,7 @@ public partial class RetentionMaintenanceTests
         var signal=new PermanentDeleteSetup.LockSignal("account");var pending=Run(new ProfileSetup.Factory(fixture,signal));try{await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);}finally{await tx.CommitAsync();}
         Assert.Equal(0,(await pending).ScheduledJobs);Assert.Equal(snapshot,System.Text.Json.JsonSerializer.Serialize(await held.RetentionWorkItems.AsNoTracking().SingleAsync(x=>x.PublicId==job.PublicId)));
     }
-    private static async Task MaintenanceWaitPast(DateTimeOffset deadline){var wait=deadline-DateTimeOffset.UtcNow+TimeSpan.FromMilliseconds(30);if(wait>TimeSpan.Zero)await Task.Delay(wait);}
+    private static Task MaintenanceWaitPast(DateTimeOffset deadline) => RealTime.Past(deadline);
     private sealed class AfterMaintenanceRestore(Func<Task> action):DbCommandInterceptor
     {
         private bool reached;

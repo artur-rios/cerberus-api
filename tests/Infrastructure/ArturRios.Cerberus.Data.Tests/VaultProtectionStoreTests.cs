@@ -161,7 +161,7 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
     {
         using var client = new ProtectionFixture(); var input = await Setup("active",true,client.Material);
         var c = (await Store().ChallengeAsync(input.Actor,Hash,default)).Data!;
-        var expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds()+2;
+        var expires = RealTime.SoonSeconds(RealTime.SetupLead);
         c = c with { IssuedAt = expires-60, ExpiresAt = expires };
         await using (var edit = fixture.CreateContext())
         {
@@ -176,8 +176,7 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
         var task = waiting.UnlockAsync(input.Actor,1,c.ChallengeId,client.Sign(c),Body,default);
         await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
         // Let the unchanged expiry pass while the real account lock blocks the query.
-        var delay = DateTimeOffset.FromUnixTimeSeconds(expires).AddMilliseconds(20)-DateTimeOffset.UtcNow;
-        if (delay > TimeSpan.Zero) await Task.Delay(delay);
+        await RealTime.Past(expires);
         await held.CommitAsync();
         Assert.Equal("vault_proof_rejected",(await task).Error);
         await using var after = fixture.CreateContext();

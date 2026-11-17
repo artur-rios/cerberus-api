@@ -123,7 +123,7 @@ public class OfflinePolicyUpdateStoreConcurrencyTests(PostgresFixture fixture) :
         {
             var s = await Setup();
             await using var db = fixture.CreateContext();
-            await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+interval '2 seconds' WHERE id={s.Session}");
+            await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+{RealTime.SetupLead} WHERE id={s.Session}");
             var expires = await db.VaultAccessSessions.Where(x => x.Id == s.Session).Select(x => x.ExpiresAt).SingleAsync();
             var observed = false;
             async Task Wait(DbCommand command)

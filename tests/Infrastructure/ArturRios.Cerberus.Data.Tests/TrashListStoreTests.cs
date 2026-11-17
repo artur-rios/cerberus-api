@@ -148,7 +148,8 @@ public class TrashListStoreTests(PostgresFixture fixture) : IClassFixture<Postgr
     public async Task GivenExpiryDuringLockWait_WhenListing_ThenRecheckDatabaseTimeBeforeRelease(string table,bool trashExpiry)
     {
         using var keys=new ProtectionFixture();var s=await ProfileSetup.Create(fixture,keys);var item=await Trashed(s);
-        var deadline=DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.AddSeconds(2).ToUnixTimeMilliseconds());
+        // A read: the store commits what it reads, so the bounds are set before it starts.
+        var deadline=DateTimeOffset.FromUnixTimeMilliseconds(RealTime.Soon(RealTime.SetupLead).ToUnixTimeMilliseconds());
         await using(var db=fixture.CreateContext()){
             if(trashExpiry){await db.TrashOperations.Where(x=>x.PublicId==item.OperationId).ExecuteUpdateAsync(x=>x.SetProperty(o=>o.DeletedAt,deadline.AddDays(-30)).SetProperty(o=>o.PurgeAt,deadline));
                 await db.Records.Where(x=>x.PublicId==item.ResourceId).ExecuteUpdateAsync(x=>x.SetProperty(r=>r.DeletedAt,deadline.AddDays(-30)).SetProperty(r=>r.PurgeAt,deadline));}
@@ -159,7 +160,7 @@ public class TrashListStoreTests(PostgresFixture fixture) : IClassFixture<Postgr
         var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var pending=new TrashListStore(new ProfileSetup.Factory(fixture,new Signal(reached,table))).ListAsync(new(s.Actor,s.Verifier,50,0,null),ct.Token);
         await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);
-        var delay=deadline-DateTimeOffset.UtcNow+TimeSpan.FromMilliseconds(80);if(delay>TimeSpan.Zero)await Task.Delay(delay,ct.Token);
+        await RealTime.Past(deadline, ct.Token);
         await tx.CommitAsync();var result=await pending;
         if(trashExpiry){Assert.Null(result.Error);Assert.Empty(result.Data!.Items);}else {Assert.Equal("vault_access_denied",result.Error);Assert.Null(result.Data);}
         Assert.Equal(before,await Snapshot(s));

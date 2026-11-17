@@ -39,13 +39,7 @@ public partial class AccountDeletionStoreTests
     public async Task GivenClaimExpiresImmediatelyBeforeMutation_WhenPurging_ThenGuardedStatementCannotDelete(string table)
     {
         var(w,claim)=await Pending();await using var db=fixture.CreateContext();var before=await Snapshot(db,w.Owner);var foreign=await Foreign(db,w);
-        var hook=new BeforeDelete(table,async c=>
-        {
-            await using var expire=c.Connection!.CreateCommand();expire.Transaction=c.Transaction;
-            expire.CommandText="UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp()+interval '50 milliseconds' WHERE public_id=@work";
-            var work=expire.CreateParameter();work.ParameterName="work";work.Value=claim.WorkId;expire.Parameters.Add(work);
-            Assert.Equal(1,await expire.ExecuteNonQueryAsync());await Task.Delay(TimeSpan.FromMilliseconds(250));
-        });
+        var hook=new BeforeDelete(table,c=>RealTime.ExpireNow(c,"UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE public_id=@work",("work",claim.WorkId)));
         await Assert.ThrowsAsync<InvalidOperationException>(()=>new AccountPurgeHandler(new ProfileSetup.Factory(fixture,hook),Ledger).ExecuteAsync(claim,default));
         Assert.True(hook.Reached);Assert.Equal(0,hook.Affected);Assert.Equal(before,await Snapshot(db,w.Owner));Assert.Equal(foreign,await Foreign(db,w));
     }
@@ -61,15 +55,15 @@ public partial class AccountDeletionStoreTests
     [InlineData("session","freshness")][InlineData("root","cancel")][InlineData("session","cancel")]
     public async Task GivenRealAuthorityLockWait_WhenAccessOrIdentityExpiresOrCallerCancels_ThenNoIntentOrReduction(string table,string fault)
     {
-        var w=await Create();await using var held=fixture.CreateContext();var request=Request(w.Owner);
-        if(fault=="access")await held.VaultAccessSessions.Where(x=>x.AccountId==w.Owner.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,DateTimeOffset.UtcNow.AddSeconds(2)));
-        if(fault=="freshness")request=request with{AuthenticationIssuedAt=DateTimeOffset.UtcNow.ToUnixTimeSeconds()-55};
+        var w=await Create();await using var held=fixture.CreateContext();var request=Request(w.Owner);var bound=RealTime.Soon(RealTime.SetupLead);
+        if(fault=="access")await held.VaultAccessSessions.Where(x=>x.AccountId==w.Owner.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,bound));
+        if(fault=="freshness"){var fresh=RealTime.StaleSoon(60);request=request with{AuthenticationIssuedAt=fresh.IssuedAt};bound=fresh.StaleAt;}
         var before=await Snapshot(held,w.Owner);await using var tx=await held.Database.BeginTransactionAsync();
         if(table=="root")await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={w.Owner.InternalId} FOR UPDATE");
         else await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.vault_access_session WHERE account_id={w.Owner.InternalId} FOR UPDATE");
         var ready=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var signal=new BeforeAuthorityWait(table,()=>ready.TrySetResult());var task=Store(new ProfileSetup.Factory(fixture,signal)).DeleteAsync(request,ct.Token);
-        try{await ready.Task.WaitAsync(ct.Token);Assert.False(task.IsCompleted);if(fault=="cancel")ct.Cancel();else await Task.Delay(TimeSpan.FromSeconds(fault=="freshness"?6:3),ct.Token);}
+        try{await ready.Task.WaitAsync(ct.Token);Assert.False(task.IsCompleted);if(fault=="cancel")ct.Cancel();else await RealTime.Past(bound,ct.Token);}
         finally{await tx.CommitAsync();}
         if(fault=="cancel")await Assert.ThrowsAnyAsync<OperationCanceledException>(()=>task);
         else Assert.Equal(fault=="access"?"vault_access_denied":"fresh_authentication_required",(await task).Error);
@@ -79,9 +73,11 @@ public partial class AccountDeletionStoreTests
     public async Task GivenExpiryAfterSessionAdmission_WhenContinuing_ThenKeepSessionAdmissionButRequireFreshIdentityAtClosureCas(bool identity)
     {
         var w=await Create();await using var db=fixture.CreateContext();var request=Request(w.Owner);
-        if(identity)request=request with{AuthenticationIssuedAt=DateTimeOffset.UtcNow.ToUnixTimeSeconds()-55};
-        else await db.VaultAccessSessions.Where(x=>x.AccountId==w.Owner.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,DateTimeOffset.UtcNow.AddSeconds(2)));
-        var before=await Snapshot(db,w.Owner);var hook=new AfterAdmission(identity?6:3);
+        // The session expires in the store's own transaction right after its admission; the identity, a request value,
+        // goes stale on the clock while the hook waits.
+        var fresh=RealTime.StaleSoon(60);if(identity)request=request with{AuthenticationIssuedAt=fresh.IssuedAt};
+        var before=await Snapshot(db,w.Owner);
+        var hook=new AfterAdmission(identity?_=>RealTime.Past(fresh.StaleAt):c=>RealTime.ExpireNow(c,"UPDATE cerberus.vault_access_session SET expires_at=clock_timestamp() WHERE account_id=@account",("account",w.Owner.InternalId)));
         var result=await Store(new ProfileSetup.Factory(fixture,hook)).DeleteAsync(request,default);Assert.True(hook.Reached);Assert.Equal(1,hook.Affected);
         if(identity){Assert.Equal("fresh_authentication_required",result.Error);Assert.Equal(before,await Snapshot(db,w.Owner));}
         else{Assert.Null(result.Error);await Purged(db,w);}
@@ -90,10 +86,11 @@ public partial class AccountDeletionStoreTests
     public async Task GivenExpiredDatabaseClaim_WhenCompletingWithOldCallerClock_ThenNeverAcknowledgeErasure(bool afterWait)
     {
         var(w,claim)=await Pending();await new AccountPurgeHandler(fixture,Ledger).ExecuteAsync(claim,default);
-        await using var db=fixture.CreateContext();var old=DateTimeOffset.UtcNow;var deadline=old.AddSeconds(afterWait?2:-1);
+        // After the wait: the claim is live until the completing statement, and expires in its transaction right before it.
+        await using var db=fixture.CreateContext();var old=DateTimeOffset.UtcNow;var deadline=old.AddSeconds(afterWait?60:-1);
         await db.RetentionWorkItems.Where(x=>x.PublicId==claim.WorkId).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ClaimExpiresAt,deadline));
-        var factory=afterWait?new ProfileSetup.Factory(fixture,new CompletionDelay(deadline)):fixture as IDbContextFactory<AppDbContext>;
-        Assert.False(await new RetentionWorkStore(factory!).TryCompleteAsync(claim,old.AddMinutes(-1),default));Assert.Null(await db.RetentionWorkItems.Where(x=>x.PublicId==claim.WorkId).Select(x=>x.CompletedAt).SingleAsync());
+        var hook=new CompletionDelay(claim.WorkId);var factory=afterWait?new ProfileSetup.Factory(fixture,hook):fixture as IDbContextFactory<AppDbContext>;
+        Assert.False(await new RetentionWorkStore(factory!).TryCompleteAsync(claim,old.AddMinutes(-1),default));Assert.Equal(afterWait,hook.Reached);Assert.Null(await db.RetentionWorkItems.Where(x=>x.PublicId==claim.WorkId).Select(x=>x.CompletedAt).SingleAsync());
     }
     private sealed class BeforeDelete(string table,Func<DbCommand,Task> action):DbCommandInterceptor
     {
@@ -114,15 +111,16 @@ public partial class AccountDeletionStoreTests
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default)
         {if(c.CommandText.Contains(table=="root"?"FROM cerberus.account":"FROM cerberus.vault_access_session")&&c.CommandText.Contains("FOR UPDATE"))signal();return ValueTask.FromResult(r);}
     }
-    private sealed class AfterAdmission(int seconds):DbCommandInterceptor
+    private sealed class AfterAdmission(Func<DbCommand,Task> action):DbCommandInterceptor
     {
         public bool Reached{get;private set;}public int Affected{get;private set;}
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c,CommandExecutedEventData d,int r,CancellationToken ct=default)
-        {if(!Reached&&c.CommandText.Contains("UPDATE cerberus.account a SET concurrency_stamp=")){Reached=true;Affected=r;await Task.Delay(TimeSpan.FromSeconds(seconds),ct);}return r;}
+        {if(!Reached&&c.CommandText.Contains("UPDATE cerberus.account a SET concurrency_stamp=")){Reached=true;Affected=r;await action(c);}return r;}
     }
-    private sealed class CompletionDelay(DateTimeOffset deadline):DbCommandInterceptor
+    private sealed class CompletionDelay(Guid work):DbCommandInterceptor
     {
+        public bool Reached{get;private set;}
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default)
-        {if(c.CommandText.Contains("UPDATE cerberus.retention_work_item SET completed_at=")){var left=deadline-DateTimeOffset.UtcNow;if(left>TimeSpan.Zero)await Task.Delay(left+TimeSpan.FromMilliseconds(50),ct);}return r;}
+        {if(c.CommandText.Contains("UPDATE cerberus.retention_work_item SET completed_at=")){Reached=true;await RealTime.ExpireNow(c,"UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE public_id=@work",("work",work));}return r;}
     }
 }

@@ -61,13 +61,13 @@ public class VaultRecoveryRefreshStoreTests(PostgresFixture fixture) : IClassFix
     [InlineData(false)][InlineData(true)]
     public async Task GivenSessionExpiringDuringAccountOrSessionLockWait_WhenRefreshing_ThenRejectWithoutConsumption(bool sessionLock)
     {
-        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));var deadline=DateTimeOffset.UtcNow.AddSeconds(2);
+        using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));var deadline=RealTime.Soon(RealTime.SetupLead);
         await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.AccountId==s.InternalId).ExecuteUpdateAsync(x=>x.SetProperty(y=>y.ExpiresAt,deadline));var before=await Snapshot(s);
         await using var holder=fixture.CreateContext();await using var tx=await holder.Database.BeginTransactionAsync();
         if(sessionLock)await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.vault_access_session WHERE account_id={s.InternalId} FOR UPDATE");
         else await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
         var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var pending=new VaultRecoveryStore(new Factory(fixture,new LockSignal(reached,sessionLock?"vault_access_session":null))).RecoverAsync(r,default);
-        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);var delay=deadline-DateTimeOffset.UtcNow;if(delay>TimeSpan.Zero)await Task.Delay(delay+TimeSpan.FromMilliseconds(100));
+        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(deadline);
         await tx.CommitAsync();Assert.Equal("vault_access_denied",(await pending).Error);Assert.Equal(before,await Snapshot(s));
     }
     [FunctionalFact]
@@ -154,7 +154,7 @@ public class VaultRecoveryRefreshStoreTests(PostgresFixture fixture) : IClassFix
     public async Task GivenNaturalDeadlineExpiringWhileAccountLocked_WhenRecovering_ThenRejectWithoutConsumption(string expires,string error)
     {
         using var old=new ProtectionFixture();using var next=new ProtectionFixture();var s=await Setup(old);var r=await Request(s,old,Replacement(old,next));
-        var deadline=DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds()+2);
+        var deadline=DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.SetupLead));
         if(expires=="identity")r=r with { IdentityIssuedAt=deadline.ToUnixTimeSeconds()-60 };
         else
         {
@@ -165,7 +165,7 @@ public class VaultRecoveryRefreshStoreTests(PostgresFixture fixture) : IClassFix
         var before=await Snapshot(s);await using var holder=fixture.CreateContext();await using var tx=await holder.Database.BeginTransactionAsync();
         await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
         var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var pending=new VaultRecoveryStore(new Factory(fixture,new LockSignal(reached))).RecoverAsync(r,default);
-        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);var delay=deadline-DateTimeOffset.UtcNow;if(delay>TimeSpan.Zero)await Task.Delay(delay+TimeSpan.FromMilliseconds(100));
+        await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await RealTime.Past(deadline);
         await tx.CommitAsync();Assert.Equal(error,(await pending).Error);Assert.Equal(before,await Snapshot(s));
     }
 

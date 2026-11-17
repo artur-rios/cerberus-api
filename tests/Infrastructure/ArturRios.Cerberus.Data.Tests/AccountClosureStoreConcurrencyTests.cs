@@ -40,13 +40,13 @@ public partial class AccountClosureStoreTests
         await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
         var ready=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(15));
         var hook=new ClosureBefore(c=>c.CommandText.Contains("FROM cerberus.account")&&c.CommandText.Contains("FOR UPDATE"),_=>{ready.TrySetResult();return Task.CompletedTask;});
-        var request=Request(s);if(change=="freshness")request=request with {AuthenticationIssuedAt=DateTimeOffset.UtcNow.ToUnixTimeSeconds()-59};
+        var request=Request(s);var fresh=RealTime.StaleSoon(60);if(change=="freshness")request=request with {AuthenticationIssuedAt=fresh.IssuedAt};
         var pending=new AccountClosureStore(new ProfileSetup.Factory(fixture,hook)).RequestAsync(request,ct.Token);
         try
         {
             await ready.Task.WaitAsync(ct.Token);Assert.False(pending.IsCompleted);
             if(change=="revision")await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET revision=2 WHERE id={s.InternalId}");
-            if(change=="freshness")await Task.Delay(TimeSpan.FromSeconds(2),ct.Token);
+            if(change=="freshness")await RealTime.Past(fresh.StaleAt,ct.Token);
             if(change=="cancel")ct.Cancel();
         }
         finally{await tx.CommitAsync();}

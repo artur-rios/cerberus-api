@@ -289,7 +289,7 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var recipient = await ProfileSetup.Create(fixture, client); var a = await AssociationSetup.Items(fixture, s);
         await Members(s, a.Collection.Id, [a.Folder.Id], [a.Record.Id]); var g = await AssociationSetup.Grant(fixture, s, owner, recipient, client, a.Collection);
         var p = await AssociationSetup.Profile(fixture, s, owner); await Routes(s, p, a.Collection.Id, [], []); s = s with { Verifier = await Selected(s, p) };
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(1.5); await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier); var before = await Snapshot(s);
+        var deadline = RealTime.Soon(RealTime.SetupLead); await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier); var before = await Snapshot(s);
         await using var blocker = fixture.CreateContext(); await using var tx = await blocker.Database.BeginTransactionAsync();
         var predicate = table switch { "account" => "id={0}", "vault_access_session" => "handle_verifier={0}", "collection_folder" or "collection_record" => "collection_id={0}", _ => "id={0}" };
         object id = table switch { "account" => s.InternalId, "vault_access_session" => s.Verifier, "profile" => p, "folder" => a.Folder.Id, "record" => a.Record.Id, "collection_grant" => g.Id, _ => a.Collection.Id };
@@ -524,7 +524,7 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenExpiryAtAuthorizationLinearization_WhenReplacing_ThenBeforeDeniedAndAfterCommits(bool after)
     {
-        using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var deadline = DateTimeOffset.UtcNow.AddSeconds(1.2);
+        using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var deadline = RealTime.Soon(RealTime.SetupLead);
         await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier); var before = await Snapshot(s); var input = Input([a.Folder.PublicId]);
         DbCommandInterceptor hook = after ? new AfterMutation("UPDATE cerberus.collection AS", async _ => await Past(deadline), false) : new Hook("UPDATE cerberus.collection AS", async _ => await Past(deadline));
         var result = await new CollectionMembershipStore(new ProfileSetup.Factory(fixture, hook)).SetAsync(new(s.Actor, s.Verifier, a.Collection.PublicId, input), default);
@@ -578,7 +578,7 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
 
     private async Task<ArturRios.Cerberus.Domain.Profiles.Profile> ProfileRow(long id) { await using var db = fixture.CreateContext(); return await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == id); }
     private static TaskCompletionSource SignalSource() => new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private static async Task Past(DateTimeOffset deadline) { var delay = deadline - DateTimeOffset.UtcNow; if (delay > TimeSpan.Zero) await Task.Delay(delay + TimeSpan.FromMilliseconds(70)); }
+    private static Task Past(DateTimeOffset deadline) => RealTime.Past(deadline);
     private static CollectionMembershipInput Input(Guid[]? folders = null, Guid[]? records = null) => new(1, ProfileSetup.Envelope(), DateTimeOffset.UnixEpoch.AddTicks(19), records ?? [], folders ?? []);
     private static byte[] Bytes<T>(T value) => JsonSerializer.SerializeToUtf8Bytes(value, ProtectionFixture.Json);
     private Task<VaultResult<CollectionMembershipDetails>> Set(ProfileSetup.State s, VaultCollection c, CollectionMembershipInput input) => new CollectionMembershipStore(fixture).SetAsync(new(s.Actor, s.Verifier, c.PublicId, input), default);

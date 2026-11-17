@@ -14,6 +14,13 @@ namespace ArturRios.Cerberus.WebApi;
 
 public static class ContractRegistration
 {
+    // Writes the contract (tools/OpenApiGen, docs/contracts/openapi.json) as OpenAPI 3.1. 3.0's nullable counts only
+    // beside a type, so a nullable reference has no 3.0 spelling that a client generator (swagger_parser 2) reads as
+    // nullable; 3.1 has JSON Schema's "null" type, which a reference joins in anyOf. The API serves no /swagger
+    // endpoint, so this is the only place the document is written.
+    public static void WriteContract(OpenApiDocument document, TextWriter output) =>
+        document.SerializeAsV31(new OpenApiJsonWriter(output));
+
     public static IServiceCollection AddCerberusContracts(this IServiceCollection services)
     {
         services.AddControllers().AddApplicationPart(typeof(Program).Assembly)
@@ -79,6 +86,8 @@ public static class ContractRegistration
             // Last, so the hand-shaped members above keep their own null branches.
             options.SchemaFilter<NullableReferenceSchemaFilter>();
             options.OperationFilter<RequiredBodyFilter>();
+            // After the filters above, which shape some of the responses it describes.
+            options.OperationFilter<ErrorResponseFilter>();
         });
         return services;
     }
@@ -146,29 +155,26 @@ public static class ContractRegistration
             }
             if (context.Type == typeof(ArturRios.Cerberus.Command.Authentication.ClosureRecoveryAuthenticationOutput))
             {
-                var account = target.Properties["account"];
-                target.Properties["account"] = new OpenApiSchema
-                { Type = JsonSchemaType.Object | JsonSchemaType.Null, OneOf = [account, NullValue()] };
+                // OAS 3.1's nullable reference: the reference or null.
+                target.Properties["account"] = new OpenApiSchema { AnyOf = [target.Properties["account"], NullValue()] };
                 return;
             }
             if (context.Type == typeof(ProfileKeyWrappers))
             {
                 var password = target.Properties["passwordWrapper"];
                 if (!HasNullBranch(password))
-                    target.Properties["passwordWrapper"] = new OpenApiSchema
-                    { Type = JsonSchemaType.Object | JsonSchemaType.Null, OneOf = [password, NullValue()] };
+                    target.Properties["passwordWrapper"] = new OpenApiSchema { AnyOf = [password, NullValue()] };
                 return;
             }
             if (context.Type == typeof(SyncChangeItem))
             {
                 var data = (OpenApiSchema)target.Properties["data"];
-                // OAS 3.0 nullable alone does not extend a type-less oneOf. A
-                // distinct null-only branch accepts removal/tombstone data.
-                // Swashbuckle 11 appends a null-only branch of its own and drops
-                // the outer type; publish the single branch and the nullable
-                // object type the contract has always had instead.
+                // A distinct null-only branch accepts removal/tombstone data.
+                // Swashbuckle 11 appends a null-only branch of its own; publish
+                // the resource variants and the single OAS 3.1 null branch,
+                // with no outer type, which would only repeat the branches'.
                 data.OneOf = [.. data.OneOf!.Where(branch => !IsNullOnly(branch)), NullValue()];
-                data.Type = JsonSchemaType.Object | JsonSchemaType.Null;
+                data.Type = null;
                 return;
             }
             if (!typeof(SyncResourceData).IsAssignableFrom(context.Type) || context.Type == typeof(SyncResourceData))
@@ -188,13 +194,13 @@ public static class ContractRegistration
             target.Properties["resourceType"] = new OpenApiSchema { Type = JsonSchemaType.String, Enum = [JsonValue.Create(kind)] };
             target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
         }
-        private static bool HasNullBranch(IOpenApiSchema schema) => schema.OneOf?.Any(IsNullOnly) == true;
-        // Swashbuckle 11's own null branch is a schema of type null (written to OAS 3.0 as
-        // {"enum":[null],"nullable":true}); Microsoft.OpenApi 3 reads a null enum value as
-        // JsonNullSentinel rather than a C# null.
+        private static bool HasNullBranch(IOpenApiSchema schema) => schema.OneOf?.Any(IsNullOnly) == true || schema.AnyOf?.Any(IsNullOnly) == true;
+        // Swashbuckle 11's own null branch is a schema of type null with a null enum value;
+        // Microsoft.OpenApi 3 reads a null enum value as JsonNullSentinel rather than a C# null.
         private static bool IsNullOnly(IOpenApiSchema schema) => schema is OpenApiSchema
             && (schema.Type == JsonSchemaType.Null || schema.Enum is [var only] && (only is null || only.IsJsonNullSentinel()));
-        private static OpenApiSchema NullValue() => new() { Type = JsonSchemaType.Object | JsonSchemaType.Null, Enum = [null!] };
+        // OAS 3.1's null branch: {"type": "null"}.
+        private static OpenApiSchema NullValue() => new() { Type = JsonSchemaType.Null };
     }
 
     // Documentation only: runtime rejects unsupported media with 400, not MVC's 415.

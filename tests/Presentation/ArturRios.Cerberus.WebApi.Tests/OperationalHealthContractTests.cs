@@ -22,7 +22,8 @@ public sealed class OperationalHealthContractTests
         Assert.Equal(["elapsedMilliseconds", "name", "status"], schemas["HealthComponent"].Required!.Order());
         Assert.False(schemas["HealthComponent"].AdditionalPropertiesAllowed);
         var details = doc.Paths["/health/details"].Operations![HttpMethod.Get];
-        Assert.Equal(["200", "401", "403", "503"], details.Responses!.Keys.Order());
+        // 413 is the request limit's, answered before routing for any request over it.
+        Assert.Equal(["200", "401", "403", "413", "503"], details.Responses!.Keys.Order());
         foreach (var code in new[] { "401", "403" })
             Assert.Equal("ProcessOutput", Assert.IsType<OpenApiSchemaReference>(details.Responses[code].Content!["application/json"].Schema!).Reference.Id);
         Assert.NotEmpty(details.Responses["503"].Content!["application/json"].Schema!.OneOf!);

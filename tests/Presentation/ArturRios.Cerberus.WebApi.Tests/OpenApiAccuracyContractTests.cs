@@ -42,7 +42,7 @@ public sealed class OpenApiAccuracyContractTests
     // Each operation with the status map its action resolves through and the success messages its
     // handler emits (all of the map's success messages when none are named). Operations without a
     // map write their status directly.
-    private static readonly (string Method, string Path, IReadOnlyDictionary<string, int>? Map, string[] Codes)[] s_operations =
+    internal static readonly (string Method, string Path, IReadOnlyDictionary<string, int>? Map, string[] Codes)[] s_operations =
     [
         ("DELETE", "/api/accounts/me/permanent", AccountDeletionMessages.StatusCodes, []),
         ("POST", "/api/accounts/me/closure/cancel", AccountClosureCancellationMessages.StatusCodes, []),
@@ -187,8 +187,11 @@ public sealed class OpenApiAccuracyContractTests
         var document = Serialized();
         var schemas = document["components"]!["schemas"]!;
         var account = schemas["AuthenticationOutput"]!["properties"]!["account"]!;
-        Assert.True(account["nullable"]!.GetValue<bool>());
-        Assert.Equal("#/components/schemas/AuthenticationAccount", Assert.Single(account["allOf"]!.AsArray())!["$ref"]!.GetValue<string>());
+        // OpenAPI 3.1: the reference or null, and nothing beside it.
+        Assert.Equal(["anyOf"], account.AsObject().Select(keyword => keyword.Key));
+        Assert.Collection(account["anyOf"]!.AsArray(),
+            reference => Assert.Equal("#/components/schemas/AuthenticationAccount", reference!["$ref"]!.GetValue<string>()),
+            nothing => Assert.Equal("null", nothing!["type"]!.GetValue<string>()));
         // Not every reference turns nullable: the login itself is always present.
         Assert.Equal("#/components/schemas/HeimdallLogin", schemas["AuthenticationOutput"]!["properties"]!["identity"]!["$ref"]!.GetValue<string>());
     }
@@ -208,7 +211,7 @@ public sealed class OpenApiAccuracyContractTests
         using var host = Host(out _);
         var document = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
         using var text = new StringWriter();
-        document.SerializeAsV3(new OpenApiJsonWriter(text));
+        ContractRegistration.WriteContract(document, text);
         return JsonNode.Parse(text.ToString())!;
     }
 
@@ -224,7 +227,8 @@ public sealed class OpenApiAccuracyContractTests
     }
 
     private static bool AcceptsNull(IOpenApiSchema schema) => schema is OpenApiSchema
-        && (schema.Type?.HasFlag(JsonSchemaType.Null) == true || schema.OneOf?.Any(AcceptsNull) == true);
+        && (schema.Type?.HasFlag(JsonSchemaType.Null) == true || schema.OneOf?.Any(AcceptsNull) == true
+            || schema.AnyOf?.Any(AcceptsNull) == true);
 
     private sealed class SchemaRecorder : ISchemaFilter
     {

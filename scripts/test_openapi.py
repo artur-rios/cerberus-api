@@ -24,3 +24,14 @@ class OpenApiTests(unittest.TestCase):
         old = {"openapi": "3.0.4", "paths": {}, "components": {"schemas": {"Fixture": {"type": "string"}}}}
         new = {"openapi": "3.0.4", "paths": {}, "components": {"schemas": {"Fixture": {"type": "integer"}}}}
         self.assertFalse(self.module.is_current(old, new))
+
+    def test_given_drift_when_listing_then_name_each_differing_pointer(self):
+        old = {"openapi": "3.0.4", "paths": {"/a": {"get": {"responses": {"200": {}, "4/0": {}}}}}, "tags": [1, 2]}
+        new = {"openapi": "3.1.2", "paths": {"/a": {"get": {"responses": {"200": {"description": "OK"}}}}}, "tags": [1, 3]}
+        self.assertEqual(
+            [("#/openapi", "3.0.4", "3.1.2"), ("#/paths/~1a/get/responses/200/description", None, "OK"),
+             ("#/paths/~1a/get/responses/4~10", {}, None), ("#/tags/1", 2, 3)],
+            self.module.drift(old, new))
+
+    def test_given_equal_documents_when_listing_then_name_nothing(self):
+        self.assertEqual([], self.module.drift({"paths": {}}, {"paths": {}}))

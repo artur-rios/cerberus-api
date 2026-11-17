@@ -74,7 +74,7 @@ public sealed class TrashEmptyStore(IDbContextFactory<AppDbContext> factory, IEr
         var details = new TrashEmptyDetails(authority.AccountId, authority.Now, counts, targets.LongLength);
         if (targets.Length == 0 && !await db.TrashOperations.AnyAsync(x => x.AccountId == authority.OwnerId, ct))
             return new(new(details, null));
-        var parameters = Base(request).Concat(new object[] { new NpgsqlParameter("public", Guid.NewGuid()), new NpgsqlParameter("key", key), new NpgsqlParameter("stamp", Guid.NewGuid()), new NpgsqlParameter("owner", authority.OwnerId), new NpgsqlParameter("expected", request.ExpectedRevision), new NpgsqlParameter("invalidate", targets.Any(x => x.MarkerAt is null)) }).ToArray();
+        var parameters = Base(request).Concat([new NpgsqlParameter("public", Guid.NewGuid()), new NpgsqlParameter("key", key), new NpgsqlParameter("stamp", Guid.NewGuid()), new NpgsqlParameter("owner", authority.OwnerId), new NpgsqlParameter("expected", request.ExpectedRevision), new NpgsqlParameter("invalidate", targets.Any(x => x.MarkerAt is null))]).ToArray();
         var admission = (await db.Database.SqlQueryRaw<Admission>(TrashEmptySql.Admit, parameters).ToListAsync(ct)).SingleOrDefault();
         if (admission is null)
         { authority = await AuthorityAsync(db, request, ct); return new(Error: Error(authority, request) ?? "persistence_unavailable"); }

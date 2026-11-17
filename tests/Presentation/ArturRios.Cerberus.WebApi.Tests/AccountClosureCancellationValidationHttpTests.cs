@@ -75,7 +75,7 @@ public partial class AccountClosureCancellationHttpTests
         if (kind == "query")
             request.RequestUri = new("/api/accounts/me/closure/cancel?expectedRevision=2", UriKind.Relative);
         if (kind == "duplicateHeader")
-            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", new[] { "one", "two" });
+            request.Headers.TryAddWithoutValidation("X-Cerberus-Vault-Access", ["one", "two"]);
         if (kind == "noToken")
             request.Headers.Authorization = null;
         if (kind == "badToken")

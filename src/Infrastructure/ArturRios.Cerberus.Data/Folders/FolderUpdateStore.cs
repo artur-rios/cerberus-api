@@ -105,7 +105,7 @@ public sealed class FolderUpdateStore(IDbContextFactory<AppDbContext> factory) :
                 input = input with { ExpectedRevision = target.Revision };
             }
             var edited = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % 10));
-            var parameters = Parameters(request).Concat(new object[] { new NpgsqlParameter("replacement", JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json)), new NpgsqlParameter("edited", edited), new NpgsqlParameter("stamp", Guid.NewGuid()), new NpgsqlParameter("expected", input.ExpectedRevision), new NpgsqlParameter("previous_sequence", target.Sequence), new NpgsqlParameter("original", original), new NpgsqlParameter("collections", current.Collections), new NpgsqlParameter("grants", current.GrantsIds) }).ToArray();
+            var parameters = Parameters(request).Concat([new NpgsqlParameter("replacement", JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json)), new NpgsqlParameter("edited", edited), new NpgsqlParameter("stamp", Guid.NewGuid()), new NpgsqlParameter("expected", input.ExpectedRevision), new NpgsqlParameter("previous_sequence", target.Sequence), new NpgsqlParameter("original", original), new NpgsqlParameter("collections", current.Collections), new NpgsqlParameter("grants", current.GrantsIds)]).ToArray();
             var changed = await db.Database.ExecuteSqlRawAsync(Authority + """
                 UPDATE cerberus.folder AS r SET envelope=@replacement,edited_at=@edited,revision=r.revision+1,
                   server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp=@stamp

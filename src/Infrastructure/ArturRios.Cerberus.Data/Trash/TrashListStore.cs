@@ -39,11 +39,11 @@ public sealed class TrashListStore(IDbContextFactory<AppDbContext> factory) : IT
                   AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure t WHERE t.resource_kind=o.root_resource_kind AND t.resource_id=o.root_resource_id)
                 """, Base(request)).ToListAsync(ct);
             var history = histories.Select(ParseHistory).Where(x => x is not null).ToArray();
-            var parameters = Base(request).Concat(new object[]{
+            var parameters = Base(request).Concat([
                 new NpgsqlParameter("history",NpgsqlDbType.Jsonb){Value=JsonSerializer.Serialize(history,Json)},
                 new NpgsqlParameter("boundary",NpgsqlDbType.Bigint){Value=(object?)request.Boundary??DBNull.Value},
                 new NpgsqlParameter("after",request.After),new NpgsqlParameter("size",request.PageSize),
-                new NpgsqlParameter("take",(long)request.PageSize+1),new NpgsqlParameter("max",ProtocolBinary.MaxInteger)}).ToArray();
+                new NpgsqlParameter("take",(long)request.PageSize+1),new NpgsqlParameter("max",ProtocolBinary.MaxInteger)]).ToArray();
             // All waits precede this one current snapshot: authority, retained scope, terminal
             // identities, original deadlines, page ciphertext and independent owner pins.
             var snapshot = (await db.Database.SqlQueryRaw<Snapshot>(TrashListSql.Snapshot, parameters).ToListAsync(ct)).Single();

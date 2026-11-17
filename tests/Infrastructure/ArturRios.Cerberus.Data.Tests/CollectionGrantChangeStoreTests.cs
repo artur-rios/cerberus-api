@@ -267,7 +267,7 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
             var result = await Change(s);
             Assert.Equal(state == "cycle" ? "persistence_unavailable" : null, result.Error);
             if (result.Data is { } d)
-            { Assert.Equal(state == "active" ? [s.Items.Record.PublicId] : Array.Empty<Guid>(), d.RecordIds); Assert.Equal(state == "active" ? [s.Items.Folder.PublicId] : Array.Empty<Guid>(), d.FolderIds); }
+            { Assert.Equal(state == "active" ? [s.Items.Record.PublicId] : [], d.RecordIds); Assert.Equal(state == "active" ? [s.Items.Folder.PublicId] : [], d.FolderIds); }
             else
                 Assert.Equal(before, await All(s));
         }
@@ -560,8 +560,8 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
         public List<string> Reads { get; } = [];
         public string Snapshot { get; private set; } = ""; public NpgsqlParameter[] Parameters { get; private set; } = [];
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default)
-        { if (c.CommandText.Contains("FOR UPDATE") || c.CommandText.Contains("FOR NO KEY UPDATE")) { Locks.Add(c.CommandText); Values.Add(c.Parameters.Cast<DbParameter>().Select(x => x.Value!).ToArray()); } if (Write(c)) Writes++; return ValueTask.FromResult(r); }
+        { if (c.CommandText.Contains("FOR UPDATE") || c.CommandText.Contains("FOR NO KEY UPDATE")) { Locks.Add(c.CommandText); Values.Add([.. c.Parameters.Cast<DbParameter>().Select(x => x.Value!)]); } if (Write(c)) Writes++; return ValueTask.FromResult(r); }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
-        { Reads.Add(c.CommandText); if (Snapshot.Length == 0 && c.CommandText.StartsWith("WITH RECURSIVE")) { Snapshot = c.CommandText; Parameters = c.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone()).ToArray(); } return ValueTask.FromResult(r); }
+        { Reads.Add(c.CommandText); if (Snapshot.Length == 0 && c.CommandText.StartsWith("WITH RECURSIVE")) { Snapshot = c.CommandText; Parameters = [.. c.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone())]; } return ValueTask.FromResult(r); }
     }
 }

@@ -46,8 +46,8 @@ public sealed class SetCollectionMembershipHandler(IValidator<SetCollectionMembe
             Revision = data.Revision,
             ServerSequence = data.ServerSequence,
             EditedAt = data.EditedAt,
-            RecordIds = data.RecordIds.Order().ToArray(),
-            FolderIds = data.FolderIds.Order().ToArray()
+            RecordIds = [.. data.RecordIds.Order()],
+            FolderIds = [.. data.FolderIds.Order()]
         }).WithMessage("collection_membership_set");
     }
 

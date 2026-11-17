@@ -26,7 +26,7 @@ public sealed class OperationalHealthAuthorizationTests
         var paths = new List<string>();
         using var http = Transport(options, request => { Assert.Equal(HttpMethod.Get, request.Method); Assert.Null(request.Content); Assert.Equal(token, request.Headers.Authorization!.Parameter); paths.Add(request.RequestUri!.AbsolutePath); return Task.FromResult(Live(options, actor, request)); });
         Assert.Equal(OperationalAuthorization.Authorized, await Authorizer(http, options).AuthorizeAsync(token, default));
-        Assert.Equal(actor == "application" ? new[] { "/api/applications/self" } : actor == "operator" ? new[] { "/api/persons/" + Subject, "/api/scopes/" + options.HeimdallScopeId } : new[] { "/api/persons/" + Subject }, paths);
+        Assert.Equal(actor == "application" ? new[] { "/api/applications/self" } : actor == "operator" ? ["/api/persons/" + Subject, "/api/scopes/" + options.HeimdallScopeId] : ["/api/persons/" + Subject], paths);
     }
     [UnitTheory]
     [InlineData("person")]
@@ -228,9 +228,9 @@ public sealed class OperationalHealthAuthorizationTests
         if (actor == "application")
             data = new { applicationId = Subject, name = "Fixture", scopeId = o.HeimdallScopeId, credentialId = kind == "wrong-credential" ? Other : Credential, expiresAt = DateTimeOffset.FromUnixTimeSeconds(new JwtSecurityTokenHandler().ReadJwtToken(r.Headers.Authorization!.Parameter).Payload.Expiration!.Value) };
         else if (r.RequestUri!.AbsolutePath.Contains("/api/scopes/", StringComparison.Ordinal))
-            data = new { id = o.HeimdallScopeId, isDeleted = false, ownerIds = kind == "lost-owner" ? Array.Empty<Guid>() : new[] { Subject }, name = "Fixture" };
+            data = new { id = o.HeimdallScopeId, isDeleted = false, ownerIds = kind == "lost-owner" ? [] : new[] { Subject }, name = "Fixture" };
         else
-            data = new { id = kind == "wrong-id" ? Other : Subject, scopeId = actor == "operator" ? (Guid?)null : kind == "wrong-scope" ? Other : o.HeimdallScopeId, role = kind == "wrong-role" ? 1 : actor == "operator" ? 2 : 3, isDeleted = kind == "deleted", ownedScopeIds = kind == "lost-scope" ? Array.Empty<Guid>() : new[] { Other, o.HeimdallScopeId }, name = "Fixture", email = "fixture@example.test", emailVerified = true, twoFactorEnabled = false };
+            data = new { id = kind == "wrong-id" ? Other : Subject, scopeId = actor == "operator" ? (Guid?)null : kind == "wrong-scope" ? Other : o.HeimdallScopeId, role = kind == "wrong-role" ? 1 : actor == "operator" ? 2 : 3, isDeleted = kind == "deleted", ownedScopeIds = kind == "lost-scope" ? [] : new[] { Other, o.HeimdallScopeId }, name = "Fixture", email = "fixture@example.test", emailVerified = true, twoFactorEnabled = false };
         return new(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(new { success = true, errors = Array.Empty<string>(), messages = Array.Empty<string>(), data }), Encoding.UTF8, "application/json") };
     }
     private static HttpClient Transport(CerberusOptions o, Func<HttpRequestMessage, Task<HttpResponseMessage>> send) => new(new Handler(send)) { BaseAddress = new Uri(o.HeimdallBaseUrl!) };

@@ -59,8 +59,8 @@ public class FolderReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         var before = await Snapshot(s);
         var r = await Read(request, record.PublicId);
         Assert.Null(r.Error);
-        Assert.Equal((selected ? new[] { p.PublicId } : new[] { p.PublicId, q.PublicId }).Order(), r.Data!.ProfileIds);
-        Assert.Equal((selected ? new[] { a.Collection.PublicId } : new[] { a.Collection.PublicId, b.Collection.PublicId }).Order(), r.Data.CollectionIds);
+        Assert.Equal((selected ? new[] { p.PublicId } : [p.PublicId, q.PublicId]).Order(), r.Data!.ProfileIds);
+        Assert.Equal((selected ? new[] { a.Collection.PublicId } : [a.Collection.PublicId, b.Collection.PublicId]).Order(), r.Data.CollectionIds);
         Assert.DoesNotContain(outside.Collection.PublicId, r.Data.CollectionIds);
         Assert.Equal(child.PublicId, r.Data.ParentFolderId);
         Assert.Equal(before, await Snapshot(s));
@@ -84,8 +84,8 @@ public class FolderReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         var r = await Read(s with { Verifier = await Selected(s, p.Id) }, record.PublicId);
         Assert.Null(r.Error);
         Assert.Equal(parentVisible ? child.PublicId : null, r.Data!.ParentFolderId);
-        Assert.Equal(route == "direct" ? new[] { p.PublicId } : [], r.Data.ProfileIds);
-        Assert.Equal(route.StartsWith("collection") ? new[] { a.Collection.PublicId } : [], r.Data.CollectionIds);
+        Assert.Equal(route == "direct" ? [p.PublicId] : [], r.Data.ProfileIds);
+        Assert.Equal(route.StartsWith("collection") ? [a.Collection.PublicId] : [], r.Data.CollectionIds);
     }
     [FunctionalTheory]
     [InlineData(CollectionGrantAccess.ReadOnly, "direct", false)]
@@ -118,7 +118,7 @@ public class FolderReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         var r = await Read(request, record.PublicId);
         Assert.Null(r.Error);
         Assert.Empty(r.Data!.ProfileIds);
-        Assert.Equal((selected ? new[] { a.Collection.PublicId } : new[] { a.Collection.PublicId, b.Collection.PublicId }).Order(), r.Data.CollectionIds);
+        Assert.Equal((selected ? new[] { a.Collection.PublicId } : [a.Collection.PublicId, b.Collection.PublicId]).Order(), r.Data.CollectionIds);
         Assert.Equal(route == "direct" ? null : child.PublicId, r.Data.ParentFolderId);
         Assert.Equal(record.Envelope, r.Data.Folder.Envelope);
         Assert.Equal(before, await Snapshot(s));
@@ -423,8 +423,8 @@ public class FolderReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         { if (kind == "profileTrash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(p => p.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "collectionTrash") await db.Collections.Where(x => x.Id == a.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(c => c.DeletedAt, DateTimeOffset.UtcNow)); if (kind.EndsWith("Terminal")) { db.TerminalErasures.Add(new() { ResourceId = kind.StartsWith("profile") ? p.PublicId : a.Collection.PublicId, ResourceKind = kind.StartsWith("profile") ? "profile" : "collection", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); } }
         var r = await Read(s, a.Folder.PublicId);
         Assert.Null(r.Error);
-        Assert.Equal(kind.StartsWith("profile") ? [] : new[] { p.PublicId }, r.Data!.ProfileIds);
-        Assert.Equal(kind.StartsWith("collection") ? [] : new[] { a.Collection.PublicId }, r.Data.CollectionIds);
+        Assert.Equal(kind.StartsWith("profile") ? [] : [p.PublicId], r.Data!.ProfileIds);
+        Assert.Equal(kind.StartsWith("collection") ? [] : [a.Collection.PublicId], r.Data.CollectionIds);
     }
     [FunctionalTheory]
     [InlineData(true, "epoch")]
@@ -579,7 +579,7 @@ public class FolderReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         var grants = new List<CollectionGrant>();
         for (var n = 0; n < 3; n++)
         { var a = await AssociationSetup.Items(fixture, foreign); await Members(foreign, a.Collection, [n == 0 ? root.Id : target.Id], []); collections.Add(a.Collection); grants.Add(await AssociationSetup.Grant(fixture, foreign, owner, s, recipient, a.Collection)); }
-        var p = await Profile(s, recipient, scoped, collections: collections.Take(2).Select(x => x.PublicId).ToArray());
+        var p = await Profile(s, recipient, scoped, collections: [.. collections.Take(2).Select(x => x.PublicId)]);
         var request = selected ? s with { Verifier = await Selected(s, p.Id) } : s;
         var before = await Snapshot(s);
         var ownerBefore = await Snapshot(foreign);
@@ -700,7 +700,7 @@ public class FolderReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
     private Task<VaultResult<FolderReadDetails>> Read(ProfileSetup.State s, Guid target) => Store().ReadAsync(new(s.Actor, s.Verifier, target), default);
     private async Task<VaultFolder> TargetFolder(ProfileSetup.State s, long? folder = null) { var row = new VaultFolder { PublicId = Guid.NewGuid(), AccountId = s.InternalId, ParentFolderId = folder, Envelope = Bytes(ProfileSetup.Envelope()), EditedAt = DateTimeOffset.UnixEpoch }; await using var db = fixture.CreateContext(); db.Folders.Add(row); await db.SaveChangesAsync(); return row; }
     private async Task<VaultFolder> Folder(ProfileSetup.State s, long? parent = null) { var row = new VaultFolder { PublicId = Guid.NewGuid(), AccountId = s.InternalId, ParentFolderId = parent, Envelope = Bytes(ProfileSetup.Envelope()), EditedAt = DateTimeOffset.UnixEpoch }; await using var db = fixture.CreateContext(); db.Folders.Add(row); await db.SaveChangesAsync(); return row; }
-    private async Task<Profile> Profile(ProfileSetup.State s, ProtectionFixture owner, ProtectionFixture scoped, Guid[]? records = null, Guid[]? folders = null, Guid[]? collections = null) { var input = ProfileSetup.Input(s, owner, scoped) with { RecordIds = [], FolderIds = (records ?? []).Concat(folders ?? []).Distinct().ToArray(), CollectionIds = collections ?? [] }; Assert.Null((await new ProfileCreateStore(fixture).CreateAsync(new(s.Actor, s.Verifier, input), default)).Error); await using var db = fixture.CreateContext(); return await db.Profiles.AsNoTracking().SingleAsync(x => x.PublicId == input.ProfileId); }
+    private async Task<Profile> Profile(ProfileSetup.State s, ProtectionFixture owner, ProtectionFixture scoped, Guid[]? records = null, Guid[]? folders = null, Guid[]? collections = null) { var input = ProfileSetup.Input(s, owner, scoped) with { RecordIds = [], FolderIds = [.. (records ?? []).Concat(folders ?? []).Distinct()], CollectionIds = collections ?? [] }; Assert.Null((await new ProfileCreateStore(fixture).CreateAsync(new(s.Actor, s.Verifier, input), default)).Error); await using var db = fixture.CreateContext(); return await db.Profiles.AsNoTracking().SingleAsync(x => x.PublicId == input.ProfileId); }
     private async Task Members(ProfileSetup.State s, VaultCollection collection, long[] records, long[] folders) { await using var db = fixture.CreateContext(); db.CollectionFolders.AddRange(records.Concat(folders).Distinct().Select(x => new CollectionFolder { AccountId = s.InternalId, CollectionId = collection.Id, FolderId = x })); await db.SaveChangesAsync(); }
     private async Task<string> Selected(ProfileSetup.State s, long profile) { var verifier = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32)); await using var db = fixture.CreateContext(); db.VaultAccessSessions.Add(new() { AccountId = s.InternalId, ProfileId = profile, HandleVerifier = verifier, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 }); await db.SaveChangesAsync(); return verifier; }
     private static byte[] Bytes<T>(T value) => JsonSerializer.SerializeToUtf8Bytes(value, ProtectionFixture.Json);
@@ -710,7 +710,7 @@ public class FolderReadStoreTests(PostgresFixture fixture, ITestOutputHelper out
         public int Readers { get; private set; }
         public string Sql { get; private set; } = ""; public NpgsqlParameter[] Parameters { get; private set; } = [];
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
-        { Readers++; Sql = command.CommandText; Parameters = command.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone()).ToArray(); return ValueTask.FromResult(result); }
+        { Readers++; Sql = command.CommandText; Parameters = [.. command.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone())]; return ValueTask.FromResult(result); }
     }
 
     private sealed class ExpireBeforeRead(DateTimeOffset deadline) : DbCommandInterceptor

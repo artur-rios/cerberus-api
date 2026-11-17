@@ -56,13 +56,13 @@ public sealed class OfflinePolicyUpdateStore(IDbContextFactory<AppDbContext> fac
             if (!request.IsValid(before!.DatabaseNow))
                 return new(Error: "validation_failed");
 
-            var parameters = Parameters(request).Concat(new object[]
-            {
+            var parameters = Parameters(request).Concat(
+            [
                 new NpgsqlParameter("owner", original.OwnerId), new NpgsqlParameter("account_revision", original.AccountRevision),
                 new NpgsqlParameter("generation", original.RevocationGeneration), new NpgsqlParameter("previous", request.ExpectedPolicyRevision),
                 new NpgsqlParameter("enabled", request.RenewalEnabled),
                 new NpgsqlParameter("interval", NpgsqlDbType.Interval) { Value = request.RenewalInterval is { } interval ? interval : DBNull.Value }
-            }).ToArray();
+            ]).ToArray();
             // No lock wait remains at this point. Statement time is the authorization
             // linearization point; transaction-start now() would reuse an older instant.
             var changed = await db.Database.ExecuteSqlRawAsync("""

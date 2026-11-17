@@ -54,7 +54,7 @@ public class GetFolderHandlerTests
         Assert.Equal(collections.Order(), item.CollectionIds);
         Assert.Equal(folder, item.ParentFolderId);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(item, ProtectionFixture.Json));
-        Assert.Equal(new[] { "collectionIds", "editedAt", "envelope", "folderId", "parentFolderId", "profileIds", "revision", "serverSequence" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["collectionIds", "editedAt", "envelope", "folderId", "parentFolderId", "profileIds", "revision", "serverSequence"], json.RootElement.EnumerateObject().Select(x => x.Name).Order());
         store.VerifyAll();
     }
     [UnitTheory]

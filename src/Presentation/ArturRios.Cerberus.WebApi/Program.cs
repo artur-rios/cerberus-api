@@ -16,7 +16,7 @@ public class Program
         }
         try
         {
-            await using var application = Startup.CreateApplication(args.Except(requested).ToArray());
+            await using var application = Startup.CreateApplication([.. args.Except(requested)]);
             if (requested.Length == 1)
                 return await OperationalCommands.ExecuteAsync(application.Services, requested[0], default);
             if (await OperationalCommands.PrepareTrafficAsync(application.Services, default) != 0)

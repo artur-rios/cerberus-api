@@ -205,7 +205,7 @@ public class CollectionTrashStoreTests(PostgresFixture fixture) : IClassFixture<
         Assert.Equal(s.Actor, Assert.Single(capture.AccountLockValues));
         Assert.DoesNotContain(capture.Locks, x => x.Contains("vault_protection"));
         Assert.Equal(10, capture.Locks.Count);
-        foreach (var pair in new[] { ("profile", new[] { p.Id }), ("folder", new[] { a.Folder.Id }), ("record", new[] { a.Record.Id }), ("collection_grant", new[] { g.Id }) })
+        foreach (var pair in new[] { ("profile", new[] { p.Id }), ("folder", [a.Folder.Id]), ("record", [a.Record.Id]), ("collection_grant", [g.Id]) })
         { var values = Assert.Single(capture.LockParameters, x => x.Sql.Contains("FROM cerberus." + pair.Item1 + " ")).Values; Assert.Equal(pair.Item2, Assert.Single(values.OfType<long[]>())); }
         using var plan = JsonDocument.Parse(capture.Plan!);
         static IEnumerable<JsonElement> Nodes(JsonElement n)
@@ -421,9 +421,9 @@ public class CollectionTrashStoreTests(PostgresFixture fixture) : IClassFixture<
         Assert.True(hook.Triggered);
         await using var read = fixture.CreateContext();
         var snapshot = JsonSerializer.Deserialize<CollectionAssociationSnapshot>((await read.TrashEntries.SingleAsync(x => x.ResourceId == target.PublicId && x.ResourceKind == "collection")).AssociationSnapshot, ProtectionFixture.Json)!;
-        Assert.Equal(kind == "PC" ? Array.Empty<Guid>() : [p.PublicId], snapshot.ProfileIds);
-        Assert.Equal(kind == "CF" ? Array.Empty<Guid>() : [a.Folder.PublicId], snapshot.FolderIds);
-        Assert.Equal(kind == "CR" ? Array.Empty<Guid>() : [a.Record.PublicId], snapshot.RecordIds);
+        Assert.Equal(kind == "PC" ? [] : [p.PublicId], snapshot.ProfileIds);
+        Assert.Equal(kind == "CF" ? [] : [a.Folder.PublicId], snapshot.FolderIds);
+        Assert.Equal(kind == "CR" ? [] : [a.Record.PublicId], snapshot.RecordIds);
         Assert.Equal(p.Revision + (kind == "PC" ? 0 : 1), (await read.Profiles.SingleAsync(x => x.Id == p.Id)).Revision);
         Assert.Equal(1 + (kind == "CF" ? 0 : 1), (await read.Folders.SingleAsync(x => x.Id == a.Folder.Id)).Revision);
         Assert.Equal(1 + (kind == "CR" ? 0 : 1), (await read.Records.SingleAsync(x => x.Id == a.Record.Id)).Revision);
@@ -1156,6 +1156,6 @@ public class CollectionTrashStoreTests(PostgresFixture fixture) : IClassFixture<
         public List<(string Sql, object[] Values)> LockParameters { get; } = [];
         private void Note(DbCommand c) { if (c.CommandText.Contains("FOR UPDATE") || c.CommandText.Contains("FOR NO KEY UPDATE") || c.CommandText.Contains("FOR SHARE")) { Locks.Add(c.CommandText); LockValues.AddRange(c.Parameters.Cast<DbParameter>().Select(p => p.Value!)); LockParameters.Add((c.CommandText, c.Parameters.Cast<DbParameter>().Select(p => p.Value!).ToArray())); if (c.CommandText.Contains("FROM cerberus.account ")) AccountLockValues.AddRange(c.Parameters.Cast<DbParameter>().Select(p => p.Value!)); } }
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<int> r, CancellationToken ct = default) { Note(c); return ValueTask.FromResult(r); }
-        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { Note(c); if (Sql.Length == 0 && c.CommandText.StartsWith("WITH actor")) { Sql = c.CommandText; Parameters = c.Parameters.Cast<NpgsqlParameter>().Select(p => p.Clone()).ToArray(); if (explain) { await using var query = c.Connection!.CreateCommand(); query.Transaction = c.Transaction; query.CommandText = "EXPLAIN (ANALYZE, FORMAT JSON) " + Sql; foreach (var p in Parameters) query.Parameters.Add(p.Clone()); Plan = (string)(await query.ExecuteScalarAsync(ct))!; } } return r; }
+        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { Note(c); if (Sql.Length == 0 && c.CommandText.StartsWith("WITH actor")) { Sql = c.CommandText; Parameters = [.. c.Parameters.Cast<NpgsqlParameter>().Select(p => p.Clone())]; if (explain) { await using var query = c.Connection!.CreateCommand(); query.Transaction = c.Transaction; query.CommandText = "EXPLAIN (ANALYZE, FORMAT JSON) " + Sql; foreach (var p in Parameters) query.Parameters.Add(p.Clone()); Plan = (string)(await query.ExecuteScalarAsync(ct))!; } } return r; }
     }
 }

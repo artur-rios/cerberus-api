@@ -44,13 +44,13 @@ public sealed class SoftwareGrantRevocationContractTests
         Assert.Equal("application/json", Assert.Single(body.GetProperty("content").EnumerateObject()).Name);
         var schemas = root.GetProperty("components").GetProperty("schemas");
         var command = schemas.GetProperty("RevokeSoftwareAccessCommand");
-        Assert.Equal(new[] { "expectedRevision" }, command.GetProperty("properties").EnumerateObject().Select(x => x.Name));
-        Assert.Equal(new[] { "expectedRevision" }, command.GetProperty("required").EnumerateArray().Select(x => x.GetString()));
+        Assert.Equal(["expectedRevision"], command.GetProperty("properties").EnumerateObject().Select(x => x.Name));
+        Assert.Equal(["expectedRevision"], command.GetProperty("required").EnumerateArray().Select(x => x.GetString()));
         Assert.False(command.GetProperty("additionalProperties").GetBoolean());
         Assert.Equal("integer", command.GetProperty("properties").GetProperty("expectedRevision").GetProperty("type").GetString());
-        Assert.Equal(new[] { "grantId", "revision" }, schemas.GetProperty("RevokeSoftwareAccessOutput").GetProperty("properties").EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["grantId", "revision"], schemas.GetProperty("RevokeSoftwareAccessOutput").GetProperty("properties").EnumerateObject().Select(x => x.Name).Order());
         var responses = operation.GetProperty("responses");
-        Assert.Equal(new[] { "200", "400", "401", "403", "404", "409", "413", "503" }, responses.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["200", "400", "401", "403", "404", "409", "413", "503"], responses.EnumerateObject().Select(x => x.Name).Order());
         Assert.EndsWith("/RevokeSoftwareAccessOutputDataOutput", responses.GetProperty("200").GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString());
         foreach (var status in new[] { "400", "401", "403", "404", "409", "503" })
             Assert.EndsWith("/ProcessOutput", responses.GetProperty(status).GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString());
@@ -372,7 +372,7 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
         var raw = await reader.ReadToEndAsync();
         NoDisclosure(raw, s);
         using var doc = JsonDocument.Parse(raw);
-        Assert.Equal(new[] { "validation_failed" }, doc.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
+        Assert.Equal(["validation_failed"], doc.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
         Assert.Equal(before, await Snapshot(s));
     }
 
@@ -469,12 +469,12 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
         NoDisclosure(raw, s);
         using var doc = JsonDocument.Parse(raw);
         var root = doc.RootElement;
-        Assert.Equal(new[] { "data", "errors", "messages", "success", "timestamp" }, root.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["data", "errors", "messages", "success", "timestamp"], root.EnumerateObject().Select(x => x.Name).Order());
         Assert.True(root.GetProperty("success").GetBoolean());
         Assert.Empty(root.GetProperty("errors").EnumerateArray());
-        Assert.Equal(new[] { "software_access_revoked" }, root.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
+        Assert.Equal(["software_access_revoked"], root.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
         var data = root.GetProperty("data");
-        Assert.Equal(new[] { "grantId", "revision" }, data.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["grantId", "revision"], data.EnumerateObject().Select(x => x.Name).Order());
         Assert.Equal(s.Grant, data.GetProperty("grantId").GetGuid());
         Assert.Equal(2, data.GetProperty("revision").GetInt64());
     }
@@ -490,7 +490,7 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
         using var doc = JsonDocument.Parse(raw);
         var root = doc.RootElement;
         Assert.False(root.GetProperty("success").GetBoolean());
-        Assert.Equal(new[] { error }, root.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
+        Assert.Equal([error], root.GetProperty("errors").EnumerateArray().Select(x => x.GetString()));
         Assert.Empty(root.GetProperty("messages").EnumerateArray());
         if (root.TryGetProperty("data", out var data))
             Assert.Equal(JsonValueKind.Null, data.ValueKind);

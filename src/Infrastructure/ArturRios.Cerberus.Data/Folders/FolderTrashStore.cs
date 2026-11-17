@@ -91,7 +91,7 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
             var recordGuids = inventory.Records.Select(x => x.PublicId).ToArray();
             if (await db.TrashEntries.AnyAsync(x => x.ResourceKind == "folder" && folderGuids.Contains(x.ResourceId) || x.ResourceKind == "record" && recordGuids.Contains(x.ResourceId), ct))
                 return new(Error: "revision_conflict");
-            var args = Parameters(request).Concat(RowParameters(root)).Concat(new object[] { new NpgsqlParameter("inventory", NpgsqlDbType.Jsonb) { Value = captured } }).ToArray();
+            var args = Parameters(request).Concat(RowParameters(root)).Concat([new NpgsqlParameter("inventory", NpgsqlDbType.Jsonb) { Value = captured }]).ToArray();
             var changed = await db.Database.ExecuteSqlRawAsync(Authority + InventoryCtes + ", payload AS (" + InventorySelect + ") " + """
                 UPDATE cerberus.folder AS root SET deleted_at=statement_timestamp(),purge_at=statement_timestamp()+interval '720 hours',
                     parent_folder_id=NULL,revision=root.revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp=@stamp
@@ -128,8 +128,8 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
             db.TrashOperations.Add(operation);
             await db.SaveChangesAsync(ct);
             Guid? FolderGuid(long? id) => id is null ? null : inventory.Folders.SingleOrDefault(x => x.Id == id)?.PublicId ?? (inventory.Parent?.Id == id ? inventory.Parent.PublicId : null);
-            Guid[] Profiles(IEnumerable<long> ids) => ids.Select(id => inventory.Profiles.Single(x => x.Id == id).PublicId).Order().ToArray();
-            Guid[] Collections(IEnumerable<long> ids) => ids.Select(id => inventory.Collections.Single(x => x.Id == id).PublicId).Order().ToArray();
+            Guid[] Profiles(IEnumerable<long> ids) => [.. ids.Select(id => inventory.Profiles.Single(x => x.Id == id).PublicId).Order()];
+            Guid[] Collections(IEnumerable<long> ids) => [.. ids.Select(id => inventory.Collections.Single(x => x.Id == id).PublicId).Order()];
             foreach (var row in inventory.Folders)
                 db.TrashEntries.Add(new()
                 {
@@ -168,7 +168,7 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
     {
         var parent = kind == "folder" ? "parent_folder_id" : "folder_id";
         var sql = $"UPDATE cerberus.{kind} AS child SET deleted_at=@deleted,purge_at=@purge,{parent}=NULL,revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp=@stamp WHERE id=@id AND account_id=@owner AND revision=@revision AND server_sequence=@sequence AND envelope=@envelope AND {parent} IS NOT DISTINCT FROM @parent AND deleted_at IS NULL AND purge_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_kind='{kind}' AND e.resource_id=child.public_id)";
-        if (await db.Database.ExecuteSqlRawAsync(sql, RowParameters(row).Concat(new object[] { new NpgsqlParameter("deleted", deleted), new NpgsqlParameter("purge", purge) }).ToArray(), ct) != 1)
+        if (await db.Database.ExecuteSqlRawAsync(sql, [.. RowParameters(row), .. new object[] { new NpgsqlParameter("deleted", deleted), new NpgsqlParameter("purge", purge) }], ct) != 1)
             return "revision_conflict";
         if (kind == "folder")
         { var r = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == row.Id, ct); return Changed(row, r.PublicId, r.AccountId, r.Revision, r.ServerSequence, r.Envelope, r.EditedAt, r.DeletedAt, r.PurgeAt, r.ParentFolderId) && r.DeletedAt == deleted && r.PurgeAt == purge ? null : "persistence_unavailable"; }

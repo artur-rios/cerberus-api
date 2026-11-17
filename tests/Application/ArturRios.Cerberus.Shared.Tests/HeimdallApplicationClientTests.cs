@@ -80,7 +80,7 @@ public class HeimdallApplicationClientTests
                 data["roleId"] = "3";
                 break;
         }
-        var raw = JsonSerializer.Serialize(new { success = kind != "falseSuccess", errors = kind == "errors" ? new[] { "private-provider-error" } : Array.Empty<string>(), data });
+        var raw = JsonSerializer.Serialize(new { success = kind != "falseSuccess", errors = kind == "errors" ? new[] { "private-provider-error" } : [], data });
         if (kind == "malformed")
             raw = "private-provider-error";
         if (kind == "duplicate")

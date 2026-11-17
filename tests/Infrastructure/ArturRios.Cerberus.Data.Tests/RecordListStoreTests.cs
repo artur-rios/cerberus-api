@@ -95,7 +95,7 @@ public class RecordListStoreTests(PostgresFixture fixture, ITestOutputHelper out
         var foreignBefore = await Snapshot(foreign);
         var r = await List(request);
         Assert.Null(r.Error);
-        Assert.Equal((selected ? new[] { included.PublicId } : new[] { included.PublicId, own.PublicId }).Order(), r.Data!.Items.Select(x => x.RecordId).Order());
+        Assert.Equal((selected ? new[] { included.PublicId } : [included.PublicId, own.PublicId]).Order(), r.Data!.Items.Select(x => x.RecordId).Order());
         Assert.Equal(included.Envelope, r.Data.Items.Single(x => x.RecordId == included.PublicId).Envelope);
         Assert.DoesNotContain(r.Data.Items, x => x.RecordId == items.Record.PublicId);
         Assert.Equal(before, await Snapshot(s));
@@ -345,7 +345,7 @@ public class RecordListStoreTests(PostgresFixture fixture, ITestOutputHelper out
         public int Readers { get; private set; }
         public string Sql { get; private set; } = ""; public NpgsqlParameter[] Parameters { get; private set; } = [];
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
-        { Readers++; Sql = command.CommandText; Parameters = command.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone()).ToArray(); return ValueTask.FromResult(result); }
+        { Readers++; Sql = command.CommandText; Parameters = [.. command.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone())]; return ValueTask.FromResult(result); }
     }
 
     private RecordListStore Store() => new(fixture);

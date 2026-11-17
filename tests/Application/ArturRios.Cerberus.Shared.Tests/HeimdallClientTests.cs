@@ -445,7 +445,7 @@ public sealed class HeimdallClientTests
                     defaultLegalBasis = (int?)null,
                     privacyNoticeUri = (string?)null,
                     isDeleted = false,
-                    ownerIds = revoked ? Array.Empty<Guid>() : new[] { Identity },
+                    ownerIds = revoked ? [] : new[] { Identity },
                     createdAt = "2026-10-07T00:00:00Z",
                     updatedAt = "2026-10-07T00:00:00Z"
                 }));

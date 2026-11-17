@@ -22,7 +22,7 @@ public sealed class TrashPurgeHandler(IDbContextFactory<AppDbContext> factory, I
             if (owner is null)
             { await MissingOwner(db, id, ct); durable = []; }
             else
-            { var rows = (await TrashErasureInventory.ReadAsync(db, owner.Value, ct)).Where(x => x.DeletedAt is not null && x.MarkerAt is not null).ToArray(); TrashErasureInventory.Validate(rows); durable = rows.Select(x => x.Entry()).ToArray(); }
+            { var rows = (await TrashErasureInventory.ReadAsync(db, owner.Value, ct)).Where(x => x.DeletedAt is not null && x.MarkerAt is not null).ToArray(); TrashErasureInventory.Validate(rows); durable = [.. rows.Select(x => x.Entry())]; }
             await tx.CommitAsync(ct);
         }
         // No database transaction is held across durable filesystem I/O.

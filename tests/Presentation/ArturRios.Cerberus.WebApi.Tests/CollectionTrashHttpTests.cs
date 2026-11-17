@@ -360,7 +360,7 @@ public class CollectionTrashHttpTests(RegistrationApiFixture fixture, SharedApiH
         { var p = await Profile(s, recipient, key); s = s with { Access = await Open(s, p, key) }; }
         await using (var db = fixture.Context())
         {
-            await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(c => c.Envelope, new byte[] { 1 }).SetProperty(c => c.DeletedAt, kind == "deleted" ? (DateTimeOffset?)DateTimeOffset.UtcNow : null));
+            await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(c => c.Envelope, [1]).SetProperty(c => c.DeletedAt, kind == "deleted" ? (DateTimeOffset?)DateTimeOffset.UtcNow : null));
             if (kind == "ownerClosing")
                 await db.Accounts.Where(x => x.Id == o.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending));
             if (kind == "revoked")
@@ -393,9 +393,9 @@ public class CollectionTrashHttpTests(RegistrationApiFixture fixture, SharedApiH
         await using (var db = fixture.Context())
         {
             if (kind == "wrapper")
-                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, new byte[] { 1 }));
+                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, [1]));
             if (kind is "ownerPins" or "recipientPins")
-                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? o.InternalId : s.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 }));
+                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? o.InternalId : s.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, [1]));
             if (kind == "epoch")
                 await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyEpoch, 2));
             if (kind == "revision")
@@ -434,9 +434,9 @@ public class CollectionTrashHttpTests(RegistrationApiFixture fixture, SharedApiH
         var s = await Setup(owner);
         var target = await Create(s);
         var before = await Snapshot(s);
-        var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? new byte[] { 0xc3, 0x28 } : Bytes(new { expectedRevision = 1 });
+        var raw = kind == "oversized" ? Encoding.UTF8.GetBytes(new string(' ', 65537)) : kind == "utf8" ? [0xc3, 0x28] : Bytes(new { expectedRevision = 1 });
         if (kind == "bom")
-            raw = new byte[] { 239, 187, 191 }.Concat(raw).ToArray();
+            raw = [239, 187, 191, .. raw];
         using var req = Delete(s, "/api/collections/" + target.CollectionId + (kind == "query" ? "?ownerId=secret" : ""), raw);
         if (kind == "missing")
             req.Headers.Remove("X-Cerberus-Vault-Access");
@@ -624,13 +624,13 @@ public class CollectionTrashHttpTests(RegistrationApiFixture fixture, SharedApiH
         Assert.True(document.RootElement.GetProperty("success").GetBoolean());
         if (typeof(T) == typeof(DeleteCollectionOutput))
         {
-            Assert.Equal(new[] { "collectionId", "deletedAt", "purgeAt", "revision", "serverSequence", "trashOperationId" }, document.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
+            Assert.Equal(["collectionId", "deletedAt", "purgeAt", "revision", "serverSequence", "trashOperationId"], document.RootElement.GetProperty("data").EnumerateObject().Select(x => x.Name).Order());
             Assert.Contains("collection_deleted", document.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
         }
         if (typeof(T) == typeof(CollectionDetailsOutput))
         {
             var data = document.RootElement.GetProperty("data");
-            Assert.Equal(new[] { "collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds", "revision", "serverSequence" }, data.EnumerateObject().Select(x => x.Name).Order());
+            Assert.Equal(["collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds", "revision", "serverSequence"], data.EnumerateObject().Select(x => x.Name).Order());
             Assert.Contains("collection_found", document.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
         }
         return Assert.IsType<T>(JsonSerializer.Deserialize<DataOutput<T>>(text, ProtectionFixture.Json)!.Data);

@@ -304,7 +304,7 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
             var result = await Grant(s, a.Collection, Input(s, owner, r, client, a.Collection));
             Assert.Equal(state == "cycle" ? "persistence_unavailable" : null, result.Error);
             if (result.Data is { } data)
-            { Assert.Equal(state == "active" ? new[] { a.Record.PublicId } : [], data.RecordIds); Assert.Equal(state == "active" || recordOnly ? new[] { a.Folder.PublicId } : [], data.FolderIds); }
+            { Assert.Equal(state == "active" ? [a.Record.PublicId] : [], data.RecordIds); Assert.Equal(state == "active" || recordOnly ? [a.Folder.PublicId] : [], data.FolderIds); }
         }
         finally { if (state is "missing" or "foreign") await Sql("UPDATE cerberus.folder SET parent_folder_id=NULL WHERE id={0}", b.Folder.Id); }
     }
@@ -850,9 +850,9 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
         public List<object[]> Values { get; } = []; public int Writes { get; private set; }
         public string Snapshot { get; private set; } = ""; public NpgsqlParameter[] Parameters { get; private set; } = [];
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default)
-        { if (c.CommandText.Contains("FOR UPDATE") || c.CommandText.Contains("FOR NO KEY UPDATE")) { Locks.Add(c.CommandText); Values.Add(c.Parameters.Cast<DbParameter>().Select(x => x.Value!).ToArray()); } if (Write(c)) Writes++; return ValueTask.FromResult(r); }
+        { if (c.CommandText.Contains("FOR UPDATE") || c.CommandText.Contains("FOR NO KEY UPDATE")) { Locks.Add(c.CommandText); Values.Add([.. c.Parameters.Cast<DbParameter>().Select(x => x.Value!)]); } if (Write(c)) Writes++; return ValueTask.FromResult(r); }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
-        { if (Snapshot.Length == 0 && c.CommandText.StartsWith("WITH RECURSIVE")) { Snapshot = c.CommandText; Parameters = c.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone()).ToArray(); } return ValueTask.FromResult(r); }
+        { if (Snapshot.Length == 0 && c.CommandText.StartsWith("WITH RECURSIVE")) { Snapshot = c.CommandText; Parameters = [.. c.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone())]; } return ValueTask.FromResult(r); }
     }
 
     private static CollectionGrantInput Input(ProfileSetup.State s, ProtectionFixture owner, ProfileSetup.State r,

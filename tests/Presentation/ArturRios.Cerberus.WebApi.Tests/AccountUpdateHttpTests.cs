@@ -154,7 +154,7 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
             using var request = new HttpRequestMessage(HttpMethod.Put, "/api/accounts/me" + (invalid == "query" ? "?owner=untrusted" : ""))
             { Content = new StringContent(body, Encoding.UTF8, "application/json") };
             request.Headers.TryAddWithoutValidation(Header, invalid == "duplicateHeader" ? new[] { input.Handle, input.Handle }
-                : new[] { invalid == "malformedHeader" ? "bad" : input.Handle });
+                : [invalid == "malformedHeader" ? "bad" : input.Handle]);
             using var response = await Gateway.Client.SendAsync(request);
             await Failure(response, HttpStatusCode.BadRequest);
         }

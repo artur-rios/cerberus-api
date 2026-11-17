@@ -72,7 +72,7 @@ internal static class TrashErasureInventory
         await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.folder WHERE account_id={owner} ORDER BY public_id FOR UPDATE", ct);
         await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.record WHERE account_id={owner} ORDER BY public_id FOR UPDATE", ct);
     }
-    internal static TrashPurgedCount[] Counts(IEnumerable<TrashErasureTarget> targets) => new[] { "record", "folder", "collection", "profile" }.Select(k => new TrashPurgedCount(k, targets.LongCount(x => x.Kind == k))).ToArray();
+    internal static TrashPurgedCount[] Counts(IEnumerable<TrashErasureTarget> targets) => [.. new[] { "record", "folder", "collection", "profile" }.Select(k => new TrashPurgedCount(k, targets.LongCount(x => x.Kind == k)))];
     internal static Task<bool> ActiveEntryAsync(AppDbContext db, long owner, CancellationToken ct) => db.TrashEntries.AnyAsync(e =>
         db.TrashOperations.Any(o => o.Id == e.OperationId && o.AccountId == owner)
         && (e.ResourceKind == "record" && db.Records.Any(r => r.AccountId == owner && r.PublicId == e.ResourceId && r.DeletedAt == null)
@@ -107,7 +107,11 @@ internal static class TrashErasureInventory
             "WHERE r.account_id=@owner AND r.public_id=@id AND r.revision=@revision AND r.server_sequence=@sequence AND r.deleted_at=@deleted AND r.purge_at IS NOT DISTINCT FROM @purge " + guard + " ON CONFLICT(resource_kind,resource_id) DO UPDATE SET deleted_at=LEAST(t.deleted_at,EXCLUDED.deleted_at) RETURNING deleted_at AS \"Value\"";
         var args = new object[] { new NpgsqlParameter("kind", row.Kind), new NpgsqlParameter("id", row.ResourceId), new NpgsqlParameter("at", at), new NpgsqlParameter("owner", row.AccountId), new NpgsqlParameter("revision", row.Revision), new NpgsqlParameter("sequence", row.ServerSequence), new NpgsqlParameter("deleted", row.DeletedAt!.Value), new NpgsqlParameter("purge", NpgsqlDbType.TimestampTz) { Value = (object?)row.PurgeAt ?? DBNull.Value } };
         if (claim is not null)
-            args = args.Concat(new object[] { new NpgsqlParameter("work", claim.WorkId), new NpgsqlParameter("work_key", claim.OperationKey), new NpgsqlParameter("token", claim.Token) }).ToArray();
+            args =
+            [
+                .. args,
+                .. new object[] { new NpgsqlParameter("work", claim.WorkId), new NpgsqlParameter("work_key", claim.OperationKey), new NpgsqlParameter("token", claim.Token) },
+            ];
         var result = await db.Database.SqlQueryRaw<DateTimeOffset>(sql, args).ToListAsync(ct);
         if (result.Count != 1)
         { if (claim is not null) throw new InvalidOperationException("Retained expiry admission changed."); throw new TrashEmptyConflictException(); }

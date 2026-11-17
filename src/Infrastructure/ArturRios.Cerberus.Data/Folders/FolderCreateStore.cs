@@ -92,7 +92,7 @@ public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) :
                 while (true)
                 {
                     if (!visited.Add(folder.Id))
-                        return new(Error: await ParentPermitted(folders.Select(x => x.Id).ToArray()) ? "persistence_unavailable" : "not_found");
+                        return new(Error: await ParentPermitted([.. folders.Select(x => x.Id)]) ? "persistence_unavailable" : "not_found");
                     await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.folder WHERE account_id={account.Id} AND id={folder.Id} FOR UPDATE", ct);
                     if (!await Permitted())
                         return new(Error: "vault_access_denied");
@@ -106,7 +106,7 @@ public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) :
                     if (folder is null)
                         return new(Error: "not_found");
                 }
-                if (!await ParentPermitted(folders.Select(x => x.Id).ToArray()))
+                if (!await ParentPermitted([.. folders.Select(x => x.Id)]))
                     return new(Error: "not_found");
             }
             if (!await Permitted())

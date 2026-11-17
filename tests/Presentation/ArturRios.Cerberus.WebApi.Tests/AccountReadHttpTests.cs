@@ -118,7 +118,7 @@ public class AccountReadHttpTests(RegistrationApiFixture fixture, SharedApiHost 
         var input = await Setup();
         Authorize(RegistrationApiFixture.Token(input.Identity));
         using var request = new HttpRequestMessage(HttpMethod.Get, "/api/accounts/me" + (invalid == "query" ? "?ownerId=" + Guid.NewGuid() : ""));
-        request.Headers.TryAddWithoutValidation(Header, invalid == "duplicate" ? new[] { input.Handle, input.Handle } : new[] { invalid == "handle" ? "bad" : invalid == "emptyHandle" ? "" : invalid == "whitespaceHandle" ? " " : input.Handle });
+        request.Headers.TryAddWithoutValidation(Header, invalid == "duplicate" ? new[] { input.Handle, input.Handle } : [invalid == "handle" ? "bad" : invalid == "emptyHandle" ? "" : invalid == "whitespaceHandle" ? " " : input.Handle]);
         if (invalid == "http2Body")
         {
             request.Version = HttpVersion.Version20;

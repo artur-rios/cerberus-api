@@ -31,9 +31,9 @@ public sealed class GetRecordHandler(IRecordReadStore store) : IQueryHandlerAsyn
             ServerSequence = record.ServerSequence,
             EditedAt = record.EditedAt,
             Envelope = record.Envelope,
-            ProfileIds = data.ProfileIds.Order().ToArray(),
+            ProfileIds = [.. data.ProfileIds.Order()],
             FolderId = data.FolderId,
-            CollectionIds = data.CollectionIds.Order().ToArray()
+            CollectionIds = [.. data.CollectionIds.Order()]
         }).WithMessage("record_found");
     }
     private static bool ValidIds(Guid[]? ids) => ids is not null && ids.All(x => x != Guid.Empty) && ids.Distinct().Count() == ids.Length;

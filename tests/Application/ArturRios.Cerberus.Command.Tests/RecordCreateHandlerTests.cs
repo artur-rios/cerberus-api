@@ -74,9 +74,9 @@ public class RecordCreateHandlerTests
         Assert.Equal(c.ToInput(), captured.Input);
         Assert.Equal(source.Token, received);
         using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
-        Assert.Equal(new[] { "editedAt", "recordId", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["editedAt", "recordId", "revision", "serverSequence"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         using var wire = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
-        Assert.Equal(new[] { "editedAt", "envelope", "folderId", "profileIds", "recordId" }, wire.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["editedAt", "envelope", "folderId", "profileIds", "recordId"], wire.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
     [InlineData("validation_failed", 400)]

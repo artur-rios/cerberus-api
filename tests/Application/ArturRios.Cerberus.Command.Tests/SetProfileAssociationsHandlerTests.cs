@@ -63,7 +63,7 @@ public class SetProfileAssociationsHandlerTests
         CancellationToken capturedToken = default;
         using var source = new CancellationTokenSource();
         var store = new Mock<IProfileAssociationStore>(MockBehavior.Strict);
-        store.Setup(x => x.SetAsync(It.IsAny<ProfileAssociationRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileAssociationRequest, CancellationToken>((request, token) => { captured = request; capturedToken = token; return Task.FromResult(new VaultResult<ProfileAssociationDetails>(new(id, 2, 9, c.RecordIds.Reverse().ToArray(), c.FolderIds, c.CollectionIds))); });
+        store.Setup(x => x.SetAsync(It.IsAny<ProfileAssociationRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileAssociationRequest, CancellationToken>((request, token) => { captured = request; capturedToken = token; return Task.FromResult(new VaultResult<ProfileAssociationDetails>(new(id, 2, 9, [.. c.RecordIds.Reverse()], c.FolderIds, c.CollectionIds))); });
         var r = await Handler(store.Object).HandleAsync(c, source.Token);
         Assert.True(r.Success);
         Assert.Contains("profile_associations_set", r.Messages);
@@ -79,9 +79,9 @@ public class SetProfileAssociationsHandlerTests
         Assert.Equal(c.ToInput(), captured.Input);
         Assert.Equal(source.Token, capturedToken);
         using var body = JsonDocument.Parse(JsonSerializer.Serialize(c, ProtectionFixture.Json));
-        Assert.Equal(new[] { "collectionIds", "expectedRevision", "folderIds", "recordIds" }, body.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["collectionIds", "expectedRevision", "folderIds", "recordIds"], body.RootElement.EnumerateObject().Select(x => x.Name).Order());
         using var output = JsonDocument.Parse(JsonSerializer.Serialize(r.Data, ProtectionFixture.Json));
-        Assert.Equal(new[] { "collectionIds", "folderIds", "profileId", "recordIds", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["collectionIds", "folderIds", "profileId", "recordIds", "revision", "serverSequence"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
     [InlineData("not_found")]

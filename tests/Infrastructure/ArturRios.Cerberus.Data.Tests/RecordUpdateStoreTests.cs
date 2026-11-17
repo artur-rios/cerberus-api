@@ -535,7 +535,7 @@ public class RecordUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         public string Sql { get; private set; } = ""; public NpgsqlParameter[] Parameters { get; private set; } = []; public List<string> Locks { get; } = [];
         private void Note(DbCommand c) { if (c.CommandText.Contains("FOR UPDATE") || c.CommandText.Contains("FOR NO KEY UPDATE") || c.CommandText.Contains("FOR SHARE")) Locks.Add(c.CommandText); }
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<int> r, CancellationToken ct = default) { Note(c); return ValueTask.FromResult(r); }
-        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { Note(c); if (Sql.Length == 0 && c.CommandText.StartsWith("WITH RECURSIVE")) { Sql = c.CommandText; Parameters = c.Parameters.Cast<NpgsqlParameter>().Select(p => p.Clone()).ToArray(); } return ValueTask.FromResult(r); }
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { Note(c); if (Sql.Length == 0 && c.CommandText.StartsWith("WITH RECURSIVE")) { Sql = c.CommandText; Parameters = [.. c.Parameters.Cast<NpgsqlParameter>().Select(p => p.Clone())]; } return ValueTask.FromResult(r); }
     }
 
     private RecordUpdateStore Store() => new(fixture);

@@ -170,7 +170,7 @@ public partial class TrashRestoreHttpTests
         Assert.Equal(TimeSpan.Zero, at.Offset);
         Assert.Equal(0, at.Ticks % TimeSpan.TicksPerMicrosecond);
         var counts = data.GetProperty("counts").EnumerateArray().ToArray();
-        Assert.Equal(new[] { "collection", "folder", "profile", "record" }, counts.Select(x => x.GetProperty("kind").GetString()).Order());
+        Assert.Equal(["collection", "folder", "profile", "record"], counts.Select(x => x.GetProperty("kind").GetString()).Order());
         foreach (var c in counts)
         { Fields(c, "kind", "count"); Assert.Equal(c.GetProperty("kind").GetString() == kind ? total : 0, c.GetProperty("count").GetInt64()); }
     }

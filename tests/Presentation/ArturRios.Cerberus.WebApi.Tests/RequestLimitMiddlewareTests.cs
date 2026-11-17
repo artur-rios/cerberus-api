@@ -50,7 +50,7 @@ public class RequestLimitMiddlewareTests
     }
 
     // Every way a reader can pull the body: synchronous array and span reads, and both asynchronous overloads.
-    public static TheoryData<string> ReadKinds => new() { "array", "span", "asyncArray", "asyncMemory" };
+    public static TheoryData<string> ReadKinds => ["array", "span", "asyncArray", "asyncMemory"];
 
     private static async Task<int> ReadAll(Stream body, string kind)
     {

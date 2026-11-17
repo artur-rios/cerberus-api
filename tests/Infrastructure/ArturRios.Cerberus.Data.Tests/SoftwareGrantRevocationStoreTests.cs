@@ -23,7 +23,7 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
         using var s = await SoftwareGrantSetup.Create(fixture);
         var create = s.Request();
         if (kind != "mixed")
-            create = create with { Input = create.Input with { Targets = create.Input.Targets.Where(x => x.Kind == kind).ToArray() } };
+            create = create with { Input = create.Input with { Targets = [.. create.Input.Targets.Where(x => x.Kind == kind)] } };
         Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(create, default)).Error);
         var siblingId = Guid.NewGuid();
         Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(s.Request(grant: siblingId, identity: Guid.NewGuid()), default)).Error);
@@ -224,7 +224,7 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     public async Task GivenMalformedOpaqueKeys_WhenRevoking_ThenEraseWithoutParsing(bool empty)
     {
         using var s = await Setup();
-        var bytes = empty ? Array.Empty<byte>() : new byte[] { 255, 0, 1 };
+        var bytes = empty ? Array.Empty<byte>() : [255, 0, 1];
         await Sql("UPDATE cerberus.software_grant SET recipient_key={1} WHERE public_id={0}", s.Grant, bytes);
         await Sql("UPDATE cerberus.software_grant_record SET recipient_key_envelope={1} WHERE account_id={0}", s.Owner.InternalId, bytes);
         await Sql("UPDATE cerberus.software_grant_collection SET recipient_key_envelope={1} WHERE account_id={0}", s.Owner.InternalId, bytes);

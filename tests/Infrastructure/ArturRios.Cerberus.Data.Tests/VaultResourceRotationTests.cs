@@ -164,17 +164,17 @@ public class VaultResourceRotationTests(PostgresFixture fixture) : IClassFixture
         await using (var db = fixture.CreateContext())
         {
             if (kind == "corruptRecord")
-                await db.Records.Where(x => x.Id == first.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 1 }));
+                await db.Records.Where(x => x.Id == first.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [1]));
             if (kind == "corruptFolder")
-                await db.Folders.Where(x => x.Id == first.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 1 }));
+                await db.Folders.Where(x => x.Id == first.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [1]));
             if (kind == "corruptCollection")
-                await db.Collections.Where(x => x.Id == first.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 1 }));
+                await db.Collections.Where(x => x.Id == first.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [1]));
             if (kind == "collectionEpoch")
                 await db.Collections.Where(x => x.Id == first.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyEpoch, 2));
             if (kind == "corruptGrant")
-                await db.CollectionGrants.Where(x => x.Id == s.Grants[0].Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, new byte[] { 1 }));
+                await db.CollectionGrants.Where(x => x.Id == s.Grants[0].Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, [1]));
             if (kind == "corruptRecipientPins")
-                await db.VaultProtections.Where(x => x.AccountId == s.Recipient.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 }));
+                await db.VaultProtections.Where(x => x.AccountId == s.Recipient.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, [1]));
             if (kind is "zeroResourceRevision" or "exhaustedResource")
                 await db.Records.Where(x => x.Id == first.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, kind == "zeroResourceRevision" ? 0 : ProtocolBinary.MaxInteger));
             if (kind == "resourceAheadSequence")
@@ -186,7 +186,7 @@ public class VaultResourceRotationTests(PostgresFixture fixture) : IClassFixture
             if (kind == "exhaustedGrant")
                 await db.CollectionGrants.Where(x => x.Id == s.Grants[0].Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, ProtocolBinary.MaxInteger));
         }
-        c = c with { ContentReplacements = replacements.ToArray(), GrantReplacements = grants.ToArray() };
+        c = c with { ContentReplacements = [.. replacements], GrantReplacements = [.. grants] };
         var request = await Request(s, owner, c);
         var before = await Snapshot(s);
         Assert.Equal(error, (await Store().ChangeAsync(request, default)).Error);
@@ -234,7 +234,7 @@ public class VaultResourceRotationTests(PostgresFixture fixture) : IClassFixture
         var s = await Setup(owner, recipient, scoped);
         var c = Change(s, owner, recipient, scoped);
         var request = await Request(s, owner, c);
-        request = request with { Change = c with { GrantReplacements = c.GrantReplacements.Select(g => g with { KeyEnvelope = owner.WrapGrant(s.Owner.AccountId, s.Items.Single(i => i.Collection.Id == s.Grants.Single(x => x.PublicId == g.GrantId).CollectionId).Collection.PublicId, g.GrantId, s.Recipient.Actor, recipient.Material.RecipientKey, 2, 2) }).ToArray() } };
+        request = request with { Change = c with { GrantReplacements = [.. c.GrantReplacements.Select(g => g with { KeyEnvelope = owner.WrapGrant(s.Owner.AccountId, s.Items.Single(i => i.Collection.Id == s.Grants.Single(x => x.PublicId == g.GrantId).CollectionId).Collection.PublicId, g.GrantId, s.Recipient.Actor, recipient.Material.RecipientKey, 2, 2) })] } };
         var before = await Snapshot(s);
         Assert.Equal("vault_proof_rejected", (await Store().ChangeAsync(request, default)).Error);
         Assert.Equal(before, await Snapshot(s));
@@ -318,7 +318,7 @@ public class VaultResourceRotationTests(PostgresFixture fixture) : IClassFixture
         var content = new List<ContentReplacement> { new("account", s.Owner.AccountId, 1, ProfileSetup.Envelope(2)), new("profile", s.Profile.ProfileId, 1, ProfileSetup.Envelope(2), s.Profile.KeyWrappers with { MasterKeyWrapper = owner.Wrap(s.Owner.AccountId, "profile", s.Profile.ProfileId, s.Owner.Actor, 2, 2), PasswordWrapper = scoped.Rewrap().PasswordWrapper }) };
         foreach (var item in s.Items)
         { content.Add(new("record", item.Record.PublicId, 1, ProfileSetup.Envelope(2))); content.Add(new("folder", item.Folder.PublicId, 1, ProfileSetup.Envelope(2))); content.Add(new("collection", item.Collection.PublicId, 1, ProfileSetup.Envelope(2))); }
-        return new(s.Owner.AccountId, 1, 1, "rotate-content", owner.Rewrap(), content.ToArray()) { GrantReplacements = s.Grants.Select(g => new CollectionGrantReplacement(g.PublicId, 1, owner.WrapGrant(s.Owner.AccountId, s.Items.Single(i => i.Collection.Id == g.CollectionId).Collection.PublicId, g.PublicId, s.Recipient.Actor, recipient.Material.RecipientKey, 2, 2))).ToArray() };
+        return new(s.Owner.AccountId, 1, 1, "rotate-content", owner.Rewrap(), [.. content]) { GrantReplacements = [.. s.Grants.Select(g => new CollectionGrantReplacement(g.PublicId, 1, owner.WrapGrant(s.Owner.AccountId, s.Items.Single(i => i.Collection.Id == g.CollectionId).Collection.PublicId, g.PublicId, s.Recipient.Actor, recipient.Material.RecipientKey, 2, 2)))] };
     }
     private async Task<ProtectionChangeRequest> Request(Scenario s, ProtectionFixture owner, ProtectionChange c)
     { var raw = JsonSerializer.SerializeToUtf8Bytes(c, ProtectionFixture.Json); var result = await new VaultProtectionStore(fixture).ChallengeAsync(s.Owner.Actor, "change-protection", ProtocolBinary.Encode(SHA256.HashData(raw)), default); Assert.Null(result.Error); return new(s.Owner.Actor, s.Owner.Verifier, result.Data!.ChallengeId, owner.Sign(result.Data), raw, c); }

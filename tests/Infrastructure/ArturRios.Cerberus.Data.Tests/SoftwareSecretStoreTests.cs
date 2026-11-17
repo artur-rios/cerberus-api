@@ -20,7 +20,7 @@ public class SoftwareSecretStoreTests(PostgresFixture fixture) : IClassFixture<P
         using var s = await SoftwareGrantSetup.Create(fixture, true);
         var grant = s.Request();
         if (member)
-            grant = grant with { Input = grant.Input with { Targets = grant.Input.Targets.Where(x => x.Kind == "collection").ToArray() } };
+            grant = grant with { Input = grant.Input with { Targets = [.. grant.Input.Targets.Where(x => x.Kind == "collection")] } };
         Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(grant, default)).Error);
         if (member)
             await Sql("INSERT INTO cerberus.collection_record(account_id,collection_id,record_id) VALUES({0},{1},{2})", s.Owner.InternalId, s.Items.Collection.Id, s.Items.Record.Id);
@@ -120,7 +120,7 @@ public class SoftwareSecretStoreTests(PostgresFixture fixture) : IClassFixture<P
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
         var grant = s.Request();
-        grant = grant with { Input = grant.Input with { Targets = grant.Input.Targets.Where(x => x.Kind == "collection").ToArray() } };
+        grant = grant with { Input = grant.Input with { Targets = [.. grant.Input.Targets.Where(x => x.Kind == "collection")] } };
         Assert.Null((await new SoftwareGrantStore(fixture).GrantAsync(grant, default)).Error);
         if (mode is "folder" or "folderTrash")
         {

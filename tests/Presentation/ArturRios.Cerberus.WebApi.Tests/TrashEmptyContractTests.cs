@@ -25,10 +25,10 @@ public sealed class TrashEmptyContractTests
         { var schema = doc.Components!.Schemas![name]; Assert.Equal(schema.Properties!.Keys.Order(), schema.Required!.Order()); Assert.All(schema.Properties.Values, p => Assert.False(p.Type?.HasFlag(JsonSchemaType.Null))); }
         var command = doc.Components!.Schemas!["EmptyTrashCommand"];
         Assert.False(command.AdditionalPropertiesAllowed);
-        Assert.Equal(new[] { "expectedRevision" }, command.Properties!.Keys);
-        Assert.Equal(new[] { "accountId", "counts", "purgedAt", "totalPurged" }, doc.Components.Schemas["EmptyTrashOutput"].Properties!.Keys.Order());
+        Assert.Equal(["expectedRevision"], command.Properties!.Keys);
+        Assert.Equal(["accountId", "counts", "purgedAt", "totalPurged"], doc.Components.Schemas["EmptyTrashOutput"].Properties!.Keys.Order());
         var count = doc.Components.Schemas["TrashPurgedCount"];
-        Assert.Equal(new[] { "count", "kind" }, count.Properties!.Keys.Order());
-        Assert.Equal(new[] { "collection", "folder", "profile", "record" }, count.Properties["kind"].Enum!.Select(x => x!.ToString()).Order());
+        Assert.Equal(["count", "kind"], count.Properties!.Keys.Order());
+        Assert.Equal(["collection", "folder", "profile", "record"], count.Properties["kind"].Enum!.Select(x => x!.ToString()).Order());
     }
 }

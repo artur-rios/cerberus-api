@@ -84,15 +84,15 @@ public sealed class CollectionGrantRevocationStore(IDbContextFactory<AppDbContex
                 return new(Error: "revision_conflict");
             var revision = request.Input.ExpectedRevision + 1;
             var stamp = Guid.NewGuid();
-            var parameters = Parameters(request).Concat(new object[]
-            {
+            var parameters = Parameters(request).Concat(
+            [
                 new NpgsqlParameter("stable", NpgsqlDbType.Jsonb) { Value = captured.Stable },
                 new NpgsqlParameter("grants", NpgsqlDbType.Jsonb) { Value = captured.Grants },
                 new NpgsqlParameter("collateral", NpgsqlDbType.Jsonb) { Value = captured.Collateral },
                 new NpgsqlParameter("stamp", stamp), new NpgsqlParameter("revoked", (int)CollectionGrantState.Revoked),
                 new NpgsqlParameter("revision", revision), new NpgsqlParameter("id", item.Id), new NpgsqlParameter("pair", grant.Id),
                 new NpgsqlParameter("previous", grant.Revision), new NpgsqlParameter("generation", captured.RecipientGeneration.Value)
-            }).ToArray();
+            ]).ToArray();
             // One database-time authorization statement is the linearization point.
             // The dependent account UPDATE can only consume the exact successful grant CAS.
             var count = await db.Database.ExecuteSqlRawAsync(Authority + """

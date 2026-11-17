@@ -21,7 +21,7 @@ internal static class ResourceErasure
         async Task<int> Mutate(string sql, params object[] values)
         {
             await Fence();
-            var args = values.Concat(new object[] { new NpgsqlParameter("terminal_kind", kind), new NpgsqlParameter("terminal_id", id) }).ToList();
+            var args = values.Concat([new NpgsqlParameter("terminal_kind", kind), new NpgsqlParameter("terminal_id", id)]).ToList();
             var guard = " AND EXISTS(SELECT FROM cerberus.terminal_erasure t WHERE t.resource_kind=@terminal_kind AND t.resource_id=@terminal_id)";
             if (claim is not null)
             { guard += " AND EXISTS(SELECT FROM cerberus.retention_work_item w WHERE w.public_id=@work AND w.operation_key=@work_key AND w.claim_token=@token AND w.completed_at IS NULL AND w.claim_expires_at>statement_timestamp())"; args.AddRange([new NpgsqlParameter("work", claim.WorkId), new NpgsqlParameter("work_key", claim.OperationKey), new NpgsqlParameter("token", claim.Token)]); }

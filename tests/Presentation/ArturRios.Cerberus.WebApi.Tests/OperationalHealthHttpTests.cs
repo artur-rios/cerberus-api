@@ -87,7 +87,7 @@ public sealed class OperationalHealthHttpTests
         await using var host = await _fixture.StartAsync();
         using var request = new HttpRequestMessage(HttpMethod.Get, "/health/details?details=true");
         if (actor != "missing")
-            request.Headers.TryAddWithoutValidation("Authorization", actor == "duplicate-header" ? new[] { "Bearer " + _fixture.Token("person"), "Bearer " + _fixture.Token("person") } : new[] { "Bearer " + (actor == "invalid" ? "not-a-token" : _fixture.Token(actor == "foreign-app" ? "application" : "person", true)) });
+            request.Headers.TryAddWithoutValidation("Authorization", actor == "duplicate-header" ? new[] { "Bearer " + _fixture.Token("person"), "Bearer " + _fixture.Token("person") } : ["Bearer " + (actor == "invalid" ? "not-a-token" : _fixture.Token(actor == "foreign-app" ? "application" : "person", true))]);
         using var response = await host.Client.SendAsync(request);
         await Error(response, HttpStatusCode.Unauthorized, "authentication_required", "details-unauthenticated");
         Assert.Empty(_fixture.Calls);
@@ -234,18 +234,18 @@ public sealed class OperationalHealthHttpTests
         return body;
     }
     private static async Task Minimal(HttpResponseMessage response, HttpStatusCode status, string expected, string sample)
-    { var raw = await Capture(response, sample); Assert.Equal(status, response.StatusCode); using var doc = JsonDocument.Parse(raw); Assert.Equal(new[] { "status" }, doc.RootElement.EnumerateObject().Select(x => x.Name)); Assert.Equal(expected, doc.RootElement.GetProperty("status").GetString()); }
+    { var raw = await Capture(response, sample); Assert.Equal(status, response.StatusCode); using var doc = JsonDocument.Parse(raw); Assert.Equal(["status"], doc.RootElement.EnumerateObject().Select(x => x.Name)); Assert.Equal(expected, doc.RootElement.GetProperty("status").GetString()); }
     private static async Task<JsonElement> Details(HttpResponseMessage response, HttpStatusCode status, string expected, string sample)
     {
         using var doc = JsonDocument.Parse(await Capture(response, sample));
         Assert.Equal(status, response.StatusCode);
         var body = doc.RootElement;
-        Assert.Equal(new[] { "components", "status" }, body.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["components", "status"], body.EnumerateObject().Select(x => x.Name).Order());
         Assert.Equal(expected, body.GetProperty("status").GetString());
         var components = body.GetProperty("components").EnumerateArray().ToArray();
-        Assert.Equal(new[] { "database", "identity", "restore" }, components.Select(x => x.GetProperty("name").GetString()));
+        Assert.Equal(["database", "identity", "restore"], components.Select(x => x.GetProperty("name").GetString()));
         foreach (var x in components)
-        { Assert.Equal(new[] { "elapsedMilliseconds", "name", "status" }, x.EnumerateObject().Select(p => p.Name).Order()); Assert.Contains(x.GetProperty("status").GetString(), new[] { "healthy", "unhealthy" }); Assert.True(x.GetProperty("elapsedMilliseconds").GetInt64() >= 0); }
+        { Assert.Equal(["elapsedMilliseconds", "name", "status"], x.EnumerateObject().Select(p => p.Name).Order()); Assert.Contains(x.GetProperty("status").GetString(), new[] { "healthy", "unhealthy" }); Assert.True(x.GetProperty("elapsedMilliseconds").GetInt64() >= 0); }
         return body.Clone();
     }
     private static async Task Error(HttpResponseMessage response, HttpStatusCode status, string code, string sample)

@@ -270,8 +270,8 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         var input = ProfileSetup.Input(reader, route == "direct" ? ownerKeys : readerKeys, scopedKeys) with
         {
             CollectionIds = route == "direct" ? [] : [resources.Collection.PublicId],
-            RecordIds = route == "direct" && kind == "record" ? records.Select(r => r.PublicId).ToArray() : [],
-            FolderIds = route == "direct" && kind == "folder" ? folders.Select(f => f.PublicId).ToArray() : []
+            RecordIds = route == "direct" && kind == "record" ? [.. records.Select(r => r.PublicId)] : [],
+            FolderIds = route == "direct" && kind == "folder" ? [.. folders.Select(f => f.PublicId)] : []
         };
         Assert.Null((await new ProfileCreateStore(fixture).CreateAsync(new(reader.Actor, reader.Verifier, input), default)).Error);
         var profile = await db.Profiles.SingleAsync(x => x.PublicId == input.ProfileId);

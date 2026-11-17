@@ -31,7 +31,7 @@ public class RecordCreateStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         var parents = new List<Profile>();
         if (profiles > 0)
         { parents.Add(await Profile(s, owner, first, f)); parents.Add(await Profile(s, owner, second, f)); }
-        var input = Input(parents.Select(p => p.PublicId).ToArray(), f?.PublicId);
+        var input = Input([.. parents.Select(p => p.PublicId)], f?.PublicId);
         var protectedBefore = await Protected(s);
         var result = await Store().CreateAsync(new(s.Actor, s.Verifier, input), default);
         Assert.Null(result.Error);
@@ -50,7 +50,7 @@ public class RecordCreateStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         Assert.Null(row.PurgeAt);
         Assert.Equal(parents.Select(p => p.Id).Order(), await db.ProfileRecords.Where(x => x.RecordId == row.Id).OrderBy(x => x.ProfileId).Select(x => x.ProfileId).ToArrayAsync());
         foreach (var p in parents)
-        { var current = await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id); Assert.Equal(p.Revision + 1, current.Revision); Assert.True(current.ServerSequence > p.ServerSequence); Assert.Equal(p.EditedAt, current.EditedAt); Assert.Equal(p.Envelope, current.Envelope); Assert.Equal(p.KeyWrappers, current.KeyWrappers); var view = await new ProfileReadStore(fixture).ReadAsync(new(s.Actor, s.Verifier, p.PublicId), default); Assert.Contains(input.RecordId, view.Data!.RecordIds); Assert.Equal(f is null ? Array.Empty<Guid>() : [f.PublicId], view.Data.FolderIds); }
+        { var current = await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id); Assert.Equal(p.Revision + 1, current.Revision); Assert.True(current.ServerSequence > p.ServerSequence); Assert.Equal(p.EditedAt, current.EditedAt); Assert.Equal(p.Envelope, current.Envelope); Assert.Equal(p.KeyWrappers, current.KeyWrappers); var view = await new ProfileReadStore(fixture).ReadAsync(new(s.Actor, s.Verifier, p.PublicId), default); Assert.Contains(input.RecordId, view.Data!.RecordIds); Assert.Equal(f is null ? [] : [f.PublicId], view.Data.FolderIds); }
         if (f is not null)
         { var current = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == f.Id); Assert.Equal(f.Revision + 1, current.Revision); Assert.True(current.ServerSequence > f.ServerSequence); Assert.Equal(f.Envelope, current.Envelope); Assert.Equal(f.EditedAt, current.EditedAt); }
     }

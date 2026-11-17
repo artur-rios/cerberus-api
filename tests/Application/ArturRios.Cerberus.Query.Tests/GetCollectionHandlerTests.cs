@@ -65,9 +65,9 @@ public class GetCollectionHandlerTests
         Assert.Equal(2, item.ServerSequence);
         Assert.Equal(DateTimeOffset.FromUnixTimeSeconds(1780000000), item.EditedAt);
         Assert.Equal(new EncryptedEnvelope("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), item.Envelope);
-        Assert.Equal(relationships ? new[] { First, Middle, Last } : [], item.ProfileIds);
-        Assert.Equal(relationships ? new[] { First, Middle } : [], item.RecordIds);
-        Assert.Equal(relationships ? new[] { First, Last } : [], item.FolderIds);
+        Assert.Equal(relationships ? [First, Middle, Last] : [], item.ProfileIds);
+        Assert.Equal(relationships ? [First, Middle] : [], item.RecordIds);
+        Assert.Equal(relationships ? [First, Last] : [], item.FolderIds);
         if (relationships)
         {
             Assert.Equal(new[] { Last, First, Middle }, profiles);
@@ -75,7 +75,7 @@ public class GetCollectionHandlerTests
             Assert.Equal(new[] { Last, First }, folders);
         }
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(item, ProtectionFixture.Json));
-        Assert.Equal(new[] { "collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds", "revision", "serverSequence" },
+        Assert.Equal(["collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds", "revision", "serverSequence"],
             json.RootElement.EnumerateObject().Select(x => x.Name).Order());
         store.VerifyAll();
         store.VerifyNoOtherCalls();

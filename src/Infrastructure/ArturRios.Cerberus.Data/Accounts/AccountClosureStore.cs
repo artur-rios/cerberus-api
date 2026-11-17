@@ -111,7 +111,7 @@ public sealed class AccountClosureStore(IDbContextFactory<AppDbContext> factory)
                 if (await db.CollectionGrants.Where(x => x.Id == grant.Id && x.PublicId == grant.PublicId && x.CollectionId == grant.CollectionId
                         && x.RecipientAccountId == grant.RecipientId && x.State == grant.State && x.Revision == grant.Revision)
                     .ExecuteUpdateAsync(x => x.SetProperty(g => g.State, CollectionGrantState.Revoked).SetProperty(g => g.Revision, revision)
-                        .SetProperty(g => g.RecipientKeyEnvelope, Array.Empty<byte>()).SetProperty(g => g.ConcurrencyStamp, stamp), ct) != 1)
+                        .SetProperty(g => g.RecipientKeyEnvelope, []).SetProperty(g => g.ConcurrencyStamp, stamp), ct) != 1)
                     return new(Error: "persistence_unavailable");
             }
             foreach (var recipient in generations)
@@ -122,7 +122,7 @@ public sealed class AccountClosureStore(IDbContextFactory<AppDbContext> factory)
                 if (await db.SoftwareGrants.Where(x => x.Id == grant.Id && x.AccountId == owner.Id && x.State == grant.State && x.Revision == grant.Revision)
                     .ExecuteUpdateAsync(x => x.SetProperty(g => g.State, SoftwareGrantState.Revoked)
                         .SetProperty(g => g.Revision, grant.Revision + (grant.State == SoftwareGrantState.Active ? 1 : 0))
-                        .SetProperty(g => g.RecipientKey, Array.Empty<byte>()).SetProperty(g => g.ConcurrencyStamp, stamp), ct) != 1)
+                        .SetProperty(g => g.RecipientKey, []).SetProperty(g => g.ConcurrencyStamp, stamp), ct) != 1)
                     return new(Error: "persistence_unavailable");
             var recordTargets = await db.SoftwareGrantRecords.CountAsync(x => x.AccountId == owner.Id, ct);
             var collectionTargets = await db.SoftwareGrantCollections.CountAsync(x => x.AccountId == owner.Id, ct);

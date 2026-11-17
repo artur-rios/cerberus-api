@@ -22,8 +22,8 @@ public sealed class OperationalHealthProbeTests
         var result = await new OperationalHealthProbe(database, provider.Object, new(), new(), TimeProvider.System).CheckAsync(default);
         Assert.Equal(2, invoked);
         Assert.Equal(expected, result.Status);
-        Assert.Equal(new[] { "database", "identity", "restore" }, result.Components.Select(x => x.Name));
-        Assert.Equal(new[] { db ? "healthy" : "unhealthy", identity ? "healthy" : "unhealthy", "healthy" }, result.Components.Select(x => x.Status));
+        Assert.Equal(["database", "identity", "restore"], result.Components.Select(x => x.Name));
+        Assert.Equal([db ? "healthy" : "unhealthy", identity ? "healthy" : "unhealthy", "healthy"], result.Components.Select(x => x.Status));
         Assert.All(result.Components, x => Assert.True(x.ElapsedMilliseconds >= 0));
     }
     [UnitTheory]

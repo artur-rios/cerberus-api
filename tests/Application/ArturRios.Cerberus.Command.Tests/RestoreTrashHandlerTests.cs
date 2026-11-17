@@ -58,9 +58,9 @@ public class RestoreTrashHandlerTests
         Assert.Equal("parent", omission.AssociationKind);
         Assert.Equal(1, omission.Count);
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
-        Assert.Equal(new[] { "items", "omissions", "operationId", "restoredAt", "rootKind", "rootResourceId" }, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        Assert.Equal(new[] { "editedAt", "kind", "resourceId", "revision", "serverSequence" }, json.RootElement.GetProperty("items")[0].EnumerateObject().Select(x => x.Name).Order());
-        Assert.Equal(new[] { "associationKind", "count", "resourceId", "resourceKind" }, json.RootElement.GetProperty("omissions")[0].EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["items", "omissions", "operationId", "restoredAt", "rootKind", "rootResourceId"], json.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["editedAt", "kind", "resourceId", "revision", "serverSequence"], json.RootElement.GetProperty("items")[0].EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["associationKind", "count", "resourceId", "resourceKind"], json.RootElement.GetProperty("omissions")[0].EnumerateObject().Select(x => x.Name).Order());
         store.VerifyAll();
     }
     [UnitTheory]

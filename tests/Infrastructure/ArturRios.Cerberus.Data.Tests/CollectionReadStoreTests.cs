@@ -52,7 +52,7 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         Assert.Equal(a.Collection.ServerSequence, data.Collection.ServerSequence);
         Assert.Equal(a.Collection.EditedAt, data.Collection.EditedAt);
         Assert.Equal(1, data.Collection.KeyEpoch);
-        Assert.Equal((selected ? new[] { p.PublicId } : new[] { p.PublicId, q.PublicId }).Order(), data.ProfileIds);
+        Assert.Equal((selected ? new[] { p.PublicId } : [p.PublicId, q.PublicId]).Order(), data.ProfileIds);
         Assert.Equal(new[] { a.Record.PublicId, second.Record.PublicId }.Order(), data.RecordIds);
         Assert.Equal(new[] { a.Folder.PublicId, second.Folder.PublicId }.Order(), data.FolderIds);
         Assert.DoesNotContain(inherited.PublicId, data.RecordIds);
@@ -92,7 +92,7 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         var result = await Read(request, a.Collection.PublicId);
         Assert.Null(result.Error);
         Assert.Equal(a.Collection.Envelope, result.Data!.Collection.Envelope);
-        Assert.Equal((selected ? new[] { p.PublicId } : new[] { p.PublicId, q.PublicId }).Order(), result.Data.ProfileIds);
+        Assert.Equal((selected ? new[] { p.PublicId } : [p.PublicId, q.PublicId]).Order(), result.Data.ProfileIds);
         Assert.DoesNotContain(ownerProfile.PublicId, result.Data.ProfileIds);
         Assert.DoesNotContain(otherProfile.PublicId, result.Data.ProfileIds);
         Assert.Equal(new[] { a.Record.PublicId }, result.Data.RecordIds);
@@ -210,9 +210,9 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
             var result = await Read(s, a.Collection.PublicId);
             Assert.Null(result.Error);
             var both = kind is "ancestorTrash" or "ancestorTerminal" or "incomplete" or "foreignAncestor";
-            Assert.Equal(both || kind is "recordTrash" or "recordTerminal" or "foreignRecord" ? [] : new[] { a.Record.PublicId }, result.Data!.RecordIds);
-            Assert.Equal(both || kind is "folderTrash" or "folderTerminal" or "foreignFolder" ? [] : new[] { a.Folder.PublicId }, result.Data.FolderIds);
-            Assert.Equal(kind is "profileTrash" or "profileTerminal" ? [] : new[] { p.PublicId }, result.Data.ProfileIds);
+            Assert.Equal(both || kind is "recordTrash" or "recordTerminal" or "foreignRecord" ? [] : [a.Record.PublicId], result.Data!.RecordIds);
+            Assert.Equal(both || kind is "folderTrash" or "folderTerminal" or "foreignFolder" ? [] : [a.Folder.PublicId], result.Data.FolderIds);
+            Assert.Equal(kind is "profileTrash" or "profileTerminal" ? [] : [p.PublicId], result.Data.ProfileIds);
         }
         finally
         {
@@ -300,9 +300,9 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         {
             Assert.Null(result.Error);
             Assert.Equal(id, result.Data!.Collection.CollectionId);
-            Assert.Equal(kind == "profile" ? [] : new[] { id }, result.Data.ProfileIds);
-            Assert.Equal(kind == "record" ? [] : new[] { id }, result.Data.RecordIds);
-            Assert.Equal(kind == "folder" ? [] : new[] { id }, result.Data.FolderIds);
+            Assert.Equal(kind == "profile" ? [] : [id], result.Data.ProfileIds);
+            Assert.Equal(kind == "record" ? [] : [id], result.Data.RecordIds);
+            Assert.Equal(kind == "folder" ? [] : [id], result.Data.FolderIds);
         }
     }
 
@@ -926,7 +926,7 @@ public class CollectionReadStoreTests(PostgresFixture fixture, ITestOutputHelper
         public int Writes { get; private set; }
         public string Sql { get; private set; } = ""; public NpgsqlParameter[] Parameters { get; private set; } = [];
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
-        { Readers++; Sql = command.CommandText; Parameters = command.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone()).ToArray(); return ValueTask.FromResult(result); }
+        { Readers++; Sql = command.CommandText; Parameters = [.. command.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone())]; return ValueTask.FromResult(result); }
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<int> result, CancellationToken ct = default)
         { Writes++; return ValueTask.FromResult(result); }
     }

@@ -140,7 +140,7 @@ public class CreateCollectionHandlerTests
         Assert.Equal(command.ToInput(), captured.Input);
         Assert.Equal(source.Token, received);
         using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
-        Assert.Equal(new[] { "collectionId", "editedAt", "revision", "serverSequence" }, output.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["collectionId", "editedAt", "revision", "serverSequence"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         Assert.Equal(201, CreateCollectionMessages.StatusCodes[result.Messages.Single()]);
     }
 
@@ -326,7 +326,7 @@ public class CreateCollectionHandlerTests
         var body = Body();
         var command = Parse(body.ToJsonString());
         Assert.True(new CreateCollectionValidator().Validate(command).IsValid);
-        Assert.Equal(new[] { "collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds" }, body.Select(x => x.Key).Order());
+        Assert.Equal(["collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds"], body.Select(x => x.Key).Order());
     }
 
     [UnitFact]

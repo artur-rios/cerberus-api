@@ -209,7 +209,7 @@ public class ProfileListHttpTests(RegistrationApiFixture fixture, SharedApiHost 
         Authorize(RegistrationApiFixture.Token(s.Actor));
         await using var db = fixture.Context();
         if (corrupt == "envelope")
-            await db.Profiles.Where(x => x.PublicId == second).ExecuteUpdateAsync(x => x.SetProperty(p => p.Envelope, new byte[] { 1 }));
+            await db.Profiles.Where(x => x.PublicId == second).ExecuteUpdateAsync(x => x.SetProperty(p => p.Envelope, [1]));
         else if (corrupt == "recipient")
         { var row = await db.Profiles.SingleAsync(x => x.PublicId == second); var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, ProtectionFixture.Json)!; row.KeyWrappers = JsonSerializer.SerializeToUtf8Bytes(wrappers with { MasterKeyWrapper = wrappers.MasterKeyWrapper with { RecipientIdentityId = Guid.NewGuid() } }, ProtectionFixture.Json); await db.SaveChangesAsync(); }
         else if (corrupt is "zero" or "duplicate")

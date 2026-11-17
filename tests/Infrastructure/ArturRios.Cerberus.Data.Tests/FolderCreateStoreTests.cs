@@ -31,7 +31,7 @@ public class FolderCreateStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         var parents = new List<Profile>();
         if (profiles > 0)
         { parents.Add(await Profile(s, owner, first, f)); parents.Add(await Profile(s, owner, second, f)); }
-        var input = Input(parents.Select(p => p.PublicId).ToArray(), f?.PublicId);
+        var input = Input([.. parents.Select(p => p.PublicId)], f?.PublicId);
         var protectedBefore = await Protected(s);
         var result = await Store().CreateAsync(new(s.Actor, s.Verifier, input), default);
         Assert.Null(result.Error);
@@ -50,7 +50,7 @@ public class FolderCreateStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         Assert.Null(row.PurgeAt);
         Assert.Equal(parents.Select(p => p.Id).Order(), await db.ProfileFolders.Where(x => x.FolderId == row.Id).OrderBy(x => x.ProfileId).Select(x => x.ProfileId).ToArrayAsync());
         foreach (var p in parents)
-        { var current = await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id); Assert.Equal(p.Revision + 1, current.Revision); Assert.True(current.ServerSequence > p.ServerSequence); Assert.Equal(p.EditedAt, current.EditedAt); Assert.Equal(p.Envelope, current.Envelope); Assert.Equal(p.KeyWrappers, current.KeyWrappers); var view = await new ProfileReadStore(fixture).ReadAsync(new(s.Actor, s.Verifier, p.PublicId), default); Assert.Contains(input.FolderId, view.Data!.FolderIds); Assert.Equal((f is null ? new[] { input.FolderId } : new[] { f.PublicId, input.FolderId }).Order(), view.Data.FolderIds.Order()); }
+        { var current = await db.Profiles.AsNoTracking().SingleAsync(x => x.Id == p.Id); Assert.Equal(p.Revision + 1, current.Revision); Assert.True(current.ServerSequence > p.ServerSequence); Assert.Equal(p.EditedAt, current.EditedAt); Assert.Equal(p.Envelope, current.Envelope); Assert.Equal(p.KeyWrappers, current.KeyWrappers); var view = await new ProfileReadStore(fixture).ReadAsync(new(s.Actor, s.Verifier, p.PublicId), default); Assert.Contains(input.FolderId, view.Data!.FolderIds); Assert.Equal((f is null ? new[] { input.FolderId } : [f.PublicId, input.FolderId]).Order(), view.Data.FolderIds.Order()); }
         if (f is not null)
         { var current = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == f.Id); Assert.Equal(f.Revision + 1, current.Revision); Assert.True(current.ServerSequence > f.ServerSequence); Assert.Equal(f.Envelope, current.Envelope); Assert.Equal(f.EditedAt, current.EditedAt); }
     }
@@ -402,9 +402,9 @@ public class FolderCreateStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         await using (var db = fixture.CreateContext())
         {
             if (kind == "parentCiphertext")
-                await db.Folders.Where(x => x.Id == parent.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 255 }));
+                await db.Folders.Where(x => x.Id == parent.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [255]));
             if (kind == "profileCiphertext")
-                await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 255 }));
+                await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [255]));
             if (kind == "ancestorCounters")
                 await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, 0).SetProperty(v => v.ServerSequence, 0));
         }

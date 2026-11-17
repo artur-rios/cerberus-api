@@ -97,11 +97,11 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory) : I
                 return new(Error: "persistence_unavailable");
             if (changedParents.Any(x => x.Revision == ProtocolBinary.MaxInteger))
                 return new(Error: "revision_conflict");
-            var parameters = Parameters(request).Concat(new object[]{new NpgsqlParameter("expected",request.ExpectedRevision),
+            var parameters = Parameters(request).Concat([new NpgsqlParameter("expected",request.ExpectedRevision),
                 new NpgsqlParameter("previous_sequence",original.ServerSequence),new NpgsqlParameter("original",original.Envelope),
                 new NpgsqlParameter("parent",NpgsqlDbType.Bigint){Value=(object?)originalParent??DBNull.Value},
                 new NpgsqlParameter("held_collections",heldCollections),new NpgsqlParameter("held_grants",heldGrants),
-                new NpgsqlParameter("native_evidence",NpgsqlDbType.Jsonb){Value=current.NativeEvidence},new NpgsqlParameter("stamp",Guid.NewGuid())}).ToArray();
+                new NpgsqlParameter("native_evidence",NpgsqlDbType.Jsonb){Value=current.NativeEvidence},new NpgsqlParameter("stamp",Guid.NewGuid())]).ToArray();
             var changed = await db.Database.ExecuteSqlRawAsync(Authority + """
                 UPDATE cerberus.record AS r SET folder_id=(SELECT id FROM destination_visible),revision=r.revision+1,
                   server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp=@stamp

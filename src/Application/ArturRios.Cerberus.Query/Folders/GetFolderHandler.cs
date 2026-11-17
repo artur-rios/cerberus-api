@@ -31,9 +31,9 @@ public sealed class GetFolderHandler(IFolderReadStore store) : IQueryHandlerAsyn
             ServerSequence = folder.ServerSequence,
             EditedAt = folder.EditedAt,
             Envelope = folder.Envelope,
-            ProfileIds = data.ProfileIds.Order().ToArray(),
+            ProfileIds = [.. data.ProfileIds.Order()],
             ParentFolderId = data.ParentFolderId,
-            CollectionIds = data.CollectionIds.Order().ToArray()
+            CollectionIds = [.. data.CollectionIds.Order()]
         }).WithMessage("folder_found");
     }
     private static bool ValidIds(Guid[]? ids) => ids is not null && ids.All(x => x != Guid.Empty) && ids.Distinct().Count() == ids.Length;

@@ -54,7 +54,7 @@ public class CollectionReadHttpTests(RegistrationApiFixture fixture, SharedApiHo
         Assert.Equal(target.CollectionId, data.CollectionId);
         Assert.Equal(target.Envelope, data.Envelope);
         Assert.Equal(Normalize(target.EditedAt), data.EditedAt);
-        Assert.Equal((selected ? new[] { p.PublicId } : new[] { p.PublicId, q.PublicId }).Order(), data.ProfileIds);
+        Assert.Equal((selected ? new[] { p.PublicId } : [p.PublicId, q.PublicId]).Order(), data.ProfileIds);
         Assert.Equal(new[] { outside.PublicId, direct.PublicId }.Order(), data.RecordIds);
         Assert.Equal(new[] { root.PublicId }, data.FolderIds);
         Assert.DoesNotContain(descendant.PublicId, data.RecordIds);
@@ -97,7 +97,7 @@ public class CollectionReadHttpTests(RegistrationApiFixture fixture, SharedApiHo
         using var response = await Read(request, "/api/collections/" + target.CollectionId);
         var data = await Success<CollectionDetailsOutput>(response, 200);
         Assert.Equal(target.Envelope, data.Envelope);
-        Assert.Equal((selected ? new[] { p.PublicId } : new[] { p.PublicId, q.PublicId }).Order(), data.ProfileIds);
+        Assert.Equal((selected ? new[] { p.PublicId } : [p.PublicId, q.PublicId]).Order(), data.ProfileIds);
         Assert.Equal(new[] { direct.PublicId }, data.RecordIds);
         Assert.Equal(new[] { root.PublicId }, data.FolderIds);
         Assert.Equal(before, await Snapshot(s));
@@ -364,7 +364,7 @@ public class CollectionReadHttpTests(RegistrationApiFixture fixture, SharedApiHo
         await using (var db = fixture.Context())
         {
             if (kind == "trash")
-                await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow).SetProperty(v => v.Envelope, new byte[] { 1 }));
+                await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow).SetProperty(v => v.Envelope, [1]));
             if (kind == "terminal")
             { db.TerminalErasures.Add(new() { ResourceId = target.CollectionId, ResourceKind = "collection", DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
             if (kind == "owner")
@@ -391,7 +391,7 @@ public class CollectionReadHttpTests(RegistrationApiFixture fixture, SharedApiHo
         var target = await Create(s);
         await using var db = fixture.Context();
         if (kind == "envelope")
-            await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 1 }));
+            await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [1]));
         if (kind == "revision")
             await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, 0));
         if (kind is "sequence" or "unsafeSequence")
@@ -427,9 +427,9 @@ public class CollectionReadHttpTests(RegistrationApiFixture fixture, SharedApiHo
         await using (var db = fixture.Context())
         {
             if (kind == "wrapper")
-                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, new byte[] { 1 }));
+                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, [1]));
             if (kind is "ownerPins" or "recipientPins")
-                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? foreign.InternalId : s.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 }));
+                await db.VaultProtections.Where(x => x.AccountId == (kind == "ownerPins" ? foreign.InternalId : s.InternalId)).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, [1]));
             if (kind == "epoch")
                 await db.Collections.Where(x => x.PublicId == target.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(v => v.KeyEpoch, 2));
             if (kind == "revision")
@@ -481,11 +481,11 @@ public class CollectionReadHttpTests(RegistrationApiFixture fixture, SharedApiHo
         var cycle = await Folder(s);
         await using (var db = fixture.Context())
         {
-            await db.Collections.Where(x => x.PublicId == unrelated.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 1 }).SetProperty(v => v.ServerSequence, 0));
-            await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, new byte[] { 1 }));
+            await db.Collections.Where(x => x.PublicId == unrelated.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [1]).SetProperty(v => v.ServerSequence, 0));
+            await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.RecipientKeyEnvelope, [1]));
             await db.Folders.Where(x => x.Id == cycle.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ParentFolderId, cycle.Id));
-            await db.Records.Where(x => x.Id == member.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 1 }).SetProperty(v => v.Revision, 0));
-            await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, new byte[] { 1 }).SetProperty(v => v.Revision, 0));
+            await db.Records.Where(x => x.Id == member.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [1]).SetProperty(v => v.Revision, 0));
+            await db.Folders.Where(x => x.Id == root.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Envelope, [1]).SetProperty(v => v.Revision, 0));
         }
         var before = await Snapshot(s);
         using var response = await Read(s, "/api/collections/" + target.CollectionId);
@@ -549,7 +549,7 @@ public class CollectionReadHttpTests(RegistrationApiFixture fixture, SharedApiHo
         if (typeof(T) == typeof(CollectionDetailsOutput))
         {
             var data = document.RootElement.GetProperty("data");
-            Assert.Equal(new[] { "collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds", "revision", "serverSequence" }, data.EnumerateObject().Select(x => x.Name).Order());
+            Assert.Equal(["collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds", "revision", "serverSequence"], data.EnumerateObject().Select(x => x.Name).Order());
             Assert.Contains("collection_found", document.RootElement.GetProperty("messages").EnumerateArray().Select(x => x.GetString()));
         }
         return Assert.IsType<T>(JsonSerializer.Deserialize<DataOutput<T>>(text, ProtectionFixture.Json)!.Data);

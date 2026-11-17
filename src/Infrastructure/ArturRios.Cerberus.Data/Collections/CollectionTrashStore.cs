@@ -112,19 +112,19 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
                 || await db.TrashEntries.AnyAsync(x => x.ResourceKind == "collection" && x.ResourceId == request.CollectionId, ct))
                 return new(Error: "revision_conflict");
             var snapshot = new CollectionAssociationSnapshot(
-                graph.Resources.Where(x => x.Kind == "profile" && graph.ProfileIds.Contains(x.Id)).Select(x => x.PublicId).Distinct().Order().ToArray(),
-                graph.Resources.Where(x => x.Kind == "record").Select(x => x.PublicId).Distinct().Order().ToArray(),
-                graph.Resources.Where(x => x.Kind == "folder").Select(x => x.PublicId).Distinct().Order().ToArray());
+                [.. graph.Resources.Where(x => x.Kind == "profile" && graph.ProfileIds.Contains(x.Id)).Select(x => x.PublicId).Distinct().Order()],
+                [.. graph.Resources.Where(x => x.Kind == "record").Select(x => x.PublicId).Distinct().Order()],
+                [.. graph.Resources.Where(x => x.Kind == "folder").Select(x => x.PublicId).Distinct().Order()]);
             var original = await db.Collections.AsNoTracking().SingleAsync(x => x.Id == target.Id, ct);
             var stamp = Guid.NewGuid();
-            var parameters = Parameters(request).Concat(new object[]
-            {
+            var parameters = Parameters(request).Concat(
+            [
                 new NpgsqlParameter("expected", request.ExpectedRevision), new NpgsqlParameter("previous_sequence", target.Sequence),
                 new NpgsqlParameter("original_stamp", target.Stamp), new NpgsqlParameter("stamp", stamp),
                 new NpgsqlParameter("original", original.Envelope), new NpgsqlParameter("epoch", target.KeyEpoch),
                 new NpgsqlParameter("selection", NpgsqlDbType.Bigint) { Value = (object?)initial.Selection ?? DBNull.Value },
                 new NpgsqlParameter("inventory", NpgsqlDbType.Jsonb) { Value = frozen }
-            }).ToArray();
+            ]).ToArray();
             // This statement is the authorization boundary: re-evaluate current scope and inventory.
             var changed = await db.Database.ExecuteSqlRawAsync(Authority + InventoryCtes + ", payload AS (" + InventorySelect + ") " + """
                 UPDATE cerberus.collection AS c SET deleted_at=statement_timestamp(),purge_at=statement_timestamp()+interval '720 hours',
@@ -222,7 +222,7 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
         // Kind comes only from the three private SQL literals in InventoryCtes.
         var stamp = Guid.NewGuid();
         var sql = $"UPDATE cerberus.{resource.Kind} SET revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={{0}} WHERE id={{1}} AND account_id={{2}} AND revision={{3}} AND server_sequence={{4}} AND concurrency_stamp={{5}} AND deleted_at IS NULL AND purge_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_kind='{resource.Kind}' AND e.resource_id=cerberus.{resource.Kind}.public_id)";
-        if (await db.Database.ExecuteSqlRawAsync(sql, new object[] { stamp, resource.Id, resource.AccountId, resource.Revision, resource.Sequence, resource.Stamp }, ct) != 1)
+        if (await db.Database.ExecuteSqlRawAsync(sql, [stamp, resource.Id, resource.AccountId, resource.Revision, resource.Sequence, resource.Stamp], ct) != 1)
             return "revision_conflict";
         var readSql = $"SELECT revision,server_sequence,concurrency_stamp FROM cerberus.{resource.Kind} WHERE id={{0}}";
         var stableSql = $"SELECT (to_jsonb(r)-'revision'-'server_sequence'-'concurrency_stamp')::text AS \"Value\" FROM cerberus.{resource.Kind} r WHERE id={{0}}";

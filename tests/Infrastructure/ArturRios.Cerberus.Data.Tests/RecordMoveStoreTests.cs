@@ -37,12 +37,12 @@ public class RecordMoveStoreTests(PostgresFixture fixture) : IClassFixture<Postg
         await Members(s, a.Collection, [target.Id], []);
         await Profile(s, owner, scoped, records: [target.PublicId]);
         var destination = route is "toRoot" or "rootNoop" ? null : route == "same" ? a.Folder : b.Folder;
-        var stable = await Stable(s, target.Id, route is "same" or "rootNoop" ? [] : new[] { a.Folder.Id, b.Folder.Id });
+        var stable = await Stable(s, target.Id, route is "same" or "rootNoop" ? [] : [a.Folder.Id, b.Folder.Id]);
         // When: perform the optimistic parent replacement.
         var result = await Move(s, target, destination?.PublicId);
         // Then: only the intended record and changed immediate parents advance.
         await Success(target, destination, a.Folder, b.Folder, result);
-        Assert.Equal(stable, await Stable(s, target.Id, route is "same" or "rootNoop" ? [] : new[] { a.Folder.Id, b.Folder.Id }));
+        Assert.Equal(stable, await Stable(s, target.Id, route is "same" or "rootNoop" ? [] : [a.Folder.Id, b.Folder.Id]));
     }
 
     [FunctionalTheory]

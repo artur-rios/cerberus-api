@@ -248,7 +248,7 @@ public class CollectionListHttpTests(RegistrationApiFixture fixture, SharedApiHo
         var second = await Create(s);
         await using var db = fixture.Context();
         if (kind == "envelope")
-            await db.Collections.Where(x => x.PublicId == second.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, new byte[] { 1 }));
+            await db.Collections.Where(x => x.PublicId == second.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, [1]));
         if (kind == "revision")
             await db.Collections.Where(x => x.PublicId == second.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Revision, 0));
         if (kind is "zero" or "duplicate")
@@ -314,7 +314,7 @@ public class CollectionListHttpTests(RegistrationApiFixture fixture, SharedApiHo
         var ownerBefore = await Snapshot(foreign);
         using var response = await Read(request, "/api/collections");
         var page = await Success<CollectionListOutput>(response, 200);
-        Assert.Equal((selected ? new[] { own.CollectionId, shared.CollectionId } : new[] { own.CollectionId, otherOwn.CollectionId, shared.CollectionId, outside.CollectionId }).Order(), page.Items.Select(x => x.CollectionId).Order());
+        Assert.Equal((selected ? new[] { own.CollectionId, shared.CollectionId } : [own.CollectionId, otherOwn.CollectionId, shared.CollectionId, outside.CollectionId]).Order(), page.Items.Select(x => x.CollectionId).Order());
         Assert.Equal(shared.Envelope, page.Items.Single(x => x.CollectionId == shared.CollectionId).Envelope);
         Assert.Equal(before, await Snapshot(s));
         Assert.Equal(ownerBefore, await Snapshot(foreign));
@@ -374,9 +374,9 @@ public class CollectionListHttpTests(RegistrationApiFixture fixture, SharedApiHo
         await using (var db = fixture.Context())
         {
             if (kind == "wrapper")
-                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, new byte[] { 1 }));
+                await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, [1]));
             if (kind == "pins")
-                await db.VaultProtections.Where(x => x.AccountId == foreign.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, new byte[] { 1 }));
+                await db.VaultProtections.Where(x => x.AccountId == foreign.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, [1]));
             if (kind == "epoch")
                 await db.Collections.Where(x => x.PublicId == shared.CollectionId).ExecuteUpdateAsync(x => x.SetProperty(c => c.KeyEpoch, 2));
         }
@@ -404,7 +404,7 @@ public class CollectionListHttpTests(RegistrationApiFixture fixture, SharedApiHo
         {
             var collection = await db.Collections.SingleAsync(x => x.PublicId == containing.CollectionId);
             db.CollectionFolders.Add(new() { AccountId = s.InternalId, CollectionId = collection.Id, FolderId = folder.Id });
-            await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, new byte[] { 1 }));
+            await db.CollectionGrants.Where(x => x.Id == grant.Id).ExecuteUpdateAsync(x => x.SetProperty(g => g.RecipientKeyEnvelope, [1]));
             await db.SaveChangesAsync();
         }
         var p = await Profile(s, recipient, scoped, folder);
@@ -471,9 +471,9 @@ public class CollectionListHttpTests(RegistrationApiFixture fixture, SharedApiHo
         if (typeof(T) == typeof(CollectionListOutput))
         {
             var data = document.RootElement.GetProperty("data");
-            Assert.Equal(new[] { "items", "nextCursor" }, data.EnumerateObject().Select(x => x.Name).Order());
+            Assert.Equal(["items", "nextCursor"], data.EnumerateObject().Select(x => x.Name).Order());
             foreach (var item in data.GetProperty("items").EnumerateArray())
-                Assert.Equal(new[] { "collectionId", "editedAt", "envelope", "revision", "serverSequence" }, item.EnumerateObject().Select(x => x.Name).Order());
+                Assert.Equal(["collectionId", "editedAt", "envelope", "revision", "serverSequence"], item.EnumerateObject().Select(x => x.Name).Order());
         }
         return Assert.IsType<T>(JsonSerializer.Deserialize<DataOutput<T>>(text, ProtectionFixture.Json)!.Data);
     }

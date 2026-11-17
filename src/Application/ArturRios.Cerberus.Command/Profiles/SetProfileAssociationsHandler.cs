@@ -31,9 +31,9 @@ public sealed class SetProfileAssociationsHandler(IValidator<SetProfileAssociati
             ProfileId = data.ProfileId,
             Revision = data.Revision,
             ServerSequence = data.ServerSequence,
-            RecordIds = data.RecordIds.Order().ToArray(),
-            FolderIds = data.FolderIds.Order().ToArray(),
-            CollectionIds = data.CollectionIds.Order().ToArray()
+            RecordIds = [.. data.RecordIds.Order()],
+            FolderIds = [.. data.FolderIds.Order()],
+            CollectionIds = [.. data.CollectionIds.Order()]
         }).WithMessage("profile_associations_set");
     }
     private static bool SameSet(Guid[]? actual, Guid[] expected) => ProfileAssociationInput.ValidIds(actual) && actual!.Order().SequenceEqual(expected.Order());

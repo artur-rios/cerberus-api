@@ -37,7 +37,7 @@ public sealed class RenewOfflineAuthorizationHandler(IValidator<RenewOfflineAuth
             ProtectionRevision = s.ProtectionRevision,
             PolicyRevision = s.PolicyRevision,
             RevocationGeneration = s.RevocationGeneration,
-            GrantRevisions = s.GrantRevisions.OrderBy(g => g.GrantId.ToString("D"), StringComparer.Ordinal).ToArray(),
+            GrantRevisions = [.. s.GrantRevisions.OrderBy(g => g.GrantId.ToString("D"), StringComparer.Ordinal)],
             RenewalEnabled = s.RenewalEnabled,
             IssuedAt = d.Lease.IssuedAt,
             ExpiresAt = d.Lease.ExpiresAt

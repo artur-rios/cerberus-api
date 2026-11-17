@@ -26,7 +26,7 @@ public sealed class EmptyTrashHandler(IValidator<EmptyTrashCommand> validator, I
         var d = result.Data;
         if (!Valid(d))
             return output.WithError("persistence_unavailable");
-        return output.WithData(new EmptyTrashOutput { AccountId = d!.AccountId, PurgedAt = d.PurgedAt, Counts = d.Counts.OrderBy(x => x.Kind, StringComparer.Ordinal).ToArray(), TotalPurged = d.TotalPurged }).WithMessage("trash_emptied");
+        return output.WithData(new EmptyTrashOutput { AccountId = d!.AccountId, PurgedAt = d.PurgedAt, Counts = [.. d.Counts.OrderBy(x => x.Kind, StringComparer.Ordinal)], TotalPurged = d.TotalPurged }).WithMessage("trash_emptied");
     }
     private static bool Valid(TrashEmptyDetails? d)
     {

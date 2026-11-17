@@ -38,7 +38,7 @@ public class TrashListStoreTests(PostgresFixture fixture) : IClassFixture<Postgr
         var result = await List(s);
         Assert.Null(result.Error);
         Assert.Equal(4, result.Data!.Items.Count);
-        Assert.Equal(new[] { "collection", "folder", "profile", "record" }, result.Data.Items.Select(x => x.Kind).Order());
+        Assert.Equal(["collection", "folder", "profile", "record"], result.Data.Items.Select(x => x.Kind).Order());
         foreach (var row in result.Data.Items)
         { Assert.Equal(TimeSpan.FromDays(30), row.PurgeAt - row.DeletedAt); Assert.True(row.Revision > 1); Assert.NotEmpty(row.Envelope); }
         Assert.Equal(a.Record.Envelope, result.Data.Items.Single(x => x.Kind == "record").Envelope);

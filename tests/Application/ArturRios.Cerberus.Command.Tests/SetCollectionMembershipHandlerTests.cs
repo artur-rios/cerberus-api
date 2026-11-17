@@ -156,7 +156,7 @@ public class SetCollectionMembershipHandlerTests
         CollectionMembershipRequest? received = null;
         CancellationToken receivedToken = default;
         var details = new CollectionMembershipDetails(target, kind == "maximumRevision" ? 9007199254740991 : 2,
-            9007199254740991, normalized, command.RecordIds.Reverse().ToArray(), command.FolderIds);
+            9007199254740991, normalized, [.. command.RecordIds.Reverse()], command.FolderIds);
         var store = new Mock<ICollectionMembershipStore>(MockBehavior.Strict);
         store.Setup(x => x.SetAsync(It.IsAny<CollectionMembershipRequest>(), It.IsAny<CancellationToken>()))
             .Returns<CollectionMembershipRequest, CancellationToken>((request, token) =>
@@ -174,8 +174,8 @@ public class SetCollectionMembershipHandlerTests
         Assert.Equal(kind == "maximumRevision" ? 9007199254740991 : 2, result.Data.Revision);
         Assert.Equal(9007199254740991, result.Data.ServerSequence);
         Assert.Equal(normalized, result.Data.EditedAt);
-        Assert.Equal(kind == "empty" ? [] : new[] { First, Last }, result.Data.RecordIds);
-        Assert.Equal(kind == "empty" ? [] : new[] { First, Last }, result.Data.FolderIds);
+        Assert.Equal(kind == "empty" ? [] : [First, Last], result.Data.RecordIds);
+        Assert.Equal(kind == "empty" ? [] : [First, Last], result.Data.FolderIds);
         Assert.Equal(actor, received!.Actor);
         Assert.Equal(target, received.CollectionId);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
@@ -186,16 +186,16 @@ public class SetCollectionMembershipHandlerTests
         Assert.Equal(command.FolderIds, received.Input.FolderIds);
         Assert.True(received.Input.IsValid());
         Assert.Equal(cancellation.Token, receivedToken);
-        Assert.Equal(kind == "empty" ? [] : new[] { Last, First }, command.RecordIds);
-        Assert.Equal(kind == "empty" ? [] : new[] { Last, First }, details.FolderIds);
+        Assert.Equal(kind == "empty" ? [] : [Last, First], command.RecordIds);
+        Assert.Equal(kind == "empty" ? [] : [Last, First], details.FolderIds);
         using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
-        Assert.Equal(new[] { "collectionId", "editedAt", "folderIds", "recordIds", "revision", "serverSequence" },
+        Assert.Equal(["collectionId", "editedAt", "folderIds", "recordIds", "revision", "serverSequence"],
             output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         using var body = JsonDocument.Parse(JsonSerializer.Serialize(command, Json));
-        Assert.Equal(new[] { "editedAt", "envelope", "expectedRevision", "folderIds", "recordIds" },
+        Assert.Equal(["editedAt", "envelope", "expectedRevision", "folderIds", "recordIds"],
             body.RootElement.EnumerateObject().Select(x => x.Name).Order());
         using var input = JsonDocument.Parse(JsonSerializer.Serialize(received.Input, Json));
-        Assert.Equal(new[] { "editedAt", "envelope", "expectedRevision", "folderIds", "recordIds" },
+        Assert.Equal(["editedAt", "envelope", "expectedRevision", "folderIds", "recordIds"],
             input.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
 

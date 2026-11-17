@@ -16,13 +16,13 @@ public sealed class OperationalHealthContractTests
         foreach (var path in new[] { "/health/live", "/health/ready", "/health/details" })
             Assert.Contains(path, doc.Paths.Keys);
         var schemas = doc.Components!.Schemas!;
-        Assert.Equal(new[] { "status" }, schemas["HealthStatus"].Required);
+        Assert.Equal(["status"], schemas["HealthStatus"].Required);
         Assert.False(schemas["HealthStatus"].AdditionalPropertiesAllowed);
-        Assert.Equal(new[] { "components", "status" }, schemas["HealthDetails"].Required!.Order());
-        Assert.Equal(new[] { "elapsedMilliseconds", "name", "status" }, schemas["HealthComponent"].Required!.Order());
+        Assert.Equal(["components", "status"], schemas["HealthDetails"].Required!.Order());
+        Assert.Equal(["elapsedMilliseconds", "name", "status"], schemas["HealthComponent"].Required!.Order());
         Assert.False(schemas["HealthComponent"].AdditionalPropertiesAllowed);
         var details = doc.Paths["/health/details"].Operations![HttpMethod.Get];
-        Assert.Equal(new[] { "200", "401", "403", "503" }, details.Responses!.Keys.Order());
+        Assert.Equal(["200", "401", "403", "503"], details.Responses!.Keys.Order());
         foreach (var code in new[] { "401", "403" })
             Assert.Equal("ProcessOutput", Assert.IsType<OpenApiSchemaReference>(details.Responses[code].Content!["application/json"].Schema!).Reference.Id);
         Assert.NotEmpty(details.Responses["503"].Content!["application/json"].Schema!.OneOf!);

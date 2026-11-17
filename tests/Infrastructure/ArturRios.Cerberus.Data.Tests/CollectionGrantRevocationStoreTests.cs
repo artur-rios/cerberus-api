@@ -373,7 +373,7 @@ public partial class CollectionGrantRevocationStoreTests(PostgresFixture fixture
     {
         using var s = await Setup();
         if (state is "bad" or "empty")
-            await Sql("UPDATE cerberus.collection_grant SET recipient_key_envelope={0} WHERE id={1}", state == "bad" ? new byte[] { 255, 0, 1 } : Array.Empty<byte>(), s.Grant.Id);
+            await Sql("UPDATE cerberus.collection_grant SET recipient_key_envelope={0} WHERE id={1}", state == "bad" ? [255, 0, 1] : Array.Empty<byte>(), s.Grant.Id);
         else if (state.StartsWith("grant"))
             await Sql("UPDATE cerberus.collection_grant SET revision={0} WHERE id={1}", state == "grantZero" ? 0L : 9007199254740992L, s.Grant.Id);
         else
@@ -571,8 +571,8 @@ public partial class CollectionGrantRevocationStoreTests(PostgresFixture fixture
         public List<string> Reads { get; } = [];
         public string Snapshot { get; private set; } = ""; public NpgsqlParameter[] Parameters { get; private set; } = [];
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default)
-        { if (c.CommandText.Contains("FOR UPDATE") || c.CommandText.Contains("FOR NO KEY UPDATE")) { Locks.Add(c.CommandText); Values.Add(c.Parameters.Cast<DbParameter>().Select(x => x.Value!).ToArray()); } if (Write(c)) Writes++; return ValueTask.FromResult(r); }
+        { if (c.CommandText.Contains("FOR UPDATE") || c.CommandText.Contains("FOR NO KEY UPDATE")) { Locks.Add(c.CommandText); Values.Add([.. c.Parameters.Cast<DbParameter>().Select(x => x.Value!)]); } if (Write(c)) Writes++; return ValueTask.FromResult(r); }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
-        { Reads.Add(c.CommandText); if (Snapshot.Length == 0 && c.CommandText.StartsWith("WITH RECURSIVE")) { Snapshot = c.CommandText; Parameters = c.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone()).ToArray(); } return ValueTask.FromResult(r); }
+        { Reads.Add(c.CommandText); if (Snapshot.Length == 0 && c.CommandText.StartsWith("WITH RECURSIVE")) { Snapshot = c.CommandText; Parameters = [.. c.Parameters.Cast<NpgsqlParameter>().Select(x => x.Clone())]; } return ValueTask.FromResult(r); }
     }
 }

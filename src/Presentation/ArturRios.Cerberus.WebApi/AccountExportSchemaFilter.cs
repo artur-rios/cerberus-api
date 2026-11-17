@@ -55,5 +55,5 @@ internal sealed class AccountExportSchemaFilter : ISchemaFilter
         { target.Properties["relationshipKind"] = Text("current", "historical"); target.Properties["sourceKind"] = Text("profile", "collection", "record", "folder"); target.Properties["targetKind"] = Text("record", "folder", "collection"); }
         target.Required = target.Properties.Keys.ToHashSet(StringComparer.Ordinal);
     }
-    private static OpenApiSchema Text(params string[] values) => new() { Type = JsonSchemaType.String, Enum = values.Select(v => (JsonNode)JsonValue.Create(v)!).ToList() };
+    private static OpenApiSchema Text(params string[] values) => new() { Type = JsonSchemaType.String, Enum = [.. values.Select(v => (JsonNode)JsonValue.Create(v)!)] };
 }

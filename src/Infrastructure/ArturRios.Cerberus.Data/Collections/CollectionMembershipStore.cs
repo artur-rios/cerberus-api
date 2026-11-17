@@ -96,8 +96,8 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
             var stamp = Guid.NewGuid();
             var members = JsonSerializer.Deserialize<Member[]>(initial.Members, Json)!;
             var grants = await GrantRowsAsync(db, target.Id, ct);
-            var parameters = Parameters(request).Concat(new object[]
-            {
+            var parameters = Parameters(request).Concat(
+            [
                 new NpgsqlParameter("frozen", NpgsqlDbType.Jsonb) { Value = initial.Frozen },
                 new NpgsqlParameter("expected", input.ExpectedRevision), new NpgsqlParameter("previous_sequence", target.Sequence),
                 new NpgsqlParameter("original", original), new NpgsqlParameter("epoch", target.KeyEpoch), new NpgsqlParameter("original_stamp", target.Stamp),
@@ -105,7 +105,7 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
                 new NpgsqlParameter("edited", edited), new NpgsqlParameter("stamp", stamp),
                 new NpgsqlParameter("held_folders", initial.FolderIds), new NpgsqlParameter("held_records", initial.RecordIds), new NpgsqlParameter("held_grants", initial.GrantIds),
                 new NpgsqlParameter("selection", NpgsqlDbType.Bigint) { Value = (object?)initial.Selection ?? DBNull.Value }
-            }).ToArray();
+            ]).ToArray();
             // Authorization linearizes here, with database time and exact graph/native evidence.
             var count = await db.Database.ExecuteSqlRawAsync(Authority + """
                 UPDATE cerberus.collection AS c SET envelope=@replacement,edited_at=@edited,revision=c.revision+1,
@@ -159,7 +159,7 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
                 if (await RowAsync(db, member.Kind, member.Id, ct) != (member.Changed ? memberProjections[(member.Kind, member.Id)] : member.Original))
                     return new(Error: "persistence_unavailable");
             await tx.CommitAsync(ct);
-            return new(new(result.PublicId, result.Revision, result.ServerSequence, result.EditedAt, input.RecordIds.Order().ToArray(), input.FolderIds.Order().ToArray()));
+            return new(new(result.PublicId, result.Revision, result.ServerSequence, result.EditedAt, [.. input.RecordIds.Order()], [.. input.FolderIds.Order()]));
         }
         catch (PostgresException e) when (e.SqlState == "2200H") { return new(Error: "revision_conflict"); }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
@@ -223,7 +223,7 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
     {
         var stamp = Guid.NewGuid();
         var sql = $"UPDATE cerberus.{member.Kind} SET revision=revision+1,server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp={{0}} WHERE id={{1}} AND account_id={{2}} AND revision={{3}} AND server_sequence={{4}} AND concurrency_stamp={{5}} AND deleted_at IS NULL AND purge_at IS NULL AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure e WHERE e.resource_kind='{member.Kind}' AND e.resource_id=cerberus.{member.Kind}.public_id)";
-        if (await db.Database.ExecuteSqlRawAsync(sql, new object[] { stamp, member.Id, member.AccountId, member.Revision, member.Sequence, member.Stamp }, ct) != 1)
+        if (await db.Database.ExecuteSqlRawAsync(sql, [stamp, member.Id, member.AccountId, member.Revision, member.Sequence, member.Stamp], ct) != 1)
             return ("revision_conflict", null);
         var readSql = $"SELECT revision,server_sequence,concurrency_stamp,(to_jsonb(r)-'revision'-'server_sequence'-'concurrency_stamp')::text stable,to_jsonb(r)::text original FROM cerberus.{member.Kind} r WHERE id={{0}}";
         var row = await db.Database.SqlQueryRaw<Written>(readSql, member.Id).SingleOrDefaultAsync(ct);

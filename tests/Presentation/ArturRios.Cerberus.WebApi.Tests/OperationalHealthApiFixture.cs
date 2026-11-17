@@ -64,7 +64,7 @@ public sealed class OperationalHealthApiFixture : IAsyncLifetime
                 scopeId = id == Person ? (Guid?)RegistrationApiFixture.Scope : null,
                 role = id == Person ? 3 : 2,
                 isDeleted = Mode == "deleted-person" && id != _service,
-                ownedScopeIds = id == Person ? Array.Empty<Guid>() : new[] { RegistrationApiFixture.Scope },
+                ownedScopeIds = id == Person ? Array.Empty<Guid>() : [RegistrationApiFixture.Scope],
                 name = "Fixture",
                 email = "fixture@example.test",
                 emailVerified = true,
@@ -81,7 +81,7 @@ public sealed class OperationalHealthApiFixture : IAsyncLifetime
                 return new StalledBody(this);
             if (Mode == "pause-scope")
             { Entered.TrySetResult(); await Resume.Task.WaitAsync(context.RequestAborted); }
-            return Envelope(new { id, isDeleted = false, ownerIds = Mode == "lost-owner" ? Array.Empty<Guid>() : new[] { _service, Operator }, name = "Fixture" });
+            return Envelope(new { id, isDeleted = false, ownerIds = Mode == "lost-owner" ? Array.Empty<Guid>() : [_service, Operator], name = "Fixture" });
         });
         _provider.MapGet("/api/applications/self", (HttpContext context) =>
         {

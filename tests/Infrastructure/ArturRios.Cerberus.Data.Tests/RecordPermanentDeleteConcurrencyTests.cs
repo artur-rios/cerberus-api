@@ -108,7 +108,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
             new("collection", w.Items.Collection.PublicId, 1, ProfileSetup.Envelope(2)) };
         if (includeTerminal)
             content.Add(new("record", w.Record.PublicId, 1, ProfileSetup.Envelope(2)));
-        var change = new ProtectionChange(w.State.AccountId, 1, 1, "rotate-content", w.Owner.Rewrap(), content.ToArray());
+        var change = new ProtectionChange(w.State.AccountId, 1, 1, "rotate-content", w.Owner.Rewrap(), [.. content]);
         var raw = JsonSerializer.SerializeToUtf8Bytes(change, ProtectionFixture.Json);
         var challenge = (await new VaultProtectionStore(fixture).ChallengeAsync(w.State.Actor, "change-protection", ProtocolBinary.Encode(SHA256.HashData(raw)), default)).Data!;
         var result = await new VaultProtectionChangeStore(fixture).ChangeAsync(new(w.State.Actor, w.State.Verifier, challenge.ChallengeId, w.Owner.Sign(challenge), raw, change), default);

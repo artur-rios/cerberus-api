@@ -138,7 +138,7 @@ internal static class AccountErasure
                 || await db.VaultAccessSessions.AnyAsync(x => x.AccountId == owner.Id && !x.Revoked, ct)
                 || await db.SoftwareGrants.AnyAsync(x => x.AccountId == owner.Id && (x.State != SoftwareGrantState.Revoked || x.RecipientKey.Length != 0), ct)))
                 throw new InvalidOperationException("Account erasure reductions are incomplete.");
-            recipients = grants.Where(x => x.Owner == owner.Id && x.Grant.RecipientAccountId != owner.Id && x.Grant.State == CollectionGrantState.Active).Select(x => x.Grant.RecipientAccountId).Distinct().ToArray();
+            recipients = [.. grants.Where(x => x.Owner == owner.Id && x.Grant.RecipientAccountId != owner.Id && x.Grant.State == CollectionGrantState.Active).Select(x => x.Grant.RecipientAccountId).Distinct()];
             generations = await db.Accounts.Where(x => recipients.Contains(x.Id)).ToDictionaryAsync(x => x.Id, x => x.RevocationGeneration, ct);
             if (generations.Count != recipients.Length || generations.Values.Any(x => x is <= 0 or >= ProtocolBinary.MaxInteger))
                 throw new InvalidOperationException("Invalid recipient generation.");
@@ -161,7 +161,7 @@ internal static class AccountErasure
         var workParameters = new List<object> { new NpgsqlParameter("keys", workKeys.ToArray()) };
         if (claim is not null)
         { cleanup += " AND public_id<>@preserve_work"; workParameters.Add(new NpgsqlParameter("preserve_work", claim.WorkId)); }
-        await Delete(cleanup, workParameters.ToArray());
+        await Delete(cleanup, [.. workParameters]);
         var remainingWork = db.RetentionWorkItems.Where(x => workKeys.Contains(x.OperationKey));
         if (claim is not null)
             remainingWork = remainingWork.Where(x => x.PublicId != claim.WorkId);

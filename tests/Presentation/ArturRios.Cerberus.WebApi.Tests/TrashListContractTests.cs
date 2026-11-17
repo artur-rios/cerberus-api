@@ -29,7 +29,7 @@ public sealed class TrashListContractTests
             Assert.Equal(kind.ToLowerInvariant(), Assert.Single(schema.Properties["kind"].Enum!).ToString());
         }
         var output = doc.Components!.Schemas!["TrashListOutput"];
-        Assert.Equal(new[] { "items", "nextCursor" }, output.Required!.Order());
+        Assert.Equal(["items", "nextCursor"], output.Required!.Order());
         var item = output.Properties!["items"].Items!;
         Assert.Equal(4, item.OneOf!.Count);
     }

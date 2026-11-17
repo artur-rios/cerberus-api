@@ -80,6 +80,11 @@ subject, e.g. `feat: add restore and retention repositories` or `fix: harden fou
 Record every change an API client or an operator would notice under `## [Unreleased]` in
 [CHANGELOG.md](./CHANGELOG.md), in the same pull request that makes it.
 
+[`.git-blame-ignore-revs`](./.git-blame-ignore-revs) lists mechanical commits, such as a `dotnet format`
+pass, that `git blame` should skip. Turn it on once in your clone with
+`git config blame.ignoreRevsFile .git-blame-ignore-revs`. A pull request that adds a commit to it merges
+with a merge commit, not a squash, so the listed hash stays the one on `develop`.
+
 ## Versioning
 
 The API follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). A release is numbered

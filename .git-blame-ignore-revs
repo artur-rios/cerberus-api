@@ -1,0 +1,5 @@
+# Commits `git blame` skips: mechanical passes that touch many lines and change no behaviour.
+# Use it with: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# style: apply dotnet format to the solution
+f1410685751d205075be87b8162f9679741ab3f4

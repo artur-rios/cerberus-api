@@ -23,12 +23,7 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
-    [FunctionalTheory]
-    [InlineData("empty")]
-    [InlineData("profiles")]
-    [InlineData("mixed")]
-    [InlineData("overlap")]
-    [InlineData("typedAlias")]
+    [FunctionalTheory][InlineData("empty")][InlineData("profiles")][InlineData("mixed")][InlineData("overlap")][InlineData("typedAlias")]
     public async Task GivenOwnedInitialLinks_WhenCreating_ThenCommitExactTypedLinksAndOnlyDistinctDirectStructuralChanges(string kind)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); using var other = new ProtectionFixture();
@@ -40,13 +35,9 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
             await using var db = fixture.CreateContext(); await db.Folders.Where(x => x.Id == child.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.PublicId, id));
             await db.Records.Where(x => x.Id == record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.PublicId, id)); child = await FolderRow(child.Id); record = await RecordRow(record.Id);
         }
-        var input = Input() with
-        {
-            CollectionId = id,
-            ProfileIds = kind == "empty" ? [] : kind == "typedAlias" ? [id] : [p.PublicId, q.PublicId],
+        var input = Input() with { CollectionId = id, ProfileIds = kind == "empty" ? [] : kind == "typedAlias" ? [id] : [p.PublicId, q.PublicId],
             FolderIds = kind is "mixed" or "overlap" or "typedAlias" ? [child.PublicId] : [],
-            RecordIds = kind is "overlap" or "typedAlias" ? [record.PublicId] : []
-        };
+            RecordIds = kind is "overlap" or "typedAlias" ? [record.PublicId] : [] };
         var before = await Snapshot(s); var result = await Create(s, input); await Success(s, input, before, result);
         await using var check = fixture.CreateContext();
         Assert.Equal(Bytes(root), Bytes(await FolderRow(root.Id))); // An ancestor is not a directly changed member.
@@ -54,17 +45,8 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
     }
 
     [FunctionalTheory]
-    [InlineData("PF")]
-    [InlineData("PFDescendant")]
-    [InlineData("PR")]
-    [InlineData("CF")]
-    [InlineData("CFDescendant")]
-    [InlineData("CR")]
-    [InlineData("mixed")]
-    [InlineData("overlap")]
-    [InlineData("brokenCollection")]
-    [InlineData("unusedCollectionCounters")]
-    [InlineData("brokenMemberCipher")]
+    [InlineData("PF")][InlineData("PFDescendant")][InlineData("PR")][InlineData("CF")][InlineData("CFDescendant")][InlineData("CR")]
+    [InlineData("mixed")][InlineData("overlap")][InlineData("brokenCollection")][InlineData("unusedCollectionCounters")][InlineData("brokenMemberCipher")]
     public async Task GivenAlreadyVisibleOwnedSelection_WhenCreating_ThenRetainScopeAndEveryUnchangedOpaqueByte(string kind)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture();
@@ -85,17 +67,10 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
     }
 
     [FunctionalTheory]
-    [InlineData("empty", "vault_access_denied")]
-    [InlineData("other", "not_found")]
-    [InlineData("multiple", "not_found")]
-    [InlineData("privateFolder", "not_found")]
-    [InlineData("privateRecord", "not_found")]
-    [InlineData("PRFolder", "not_found")]
-    [InlineData("CRFolder", "not_found")]
-    [InlineData("childParent", "not_found")]
-    [InlineData("childSibling", "not_found")]
-    [InlineData("hiddenCycle", "not_found")]
-    [InlineData("privateCorrupt", "not_found")]
+    [InlineData("empty", "vault_access_denied")][InlineData("other", "not_found")][InlineData("multiple", "not_found")]
+    [InlineData("privateFolder", "not_found")][InlineData("privateRecord", "not_found")][InlineData("PRFolder", "not_found")]
+    [InlineData("CRFolder", "not_found")][InlineData("childParent", "not_found")][InlineData("childSibling", "not_found")]
+    [InlineData("hiddenCycle", "not_found")][InlineData("privateCorrupt", "not_found")]
     public async Task GivenSelectedScopeExpansion_WhenCreating_ThenNonrevealingDenialAndNoMutation(string kind, string error)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); using var other = new ProtectionFixture();
@@ -113,20 +88,11 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
     }
 
     [FunctionalTheory]
-    [InlineData("missing", "not_found")]
-    [InlineData("closing", "not_found")]
-    [InlineData("terminal", "not_found")]
-    [InlineData("access", "vault_access_denied")]
-    [InlineData("revoked", "vault_access_denied")]
-    [InlineData("expired", "vault_access_denied")]
-    [InlineData("future", "vault_access_denied")]
-    [InlineData("policy", "vault_access_denied")]
-    [InlineData("generation", "vault_access_denied")]
-    [InlineData("zeroPolicy", "vault_access_denied")]
-    [InlineData("zeroGeneration", "vault_access_denied")]
-    [InlineData("nullExpiry", "vault_access_denied")]
-    [InlineData("disabledExpiry", "vault_access_denied")]
-    [InlineData("noExpiry", null)]
+    [InlineData("missing", "not_found")][InlineData("closing", "not_found")][InlineData("terminal", "not_found")]
+    [InlineData("access", "vault_access_denied")][InlineData("revoked", "vault_access_denied")][InlineData("expired", "vault_access_denied")]
+    [InlineData("future", "vault_access_denied")][InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")]
+    [InlineData("zeroPolicy", "vault_access_denied")][InlineData("zeroGeneration", "vault_access_denied")]
+    [InlineData("nullExpiry", "vault_access_denied")][InlineData("disabledExpiry", "vault_access_denied")][InlineData("noExpiry", null)]
     [InlineData("selection", "vault_access_denied")]
     public async Task GivenInvalidCurrentAuthority_WhenCreating_ThenFailClosed(string kind, string? error)
     {
@@ -143,19 +109,10 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         Assert.Equal(error, result.Error); if (error is null) await Success(s, input, before, result); else { Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s)); }
     }
 
-    [FunctionalTheory]
-    [InlineData("profile")]
-    [InlineData("folder")]
-    [InlineData("record")]
-    [InlineData("profile", "trash")]
-    [InlineData("folder", "trash")]
-    [InlineData("record", "trash")]
-    [InlineData("profile", "terminal")]
-    [InlineData("folder", "terminal")]
-    [InlineData("record", "terminal")]
-    [InlineData("profile", "foreign")]
-    [InlineData("folder", "foreign")]
-    [InlineData("record", "foreign")]
+    [FunctionalTheory][InlineData("profile")][InlineData("folder")][InlineData("record")]
+    [InlineData("profile", "trash")][InlineData("folder", "trash")][InlineData("record", "trash")]
+    [InlineData("profile", "terminal")][InlineData("folder", "terminal")][InlineData("record", "terminal")]
+    [InlineData("profile", "foreign")][InlineData("folder", "foreign")][InlineData("record", "foreign")]
     public async Task GivenMissingHiddenOrTerminalRelationship_WhenCreating_Then404AndBothGraphsUnchanged(string kind, string state = "missing")
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var foreign = await ProfileSetup.Create(fixture, owner);
@@ -170,11 +127,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         var before = await Snapshot(s); var other = await Snapshot(foreign); var result = await Create(s, input); Assert.Equal("not_found", result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s)); Assert.Equal(other, await Snapshot(foreign));
     }
 
-    [FunctionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [FunctionalTheory][InlineData(false, false)][InlineData(false, true)][InlineData(true, false)][InlineData(true, true)]
     public async Task GivenActuallyReadableForeignNativeMember_WhenCreatingOwnedCollection_Then404WithoutOwnershipTransfer(bool write, bool folder)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var recipient = await ProfileSetup.Create(fixture, client);
@@ -185,12 +138,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         Assert.Equal("not_found", result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s)); Assert.Equal(other, await Snapshot(recipient));
     }
 
-    [FunctionalTheory]
-    [InlineData("cycle", "persistence_unavailable")]
-    [InlineData("trash", "not_found")]
-    [InlineData("terminal", "not_found")]
-    [InlineData("hiddenCycle", "not_found")]
-    [InlineData("unrelated", null)]
+    [FunctionalTheory][InlineData("cycle", "persistence_unavailable")][InlineData("trash", "not_found")][InlineData("terminal", "not_found")][InlineData("hiddenCycle", "not_found")][InlineData("unrelated", null)]
     public async Task GivenCompleteOwnedAncestry_WhenCreating_ThenRejectRelevantCorruptionAndIgnoreUnrelatedCycles(string kind, string? error)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var root = await Folder(s); var child = await Folder(s, root.Id); var target = kind == "unrelated" ? await Folder(s) : child;
@@ -204,25 +152,12 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         if (error is null) await Success(s, input, before, result); else { Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s)); }
     }
 
-    [FunctionalTheory]
-    [InlineData("profile")]
-    [InlineData("folder")]
-    [InlineData("record")]
-    [InlineData("profile", "sequence")]
-    [InlineData("folder", "sequence")]
-    [InlineData("record", "sequence")]
-    [InlineData("profile", "unsafe")]
-    [InlineData("folder", "unsafe")]
-    [InlineData("record", "unsafe")]
-    [InlineData("profile", "time")]
-    [InlineData("folder", "time")]
-    [InlineData("record", "time")]
-    [InlineData("profile", "purge")]
-    [InlineData("folder", "purge")]
-    [InlineData("record", "purge")]
-    [InlineData("profile", "max")]
-    [InlineData("folder", "max")]
-    [InlineData("record", "max")]
+    [FunctionalTheory][InlineData("profile")][InlineData("folder")][InlineData("record")]
+    [InlineData("profile", "sequence")][InlineData("folder", "sequence")][InlineData("record", "sequence")]
+    [InlineData("profile", "unsafe")][InlineData("folder", "unsafe")][InlineData("record", "unsafe")]
+    [InlineData("profile", "time")][InlineData("folder", "time")][InlineData("record", "time")]
+    [InlineData("profile", "purge")][InlineData("folder", "purge")][InlineData("record", "purge")]
+    [InlineData("profile", "max")][InlineData("folder", "max")][InlineData("record", "max")]
     public async Task GivenInvalidDirectlyChangedStructuralMetadata_WhenCreating_ThenNoPartialGraph(string kind, string field = "revision")
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner);
@@ -236,11 +171,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         Assert.Equal(field == "max" ? "revision_conflict" : "persistence_unavailable", result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory]
-    [InlineData("retained")]
-    [InlineData("trash")]
-    [InlineData("foreign")]
-    [InlineData("terminal")]
+    [FunctionalTheory][InlineData("retained")][InlineData("trash")][InlineData("foreign")][InlineData("terminal")]
     public async Task GivenReservedCollectionId_WhenCreating_Then409AndPreserveWinner(string kind)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var foreign = await ProfileSetup.Create(fixture, owner); var input = Input();
@@ -254,12 +185,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         Assert.Equal("revision_conflict", result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s)); Assert.Equal(other, await Snapshot(foreign));
     }
 
-    [FunctionalTheory]
-    [InlineData("account")]
-    [InlineData("profile")]
-    [InlineData("folder")]
-    [InlineData("record")]
-    [InlineData("grant")]
+    [FunctionalTheory][InlineData("account")][InlineData("profile")][InlineData("folder")][InlineData("record")][InlineData("grant")]
     public async Task GivenOtherKindTerminalId_WhenCreatingCollection_ThenRetainBothTypedIdentities(string kind)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var input = Input();
@@ -268,9 +194,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         await using var check = fixture.CreateContext(); Assert.True(await check.TerminalErasures.AnyAsync(x => x.ResourceId == input.CollectionId && x.ResourceKind == kind));
     }
 
-    [FunctionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenConcurrentOrReplayedCollectionCreation_WhenCreating_ThenExactlyOneWinnerAndNoDuplicateBumps(bool differentOwners)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var other = differentOwners ? await ProfileSetup.Create(fixture, owner) : s; var input = Input();
@@ -279,14 +203,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         await using var db = fixture.CreateContext(); Assert.Single(await db.Collections.Where(x => x.PublicId == input.CollectionId).ToArrayAsync());
     }
 
-    [FunctionalTheory]
-    [InlineData("insert")]
-    [InlineData("PC")]
-    [InlineData("CF")]
-    [InlineData("CR")]
-    [InlineData("profile")]
-    [InlineData("folder")]
-    [InlineData("record")]
+    [FunctionalTheory][InlineData("insert")][InlineData("PC")][InlineData("CF")][InlineData("CR")][InlineData("profile")][InlineData("folder")][InlineData("record")]
     public async Task GivenFailureAfterActualMutation_WhenCreating_ThenRollBackEverythingAndAllowSameIdRetry(string stage)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var p = await Profile(s, owner, scoped); var f = await Folder(s); var r = await Record(s, f.Id);
@@ -295,79 +212,58 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         Assert.True(fault.Triggered); Assert.Equal("persistence_unavailable", result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s)); await Success(s, input, before, await Create(s, input));
     }
 
-    [FunctionalTheory]
-    [InlineData("account", false)]
-    [InlineData("session", false)]
-    [InlineData("profile", false)]
-    [InlineData("collection", false)]
-    [InlineData("folder", false)]
-    [InlineData("record", false)]
-    [InlineData("collection", true)]
-    public async Task GivenNaturalExpiryDuringEachLockWait_WhenCreating_ThenDenyBeforeDuplicateAndLeaveGraphUnchanged(string kind, bool delayedPreparation)
+    [FunctionalTheory][InlineData("account",false)][InlineData("session",false)][InlineData("profile",false)][InlineData("collection",false)][InlineData("folder",false)][InlineData("record",false)][InlineData("collection",true)]
+    public async Task GivenNaturalExpiryDuringEachLockWait_WhenCreating_ThenDenyBeforeDuplicateAndLeaveGraphUnchanged(string kind,bool delayedPreparation)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var p = await Profile(s, owner, scoped); var f = await Folder(s); var r = await Record(s, f.Id); var c = await Collection(s);
         await Routes(s, p.Id, c.Id, [], [], [f.Id], [r.Id]); s = s with { Verifier = await Selected(s, p.Id) }; var input = Input([p.PublicId], [f.PublicId], [r.PublicId]) with { CollectionId = c.PublicId };
         // Preparation/snapshot queries can outlast a short lease under coverage.
         // Keep authority valid until the exact intended lock statement is ready.
-        var initialExpiry = DateTimeOffset.UtcNow.AddHours(1); await using (var db = fixture.CreateContext()) await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, initialExpiry));
+        var initialExpiry=DateTimeOffset.UtcNow.AddHours(1);await using(var db=fixture.CreateContext())await db.VaultAccessSessions.Where(x=>x.HandleVerifier==s.Verifier).ExecuteUpdateAsync(x=>x.SetProperty(v=>v.ExpiresAt,initialExpiry));
         var before = await Snapshot(s); await using var held = fixture.CreateContext(); await using var tx = await held.Database.BeginTransactionAsync();
         var table = kind == "session" ? "vault_access_session" : kind; var id = kind switch { "account" => s.InternalId, "profile" => p.Id, "collection" => c.Id, "folder" => f.Id, _ => r.Id };
         await held.Database.ExecuteSqlRawAsync(kind == "session" ? "SELECT FROM cerberus.vault_access_session WHERE handle_verifier={0} FOR UPDATE" : "SELECT FROM cerberus." + table + " WHERE id={0} FOR UPDATE", kind == "session" ? (object)s.Verifier : id);
-        if (delayedPreparation) await Task.Delay(TimeSpan.FromSeconds(3));
-        DateTimeOffset deadline = default; var reached = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously); using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-        var hook = new ArmExpiryAtRowWait(table, async command =>
+        if(delayedPreparation)await Task.Delay(RealTime.Lead+RealTime.Margin);
+        DateTimeOffset deadline=default;var reached=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);using var ct=new CancellationTokenSource(TimeSpan.FromSeconds(20));
+        var hook=new ArmExpiryAtRowWait(table,async command=>
         {
-            deadline = DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.AddSeconds(2).ToUnixTimeMilliseconds());
-            if (kind == "session") await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET expires_at={deadline} WHERE handle_verifier={s.Verifier}", ct.Token);
+            deadline=DateTimeOffset.FromUnixTimeMilliseconds(RealTime.Soon().ToUnixTimeMilliseconds());
+            if(kind=="session")await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET expires_at={deadline} WHERE handle_verifier={s.Verifier}",ct.Token);
             else
             {
                 // Later lock stages already hold the session. Arrange expiry on
                 // that same transaction without replacing the real row wait.
-                await using var write = command.Connection!.CreateCommand(); write.Transaction = command.Transaction;
-                write.CommandText = "UPDATE cerberus.vault_access_session SET expires_at=@expiry WHERE handle_verifier=@verifier";
-                write.Parameters.Add(new NpgsqlParameter("expiry", deadline)); write.Parameters.Add(new NpgsqlParameter("verifier", s.Verifier)); Assert.Equal(1, await write.ExecuteNonQueryAsync(ct.Token));
+                await using var write=command.Connection!.CreateCommand();write.Transaction=command.Transaction;
+                write.CommandText="UPDATE cerberus.vault_access_session SET expires_at=@expiry WHERE handle_verifier=@verifier";
+                write.Parameters.Add(new NpgsqlParameter("expiry",deadline));write.Parameters.Add(new NpgsqlParameter("verifier",s.Verifier));Assert.Equal(1,await write.ExecuteNonQueryAsync(ct.Token));
             }
             reached.TrySetResult();
         });
-        var pending = new CollectionCreateStore(new ProfileSetup.Factory(fixture, hook)).CreateAsync(new(s.Actor, s.Verifier, input), ct.Token);
+        var pending=new CollectionCreateStore(new ProfileSetup.Factory(fixture,hook)).CreateAsync(new(s.Actor,s.Verifier,input),ct.Token);
         try
         {
-            if (await Task.WhenAny(reached.Task, pending) == pending) { var early = await pending; Assert.False(pending.IsCompleted, "Fixture returned before intended " + kind + " row wait: " + early.Error); }
-            await reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); Assert.False(pending.IsCompleted); await Past(deadline);
+            if(await Task.WhenAny(reached.Task,pending)==pending){var early=await pending;Assert.False(pending.IsCompleted,"Fixture returned before intended "+kind+" row wait: "+early.Error);}
+            await reached.Task.WaitAsync(TimeSpan.FromSeconds(10));Assert.False(pending.IsCompleted);await Past(deadline);
         }
-        finally { await tx.CommitAsync(); }
-        var result = await pending; Assert.Equal("vault_access_denied", result.Error); Assert.Null(result.Data);
-        if (kind == "session")
+        finally{await tx.CommitAsync();}
+        var result=await pending;Assert.Equal("vault_access_denied",result.Error);Assert.Null(result.Data);
+        if(kind=="session")
         {
             // Only this known setup write commits on the transaction holding the
             // session; every other native field must still match exactly.
-            var expected = JsonNode.Parse(before)!; var session = expected["Sessions"]!.AsArray().Single(x => x!["HandleVerifier"]!.GetValue<string>() == s.Verifier)!;
-            session["ExpiresAt"] = JsonSerializer.SerializeToNode(deadline); Assert.True(JsonNode.DeepEquals(expected, JsonNode.Parse(await Snapshot(s))));
+            var expected=JsonNode.Parse(before)!;var session=expected["Sessions"]!.AsArray().Single(x=>x!["HandleVerifier"]!.GetValue<string>()==s.Verifier)!;
+            session["ExpiresAt"]=JsonSerializer.SerializeToNode(deadline);Assert.True(JsonNode.DeepEquals(expected,JsonNode.Parse(await Snapshot(s))));
         }
-        else Assert.Equal(before, await Snapshot(s));
+        else Assert.Equal(before,await Snapshot(s));
     }
 
     [FunctionalTheory]
-    [InlineData("expiry", "vault_access_denied")]
-    [InlineData("policy", "vault_access_denied")]
-    [InlineData("generation", "vault_access_denied")]
-    [InlineData("revoked", "vault_access_denied")]
-    [InlineData("actorTerminal", "not_found")]
-    [InlineData("profileTerminal", "vault_access_denied")]
-    [InlineData("folderTerminal", "not_found")]
-    [InlineData("recordTerminal", "not_found")]
-    [InlineData("newTerminal", "revision_conflict")]
-    [InlineData("removePC", "not_found")]
-    [InlineData("removeCF", "not_found")]
-    [InlineData("removeCR", "not_found")]
-    [InlineData("folderTrash", "not_found")]
-    [InlineData("recordTrash", "not_found")]
-    [InlineData("ancestry", "not_found")]
-    [InlineData("profileTrash", "vault_access_denied")]
-    [InlineData("collectionTrash", "not_found")]
-    [InlineData("collectionTerminal", "not_found")]
-    [InlineData("removePF", "not_found")]
-    [InlineData("removePR", "not_found")]
+    [InlineData("expiry", "vault_access_denied")][InlineData("policy", "vault_access_denied")][InlineData("generation", "vault_access_denied")][InlineData("revoked", "vault_access_denied")]
+    [InlineData("actorTerminal", "not_found")][InlineData("profileTerminal", "vault_access_denied")][InlineData("folderTerminal", "not_found")][InlineData("recordTerminal", "not_found")]
+    [InlineData("newTerminal", "revision_conflict")][InlineData("removePC", "not_found")][InlineData("removeCF", "not_found")][InlineData("removeCR", "not_found")]
+    [InlineData("folderTrash", "not_found")][InlineData("recordTrash", "not_found")][InlineData("ancestry", "not_found")]
+    [InlineData("profileTrash", "vault_access_denied")][InlineData("collectionTrash", "not_found")][InlineData("collectionTerminal", "not_found")]
+    [InlineData("removePF", "not_found")][InlineData("removePR", "not_found")]
     public async Task GivenAuthorityChangesInsideFinalInsertBoundary_WhenCreating_ThenCurrentPermissionWinsAndTransactionRollsBack(string kind, string error)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var p = await Profile(s, owner, scoped); var root = await Folder(s); var f = await Folder(s, root.Id); var r = await Record(s); var c = await Collection(s); var hidden = await Folder(s);
@@ -405,31 +301,18 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         Assert.True(hook.Triggered); Assert.Equal(error, result.Error); Assert.Null(result.Data); Assert.Equal(before, await Snapshot(s));
     }
 
-    [FunctionalTheory]
-    [InlineData("minimum")]
-    [InlineData("firstSubmicro")]
-    [InlineData("precision")]
-    [InlineData("pre2000")]
-    [InlineData("pre2000Last")]
-    [InlineData("maximum")]
+    [FunctionalTheory][InlineData("minimum")][InlineData("firstSubmicro")][InlineData("precision")][InlineData("pre2000")][InlineData("pre2000Last")][InlineData("maximum")]
     public async Task GivenSupportedUtcEditTime_WhenCreating_ThenFloorBeforePostgresBinding(string kind)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var time = kind switch
         {
-            "minimum" => new DateTimeOffset(10, TimeSpan.Zero),
-            "firstSubmicro" => new DateTimeOffset(19, TimeSpan.Zero),
-            "precision" => DateTimeOffset.UnixEpoch.AddTicks(19),
-            "pre2000" => new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero).AddTicks(19),
-            "pre2000Last" => new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero).AddTicks(-1),
-            _ => DateTimeOffset.MaxValue
+            "minimum" => new DateTimeOffset(10, TimeSpan.Zero), "firstSubmicro" => new DateTimeOffset(19, TimeSpan.Zero), "precision" => DateTimeOffset.UnixEpoch.AddTicks(19),
+            "pre2000" => new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero).AddTicks(19), "pre2000Last" => new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero).AddTicks(-1), _ => DateTimeOffset.MaxValue
         };
         var input = Input() with { EditedAt = time }; var before = await Snapshot(s); await Success(s, input, before, await Create(s, input));
     }
 
-    [FunctionalTheory]
-    [InlineData("rootExhausted", "revision_conflict")]
-    [InlineData("parentExhausted", "revision_conflict")]
-    [InlineData("regressed", "persistence_unavailable")]
+    [FunctionalTheory][InlineData("rootExhausted", "revision_conflict")][InlineData("parentExhausted", "revision_conflict")][InlineData("regressed", "persistence_unavailable")]
     public async Task GivenSequenceFailureAfterAllocation_WhenCreating_ThenEntireGraphRollsBack(string kind, string error)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var p = await Profile(s, owner, scoped); var before = await Snapshot(s);
@@ -439,14 +322,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         finally { await db.Database.ExecuteSqlInterpolatedAsync($"SELECT setval('cerberus.server_sequence',{previous},true)"); }
     }
 
-    [FunctionalTheory]
-    [InlineData("PF")]
-    [InlineData("PR")]
-    [InlineData("PC")]
-    [InlineData("CF")]
-    [InlineData("CR")]
-    [InlineData("ancestry")]
-    [InlineData("memberEdit")]
+    [FunctionalTheory][InlineData("PF")][InlineData("PR")][InlineData("PC")][InlineData("CF")][InlineData("CR")][InlineData("ancestry")][InlineData("memberEdit")]
     public async Task GivenCapturedRoutesChangeBeforeMemberLocks_WhenCreating_ThenReloadAndPreserveWinningGraph(string kind)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var p = await Profile(s, owner, scoped); var f = await Folder(s); var ancestor = await Folder(s); var r = await Record(s, f.Id); var c = await Collection(s);
@@ -468,12 +344,10 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         await Success(s, input, winner!, await Create(s, input));
     }
 
-    [FunctionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenExpiryAtOrAfterGuardedInsert_WhenCreating_ThenAuthorizeOnlyAtStatementBoundary(bool after)
     {
-        using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var input = Input(); var deadline = DateTimeOffset.UtcNow.AddSeconds(2);
+        using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var input = Input(); var deadline = RealTime.Soon(RealTime.SetupLead);
         await using (var db = fixture.CreateContext()) await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await Snapshot(s); var hook = new ExpireAtInsert(deadline, after);
         var result = await new CollectionCreateStore(new ProfileSetup.Factory(fixture, hook)).CreateAsync(new(s.Actor, s.Verifier, input), default); Assert.True(hook.Triggered);
@@ -481,20 +355,10 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
     }
 
     [FunctionalTheory]
-    [InlineData("folderCreate", false)]
-    [InlineData("folderCreate", true)]
-    [InlineData("recordCreate", false)]
-    [InlineData("recordCreate", true)]
-    [InlineData("folderMove", false)]
-    [InlineData("folderMove", true)]
-    [InlineData("recordMove", false)]
-    [InlineData("recordMove", true)]
-    [InlineData("folderTrash", false)]
-    [InlineData("folderTrash", true)]
-    [InlineData("recordTrash", false)]
-    [InlineData("recordTrash", true)]
-    [InlineData("association", false)]
-    [InlineData("association", true)]
+    [InlineData("folderCreate", false)][InlineData("folderCreate", true)][InlineData("recordCreate", false)][InlineData("recordCreate", true)]
+    [InlineData("folderMove", false)][InlineData("folderMove", true)][InlineData("recordMove", false)][InlineData("recordMove", true)]
+    [InlineData("folderTrash", false)][InlineData("folderTrash", true)][InlineData("recordTrash", false)][InlineData("recordTrash", true)]
+    [InlineData("association", false)][InlineData("association", true)]
     public async Task GivenActualOwnerWriterAndCollectionCreate_WhenRacingInBothOrders_ThenSerializeWithoutLostWinningState(string writer, bool createFirst)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var p = await Profile(s, owner, scoped); var f = await Folder(s); var r = await Record(s); var destination = await Folder(s);
@@ -536,11 +400,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         if (writer == "recordMove") Assert.Equal(createFirst ? null : destination.Id, (await RecordRow(r.Id)).FolderId);
     }
 
-    [FunctionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [FunctionalTheory][InlineData(false, false)][InlineData(false, true)][InlineData(true, false)][InlineData(true, true)]
     public async Task GivenActualNativeRecipientEditor_WhenRacingCollectionCreate_ThenCollectionBeforeContentLocksPreserveWinner(bool record, bool createFirst)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var recipient = await ProfileSetup.Create(fixture, client); var items = await AssociationSetup.Items(fixture, s);
@@ -567,13 +427,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         await using var db = fixture.CreateContext(); Assert.Equal(createFirst, await db.Collections.AnyAsync(x => x.PublicId == input.CollectionId));
     }
 
-    [FunctionalTheory]
-    [InlineData("complete", null)]
-    [InlineData("omit", "validation_failed")]
-    [InlineData("extra", "validation_failed")]
-    [InlineData("foreign", "validation_failed")]
-    [InlineData("stale", "revision_conflict")]
-    [InlineData("typedAlias", null)]
+    [FunctionalTheory][InlineData("complete", null)][InlineData("omit", "validation_failed")][InlineData("extra", "validation_failed")][InlineData("foreign", "validation_failed")][InlineData("stale", "revision_conflict")][InlineData("typedAlias", null)]
     public async Task GivenNewCollection_WhenNativeRotatingCompleteInventory_ThenIncludeExactCurrentTypedResourceBeforeConsumingProof(string kind, string? error)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var f = await Folder(s); var r = await Record(s); var input = Input() with { CollectionId = kind == "typedAlias" ? r.PublicId : Guid.NewGuid() };
@@ -589,9 +443,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         else { var row = await db.Collections.SingleAsync(x => x.PublicId == input.CollectionId); Assert.Equal(2, row.KeyEpoch); Assert.Equal(2, row.Revision); Assert.Equal(Bytes(replacements.Single(x => x.ResourceKind == "collection").Envelope), row.Envelope); Assert.Equal(DateTimeOffset.UnixEpoch.AddTicks(10), row.EditedAt); }
     }
 
-    [FunctionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [FunctionalTheory][InlineData(false)][InlineData(true)]
     public async Task GivenActualOwnerRotationAndCollectionCreation_WhenRacing_ThenStaleHandleOrInventoryFailsWithoutPartialState(bool rotateFirst)
     {
         using var owner = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var input = Input(); var change = new ProtectionChange(s.AccountId, 1, 1, "rotate-content", owner.Rewrap(), [new("account", s.AccountId, 1, ProfileSetup.Envelope(2))]); var raw = Bytes(change);
@@ -622,12 +474,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         var member = await Folder(s); var input = Input(folders: [member.PublicId]); var before = await Snapshot(s); await Success(s, input, before, await Create(s, input));
     }
 
-    [FunctionalTheory]
-    [InlineData("cancel")]
-    [InlineData("timeout")]
-    [InlineData("db")]
-    [InlineData("dbUpdate")]
-    [InlineData("wrapped")]
+    [FunctionalTheory][InlineData("cancel")][InlineData("timeout")][InlineData("db")][InlineData("dbUpdate")][InlineData("wrapped")]
     public async Task GivenNecessaryPersistenceFailure_WhenCreating_ThenSafe503WithoutPrivateDetails(string kind)
     {
         Exception exception = kind switch { "cancel" => new OperationCanceledException(), "timeout" => new TimeoutException("private"), "db" => new NpgsqlException("private"), "dbUpdate" => new DbUpdateException("private"), _ => new InvalidOperationException("private", new TimeoutException()) };
@@ -635,15 +482,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         Assert.Equal("persistence_unavailable", result.Error); Assert.Null(result.Data);
     }
 
-    [FunctionalTheory]
-    [InlineData("actor")]
-    [InlineData("id")]
-    [InlineData("null")]
-    [InlineData("time")]
-    [InlineData("profiles")]
-    [InlineData("records")]
-    [InlineData("folders")]
-    [InlineData("epoch")]
+    [FunctionalTheory][InlineData("actor")][InlineData("id")][InlineData("null")][InlineData("time")][InlineData("profiles")][InlineData("records")][InlineData("folders")][InlineData("epoch")]
     public async Task GivenInvalidInternalInput_WhenCreating_ThenRejectBeforeUnavailableDependency(string kind)
     {
         var input = Input(); input = kind switch { "id" => input with { CollectionId = Guid.Empty }, "null" => null!, "time" => input with { EditedAt = new(9, TimeSpan.Zero) }, "profiles" => input with { ProfileIds = null! }, "records" => input with { RecordIds = null! }, "folders" => input with { FolderIds = null! }, "epoch" => input with { Envelope = input.Envelope with { KeyEpoch = 2 } }, _ => input };
@@ -654,9 +493,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
     public async Task GivenCanceledCaller_WhenCreating_ThenPropagateBeforeDependency()
     { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new CollectionCreateStore(new ThrowingFactory(new TimeoutException())).CreateAsync(new(Guid.NewGuid(), new string('a', 64), Input()), ct.Token)); }
 
-    [FunctionalTheory]
-    [InlineData(CollectionGrantAccess.ReadOnly)]
-    [InlineData(CollectionGrantAccess.ReadWrite)]
+    [FunctionalTheory][InlineData(CollectionGrantAccess.ReadOnly)][InlineData(CollectionGrantAccess.ReadWrite)]
     public async Task GivenExistingNativeGrant_WhenCreatingPrivateOwnedGrouping_ThenPreserveGrantsKeysAndRecipientGraph(CollectionGrantAccess access)
     {
         using var owner = new ProtectionFixture(); using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var recipient = await ProfileSetup.Create(fixture, client);
@@ -718,24 +555,12 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
     }
     private static IEnumerable<JsonElement> Nodes(JsonElement n) { yield return n; if (n.TryGetProperty("Plans", out var plans)) foreach (var p in plans.EnumerateArray()) foreach (var item in Nodes(p)) yield return item; }
     [FunctionalTheory]
-    [InlineData("profile", "zero")]
-    [InlineData("folder", "zero")]
-    [InlineData("record", "zero")]
-    [InlineData("profile", "unsafe")]
-    [InlineData("folder", "unsafe")]
-    [InlineData("record", "unsafe")]
-    [InlineData("profile", "time")]
-    [InlineData("folder", "time")]
-    [InlineData("record", "time")]
-    [InlineData("profile", "purge")]
-    [InlineData("folder", "purge")]
-    [InlineData("record", "purge")]
-    [InlineData("profile", "max")]
-    [InlineData("folder", "max")]
-    [InlineData("record", "max")]
-    [InlineData("profile", "valid")]
-    [InlineData("folder", "valid")]
-    [InlineData("record", "valid")]
+    [InlineData("profile", "zero")][InlineData("folder", "zero")][InlineData("record", "zero")]
+    [InlineData("profile", "unsafe")][InlineData("folder", "unsafe")][InlineData("record", "unsafe")]
+    [InlineData("profile", "time")][InlineData("folder", "time")][InlineData("record", "time")]
+    [InlineData("profile", "purge")][InlineData("folder", "purge")][InlineData("record", "purge")]
+    [InlineData("profile", "max")][InlineData("folder", "max")][InlineData("record", "max")]
+    [InlineData("profile", "valid")][InlineData("folder", "valid")][InlineData("record", "valid")]
     public async Task GivenStructuralStateChangesAtGuardedInsert_WhenCreating_ThenClassifyCurrentCorruptionOrRetryAndRollback(string kind, string field)
     {
         using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var p = await Profile(s, owner, scoped); var f = await Folder(s); var r = await Record(s);
@@ -800,38 +625,28 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
     {
         await using var db = fixture.CreateContext(); return JsonSerializer.Serialize(new
         {
-            Accounts = await db.Accounts.AsNoTracking().Where(x => x.Id == s.InternalId).ToArrayAsync(),
-            Protection = await db.VaultProtections.AsNoTracking().Where(x => x.AccountId == s.InternalId).ToArrayAsync(),
-            Profiles = await db.Profiles.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
-            Folders = await db.Folders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
-            Records = await db.Records.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
-            Collections = await db.Collections.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
-            ProfileFolders = await db.ProfileFolders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.ProfileId).ThenBy(x => x.FolderId).ToArrayAsync(),
-            ProfileRecords = await db.ProfileRecords.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.ProfileId).ThenBy(x => x.RecordId).ToArrayAsync(),
-            ProfileCollections = await db.ProfileCollections.AsNoTracking().Where(x => db.Profiles.Any(p => p.AccountId == s.InternalId && p.Id == x.ProfileId)).OrderBy(x => x.ProfileId).ThenBy(x => x.CollectionId).ToArrayAsync(),
-            CollectionFolders = await db.CollectionFolders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.CollectionId).ThenBy(x => x.FolderId).ToArrayAsync(),
-            CollectionRecords = await db.CollectionRecords.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.CollectionId).ThenBy(x => x.RecordId).ToArrayAsync(),
-            Grants = await db.CollectionGrants.AsNoTracking().Where(x => x.RecipientAccountId == s.InternalId || db.Collections.Any(c => c.AccountId == s.InternalId && c.Id == x.CollectionId)).OrderBy(x => x.Id).ToArrayAsync(),
-            Sessions = await db.VaultAccessSessions.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
-            Operations = await db.TrashOperations.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
-            Entries = await db.TrashEntries.AsNoTracking().Where(x => db.TrashOperations.Any(o => o.AccountId == s.InternalId && o.Id == x.OperationId)).OrderBy(x => x.Id).ToArrayAsync(),
-            Queue = await db.RetentionWorkItems.AsNoTracking().Where(x => db.TrashOperations.Any(o => o.AccountId == s.InternalId && x.OperationKey == "trash/" + o.PublicId)).OrderBy(x => x.Id).ToArrayAsync()
+            Accounts = await db.Accounts.AsNoTracking().Where(x => x.Id == s.InternalId).ToArrayAsync(), Protection = await db.VaultProtections.AsNoTracking().Where(x => x.AccountId == s.InternalId).ToArrayAsync(),
+            Profiles = await db.Profiles.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(), Folders = await db.Folders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(), Records = await db.Records.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(), Collections = await db.Collections.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
+            ProfileFolders = await db.ProfileFolders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.ProfileId).ThenBy(x => x.FolderId).ToArrayAsync(), ProfileRecords = await db.ProfileRecords.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.ProfileId).ThenBy(x => x.RecordId).ToArrayAsync(), ProfileCollections = await db.ProfileCollections.AsNoTracking().Where(x => db.Profiles.Any(p => p.AccountId == s.InternalId && p.Id == x.ProfileId)).OrderBy(x => x.ProfileId).ThenBy(x => x.CollectionId).ToArrayAsync(),
+            CollectionFolders = await db.CollectionFolders.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.CollectionId).ThenBy(x => x.FolderId).ToArrayAsync(), CollectionRecords = await db.CollectionRecords.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.CollectionId).ThenBy(x => x.RecordId).ToArrayAsync(),
+            Grants = await db.CollectionGrants.AsNoTracking().Where(x => x.RecipientAccountId == s.InternalId || db.Collections.Any(c => c.AccountId == s.InternalId && c.Id == x.CollectionId)).OrderBy(x => x.Id).ToArrayAsync(), Sessions = await db.VaultAccessSessions.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(),
+            Operations = await db.TrashOperations.AsNoTracking().Where(x => x.AccountId == s.InternalId).OrderBy(x => x.Id).ToArrayAsync(), Entries = await db.TrashEntries.AsNoTracking().Where(x => db.TrashOperations.Any(o => o.AccountId == s.InternalId && o.Id == x.OperationId)).OrderBy(x => x.Id).ToArrayAsync(), Queue = await db.RetentionWorkItems.AsNoTracking().Where(x => db.TrashOperations.Any(o => o.AccountId == s.InternalId && x.OperationKey == "trash/" + o.PublicId)).OrderBy(x => x.Id).ToArrayAsync()
         });
     }
-    private static async Task Past(DateTimeOffset time) { var delay = time - DateTimeOffset.UtcNow; if (delay > TimeSpan.Zero) await Task.Delay(delay + TimeSpan.FromMilliseconds(100)); }
+    private static Task Past(DateTimeOffset time) => RealTime.Past(time);
     private sealed class BeforeInsert(Func<DbCommand, Task> action) : DbCommandInterceptor
     {
         public bool Triggered { get; private set; }
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<int> result, CancellationToken ct = default)
         { if (!Triggered && command.CommandText.Contains("INSERT INTO cerberus.collection(")) { Triggered = true; await action(command); } return result; }
     }
-    private sealed class ArmExpiryAtRowWait(string table, Func<DbCommand, Task> arm) : DbCommandInterceptor
+    private sealed class ArmExpiryAtRowWait(string table,Func<DbCommand,Task> arm):DbCommandInterceptor
     {
         private bool used;
         private async Task Check(DbCommand command)
-        { if (!used && command.CommandText.Contains("FROM cerberus." + table + " ") && command.CommandText.Contains("FOR ")) { used = true; await arm(command); } }
-        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { await Check(c); return r; }
-        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { await Check(c); return r; }
+        {if(!used&&command.CommandText.Contains("FROM cerberus."+table+" ")&&command.CommandText.Contains("FOR ")){used=true;await arm(command);}}
+        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<int> r,CancellationToken ct=default){await Check(c);return r;}
+        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c,CommandEventData d,InterceptionResult<DbDataReader> r,CancellationToken ct=default){await Check(c);return r;}
     }
     private sealed class Signal(TaskCompletionSource reached, string table) : DbCommandInterceptor
     {
@@ -874,8 +689,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int result, CancellationToken ct = default)
         {
             var sql = stage switch { "insert" => "INSERT INTO cerberus.collection(", "PC" => "INSERT INTO cerberus.profile_collection", "CF" => "INSERT INTO cerberus.collection_folder", "CR" => "INSERT INTO cerberus.collection_record", _ => "UPDATE cerberus." + stage + " SET" };
-            if (!Triggered && result > 0 && c.CommandText.Contains(sql)) { Triggered = true; throw new TimeoutException("controlled failure after actual collection mutation"); }
-            return ValueTask.FromResult(result);
+            if (!Triggered && result > 0 && c.CommandText.Contains(sql)) { Triggered = true; throw new TimeoutException("controlled failure after actual collection mutation"); } return ValueTask.FromResult(result);
         }
     }
 }

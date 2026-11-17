@@ -71,7 +71,7 @@ public class SyncEditsConcurrencyTests(PostgresFixture fixture) : IClassFixture<
     {
         using var key = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, key);
         var edit = new SyncRecordCreate(Guid.NewGuid(), new(Guid.NewGuid(), ProfileSetup.Envelope(), DateTimeOffset.FromUnixTimeSeconds(1000), []));
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(2);
+        var deadline = RealTime.Soon(RealTime.SetupLead);
         await using var blocker = fixture.CreateContext();
         if (change == "expiry") await blocker.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         await using var tx = await blocker.Database.BeginTransactionAsync(); await blocker.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={s.InternalId} FOR UPDATE");
@@ -86,7 +86,7 @@ public class SyncEditsConcurrencyTests(PostgresFixture fixture) : IClassFixture<
             while (!await observer.Database.SqlQuery<bool>($"SELECT {holder}=ANY(pg_blocking_pids({waiter})) AS \"Value\"").SingleAsync(ct.Token)) await Task.Delay(20, ct.Token);
             if (change == "closing") await blocker.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending));
             if (change == "policy") await blocker.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.PolicyRevision, 2));
-            if (change == "expiry") { var delay = deadline - DateTimeOffset.UtcNow; if (delay > TimeSpan.Zero) await Task.Delay(delay + TimeSpan.FromMilliseconds(100), ct.Token); }
+            if (change == "expiry") await RealTime.Past(deadline, ct.Token);
         }
         finally { await tx.CommitAsync(); }
         var result = await pending; Assert.Equal(error, result.Error); Assert.Null(result.Details);

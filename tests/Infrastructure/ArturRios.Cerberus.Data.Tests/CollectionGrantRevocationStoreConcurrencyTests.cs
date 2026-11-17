@@ -122,7 +122,7 @@ public partial class CollectionGrantRevocationStoreTests
     {
         using var s = await Setup(); var profile = await AssociationSetup.Profile(fixture, s.Owner, s.OwnerKey);
         await Sql("INSERT INTO cerberus.profile_collection(profile_id,collection_id) VALUES({0},{1})", profile, s.Items.Collection.Id); s.Owner = s.Owner with { Verifier = await Selected(s.Owner, profile) };
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(2);
+        var deadline = RealTime.Soon(RealTime.SetupLead);
         if (change == "expiry") await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
         var before = await Grants(s); await using var blocker = fixture.CreateContext(); await using var tx = await blocker.Database.BeginTransactionAsync();
         var id = table switch { "account" => s.Recipient.InternalId, "profile" => profile, "collection" => s.Items.Collection.Id, "collection_grant" => s.Grant.Id, _ => 0 };
@@ -133,7 +133,7 @@ public partial class CollectionGrantRevocationStoreTests
         try
         {
             await reached.Task.WaitAsync(TimeSpan.FromSeconds(10)); await Blocked(holder, waiter, ct.Token);
-            if (change == "expiry") { var wait = deadline - DateTimeOffset.UtcNow; if (wait > TimeSpan.Zero) await Task.Delay(wait + TimeSpan.FromMilliseconds(100), ct.Token); }
+            if (change == "expiry") await RealTime.Past(deadline, ct.Token);
             else await blocker.Database.ExecuteSqlRawAsync(change switch
             {
                 "recipient" => "UPDATE cerberus.account SET state=1 WHERE id={0}",

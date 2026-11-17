@@ -119,8 +119,8 @@ public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
         var input = await Setup();
         // The preflight uses a valid captured instant. Pause only the final
         // statement until the unchanged session expires, then execute the UPDATE.
-        var captured = DateTimeOffset.UtcNow;
-        var expires = new DateTimeOffset(captured.AddSeconds(1).Ticks / 10 * 10, TimeSpan.Zero);
+        var captured = RealTime.Now;
+        var expires = new DateTimeOffset((captured + RealTime.Lead).Ticks / 10 * 10, TimeSpan.Zero);
         await using (var setup = fixture.CreateContext())
         {
             var session = await setup.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == input.Request.Verifier);
@@ -132,8 +132,7 @@ public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
         var before = new BeforeUpdate(async () =>
         {
             paused = true;
-            for (var remaining = expires - DateTimeOffset.UtcNow; remaining > TimeSpan.Zero; remaining = expires - DateTimeOffset.UtcNow)
-                await Task.Delay(remaining + TimeSpan.FromMilliseconds(20));
+            await RealTime.Past(expires);
         });
         var result = await new AccountUpdateStore(new InterceptingFactory(fixture, before))
             .UpdateAsync(input.Request with { Now = captured }, default);

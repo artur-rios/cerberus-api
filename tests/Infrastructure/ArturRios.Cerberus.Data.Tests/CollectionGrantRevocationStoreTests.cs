@@ -151,9 +151,9 @@ public partial class CollectionGrantRevocationStoreTests(PostgresFixture fixture
     [InlineData(true)]
     public async Task GivenExpiryAtAuthorization_WhenRevoking_ThenOnlyPostAuthorizationExpiryCanCommit(bool after)
     {
-        using var s = await Setup(); var deadline = DateTimeOffset.UtcNow.AddSeconds(1.2);
+        using var s = await Setup(); var deadline = RealTime.Soon(RealTime.SetupLead);
         await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
-        async Task Pause(DbCommand _) { var wait = deadline - DateTimeOffset.UtcNow; if (wait > TimeSpan.Zero) await Task.Delay(wait + TimeSpan.FromMilliseconds(100)); }
+        Task Pause(DbCommand _) => RealTime.Past(deadline);
         DbCommandInterceptor hook = after ? new After(Write, Pause) : new Before(Write, Pause);
         await Outcome(s, after ? null : "vault_access_denied", factory: new ProfileSetup.Factory(fixture, hook));
     }

@@ -493,13 +493,9 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenNaturalExpiryAfterInventory_WhenFinalizing_ThenDenyAndRollbackDescriptors()
     {
         var s = await Setup(withRecord: true); await using var db = fixture.CreateContext();
-        var deadline = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp()+INTERVAL '2 seconds' AS \"Value\"").SingleAsync();
+        var deadline = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp()+{RealTime.SetupLead} AS \"Value\"").SingleAsync();
         await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Request.AccessVerifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
-        var barrier = new BeforeDescriptors(async () =>
-        {
-            var wait = deadline - DateTimeOffset.UtcNow;
-            if (wait > TimeSpan.Zero) await Task.Delay(wait + TimeSpan.FromMilliseconds(100));
-        });
+        var barrier = new BeforeDescriptors(() => RealTime.Past(deadline));
         var result = await new SyncDownloadStore(new ProfileSetup.Factory(fixture, barrier), Options).DownloadAsync(s.Request, default);
         Assert.True(barrier.Reached); Assert.Equal("vault_access_denied", result.Error); Assert.Null(result.Page);
         Assert.False(await db.SyncStreams.AnyAsync(x => x.AccountId == s.Owner));

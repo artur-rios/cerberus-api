@@ -128,10 +128,10 @@ public sealed partial class RecordPermanentDeleteStoreTests
     public async Task GivenFreshExpiryAtFinalStatement_WhenDeleting_Then403AndNoTerminalIntent()
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(2);
+        var deadline = RealTime.Soon(RealTime.SetupLead);
         await using var db = fixture.CreateContext();
         await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
-        var hook = new BeforeIntent(async () => { var left = deadline - DateTimeOffset.UtcNow; if (left > TimeSpan.Zero) await Task.Delay(left + TimeSpan.FromMilliseconds(50)); });
+        var hook = new BeforeIntent(() => RealTime.Past(deadline));
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal("vault_access_denied", (await Store(factory: new ProfileSetup.Factory(fixture, hook)).DeleteAsync(w.Request(), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));

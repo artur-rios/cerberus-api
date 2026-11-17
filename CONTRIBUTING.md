@@ -47,8 +47,10 @@ docker build -t cerberus-api:local .
 ```
 
 The format check follows [`.editorconfig`](./.editorconfig), which wants LF line endings, as the
-repository stores them. On Windows with `core.autocrlf=true` the working tree is CRLF and the check
-reports every file; run it from a clone with `core.autocrlf=input` (or `false`).
+repository stores them. [`.gitattributes`](./.gitattributes) checks every text file out with LF on
+every platform, Windows with `core.autocrlf=true` included, so the check runs there too. A clone
+made before `.gitattributes` was added keeps its CRLF files until they are checked out again: on a
+clean working tree, `git rm --cached -r -q . && git reset --hard`.
 
 Current functional tests use disposable PostgreSQL containers and an in-memory HTTP host.
 Every implemented use case must ship with main/alternative-flow tests. The required merged

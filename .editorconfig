@@ -7,9 +7,8 @@ root = true
 # Default settings:
 # A newline ending every file
 # Use 4 spaces as indentation
-# LF line endings: the index stores every code file with LF, and CI checks out LF. On Windows with
-# core.autocrlf=true the working tree is CRLF, so the local format check reports every file; check
-# out with LF (core.autocrlf=input or false) to run it there. See CONTRIBUTING.md.
+# LF line endings: the index stores every code file with LF, and .gitattributes checks them out
+# with LF on every platform (also on Windows with core.autocrlf=true), as CI does. See CONTRIBUTING.md.
 [*]
 end_of_line = lf
 insert_final_newline = true

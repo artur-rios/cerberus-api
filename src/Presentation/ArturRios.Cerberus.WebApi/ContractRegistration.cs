@@ -76,6 +76,9 @@ public static class ContractRegistration
             options.SchemaFilter<AccountExportSchemaFilter>();
             options.SchemaFilter<HealthSchemaFilter>();
             options.OperationFilter<HealthSchemaFilter>();
+            // Last, so the hand-shaped members above keep their own null branches.
+            options.SchemaFilter<NullableReferenceSchemaFilter>();
+            options.OperationFilter<RequiredBodyFilter>();
         });
         return services;
     }
@@ -220,10 +223,7 @@ public static class ContractRegistration
             content.Clear();
             content.Add("application/json", json);
             if (export || trashEmpty || trashRestore || recovery || closure || policyUpdate || renewal || syncEdits || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))
-            {
-                ((OpenApiRequestBody)operation.RequestBody!).Required = true;
                 operation.Responses!["413"].Content?.Clear();
-            }
             if (export)
                 ((OpenApiParameter)operation.Parameters!.Single(p => p.Name == "X-Cerberus-Vault-Access")).Required = true;
             if (trashRestore || context.MethodInfo.Name == nameof(SoftwareGrantsController.RevokeAccess))

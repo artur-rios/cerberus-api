@@ -306,6 +306,14 @@ development into `develop` only; it is still required before any release.
 
 ### Fixed
 
+- The OpenAPI document (`docs/contracts/openapi.json`) now tells API clients what the server already does, so a
+  client generated from it can trust it strictly. Every `[FromBody]` request body is `required` (a missing body was
+  always answered with 400 `validation_failed`), including `POST /api/accounts`, which answers 201 created or 200
+  replayed. A member that can be written as JSON `null` and was published as a bare `$ref`, such as
+  `AuthenticationOutput.account` on a login that still needs a second factor, is now a nullable reference
+  (`allOf` with the `$ref`, `nullable: true`). The success codes were already exact and are now checked against
+  the status maps. Nothing changes on the wire: statuses, bodies and JSON are as before.
+
 - The `test` check runs every test once. It ran the unit tests, then the functional tests, then all of them again
   for the `.trx` results: about 21 of its 34 minutes repeated tests already run. One unfiltered run now writes the
   results and the coverage, and still runs a test with neither Category trait.

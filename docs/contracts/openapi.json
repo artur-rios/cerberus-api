@@ -821,7 +821,8 @@
                 "$ref": "#/components/schemas/UpdateAccountCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1125,7 +1126,8 @@
                 "$ref": "#/components/schemas/RegisterAccountCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -1699,7 +1701,8 @@
                 "$ref": "#/components/schemas/LoginCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1827,7 +1830,8 @@
                 "$ref": "#/components/schemas/VerifyChallengeCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1980,7 +1984,8 @@
                 "$ref": "#/components/schemas/RevokeCollectionAccessCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -2191,7 +2196,8 @@
                 "$ref": "#/components/schemas/ChangeCollectionAccessCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -2396,7 +2402,8 @@
                 "$ref": "#/components/schemas/GrantCollectionAccessCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -2601,7 +2608,8 @@
                 "$ref": "#/components/schemas/SetCollectionMembershipCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -2806,7 +2814,8 @@
                 "$ref": "#/components/schemas/DeleteCollectionCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -3009,7 +3018,8 @@
                 "$ref": "#/components/schemas/UpdateCollectionCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -3540,7 +3550,8 @@
                 "$ref": "#/components/schemas/CreateCollectionCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -3745,7 +3756,8 @@
                 "$ref": "#/components/schemas/DeleteFolderCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -3948,7 +3960,8 @@
                 "$ref": "#/components/schemas/UpdateFolderCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -4317,7 +4330,8 @@
                 "$ref": "#/components/schemas/MoveFolderCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -4684,7 +4698,8 @@
                 "$ref": "#/components/schemas/CreateFolderCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -4985,7 +5000,8 @@
                 "$ref": "#/components/schemas/UpdateIdentityCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -5334,7 +5350,8 @@
                 "$ref": "#/components/schemas/IssueProfileAccessChallengeCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -5526,7 +5543,8 @@
                 "$ref": "#/components/schemas/OpenProfileAccessCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -5711,7 +5729,8 @@
                 "$ref": "#/components/schemas/DeleteProfileCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -5894,7 +5913,8 @@
                 "$ref": "#/components/schemas/UpdateProfileCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -6223,7 +6243,8 @@
                 "$ref": "#/components/schemas/SetProfileAssociationsCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -6550,7 +6571,8 @@
                 "$ref": "#/components/schemas/CreateProfileCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -6735,7 +6757,8 @@
                 "$ref": "#/components/schemas/MoveRecordCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -6940,7 +6963,8 @@
                 "$ref": "#/components/schemas/PermanentlyDeleteRecordCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -7145,7 +7169,8 @@
                 "$ref": "#/components/schemas/DeleteRecordCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -7348,7 +7373,8 @@
                 "$ref": "#/components/schemas/UpdateRecordCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -7879,7 +7905,8 @@
                 "$ref": "#/components/schemas/CreateRecordCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -8246,7 +8273,8 @@
                 "$ref": "#/components/schemas/GrantSoftwareAccessCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -9447,7 +9475,8 @@
                 "$ref": "#/components/schemas/InitializeVaultCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "400": {
@@ -9616,7 +9645,8 @@
                 "$ref": "#/components/schemas/ChangeVaultProtectionCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "400": {
@@ -9927,7 +9957,8 @@
                 "$ref": "#/components/schemas/RecoverVaultCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "400": {
@@ -10096,7 +10127,8 @@
                 "$ref": "#/components/schemas/RecoverVaultCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "400": {
@@ -10393,7 +10425,8 @@
                 "$ref": "#/components/schemas/IssueVaultChallengeCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "400": {
@@ -10557,7 +10590,8 @@
                 "$ref": "#/components/schemas/UnlockVaultCommand"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "400": {
@@ -11773,7 +11807,13 @@
             "$ref": "#/components/schemas/HeimdallLogin"
           },
           "account": {
-            "$ref": "#/components/schemas/AuthenticationAccount"
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthenticationAccount"
+              }
+            ],
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -12348,7 +12388,13 @@
             "$ref": "#/components/schemas/EncryptedEnvelope"
           },
           "keyWrappers": {
-            "$ref": "#/components/schemas/ProfileKeyWrappers"
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProfileKeyWrappers"
+              }
+            ],
+            "nullable": true
           }
         },
         "additionalProperties": false

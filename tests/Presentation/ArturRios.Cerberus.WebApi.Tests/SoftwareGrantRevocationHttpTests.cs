@@ -31,7 +31,7 @@ public sealed class SoftwareGrantRevocationContractTests
         using var host = builder.Build();
         var document = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
         using var writer = new StringWriter();
-        document.SerializeAsV3(new OpenApiJsonWriter(writer));
+        ContractRegistration.WriteContract(document, writer);
         using var json = JsonDocument.Parse(writer.ToString());
         var root = json.RootElement;
         var operation = root.GetProperty("paths").GetProperty("/api/software-grants/{id}").GetProperty("delete");
@@ -52,8 +52,9 @@ public sealed class SoftwareGrantRevocationContractTests
         var responses = operation.GetProperty("responses");
         Assert.Equal(["200", "400", "401", "403", "404", "409", "413", "503"], responses.EnumerateObject().Select(x => x.Name).Order());
         Assert.EndsWith("/RevokeSoftwareAccessOutputDataOutput", responses.GetProperty("200").GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString());
+        // The handler's failed envelope ("data": null) or a refusal's ProcessOutput: FailureOutput is both.
         foreach (var status in new[] { "400", "401", "403", "404", "409", "503" })
-            Assert.EndsWith("/ProcessOutput", responses.GetProperty(status).GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString());
+            Assert.EndsWith("/FailureOutput", responses.GetProperty(status).GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString());
         Assert.False(responses.GetProperty("413").TryGetProperty("content", out _));
     }
 }

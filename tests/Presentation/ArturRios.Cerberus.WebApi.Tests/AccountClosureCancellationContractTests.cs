@@ -14,7 +14,8 @@ public class AccountClosureCancellationContractTests
         using var host = builder.Build();
         var doc = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
         var account = doc.Components!.Schemas!["ClosureRecoveryAuthenticationOutput"].Properties!["account"];
-        Assert.Contains(account.OneOf!, x => x.Enum?.Count == 1 && x.Enum[0] is null);
+        // OAS 3.1's nullable reference: the reference or the null type.
+        Assert.Contains(account.AnyOf!, x => x.Type == Microsoft.OpenApi.JsonSchemaType.Null);
     }
     [UnitTheory]
     [InlineData("/api/accounts/me/closure/cancel")]

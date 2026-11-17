@@ -43,7 +43,7 @@ internal sealed class ErrorResponseFilter : IOperationFilter
             }
         }
         // RFC 9110's name, as Swashbuckle gives it; ReasonPhrases still has the older "Payload Too Large".
-        responses[PayloadTooLarge] = new OpenApiResponse { Description = "Content Too Large" };
+        responses[PayloadTooLarge] = new OpenApiResponse { Description = "Content Too Large", Content = new Dictionary<string, IOpenApiMediaType>() };
         if (context.ApiDescription.ParameterDescriptions.Any(p => p.Source == BindingSource.Body)
             && context.MethodInfo.GetCustomAttributes(typeof(VaultProofBodyAttribute), inherit: true).Length == 0)
         {

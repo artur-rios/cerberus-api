@@ -7,7 +7,7 @@ namespace ArturRios.Cerberus.Query.Records;
 
 internal static class RecordProjection
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
     internal static bool TryRead(RecordListRow? row, out RecordListItem? item)
     {
@@ -19,7 +19,7 @@ internal static class RecordProjection
             return false;
         EncryptedEnvelope? envelope;
         try
-        { envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json); }
+        { envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, s_json); }
         catch (JsonException) { return false; }
         if (envelope?.IsValid() != true)
             return false;

@@ -1047,23 +1047,23 @@ public class FolderMoveStoreTests(PostgresFixture fixture) : IClassFixture<Postg
     private static bool IsWrite(DbCommand c) => c.CommandText.Contains("UPDATE cerberus.folder AS root");
     private sealed class BeforeWrite : DbCommandInterceptor
     {
-        private readonly Func<DbCommand, Task> action; private bool used;
+        private readonly Func<DbCommand, Task> _action; private bool _used;
         public BeforeWrite(Func<Task> value) : this(_ => value()) { }
-        public BeforeWrite(Func<DbCommand, Task> value) => action = value;
-        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> result, CancellationToken ct = default) { if (!used && IsWrite(c)) { used = true; await action(c); } return result; }
+        public BeforeWrite(Func<DbCommand, Task> value) => _action = value;
+        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> result, CancellationToken ct = default) { if (!_used && IsWrite(c)) { _used = true; await _action(c); } return result; }
     }
     private sealed class BeforeContent(Func<Task> action) : DbCommandInterceptor
-    { private bool used; private async Task Check(DbCommand c) { if (!used && c.CommandText.Contains("FROM cerberus.folder") && c.CommandText.Contains("FOR UPDATE")) { used = true; await action(); } } public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { await Check(c); return r; } public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { await Check(c); return r; } }
+    { private bool _used; private async Task Check(DbCommand c) { if (!_used && c.CommandText.Contains("FROM cerberus.folder") && c.CommandText.Contains("FOR UPDATE")) { _used = true; await action(); } } public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { await Check(c); return r; } public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { await Check(c); return r; } }
     private sealed class BeforeParent(Func<Task> action) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!used && c.CommandText.StartsWith("UPDATE cerberus.folder SET")) { used = true; await action(); } return r; } }
+    { private bool _used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!_used && c.CommandText.StartsWith("UPDATE cerberus.folder SET")) { _used = true; await action(); } return r; } }
     private sealed class PauseUpdate(Func<Task> action) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!used && (c.CommandText.Contains("UPDATE cerberus.folder AS r") || c.CommandText.Contains("UPDATE cerberus.record AS r"))) { used = true; await action(); } return r; } }
+    { private bool _used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!_used && (c.CommandText.Contains("UPDATE cerberus.folder AS r") || c.CommandText.Contains("UPDATE cerberus.record AS r"))) { _used = true; await action(); } return r; } }
     private sealed class Fail(string stage) : DbCommandInterceptor
     {
         public bool Triggered { get; private set; }
-        private bool rootDone; private int parentsDone;
-        private void Check() { if (!Triggered && (stage == "root" && rootDone || stage == "firstParent" && parentsDone >= 1 || stage == "secondParent" && parentsDone >= 2)) { Triggered = true; throw new TimeoutException("controlled folder move outage after actual mutation"); } }
-        public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (r > 0 && IsWrite(c)) rootDone = true; if (r > 0 && c.CommandText.StartsWith("UPDATE cerberus.folder SET")) parentsDone++; return ValueTask.FromResult(r); }
+        private bool _rootDone; private int _parentsDone;
+        private void Check() { if (!Triggered && (stage == "root" && _rootDone || stage == "firstParent" && _parentsDone >= 1 || stage == "secondParent" && _parentsDone >= 2)) { Triggered = true; throw new TimeoutException("controlled folder move outage after actual mutation"); } }
+        public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (r > 0 && IsWrite(c)) _rootDone = true; if (r > 0 && c.CommandText.StartsWith("UPDATE cerberus.folder SET")) _parentsDone++; return ValueTask.FromResult(r); }
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { Check(); return ValueTask.FromResult(r); }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { Check(); return ValueTask.FromResult(r); }
     }

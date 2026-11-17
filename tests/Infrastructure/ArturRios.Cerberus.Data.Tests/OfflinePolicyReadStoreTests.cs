@@ -9,7 +9,7 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public class OfflinePolicyReadStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
-    private static readonly DateTimeOffset Now = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset s_now = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
 
     [FunctionalTheory]
     [InlineData("active", null)]
@@ -78,14 +78,14 @@ public class OfflinePolicyReadStoreTests(PostgresFixture fixture) : IClassFixtur
                 {
                     PublicId = Guid.NewGuid(),
                     AccountId = profileOwner,
-                    DeletedAt = state == "deletedProfile" ? Now : null,
-                    PurgeAt = state == "deletedProfile" ? Now.AddDays(30) : null
+                    DeletedAt = state == "deletedProfile" ? s_now : null,
+                    PurgeAt = state == "deletedProfile" ? s_now.AddDays(30) : null
                 };
                 setup.Profiles.Add(profile);
                 await setup.SaveChangesAsync();
                 profileId = profile.Id;
                 if (state == "erasedProfile")
-                    setup.TerminalErasures.Add(new TerminalErasure { ResourceId = profile.PublicId, ResourceKind = "profile", DeletedAt = Now });
+                    setup.TerminalErasures.Add(new TerminalErasure { ResourceId = profile.PublicId, ResourceKind = "profile", DeletedAt = s_now });
             }
             if (state == "missingProfile")
                 profileId = long.MaxValue;
@@ -95,17 +95,17 @@ public class OfflinePolicyReadStoreTests(PostgresFixture fixture) : IClassFixtur
                     AccountId = sessionAccountId,
                     HandleVerifier = verifier,
                     ProfileId = profileId,
-                    IssuedAt = state == "futureIssue" ? Now.AddSeconds(1) : Now.AddMinutes(-5),
-                    ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
+                    IssuedAt = state == "futureIssue" ? s_now.AddSeconds(1) : s_now.AddMinutes(-5),
+                    ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? s_now : state == "expired" ? s_now.AddSeconds(-1) : s_now.AddMinutes(5),
                     PolicyRevision = state == "zeroPolicy" ? 0 : 1,
                     RevocationGeneration = state == "zeroGeneration" ? 0 : 1,
                     Revoked = state == "revoked"
                 });
             if (state == "erased")
-                setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
+                setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = s_now });
             await setup.SaveChangesAsync();
         }
-        var result = await new OfflinePolicyReadStore(fixture).ReadAsync(state == "missingAccount" ? Guid.NewGuid() : identity, verifier, Now, default);
+        var result = await new OfflinePolicyReadStore(fixture).ReadAsync(state == "missingAccount" ? Guid.NewGuid() : identity, verifier, s_now, default);
         Assert.Equal(error, result.Error);
         if (error is null)
         {
@@ -125,7 +125,7 @@ public class OfflinePolicyReadStoreTests(PostgresFixture fixture) : IClassFixtur
     [FunctionalFact]
     public async Task GivenUnavailableDatabase_WhenReading_ThenReturn503ErrorWithoutPolicy()
     {
-        var result = await new OfflinePolicyReadStore(new UnavailableFactory()).ReadAsync(Guid.NewGuid(), new string('a', 64), Now, default);
+        var result = await new OfflinePolicyReadStore(new UnavailableFactory()).ReadAsync(Guid.NewGuid(), new string('a', 64), s_now, default);
         Assert.Equal("persistence_unavailable", result.Error);
         Assert.Null(result.Policy);
     }
@@ -135,7 +135,7 @@ public class OfflinePolicyReadStoreTests(PostgresFixture fixture) : IClassFixtur
     {
         using var cancelled = new CancellationTokenSource();
         cancelled.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new OfflinePolicyReadStore(fixture).ReadAsync(Guid.NewGuid(), new string('a', 64), Now, cancelled.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new OfflinePolicyReadStore(fixture).ReadAsync(Guid.NewGuid(), new string('a', 64), s_now, cancelled.Token));
     }
 
     private sealed class UnavailableFactory : IDbContextFactory<AppDbContext>

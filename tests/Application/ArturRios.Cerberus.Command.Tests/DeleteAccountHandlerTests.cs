@@ -7,10 +7,10 @@ namespace ArturRios.Cerberus.Command.Tests;
 
 public class DeleteAccountHandlerTests
 {
-    private static readonly Guid Actor = Guid.NewGuid(), Account = Guid.NewGuid();
-    private static readonly DateTimeOffset Now = DateTimeOffset.FromUnixTimeSeconds(1800000000);
-    private static readonly string Access = Convert.ToBase64String(new byte[32]).TrimEnd('=').Replace('+', '-').Replace('/', '_');
-    private static DeleteAccountCommand Command() { var c = new DeleteAccountCommand { ExpectedRevision = 1 }; c.SetContext(Actor, Now.ToUnixTimeSeconds(), Access); return c; }
+    private static readonly Guid s_actor = Guid.NewGuid(), s_account = Guid.NewGuid();
+    private static readonly DateTimeOffset s_now = DateTimeOffset.FromUnixTimeSeconds(1800000000);
+    private static readonly string s_access = Convert.ToBase64String(new byte[32]).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+    private static DeleteAccountCommand Command() { var c = new DeleteAccountCommand { ExpectedRevision = 1 }; c.SetContext(s_actor, s_now.ToUnixTimeSeconds(), s_access); return c; }
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("old", "fresh_authentication_required")]
@@ -21,7 +21,7 @@ public class DeleteAccountHandlerTests
     public async Task GivenInvalidDeletionAuthority_WhenHandling_ThenRejectBeforeStore(string kind, string error)
     {
         var c = Command();
-        c.SetContext(kind == "actor" ? Guid.Empty : Actor, Now.ToUnixTimeSeconds() + (kind == "old" ? -60 : kind == "future" ? 1 : 0), kind == "missing" ? null : kind == "malformed" ? "invalid" : Access);
+        c.SetContext(kind == "actor" ? Guid.Empty : s_actor, s_now.ToUnixTimeSeconds() + (kind == "old" ? -60 : kind == "future" ? 1 : 0), kind == "missing" ? null : kind == "malformed" ? "invalid" : s_access);
         if (kind == "revision")
             c.ExpectedRevision = 0;
         var result = await new DeleteAccountHandler(new Mock<IAccountDeletionStore>(MockBehavior.Strict).Object, new Clock()).HandleAsync(c);
@@ -33,12 +33,12 @@ public class DeleteAccountHandlerTests
     [InlineData("pending", "account_deletion_pending", 202)]
     public async Task GivenAcceptedDeletion_WhenHandling_ThenReturnMinimalTrackedState(string state, string message, int status)
     {
-        var result = await Handler(new(new(Account, Now, state))).HandleAsync(Command());
+        var result = await Handler(new(new(s_account, s_now, state))).HandleAsync(Command());
         Assert.True(result.Success);
         Assert.Contains(message, result.Messages);
-        Assert.Equal(Account, result.Data!.AccountId);
+        Assert.Equal(s_account, result.Data!.AccountId);
         Assert.Equal(state, result.Data.State);
-        Assert.Equal(Now, result.Data.DeletedAt);
+        Assert.Equal(s_now, result.Data.DeletedAt);
         Assert.Equal(status, AccountDeletionMessages.StatusCodes[message]);
         Assert.DoesNotContain(result.Data.GetType().GetProperties(), x => x.Name.Contains("Token") || x.Name.Contains("Access") || x.Name.Contains("Envelope"));
     }
@@ -59,8 +59,8 @@ public class DeleteAccountHandlerTests
     [InlineData("mixed")]
     public async Task GivenInconsistentErasureResult_WhenHandling_ThenFailClosed(string kind)
     {
-        var d = new AccountDeletionDetails(Account, Now, "completed");
-        d = kind switch { "id" => d with { AccountId = Guid.Empty }, "state" => d with { State = "active" }, "time" => d with { DeletedAt = Now.AddTicks(1) }, _ => d };
+        var d = new AccountDeletionDetails(s_account, s_now, "completed");
+        d = kind switch { "id" => d with { AccountId = Guid.Empty }, "state" => d with { State = "active" }, "time" => d with { DeletedAt = s_now.AddTicks(1) }, _ => d };
         var result = kind == "missing" ? new AccountDeletionResult() : kind == "unknown" ? new(Error: "private-failure") : new(d, kind == "mixed" ? "not_found" : null);
         var r = await Handler(result).HandleAsync(Command());
         Assert.Contains("persistence_unavailable", r.Errors);
@@ -71,10 +71,10 @@ public class DeleteAccountHandlerTests
     { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new()).HandleAsync(Command(), ct.Token)); }
     private static DeleteAccountHandler Handler(AccountDeletionResult value)
     {
-        OpaqueAccessHandle.TryHash(Access, out var verifier);
+        OpaqueAccessHandle.TryHash(s_access, out var verifier);
         var store = new Mock<IAccountDeletionStore>(MockBehavior.Strict);
-        store.Setup(x => x.DeleteAsync(It.Is<AccountDeletionRequest>(r => r.Actor == Actor && r.AuthenticationIssuedAt == Now.ToUnixTimeSeconds() && r.ExpectedRevision == 1 && r.AccessVerifier == verifier), It.IsAny<CancellationToken>())).ReturnsAsync(value);
+        store.Setup(x => x.DeleteAsync(It.Is<AccountDeletionRequest>(r => r.Actor == s_actor && r.AuthenticationIssuedAt == s_now.ToUnixTimeSeconds() && r.ExpectedRevision == 1 && r.AccessVerifier == verifier), It.IsAny<CancellationToken>())).ReturnsAsync(value);
         return new(store.Object, new Clock());
     }
-    private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => Now; }
+    private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => s_now; }
 }

@@ -12,8 +12,8 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class RecordCreateHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid();
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json) { NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.Strict };
+    private readonly Guid _actor = Guid.NewGuid();
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json) { NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.Strict };
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -29,7 +29,7 @@ public class RecordCreateHandlerTests
     public async Task GivenInvalidInputOrAuthority_WhenHandling_ThenRejectWithoutPersistence(string kind, string error)
     {
         var c = Command();
-        c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access);
+        c.SetContext(kind == "actor" ? Guid.Empty : _actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access);
         if (kind == "id")
             c.RecordId = Guid.Empty;
         if (kind == "envelope")
@@ -39,7 +39,7 @@ public class RecordCreateHandlerTests
         if (kind == "profiles")
             c.ProfileIds = null!;
         if (kind == "duplicates")
-            c.ProfileIds = [actor, actor];
+            c.ProfileIds = [_actor, _actor];
         if (kind == "folder")
             c.FolderId = Guid.Empty;
         if (kind == "time")
@@ -69,13 +69,13 @@ public class RecordCreateHandlerTests
         Assert.Equal(1, result.Data.Revision);
         Assert.Equal(7, result.Data.ServerSequence);
         Assert.Equal(Normalize(c.EditedAt), result.Data.EditedAt);
-        Assert.Equal(actor, captured!.Actor);
+        Assert.Equal(_actor, captured!.Actor);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier);
         Assert.Equal(c.ToInput(), captured.Input);
         Assert.Equal(source.Token, received);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, s_json));
         Assert.Equal(["editedAt", "recordId", "revision", "serverSequence"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        using var wire = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        using var wire = JsonDocument.Parse(JsonSerializer.Serialize(c, s_json));
         Assert.Equal(["editedAt", "envelope", "folderId", "profileIds", "recordId"], wire.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
@@ -132,7 +132,7 @@ public class RecordCreateHandlerTests
     [InlineData("editedAt")]
     [InlineData("profileIds")]
     public void GivenOmittedRequiredBodyMember_WhenParsing_ThenReject(string name)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); body.Remove(name); Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateRecordCommand>(body.ToJsonString(), Json)); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); body.Remove(name); Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateRecordCommand>(body.ToJsonString(), s_json)); }
     [UnitTheory]
     [InlineData("actor")]
     [InlineData("accountId")]
@@ -143,18 +143,18 @@ public class RecordCreateHandlerTests
     [InlineData("collectionIds")]
     [InlineData("unknown")]
     public void GivenUnknownOrForgedBodyMember_WhenParsing_ThenReject(string name)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); body[name] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateRecordCommand>(body.ToJsonString(), Json)); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); body[name] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateRecordCommand>(body.ToJsonString(), s_json)); }
     [UnitTheory]
     [InlineData("duplicate")]
     [InlineData("case")]
     [InlineData("numeric")]
     public void GivenAmbiguousStrictBody_WhenParsing_ThenReject(string kind)
-    { var body = JsonSerializer.Serialize(Command(), Json); body = kind == "duplicate" ? body.Insert(1, "\"profileIds\":[],") : kind == "case" ? body.Replace("profileIds", "ProfileIds") : body.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""); Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateRecordCommand>(body, Json)); }
+    { var body = JsonSerializer.Serialize(Command(), s_json); body = kind == "duplicate" ? body.Insert(1, "\"profileIds\":[],") : kind == "case" ? body.Replace("profileIds", "ProfileIds") : body.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""); Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateRecordCommand>(body, s_json)); }
     [UnitTheory]
     [InlineData(false)]
     [InlineData(true)]
     public void GivenOmittedOrNullOptionalFolder_WhenParsing_ThenPreserveUnfolderedCreation(bool omit)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); if (omit) body.Remove("folderId"); else body["folderId"] = null; var c = JsonSerializer.Deserialize<CreateRecordCommand>(body.ToJsonString(), Json)!; Assert.Null(c.FolderId); Assert.True(c.ToInput().IsValid()); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); if (omit) body.Remove("folderId"); else body["folderId"] = null; var c = JsonSerializer.Deserialize<CreateRecordCommand>(body.ToJsonString(), s_json)!; Assert.Null(c.FolderId); Assert.True(c.ToInput().IsValid()); }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforePersistence()
     { using var source = new CancellationTokenSource(); source.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new Mock<IRecordCreateStore>(MockBehavior.Strict).Object).HandleAsync(Command(), source.Token)); }
@@ -163,7 +163,7 @@ public class RecordCreateHandlerTests
     { using var source = new CancellationTokenSource(); var store = new Mock<IRecordCreateStore>(); store.Setup(x => x.CreateAsync(It.IsAny<RecordCreateRequest>(), source.Token)).ThrowsAsync(new OperationCanceledException(source.Token)); var e = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store.Object).HandleAsync(Command(), source.Token)); Assert.Equal(source.Token, e.CancellationToken); }
     [UnitFact]
     public void GivenRecordCreatedMessage_WhenMapping_ThenReturn201() => Assert.Equal(201, RecordCreateMessages.StatusCodes["record_created"]);
-    private CreateRecordCommand Command() { var c = new CreateRecordCommand { RecordId = Guid.NewGuid(), Envelope = new EncryptedEnvelope("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), EditedAt = DateTimeOffset.UnixEpoch.AddTicks(19), ProfileIds = [], FolderId = null }; c.SetContext(actor, Access); return c; }
+    private CreateRecordCommand Command() { var c = new CreateRecordCommand { RecordId = Guid.NewGuid(), Envelope = new EncryptedEnvelope("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), EditedAt = DateTimeOffset.UnixEpoch.AddTicks(19), ProfileIds = [], FolderId = null }; c.SetContext(_actor, Access); return c; }
     private static DateTimeOffset Normalize(DateTimeOffset value) => value.AddTicks(-(value.Ticks % 10));
     private static CreateRecordHandler Handler(IRecordCreateStore store) => new(new CreateRecordValidator(), store);
 }

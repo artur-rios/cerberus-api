@@ -556,7 +556,7 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         var p = await AssociationSetup.Profile(fixture, s, owner);
         await Routes(s, p, a.Collection.Id, [], []);
         s = s with { Verifier = await Selected(s, p) };
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier);
         var before = await Snapshot(s);
         await using var blocker = fixture.CreateContext();
@@ -991,7 +991,7 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
         using var owner = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, owner);
         var a = await AssociationSetup.Items(fixture, s);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier);
         var before = await Snapshot(s);
         var input = Input([a.Folder.PublicId]);
@@ -1194,11 +1194,11 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     }
     private sealed class PauseAccount(TaskCompletionSource reached, TaskCompletionSource release) : DbCommandInterceptor
     {
-        private bool used;
+        private bool _used;
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default)
-        { if (!used && c.CommandText.Contains("FROM cerberus.account ") && c.CommandText.Contains("FOR ")) { used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; }
+        { if (!_used && c.CommandText.Contains("FROM cerberus.account ") && c.CommandText.Contains("FOR ")) { _used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; }
         public override async ValueTask<DbDataReader> ReaderExecutedAsync(DbCommand c, CommandExecutedEventData d, DbDataReader r, CancellationToken ct = default)
-        { if (!used && c.CommandText.Contains("FROM cerberus.account ") && c.CommandText.Contains("FOR ")) { used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; }
+        { if (!_used && c.CommandText.Contains("FROM cerberus.account ") && c.CommandText.Contains("FOR ")) { _used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; }
     }
     private sealed class Hook(string text, Func<DbCommand, Task> action) : DbCommandInterceptor
     {
@@ -1218,11 +1218,11 @@ public class CollectionMembershipStoreTests(PostgresFixture fixture) : IClassFix
     private sealed class Fault(string stage) : DbCommandInterceptor
     {
         public bool Triggered { get; private set; }
-        private int matches;
+        private int _matches;
         public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int result, CancellationToken ct = default)
         {
             var sql = stage switch { "target" => "UPDATE cerberus.collection AS", "deleteFolder" => "DELETE FROM cerberus.collection_folder", "deleteRecord" => "DELETE FROM cerberus.collection_record", "insertFolder" => "INSERT INTO cerberus.collection_folder", "insertRecord" => "INSERT INTO cerberus.collection_record", _ => "UPDATE cerberus." + (stage.StartsWith("folder") ? "folder" : "record") + " SET" };
-            if (result > 0 && c.CommandText.Contains(sql) && ++matches == (stage.EndsWith('2') ? 2 : 1))
+            if (result > 0 && c.CommandText.Contains(sql) && ++_matches == (stage.EndsWith('2') ? 2 : 1))
             { Triggered = true; throw new TimeoutException("controlled post-mutation failure"); }
             return ValueTask.FromResult(result);
         }

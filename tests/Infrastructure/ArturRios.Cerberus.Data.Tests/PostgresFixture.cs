@@ -13,13 +13,13 @@ namespace ArturRios.Cerberus.Data.Tests;
 public sealed class PostgresServer : IAsyncLifetime
 {
     private const string Template = "cerberus_template";
-    private static PostgresServer? _current;
+    private static PostgresServer? s_current;
     private readonly SemaphoreSlim _create = new(1, 1);
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:18.6-alpine")
         .WithCommand("-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off", "-c", "max_connections=500")
         .Build();
 
-    internal static PostgresServer Current => _current ?? throw new InvalidOperationException("The PostgreSQL server fixture has not started.");
+    internal static PostgresServer Current => s_current ?? throw new InvalidOperationException("The PostgreSQL server fixture has not started.");
 
     public async ValueTask InitializeAsync()
     {
@@ -29,7 +29,7 @@ public sealed class PostgresServer : IAsyncLifetime
                          .UseNpgsql(ConnectionString(Template, pooling: false)).Options))
             await context.Database.MigrateAsync();
         await CalibrateClockAsync();
-        _current = this;
+        s_current = this;
     }
 
     // With every class running at once a new connection can take longer than Npgsql's 15-second default to open (through
@@ -80,7 +80,7 @@ public sealed class PostgresServer : IAsyncLifetime
 
     public async ValueTask DisposeAsync()
     {
-        _current = null;
+        s_current = null;
         await _container.DisposeAsync();
         _create.Dispose();
     }

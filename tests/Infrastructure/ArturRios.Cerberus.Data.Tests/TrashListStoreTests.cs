@@ -319,7 +319,7 @@ public class TrashListStoreTests(PostgresFixture fixture) : IClassFixture<Postgr
         var s = await ProfileSetup.Create(fixture, keys);
         var item = await Trashed(s);
         // A read: the store commits what it reads, so the bounds are set before it starts.
-        var deadline = DateTimeOffset.FromUnixTimeMilliseconds(RealTime.Soon(RealTime.SetupLead).ToUnixTimeMilliseconds());
+        var deadline = DateTimeOffset.FromUnixTimeMilliseconds(RealTime.Soon(RealTime.s_setupLead).ToUnixTimeMilliseconds());
         await using (var db = fixture.CreateContext())
         {
             if (trashExpiry)

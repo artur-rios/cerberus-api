@@ -16,7 +16,7 @@ namespace ArturRios.Cerberus.Data.Collections;
 
 public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factory) : ICollectionUpdateStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = false,
         AllowDuplicateProperties = false,
@@ -55,7 +55,7 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
             if (initial.ForeignTarget)
                 return new(Error: ValidNative(initial) ? "vault_access_denied" : "persistence_unavailable");
 
-            var target = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
+            var target = JsonSerializer.Deserialize<Item>(initial.Item!, s_json)!;
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.collection WHERE public_id={request.CollectionId} AND account_id={account.Id} FOR NO KEY UPDATE", ct);
             // Reload after all waits; statement time determines expiry and current scope.
             var current = await SnapshotAsync(db, request, ct);
@@ -65,7 +65,7 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
             if (current.ForeignTarget)
                 return new(Error: ValidNative(current) ? "vault_access_denied" : "persistence_unavailable");
             var lockedTarget = target.Id;
-            target = JsonSerializer.Deserialize<Item>(current.Item!, Json)!;
+            target = JsonSerializer.Deserialize<Item>(current.Item!, s_json)!;
             if (target.Id != lockedTarget || target.AccountId != account.Id || current.Selection != session?.ProfileId)
                 return new(Error: "revision_conflict");
 
@@ -74,7 +74,7 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
                 || storedTime.Offset != TimeSpan.Zero || storedTime.Ticks < 10 || storedTime.Ticks % 10 != 0)
                 return new(Error: "persistence_unavailable");
             var original = Convert.FromHexString(target.Envelope);
-            var old = JsonSerializer.Deserialize<EncryptedEnvelope>(original, Json);
+            var old = JsonSerializer.Deserialize<EncryptedEnvelope>(original, s_json);
             if (old?.IsValid() != true || old.KeyEpoch != target.KeyEpoch)
                 return new(Error: "persistence_unavailable");
             if (request.OfflineInspectOnly)
@@ -102,7 +102,7 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
                     return new(Error: "revision_conflict");
                 input = input with { ExpectedRevision = target.Revision };
             }
-            var replacement = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
+            var replacement = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, s_json);
             var edited = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             var stamp = Guid.NewGuid();
             var parameters = Parameters(request).Concat(
@@ -156,8 +156,8 @@ public sealed class CollectionUpdateStore(IDbContextFactory<AppDbContext> factor
 
     private static bool ValidNative(Snapshot snapshot)
     {
-        var item = JsonSerializer.Deserialize<Item>(snapshot.Item!, Json)!;
-        var grant = snapshot.Grant is null ? null : JsonSerializer.Deserialize<GrantEvidence>(snapshot.Grant, Json);
+        var item = JsonSerializer.Deserialize<Item>(snapshot.Item!, s_json)!;
+        var grant = snapshot.Grant is null ? null : JsonSerializer.Deserialize<GrantEvidence>(snapshot.Grant, s_json);
         return grant is not null
             && CollectionGrantBinding.TryReadPins(Pins(grant.OwnerMaterial, grant.OwnerRevision, grant.OwnerEpoch, grant.OwnerGeneration), out var owner)
             && CollectionGrantBinding.TryReadPins(Pins(grant.RecipientMaterial, grant.RecipientRevision, grant.RecipientEpoch, grant.RecipientGeneration), out var recipient)

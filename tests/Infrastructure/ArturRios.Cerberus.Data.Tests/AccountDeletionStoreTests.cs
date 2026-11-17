@@ -16,8 +16,8 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public partial class AccountDeletionStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
-    private readonly string directory = Path.Combine(Path.GetTempPath(), "cerberus-account-erasure-" + Guid.NewGuid().ToString("N"));
-    private FileErasureLedger Ledger { get { if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException(); Directory.CreateDirectory(directory, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); return new(directory); } }
+    private readonly string _directory = Path.Combine(Path.GetTempPath(), "cerberus-account-erasure-" + Guid.NewGuid().ToString("N"));
+    private FileErasureLedger Ledger { get { if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException(); Directory.CreateDirectory(_directory, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); return new(_directory); } }
     private AccountDeletionStore Store(IDbContextFactory<AppDbContext>? factory = null, IErasureLedger? ledger = null) => new(factory ?? fixture, ledger ?? Ledger, new CerberusOptions { RetentionInterval = "00:01:00" }, TimeProvider.System);
     [FunctionalFact]
     public async Task GivenOwnedAndForeignSharedData_WhenDeletingAccount_ThenPurgeOnlyOwnedDataAndReserveTypedIdentifiers()
@@ -180,5 +180,5 @@ public partial class AccountDeletionStoreTests(PostgresFixture fixture) : IClass
         { if (c.CommandText.Contains("INSERT INTO cerberus.terminal_erasure")) { Reached = true; throw new TimeoutException("fixture intent failure"); } return ValueTask.FromResult(result); }
     }
     private sealed class RestorePermit : IRestoreAuthorizationVerifier { public Task<bool> VerifyAsync(CancellationToken ct) => Task.FromResult(true); }
-    public void Dispose() { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
+    public void Dispose() { if (Directory.Exists(_directory)) Directory.Delete(_directory, true); }
 }

@@ -21,7 +21,7 @@ namespace ArturRios.Cerberus.Data.Sync;
 
 public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, CerberusOptions options) : ISyncEditsStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false };
 
     public async Task<SyncEditsResult> UploadAsync(SyncEditsRequest request, CancellationToken ct)
@@ -76,7 +76,7 @@ public sealed class SyncEditsStore(IDbContextFactory<AppDbContext> factory, Cerb
             var outcomes = new List<SyncEditOutcome>();
             foreach (var edit in request.Input.Edits)
             {
-                var fingerprint = SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(new { original.ProfileId, Edit = edit }, Json));
+                var fingerprint = SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(new { original.ProfileId, Edit = edit }, s_json));
                 var existing = await db.SyncOperations.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == original.InternalId && x.OperationId == edit.OperationId, ct);
                 if (existing is not null)
                 {

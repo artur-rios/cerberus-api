@@ -7,7 +7,7 @@ namespace ArturRios.Cerberus.Domain.Tests;
 
 public class FolderCreateContractTests
 {
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict };
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict };
     [UnitTheory]
     [InlineData("unlinked")]
     [InlineData("folder")]
@@ -88,9 +88,9 @@ public class FolderCreateContractTests
     [InlineData("profileIds")]
     public void GivenMissingRequiredCreationMember_WhenParsing_ThenReject(string field)
     {
-        var body = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(Input(), Json), Json)!;
+        var body = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(Input(), s_json), s_json)!;
         body.Remove(field);
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<FolderCreateInput>(JsonSerializer.Serialize(body), Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<FolderCreateInput>(JsonSerializer.Serialize(body), s_json));
     }
     [UnitTheory]
     [InlineData("accountId")]
@@ -105,8 +105,8 @@ public class FolderCreateContractTests
     [InlineData("collectionIds")]
     public void GivenForgedOwnershipMetadataOrPlaintextMembers_WhenParsing_ThenReject(string field)
     {
-        var body = JsonSerializer.Serialize(Input(), Json).Insert(1, "\"" + field + "\":null,");
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<FolderCreateInput>(body, Json));
+        var body = JsonSerializer.Serialize(Input(), s_json).Insert(1, "\"" + field + "\":null,");
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<FolderCreateInput>(body, s_json));
     }
     [UnitTheory]
     [InlineData("duplicate")]
@@ -117,7 +117,7 @@ public class FolderCreateContractTests
     public void GivenAmbiguousOrNonNativeWireBody_WhenParsing_ThenReject(string kind)
     {
         var input = Input();
-        var body = JsonSerializer.Serialize(input, Json);
+        var body = JsonSerializer.Serialize(input, s_json);
         body = kind switch
         {
             "duplicate" => body.Insert(1, "\"folderId\":\"" + input.FolderId + "\","),
@@ -126,7 +126,7 @@ public class FolderCreateContractTests
             "fractionalEpoch" => body.Replace("\"keyEpoch\":1", "\"keyEpoch\":1.5"),
             _ => body.Replace("\"envelope\":{", "\"envelope\":{\"unknown\":1,")
         };
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<FolderCreateInput>(body, Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<FolderCreateInput>(body, s_json));
     }
     [UnitTheory]
     [InlineData(false)]
@@ -134,10 +134,10 @@ public class FolderCreateContractTests
     public void GivenAbsentOrExplicitNullFolder_WhenParsing_ThenAcceptUnfolderedFolder(bool absent)
     {
         var input = Input();
-        var body = JsonSerializer.Serialize(input, Json);
+        var body = JsonSerializer.Serialize(input, s_json);
         if (absent)
             body = body.Replace(",\"parentFolderId\":null", "");
-        var parsed = JsonSerializer.Deserialize<FolderCreateInput>(body, Json)!;
+        var parsed = JsonSerializer.Deserialize<FolderCreateInput>(body, s_json)!;
         Assert.True(parsed.IsValid());
         Assert.Null(parsed.ParentFolderId);
         Assert.Equal(input.FolderId, parsed.FolderId);

@@ -13,7 +13,7 @@ namespace ArturRios.Cerberus.Data.Software;
 
 public sealed class SoftwareSecretStore(IDbContextFactory<AppDbContext> factory) : ISoftwareSecretStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<VaultResult<SoftwareSecretDetails>> ReadAsync(SoftwareSecretRequest request, CancellationToken ct)
@@ -45,7 +45,7 @@ public sealed class SoftwareSecretStore(IDbContextFactory<AppDbContext> factory)
                 return new(Error: denied);
             if (current.OwnerId != first.OwnerId)
                 return new(Error: "not_found");
-            var evidence = JsonSerializer.Deserialize<Evidence>(current.Payload!, Json);
+            var evidence = JsonSerializer.Deserialize<Evidence>(current.Payload!, s_json);
             if (evidence is null || !CollectionGrantBinding.TryReadPins(new()
             {
                 Material = Convert.FromHexString(evidence.Material ?? ""),
@@ -56,8 +56,8 @@ public sealed class SoftwareSecretStore(IDbContextFactory<AppDbContext> factory)
                 return new(Error: "persistence_unavailable");
             var target = Resource(evidence.Target);
             var provisioning = Resource(evidence.Provisioning);
-            var key = JsonSerializer.Deserialize<SoftwareRecipientKey>(Convert.FromHexString(evidence.RecipientKey), Json);
-            var wrap = JsonSerializer.Deserialize<RecipientEnvelope>(Convert.FromHexString(evidence.KeyEnvelope), Json);
+            var key = JsonSerializer.Deserialize<SoftwareRecipientKey>(Convert.FromHexString(evidence.RecipientKey), s_json);
+            var wrap = JsonSerializer.Deserialize<RecipientEnvelope>(Convert.FromHexString(evidence.KeyEnvelope), s_json);
             if (target is null || provisioning is null || key is null || wrap is null)
                 return new(Error: "persistence_unavailable");
             var details = new SoftwareSecretDetails(evidence.OwnerAccountId, request.Input.GrantId, evidence.GrantRevision, target, new(provisioning, wrap), key, pins!.AuthorKey);
@@ -80,7 +80,7 @@ public sealed class SoftwareSecretStore(IDbContextFactory<AppDbContext> factory)
     private static string? Error(Snapshot s) => s.Expired ? "authentication_required" : !s.Allowed ? "not_found" : s.CorruptAncestry ? "persistence_unavailable" : null;
     private static SoftwareSecretResource? Resource(ResourceEvidence e)
     {
-        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(e.Envelope), Json);
+        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(e.Envelope), s_json);
         if (envelope is null || e.Sequence is <= 0 or > ProtocolBinary.MaxInteger || e.PurgeAt is not null)
             return null;
         var resource = new SoftwareSecretResource(e.Kind, e.Id, e.Revision, e.KeyEpoch ?? envelope.KeyEpoch, envelope);

@@ -12,11 +12,11 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class SetCollectionMembershipHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid();
-    private readonly Guid target = Guid.NewGuid();
-    private static readonly Guid First = Guid.Parse("11111111-1111-4111-8111-111111111111");
-    private static readonly Guid Last = Guid.Parse("eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee");
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json)
+    private readonly Guid _actor = Guid.NewGuid();
+    private readonly Guid _target = Guid.NewGuid();
+    private static readonly Guid s_first = Guid.Parse("11111111-1111-4111-8111-111111111111");
+    private static readonly Guid s_last = Guid.Parse("eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee");
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json)
     {
         NumberHandling = JsonNumberHandling.Strict,
         Converters = { new CanonicalGuidConverter() }
@@ -52,9 +52,9 @@ public class SetCollectionMembershipHandlerTests
     public async Task GivenInvalidAuthorityOrInput_WhenHandling_ThenRejectBeforePersistence(string kind, string error)
     {
         var command = Command();
-        command.SetContext(kind == "actor" ? Guid.Empty : actor,
+        command.SetContext(kind == "actor" ? Guid.Empty : _actor,
             kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : Access,
-            kind == "id" ? Guid.Empty : target);
+            kind == "id" ? Guid.Empty : _target);
         switch (kind)
         {
             case "revision":
@@ -112,10 +112,10 @@ public class SetCollectionMembershipHandlerTests
                 command.FolderIds = [Guid.Empty];
                 break;
             case "duplicateRecord":
-                command.RecordIds = [First, First];
+                command.RecordIds = [s_first, s_first];
                 break;
             case "duplicateFolder":
-                command.FolderIds = [First, First];
+                command.FolderIds = [s_first, s_first];
                 break;
         }
 
@@ -155,7 +155,7 @@ public class SetCollectionMembershipHandlerTests
         using var cancellation = new CancellationTokenSource();
         CollectionMembershipRequest? received = null;
         CancellationToken receivedToken = default;
-        var details = new CollectionMembershipDetails(target, kind == "maximumRevision" ? 9007199254740991 : 2,
+        var details = new CollectionMembershipDetails(_target, kind == "maximumRevision" ? 9007199254740991 : 2,
             9007199254740991, normalized, [.. command.RecordIds.Reverse()], command.FolderIds);
         var store = new Mock<ICollectionMembershipStore>(MockBehavior.Strict);
         store.Setup(x => x.SetAsync(It.IsAny<CollectionMembershipRequest>(), It.IsAny<CancellationToken>()))
@@ -170,14 +170,14 @@ public class SetCollectionMembershipHandlerTests
 
         Assert.True(result.Success);
         Assert.Contains("collection_membership_set", result.Messages);
-        Assert.Equal(target, result.Data!.CollectionId);
+        Assert.Equal(_target, result.Data!.CollectionId);
         Assert.Equal(kind == "maximumRevision" ? 9007199254740991 : 2, result.Data.Revision);
         Assert.Equal(9007199254740991, result.Data.ServerSequence);
         Assert.Equal(normalized, result.Data.EditedAt);
-        Assert.Equal(kind == "empty" ? [] : [First, Last], result.Data.RecordIds);
-        Assert.Equal(kind == "empty" ? [] : [First, Last], result.Data.FolderIds);
-        Assert.Equal(actor, received!.Actor);
-        Assert.Equal(target, received.CollectionId);
+        Assert.Equal(kind == "empty" ? [] : [s_first, s_last], result.Data.RecordIds);
+        Assert.Equal(kind == "empty" ? [] : [s_first, s_last], result.Data.FolderIds);
+        Assert.Equal(_actor, received!.Actor);
+        Assert.Equal(_target, received.CollectionId);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
         Assert.Equal(command.ExpectedRevision, received.Input.ExpectedRevision);
         Assert.Equal(command.Envelope, received.Input.Envelope);
@@ -186,15 +186,15 @@ public class SetCollectionMembershipHandlerTests
         Assert.Equal(command.FolderIds, received.Input.FolderIds);
         Assert.True(received.Input.IsValid());
         Assert.Equal(cancellation.Token, receivedToken);
-        Assert.Equal(kind == "empty" ? [] : [Last, First], command.RecordIds);
-        Assert.Equal(kind == "empty" ? [] : [Last, First], details.FolderIds);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        Assert.Equal(kind == "empty" ? [] : [s_last, s_first], command.RecordIds);
+        Assert.Equal(kind == "empty" ? [] : [s_last, s_first], details.FolderIds);
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, s_json));
         Assert.Equal(["collectionId", "editedAt", "folderIds", "recordIds", "revision", "serverSequence"],
             output.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        using var body = JsonDocument.Parse(JsonSerializer.Serialize(command, Json));
+        using var body = JsonDocument.Parse(JsonSerializer.Serialize(command, s_json));
         Assert.Equal(["editedAt", "envelope", "expectedRevision", "folderIds", "recordIds"],
             body.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        using var input = JsonDocument.Parse(JsonSerializer.Serialize(received.Input, Json));
+        using var input = JsonDocument.Parse(JsonSerializer.Serialize(received.Input, s_json));
         Assert.Equal(["editedAt", "envelope", "expectedRevision", "folderIds", "recordIds"],
             input.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
@@ -275,7 +275,7 @@ public class SetCollectionMembershipHandlerTests
         if (kind == "exhaustedRevision")
             command.ExpectedRevision = 9007199254740991;
         if (kind == "swappedTypes")
-            command.FolderIds = [First];
+            command.FolderIds = [s_first];
         CollectionMembershipDetails? details = Details(command);
         details = kind switch
         {
@@ -295,16 +295,16 @@ public class SetCollectionMembershipHandlerTests
             "precision" => details with { EditedAt = details.EditedAt.AddTicks(1) },
             "nullRecords" => details with { RecordIds = null! },
             "nullFolders" => details with { FolderIds = null! },
-            "zeroRecord" => details with { RecordIds = [Guid.Empty, First] },
-            "zeroFolder" => details with { FolderIds = [Guid.Empty, First] },
-            "duplicateRecord" => details with { RecordIds = [First, First] },
-            "duplicateFolder" => details with { FolderIds = [First, First] },
+            "zeroRecord" => details with { RecordIds = [Guid.Empty, s_first] },
+            "zeroFolder" => details with { FolderIds = [Guid.Empty, s_first] },
+            "duplicateRecord" => details with { RecordIds = [s_first, s_first] },
+            "duplicateFolder" => details with { FolderIds = [s_first, s_first] },
             "extraRecord" => details with { RecordIds = [.. command.RecordIds, Guid.NewGuid()] },
             "extraFolder" => details with { FolderIds = [.. command.FolderIds, Guid.NewGuid()] },
-            "missingRecord" => details with { RecordIds = [First] },
-            "missingFolder" => details with { FolderIds = [First] },
-            "wrongRecord" => details with { RecordIds = [First, Guid.NewGuid()] },
-            "wrongFolder" => details with { FolderIds = [First, Guid.NewGuid()] },
+            "missingRecord" => details with { RecordIds = [s_first] },
+            "missingFolder" => details with { FolderIds = [s_first] },
+            "wrongRecord" => details with { RecordIds = [s_first, Guid.NewGuid()] },
+            "wrongFolder" => details with { FolderIds = [s_first, Guid.NewGuid()] },
             "swappedTypes" => details with { RecordIds = command.FolderIds, FolderIds = command.RecordIds },
             _ => details
         };
@@ -324,7 +324,7 @@ public class SetCollectionMembershipHandlerTests
     [InlineData("folderIds")]
     public void GivenOmittedRequiredMember_WhenParsing_ThenReject(string name)
     {
-        var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
+        var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
         body.Remove(name);
         AssertRejectedJson(body.ToJsonString());
     }
@@ -343,7 +343,7 @@ public class SetCollectionMembershipHandlerTests
     [InlineData("plaintext")]
     public void GivenForgedContextOrUnknownMember_WhenParsing_ThenReject(string name)
     {
-        var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
+        var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
         body[name] = null;
         AssertRejectedJson(body.ToJsonString());
     }
@@ -362,7 +362,7 @@ public class SetCollectionMembershipHandlerTests
     [InlineData("zeroRecord")]
     public void GivenAlternateJsonShape_WhenParsing_ThenReject(string kind)
     {
-        var body = JsonSerializer.Serialize(Command(), Json);
+        var body = JsonSerializer.Serialize(Command(), s_json);
         body = kind switch
         {
             "duplicateRevision" => body.Insert(1, "\"expectedRevision\":1,"),
@@ -370,9 +370,9 @@ public class SetCollectionMembershipHandlerTests
             "case" => body.Replace("expectedRevision", "ExpectedRevision"),
             "numericRevision" => body.Replace("\"expectedRevision\":1", "\"expectedRevision\":\"1\""),
             "numericEpoch" => body.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""),
-            "uppercaseRecord" => body.Replace(Last.ToString(), Last.ToString().ToUpperInvariant()),
-            "compactFolder" => body.Replace(First.ToString(), First.ToString("N")),
-            "zeroRecord" => body.Replace(First.ToString(), Guid.Empty.ToString()),
+            "uppercaseRecord" => body.Replace(s_last.ToString(), s_last.ToString().ToUpperInvariant()),
+            "compactFolder" => body.Replace(s_first.ToString(), s_first.ToString("N")),
+            "zeroRecord" => body.Replace(s_first.ToString(), Guid.Empty.ToString()),
             _ => ReplaceArray(body, kind == "objectFolders" ? "folderIds" : "recordIds",
                 kind == "scalarRecords" ? "\"bad\"" : kind == "objectFolders" ? "{}" : "[7]")
         };
@@ -415,15 +415,15 @@ public class SetCollectionMembershipHandlerTests
             ExpectedRevision = 1,
             Envelope = new("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"),
             EditedAt = DateTimeOffset.UnixEpoch.AddTicks(19),
-            RecordIds = [Last, First],
-            FolderIds = [Last, First]
+            RecordIds = [s_last, s_first],
+            FolderIds = [s_last, s_first]
         };
-        command.SetContext(actor, Access, target);
+        command.SetContext(_actor, Access, _target);
         return command;
     }
 
     private CollectionMembershipDetails Details(SetCollectionMembershipCommand command) =>
-        new(target, 2, 7, DateTimeOffset.UnixEpoch.AddTicks(10), command.RecordIds, command.FolderIds);
+        new(_target, 2, 7, DateTimeOffset.UnixEpoch.AddTicks(10), command.RecordIds, command.FolderIds);
 
     private static SetCollectionMembershipHandler Handler(ICollectionMembershipStore store) =>
         new(new SetCollectionMembershipValidator(), store);
@@ -437,8 +437,8 @@ public class SetCollectionMembershipHandlerTests
 
     private static void AssertRejectedJson(string body)
     {
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<SetCollectionMembershipCommand>(body, Json));
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionMembershipInput>(body, Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<SetCollectionMembershipCommand>(body, s_json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionMembershipInput>(body, s_json));
     }
 
     private static string ReplaceArray(string body, string field, string value)

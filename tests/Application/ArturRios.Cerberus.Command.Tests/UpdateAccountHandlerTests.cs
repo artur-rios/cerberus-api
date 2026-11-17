@@ -9,8 +9,8 @@ public class UpdateAccountHandlerTests
 {
     private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     private const string Verifier = "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
-    private static readonly Guid Identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
-    private static readonly DateTimeOffset Now = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
+    private static readonly Guid s_identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
+    private static readonly DateTimeOffset s_now = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
 
     [UnitTheory]
     [InlineData("identity", "authentication_required")]
@@ -24,7 +24,7 @@ public class UpdateAccountHandlerTests
     public async Task GivenInvalidInputOrAccess_WhenUpdating_ThenRejectBeforePersistence(string invalid, string error)
     {
         var command = Valid();
-        command.SetAccess(invalid == "identity" ? Guid.Empty : Identity,
+        command.SetAccess(invalid == "identity" ? Guid.Empty : s_identity,
             invalid == "missingAccess" ? null : invalid == "emptyAccess" ? "" : invalid == "malformedAccess" ? "bad" : Handle);
         if (invalid == "zeroRevision")
             command.ExpectedRevision = 0;
@@ -59,13 +59,13 @@ public class UpdateAccountHandlerTests
         Assert.Equal(4, result.Data.Revision);
         Assert.Contains("account_updated", result.Messages);
         Assert.NotNull(captured);
-        Assert.Equal(Identity, captured.IdentityId);
+        Assert.Equal(s_identity, captured.IdentityId);
         Assert.Equal(Verifier, captured.Verifier);
         Assert.Equal(3, captured.ExpectedRevision);
-        Assert.Equal(Now, captured.Now);
+        Assert.Equal(s_now, captured.Now);
         Assert.Equal(command.Details, JsonSerializer.Deserialize<EncryptedEnvelope>(captured.DetailsEnvelope, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
         Assert.DoesNotContain("VaultAccess", JsonSerializer.Serialize(command));
-        Assert.DoesNotContain(Identity.ToString(), JsonSerializer.Serialize(command));
+        Assert.DoesNotContain(s_identity.ToString(), JsonSerializer.Serialize(command));
     }
 
     [UnitTheory]
@@ -108,9 +108,9 @@ public class UpdateAccountHandlerTests
             ExpectedRevision = 3,
             Details = new("cerberus-content-v1", 1, Handle, "AAAAAAAAAAAAAAAA", "BAUG", "AAAAAAAAAAAAAAAAAAAAAA")
         };
-        command.SetAccess(Identity, Handle);
+        command.SetAccess(s_identity, Handle);
         return command;
     }
     private static UpdateAccountHandler Handler(IAccountUpdateStore store) => new(new UpdateAccountValidator(), store, new Clock());
-    private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => Now; }
+    private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => s_now; }
 }

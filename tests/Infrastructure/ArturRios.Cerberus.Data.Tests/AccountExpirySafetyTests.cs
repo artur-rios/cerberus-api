@@ -25,9 +25,9 @@ public partial class AccountDeletionStoreTests
         var before = await Snapshot(db, w.Owner);
         var hook = new BeforeExpiryIntent(kind, c => RealTime.ExpireNow(c, "UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE public_id=@work", ("work", claim.WorkId)));
         await Assert.ThrowsAsync<InvalidOperationException>(() => ExpiryExecutor(factory: new ProfileSetup.Factory(fixture, hook)).ExecuteAsync(claim, default));
-        Assert.True(hook.Reached);
+        Assert.True(hook._reached);
         Assert.Equal(before, await Snapshot(db, w.Owner));
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
         Assert.False(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == w.Owner.AccountId));
         Assert.True(await db.Records.AnyAsync(x => x.Id == w.Owned.Record.Id));
     }
@@ -41,7 +41,7 @@ public partial class AccountDeletionStoreTests
         var w = await Create();
         var claim = await ExpiredClosure(w);
         await using var held = fixture.CreateContext();
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await held.RetentionWorkItems.Where(x => x.PublicId == claim.WorkId).ExecuteUpdateAsync(x => x.SetProperty(j => j.ClaimExpiresAt, deadline));
         var before = await Snapshot(held, w.Owner);
         await using var tx = await held.Database.BeginTransactionAsync();
@@ -60,7 +60,7 @@ public partial class AccountDeletionStoreTests
         finally { await tx.CommitAsync(); }
         await Assert.ThrowsAsync<InvalidOperationException>(() => pending);
         Assert.Equal(before, await Snapshot(held, w.Owner));
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
         Assert.False(await held.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == w.Owner.AccountId));
     }
     [FunctionalFact]
@@ -68,7 +68,7 @@ public partial class AccountDeletionStoreTests
     {
         var w = await Create();
         var claim = await ExpiredClosure(w, true);
-        var deadline = DateTimeOffset.FromUnixTimeMilliseconds(RealTime.Soon(RealTime.SetupLead).ToUnixTimeMilliseconds());
+        var deadline = DateTimeOffset.FromUnixTimeMilliseconds(RealTime.Soon(RealTime.s_setupLead).ToUnixTimeMilliseconds());
         await using (var db = fixture.CreateContext())
         {
             await db.Accounts.Where(x => x.Id == w.Owner.InternalId).ExecuteUpdateAsync(x => x.SetProperty(a => a.ClosureRequestedAt, deadline.AddDays(-30)).SetProperty(a => a.ClosurePurgeAt, deadline));
@@ -90,7 +90,7 @@ public partial class AccountDeletionStoreTests
         Assert.Equal(ArturRios.Cerberus.Domain.Accounts.AccountState.Active, await check.Accounts.Where(x => x.Id == w.Owner.InternalId).Select(x => x.State).SingleAsync());
         Assert.True(await check.Records.AnyAsync(x => x.Id == w.Owned.Record.Id));
         Assert.True(await check.RetentionWorkItems.AnyAsync(x => x.PublicId == claim.WorkId && x.CompletedAt != null && x.ClaimToken == null && x.ClaimExpiresAt == null));
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
     }
     [FunctionalFact]
     public async Task GivenPhysicalCascadeFault_WhenAccountExpiryRetries_ThenRollbackNativeAndForeignEffects()
@@ -103,27 +103,27 @@ public partial class AccountDeletionStoreTests
         await Assert.ThrowsAsync<TimeoutException>(() => ExpiryExecutor(factory: new ProfileSetup.Factory(fixture, new AfterCascade())).ExecuteAsync(claim, default));
         Assert.Equal(before, await Snapshot(db, w.Owner));
         Assert.Equal(foreign, await Foreign(db, w));
-        Assert.NotEmpty(Directory.GetFiles(directory, "*.json"));
+        Assert.NotEmpty(Directory.GetFiles(_directory, "*.json"));
         await ExpiryExecutor().ExecuteAsync(claim, default);
         await Purged(db, w);
         Assert.Equal(foreign, await Foreign(db, w));
     }
     private sealed class BeforeExpiryIntent(string kind, Func<DbCommand, Task> expire) : DbCommandInterceptor
     {
-        internal bool Reached;
+        internal bool _reached;
         private async Task Visit(DbCommand c)
         {
-            if (!Reached && c.CommandText.StartsWith("INSERT INTO cerberus.terminal_erasure", StringComparison.Ordinal)
+            if (!_reached && c.CommandText.StartsWith("INSERT INTO cerberus.terminal_erasure", StringComparison.Ordinal)
                 && (kind == "account" ? c.CommandText.Contains("SELECT 'account'", StringComparison.Ordinal) : c.Parameters.Cast<DbParameter>().Any(x => x.Value is string value && value == kind)))
-            { Reached = true; await expire(c); }
+            { _reached = true; await expire(c); }
         }
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { await Visit(c); return r; }
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { await Visit(c); return r; }
     }
     private sealed class AfterExpiryCancellation(Func<Task> action) : DbCommandInterceptor
     {
-        private bool reached;
+        private bool _reached;
         public override async ValueTask<DbDataReader> ReaderExecutedAsync(DbCommand c, CommandExecutedEventData d, DbDataReader r, CancellationToken ct = default)
-        { if (!reached && c.CommandText.Contains("UPDATE cerberus.retention_work_item w SET completed_at", StringComparison.Ordinal)) { reached = true; await action(); } return r; }
+        { if (!_reached && c.CommandText.Contains("UPDATE cerberus.retention_work_item w SET completed_at", StringComparison.Ordinal)) { _reached = true; await action(); } return r; }
     }
 }

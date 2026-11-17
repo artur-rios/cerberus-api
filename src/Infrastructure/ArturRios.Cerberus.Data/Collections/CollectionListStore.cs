@@ -11,7 +11,7 @@ namespace ArturRios.Cerberus.Data.Collections;
 
 public sealed class CollectionListStore(IDbContextFactory<AppDbContext> factory) : ICollectionListStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
 
     public async Task<VaultResult<CollectionListPage>> ListAsync(CollectionListRequest request, CancellationToken ct)
@@ -94,7 +94,7 @@ public sealed class CollectionListStore(IDbContextFactory<AppDbContext> factory)
                 return new(Error: "vault_access_denied");
             if (snapshot.CorruptOrdering)
                 return new(Error: "persistence_unavailable");
-            var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
+            var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, s_json)!;
             if (grants.Length > 0)
             {
                 var first = grants[0];
@@ -115,7 +115,7 @@ public sealed class CollectionListStore(IDbContextFactory<AppDbContext> factory)
                         return new(Error: "persistence_unavailable");
                 }
             }
-            var items = JsonSerializer.Deserialize<Item[]>(snapshot.Items, Json)!
+            var items = JsonSerializer.Deserialize<Item[]>(snapshot.Items, s_json)!
                 .Select(x => new CollectionListRow(x.CollectionId, x.Revision, x.ServerSequence, x.EditedAt, Convert.FromHexString(x.Envelope), x.KeyEpoch)).ToArray();
             return new(new(items, snapshot.Boundary, snapshot.HasMore));
         }

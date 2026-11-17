@@ -38,7 +38,7 @@ public partial class TrashExpiryHandlerTests
         });
         await Assert.ThrowsAsync<InvalidOperationException>(() => Executor(ledger).ExecuteAsync(claim, default));
         Assert.Equal(before.GetRawText(), (await TrashRestoreSetup.Resource(fixture, root)).GetRawText());
-        Assert.Single(Directory.GetFiles(directory, "*.json"));
+        Assert.Single(Directory.GetFiles(_directory, "*.json"));
         await Expire(claim);
         var retry = await Claim(root);
         await Executor().ExecuteAsync(retry, default);
@@ -75,7 +75,7 @@ public partial class TrashExpiryHandlerTests
         var claim = await Claim(root);
         await Assert.ThrowsAsync<InvalidOperationException>(() => Executor().ExecuteAsync(claim, default));
         Assert.Equal(before.GetRawText(), (await TrashRestoreSetup.Resource(fixture, root)).GetRawText());
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
         await using var check = fixture.CreateContext();
         Assert.False(await check.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == root.ResourceId));
     }
@@ -105,7 +105,7 @@ public partial class TrashExpiryHandlerTests
         var ledger = new PermanentDeleteSetup.LedgerBoundary(Ledger, () => Task.CompletedTask, () => cancellation.Cancel());
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Executor(ledger).ExecuteAsync(claim, cancellation.Token));
         Assert.True(await Exists(root));
-        Assert.Single(Directory.GetFiles(directory, "*.json"));
+        Assert.Single(Directory.GetFiles(_directory, "*.json"));
         await Expire(claim);
         await Executor().ExecuteAsync(await Claim(root), default);
         Assert.False(await Exists(root));
@@ -120,8 +120,8 @@ public partial class TrashExpiryHandlerTests
         var claim = await Claim(root);
         await Executor().ExecuteAsync(claim, default);
         Assert.False(await Exists(root));
-        var files = Directory.GetFiles(directory, "*.json");
+        var files = Directory.GetFiles(_directory, "*.json");
         await Executor().ExecuteAsync(claim, default);
-        Assert.Equal(files, Directory.GetFiles(directory, "*.json"));
+        Assert.Equal(files, Directory.GetFiles(_directory, "*.json"));
     }
 }

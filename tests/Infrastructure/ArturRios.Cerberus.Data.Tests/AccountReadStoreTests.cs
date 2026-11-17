@@ -9,7 +9,7 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public class AccountReadStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
-    private static readonly DateTimeOffset Now = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset s_now = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
 
     [FunctionalTheory]
     [InlineData("active", null)]
@@ -60,17 +60,17 @@ public class AccountReadStoreTests(PostgresFixture fixture) : IClassFixture<Post
                     AccountId = sessionAccountId,
                     HandleVerifier = verifier,
                     ProfileId = state == "profileOnly" ? 42 : null,
-                    IssuedAt = state == "futureIssue" ? Now.AddSeconds(1) : Now.AddMinutes(-5),
-                    ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
+                    IssuedAt = state == "futureIssue" ? s_now.AddSeconds(1) : s_now.AddMinutes(-5),
+                    ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? s_now : state == "expired" ? s_now.AddSeconds(-1) : s_now.AddMinutes(5),
                     PolicyRevision = state == "stalePolicy" ? 0 : 1,
                     RevocationGeneration = state == "staleGeneration" ? 0 : 1,
                     Revoked = state == "revoked"
                 });
             if (state == "erased")
-                setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
+                setup.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = s_now });
             await setup.SaveChangesAsync();
         }
-        var result = await new AccountReadStore(fixture).ReadAsync(state == "missingAccount" ? Guid.NewGuid() : identity, verifier, Now, default);
+        var result = await new AccountReadStore(fixture).ReadAsync(state == "missingAccount" ? Guid.NewGuid() : identity, verifier, s_now, default);
         Assert.Equal(error, result.Error);
         if (error is null)
         {
@@ -89,7 +89,7 @@ public class AccountReadStoreTests(PostgresFixture fixture) : IClassFixture<Post
     [FunctionalFact]
     public async Task GivenUnavailableDatabase_WhenReading_ThenReturn503ErrorWithoutCiphertext()
     {
-        var result = await new AccountReadStore(new UnavailableFactory()).ReadAsync(Guid.NewGuid(), new string('a', 64), Now, default);
+        var result = await new AccountReadStore(new UnavailableFactory()).ReadAsync(Guid.NewGuid(), new string('a', 64), s_now, default);
         Assert.Equal("persistence_unavailable", result.Error);
         Assert.Null(result.Account);
     }
@@ -99,7 +99,7 @@ public class AccountReadStoreTests(PostgresFixture fixture) : IClassFixture<Post
     {
         using var cancelled = new CancellationTokenSource();
         cancelled.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new AccountReadStore(fixture).ReadAsync(Guid.NewGuid(), new string('a', 64), Now, cancelled.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new AccountReadStore(fixture).ReadAsync(Guid.NewGuid(), new string('a', 64), s_now, cancelled.Token));
     }
 
     private sealed class UnavailableFactory : IDbContextFactory<AppDbContext>

@@ -8,7 +8,7 @@ namespace ArturRios.Cerberus.Shared.Identity;
 
 public sealed class HeimdallApplicationTokenValidator(CerberusOptions options)
 {
-    private static readonly string[] PersonAuthority = ["roleId", "role", "roles", ClaimTypes.Role, "ownedScopeIds", "mfaPending"];
+    private static readonly string[] s_personAuthority = ["roleId", "role", "roles", ClaimTypes.Role, "ownedScopeIds", "mfaPending"];
     public Task<ClaimsPrincipal?> ValidateAsync(string token) => Task.FromResult(Validate(token));
     private ClaimsPrincipal? Validate(string token)
     {
@@ -42,7 +42,7 @@ public sealed class HeimdallApplicationTokenValidator(CerberusOptions options)
             var p = payload.RootElement;
             if (!UniqueObject(h) || !UniqueObject(p) || Text(h, "alg") != SecurityAlgorithms.HmacSha256
                 || Text(p, "iss") != options.AuthIssuer || Text(p, "aud") != options.AuthApplicationAudience
-                || Text(p, "tokenKind") != "application" || PersonAuthority.Any(x => p.TryGetProperty(x, out _))
+                || Text(p, "tokenKind") != "application" || s_personAuthority.Any(x => p.TryGetProperty(x, out _))
                 || !Id(p, "id", out _) || !Id(p, "credentialId", out _)
                 || !Id(p, "scopeId", out var scope) || scope != options.HeimdallScopeId
                 || !Seconds(p, "iat", out var issued) || !Seconds(p, "nbf", out var notBefore) || !Seconds(p, "exp", out var expires))

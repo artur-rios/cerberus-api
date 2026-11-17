@@ -12,7 +12,7 @@ namespace ArturRios.Cerberus.Data.Profiles;
 
 public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) : IProfileCreateStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
     public async Task<VaultResult<ProfileCreateDetails>> CreateAsync(ProfileCreateRequest request, CancellationToken cancellationToken)
     {
@@ -44,7 +44,7 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
             var p = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, cancellationToken);
             if (p is null)
                 return new(Error: "not_found");
-            var material = JsonSerializer.Deserialize<ProtectionMaterial>(p.Material, Json);
+            var material = JsonSerializer.Deserialize<ProtectionMaterial>(p.Material, s_json);
             if (material?.IsValid() != true || p.KeyEpoch != material.PasswordWrapper.KeyEpoch || p.RecoveryGeneration != material.RecoveryWrapper.Generation
                 || p.Revision is <= 0 or > ProtocolBinary.MaxInteger)
                 return new(Error: "persistence_unavailable");
@@ -60,8 +60,8 @@ public sealed class ProfileCreateStore(IDbContextFactory<AppDbContext> factory) 
                 return new(Error: "revision_conflict");
             if (!await ProfileVerifierIsolation.IsUniqueAsync(db, account.Id, input.KeyWrappers.UnlockVerifier, null, cancellationToken))
                 return new(Error: "validation_failed");
-            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
-            var wrappers = JsonSerializer.SerializeToUtf8Bytes(input.KeyWrappers, Json);
+            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, s_json);
+            var wrappers = JsonSerializer.SerializeToUtf8Bytes(input.KeyWrappers, s_json);
             // Normalize before binding: provider truncation is relative to its 2000 epoch.
             var editedAt = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             // Atomic permission check uses statement time after lock waits and validation.

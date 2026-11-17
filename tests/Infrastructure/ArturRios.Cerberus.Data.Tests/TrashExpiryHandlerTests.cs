@@ -10,8 +10,8 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public partial class TrashExpiryHandlerTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
-    private readonly string directory = Path.Combine(Path.GetTempPath(), "cerberus-trash-expiry-" + Guid.NewGuid().ToString("N"));
-    private FileErasureLedger Ledger { get { if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException(); Directory.CreateDirectory(directory, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); return new(directory); } }
+    private readonly string _directory = Path.Combine(Path.GetTempPath(), "cerberus-trash-expiry-" + Guid.NewGuid().ToString("N"));
+    private FileErasureLedger Ledger { get { if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException(); Directory.CreateDirectory(_directory, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute); return new(_directory); } }
     private IRetentionExecutor Executor(IErasureLedger? ledger = null, IDbContextFactory<AppDbContext>? factory = null) => new RetentionExecutor([new TrashExpiryHandler(factory ?? fixture, ledger ?? Ledger)]);
     [FunctionalTheory]
     [InlineData("record")]
@@ -37,7 +37,7 @@ public partial class TrashExpiryHandlerTests(PostgresFixture fixture) : IClassFi
         Assert.False(await db.TrashOperations.AnyAsync(x => x.PublicId == root.OperationId));
         Assert.True(await db.RetentionWorkItems.AnyAsync(x => x.PublicId == claim.WorkId && x.CompletedAt != null));
         Assert.True(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == kind && x.ResourceId == root.ResourceId));
-        Assert.Single(Directory.GetFiles(directory, "*.json"));
+        Assert.Single(Directory.GetFiles(_directory, "*.json"));
         Assert.Equal("not_found", (await new TrashRestoreStore(fixture).RestoreAsync(new(s.Actor, s.Verifier, root.OperationId, root.Revision), default)).Error);
     }
     [FunctionalTheory]
@@ -76,5 +76,5 @@ public partial class TrashExpiryHandlerTests(PostgresFixture fixture) : IClassFi
         await using var db = fixture.CreateContext();
         return root.Kind switch { "record" => await db.Records.AnyAsync(x => x.PublicId == root.ResourceId), "folder" => await db.Folders.AnyAsync(x => x.PublicId == root.ResourceId), "collection" => await db.Collections.AnyAsync(x => x.PublicId == root.ResourceId), _ => await db.Profiles.AnyAsync(x => x.PublicId == root.ResourceId) };
     }
-    public void Dispose() { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
+    public void Dispose() { if (Directory.Exists(_directory)) Directory.Delete(_directory, true); }
 }

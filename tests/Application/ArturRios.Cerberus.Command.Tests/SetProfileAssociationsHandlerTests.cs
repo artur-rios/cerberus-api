@@ -9,7 +9,7 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class SetProfileAssociationsHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid(), id = Guid.NewGuid();
+    private readonly Guid _actor = Guid.NewGuid(), _id = Guid.NewGuid();
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -27,7 +27,7 @@ public class SetProfileAssociationsHandlerTests
     public async Task GivenInvalidContextOrTypedSets_WhenHandling_ThenRejectBeforeStore(string kind, string error)
     {
         var c = Command();
-        c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access, kind == "id" ? Guid.Empty : id);
+        c.SetContext(kind == "actor" ? Guid.Empty : _actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access, kind == "id" ? Guid.Empty : _id);
         if (kind == "revision")
             c.ExpectedRevision = 0;
         if (kind == "unsafe")
@@ -41,9 +41,9 @@ public class SetProfileAssociationsHandlerTests
         if (kind == "zeroRecord")
             c.RecordIds = [Guid.Empty];
         if (kind == "duplicateFolder")
-            c.FolderIds = [id, id];
+            c.FolderIds = [_id, _id];
         if (kind == "duplicateCollection")
-            c.CollectionIds = [id, id];
+            c.CollectionIds = [_id, _id];
         var r = await Handler(new Mock<IProfileAssociationStore>(MockBehavior.Strict).Object).HandleAsync(c);
         Assert.Contains(error, r.Errors);
         Assert.Null(r.Data);
@@ -63,18 +63,18 @@ public class SetProfileAssociationsHandlerTests
         CancellationToken capturedToken = default;
         using var source = new CancellationTokenSource();
         var store = new Mock<IProfileAssociationStore>(MockBehavior.Strict);
-        store.Setup(x => x.SetAsync(It.IsAny<ProfileAssociationRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileAssociationRequest, CancellationToken>((request, token) => { captured = request; capturedToken = token; return Task.FromResult(new VaultResult<ProfileAssociationDetails>(new(id, 2, 9, [.. c.RecordIds.Reverse()], c.FolderIds, c.CollectionIds))); });
+        store.Setup(x => x.SetAsync(It.IsAny<ProfileAssociationRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileAssociationRequest, CancellationToken>((request, token) => { captured = request; capturedToken = token; return Task.FromResult(new VaultResult<ProfileAssociationDetails>(new(_id, 2, 9, [.. c.RecordIds.Reverse()], c.FolderIds, c.CollectionIds))); });
         var r = await Handler(store.Object).HandleAsync(c, source.Token);
         Assert.True(r.Success);
         Assert.Contains("profile_associations_set", r.Messages);
-        Assert.Equal(id, r.Data!.ProfileId);
+        Assert.Equal(_id, r.Data!.ProfileId);
         Assert.Equal(2, r.Data.Revision);
         Assert.Equal(9, r.Data.ServerSequence);
         Assert.Equal(c.RecordIds.Order(), r.Data.RecordIds);
         Assert.Equal(c.FolderIds.Order(), r.Data.FolderIds);
         Assert.Equal(c.CollectionIds.Order(), r.Data.CollectionIds);
-        Assert.Equal(actor, captured!.Actor);
-        Assert.Equal(id, captured.ProfileId);
+        Assert.Equal(_actor, captured!.Actor);
+        Assert.Equal(_id, captured.ProfileId);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier);
         Assert.Equal(c.ToInput(), captured.Input);
         Assert.Equal(source.Token, capturedToken);
@@ -111,7 +111,7 @@ public class SetProfileAssociationsHandlerTests
     public async Task GivenCorruptOrMismatchedStoreResult_WhenHandling_ThenFailClosedWithoutPartialData(string kind)
     {
         var c = Command();
-        var d = new ProfileAssociationDetails(id, 2, 9, c.RecordIds, c.FolderIds, c.CollectionIds);
+        var d = new ProfileAssociationDetails(_id, 2, 9, c.RecordIds, c.FolderIds, c.CollectionIds);
         d = kind switch
         {
             "null" => null!,
@@ -124,8 +124,8 @@ public class SetProfileAssociationsHandlerTests
             "nullFolders" => d with { FolderIds = null! },
             "nullCollections" => d with { CollectionIds = null! },
             "zeroRecord" => d with { RecordIds = [Guid.Empty] },
-            "duplicateFolder" => d with { FolderIds = [id, id] },
-            "duplicateCollection" => d with { CollectionIds = [id, id] },
+            "duplicateFolder" => d with { FolderIds = [_id, _id] },
+            "duplicateCollection" => d with { CollectionIds = [_id, _id] },
             "extraRecord" => d with { RecordIds = [.. c.RecordIds, Guid.NewGuid()] },
             "missingRecord" => d with { RecordIds = [] },
             "wrongFolder" => d with { FolderIds = [Guid.NewGuid()] },
@@ -166,7 +166,7 @@ public class SetProfileAssociationsHandlerTests
     [UnitFact]
     public async Task GivenCancelledCaller_WhenHandling_ThenPropagateWithoutStore()
     { using var source = new CancellationTokenSource(); source.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new Mock<IProfileAssociationStore>(MockBehavior.Strict).Object).HandleAsync(Command(), source.Token)); }
-    private SetProfileAssociationsCommand Command() { var c = new SetProfileAssociationsCommand { ExpectedRevision = 1, RecordIds = [id], FolderIds = [id], CollectionIds = [id] }; c.SetContext(actor, Access, id); return c; }
+    private SetProfileAssociationsCommand Command() { var c = new SetProfileAssociationsCommand { ExpectedRevision = 1, RecordIds = [_id], FolderIds = [_id], CollectionIds = [_id] }; c.SetContext(_actor, Access, _id); return c; }
     private static SetProfileAssociationsHandler Handler(IProfileAssociationStore store) => new(new SetProfileAssociationsValidator(), store);
     private static Mock<IProfileAssociationStore> Store(VaultResult<ProfileAssociationDetails> result) { var store = new Mock<IProfileAssociationStore>(); store.Setup(x => x.SetAsync(It.IsAny<ProfileAssociationRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(result); return store; }
 }

@@ -12,8 +12,8 @@ namespace ArturRios.Cerberus.Command.Tests;
 
 public class ClosureRecoveryAuthenticationHandlerTests
 {
-    private static readonly Guid Actor = Guid.NewGuid(), Scope = Guid.NewGuid(), Account = Guid.NewGuid();
-    private static readonly DateTimeOffset Now = DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+    private static readonly Guid s_actor = Guid.NewGuid(), s_scope = Guid.NewGuid(), s_account = Guid.NewGuid();
+    private static readonly DateTimeOffset s_now = DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
     private const string Secret = "fixture-only-signing-key-32-characters";
     [UnitFact]
     public async Task GivenInvalidCredentials_WhenRecovering_ThenRejectBeforeIdentityDependency()
@@ -42,19 +42,19 @@ public class ClosureRecoveryAuthenticationHandlerTests
     {
         var token = Token();
         var identity = new Mock<IHeimdallClient>(MockBehavior.Strict);
-        var authentication = new HeimdallAuthentication(new(token, Now.AddMinutes(5), true, false, null, null), Actor);
+        var authentication = new HeimdallAuthentication(new(token, s_now.AddMinutes(5), true, false, null, null), s_actor);
         if (mfa)
             identity.Setup(x => x.VerifyChallengeAsync("challenge", "123456", null, It.IsAny<CancellationToken>())).ReturnsAsync(authentication);
         else
             identity.Setup(x => x.AuthenticateAsync("owner@example.test", "password", It.IsAny<CancellationToken>())).ReturnsAsync(authentication);
         var store = new Mock<IAccountClosureRecoveryStore>(MockBehavior.Strict);
-        store.Setup(x => x.ReadAsync(It.Is<AccountClosureRecoveryRequest>(r => r.Actor == Actor && r.AuthenticationIssuedAt == Now.ToUnixTimeSeconds()), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AccountClosureRecoveryResult(new(Account, 2, Now.AddDays(29), Now)));
+        store.Setup(x => x.ReadAsync(It.Is<AccountClosureRecoveryRequest>(r => r.Actor == s_actor && r.AuthenticationIssuedAt == s_now.ToUnixTimeSeconds()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AccountClosureRecoveryResult(new(s_account, 2, s_now.AddDays(29), s_now)));
         var handler = Handler(identity, store);
         var result = mfa ? await handler.HandleAsync(new ClosureRecoveryVerifyChallengeCommand { ChallengeToken = "challenge", Code = "123456" }) : await handler.HandleAsync(Login());
         Assert.True(result.Success);
         Assert.Equal(token, result.Data!.Identity.Token);
-        Assert.Equal(Account, result.Data.Account!.AccountId);
+        Assert.Equal(s_account, result.Data.Account!.AccountId);
         Assert.Equal(2, result.Data.Account.Revision);
         Assert.DoesNotContain(result.Data.GetType().GetProperties(), x => x.Name.Contains("Vault") || x.Name.Contains("Envelope"));
     }
@@ -84,7 +84,7 @@ public class ClosureRecoveryAuthenticationHandlerTests
     {
         var identity = new Mock<IHeimdallClient>(MockBehavior.Strict);
         identity.Setup(x => x.AuthenticateAsync("owner@example.test", "password", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new HeimdallAuthentication(new(Token(kind), Now.AddMinutes(5), true, false, null, null), Actor));
+            .ReturnsAsync(new HeimdallAuthentication(new(Token(kind), s_now.AddMinutes(5), true, false, null, null), s_actor));
         var result = await Handler(identity, new(MockBehavior.Strict)).HandleAsync(Login());
         Assert.False(result.Success);
         Assert.Null(result.Data);
@@ -99,7 +99,7 @@ public class ClosureRecoveryAuthenticationHandlerTests
     {
         var identity = new Mock<IHeimdallClient>(MockBehavior.Strict);
         identity.Setup(x => x.AuthenticateAsync("owner@example.test", "password", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new HeimdallAuthentication(new(Token(), Now.AddMinutes(5), true, false, null, null), Actor));
+            .ReturnsAsync(new HeimdallAuthentication(new(Token(), s_now.AddMinutes(5), true, false, null, null), s_actor));
         var store = new Mock<IAccountClosureRecoveryStore>(MockBehavior.Strict);
         store.Setup(x => x.ReadAsync(It.IsAny<AccountClosureRecoveryRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new AccountClosureRecoveryResult(Error: error));
         var result = await Handler(identity, store).HandleAsync(Login());
@@ -110,20 +110,20 @@ public class ClosureRecoveryAuthenticationHandlerTests
     private static ClosureRecoveryAuthenticationHandler Handler(Mock<IHeimdallClient> identity, Mock<IAccountClosureRecoveryStore> store) => new(
         new LoginValidator(), new VerifyChallengeValidator(), identity.Object, store.Object, new HeimdallTokenValidator(new CerberusOptions
         {
-            HeimdallScopeId = Scope,
+            HeimdallScopeId = s_scope,
             AuthIssuer = "fixture-issuer",
             AuthAudience = "fixture-audience",
             AuthValidationSecret = Secret
         }), new Clock());
     private static string Token(string kind = "")
     {
-        var claims = new List<Claim> { new("id", (kind == "actor" ? Guid.NewGuid() : Actor).ToString()), new("scopeId", (kind == "scope" ? Guid.NewGuid() : Scope).ToString()), new("roleId", kind == "role" ? "2" : "3") };
+        var claims = new List<Claim> { new("id", (kind == "actor" ? Guid.NewGuid() : s_actor).ToString()), new("scopeId", (kind == "scope" ? Guid.NewGuid() : s_scope).ToString()), new("roleId", kind == "role" ? "2" : "3") };
         if (kind != "missing")
-            claims.Add(new("iat", (Now.ToUnixTimeSeconds() + (kind == "old" ? -60 : kind == "future" ? 1 : 0)).ToString(), ClaimValueTypes.Integer64));
+            claims.Add(new("iat", (s_now.ToUnixTimeSeconds() + (kind == "old" ? -60 : kind == "future" ? 1 : 0)).ToString(), ClaimValueTypes.Integer64));
         if (kind == "duplicate")
-            claims.Add(new("iat", Now.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64));
+            claims.Add(new("iat", s_now.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64));
         return new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken("fixture-issuer", "fixture-audience", claims, DateTime.UtcNow.AddMinutes(-5), DateTime.UtcNow.AddMinutes(5),
             new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(kind == "signature" ? Secret + "forged" : Secret)), SecurityAlgorithms.HmacSha256)));
     }
-    private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => Now; }
+    private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => s_now; }
 }

@@ -207,7 +207,7 @@ public class ProfileAssociationIntegrationTests(PostgresFixture fixture) : IClas
         var shared = await AssociationSetup.Items(fixture, foreign);
         var grant = await AssociationSetup.Grant(fixture, foreign, owner, state, client, shared.Collection);
         var i = ProfileSetup.Input(state, client, scoped) with { CollectionIds = [shared.Collection.PublicId] };
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == state.Verifier).ExecuteUpdateAsync(x => x.SetProperty(s => s.ExpiresAt, deadline));
         await using var holder = fixture.CreateContext();

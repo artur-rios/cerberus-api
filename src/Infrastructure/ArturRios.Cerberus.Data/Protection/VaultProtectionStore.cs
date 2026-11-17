@@ -10,7 +10,7 @@ namespace ArturRios.Cerberus.Data.Protection;
 
 public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory) : IVaultProtectionStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
 
     public Task<VaultResult<VaultProtectionDetails>> InitializeAsync(Guid actor, Guid accountId, long expectedAccountRevision,
@@ -26,7 +26,7 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
                 return new(Error: "not_found");
             if (account.Revision != expectedAccountRevision || await db.VaultProtections.AnyAsync(x => x.AccountId == account.Id, ct))
                 return new(Error: "revision_conflict");
-            db.VaultProtections.Add(new VaultProtection { AccountId = account.Id, Material = JsonSerializer.SerializeToUtf8Bytes(material, Json) });
+            db.VaultProtections.Add(new VaultProtection { AccountId = account.Id, Material = JsonSerializer.SerializeToUtf8Bytes(material, s_json) });
             return new(new(account.PublicId, 1, 1, 1, material));
         });
     }
@@ -63,7 +63,7 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
             {
                 AccountId = account.Id,
                 PublicId = challenge.ChallengeId,
-                Challenge = JsonSerializer.SerializeToUtf8Bytes(challenge, Json),
+                Challenge = JsonSerializer.SerializeToUtf8Bytes(challenge, s_json),
                 PolicyRevision = account.PolicyRevision,
                 RevocationGeneration = account.RevocationGeneration,
                 ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt)
@@ -85,7 +85,7 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
             var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.PublicId == challengeId && x.AccountId == account.Id, ct);
             if (row is null || row.Consumed)
                 return new(Error: "vault_proof_rejected");
-            var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, Json) ?? throw new JsonException();
+            var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, s_json) ?? throw new JsonException();
             if (challenge.ChallengeId != row.PublicId || row.ExpiresAt != DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt))
                 return new(Error: "persistence_unavailable");
             if (row.PolicyRevision != account.PolicyRevision || row.RevocationGeneration != account.RevocationGeneration
@@ -155,7 +155,7 @@ public sealed class VaultProtectionStore(IDbContextFactory<AppDbContext> factory
 
     private static VaultProtectionDetails Details(AccountView account, VaultProtection row)
     {
-        var material = JsonSerializer.Deserialize<ProtectionMaterial>(row.Material, Json);
+        var material = JsonSerializer.Deserialize<ProtectionMaterial>(row.Material, s_json);
         if (material?.IsValid() != true || row.Revision is <= 0 or > ProtocolBinary.MaxInteger
             || row.KeyEpoch != material.PasswordWrapper.KeyEpoch || row.RecoveryGeneration != material.RecoveryWrapper.Generation)
             throw new JsonException();

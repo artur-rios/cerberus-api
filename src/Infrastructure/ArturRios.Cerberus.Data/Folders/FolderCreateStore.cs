@@ -12,7 +12,7 @@ namespace ArturRios.Cerberus.Data.Folders;
 
 public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) : IFolderCreateStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web);
 
     public async Task<VaultResult<FolderCreateDetails>> CreateAsync(FolderCreateRequest request, CancellationToken ct)
     {
@@ -124,7 +124,7 @@ public sealed class FolderCreateStore(IDbContextFactory<AppDbContext> factory) :
                 || await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "folder" && x.ResourceId == input.FolderId, ct))
                 return new(Error: "revision_conflict");
 
-            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
+            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, s_json);
             var editedAt = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             var folderIds = folders.Select(x => x.Id).ToArray();
             var ancestry = JsonSerializer.Serialize(folders.OrderBy(x => x.Id).Select(x => new { id = x.Id, parent = x.ParentFolderId }));

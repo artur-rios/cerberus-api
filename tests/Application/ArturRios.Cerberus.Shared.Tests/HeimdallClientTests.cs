@@ -8,8 +8,8 @@ namespace ArturRios.Cerberus.Shared.Tests;
 
 public sealed class HeimdallClientTests
 {
-    private static readonly Guid Identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
-    private static readonly Guid Application = Guid.Parse("527a1001-8ef5-4c9b-a565-333333333333");
+    private static readonly Guid s_identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
+    private static readonly Guid s_application = Guid.Parse("527a1001-8ef5-4c9b-a565-333333333333");
 
     [UnitFact]
     public async Task GivenActiveScopedApplication_WhenVerifying_ThenUsePublicRouteAndServiceCredential()
@@ -30,7 +30,7 @@ public sealed class HeimdallClientTests
                 id = applicationId,
                 name = "Fixture application",
                 scopeId = options.HeimdallScopeId,
-                ownerId = Identity,
+                ownerId = s_identity,
                 isDeleted = false,
                 createdAt = "2026-10-07T00:00:00Z",
                 updatedAt = "2026-10-07T00:00:00Z"
@@ -57,9 +57,9 @@ public sealed class HeimdallClientTests
         var options = ApplicationOptions();
         var data = ApplicationData();
         if (kind is "wrong-id" or "deleted-wrong-id")
-            data["id"] = Identity;
+            data["id"] = s_identity;
         if (kind is "wrong-scope" or "deleted-wrong-scope")
-            data["scopeId"] = Identity;
+            data["scopeId"] = s_identity;
         if (kind.StartsWith("deleted", StringComparison.Ordinal))
             data["isDeleted"] = true;
         var response = kind switch
@@ -71,7 +71,7 @@ public sealed class HeimdallClientTests
             _ => Envelope(data)
         };
 
-        var status = await Client(new FixtureHandler(_ => Task.FromResult(response)), options).VerifyApplicationAsync(Application, default);
+        var status = await Client(new FixtureHandler(_ => Task.FromResult(response)), options).VerifyApplicationAsync(s_application, default);
 
         Assert.Equal(expected, status);
     }
@@ -82,7 +82,7 @@ public sealed class HeimdallClientTests
     public async Task GivenEmptyApplicationOrScopeId_WhenVerifying_ThenFailWithoutTransport(string empty)
     {
         var options = ApplicationOptions();
-        var applicationId = Application;
+        var applicationId = s_application;
         if (empty == "application")
             applicationId = Guid.Empty;
         else
@@ -115,12 +115,12 @@ public sealed class HeimdallClientTests
             "malformed" => "invalid-service-token",
             "global-admin" => ServiceToken("1", options.HeimdallScopeId.ToString()),
             "user" => ServiceToken("3", options.HeimdallScopeId.ToString()),
-            "wrong-scope" => ServiceToken("2", Identity.ToString()),
-            _ => ServiceToken("2", $"{options.HeimdallScopeId},{Identity}")
+            "wrong-scope" => ServiceToken("2", s_identity.ToString()),
+            _ => ServiceToken("2", $"{options.HeimdallScopeId},{s_identity}")
         };
         var handler = new FixtureHandler(_ => throw new InvalidOperationException("Disallowed credential reached transport"));
 
-        var status = await Client(handler, options).VerifyApplicationAsync(Application, default);
+        var status = await Client(handler, options).VerifyApplicationAsync(s_application, default);
 
         Assert.Equal(HeimdallApplicationStatus.Unavailable, status);
     }
@@ -149,7 +149,7 @@ public sealed class HeimdallClientTests
             data[char.ToUpperInvariant(field[0]) + field[1..]] = value;
 
         var status = await Client(new FixtureHandler(_ => Task.FromResult(Envelope(data))), ApplicationOptions())
-            .VerifyApplicationAsync(Application, default);
+            .VerifyApplicationAsync(s_application, default);
 
         Assert.Equal(HeimdallApplicationStatus.Unavailable, status);
     }
@@ -169,7 +169,7 @@ public sealed class HeimdallClientTests
         data[field] = value;
 
         var status = await Client(new FixtureHandler(_ => Task.FromResult(Envelope(data))), ApplicationOptions())
-            .VerifyApplicationAsync(Application, default);
+            .VerifyApplicationAsync(s_application, default);
 
         Assert.Equal(HeimdallApplicationStatus.Unavailable, status);
     }
@@ -206,7 +206,7 @@ public sealed class HeimdallClientTests
         if (kind == "oversized-stream")
             Assert.Null(response.Content.Headers.ContentLength);
 
-        var status = await Client(new FixtureHandler(_ => Task.FromResult(response)), options).VerifyApplicationAsync(Application, default);
+        var status = await Client(new FixtureHandler(_ => Task.FromResult(response)), options).VerifyApplicationAsync(s_application, default);
 
         Assert.Equal(HeimdallApplicationStatus.Unavailable, status);
     }
@@ -218,7 +218,7 @@ public sealed class HeimdallClientTests
     {
         var handler = new FixtureHandler(_ => timeout ? throw new TaskCanceledException("upstream-secret") : throw new HttpRequestException("upstream-secret"));
 
-        var status = await Client(handler, ApplicationOptions()).VerifyApplicationAsync(Application, default);
+        var status = await Client(handler, ApplicationOptions()).VerifyApplicationAsync(s_application, default);
 
         Assert.Equal(HeimdallApplicationStatus.Unavailable, status);
     }
@@ -233,7 +233,7 @@ public sealed class HeimdallClientTests
         { BaseAddress = new Uri(options.HeimdallBaseUrl!), Timeout = TimeSpan.FromMilliseconds(50) };
         var client = new HeimdallClient(transport, options, new HeimdallTokenValidator(options));
 
-        var status = await client.VerifyApplicationAsync(Application, default).WaitAsync(TimeSpan.FromSeconds(2));
+        var status = await client.VerifyApplicationAsync(s_application, default).WaitAsync(TimeSpan.FromSeconds(2));
 
         Assert.Equal(HeimdallApplicationStatus.Unavailable, status);
     }
@@ -250,7 +250,7 @@ public sealed class HeimdallClientTests
         cancellation.Cancel();
         var handler = new FixtureHandler(_ => throw new InvalidOperationException("Canceled request reached transport"));
 
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Client(handler, options).VerifyApplicationAsync(Application, cancellation.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Client(handler, options).VerifyApplicationAsync(s_application, cancellation.Token));
     }
 
     [UnitFact]
@@ -263,7 +263,7 @@ public sealed class HeimdallClientTests
             throw new TaskCanceledException("Caller canceled");
         });
 
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Client(handler, ApplicationOptions()).VerifyApplicationAsync(Application, cancellation.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Client(handler, ApplicationOptions()).VerifyApplicationAsync(s_application, cancellation.Token));
     }
 
     private static ArturRios.Cerberus.Shared.Configuration.CerberusOptions ApplicationOptions()
@@ -275,10 +275,10 @@ public sealed class HeimdallClientTests
 
     private static Dictionary<string, object?> ApplicationData() => new()
     {
-        ["id"] = Application,
+        ["id"] = s_application,
         ["name"] = "Fixture application",
         ["scopeId"] = Guid.Parse("527a1001-8ef5-4c9b-a565-111111111111"),
-        ["ownerId"] = Identity,
+        ["ownerId"] = s_identity,
         ["isDeleted"] = false,
         ["createdAt"] = "2026-10-07T00:00:00Z",
         ["updatedAt"] = "2026-10-07T00:00:00Z"
@@ -353,7 +353,7 @@ public sealed class HeimdallClientTests
     public async Task GivenDeletedCurrentIdentity_WhenRevalidating_ThenRejectDespiteValidJwt()
     {
         var result = await Client(new FixtureHandler(_ => Task.FromResult(Envelope(new
-        { id = Identity, scopeId = CerberusOptionsValidatorTests.ValidOptions().HeimdallScopeId, role = 3, isDeleted = true }))))
+        { id = s_identity, scopeId = CerberusOptionsValidatorTests.ValidOptions().HeimdallScopeId, role = 3, isDeleted = true }))))
             .RevalidateAsync(Token(), default);
         Assert.Equal(HeimdallAuthorization.Denied, result);
     }
@@ -366,7 +366,7 @@ public sealed class HeimdallClientTests
         {
             Assert.Equal("/api/persons/527a1001-8ef5-4c9b-a565-222222222222", request.RequestUri!.AbsolutePath);
             Assert.Equal(token, request.Headers.Authorization?.Parameter);
-            return Task.FromResult(Envelope(new { id = Identity, scopeId = CerberusOptionsValidatorTests.ValidOptions().HeimdallScopeId, role = 3, isDeleted = false }));
+            return Task.FromResult(Envelope(new { id = s_identity, scopeId = CerberusOptionsValidatorTests.ValidOptions().HeimdallScopeId, role = 3, isDeleted = false }));
         })).RevalidateAsync(token, default);
         Assert.Equal(HeimdallAuthorization.Authorized, result);
     }
@@ -399,10 +399,10 @@ public sealed class HeimdallClientTests
             using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync());
             Assert.False(body.RootElement.TryGetProperty("role", out _));
             Assert.Equal("fixture-password", body.RootElement.GetProperty("password").GetString());
-            return Envelope(new { id = Identity, scopeId = options.HeimdallScopeId, role = 3, name = "Fixture", email = "fixture@example.test", emailVerified = false, createdAt = "2026-10-07T00:00:00Z" });
+            return Envelope(new { id = s_identity, scopeId = options.HeimdallScopeId, role = 3, name = "Fixture", email = "fixture@example.test", emailVerified = false, createdAt = "2026-10-07T00:00:00Z" });
         }), options).RegisterAsync(new HeimdallRegistration("Fixture", "fixture@example.test", "fixture-password"), default);
         Assert.NotNull(result);
-        Assert.Equal(Identity, result.Id);
+        Assert.Equal(s_identity, result.Id);
         Assert.Equal(3, result.Role);
     }
 
@@ -422,7 +422,7 @@ public sealed class HeimdallClientTests
     {
         var options = CerberusOptionsValidatorTests.ValidOptions();
         return new JwtHandler().CreateToken(new JwtConfiguration(60, options.AuthIssuer!, options.AuthAudience!, options.AuthValidationSecret!,
-            new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = role, ["ownedScopeIds"] = ownedScopes }));
+            new Dictionary<string, string> { ["id"] = s_identity.ToString(), ["roleId"] = role, ["ownedScopeIds"] = ownedScopes }));
     }
 
     [UnitTheory]
@@ -445,14 +445,14 @@ public sealed class HeimdallClientTests
                     defaultLegalBasis = (int?)null,
                     privacyNoticeUri = (string?)null,
                     isDeleted = false,
-                    ownerIds = revoked ? [] : new[] { Identity },
+                    ownerIds = revoked ? [] : new[] { s_identity },
                     createdAt = "2026-10-07T00:00:00Z",
                     updatedAt = "2026-10-07T00:00:00Z"
                 }));
             Assert.Equal("/api/persons/527a1001-8ef5-4c9b-a565-222222222222", request.RequestUri.AbsolutePath);
             return Task.FromResult(Envelope(new
             {
-                id = Identity,
+                id = s_identity,
                 name = "Fixture",
                 email = "fixture@example.test",
                 role = 2,
@@ -472,7 +472,7 @@ public sealed class HeimdallClientTests
     {
         var options = CerberusOptionsValidatorTests.ValidOptions();
         return new JwtHandler().CreateToken(new JwtConfiguration(60, options.AuthIssuer!, options.AuthAudience!, options.AuthValidationSecret!,
-            new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = "3", ["scopeId"] = options.HeimdallScopeId.ToString() }));
+            new Dictionary<string, string> { ["id"] = s_identity.ToString(), ["roleId"] = "3", ["scopeId"] = options.HeimdallScopeId.ToString() }));
     }
 
     [UnitFact]

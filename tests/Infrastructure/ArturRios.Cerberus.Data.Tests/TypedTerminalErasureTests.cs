@@ -17,8 +17,8 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
-    private readonly string directory = Directory.CreateTempSubdirectory("cerberus-typed-ledger-").FullName;
-    private static readonly DateTimeOffset Deleted = DateTimeOffset.Parse("2026-10-07T00:00:00Z");
+    private readonly string _directory = Directory.CreateTempSubdirectory("cerberus-typed-ledger-").FullName;
+    private static readonly DateTimeOffset s_deleted = DateTimeOffset.Parse("2026-10-07T00:00:00Z");
 
     // A global GUID index or lookup falsely merges independent terminal identities.
     [FunctionalFact]
@@ -26,13 +26,13 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     {
         var id = Guid.NewGuid();
         var store = new TerminalErasureStore(fixture);
-        await store.ReapplyAsync(new(id, "record", Deleted), default);
-        await store.ReapplyAsync(new(id, "folder", Deleted.AddHours(1)), default);
+        await store.ReapplyAsync(new(id, "record", s_deleted), default);
+        await store.ReapplyAsync(new(id, "folder", s_deleted.AddHours(1)), default);
         await using var db = fixture.CreateContext();
         var entries = await db.TerminalErasures.Where(x => x.ResourceId == id).OrderBy(x => x.ResourceKind).ToListAsync();
         Assert.Equal(["folder", "record"], entries.Select(x => x.ResourceKind));
-        Assert.Equal(Deleted.AddHours(1), entries[0].DeletedAt);
-        Assert.Equal(Deleted, entries[1].DeletedAt);
+        Assert.Equal(s_deleted.AddHours(1), entries[0].DeletedAt);
+        Assert.Equal(s_deleted, entries[1].DeletedAt);
     }
 
     // New erasures must coexist with the legacy filename namespace without overwriting it.
@@ -42,32 +42,32 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     public async Task GivenSameGuidTwoKinds_WhenRecordingAndReopeningLedger_ThenPreserveBothKinds(bool legacy)
     {
         var id = Guid.NewGuid();
-        var first = new ErasureEntry(id, "record", Deleted);
-        var ledger = new FileErasureLedger(directory);
+        var first = new ErasureEntry(id, "record", s_deleted);
+        var ledger = new FileErasureLedger(_directory);
         if (legacy)
-            await File.WriteAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json"), JsonSerializer.Serialize(first));
+            await File.WriteAllTextAsync(Path.Combine(_directory, id.ToString("N") + ".json"), JsonSerializer.Serialize(first));
         else
             await ledger.RecordAsync(first, default);
-        await ledger.RecordAsync(new(id, "folder", Deleted.AddHours(1)), default);
+        await ledger.RecordAsync(new(id, "folder", s_deleted.AddHours(1)), default);
         var entries = new List<ErasureEntry>();
-        await foreach (var entry in new FileErasureLedger(directory).ReadAsync(default))
+        await foreach (var entry in new FileErasureLedger(_directory).ReadAsync(default))
             entries.Add(entry);
         Assert.Equal(2, entries.Count);
         Assert.Contains(first, entries);
-        Assert.Contains(new(id, "folder", Deleted.AddHours(1)), entries);
-        Assert.True(File.Exists(Path.Combine(directory, "folder-" + id.ToString("N") + ".json")));
+        Assert.Contains(new(id, "folder", s_deleted.AddHours(1)), entries);
+        Assert.True(File.Exists(Path.Combine(_directory, "folder-" + id.ToString("N") + ".json")));
         if (legacy)
-            Assert.Equal(JsonSerializer.Serialize(first), await File.ReadAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json")));
+            Assert.Equal(JsonSerializer.Serialize(first), await File.ReadAllTextAsync(Path.Combine(_directory, id.ToString("N") + ".json")));
     }
 
     [FunctionalFact]
     public async Task GivenLegacySameKind_WhenRetryingDeletion_ThenKeepOriginalTimeAndReplayIt()
     {
         var id = Guid.NewGuid();
-        var entry = new ErasureEntry(id, "record", Deleted);
-        await File.WriteAllTextAsync(Path.Combine(directory, id.ToString("N") + ".json"), JsonSerializer.Serialize(entry));
-        var ledger = new FileErasureLedger(directory);
-        await ledger.RecordAsync(entry with { DeletedAt = Deleted.AddHours(1) }, default);
+        var entry = new ErasureEntry(id, "record", s_deleted);
+        await File.WriteAllTextAsync(Path.Combine(_directory, id.ToString("N") + ".json"), JsonSerializer.Serialize(entry));
+        var ledger = new FileErasureLedger(_directory);
+        await ledger.RecordAsync(entry with { DeletedAt = s_deleted.AddHours(1) }, default);
         var entries = new List<ErasureEntry>();
         await foreach (var item in ledger.ReadAsync(default))
             entries.Add(item);
@@ -147,7 +147,7 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
         var id = Guid.NewGuid();
         await Erase(id, kind);
         var result = await new RecordCreateStore(fixture).CreateAsync(new(s.Actor, s.Verifier,
-            new(id, ProfileSetup.Envelope(), Deleted, [], null)), default);
+            new(id, ProfileSetup.Envelope(), s_deleted, [], null)), default);
         Assert.Null(result.Error);
         Assert.Equal(id, result.Data!.RecordId);
         await using var db = fixture.CreateContext();
@@ -163,7 +163,7 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
         var id = Guid.NewGuid();
         await Erase(id, "record");
         Assert.Equal("revision_conflict", (await new RecordCreateStore(fixture).CreateAsync(new(s.Actor, s.Verifier,
-            new(id, ProfileSetup.Envelope(), Deleted, [], null)), default)).Error);
+            new(id, ProfileSetup.Envelope(), s_deleted, [], null)), default)).Error);
         Assert.Equal("not_found", (await new RecordReadStore(fixture).ReadAsync(new(s.Actor, s.Verifier, id), default)).Error);
         await using var db = fixture.CreateContext();
         Assert.False(await db.Records.AnyAsync(x => x.PublicId == id));
@@ -174,7 +174,7 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     {
         var id = Guid.NewGuid();
         var store = new TerminalErasureStore(fixture);
-        await store.ReapplyAsync(new(id, "record", Deleted), default);
+        await store.ReapplyAsync(new(id, "record", s_deleted), default);
         Assert.True(await store.IsErasedAsync("record", id, default));
         Assert.False(await store.IsErasedAsync("folder", id, default));
         Assert.False(await store.IsErasedAsync("account", id, default));
@@ -189,7 +189,7 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     {
         var id = empty ? Guid.Empty : Guid.NewGuid();
         var store = new TerminalErasureStore(fixture);
-        await Assert.ThrowsAsync<InvalidDataException>(() => store.ReapplyAsync(new(id, kind, Deleted), default));
+        await Assert.ThrowsAsync<InvalidDataException>(() => store.ReapplyAsync(new(id, kind, s_deleted), default));
         await Assert.ThrowsAsync<InvalidDataException>(() => store.IsErasedAsync(kind, id, default));
         await using var db = fixture.CreateContext();
         Assert.False(await db.TerminalErasures.AnyAsync(x => x.ResourceId == id));
@@ -200,11 +200,11 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     {
         var id = Guid.NewGuid();
         var store = new TerminalErasureStore(fixture);
-        await store.ReapplyAsync(new(id, "record", Deleted.AddHours(1)), default);
-        await Task.WhenAll(Enumerable.Range(0, 4).Select(i => store.ReapplyAsync(new(id, "record", Deleted.AddMinutes(i)), default)));
+        await store.ReapplyAsync(new(id, "record", s_deleted.AddHours(1)), default);
+        await Task.WhenAll(Enumerable.Range(0, 4).Select(i => store.ReapplyAsync(new(id, "record", s_deleted.AddMinutes(i)), default)));
         await using var db = fixture.CreateContext();
         var entry = Assert.Single(await db.TerminalErasures.Where(x => x.ResourceId == id).ToListAsync());
-        Assert.Equal(Deleted, entry.DeletedAt);
+        Assert.Equal(s_deleted, entry.DeletedAt);
     }
 
     [FunctionalTheory]
@@ -267,7 +267,7 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
         var migrator = db.GetService<IMigrator>();
         await migrator.MigrateAsync("20261008224646_CollectionMembership");
         var id = Guid.NewGuid();
-        await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.terminal_erasure(resource_id,resource_kind,deleted_at) VALUES({id},{(invalid ? "unknown" : "record")},{Deleted})");
+        await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.terminal_erasure(resource_id,resource_kind,deleted_at) VALUES({id},{(invalid ? "unknown" : "record")},{s_deleted})");
         if (invalid)
         {
             await Assert.ThrowsAsync<PostgresException>(() => migrator.MigrateAsync());
@@ -277,10 +277,10 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
         else
         {
             await migrator.MigrateAsync();
-            await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.terminal_erasure(resource_id,resource_kind,deleted_at) VALUES({id},{"folder"},{Deleted})");
+            await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.terminal_erasure(resource_id,resource_kind,deleted_at) VALUES({id},{"folder"},{s_deleted})");
             Assert.Equal(2, await db.TerminalErasures.CountAsync(x => x.ResourceId == id));
-            Assert.Equal(Deleted, (await db.TerminalErasures.SingleAsync(x => x.ResourceKind == "record")).DeletedAt);
-            await Assert.ThrowsAsync<PostgresException>(() => db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.terminal_erasure(resource_id,resource_kind,deleted_at) VALUES({Guid.NewGuid()},{"unknown"},{Deleted})"));
+            Assert.Equal(s_deleted, (await db.TerminalErasures.SingleAsync(x => x.ResourceKind == "record")).DeletedAt);
+            await Assert.ThrowsAsync<PostgresException>(() => db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO cerberus.terminal_erasure(resource_id,resource_kind,deleted_at) VALUES({Guid.NewGuid()},{"unknown"},{s_deleted})"));
         }
     }
 
@@ -292,24 +292,24 @@ public sealed class TypedTerminalErasureTests(PostgresFixture fixture) : IClassF
     public async Task GivenMalformedTypedLedgerFile_WhenReading_ThenFailClosed(string kind)
     {
         var id = Guid.NewGuid();
-        var entry = new ErasureEntry(kind == "wrongId" ? Guid.NewGuid() : id, kind == "wrongKind" ? "folder" : kind == "unknownKind" ? "unknown" : "record", Deleted);
-        var file = Path.Combine(directory, "record-" + id.ToString("N") + ".json");
+        var entry = new ErasureEntry(kind == "wrongId" ? Guid.NewGuid() : id, kind == "wrongKind" ? "folder" : kind == "unknownKind" ? "unknown" : "record", s_deleted);
+        var file = Path.Combine(_directory, "record-" + id.ToString("N") + ".json");
         if (kind == "symlink")
         {
-            var real = Path.Combine(directory, "source.tmp");
+            var real = Path.Combine(_directory, "source.tmp");
             await File.WriteAllTextAsync(real, JsonSerializer.Serialize(entry));
             File.CreateSymbolicLink(file, real);
         }
         else
             await File.WriteAllTextAsync(file, JsonSerializer.Serialize(entry));
-        await Assert.ThrowsAsync<InvalidDataException>(async () => { await foreach (var _ in new FileErasureLedger(directory).ReadAsync(default)) { } });
+        await Assert.ThrowsAsync<InvalidDataException>(async () => { await foreach (var _ in new FileErasureLedger(_directory).ReadAsync(default)) { } });
     }
 
     private async Task Erase(Guid id, string kind)
     {
         await using var db = fixture.CreateContext();
-        db.TerminalErasures.Add(new() { ResourceId = id, ResourceKind = kind, DeletedAt = Deleted });
+        db.TerminalErasures.Add(new() { ResourceId = id, ResourceKind = kind, DeletedAt = s_deleted });
         await db.SaveChangesAsync();
     }
-    public void Dispose() => Directory.Delete(directory, recursive: true);
+    public void Dispose() => Directory.Delete(_directory, recursive: true);
 }

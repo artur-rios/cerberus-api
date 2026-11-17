@@ -43,7 +43,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal("persistence_unavailable", (await Store().DeleteAsync(w.Request(), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalTheory]
@@ -126,7 +126,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal("not_found", (await Store().DeleteAsync(w.Request(), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalTheory]

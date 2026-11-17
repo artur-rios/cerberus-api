@@ -14,7 +14,7 @@ namespace ArturRios.Cerberus.Data.Software;
 
 public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) : ISoftwareGrantStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<VaultResult<SoftwareGrantDetails>> GrantAsync(SoftwareGrantRequest request, CancellationToken ct)
@@ -61,7 +61,7 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
                 if (error is not null)
                     return new(Error: error);
             }
-            var targets = JsonSerializer.Deserialize<Target[]>(captured.Targets, Json)!;
+            var targets = JsonSerializer.Deserialize<Target[]>(captured.Targets, s_json)!;
             // Canonical kind order agrees with native collection/member writers.
             // Sort UUIDs in PostgreSQL, independently of submitted array order.
             foreach (var kind in new[] { "collection", "record" })
@@ -82,7 +82,7 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
             if (error is not null)
                 return new(Error: error);
             var input = request.Input;
-            var old = JsonSerializer.Deserialize<GrantRow[]>(captured.Rows, Json)!.SingleOrDefault();
+            var old = JsonSerializer.Deserialize<GrantRow[]>(captured.Rows, s_json)!.SingleOrDefault();
             if (captured.Reserved || old is null && input.ExpectedRevision is not null
                 || old is not null && (old.PublicId != input.GrantId || old.AccountId != captured.OwnerId
                     || old.Identity != input.SoftwareIdentityId || old.State != (int)SoftwareGrantState.Revoked
@@ -91,13 +91,13 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
             var revision = (input.ExpectedRevision ?? 0) + 1;
             foreach (var target in targets)
             {
-                var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(target.Envelope), Json)!;
+                var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(target.Envelope), s_json)!;
                 var supplied = input.Targets.Single(x => x.Kind == target.Kind && x.Id == target.PublicId);
                 if (!supplied.KeyEnvelope.Verify(captured.OwnerPublicId, target.Kind, target.PublicId, target.KeyEpoch ?? envelope.KeyEpoch,
                     input.GrantId, revision, input.SoftwareIdentityId, input.RecipientKey.ToPublicJwk(), pins!.AuthorKey))
                     return new(Error: "validation_failed");
             }
-            var key = JsonSerializer.SerializeToUtf8Bytes(input.RecipientKey, Json);
+            var key = JsonSerializer.SerializeToUtf8Bytes(input.RecipientKey, s_json);
             var stamp = Guid.NewGuid();
             var parameters = Parameters(request).Concat(
             [
@@ -142,7 +142,7 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
             }
             foreach (var target in targets)
             {
-                var bytes = JsonSerializer.SerializeToUtf8Bytes(input.Targets.Single(x => x.Kind == target.Kind && x.Id == target.PublicId).KeyEnvelope, Json);
+                var bytes = JsonSerializer.SerializeToUtf8Bytes(input.Targets.Single(x => x.Kind == target.Kind && x.Id == target.PublicId).KeyEnvelope, s_json);
                 var insertSql = target.Kind == "record"
                     ? "INSERT INTO cerberus.software_grant_record(account_id,grant_id,record_id,recipient_key_envelope) VALUES({0},{1},{2},{3})"
                     : "INSERT INTO cerberus.software_grant_collection(account_id,grant_id,collection_id,recipient_key_envelope) VALUES({0},{1},{2},{3})";
@@ -167,7 +167,7 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
                 var collection = collections.SingleOrDefault(x => x.CollectionId == target.Id);
                 var bytes = target.Kind == "record" ? record?.RecipientKeyEnvelope : collection?.RecipientKeyEnvelope;
                 var owner = target.Kind == "record" ? record?.AccountId : collection?.AccountId;
-                var expected = JsonSerializer.SerializeToUtf8Bytes(input.Targets.Single(x => x.Kind == target.Kind && x.Id == target.PublicId).KeyEnvelope, Json);
+                var expected = JsonSerializer.SerializeToUtf8Bytes(input.Targets.Single(x => x.Kind == target.Kind && x.Id == target.PublicId).KeyEnvelope, s_json);
                 if (owner != captured.OwnerId || bytes is null || !bytes.AsSpan().SequenceEqual(expected))
                     return new(Error: "persistence_unavailable");
             }
@@ -196,15 +196,15 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
             return "not_found";
         if (s.CorruptAncestry)
             return "persistence_unavailable";
-        var targets = JsonSerializer.Deserialize<Target[]>(s.Targets, Json)!;
+        var targets = JsonSerializer.Deserialize<Target[]>(s.Targets, s_json)!;
         foreach (var target in targets)
         {
-            var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(target.Envelope), Json);
+            var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(target.Envelope), s_json);
             if (envelope?.IsValid() != true || target.KeyEpoch is { } epoch && epoch != envelope.KeyEpoch || target.PurgeAt is not null
                 || target.Revision is <= 0 or > ProtocolBinary.MaxInteger || target.Sequence is <= 0 or > ProtocolBinary.MaxInteger)
                 return "persistence_unavailable";
         }
-        foreach (var g in JsonSerializer.Deserialize<Native[]>(s.Native, Json)!)
+        foreach (var g in JsonSerializer.Deserialize<Native[]>(s.Native, s_json)!)
         {
             if (!CollectionGrantBinding.TryReadPins(Pins(g.OwnerMaterial, g.OwnerRevision, g.OwnerEpoch, g.OwnerGeneration), out var owner)
                 || !CollectionGrantBinding.TryReadPins(Pins(g.RecipientMaterial, g.RecipientRevision, g.RecipientEpoch, g.RecipientGeneration), out var recipient)
@@ -220,7 +220,7 @@ public sealed class SoftwareGrantStore(IDbContextFactory<AppDbContext> factory) 
         { Material = Convert.FromHexString(material), Revision = revision.Value, KeyEpoch = epoch.Value, RecoveryGeneration = generation.Value };
     private static object[] Parameters(SoftwareGrantRequest r, bool authorized = false) =>
     [new NpgsqlParameter("actor", r.Actor), new NpgsqlParameter("verifier", r.AccessVerifier), new NpgsqlParameter("grant", r.Input.GrantId),
-        new NpgsqlParameter("requested", NpgsqlDbType.Jsonb) { Value = JsonSerializer.Serialize(r.Input.Targets.Select(x => new { kind = x.Kind, id = x.Id }), Json) },
+        new NpgsqlParameter("requested", NpgsqlDbType.Jsonb) { Value = JsonSerializer.Serialize(r.Input.Targets.Select(x => new { kind = x.Kind, id = x.Id }), s_json) },
         new NpgsqlParameter("active", (object)(int)AccountState.Active), new NpgsqlParameter("max", ProtocolBinary.MaxInteger), new NpgsqlParameter("authorized", authorized)];
     private static async Task<Snapshot> SnapshotAsync(AppDbContext db, SoftwareGrantRequest r, CancellationToken ct, bool authorized = false) =>
         (await db.Database.SqlQueryRaw<Snapshot>(Authority + SnapshotSelect, Parameters(r, authorized)).ToListAsync(ct)).Single();

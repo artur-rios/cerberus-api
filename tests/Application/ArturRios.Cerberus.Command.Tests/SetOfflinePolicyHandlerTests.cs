@@ -7,7 +7,7 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class SetOfflinePolicyHandlerTests
 {
     private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static readonly Guid Identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
+    private static readonly Guid s_identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
 
     [UnitTheory]
     [InlineData("identity", "authentication_required")]
@@ -23,7 +23,7 @@ public class SetOfflinePolicyHandlerTests
     public async Task GivenInvalidPolicyOrContext_WhenSetting_ThenRejectBeforePersistence(string invalid, string error)
     {
         var command = Command();
-        command.SetContext(invalid == "identity" ? Guid.Empty : Identity,
+        command.SetContext(invalid == "identity" ? Guid.Empty : s_identity,
             invalid == "missing" ? null : invalid == "malformed" ? "invalid" : Handle);
         if (invalid == "revision")
             command.ExpectedPolicyRevision = 0;
@@ -68,7 +68,7 @@ public class SetOfflinePolicyHandlerTests
         command.RenewalEnabled = enabled;
         command.RenewalInterval = enabled ? TimeSpan.FromSeconds(seconds) : null;
         var store = new Mock<IOfflinePolicyUpdateStore>(MockBehavior.Strict);
-        store.Setup(x => x.UpdateAsync(It.Is<OfflinePolicyUpdateRequest>(r => r.IdentityId == Identity
+        store.Setup(x => x.UpdateAsync(It.Is<OfflinePolicyUpdateRequest>(r => r.IdentityId == s_identity
             && r.Verifier == "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925"
             && r.ExpectedPolicyRevision == 1 && r.RenewalEnabled == enabled && r.RenewalInterval == command.RenewalInterval),
             It.IsAny<CancellationToken>())).ReturnsAsync(new OfflinePolicyReadResult(new(enabled, command.RenewalInterval, 2, 3)));
@@ -117,7 +117,7 @@ public class SetOfflinePolicyHandlerTests
     private static SetOfflinePolicyCommand Command()
     {
         var command = new SetOfflinePolicyCommand { ExpectedPolicyRevision = 1, RenewalEnabled = true, RenewalInterval = TimeSpan.FromHours(24) };
-        command.SetContext(Identity, Handle);
+        command.SetContext(s_identity, Handle);
         return command;
     }
     private static SetOfflinePolicyHandler Handler(OfflinePolicyReadResult result)

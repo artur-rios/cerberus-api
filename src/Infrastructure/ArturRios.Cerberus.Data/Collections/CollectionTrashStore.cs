@@ -17,7 +17,7 @@ namespace ArturRios.Cerberus.Data.Collections;
 
 public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory) : ICollectionTrashStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = false,
         AllowDuplicateProperties = false,
@@ -49,9 +49,9 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
             var error = Error(initial);
             if (error is not null)
                 return new(Error: error);
-            var target = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
+            var target = JsonSerializer.Deserialize<Item>(initial.Item!, s_json)!;
             var captured = await InventoryAsync(db, request, ct);
-            var initialGraph = JsonSerializer.Deserialize<Inventory>(captured, Json)!;
+            var initialGraph = JsonSerializer.Deserialize<Inventory>(captured, s_json)!;
             var profiles = initialGraph.Resources.Where(x => x.Kind == "profile" && x.AccountId == account.Id).Select(x => x.Id).ToArray();
             var folders = initialGraph.Resources.Where(x => x.Kind == "folder" && x.Active && x.AccountId == account.Id).Select(x => x.Id).ToArray();
             var records = initialGraph.Resources.Where(x => x.Kind == "record" && x.Active && x.AccountId == account.Id).Select(x => x.Id).ToArray();
@@ -91,7 +91,7 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
             if (error is not null)
                 return new(Error: error);
             var frozen = await InventoryAsync(db, request, ct);
-            var graph = JsonSerializer.Deserialize<Inventory>(frozen, Json)!;
+            var graph = JsonSerializer.Deserialize<Inventory>(frozen, s_json)!;
             // Disappearance is harmless in wide scope. Never rebuild links from the old graph.
             // Growth or replacement needs locks we did not hold; changed members preserve their winner.
             if (current.Selection != initial.Selection || current.Item != initial.Item
@@ -179,7 +179,7 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
                 OperationId = operation.Id,
                 ResourceKind = "collection",
                 ResourceId = row.PublicId,
-                AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(snapshot, Json)
+                AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(snapshot, s_json)
             };
             db.TrashEntries.Add(entry);
             await db.SaveChangesAsync(ct);
@@ -275,8 +275,8 @@ public sealed class CollectionTrashStore(IDbContextFactory<AppDbContext> factory
 
     private static bool ValidNative(Snapshot snapshot)
     {
-        var item = JsonSerializer.Deserialize<Item>(snapshot.Item!, Json)!;
-        var grant = snapshot.Grant is null ? null : JsonSerializer.Deserialize<GrantEvidence>(snapshot.Grant, Json);
+        var item = JsonSerializer.Deserialize<Item>(snapshot.Item!, s_json)!;
+        var grant = snapshot.Grant is null ? null : JsonSerializer.Deserialize<GrantEvidence>(snapshot.Grant, s_json);
         return grant is not null
             && CollectionGrantBinding.TryReadPins(Pins(grant.OwnerMaterial, grant.OwnerRevision, grant.OwnerEpoch, grant.OwnerGeneration), out var owner)
             && CollectionGrantBinding.TryReadPins(Pins(grant.RecipientMaterial, grant.RecipientRevision, grant.RecipientEpoch, grant.RecipientGeneration), out var recipient)

@@ -12,13 +12,13 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class GrantCollectionAccessHandlerTests
 {
     private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid();
-    private readonly Guid collection = Guid.NewGuid();
-    private readonly Guid recipient = Guid.NewGuid();
-    private readonly Guid grant = Guid.NewGuid();
-    private static readonly Guid First = Guid.Parse("11111111-1111-4111-8111-111111111111");
-    private static readonly Guid Last = Guid.Parse("eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee");
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json)
+    private readonly Guid _actor = Guid.NewGuid();
+    private readonly Guid _collection = Guid.NewGuid();
+    private readonly Guid _recipient = Guid.NewGuid();
+    private readonly Guid _grant = Guid.NewGuid();
+    private static readonly Guid s_first = Guid.Parse("11111111-1111-4111-8111-111111111111");
+    private static readonly Guid s_last = Guid.Parse("eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee");
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json)
     {
         NumberHandling = JsonNumberHandling.Strict,
         Converters = { new CanonicalGuidConverter() }
@@ -63,9 +63,9 @@ public class GrantCollectionAccessHandlerTests
     public async Task GivenInvalidContextOrMaterial_WhenHandling_ThenRejectBeforePersistence(string kind, string error)
     {
         var command = Command();
-        command.SetContext(kind == "actor" ? Guid.Empty : actor,
+        command.SetContext(kind == "actor" ? Guid.Empty : _actor,
             kind == "missingAccess" ? null : kind == "emptyAccess" ? "" : kind == "invalidAccess" ? "bad" : Handle,
-            kind == "collection" ? Guid.Empty : collection);
+            kind == "collection" ? Guid.Empty : _collection);
         switch (kind)
         {
             case "grant":
@@ -173,7 +173,7 @@ public class GrantCollectionAccessHandlerTests
     {
         var command = Command();
         command.KeyEnvelope = null!;
-        command.SetContext(missingActor ? Guid.Empty : actor, null, Guid.Empty);
+        command.SetContext(missingActor ? Guid.Empty : _actor, null, Guid.Empty);
         var result = await Handler(new Mock<ICollectionGrantStore>(MockBehavior.Strict).Object).HandleAsync(command);
         Assert.Equal(new[] { error }, result.Errors);
     }
@@ -189,8 +189,8 @@ public class GrantCollectionAccessHandlerTests
         long? expected, long revision, string access, bool empty)
     {
         var command = Command(expected, access);
-        var details = new CollectionGrantDetails(collection, grant, revision, access,
-            empty ? [] : [Last, First], empty ? [] : [Last, First]);
+        var details = new CollectionGrantDetails(_collection, _grant, revision, access,
+            empty ? [] : [s_last, s_first], empty ? [] : [s_last, s_first]);
         using var cancellation = new CancellationTokenSource();
         CollectionGrantRequest? received = null;
         CancellationToken receivedToken = default;
@@ -207,24 +207,24 @@ public class GrantCollectionAccessHandlerTests
 
         Assert.True(result.Success);
         Assert.Equal(new[] { "collection_access_granted" }, result.Messages);
-        Assert.Equal(collection, result.Data!.CollectionId);
-        Assert.Equal(grant, result.Data.GrantId);
+        Assert.Equal(_collection, result.Data!.CollectionId);
+        Assert.Equal(_grant, result.Data.GrantId);
         Assert.Equal(revision, result.Data.Revision);
         Assert.Equal(access, result.Data.Access);
-        Assert.Equal(empty ? [] : [First, Last], result.Data.RecordIds);
-        Assert.Equal(empty ? [] : [First, Last], result.Data.FolderIds);
-        Assert.Equal(actor, received!.Actor);
-        Assert.Equal(collection, received.CollectionId);
+        Assert.Equal(empty ? [] : [s_first, s_last], result.Data.RecordIds);
+        Assert.Equal(empty ? [] : [s_first, s_last], result.Data.FolderIds);
+        Assert.Equal(_actor, received!.Actor);
+        Assert.Equal(_collection, received.CollectionId);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
-        Assert.Equal(grant, received.Input.GrantId);
-        Assert.Equal(recipient, received.Input.RecipientAccountId);
+        Assert.Equal(_grant, received.Input.GrantId);
+        Assert.Equal(_recipient, received.Input.RecipientAccountId);
         Assert.Equal(expected, received.Input.ExpectedRevision);
         Assert.Equal(access, received.Input.Access);
         Assert.Equal(command.KeyEnvelope, received.Input.KeyEnvelope);
         Assert.True(received.Input.IsValid());
         Assert.Equal(cancellation.Token, receivedToken);
-        Assert.Equal(empty ? [] : [Last, First], details.RecordIds);
-        Assert.Equal(empty ? [] : [Last, First], details.FolderIds);
+        Assert.Equal(empty ? [] : [s_last, s_first], details.RecordIds);
+        Assert.Equal(empty ? [] : [s_last, s_first], details.FolderIds);
         AssertFields(result.Data, ["access", "collectionId", "folderIds", "grantId", "recordIds", "revision"]);
         AssertFields(command, ["access", "expectedRevision", "grantId", "keyEnvelope", "recipientAccountId"]);
         AssertFields(received.Input, ["access", "expectedRevision", "grantId", "keyEnvelope", "recipientAccountId"]);
@@ -303,8 +303,8 @@ public class GrantCollectionAccessHandlerTests
             "nullFolders" => details with { FolderIds = null! },
             "zeroRecord" => details with { RecordIds = [Guid.Empty] },
             "zeroFolder" => details with { FolderIds = [Guid.Empty] },
-            "duplicateRecord" => details with { RecordIds = [First, First] },
-            "duplicateFolder" => details with { FolderIds = [First, First] },
+            "duplicateRecord" => details with { RecordIds = [s_first, s_first] },
+            "duplicateFolder" => details with { FolderIds = [s_first, s_first] },
             _ => details
         };
         var result = await Handler(Store(kind == "nullResult" ? null! : new(details)).Object).HandleAsync(Command());
@@ -321,7 +321,7 @@ public class GrantCollectionAccessHandlerTests
     [InlineData("keyEnvelope")]
     public void GivenOmittedRequiredInput_WhenParsing_ThenReject(string name)
     {
-        var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
+        var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
         body.Remove(name);
         AssertRejectedJson(body.ToJsonString());
     }
@@ -329,10 +329,10 @@ public class GrantCollectionAccessHandlerTests
     [UnitFact]
     public void GivenExplicitNullRevision_WhenParsing_ThenAcceptInitialGrant()
     {
-        var body = JsonSerializer.Serialize(Command(), Json);
+        var body = JsonSerializer.Serialize(Command(), s_json);
         Assert.Contains("\"expectedRevision\":null", body);
-        var command = JsonSerializer.Deserialize<GrantCollectionAccessCommand>(body, Json)!;
-        var input = JsonSerializer.Deserialize<CollectionGrantInput>(body, Json)!;
+        var command = JsonSerializer.Deserialize<GrantCollectionAccessCommand>(body, s_json)!;
+        var input = JsonSerializer.Deserialize<CollectionGrantInput>(body, s_json)!;
         Assert.Null(command.ExpectedRevision);
         Assert.Null(input.ExpectedRevision);
         Assert.True(command.ToInput().IsValid());
@@ -352,7 +352,7 @@ public class GrantCollectionAccessHandlerTests
     [InlineData("plaintext")]
     public void GivenForgedContextOrUnknownInput_WhenParsing_ThenReject(string name)
     {
-        var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
+        var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
         body[name] = null;
         AssertRejectedJson(body.ToJsonString());
     }
@@ -373,7 +373,7 @@ public class GrantCollectionAccessHandlerTests
     [InlineData("stringEpoch")]
     public void GivenAlternateJsonShape_WhenParsing_ThenReject(string kind)
     {
-        var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
+        var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
         switch (kind)
         {
             case "caseRevision":
@@ -387,10 +387,10 @@ public class GrantCollectionAccessHandlerTests
                 body["expectedRevision"] = 1.5;
                 break;
             case "uppercaseGrant":
-                body["grantId"] = Last.ToString().ToUpperInvariant();
+                body["grantId"] = s_last.ToString().ToUpperInvariant();
                 break;
             case "compactRecipient":
-                body["recipientAccountId"] = recipient.ToString("N");
+                body["recipientAccountId"] = _recipient.ToString("N");
                 break;
             case "zeroGrant":
                 body["grantId"] = Guid.Empty.ToString();
@@ -402,7 +402,7 @@ public class GrantCollectionAccessHandlerTests
                 body["keyEnvelope"] = new System.Text.Json.Nodes.JsonArray();
                 break;
             case "unknownEnvelope":
-                body["keyEnvelope"]!["ownerId"] = actor.ToString();
+                body["keyEnvelope"]!["ownerId"] = _actor.ToString();
                 break;
             case "caseEpoch":
                 body["keyEnvelope"]!.AsObject().Remove("keyEpoch");
@@ -433,11 +433,11 @@ public class GrantCollectionAccessHandlerTests
     [InlineData("signature")]
     public async Task GivenMissingEnvelopeMember_WhenHandlingParsedInput_ThenRejectBeforePersistence(string name)
     {
-        var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
+        var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
         body["keyEnvelope"]!.AsObject().Remove(name);
-        var command = JsonSerializer.Deserialize<GrantCollectionAccessCommand>(body.ToJsonString(), Json)!;
-        var input = JsonSerializer.Deserialize<CollectionGrantInput>(body.ToJsonString(), Json)!;
-        command.SetContext(actor, Handle, collection);
+        var command = JsonSerializer.Deserialize<GrantCollectionAccessCommand>(body.ToJsonString(), s_json)!;
+        var input = JsonSerializer.Deserialize<CollectionGrantInput>(body.ToJsonString(), s_json)!;
+        command.SetContext(_actor, Handle, _collection);
         Assert.False(input.IsValid());
         var result = await Handler(new Mock<ICollectionGrantStore>(MockBehavior.Strict).Object).HandleAsync(command);
         Assert.Equal(new[] { "validation_failed" }, result.Errors);
@@ -477,18 +477,18 @@ public class GrantCollectionAccessHandlerTests
         using var fixture = new ProtectionFixture();
         var command = new GrantCollectionAccessCommand
         {
-            GrantId = grant,
-            RecipientAccountId = recipient,
+            GrantId = _grant,
+            RecipientAccountId = _recipient,
             ExpectedRevision = expected,
             Access = access,
-            KeyEnvelope = fixture.WrapGrant(actor, collection, grant, Guid.NewGuid(), fixture.Material.RecipientKey,
+            KeyEnvelope = fixture.WrapGrant(_actor, _collection, _grant, Guid.NewGuid(), fixture.Material.RecipientKey,
                 revision: expected is null ? 1 : expected.Value + 1)
         };
-        command.SetContext(actor, Handle, collection);
+        command.SetContext(_actor, Handle, _collection);
         return command;
     }
 
-    private CollectionGrantDetails Details() => new(collection, grant, 1, "read-only", [Last, First], [First]);
+    private CollectionGrantDetails Details() => new(_collection, _grant, 1, "read-only", [s_last, s_first], [s_first]);
     private static GrantCollectionAccessHandler Handler(ICollectionGrantStore store) => new(new GrantCollectionAccessValidator(), store);
     private static Mock<ICollectionGrantStore> Store(VaultResult<CollectionGrantDetails> result)
     {
@@ -499,13 +499,13 @@ public class GrantCollectionAccessHandlerTests
 
     private static void AssertFields<T>(T value, string[] fields)
     {
-        using var json = JsonDocument.Parse(JsonSerializer.Serialize(value, Json));
+        using var json = JsonDocument.Parse(JsonSerializer.Serialize(value, s_json));
         Assert.Equal(fields, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
 
     private static void AssertRejectedJson(string body)
     {
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<GrantCollectionAccessCommand>(body, Json));
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionGrantInput>(body, Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<GrantCollectionAccessCommand>(body, s_json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionGrantInput>(body, s_json));
     }
 }

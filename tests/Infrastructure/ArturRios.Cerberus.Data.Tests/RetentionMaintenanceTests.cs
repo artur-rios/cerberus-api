@@ -11,8 +11,8 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public partial class RetentionMaintenanceTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IAsyncLifetime
 {
-    private readonly List<long> owners = [];
-    private async Task<ProfileSetup.State> Owner(ProtectionFixture keys) { var s = await ProfileSetup.Create(fixture, keys); owners.Add(s.InternalId); return s; }
+    private readonly List<long> _owners = [];
+    private async Task<ProfileSetup.State> Owner(ProtectionFixture keys) { var s = await ProfileSetup.Create(fixture, keys); _owners.Add(s.InternalId); return s; }
     private Task<RetentionRunResult> Run(IDbContextFactory<AppDbContext>? target = null, int pageSize = 100)
     {
         target ??= fixture;
@@ -150,14 +150,14 @@ public partial class RetentionMaintenanceTests(PostgresFixture fixture) : IClass
     public ValueTask InitializeAsync() => ValueTask.CompletedTask;
     public async ValueTask DisposeAsync()
     {
-        if (owners.Count == 0)
+        if (_owners.Count == 0)
             return;
         await using var db = fixture.CreateContext();
-        var ids = await db.Accounts.Where(x => owners.Contains(x.Id)).Select(x => x.PublicId).ToListAsync();
-        var operations = await db.TrashOperations.Where(x => owners.Contains(x.AccountId)).Select(x => x.PublicId).ToListAsync();
+        var ids = await db.Accounts.Where(x => _owners.Contains(x.Id)).Select(x => x.PublicId).ToListAsync();
+        var operations = await db.TrashOperations.Where(x => _owners.Contains(x.AccountId)).Select(x => x.PublicId).ToListAsync();
         var keys = operations.Select(x => "trash/" + x).Concat(ids.SelectMany(x => new[] { "account-purge/" + x, "account-erase/" + x, "trash-erase/" + x })).ToArray();
         await db.RetentionWorkItems.Where(x => keys.Contains(x.OperationKey)).ExecuteDeleteAsync();
-        await db.Accounts.Where(x => owners.Contains(x.Id)).ExecuteDeleteAsync();
+        await db.Accounts.Where(x => _owners.Contains(x.Id)).ExecuteDeleteAsync();
     }
 }
 

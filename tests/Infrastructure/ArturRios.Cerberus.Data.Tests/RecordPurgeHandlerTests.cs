@@ -14,8 +14,8 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
-    private readonly string directory = Directory.CreateTempSubdirectory("cerberus-purge-handler-").FullName;
-    private FileErasureLedger Ledger => new(directory);
+    private readonly string _directory = Directory.CreateTempSubdirectory("cerberus-purge-handler-").FullName;
+    private FileErasureLedger Ledger => new(_directory);
 
     [FunctionalTheory]
     [InlineData("expired")]
@@ -43,7 +43,7 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         await Assert.ThrowsAsync<InvalidOperationException>(() => new RecordPurgeHandler(fixture, Ledger).ExecuteAsync(claim, default));
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalTheory]
@@ -65,7 +65,7 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
         await using var check = fixture.CreateContext();
         Assert.True(await check.Records.AnyAsync(x => x.Id == w.Record.Id));
         Assert.Null((await check.RetentionWorkItems.AsNoTracking().SingleAsync(x => x.Id == work.Id)).CompletedAt);
-        Assert.Single(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Single(Directory.EnumerateFiles(_directory, "*.json"));
         await check.RetentionWorkItems.Where(x => x.Id == work.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimExpiresAt, DateTimeOffset.UtcNow.AddSeconds(-1)));
         var next = await new RetentionWorkStore(fixture).TryClaimAsync(work.PublicId, DateTimeOffset.UtcNow, TimeSpan.FromMinutes(1), default);
         Assert.NotNull(next);
@@ -81,12 +81,12 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
         await Assert.ThrowsAsync<TimeoutException>(() => new RecordPurgeHandler(new ArturRios.Cerberus.Data.Tests.ProfileSetup.Factory(fixture, new FailAfterDelete()), Ledger).ExecuteAsync(claim, default));
         await using var db = fixture.CreateContext();
         Assert.True(await db.Records.AnyAsync(x => x.Id == w.Record.Id));
-        Assert.Single(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Single(Directory.EnumerateFiles(_directory, "*.json"));
         await new RecordPurgeHandler(fixture, Ledger).ExecuteAsync(claim, default);
         Assert.False(await db.Records.AnyAsync(x => x.Id == w.Record.Id));
-        Assert.Single(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Single(Directory.EnumerateFiles(_directory, "*.json"));
         await new RecordPurgeHandler(fixture, Ledger).ExecuteAsync(claim, default);
-        Assert.Single(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Single(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalFact]
@@ -148,7 +148,7 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
         Assert.True(hook.Reached);
         Assert.Equal(0, hook.Affected);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        Assert.Single(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Single(Directory.EnumerateFiles(_directory, "*.json"));
     }
     private sealed class ExpireBeforeMutation(string table, long work) : DbCommandInterceptor
     {
@@ -215,5 +215,5 @@ public sealed class RecordPurgeHandlerTests(PostgresFixture fixture) : IClassFix
         public override ValueTask<int> NonQueryExecutedAsync(DbCommand command, CommandExecutedEventData data, int result, CancellationToken ct = default)
         { if (command.CommandText.Contains("DELETE FROM cerberus.record")) throw new TimeoutException("fixture post-delete crash"); return ValueTask.FromResult(result); }
     }
-    public void Dispose() => Directory.Delete(directory, recursive: true);
+    public void Dispose() => Directory.Delete(_directory, recursive: true);
 }

@@ -9,10 +9,10 @@ namespace ArturRios.Cerberus.Command.Tests;
 
 public class VaultProtectionHandlerTests
 {
-    private static readonly Guid Actor = Guid.NewGuid();
-    private static readonly Guid Account = Guid.NewGuid();
-    private static readonly byte[] Body = Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1}");
-    private static string Hash => ProtocolBinary.Encode(SHA256.HashData(Body));
+    private static readonly Guid s_actor = Guid.NewGuid();
+    private static readonly Guid s_account = Guid.NewGuid();
+    private static readonly byte[] s_body = Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1}");
+    private static string Hash => ProtocolBinary.Encode(SHA256.HashData(s_body));
 
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
@@ -50,11 +50,11 @@ public class VaultProtectionHandlerTests
     {
         using var client = new ProtectionFixture();
         var store = new Mock<IVaultProtectionStore>(MockBehavior.Strict);
-        store.Setup(x => x.InitializeAsync(Actor, Account, 3, client.Material, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new VaultResult<VaultProtectionDetails>(new(Account, 1, 1, 1, client.Material)));
+        store.Setup(x => x.InitializeAsync(s_actor, s_account, 3, client.Material, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new VaultResult<VaultProtectionDetails>(new(s_account, 1, 1, 1, client.Material)));
         var result = await new InitializeVaultHandler(new InitializeVaultValidator(), store.Object).HandleAsync(Init(client.Material));
         Assert.True(result.Success);
-        Assert.Equal(Account, result.Data!.AccountId);
+        Assert.Equal(s_account, result.Data!.AccountId);
         Assert.Equal(1, result.Data.ProtectionRevision);
         Assert.Contains("protection_initialized", result.Messages);
     }
@@ -67,7 +67,7 @@ public class VaultProtectionHandlerTests
     {
         using var client = new ProtectionFixture();
         var store = new Mock<IVaultProtectionStore>();
-        store.Setup(x => x.InitializeAsync(Actor, Account, 3, client.Material, It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<VaultProtectionDetails>(Error: error));
+        store.Setup(x => x.InitializeAsync(s_actor, s_account, 3, client.Material, It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<VaultProtectionDetails>(Error: error));
         var result = await new InitializeVaultHandler(new InitializeVaultValidator(), store.Object).HandleAsync(Init(client.Material));
         Assert.False(result.Success);
         Assert.Contains(error, result.Errors);
@@ -83,8 +83,8 @@ public class VaultProtectionHandlerTests
     {
         using var client = new ProtectionFixture();
         var store = new Mock<IVaultProtectionStore>();
-        store.Setup(x => x.InitializeAsync(Actor, Account, 3, client.Material, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new VaultResult<VaultProtectionDetails>(invalid == "missing" ? null : new(invalid == "foreign" ? Guid.NewGuid() : Account, invalid == "revision" ? 2 : 1, 1, 1, client.Material)));
+        store.Setup(x => x.InitializeAsync(s_actor, s_account, 3, client.Material, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new VaultResult<VaultProtectionDetails>(invalid == "missing" ? null : new(invalid == "foreign" ? Guid.NewGuid() : s_account, invalid == "revision" ? 2 : 1, 1, 1, client.Material)));
         var result = await new InitializeVaultHandler(new InitializeVaultValidator(), store.Object).HandleAsync(Init(client.Material));
         Assert.Contains("persistence_unavailable", result.Errors);
         Assert.Null(result.Data);
@@ -97,7 +97,7 @@ public class VaultProtectionHandlerTests
     public async Task GivenInvalidChallengeRequest_WhenHandling_ThenRejectBeforeStore(string invalid, string error)
     {
         var command = new IssueVaultChallengeCommand { Operation = invalid == "operation" ? "unsupported" : "unlock-account", RequestHash = invalid == "hash" ? "bad" : Hash };
-        command.SetActor(invalid == "actor" ? Guid.Empty : Actor);
+        command.SetActor(invalid == "actor" ? Guid.Empty : s_actor);
         var result = await new IssueVaultChallengeHandler(new IssueVaultChallengeValidator(), Strict()).HandleAsync(command);
         Assert.Contains(error, result.Errors);
         Assert.Null(result.Data);
@@ -111,11 +111,11 @@ public class VaultProtectionHandlerTests
     public async Task GivenChallengeStoreResult_WhenHandling_ThenAcceptOnlyBoundChallenge(string state)
     {
         var command = new IssueVaultChallengeCommand { Operation = "unlock-account", RequestHash = Hash };
-        command.SetActor(Actor);
+        command.SetActor(s_actor);
         var c = new VaultProofChallenge("cerberus-challenge-v1", Guid.NewGuid(), ProtocolBinary.Encode(new byte[32]), "unlock-account",
-            state == "foreign" ? Guid.NewGuid() : Actor, Account, "account", Account, 1, 1, null, Hash, 1000, 1060);
+            state == "foreign" ? Guid.NewGuid() : s_actor, s_account, "account", s_account, 1, 1, null, Hash, 1000, 1060);
         var store = new Mock<IVaultProtectionStore>();
-        store.Setup(x => x.ChallengeAsync(Actor, Hash, It.IsAny<CancellationToken>()))
+        store.Setup(x => x.ChallengeAsync(s_actor, Hash, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new VaultResult<VaultProofChallenge>(state == "missing" ? null : c, state == "failed" ? "not_found" : null));
         var result = await new IssueVaultChallengeHandler(new IssueVaultChallengeValidator(), store.Object).HandleAsync(command);
         if (state == "valid")
@@ -133,8 +133,8 @@ public class VaultProtectionHandlerTests
     public async Task GivenInvalidUnlockContext_WhenHandling_ThenRejectBeforeStore(string invalid, string error)
     {
         var command = new UnlockVaultCommand { ExpectedProtectionRevision = invalid == "revision" ? 0 : 1 };
-        command.SetProof(invalid == "actor" ? Guid.Empty : Actor, invalid == "challenge" ? Guid.Empty : Guid.NewGuid(),
-            invalid == "proof" ? "bad" : ProtocolBinary.Encode(new byte[64]), invalid == "body" ? [] : Body);
+        command.SetProof(invalid == "actor" ? Guid.Empty : s_actor, invalid == "challenge" ? Guid.Empty : Guid.NewGuid(),
+            invalid == "proof" ? "bad" : ProtocolBinary.Encode(new byte[64]), invalid == "body" ? [] : s_body);
         var result = await new UnlockVaultHandler(new UnlockVaultValidator(), Strict()).HandleAsync(command);
         Assert.Contains(error, result.Errors);
         Assert.Null(result.Data);
@@ -150,15 +150,15 @@ public class VaultProtectionHandlerTests
         var id = Guid.NewGuid();
         var proof = ProtocolBinary.Encode(new byte[64]);
         var command = new UnlockVaultCommand { ExpectedProtectionRevision = 1 };
-        command.SetProof(Actor, id, proof, Body);
+        command.SetProof(s_actor, id, proof, s_body);
         var now = DateTimeOffset.UtcNow;
-        var data = new VaultAccessDetails(Account, state == "invalidAccess" ? "bad" : ProtocolBinary.Encode(new byte[32]), now, now.AddHours(24));
+        var data = new VaultAccessDetails(s_account, state == "invalidAccess" ? "bad" : ProtocolBinary.Encode(new byte[32]), now, now.AddHours(24));
         var store = new Mock<IVaultProtectionStore>();
-        store.Setup(x => x.UnlockAsync(Actor, 1, id, proof, Body, It.IsAny<CancellationToken>()))
+        store.Setup(x => x.UnlockAsync(s_actor, 1, id, proof, s_body, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new VaultResult<VaultAccessDetails>(state == "missing" ? null : data, state == "failed" ? "vault_proof_rejected" : null));
         var result = await new UnlockVaultHandler(new UnlockVaultValidator(), store.Object).HandleAsync(command);
         if (state == "valid")
-        { Assert.True(result.Success); Assert.Equal(data.Access, result.Data!.VaultAccess); Assert.Equal(Account, result.Data.AccountId); }
+        { Assert.True(result.Success); Assert.Equal(data.Access, result.Data!.VaultAccess); Assert.Equal(s_account, result.Data.AccountId); }
         else
         { Assert.Contains(state == "failed" ? "vault_proof_rejected" : "persistence_unavailable", result.Errors); Assert.Null(result.Data); }
     }
@@ -172,6 +172,6 @@ public class VaultProtectionHandlerTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new InitializeVaultHandler(new InitializeVaultValidator(), Strict()).HandleAsync(Init(client.Material), source.Token));
     }
     private static InitializeVaultCommand Init(ProtectionMaterial material)
-    { var c = new InitializeVaultCommand { AccountId = Account, ExpectedAccountRevision = 3, Material = material }; c.SetActor(Actor); return c; }
+    { var c = new InitializeVaultCommand { AccountId = s_account, ExpectedAccountRevision = 3, Material = material }; c.SetActor(s_actor); return c; }
     private static IVaultProtectionStore Strict() => new Mock<IVaultProtectionStore>(MockBehavior.Strict).Object;
 }

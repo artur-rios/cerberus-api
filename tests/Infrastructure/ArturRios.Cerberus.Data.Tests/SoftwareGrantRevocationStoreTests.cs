@@ -410,22 +410,22 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     };
     private sealed class Fault(string stage, Exception failure, CancellationTokenSource? caller = null) : DbCommandInterceptor
     {
-        private bool written;
+        private bool _written;
         private void Fail() { caller?.Cancel(); throw failure; }
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default)
         { if (Matches(c, stage)) Fail(); return ValueTask.FromResult(r); }
         public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default)
-        { if (Matches(c, "cas")) written = true; return ValueTask.FromResult(r); }
+        { if (Matches(c, "cas")) _written = true; return ValueTask.FromResult(r); }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
-        { if (stage == "read" || stage == "post" && written) Fail(); return ValueTask.FromResult(r); }
+        { if (stage == "read" || stage == "post" && _written) Fail(); return ValueTask.FromResult(r); }
     }
     private sealed class BeforeAccountLock(Func<Task> action) : DbCommandInterceptor
     {
-        private bool used;
+        private bool _used;
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default)
         {
-            if (!used && c.CommandText.StartsWith("SELECT FROM cerberus.account ") && c.CommandText.Contains("FOR UPDATE"))
-            { used = true; await action(); }
+            if (!_used && c.CommandText.StartsWith("SELECT FROM cerberus.account ") && c.CommandText.Contains("FOR UPDATE"))
+            { _used = true; await action(); }
             return r;
         }
     }
@@ -436,11 +436,11 @@ public class SoftwareGrantRevocationStoreTests(PostgresFixture fixture) : IClass
     }
     private sealed class Mutation(bool initial, Func<DbCommand, Task> action) : DbCommandInterceptor
     {
-        private bool used;
+        private bool _used;
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
-        { if (initial && !used) { used = true; await action(c); } return r; }
+        { if (initial && !_used) { _used = true; await action(c); } return r; }
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default)
-        { if (!initial && !used && Matches(c, "collection")) { used = true; await action(c); } return r; }
+        { if (!initial && !_used && Matches(c, "collection")) { _used = true; await action(c); } return r; }
     }
     private static async Task Execute(DbCommand c, string sql, params NpgsqlParameter[] parameters)
     {

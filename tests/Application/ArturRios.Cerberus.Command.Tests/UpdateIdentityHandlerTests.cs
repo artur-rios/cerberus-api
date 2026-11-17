@@ -10,7 +10,7 @@ public class UpdateIdentityHandlerTests
 {
     private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     private const string Verifier = "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
-    private static readonly Guid Actor = Guid.NewGuid();
+    private static readonly Guid s_actor = Guid.NewGuid();
 
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
@@ -25,7 +25,7 @@ public class UpdateIdentityHandlerTests
     public async Task GivenInvalidInputOrContext_WhenUpdating_ThenNeverReachStoreOrProvider(string invalid, string error)
     {
         var command = Valid();
-        command.SetActor(invalid == "actor" ? Guid.Empty : Actor, invalid == "token" ? "" : "original-token",
+        command.SetActor(invalid == "actor" ? Guid.Empty : s_actor, invalid == "token" ? "" : "original-token",
             invalid == "access" ? null : invalid == "emptyAccess" ? "" : invalid == "badAccess" ? "bad" : Handle);
         if (invalid == "name")
             command.Name = " ";
@@ -48,16 +48,16 @@ public class UpdateIdentityHandlerTests
         var insideGuard = false;
         using var source = new CancellationTokenSource();
         var provider = new Mock<IHeimdallClient>(MockBehavior.Strict);
-        provider.Setup(x => x.UpdateIdentityAsync("original-token", Actor, "New Name", "new@example.test", source.Token))
-            .Returns(() => { Assert.True(insideGuard); return Task.FromResult(new IdentityUpdateResult(new(Actor, "New Name", "new@example.test", false))); });
+        provider.Setup(x => x.UpdateIdentityAsync("original-token", s_actor, "New Name", "new@example.test", source.Token))
+            .Returns(() => { Assert.True(insideGuard); return Task.FromResult(new IdentityUpdateResult(new(s_actor, "New Name", "new@example.test", false))); });
         var store = new Mock<IIdentityUpdateStore>(MockBehavior.Strict);
-        store.Setup(x => x.UpdateAsync(Actor, Verifier, It.IsAny<Func<CancellationToken, Task<IdentityUpdateResult>>>(), source.Token))
+        store.Setup(x => x.UpdateAsync(s_actor, Verifier, It.IsAny<Func<CancellationToken, Task<IdentityUpdateResult>>>(), source.Token))
             .Returns<Guid, string, Func<CancellationToken, Task<IdentityUpdateResult>>, CancellationToken>(async (_, _, update, ct) =>
             { insideGuard = true; try { return await update(ct); } finally { insideGuard = false; } });
         var command = Valid();
         var result = await Handler(store.Object, provider.Object).HandleAsync(command, source.Token);
         Assert.True(result.Success);
-        Assert.Equal(Actor, result.Data!.Id);
+        Assert.Equal(s_actor, result.Data!.Id);
         Assert.Equal("New Name", result.Data.Name);
         Assert.Equal("new@example.test", result.Data.Email);
         Assert.False(result.Data.EmailVerified);
@@ -79,7 +79,7 @@ public class UpdateIdentityHandlerTests
     public async Task GivenFailedGuardOrProvider_WhenUpdating_ThenReturnStableErrorWithoutData(string error, int status)
     {
         var store = new Mock<IIdentityUpdateStore>();
-        store.Setup(x => x.UpdateAsync(Actor, Verifier, It.IsAny<Func<CancellationToken, Task<IdentityUpdateResult>>>(), It.IsAny<CancellationToken>()))
+        store.Setup(x => x.UpdateAsync(s_actor, Verifier, It.IsAny<Func<CancellationToken, Task<IdentityUpdateResult>>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new IdentityUpdateResult(Error: error));
         var result = await Handler(store.Object, new Mock<IHeimdallClient>(MockBehavior.Strict).Object).HandleAsync(Valid());
         Assert.False(result.Success);
@@ -95,10 +95,10 @@ public class UpdateIdentityHandlerTests
     [InlineData("email")]
     public async Task GivenIncompatibleStoreResult_WhenUpdating_ThenFailClosed(string invalid)
     {
-        IdentityDetails? identity = invalid == "missing" ? null : new(invalid == "foreign" ? Guid.NewGuid() : Actor,
+        IdentityDetails? identity = invalid == "missing" ? null : new(invalid == "foreign" ? Guid.NewGuid() : s_actor,
             invalid == "name" ? "Other" : "New Name", invalid == "email" ? "other@example.test" : "new@example.test", false);
         var store = new Mock<IIdentityUpdateStore>();
-        store.Setup(x => x.UpdateAsync(Actor, Verifier, It.IsAny<Func<CancellationToken, Task<IdentityUpdateResult>>>(), It.IsAny<CancellationToken>()))
+        store.Setup(x => x.UpdateAsync(s_actor, Verifier, It.IsAny<Func<CancellationToken, Task<IdentityUpdateResult>>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new IdentityUpdateResult(identity));
         var result = await Handler(store.Object, new Mock<IHeimdallClient>(MockBehavior.Strict).Object).HandleAsync(Valid());
         Assert.Contains("identity_unavailable", result.Errors);
@@ -117,7 +117,7 @@ public class UpdateIdentityHandlerTests
     private static UpdateIdentityCommand Valid()
     {
         var command = new UpdateIdentityCommand { Name = "New Name", Email = "new@example.test" };
-        command.SetActor(Actor, "original-token", Handle);
+        command.SetActor(s_actor, "original-token", Handle);
         return command;
     }
     private static UpdateIdentityHandler Handler(IIdentityUpdateStore store, IHeimdallClient provider) => new(new UpdateIdentityValidator(), store, provider);

@@ -475,7 +475,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         var id = kind switch { "account" => s.InternalId, "profile" => p.Id, "collection" => c.Id, "folder" => f.Id, _ => r.Id };
         await held.Database.ExecuteSqlRawAsync(kind == "session" ? "SELECT FROM cerberus.vault_access_session WHERE handle_verifier={0} FOR UPDATE" : "SELECT FROM cerberus." + table + " WHERE id={0} FOR UPDATE", kind == "session" ? (object)s.Verifier : id);
         if (delayedPreparation)
-            await Task.Delay(RealTime.Lead + RealTime.Margin);
+            await Task.Delay(RealTime.s_lead + RealTime.s_margin);
         DateTimeOffset deadline = default;
         var reached = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(20));
@@ -703,7 +703,7 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
         using var owner = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, owner);
         var input = Input();
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await Snapshot(s);
@@ -1222,9 +1222,9 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
     }
     private sealed class ArmExpiryAtRowWait(string table, Func<DbCommand, Task> arm) : DbCommandInterceptor
     {
-        private bool used;
+        private bool _used;
         private async Task Check(DbCommand command)
-        { if (!used && command.CommandText.Contains("FROM cerberus." + table + " ") && command.CommandText.Contains("FOR ")) { used = true; await arm(command); } }
+        { if (!_used && command.CommandText.Contains("FROM cerberus." + table + " ") && command.CommandText.Contains("FOR ")) { _used = true; await arm(command); } }
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { await Check(c); return r; }
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { await Check(c); return r; }
     }
@@ -1243,15 +1243,15 @@ public class CollectionCreateStoreTests(PostgresFixture fixture) : IClassFixture
     }
     private sealed class PauseAccount(TaskCompletionSource reached, TaskCompletionSource release) : DbCommandInterceptor
     {
-        private bool used;
+        private bool _used;
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default)
-        { if (!used && c.CommandText.Contains("cerberus.account") && c.CommandText.Contains("FOR ")) { used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; }
+        { if (!_used && c.CommandText.Contains("cerberus.account") && c.CommandText.Contains("FOR ")) { _used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; }
     }
     private sealed class PauseContent(TaskCompletionSource reached, TaskCompletionSource release) : DbCommandInterceptor
     {
-        private bool used;
+        private bool _used;
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default)
-        { if (!used && (c.CommandText.Contains("UPDATE cerberus.folder AS r") || c.CommandText.Contains("UPDATE cerberus.record AS r"))) { used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; }
+        { if (!_used && (c.CommandText.Contains("UPDATE cerberus.folder AS r") || c.CommandText.Contains("UPDATE cerberus.record AS r"))) { _used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; }
     }
     private sealed class ExpireAtInsert(DateTimeOffset deadline, bool after) : DbCommandInterceptor
     {

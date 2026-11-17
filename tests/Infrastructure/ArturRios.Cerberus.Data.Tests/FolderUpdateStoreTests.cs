@@ -288,7 +288,7 @@ public class FolderUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         var g = await AssociationSetup.Grant(fixture, o, owner, s, client, a.Collection, CollectionGrantAccess.ReadWrite);
         var p = await Profile(s, client, key, collections: [a.Collection.PublicId]);
         s = s with { Verifier = await Selected(s, p.Id) };
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await Snapshot(o);
@@ -370,7 +370,7 @@ public class FolderUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         var target = await Folder(o, child.Id);
         await Members(o, a.Collection, [], [a.Folder.Id]);
         await AssociationSetup.Grant(fixture, o, owner, s, client, a.Collection, CollectionGrantAccess.ReadWrite);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         if (kind == "expiry")
         { await using var db = fixture.CreateContext(); await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline)); }
         var original = await Row(target.Id);
@@ -537,9 +537,9 @@ public class FolderUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         Assert.Equal(3d, Assert.Single(nodes, x => x.TryGetProperty("Subplan Name", out var n) && n.GetString() == "CTE ancestry").GetProperty("Actual Rows").GetDouble());
     }
     private sealed class PauseSecondFolder(TaskCompletionSource reached, TaskCompletionSource release) : DbCommandInterceptor
-    { private int count; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<int> r, CancellationToken ct = default) { if (c.CommandText.Contains("FROM cerberus.folder ") && c.CommandText.Contains("FOR UPDATE") && ++count == 2) { reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; } }
+    { private int _count; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<int> r, CancellationToken ct = default) { if (c.CommandText.Contains("FROM cerberus.folder ") && c.CommandText.Contains("FOR UPDATE") && ++_count == 2) { reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; } }
     private sealed class PauseRotation(TaskCompletionSource reached, TaskCompletionSource release) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (!used && c.CommandText.Contains("FROM cerberus.collection ") && c.CommandText.Contains("FOR UPDATE")) { used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; } }
+    { private bool _used; public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (!_used && c.CommandText.Contains("FROM cerberus.collection ") && c.CommandText.Contains("FOR UPDATE")) { _used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; } }
     private sealed class Capture : DbCommandInterceptor
     {
         public string Sql { get; private set; } = ""; public NpgsqlParameter[] Parameters { get; private set; } = []; public List<string> Locks { get; } = [];
@@ -717,7 +717,7 @@ public class FolderUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { Check(c); return ValueTask.FromResult(r); }
     }
     private sealed class BeforeWrite(Func<Task> action) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<int> r, CancellationToken ct = default) { if (IsWrite(c) && !used) { used = true; await action(); } return r; } }
+    { private bool _used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<int> r, CancellationToken ct = default) { if (IsWrite(c) && !_used) { _used = true; await action(); } return r; } }
     private sealed class FailAfterWrite : DbCommandInterceptor
-    { private bool wrote; public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData e, int r, CancellationToken ct = default) { if (IsWrite(c) && r > 0) wrote = true; return ValueTask.FromResult(r); } public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (wrote) throw new TimeoutException("synthetic postwrite outage"); return ValueTask.FromResult(r); } }
+    { private bool _wrote; public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData e, int r, CancellationToken ct = default) { if (IsWrite(c) && r > 0) _wrote = true; return ValueTask.FromResult(r); } public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (_wrote) throw new TimeoutException("synthetic postwrite outage"); return ValueTask.FromResult(r); } }
 }

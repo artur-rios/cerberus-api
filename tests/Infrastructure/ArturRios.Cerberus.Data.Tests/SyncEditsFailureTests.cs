@@ -54,7 +54,7 @@ public partial class SyncEditsStoreTests
                 await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, (DateTimeOffset?)null));
                 break;
         }
-        var result = await new SyncEditsStore(fixture, Options).UploadAsync(new(s.Actor, s.Verifier, new([edit])), default);
+        var result = await new SyncEditsStore(fixture, s_options).UploadAsync(new(s.Actor, s.Verifier, new([edit])), default);
         Assert.Equal(error, result.Error);
         Assert.Equal(error is null, await db.Records.AnyAsync(x => x.PublicId == edit.ResourceId));
         Assert.Equal(error is null, await db.SyncOperations.AnyAsync(x => x.AccountId == s.InternalId));
@@ -71,7 +71,7 @@ public partial class SyncEditsStoreTests
         using var ct = new CancellationTokenSource();
         var factory = new ProfileSetup.Factory(fixture, new Fault(c => c.CommandText.Contains("INSERT INTO cerberus.sync_operation", StringComparison.Ordinal),
             () => { if (cancel) { ct.Cancel(); ct.Token.ThrowIfCancellationRequested(); } throw new TimeoutException("fixture ledger failure"); }));
-        var pending = new SyncEditsStore(factory, Options).UploadAsync(request, ct.Token);
+        var pending = new SyncEditsStore(factory, s_options).UploadAsync(request, ct.Token);
         if (cancel)
             await Assert.ThrowsAnyAsync<OperationCanceledException>(() => pending);
         else
@@ -79,7 +79,7 @@ public partial class SyncEditsStoreTests
         await using var db = fixture.CreateContext();
         Assert.False(await db.Records.AnyAsync(x => x.PublicId == edit.ResourceId));
         Assert.False(await db.SyncOperations.AnyAsync(x => x.AccountId == s.InternalId));
-        var retry = await new SyncEditsStore(fixture, Options).UploadAsync(request, default);
+        var retry = await new SyncEditsStore(fixture, s_options).UploadAsync(request, default);
         Assert.Null(retry.Error);
         Assert.Equal("applied", Assert.Single(retry.Details!.Outcomes).Status);
     }
@@ -100,7 +100,7 @@ public partial class SyncEditsStoreTests
             change.Parameters.Add(parameter);
             await change.ExecuteNonQueryAsync();
         }));
-        var result = await new SyncEditsStore(factory, Options).UploadAsync(new(s.Actor, s.Verifier, new([edit])), default);
+        var result = await new SyncEditsStore(factory, s_options).UploadAsync(new(s.Actor, s.Verifier, new([edit])), default);
         Assert.Equal("vault_access_denied", result.Error);
         Assert.Null(result.Details);
         await using var db = fixture.CreateContext();
@@ -113,7 +113,7 @@ public partial class SyncEditsStoreTests
     {
         using var keys = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, keys);
-        var store = new SyncEditsStore(fixture, Options);
+        var store = new SyncEditsStore(fixture, s_options);
         var existing = Create();
         Assert.Null((await store.UploadAsync(new(s.Actor, s.Verifier, new([existing])), default)).Error);
         var earlier = Create();
@@ -132,10 +132,10 @@ public partial class SyncEditsStoreTests
     }
     private sealed class AfterLedger(Func<DbCommand, Task> action) : DbCommandInterceptor
     {
-        private bool persisted;
+        private bool _persisted;
         public override ValueTask<DbDataReader> ReaderExecutedAsync(DbCommand c, CommandExecutedEventData d, DbDataReader r, CancellationToken ct = default)
-        { if (c.CommandText.Contains("INSERT INTO cerberus.sync_operation", StringComparison.Ordinal)) persisted = true; return ValueTask.FromResult(r); }
+        { if (c.CommandText.Contains("INSERT INTO cerberus.sync_operation", StringComparison.Ordinal)) _persisted = true; return ValueTask.FromResult(r); }
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
-        { if (persisted && c.CommandText.Contains("foreign_owners", StringComparison.Ordinal)) { persisted = false; await action(c); } return r; }
+        { if (_persisted && c.CommandText.Contains("foreign_owners", StringComparison.Ordinal)) { _persisted = false; await action(c); } return r; }
     }
 }

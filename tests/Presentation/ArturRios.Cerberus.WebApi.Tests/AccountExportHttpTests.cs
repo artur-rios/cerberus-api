@@ -21,7 +21,7 @@ public partial class AccountExportHttpTests(RegistrationApiFixture fixture, Shar
 {
     private const string ExportPath = "/api/accounts/me/export";
     private const string AccessHeader = "X-Cerberus-Vault-Access";
-    private static readonly JsonSerializerOptions ExportJson = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_exportJson = new(JsonSerializerDefaults.Web)
     { AllowDuplicateProperties = false, AllowOutOfOrderMetadataProperties = true, PropertyNameCaseInsensitive = false, UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow };
 
     [FunctionalFact]
@@ -50,7 +50,7 @@ public partial class AccountExportHttpTests(RegistrationApiFixture fixture, Shar
         Assert.Equal("cerberus-account-export.json", response.Content.Headers.ContentDisposition?.FileName?.Trim('"'));
         using var doc = JsonDocument.Parse(raw);
         Assert.Equal(["complete", "entries", "entryCount", "format", "header"], doc.RootElement.EnumerateObject().Select(p => p.Name).Order());
-        var archive = JsonSerializer.Deserialize<AccountExportArchive>(raw, ExportJson)!;
+        var archive = JsonSerializer.Deserialize<AccountExportArchive>(raw, s_exportJson)!;
         Assert.Equal("cerberus-account-export-v1", archive.Format);
         Assert.True(archive.Complete);
         Assert.Equal(archive.Entries.Count, archive.EntryCount);
@@ -100,9 +100,9 @@ public partial class AccountExportHttpTests(RegistrationApiFixture fixture, Shar
         using var request = ExportRequest(s);
         using var response = await Gateway.Client.SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var archive = JsonSerializer.Deserialize<AccountExportArchive>(await response.Content.ReadAsStringAsync(), ExportJson)!;
+        var archive = JsonSerializer.Deserialize<AccountExportArchive>(await response.Content.ReadAsStringAsync(), s_exportJson)!;
         var record = archive.Entries.OfType<AccountExportRecord>().Single(x => x.ResourceId == s.RecordId);
-        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(record.Envelope, ExportJson)!;
+        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(record.Envelope, s_exportJson)!;
         // When/Then: this proves narrow content transport, not structural fixture HPKE/password decryption.
         Assert.Equal(s.RecordEnvelope, record.Envelope);
         Assert.Equal("private export transport fixture", Encoding.UTF8.GetString(DecryptContent(s.RootKey, archive.Header.AccountId, record.ResourceId, envelope)));
@@ -248,7 +248,7 @@ public partial class AccountExportHttpTests(RegistrationApiFixture fixture, Shar
         db.Accounts.Add(owner);
         await db.SaveChangesAsync();
         using var protection = new ProtectionFixture();
-        db.VaultProtections.Add(new() { AccountId = owner.Id, Material = JsonSerializer.SerializeToUtf8Bytes(protection.Material, ExportJson), Revision = 1, KeyEpoch = 1, RecoveryGeneration = 1 });
+        db.VaultProtections.Add(new() { AccountId = owner.Id, Material = JsonSerializer.SerializeToUtf8Bytes(protection.Material, s_exportJson), Revision = 1, KeyEpoch = 1, RecoveryGeneration = 1 });
         db.VaultAccessSessions.Add(new() { AccountId = owner.Id, HandleVerifier = verifier, ProfileId = state == "selected" ? 777 : null, IssuedAt = DateTimeOffset.UtcNow.AddMinutes(-5), ExpiresAt = state == "expired" ? DateTimeOffset.UtcNow.AddHours(-1) : DateTimeOffset.UtcNow.AddHours(1), Revoked = state == "revoked", PolicyRevision = 1, RevocationGeneration = 1 });
         var edited = DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         var record = new VaultRecord { AccountId = owner.Id, PublicId = recordId, Envelope = recordBytes, EditedAt = edited };
@@ -295,7 +295,7 @@ public partial class AccountExportHttpTests(RegistrationApiFixture fixture, Shar
             var op = new TrashOperation { AccountId = owner.Id, RootResourceKind = "record", RootResourceId = retained.PublicId, DeletedAt = deleted, PurgeAt = deleted.AddHours(720) };
             db.TrashOperations.Add(op);
             await db.SaveChangesAsync();
-            db.TrashEntries.Add(new() { OperationId = op.Id, ResourceKind = "record", ResourceId = retained.PublicId, AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(folder.PublicId, [profile.PublicId], [collection.PublicId]), ExportJson) });
+            db.TrashEntries.Add(new() { OperationId = op.Id, ResourceKind = "record", ResourceId = retained.PublicId, AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(folder.PublicId, [profile.PublicId], [collection.PublicId]), s_exportJson) });
             await db.SaveChangesAsync();
         }
         if (state == "missing")
@@ -321,7 +321,7 @@ public partial class AccountExportHttpTests(RegistrationApiFixture fixture, Shar
             Targets = await db.SoftwareGrantRecords.AsNoTracking().Where(x => ids.Contains(x.AccountId)).OrderBy(x => x.GrantId).ThenBy(x => x.RecordId).ToArrayAsync(),
             Operations = await db.TrashOperations.AsNoTracking().Where(x => ids.Contains(x.AccountId)).OrderBy(x => x.Id).ToArrayAsync(),
             Markers = await db.TerminalErasures.AsNoTracking().OrderBy(x => x.ResourceKind).ThenBy(x => x.ResourceId).ToArrayAsync()
-        }, ExportJson);
+        }, s_exportJson);
     }
     private static async Task ExportFailure(HttpResponseMessage response, int status, string? error = null)
     { Assert.Equal(status, (int)response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore); Assert.False(response.Headers.Contains("ETag")); if (status == 413) return; var raw = await response.Content.ReadAsStringAsync(); using var doc = JsonDocument.Parse(raw); Assert.False(doc.RootElement.GetProperty("success").GetBoolean()); Assert.False(doc.RootElement.TryGetProperty("data", out _)); Assert.False(doc.RootElement.TryGetProperty("entries", out _)); if (error is not null) Assert.Contains(error, doc.RootElement.GetProperty("errors").EnumerateArray().Select(e => e.GetString())); Assert.DoesNotContain("fixture-password", raw); }
@@ -334,7 +334,7 @@ public partial class AccountExportHttpTests(RegistrationApiFixture fixture, Shar
         using (var aead = new AesGcm(key, 16))
             aead.Encrypt(nonce, plain, cipher, tag, ContentAad(owner, resource, 1, encodedSalt));
         CryptographicOperations.ZeroMemory(key);
-        return JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", 1, encodedSalt, ProtocolBinary.Encode(nonce), ProtocolBinary.Encode(cipher), ProtocolBinary.Encode(tag)), ExportJson);
+        return JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", 1, encodedSalt, ProtocolBinary.Encode(nonce), ProtocolBinary.Encode(cipher), ProtocolBinary.Encode(tag)), s_exportJson);
     }
     private static byte[] DecryptContent(byte[] root, Guid owner, Guid resource, EncryptedEnvelope e)
     { Assert.True(ProtocolBinary.TryDecode(e.KeySalt, 32, out var salt)); Assert.True(ProtocolBinary.TryDecode(e.Nonce, 12, out var nonce)); Assert.True(ProtocolBinary.TryDecode(e.Ciphertext, null, out var cipher)); Assert.True(ProtocolBinary.TryDecode(e.Tag, 16, out var tag)); var key = ContentKey(root, owner, resource, e.KeyEpoch, salt!); try { var plain = new byte[cipher!.Length]; using var aead = new AesGcm(key, 16); aead.Decrypt(nonce!, cipher, tag!, plain, ContentAad(owner, resource, e.KeyEpoch, e.KeySalt)); return plain; } finally { CryptographicOperations.ZeroMemory(key); } }

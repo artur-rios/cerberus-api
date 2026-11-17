@@ -39,7 +39,7 @@ public sealed partial class HeimdallClient : IHeimdallOperationalClient
                 return scopeResponse.Status;
             ScopeSnapshot? scope;
             try
-            { scope = scopeResponse.Data.Value.Deserialize<ScopeSnapshot>(Json); }
+            { scope = scopeResponse.Data.Value.Deserialize<ScopeSnapshot>(s_json); }
             catch (JsonException) { return HeimdallAuthorization.Unavailable; }
             if (scope is null)
                 return HeimdallAuthorization.Unavailable;

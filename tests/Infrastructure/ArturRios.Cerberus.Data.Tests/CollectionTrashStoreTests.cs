@@ -176,9 +176,9 @@ public class CollectionTrashStoreTests(PostgresFixture fixture) : IClassFixture<
     { public bool Triggered { get; private set; } public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!Triggered && match(c)) { Triggered = true; return ValueTask.FromResult(InterceptionResult<int>.SuppressWithResult(0)); } return ValueTask.FromResult(r); } }
     private sealed class Tamper(string table, Func<DbCommand, Task> action) : DbCommandInterceptor
     {
-        private bool ready; public bool Triggered { get; private set; }
-        private void Note(DbCommand c) { if (c.CommandText.StartsWith("UPDATE cerberus." + table + " SET") || c.CommandText.Contains("INSERT INTO cerberus." + table)) ready = true; }
-        private async Task Check(DbCommand c) { if (ready && !Triggered) { Triggered = true; await action(c); } }
+        private bool _ready; public bool Triggered { get; private set; }
+        private void Note(DbCommand c) { if (c.CommandText.StartsWith("UPDATE cerberus." + table + " SET") || c.CommandText.Contains("INSERT INTO cerberus." + table)) _ready = true; }
+        private async Task Check(DbCommand c) { if (_ready && !Triggered) { Triggered = true; await action(c); } }
         public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { Note(c); return ValueTask.FromResult(r); }
         public override ValueTask<DbDataReader> ReaderExecutedAsync(DbCommand c, CommandExecutedEventData d, DbDataReader r, CancellationToken ct = default) { Note(c); return ValueTask.FromResult(r); }
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { await Check(c); return r; }
@@ -329,8 +329,8 @@ public class CollectionTrashStoreTests(PostgresFixture fixture) : IClassFixture<
 
     private sealed class AfterAccount(TaskCompletionSource reached, TaskCompletionSource release) : DbCommandInterceptor
     {
-        private bool used;
-        private async Task Check(DbCommand c, CancellationToken ct) { if (!used && Lock(c, "account")) { used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } }
+        private bool _used;
+        private async Task Check(DbCommand c, CancellationToken ct) { if (!_used && Lock(c, "account")) { _used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } }
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { await Check(c, ct); return r; }
         public override async ValueTask<DbDataReader> ReaderExecutedAsync(DbCommand c, CommandExecutedEventData d, DbDataReader r, CancellationToken ct = default) { await Check(c, ct); return r; }
     }
@@ -357,7 +357,7 @@ public class CollectionTrashStoreTests(PostgresFixture fixture) : IClassFixture<
         var p = await Profile(s, owner, key, [a.Collection.PublicId]);
         var g = await AssociationSetup.Grant(fixture, s, owner, recipient, client, a.Collection);
         s = s with { Verifier = await Selected(s, p.Id) };
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await Snapshot(s);

@@ -10,7 +10,7 @@ namespace ArturRios.Cerberus.Data.Protection;
 
 public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) : IVaultRecoveryStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
 
     public async Task<VaultResult<RecoveryDetails>> RecoverAsync(RecoveryRequest request, CancellationToken cancellationToken)
@@ -49,7 +49,7 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) 
             var protection = await db.VaultProtections.SingleOrDefaultAsync(x => x.AccountId == a.Id, cancellationToken);
             if (protection is null)
                 return new(Error: "not_found");
-            var current = JsonSerializer.Deserialize<ProtectionMaterial>(protection.Material, Json);
+            var current = JsonSerializer.Deserialize<ProtectionMaterial>(protection.Material, s_json);
             if (current?.IsValid() != true || protection.KeyEpoch != current.PasswordWrapper.KeyEpoch
                 || protection.RecoveryGeneration != current.RecoveryWrapper.Generation || protection.Revision <= 0
                 || a.PolicyRevision is <= 0 or > ProtocolBinary.MaxInteger || a.RevocationGeneration <= 0)
@@ -82,7 +82,7 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) 
             var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.PublicId == request.ChallengeId, cancellationToken);
             if (row is null || row.Consumed)
                 return new(Error: "vault_proof_rejected");
-            var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, Json) ?? throw new JsonException();
+            var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, s_json) ?? throw new JsonException();
             if (challenge.ChallengeId != row.PublicId || row.ExpiresAt != DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt))
                 return new(Error: "persistence_unavailable");
             if (row.PolicyRevision != a.PolicyRevision || row.RevocationGeneration != a.RevocationGeneration
@@ -115,7 +115,7 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) 
                 now = await Now(db, cancellationToken);
                 return new(Error: !Fresh(request.IdentityIssuedAt, now) ? "fresh_authentication_required" : !Permitted(now) ? "vault_access_denied" : "vault_proof_rejected");
             }
-            protection.Material = JsonSerializer.SerializeToUtf8Bytes(input.Replace(current), Json);
+            protection.Material = JsonSerializer.SerializeToUtf8Bytes(input.Replace(current), s_json);
             protection.Revision++;
             protection.KeyEpoch++;
             protection.RecoveryGeneration++;
@@ -143,7 +143,7 @@ public sealed class VaultRecoveryStore(IDbContextFactory<AppDbContext> factory) 
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return new(Error: "persistence_unavailable"); }
     }
     private static bool Matches(RecoveryReplacement input, byte[] raw)
-    { try { return JsonSerializer.Deserialize<RecoveryReplacement>(raw, Json) == input; } catch (JsonException) { return false; } }
+    { try { return JsonSerializer.Deserialize<RecoveryReplacement>(raw, s_json) == input; } catch (JsonException) { return false; } }
     private static bool Fresh(long issued, DateTimeOffset now) => issued >= 0 && issued <= now.ToUnixTimeSeconds() && now.ToUnixTimeSeconds() - issued < 60;
     private static Task<DateTimeOffset> Now(AppDbContext db, CancellationToken ct) =>
         db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp() AS \"Value\"").SingleAsync(ct);

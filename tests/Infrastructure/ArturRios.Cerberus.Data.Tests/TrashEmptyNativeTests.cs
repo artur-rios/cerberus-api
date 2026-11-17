@@ -27,7 +27,7 @@ public partial class TrashEmptyStoreTests
         foreach (var root in roots)
             await TrashRestoreSetup.NoOperation(fixture, root.OperationId);
         await TrashEmptyNativeSetup.Gone(fixture, w);
-        Assert.Equal(7, Directory.GetFiles(directory, "*.json").Length);
+        Assert.Equal(7, Directory.GetFiles(_directory, "*.json").Length);
         var shared = await new CollectionReadStore(fixture).ReadAsync(new(w.Owner.Actor, w.Owner.Verifier, w.Remote.Collection.PublicId), default);
         Assert.Null(shared.Error);
         await using var db = fixture.CreateContext();

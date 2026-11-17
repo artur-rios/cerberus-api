@@ -18,10 +18,10 @@ internal sealed record CurrentSyncInventoryResult(Dictionary<SyncResourceIdentit
 
 internal static class CurrentSyncInventory
 {
-    internal static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    internal static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false };
 
-    internal static byte[] Fingerprint(SyncResourceData item) => SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(item, Json));
+    internal static byte[] Fingerprint(SyncResourceData item) => SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(item, s_json));
 
     internal static async Task<CurrentSyncInventoryResult> ReadAsync(AppDbContext db, IDbContextFactory<AppDbContext> contexts, SyncDownloadRequest request,
         long account, Guid profileId, CancellationToken ct)
@@ -111,6 +111,6 @@ internal static class CurrentSyncInventory
         return new(items);
     }
 
-    private static T Decode<T>(byte[] bytes) where T : class => JsonSerializer.Deserialize<T>(bytes, Json) ?? throw new JsonException();
+    private static T Decode<T>(byte[] bytes) where T : class => JsonSerializer.Deserialize<T>(bytes, s_json) ?? throw new JsonException();
 
 }

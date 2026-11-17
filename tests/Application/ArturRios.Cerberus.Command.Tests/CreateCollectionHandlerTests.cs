@@ -14,8 +14,8 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class CreateCollectionHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid();
-    private static readonly JsonSerializerOptions Json = Options();
+    private readonly Guid _actor = Guid.NewGuid();
+    private static readonly JsonSerializerOptions s_json = Options();
 
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
@@ -41,7 +41,7 @@ public class CreateCollectionHandlerTests
     {
         // Removing any validation must reach the strict store and fail this test.
         var command = Command();
-        command.SetContext(kind == "actor" ? Guid.Empty : actor,
+        command.SetContext(kind == "actor" ? Guid.Empty : _actor,
             kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access);
         switch (kind)
         {
@@ -73,13 +73,13 @@ public class CreateCollectionHandlerTests
                 command.FolderIds = null!;
                 break;
             case "duplicateProfile":
-                command.ProfileIds = [actor, actor];
+                command.ProfileIds = [_actor, _actor];
                 break;
             case "duplicateRecord":
-                command.RecordIds = [actor, actor];
+                command.RecordIds = [_actor, _actor];
                 break;
             case "duplicateFolder":
-                command.FolderIds = [actor, actor];
+                command.FolderIds = [_actor, _actor];
                 break;
             case "zeroProfile":
                 command.ProfileIds = [Guid.Empty];
@@ -135,11 +135,11 @@ public class CreateCollectionHandlerTests
         Assert.Equal(7, result.Data.ServerSequence);
         Assert.Equal(expectedTicks, result.Data.EditedAt.Ticks);
         Assert.Equal(TimeSpan.Zero, result.Data.EditedAt.Offset);
-        Assert.Equal(actor, captured!.Actor);
+        Assert.Equal(_actor, captured!.Actor);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier);
         Assert.Equal(command.ToInput(), captured.Input);
         Assert.Equal(source.Token, received);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, s_json));
         Assert.Equal(["collectionId", "editedAt", "revision", "serverSequence"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         Assert.Equal(201, CreateCollectionMessages.StatusCodes[result.Messages.Single()]);
     }
@@ -154,11 +154,11 @@ public class CreateCollectionHandlerTests
         var command = Command();
         var id = Guid.NewGuid();
         if (kind == "multipleProfiles")
-            command.ProfileIds = [id, actor];
+            command.ProfileIds = [id, _actor];
         if (kind == "typedAlias")
         { command.CollectionId = id; command.ProfileIds = [id]; command.RecordIds = [id]; command.FolderIds = [id]; }
         if (kind == "mixed")
-        { command.ProfileIds = [actor]; command.RecordIds = [id, Guid.NewGuid()]; command.FolderIds = [Guid.NewGuid()]; }
+        { command.ProfileIds = [_actor]; command.RecordIds = [id, Guid.NewGuid()]; command.FolderIds = [Guid.NewGuid()]; }
         CollectionCreateRequest? captured = null;
         var store = new Mock<ICollectionCreateStore>();
         store.Setup(x => x.CreateAsync(It.IsAny<CollectionCreateRequest>(), It.IsAny<CancellationToken>()))
@@ -303,7 +303,7 @@ public class CreateCollectionHandlerTests
     [InlineData("nestedDuplicate")]
     public void GivenAmbiguousBodyOrEnvelope_WhenParsing_ThenReject(string kind)
     {
-        var body = JsonSerializer.Serialize(Command(), Json);
+        var body = JsonSerializer.Serialize(Command(), s_json);
         body = kind switch
         {
             "duplicate" => body.Insert(1, "\"profileIds\":[],"),
@@ -346,11 +346,11 @@ public class CreateCollectionHandlerTests
     private CreateCollectionCommand Command()
     {
         var command = new CreateCollectionCommand { CollectionId = Guid.NewGuid(), Envelope = new EncryptedEnvelope("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), EditedAt = DateTimeOffset.UnixEpoch.AddTicks(19), ProfileIds = [], RecordIds = [], FolderIds = [] };
-        command.SetContext(actor, Access);
+        command.SetContext(_actor, Access);
         return command;
     }
-    private JsonObject Body() => JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
-    private static CreateCollectionCommand Parse(string value) => JsonSerializer.Deserialize<CreateCollectionCommand>(value, Json)!;
+    private JsonObject Body() => JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
+    private static CreateCollectionCommand Parse(string value) => JsonSerializer.Deserialize<CreateCollectionCommand>(value, s_json)!;
     private static CreateCollectionHandler Handler(ICollectionCreateStore store) => new(new CreateCollectionValidator(), store);
     private static JsonSerializerOptions Options()
     { var options = new JsonSerializerOptions(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict }; options.Converters.Add(new CanonicalGuidConverter()); return options; }

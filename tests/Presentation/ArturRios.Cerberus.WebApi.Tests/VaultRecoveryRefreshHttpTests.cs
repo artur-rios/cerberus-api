@@ -30,7 +30,7 @@ public class VaultRecoveryRefreshHttpTests(RegistrationApiFixture fixture, Share
         Authorize(RegistrationApiFixture.Token(state.Actor));
         using (var init = await Gateway.Client.PostAsJsonAsync("/api/vault/protection", new { accountId = state.Id, expectedAccountRevision = 3, material = old.Material }))
             Assert.Equal(HttpStatusCode.Created, init.StatusCode);
-        currentAccess = await Unlock(old, 1);
+        _currentAccess = await Unlock(old, 1);
         var oldRecovery = Replacement(old, third) with { Operation = "recover" };
         var oldRaw = Bytes(oldRecovery);
         var oldChallenge = await Challenge(oldRaw, "recover");
@@ -38,7 +38,7 @@ public class VaultRecoveryRefreshHttpTests(RegistrationApiFixture fixture, Share
         var raw = Bytes(input);
         var c = await Challenge(raw);
         Assert.Null(c.Generation);
-        var originalAccess = currentAccess;
+        var originalAccess = _currentAccess;
         using (var response = await Send(raw, c, old.Sign(c)))
         { Assert.Equal(HttpStatusCode.OK, response.StatusCode); Assert.True(response.Headers.CacheControl?.NoStore); var result = (await response.Content.ReadFromJsonAsync<DataOutput<RecoverVaultOutput>>())!.Data!; Assert.Equal(new[] { 2L, 2L, 2L }, new[] { result.ProtectionRevision, result.Generation, result.RevocationGeneration }); Assert.Equal("committed", result.Status); }
         var before = await Snapshot(state);
@@ -48,7 +48,7 @@ public class VaultRecoveryRefreshHttpTests(RegistrationApiFixture fixture, Share
         using (var retry = await Send(raw, c, old.Sign(c), originalAccess))
             Assert.Equal(HttpStatusCode.OK, retry.StatusCode);
         Assert.Equal(before, await Snapshot(state));
-        currentAccess = await Unlock(old, 2);
+        _currentAccess = await Unlock(old, 2);
         var recovery = Replacement(old, third, 3, 3, 2) with { Operation = "recover" };
         var recoveryRaw = Bytes(recovery);
         var recoveryChallenge = await Challenge(recoveryRaw, "recover");
@@ -206,9 +206,9 @@ public class VaultRecoveryRefreshHttpTests(RegistrationApiFixture fixture, Share
         using var request = new HttpRequestMessage(HttpMethod.Put, "/api/vault/recovery" + (invalid == "query" ? "?owner=untrusted" : "")) { Content = new ByteArrayContent(raw) };
         request.Content.Headers.ContentType = new("application/json");
         if (invalid != "missingAccess")
-            request.Headers.Add("X-Cerberus-Vault-Access", invalid == "badAccess" ? "bad" : currentAccess);
+            request.Headers.Add("X-Cerberus-Vault-Access", invalid == "badAccess" ? "bad" : _currentAccess);
         if (invalid == "multipleAccess")
-            request.Headers.Add("X-Cerberus-Vault-Access", currentAccess);
+            request.Headers.Add("X-Cerberus-Vault-Access", _currentAccess);
         if (invalid == "gzip")
             request.Content.Headers.ContentEncoding.Add("gzip");
         if (invalid != "missingChallenge")
@@ -380,7 +380,7 @@ public class VaultRecoveryRefreshHttpTests(RegistrationApiFixture fixture, Share
     }
     private async Task<HttpResponseMessage> Recover(byte[] raw, VaultProofChallenge c, string proof)
     { using var request = new HttpRequestMessage(HttpMethod.Post, "/api/vault/recovery") { Content = new ByteArrayContent(raw) }; request.Content.Headers.ContentType = new("application/json"); request.Headers.Add("X-Cerberus-Challenge-Id", c.ChallengeId.ToString()); request.Headers.Add("X-Cerberus-Proof", proof); return await Gateway.Client.SendAsync(request); }
-    private string? currentAccess;
+    private string? _currentAccess;
     private sealed record State(Guid Actor, Guid Id, byte[] Envelope, string Access);
     private async Task<State> Setup(ProtectionFixture old, bool initialize = true)
     {
@@ -398,7 +398,7 @@ public class VaultRecoveryRefreshHttpTests(RegistrationApiFixture fixture, Share
         OpaqueAccessHandle.TryHash(access, out var verifier);
         db.VaultAccessSessions.Add(new VaultAccessSession { AccountId = a.Id, HandleVerifier = verifier, IssuedAt = DateTimeOffset.UtcNow.AddSeconds(-1), ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), PolicyRevision = 1, RevocationGeneration = 1 });
         await db.SaveChangesAsync();
-        currentAccess = access;
+        _currentAccess = access;
         return new(actor, id, envelope, access);
     }
     private static RecoveryReplacement Replacement(ProtectionFixture old, ProtectionFixture next, long epoch = 2, long generation = 2, long revision = 1)
@@ -407,7 +407,7 @@ public class VaultRecoveryRefreshHttpTests(RegistrationApiFixture fixture, Share
     private async Task<VaultProofChallenge> Challenge(byte[] raw, string operation = "refresh-recovery")
     { using var response = await Gateway.Client.PostAsJsonAsync("/api/vault/challenges", new { operation, requestHash = ProtocolBinary.Encode(SHA256.HashData(raw)) }); Assert.Equal(HttpStatusCode.Created, response.StatusCode); return (await response.Content.ReadFromJsonAsync<DataOutput<VaultChallengeOutput>>())!.Data!.Challenge; }
     private async Task<HttpResponseMessage> Send(byte[] raw, VaultProofChallenge c, string proof, string? access = null)
-    { using var request = new HttpRequestMessage(HttpMethod.Put, "/api/vault/recovery") { Content = new ByteArrayContent(raw) }; request.Content.Headers.ContentType = new("application/json"); request.Headers.Add("X-Cerberus-Challenge-Id", c.ChallengeId.ToString()); request.Headers.Add("X-Cerberus-Proof", proof); request.Headers.Add("X-Cerberus-Vault-Access", access ?? currentAccess!); return await Gateway.Client.SendAsync(request); }
+    { using var request = new HttpRequestMessage(HttpMethod.Put, "/api/vault/recovery") { Content = new ByteArrayContent(raw) }; request.Content.Headers.ContentType = new("application/json"); request.Headers.Add("X-Cerberus-Challenge-Id", c.ChallengeId.ToString()); request.Headers.Add("X-Cerberus-Proof", proof); request.Headers.Add("X-Cerberus-Vault-Access", access ?? _currentAccess!); return await Gateway.Client.SendAsync(request); }
     private async Task<string> Snapshot(State s)
     { await using var db = fixture.Context(); var a = await db.Accounts.AsNoTracking().SingleAsync(x => x.PublicId == s.Id); return JsonSerializer.Serialize(new { Account = a, Protection = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id), Challenges = await db.VaultUnlockChallenges.AsNoTracking().Where(x => x.AccountId == a.Id).OrderBy(x => x.Id).ToListAsync(), Sessions = await db.VaultAccessSessions.AsNoTracking().Where(x => x.AccountId == a.Id).OrderBy(x => x.Id).ToListAsync(), Outcomes = await db.VaultRecoveryOperations.AsNoTracking().Where(x => x.AccountId == a.Id).OrderBy(x => x.Id).ToListAsync() }); }
     private static async Task Failure(HttpResponseMessage response, int status)

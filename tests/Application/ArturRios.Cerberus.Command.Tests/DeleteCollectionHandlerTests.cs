@@ -11,8 +11,8 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class DeleteCollectionHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid(), target = Guid.NewGuid(), operation = Guid.NewGuid();
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json)
+    private readonly Guid _actor = Guid.NewGuid(), _target = Guid.NewGuid(), _operation = Guid.NewGuid();
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json)
     {
         NumberHandling = JsonNumberHandling.Strict
     };
@@ -38,7 +38,7 @@ public class DeleteCollectionHandlerTests
             "noncanonical" => new string('A', 42) + "B",
             _ => Access
         };
-        command.SetContext(kind == "actor" ? Guid.Empty : actor, access, kind == "id" ? Guid.Empty : target);
+        command.SetContext(kind == "actor" ? Guid.Empty : _actor, access, kind == "id" ? Guid.Empty : _target);
         command.ExpectedRevision = kind switch
         {
             "zero" => 0,
@@ -71,7 +71,7 @@ public class DeleteCollectionHandlerTests
             _ => DateTimeOffset.UnixEpoch
         };
         var revision = kind == "largestRevision" ? 9007199254740991 : 2;
-        var details = new CollectionTrashDetails(target, operation, revision, 7, time, time.AddHours(720));
+        var details = new CollectionTrashDetails(_target, _operation, revision, 7, time, time.AddHours(720));
         using var cancellation = new CancellationTokenSource();
         CollectionTrashRequest? received = null;
         CancellationToken receivedToken = default;
@@ -88,22 +88,22 @@ public class DeleteCollectionHandlerTests
 
         Assert.True(result.Success);
         Assert.Contains("collection_deleted", result.Messages);
-        Assert.Equal(target, result.Data!.CollectionId);
-        Assert.Equal(operation, result.Data.TrashOperationId);
+        Assert.Equal(_target, result.Data!.CollectionId);
+        Assert.Equal(_operation, result.Data.TrashOperationId);
         Assert.Equal(revision, result.Data.Revision);
         Assert.Equal(7, result.Data.ServerSequence);
         Assert.Equal(time, result.Data.DeletedAt);
         Assert.Equal(time.AddHours(720), result.Data.PurgeAt);
-        Assert.Equal(actor, received!.Actor);
-        Assert.Equal(target, received.CollectionId);
+        Assert.Equal(_actor, received!.Actor);
+        Assert.Equal(_target, received.CollectionId);
         Assert.Equal(command.ExpectedRevision, received.ExpectedRevision);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
         Assert.Equal(cancellation.Token, receivedToken);
         store.Verify(x => x.TrashAsync(It.IsAny<CollectionTrashRequest>(), cancellation.Token), Times.Once);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, s_json));
         Assert.Equal(["collectionId", "deletedAt", "purgeAt", "revision", "serverSequence", "trashOperationId"],
             output.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        using var input = JsonDocument.Parse(JsonSerializer.Serialize(command, Json));
+        using var input = JsonDocument.Parse(JsonSerializer.Serialize(command, s_json));
         Assert.Equal(["expectedRevision"], input.RootElement.EnumerateObject().Select(x => x.Name));
     }
 
@@ -218,7 +218,7 @@ public class DeleteCollectionHandlerTests
 
     [UnitFact]
     public void GivenOmittedExpectedRevision_WhenParsing_ThenRejectRequiredMember() =>
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteCollectionCommand>("{}", Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteCollectionCommand>("{}", s_json));
 
     [UnitTheory]
     [InlineData("actor")]
@@ -238,10 +238,10 @@ public class DeleteCollectionHandlerTests
     [InlineData("purgeAt")]
     public void GivenForgedContextOrAlternateInput_WhenParsing_ThenReject(string field)
     {
-        var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
+        var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
         body[field] = null;
 
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteCollectionCommand>(body.ToJsonString(), Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteCollectionCommand>(body.ToJsonString(), s_json));
     }
 
     [UnitTheory]
@@ -252,7 +252,7 @@ public class DeleteCollectionHandlerTests
     [InlineData("{\"expectedRevision\":1.5}")]
     [InlineData("{\"expectedRevision\":9223372036854775808}")]
     public void GivenAlternateRevisionJson_WhenParsing_ThenReject(string body) =>
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteCollectionCommand>(body, Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteCollectionCommand>(body, s_json));
 
     [UnitFact]
     public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforePersistence()
@@ -285,12 +285,12 @@ public class DeleteCollectionHandlerTests
     private DeleteCollectionCommand Command()
     {
         var command = new DeleteCollectionCommand { ExpectedRevision = 1 };
-        command.SetContext(actor, Access, target);
+        command.SetContext(_actor, Access, _target);
         return command;
     }
 
     private CollectionTrashDetails Details() =>
-        new(target, operation, 2, 7, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch.AddHours(720));
+        new(_target, _operation, 2, 7, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch.AddHours(720));
 
     private static DeleteCollectionHandler Handler(ICollectionTrashStore store) => new(new DeleteCollectionValidator(), store);
 }

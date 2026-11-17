@@ -11,8 +11,8 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class DeleteRecordHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid(), target = Guid.NewGuid(), operation = Guid.NewGuid();
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict };
+    private readonly Guid _actor = Guid.NewGuid(), _target = Guid.NewGuid(), _operation = Guid.NewGuid();
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict };
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -24,7 +24,7 @@ public class DeleteRecordHandlerTests
     [InlineData("negative", "validation_failed")]
     [InlineData("unsafe", "validation_failed")]
     public async Task GivenInvalidAuthorityOrRevision_WhenHandling_ThenRejectBeforePersistence(string kind, string error)
-    { var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : kind == "noncanonical" ? new string('A', 42) + "B" : Access, kind == "id" ? Guid.Empty : target); c.ExpectedRevision = kind == "zero" ? 0 : kind == "negative" ? -1 : kind == "unsafe" ? ProtocolBinary.MaxInteger + 1 : 1; var r = await Handler(new Mock<IRecordTrashStore>(MockBehavior.Strict).Object).HandleAsync(c); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains(error, r.Errors); }
+    { var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : _actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : kind == "noncanonical" ? new string('A', 42) + "B" : Access, kind == "id" ? Guid.Empty : _target); c.ExpectedRevision = kind == "zero" ? 0 : kind == "negative" ? -1 : kind == "unsafe" ? ProtocolBinary.MaxInteger + 1 : 1; var r = await Handler(new Mock<IRecordTrashStore>(MockBehavior.Strict).Object).HandleAsync(c); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains(error, r.Errors); }
     [UnitTheory]
     [InlineData("normal")]
     [InlineData("minimum")]
@@ -36,7 +36,7 @@ public class DeleteRecordHandlerTests
         if (kind == "largestRevision")
             c.ExpectedRevision = ProtocolBinary.MaxInteger - 1;
         var time = kind == "minimum" ? new DateTimeOffset(10, TimeSpan.Zero) : kind == "pre2000" ? new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero) : DateTimeOffset.UnixEpoch;
-        var d = new RecordTrashDetails(target, operation, c.ExpectedRevision + 1, 7, time, time.AddDays(30));
+        var d = new RecordTrashDetails(_target, _operation, c.ExpectedRevision + 1, 7, time, time.AddDays(30));
         using var ct = new CancellationTokenSource();
         RecordTrashRequest? received = null;
         CancellationToken token = default;
@@ -45,20 +45,20 @@ public class DeleteRecordHandlerTests
         var result = await Handler(store.Object).HandleAsync(c, ct.Token);
         Assert.True(result.Success);
         Assert.Contains("record_deleted", result.Messages);
-        Assert.Equal(target, result.Data!.RecordId);
-        Assert.Equal(operation, result.Data.TrashOperationId);
+        Assert.Equal(_target, result.Data!.RecordId);
+        Assert.Equal(_operation, result.Data.TrashOperationId);
         Assert.Equal(d.Revision, result.Data.Revision);
         Assert.Equal(7, result.Data.ServerSequence);
         Assert.Equal(time, result.Data.DeletedAt);
         Assert.Equal(time.AddDays(30), result.Data.PurgeAt);
-        Assert.Equal(actor, received!.Actor);
-        Assert.Equal(target, received.RecordId);
+        Assert.Equal(_actor, received!.Actor);
+        Assert.Equal(_target, received.RecordId);
         Assert.Equal(c.ExpectedRevision, received.ExpectedRevision);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
         Assert.Equal(ct.Token, token);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, s_json));
         Assert.Equal(["deletedAt", "purgeAt", "recordId", "revision", "serverSequence", "trashOperationId"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, s_json));
         Assert.Equal(["expectedRevision"], input.RootElement.EnumerateObject().Select(x => x.Name));
     }
     [UnitTheory]
@@ -106,7 +106,7 @@ public class DeleteRecordHandlerTests
     [InlineData("purgePrecision")]
     public async Task GivenMalformedStoreSuccess_WhenHandling_Then503WithoutAnyMetadata(string kind)
     { RecordTrashDetails? d = Details(); d = kind switch { "nullData" => null, "recordId" => d with { RecordId = Guid.NewGuid() }, "emptyId" => d with { RecordId = Guid.Empty }, "operation" => d with { TrashOperationId = Guid.Empty }, "revision0" => d with { Revision = 0 }, "revisionOld" => d with { Revision = 1 }, "revisionAhead" => d with { Revision = 3 }, "unsafeRevision" => d with { Revision = ProtocolBinary.MaxInteger + 1 }, "sequence0" => d with { ServerSequence = 0 }, "negativeSequence" => d with { ServerSequence = -1 }, "unsafeSequence" => d with { ServerSequence = ProtocolBinary.MaxInteger + 1 }, "defaultTime" => d with { DeletedAt = default, PurgeAt = DateTimeOffset.MinValue.AddDays(30) }, "submicroTime" => d with { DeletedAt = new(9, TimeSpan.Zero), PurgeAt = new DateTimeOffset(9, TimeSpan.Zero).AddDays(30) }, "timeOffset" => d with { DeletedAt = d.DeletedAt.ToOffset(TimeSpan.FromHours(1)) }, "purgeOffset" => d with { PurgeAt = d.PurgeAt.ToOffset(TimeSpan.FromHours(1)) }, "purgeEarlier" => d with { PurgeAt = d.DeletedAt.AddDays(29) }, "purgeLate" => d with { PurgeAt = d.DeletedAt.AddDays(31) }, "purgePrecision" => d with { PurgeAt = d.PurgeAt.AddTicks(1) }, _ => d }; var store = new Mock<IRecordTrashStore>(); store.Setup(x => x.TrashAsync(It.IsAny<RecordTrashRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(kind == "nullResult" ? null! : new VaultResult<RecordTrashDetails>(d)); var r = await Handler(store.Object).HandleAsync(Command()); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains("persistence_unavailable", r.Errors); }
-    [UnitFact] public void GivenOmittedExpectedRevision_WhenParsing_ThenRejectRequiredMember() => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteRecordCommand>("{}", Json));
+    [UnitFact] public void GivenOmittedExpectedRevision_WhenParsing_ThenRejectRequiredMember() => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteRecordCommand>("{}", s_json));
     [UnitTheory]
     [InlineData("actor")]
     [InlineData("vaultAccess")]
@@ -124,7 +124,7 @@ public class DeleteRecordHandlerTests
     [InlineData("deletedAt")]
     [InlineData("purgeAt")]
     public void GivenForgedContextOrAlternateInput_WhenParsing_ThenReject(string field)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); body[field] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteRecordCommand>(body.ToJsonString(), Json)); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); body[field] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteRecordCommand>(body.ToJsonString(), s_json)); }
     [UnitTheory]
     [InlineData("duplicate")]
     [InlineData("case")]
@@ -133,11 +133,11 @@ public class DeleteRecordHandlerTests
     [InlineData("fraction")]
     [InlineData("overflow")]
     public void GivenAlternateRevisionJson_WhenParsing_ThenReject(string kind)
-    { var body = kind switch { "duplicate" => "{\"expectedRevision\":1,\"expectedRevision\":1}", "case" => "{\"ExpectedRevision\":1}", "numericString" => "{\"expectedRevision\":\"1\"}", "null" => "{\"expectedRevision\":null}", "fraction" => "{\"expectedRevision\":1.5}", _ => "{\"expectedRevision\":9223372036854775808}" }; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteRecordCommand>(body, Json)); }
+    { var body = kind switch { "duplicate" => "{\"expectedRevision\":1,\"expectedRevision\":1}", "case" => "{\"ExpectedRevision\":1}", "numericString" => "{\"expectedRevision\":\"1\"}", "null" => "{\"expectedRevision\":null}", "fraction" => "{\"expectedRevision\":1.5}", _ => "{\"expectedRevision\":9223372036854775808}" }; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DeleteRecordCommand>(body, s_json)); }
     [UnitFact] public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforePersistence() { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new Mock<IRecordTrashStore>(MockBehavior.Strict).Object).HandleAsync(Command(), ct.Token)); }
     [UnitFact] public async Task GivenPersistenceCancellation_WhenHandling_ThenPropagateExactToken() { using var ct = new CancellationTokenSource(); var store = new Mock<IRecordTrashStore>(); store.Setup(x => x.TrashAsync(It.IsAny<RecordTrashRequest>(), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token)); var e = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store.Object).HandleAsync(Command(), ct.Token)); Assert.Equal(ct.Token, e.CancellationToken); }
     [UnitFact] public void GivenDeletedMessage_WhenMapping_Then200() => Assert.Equal(200, DeleteRecordMessages.StatusCodes["record_deleted"]);
-    private DeleteRecordCommand Command() { var c = new DeleteRecordCommand { ExpectedRevision = 1 }; c.SetContext(actor, Access, target); return c; }
-    private RecordTrashDetails Details() => new(target, operation, 2, 7, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch.AddDays(30));
+    private DeleteRecordCommand Command() { var c = new DeleteRecordCommand { ExpectedRevision = 1 }; c.SetContext(_actor, Access, _target); return c; }
+    private RecordTrashDetails Details() => new(_target, _operation, 2, 7, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch.AddDays(30));
     private static DeleteRecordHandler Handler(IRecordTrashStore store) => new(new DeleteRecordValidator(), store);
 }

@@ -9,8 +9,8 @@ public class RestoreTrashHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     private const string Verifier = "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
-    private static readonly Guid Actor = Guid.NewGuid(), Operation = Guid.NewGuid(), Root = Guid.NewGuid();
-    private static readonly DateTimeOffset Time = DateTimeOffset.FromUnixTimeSeconds(1780000000);
+    private static readonly Guid s_actor = Guid.NewGuid(), s_operation = Guid.NewGuid(), s_root = Guid.NewGuid();
+    private static readonly DateTimeOffset s_time = DateTimeOffset.FromUnixTimeSeconds(1780000000);
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -25,7 +25,7 @@ public class RestoreTrashHandlerTests
     {
         var store = new Mock<ITrashRestoreStore>(MockBehavior.Strict);
         var command = Command();
-        command.SetContext(damage == "actor" ? Guid.Empty : Actor, damage switch { "missing" => null, "access" => "bad", "empty" => "", "padded" => Access + "=", _ => Access }, damage == "id" ? Guid.Empty : Operation);
+        command.SetContext(damage == "actor" ? Guid.Empty : s_actor, damage switch { "missing" => null, "access" => "bad", "empty" => "", "padded" => Access + "=", _ => Access }, damage == "id" ? Guid.Empty : s_operation);
         command.ExpectedRevision = damage switch { "zero" => 0, "negative" => -1, "unsafe" => ProtocolBinary.MaxInteger + 1, _ => 1 };
         var r = await Handler(store).HandleAsync(command);
         Assert.Contains(error, r.Errors);
@@ -42,18 +42,18 @@ public class RestoreTrashHandlerTests
         var details = Details(kind);
         using var ct = new CancellationTokenSource();
         var store = new Mock<ITrashRestoreStore>(MockBehavior.Strict);
-        store.Setup(x => x.RestoreAsync(new(Actor, Verifier, Operation, 1), ct.Token)).ReturnsAsync(new VaultResult<TrashRestoreDetails>(details));
+        store.Setup(x => x.RestoreAsync(new(s_actor, Verifier, s_operation, 1), ct.Token)).ReturnsAsync(new VaultResult<TrashRestoreDetails>(details));
         var result = await Handler(store).HandleAsync(Command(), ct.Token);
         Assert.True(result.Success);
         Assert.Contains("trash_restored", result.Messages);
-        Assert.Equal(Operation, result.Data!.OperationId);
-        Assert.Equal(Root, result.Data.RootResourceId);
+        Assert.Equal(s_operation, result.Data!.OperationId);
+        Assert.Equal(s_root, result.Data.RootResourceId);
         Assert.Equal(kind, result.Data.RootKind);
-        Assert.Equal(Time, result.Data.RestoredAt);
+        Assert.Equal(s_time, result.Data.RestoredAt);
         var row = Assert.Single(result.Data.Items);
         Assert.Equal(2, row.Revision);
         Assert.Equal(7, row.ServerSequence);
-        Assert.Equal(Time, row.EditedAt);
+        Assert.Equal(s_time, row.EditedAt);
         var omission = Assert.Single(result.Data.Omissions);
         Assert.Equal("parent", omission.AssociationKind);
         Assert.Equal(1, omission.Count);
@@ -129,8 +129,8 @@ public class RestoreTrashHandlerTests
             "sequence" => row with { ServerSequence = 0 },
             "unsafeSequence" => row with { ServerSequence = ProtocolBinary.MaxInteger + 1 },
             "editedTime" => row with { EditedAt = default },
-            "editedPrecision" => row with { EditedAt = Time.AddTicks(1) },
-            "offset" => row with { EditedAt = Time.ToOffset(TimeSpan.FromHours(1)) },
+            "editedPrecision" => row with { EditedAt = s_time.AddTicks(1) },
+            "offset" => row with { EditedAt = s_time.ToOffset(TimeSpan.FromHours(1)) },
             _ => row
         };
         IReadOnlyList<TrashRestoredItem> items = damage switch { "nullItems" => null!, "emptyItems" => [], "nullItem" => [null!], "missingRoot" => [row with { ResourceId = Guid.NewGuid() }], "duplicate" => [row, row with { ServerSequence = 8 }], "duplicateSequence" => [row, row with { ResourceId = Guid.NewGuid() }], _ => [row] };
@@ -138,10 +138,10 @@ public class RestoreTrashHandlerTests
         omission = damage switch { "omissionKind" => omission with { ResourceKind = "grant" }, "associationKind" => omission with { AssociationKind = "privateIds" }, "omissionId" => omission with { ResourceId = Guid.NewGuid() }, "omissionCount" => omission with { Count = 0 }, _ => omission };
         d = d with
         {
-            OperationId = damage == "operation" ? Guid.NewGuid() : Operation,
+            OperationId = damage == "operation" ? Guid.NewGuid() : s_operation,
             RootKind = damage == "kind" ? "grant" : "record",
-            RootResourceId = damage == "root" ? Guid.Empty : Root,
-            RestoredAt = damage == "restoredTime" ? default : damage == "restoredPrecision" ? Time.AddTicks(1) : Time,
+            RootResourceId = damage == "root" ? Guid.Empty : s_root,
+            RestoredAt = damage == "restoredTime" ? default : damage == "restoredPrecision" ? s_time.AddTicks(1) : s_time,
             Items = items,
             Omissions = damage == "nullOmissions" ? null! : damage == "nullOmission" ? [null!] : damage == "duplicateOmission" ? [omission, omission] : [omission]
         };
@@ -159,7 +159,7 @@ public class RestoreTrashHandlerTests
         if (kind == "caller")
             ct.Cancel();
         else
-            store.Setup(x => x.RestoreAsync(new(Actor, Verifier, Operation, 1), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token));
+            store.Setup(x => x.RestoreAsync(new(s_actor, Verifier, s_operation, 1), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token));
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store).HandleAsync(Command(), ct.Token));
     }
     [UnitTheory]
@@ -173,7 +173,7 @@ public class RestoreTrashHandlerTests
     [InlineData(true)]
     public async Task GivenFolderUnitWithTypedSameGuid_WhenHandling_ThenAllowOnlyDistinctSequences(bool duplicateSequence)
     {
-        var d = Details("folder") with { Items = [new("folder", Root, 2, 7, Time), new("record", Root, 3, duplicateSequence ? 7 : 8, Time)] };
+        var d = Details("folder") with { Items = [new("folder", s_root, 2, 7, s_time), new("record", s_root, 3, duplicateSequence ? 7 : 8, s_time)] };
         var result = await Handler(Store(new(d))).HandleAsync(Command());
         if (duplicateSequence)
         { Assert.Contains("persistence_unavailable", result.Errors); Assert.Null(result.Data); }
@@ -186,13 +186,13 @@ public class RestoreTrashHandlerTests
     [InlineData("record")]
     public async Task GivenNoncascadeRootWithUnrelatedRestoredMember_WhenHandling_ThenRejectBrokenUnit(string kind)
     {
-        var d = Details(kind) with { Items = [new(kind, Root, 2, 7, Time), new("record", Guid.NewGuid(), 2, 8, Time)] };
+        var d = Details(kind) with { Items = [new(kind, s_root, 2, 7, s_time), new("record", Guid.NewGuid(), 2, 8, s_time)] };
         var r = await Handler(Store(new(d))).HandleAsync(Command());
         Assert.Contains("persistence_unavailable", r.Errors);
         Assert.Null(r.Data);
     }
-    private static RestoreTrashCommand Command() { var c = new RestoreTrashCommand { ExpectedRevision = 1 }; c.SetContext(Actor, Access, Operation); return c; }
-    private static TrashRestoreDetails Details(string kind = "record") => new(Operation, kind, Root, Time, [new(kind, Root, 2, 7, Time)], [new(kind, Root, "parent", 1)]);
-    private static Mock<ITrashRestoreStore> Store(VaultResult<TrashRestoreDetails> result) { var s = new Mock<ITrashRestoreStore>(MockBehavior.Strict); s.Setup(x => x.RestoreAsync(new(Actor, Verifier, Operation, 1), It.IsAny<CancellationToken>())).ReturnsAsync(result); return s; }
+    private static RestoreTrashCommand Command() { var c = new RestoreTrashCommand { ExpectedRevision = 1 }; c.SetContext(s_actor, Access, s_operation); return c; }
+    private static TrashRestoreDetails Details(string kind = "record") => new(s_operation, kind, s_root, s_time, [new(kind, s_root, 2, 7, s_time)], [new(kind, s_root, "parent", 1)]);
+    private static Mock<ITrashRestoreStore> Store(VaultResult<TrashRestoreDetails> result) { var s = new Mock<ITrashRestoreStore>(MockBehavior.Strict); s.Setup(x => x.RestoreAsync(new(s_actor, Verifier, s_operation, 1), It.IsAny<CancellationToken>())).ReturnsAsync(result); return s; }
     private static RestoreTrashHandler Handler(Mock<ITrashRestoreStore> store) => new(new RestoreTrashValidator(), store.Object);
 }

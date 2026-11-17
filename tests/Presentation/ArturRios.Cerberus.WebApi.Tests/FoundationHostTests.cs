@@ -119,12 +119,12 @@ public class FoundationHostTests : WebApiTest<Program>
 
     private static class TestEnvironment
     {
-        private static readonly Dictionary<string, string?> Previous = [];
-        private static string? _ledger;
+        private static readonly Dictionary<string, string?> s_previous = [];
+        private static string? s_ledger;
 
         public static EnvironmentType Configure()
         {
-            _ledger = Directory.CreateTempSubdirectory("cerberus-host-test-").FullName;
+            s_ledger = Directory.CreateTempSubdirectory("cerberus-host-test-").FullName;
             var values = new Dictionary<string, string>
             {
                 ["CERBERUS_DATA_CONNECTIONSTRING"] = "Host=localhost;Database=unused;Username=test;Password=test",
@@ -142,15 +142,15 @@ public class FoundationHostTests : WebApiTest<Program>
                 ["CERBERUS_SYNC_RETENTION"] = "30.00:00:00",
                 ["CERBERUS_RETENTION_INTERVAL"] = "00:05:00",
                 ["CERBERUS_BACKUP_PATH"] = "/srv/cerberus/backups",
-                ["CERBERUS_ERASURE_LEDGER_PATH"] = _ledger,
+                ["CERBERUS_ERASURE_LEDGER_PATH"] = s_ledger,
                 ["CERBERUS_MAX_REQUEST_BYTES"] = "1024",
                 ["CERBERUS_MAX_PAGE_SIZE"] = "100",
                 ["CERBERUS_RESTORE_REQUIRED"] = "false"
             };
-            Previous["ASPNETCORE_ENVIRONMENT"] = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            s_previous["ASPNETCORE_ENVIRONMENT"] = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             foreach (var (key, value) in values)
             {
-                Previous[key] = Environment.GetEnvironmentVariable(key);
+                s_previous[key] = Environment.GetEnvironmentVariable(key);
                 Environment.SetEnvironmentVariable(key, value);
             }
             return EnvironmentType.Local;
@@ -158,11 +158,11 @@ public class FoundationHostTests : WebApiTest<Program>
 
         public static void Restore()
         {
-            foreach (var (key, value) in Previous)
+            foreach (var (key, value) in s_previous)
                 Environment.SetEnvironmentVariable(key, value);
-            Previous.Clear();
-            if (_ledger is not null && Directory.Exists(_ledger))
-                Directory.Delete(_ledger, recursive: true);
+            s_previous.Clear();
+            if (s_ledger is not null && Directory.Exists(s_ledger))
+                Directory.Delete(s_ledger, recursive: true);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace ArturRios.Cerberus.Command.Accounts;
 public sealed class UpdateAccountHandler(IValidator<UpdateAccountCommand> validator, IAccountUpdateStore store,
     TimeProvider clock) : ICommandHandlerAsync<UpdateAccountCommand, UpdateAccountOutput>
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web);
 
     public async Task<DataOutput<UpdateAccountOutput?>> HandleAsync(UpdateAccountCommand command, CancellationToken cancellationToken = default)
     {
@@ -25,7 +25,7 @@ public sealed class UpdateAccountHandler(IValidator<UpdateAccountCommand> valida
         if (!(await validator.ValidateAsync(command, cancellationToken)).IsValid)
             return output.WithError("validation_failed");
         var result = await store.UpdateAsync(new(command.IdentityId, verifier, command.ExpectedRevision,
-            JsonSerializer.SerializeToUtf8Bytes(command.Details, Json), clock.GetUtcNow()), cancellationToken);
+            JsonSerializer.SerializeToUtf8Bytes(command.Details, s_json), clock.GetUtcNow()), cancellationToken);
         if (result.Error is not null)
             return output.WithError(result.Error);
         if (result.Id is null || result.Id == Guid.Empty || command.ExpectedRevision == long.MaxValue

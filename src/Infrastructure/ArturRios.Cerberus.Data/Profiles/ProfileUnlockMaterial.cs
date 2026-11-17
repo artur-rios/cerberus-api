@@ -7,14 +7,14 @@ namespace ArturRios.Cerberus.Data.Profiles;
 
 internal static class ProfileUnlockMaterial
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
     internal static async Task<ProfileAccessMaterial> ReadAsync(AppDbContext db, long accountId, Guid accountPublicId, Guid actor, Profile profile, CancellationToken ct)
     {
         var protection = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == accountId, ct);
         if (!CollectionGrantBinding.TryReadPins(protection, out var pins))
             throw new JsonException("Invalid current protection.");
-        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(profile.Envelope, Json);
-        var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(profile.KeyWrappers, Json);
+        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(profile.Envelope, s_json);
+        var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(profile.KeyWrappers, s_json);
         var material = new ProfileAccessMaterial(accountPublicId, profile.PublicId, profile.Revision, envelope!, wrappers!);
         if (!material.IsValid(actor, profile.PublicId, profile.Revision) || profile.EditedAt.Ticks < TimeSpan.TicksPerMicrosecond
             || profile.EditedAt.Offset != TimeSpan.Zero || profile.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond != 0

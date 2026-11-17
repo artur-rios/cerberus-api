@@ -182,7 +182,7 @@ public class ProfileCreateStoreTests(PostgresFixture fixture) : IClassFixture<Po
         using var client = new ProtectionFixture();
         using var scoped = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, client);
-        var deadline = DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.SetupLead));
+        var deadline = DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.s_setupLead));
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         await using var holder = fixture.CreateContext();
@@ -232,7 +232,7 @@ public class ProfileCreateStoreTests(PostgresFixture fixture) : IClassFixture<Po
         using var client = new ProtectionFixture();
         using var scoped = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, client);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var store = new ProfileCreateStore(new ProfileSetup.Factory(fixture, new ExpireAtInsert(deadline)));
@@ -298,11 +298,11 @@ public class ProfileCreateStoreTests(PostgresFixture fixture) : IClassFixture<Po
     }
     private sealed class FailAfterInsert : DbCommandInterceptor
     {
-        private bool inserted;
+        private bool _inserted;
         public override ValueTask<int> NonQueryExecutedAsync(DbCommand command, CommandExecutedEventData data, int result, CancellationToken ct = default)
-        { if (command.CommandText.Contains("INSERT INTO cerberus.profile")) inserted = true; return ValueTask.FromResult(result); }
+        { if (command.CommandText.Contains("INSERT INTO cerberus.profile")) _inserted = true; return ValueTask.FromResult(result); }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
-        { if (inserted) throw new TimeoutException("synthetic post-insert failure"); return ValueTask.FromResult(result); }
+        { if (_inserted) throw new TimeoutException("synthetic post-insert failure"); return ValueTask.FromResult(result); }
     }
 }
 
@@ -329,10 +329,10 @@ internal static class ProfileSetup
     }
     internal sealed class Factory : IDbContextFactory<AppDbContext>
     {
-        private readonly DbContextOptions<AppDbContext> options;
-        internal Factory(DbContextOptions<AppDbContext> value) => options = value;
+        private readonly DbContextOptions<AppDbContext> _options;
+        internal Factory(DbContextOptions<AppDbContext> value) => _options = value;
         internal Factory(PostgresFixture fixture, params IInterceptor?[] interceptors)
-        { using var db = fixture.CreateContext(); options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(db.Database.GetConnectionString()).AddInterceptors(interceptors.OfType<IInterceptor>()).Options; }
-        public AppDbContext CreateDbContext() => new(options);
+        { using var db = fixture.CreateContext(); _options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(db.Database.GetConnectionString()).AddInterceptors(interceptors.OfType<IInterceptor>()).Options; }
+        public AppDbContext CreateDbContext() => new(_options);
     }
 }

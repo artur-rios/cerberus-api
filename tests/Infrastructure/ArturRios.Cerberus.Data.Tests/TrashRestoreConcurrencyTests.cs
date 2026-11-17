@@ -36,7 +36,7 @@ public class TrashRestoreConcurrencyTests(PostgresFixture fixture) : IClassFixtu
     {
         using var keys = new ProtectionFixture();
         var w = await Linked(keys);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using var db = fixture.CreateContext();
         if (session)
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
@@ -64,7 +64,7 @@ public class TrashRestoreConcurrencyTests(PostgresFixture fixture) : IClassFixtu
     {
         using var keys = new ProtectionFixture();
         var w = await Linked(keys);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         if (session)
         { await using var db = fixture.CreateContext(); await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline)); }
         else
@@ -83,7 +83,7 @@ public class TrashRestoreConcurrencyTests(PostgresFixture fixture) : IClassFixtu
     {
         using var keys = new ProtectionFixture();
         var w = await Linked(keys, true);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
         {
             if (session)

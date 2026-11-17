@@ -40,7 +40,7 @@ public static class ContractRegistration
             options.UseOneOfForPolymorphism();
             options.SelectSubTypesUsing(type => type == typeof(SyncResourceData)
                 ? [typeof(SyncProfileData), typeof(SyncRecordData), typeof(SyncFolderData), typeof(SyncCollectionData), typeof(SyncGrantData)]
-                : type == typeof(AccountExportEntry) ? AccountExportSchemaFilter.Kinds.Keys
+                : type == typeof(AccountExportEntry) ? AccountExportSchemaFilter.s_kinds.Keys
                 : type == typeof(TrashListItem)
                 ? [typeof(TrashRecordItem), typeof(TrashFolderItem), typeof(TrashCollectionItem), typeof(TrashProfileItem)]
                 : type == typeof(SyncEditInput)
@@ -48,7 +48,7 @@ public static class ContractRegistration
                     typeof(SyncCollectionCreate), typeof(SyncCollectionUpdate), typeof(SyncProfileCreate), typeof(SyncProfileUpdate)]
                 : []);
             options.SelectDiscriminatorNameUsing(type => type == typeof(AccountExportEntry) ? "entryType" : type == typeof(SyncResourceData) ? "resourceType" : type == typeof(SyncEditInput) ? "editType" : type == typeof(TrashListItem) ? "kind" : null);
-            options.SelectDiscriminatorValueUsing(type => AccountExportSchemaFilter.Kinds.TryGetValue(type, out var exportKind) ? exportKind : type.Name switch
+            options.SelectDiscriminatorValueUsing(type => AccountExportSchemaFilter.s_kinds.TryGetValue(type, out var exportKind) ? exportKind : type.Name switch
             {
                 nameof(TrashRecordItem) => "record",
                 nameof(TrashFolderItem) => "folder",

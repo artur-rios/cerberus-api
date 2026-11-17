@@ -6,9 +6,9 @@ namespace ArturRios.Cerberus.Command.Tests;
 
 public class CancelAccountClosureHandlerTests
 {
-    private static readonly Guid Actor = Guid.NewGuid(), Account = Guid.NewGuid();
-    private static readonly DateTimeOffset Now = DateTimeOffset.FromUnixTimeSeconds(1800000000);
-    private static CancelAccountClosureCommand Command() { var c = new CancelAccountClosureCommand { ExpectedRevision = 2 }; c.SetContext(Actor, Now.ToUnixTimeSeconds()); return c; }
+    private static readonly Guid s_actor = Guid.NewGuid(), s_account = Guid.NewGuid();
+    private static readonly DateTimeOffset s_now = DateTimeOffset.FromUnixTimeSeconds(1800000000);
+    private static CancelAccountClosureCommand Command() { var c = new CancelAccountClosureCommand { ExpectedRevision = 2 }; c.SetContext(s_actor, s_now.ToUnixTimeSeconds()); return c; }
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("old", "fresh_authentication_required")]
@@ -17,7 +17,7 @@ public class CancelAccountClosureHandlerTests
     public async Task GivenInvalidFreshCancellationAuthority_WhenHandling_ThenRejectBeforeStore(string invalid, string error)
     {
         var c = Command();
-        c.SetContext(invalid == "actor" ? Guid.Empty : Actor, Now.ToUnixTimeSeconds() + (invalid == "old" ? -60 : invalid == "future" ? 1 : 0));
+        c.SetContext(invalid == "actor" ? Guid.Empty : s_actor, s_now.ToUnixTimeSeconds() + (invalid == "old" ? -60 : invalid == "future" ? 1 : 0));
         if (invalid == "revision")
             c.ExpectedRevision = 0;
         var result = await new CancelAccountClosureHandler(new Mock<IAccountClosureCancellationStore>(MockBehavior.Strict).Object, new Clock()).HandleAsync(c);
@@ -29,10 +29,10 @@ public class CancelAccountClosureHandlerTests
     {
         var result = await Handler(new(Details())).HandleAsync(Command());
         Assert.True(result.Success);
-        Assert.Equal(Account, result.Data!.AccountId);
+        Assert.Equal(s_account, result.Data!.AccountId);
         Assert.Equal(3, result.Data.Revision);
         Assert.Equal(3, result.Data.RevocationGeneration);
-        Assert.Equal(Now, result.Data.CancelledAt);
+        Assert.Equal(s_now, result.Data.CancelledAt);
         Assert.DoesNotContain(result.Data.GetType().GetProperties(), p => p.Name.Contains("Envelope") || p.Name.Contains("Token") || p.Name.Contains("Access"));
     }
     [UnitTheory]
@@ -59,7 +59,7 @@ public class CancelAccountClosureHandlerTests
             "revision" => details with { Revision = 4 },
             "id" => details with { AccountId = Guid.Empty },
             "generation" => details with { RevocationGeneration = 0 },
-            "future" => details with { CancelledAt = Now.AddSeconds(1) },
+            "future" => details with { CancelledAt = s_now.AddSeconds(1) },
             _ => details
         };
         var stored = kind == "missing" ? new AccountClosureCancellationResult() : kind == "unknown" ? new(Error: "private-failure") : new(details, kind == "error-data" ? "not_found" : null);
@@ -70,12 +70,12 @@ public class CancelAccountClosureHandlerTests
     [UnitFact]
     public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforeStore()
     { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new()).HandleAsync(Command(), ct.Token)); }
-    private static AccountClosureCancellationDetails Details() => new(Account, 3, 3, Now, Now);
+    private static AccountClosureCancellationDetails Details() => new(s_account, 3, 3, s_now, s_now);
     private static CancelAccountClosureHandler Handler(AccountClosureCancellationResult result)
     {
         var store = new Mock<IAccountClosureCancellationStore>(MockBehavior.Strict);
-        store.Setup(x => x.CancelAsync(It.Is<AccountClosureCancellationRequest>(r => r.Actor == Actor && r.ExpectedRevision == 2 && r.AuthenticationIssuedAt == Now.ToUnixTimeSeconds()), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        store.Setup(x => x.CancelAsync(It.Is<AccountClosureCancellationRequest>(r => r.Actor == s_actor && r.ExpectedRevision == 2 && r.AuthenticationIssuedAt == s_now.ToUnixTimeSeconds()), It.IsAny<CancellationToken>())).ReturnsAsync(result);
         return new(store.Object, new Clock());
     }
-    private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => Now; }
+    private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => s_now; }
 }

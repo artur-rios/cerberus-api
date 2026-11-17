@@ -6,7 +6,7 @@ namespace ArturRios.Cerberus.Data.Profiles;
 
 internal static class ProfileVerifierIsolation
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
     // The caller holds the owning account lock through check and admission.
     internal static async Task<bool> IsUniqueAsync(AppDbContext db, long accountId, PublicJwk candidate, long? excludedProfileId, CancellationToken ct)
     {
@@ -18,7 +18,7 @@ internal static class ProfileVerifierIsolation
         var unique = true;
         foreach (var bytes in retained)
         {
-            var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(bytes, Json);
+            var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(bytes, s_json);
             if (wrappers?.UnlockVerifier?.IsValid() != true)
                 throw new JsonException("Invalid retained scoped verifier.");
             if (wrappers.UnlockVerifier.Fingerprint() == fingerprint)

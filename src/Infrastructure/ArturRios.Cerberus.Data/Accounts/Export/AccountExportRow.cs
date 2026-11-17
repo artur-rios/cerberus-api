@@ -10,7 +10,7 @@ internal sealed class AccountExportRow
     public string? Header { get; set; }
     public string? Body { get; set; }
     public string? Fences { get; set; }
-    internal static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    internal static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = false,
         AllowDuplicateProperties = false,
@@ -26,7 +26,7 @@ internal sealed class AccountExportRow
             throw new AccountExportException(Error is "not_found" or "vault_access_denied" or "fresh_authentication_required" or "revision_conflict" ? Error : "persistence_unavailable");
         if (Header != capturedHeader || Body is null)
             throw Unavailable();
-        var entry = JsonSerializer.Deserialize<AccountExportEntry>(Body, Json) ?? throw Unavailable();
+        var entry = JsonSerializer.Deserialize<AccountExportEntry>(Body, s_json) ?? throw Unavailable();
         var valid = entry switch
         {
             AccountExportAccount a => a.Details is not null,
@@ -63,7 +63,7 @@ internal sealed class AccountExportRow
     };
     internal IEnumerable<(string Kind, Guid Id)> Dependencies()
     {
-        var fences = Fences is null ? null : JsonSerializer.Deserialize<AccountExportFence[]>(Fences, Json);
+        var fences = Fences is null ? null : JsonSerializer.Deserialize<AccountExportFence[]>(Fences, s_json);
         if (fences is null || fences.Any(f => !Id(f.Id) || !(Kind(f.Kind) || f.Kind is "account" or "grant")))
             throw Unavailable();
         return fences.Select(f => (f.Kind, f.Id));

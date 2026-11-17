@@ -108,7 +108,7 @@ public class VaultRecoveryRefreshStoreTests(PostgresFixture fixture) : IClassFix
         using var next = new ProtectionFixture();
         var s = await Setup(old);
         var r = await Request(s, old, Replacement(old, next));
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(y => y.ExpiresAt, deadline));
         var before = await Snapshot(s);
@@ -313,7 +313,7 @@ public class VaultRecoveryRefreshStoreTests(PostgresFixture fixture) : IClassFix
         using var next = new ProtectionFixture();
         var s = await Setup(old);
         var r = await Request(s, old, Replacement(old, next));
-        var deadline = DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.SetupLead));
+        var deadline = DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.s_setupLead));
         if (expires == "identity")
             r = r with { IdentityIssuedAt = deadline.ToUnixTimeSeconds() - 60 };
         else
@@ -454,9 +454,9 @@ public class VaultRecoveryRefreshStoreTests(PostgresFixture fixture) : IClassFix
     { var bytes = ProtectionFixture.Decode(proof); var order = BigInteger.Parse("0FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551", System.Globalization.NumberStyles.HexNumber); var s = new BigInteger(bytes.AsSpan(32), true, true); var alternate = (order - s).ToByteArray(true, true); Array.Clear(bytes, 32, 32); alternate.CopyTo(bytes, 64 - alternate.Length); return ProtectionFixture.Encode(bytes); }
     private sealed class Factory : IDbContextFactory<AppDbContext>
     {
-        private readonly DbContextOptions<AppDbContext> options; public Factory(DbContextOptions<AppDbContext> value) => options = value;
-        public Factory(PostgresFixture f, IInterceptor interceptor) { using var db = f.CreateContext(); options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(db.Database.GetConnectionString()).AddInterceptors(interceptor).Options; }
-        public AppDbContext CreateDbContext() => new(options);
+        private readonly DbContextOptions<AppDbContext> _options; public Factory(DbContextOptions<AppDbContext> value) => _options = value;
+        public Factory(PostgresFixture f, IInterceptor interceptor) { using var db = f.CreateContext(); _options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(db.Database.GetConnectionString()).AddInterceptors(interceptor).Options; }
+        public AppDbContext CreateDbContext() => new(_options);
     }
     private sealed class LockSignal(TaskCompletionSource reached, string? table = null) : DbCommandInterceptor
     { public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (c.CommandText.Contains("FOR UPDATE", StringComparison.Ordinal) && (table is null || c.CommandText.Contains(table, StringComparison.Ordinal))) reached.TrySetResult(); return ValueTask.FromResult(r); } }

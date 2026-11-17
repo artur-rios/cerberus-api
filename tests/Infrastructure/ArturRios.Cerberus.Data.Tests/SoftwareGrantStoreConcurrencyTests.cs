@@ -84,7 +84,7 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
         await Sql("UPDATE cerberus.vault_access_session SET profile_id={0} WHERE handle_verifier={1}", profile, s.Owner.Verifier);
         Assert.Null((await Store().GrantAsync(s.Request(), default)).Error);
         await Sql("UPDATE cerberus.software_grant SET state=1 WHERE public_id={0}", s.Grant);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         if (change == "expiry")
             await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
         var before = await SoftwareGrantSetup.Aggregate(fixture, s.Grant);
@@ -270,7 +270,7 @@ public class SoftwareGrantStoreConcurrencyTests(PostgresFixture fixture) : IClas
     public async Task GivenExpiryAroundGuardedWrite_WhenGranting_ThenOnlyPreviouslyAuthorizedAggregateCommits(bool after)
     {
         using var s = await SoftwareGrantSetup.Create(fixture);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
         Task Past(DbCommand _) => RealTime.Past(deadline);
         DbCommandInterceptor interceptor = after ? new After(c => c.CommandText.Contains("INSERT INTO cerberus.software_grant("), Past)

@@ -9,7 +9,7 @@ namespace ArturRios.Cerberus.Shared.Tests;
 
 public class AuthenticationIdentityTests
 {
-    private static readonly Guid Identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
+    private static readonly Guid s_identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
 
     [UnitTheory]
     [InlineData(false)]
@@ -40,10 +40,10 @@ public class AuthenticationIdentityTests
         }, options);
         var result = await Authenticate(Client(transport, options), challenge);
         Assert.Null(result.Error);
-        Assert.Equal(Identity, result.IdentityId);
+        Assert.Equal(s_identity, result.IdentityId);
         Assert.Equal(expectedToken, result.Login!.Token);
         Assert.False(result.Login.RequiresTwoFactor);
-        Assert.Equal(new[] { challenge ? "/api/auth/2fa/verify" : "/api/auth/login", $"/api/persons/{Identity:D}" }, calls);
+        Assert.Equal(new[] { challenge ? "/api/auth/2fa/verify" : "/api/auth/login", $"/api/persons/{s_identity:D}" }, calls);
     }
 
     [UnitFact]
@@ -136,11 +136,11 @@ public class AuthenticationIdentityTests
         ? client.VerifyChallengeAsync("opaque-challenge", null, "fixture-recovery", default)
         : client.AuthenticateAsync("fixture@example.test", "fixture-password", default);
     private static string Token(CerberusOptions options, Guid? scope = null) => new JwtHandler().CreateToken(new JwtConfiguration(60, options.AuthIssuer!, options.AuthAudience!, options.AuthValidationSecret!,
-        new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = "3", ["scopeId"] = (scope ?? options.HeimdallScopeId).ToString() }));
+        new Dictionary<string, string> { ["id"] = s_identity.ToString(), ["roleId"] = "3", ["scopeId"] = (scope ?? options.HeimdallScopeId).ToString() }));
     private static HttpResponseMessage Login(CerberusOptions options, bool completion, string? bearer = null) => completion
         ? Envelope(new { token = bearer ?? Token(options), expiresAt = DateTimeOffset.UtcNow.AddMinutes(5), emailVerified = true })
         : Envelope(new { token = bearer ?? Token(options), expiresAt = DateTimeOffset.UtcNow.AddMinutes(5), emailVerified = true, requiresTwoFactor = false });
-    private static HttpResponseMessage Person(CerberusOptions options, bool deleted = false) => Envelope(new { id = Identity, scopeId = options.HeimdallScopeId, role = 3, isDeleted = deleted });
+    private static HttpResponseMessage Person(CerberusOptions options, bool deleted = false) => Envelope(new { id = s_identity, scopeId = options.HeimdallScopeId, role = 3, isDeleted = deleted });
     private static HttpResponseMessage Envelope(object data) => new(HttpStatusCode.OK)
     { Content = new StringContent(JsonSerializer.Serialize(new { success = true, errors = Array.Empty<string>(), data }), Encoding.UTF8, "application/json") };
     private static HttpResponseMessage Status(int status) => new((HttpStatusCode)status)

@@ -7,7 +7,7 @@ namespace ArturRios.Cerberus.Shared.Identity;
 
 public sealed partial class HeimdallClient
 {
-    private static readonly JsonSerializerOptions UpdateJson = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_updateJson = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<IdentityUpdateResult> UpdateIdentityAsync(string token, Guid identityId, string name, string email, CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ public sealed partial class HeimdallClient
             });
         UpdatedPerson? person;
         try
-        { person = response.Data.Value.Deserialize<UpdatedPerson>(UpdateJson); }
+        { person = response.Data.Value.Deserialize<UpdatedPerson>(s_updateJson); }
         catch (JsonException) { return new(Error: "identity_unavailable"); }
         if (person is null || person.Id != identityId || person.Role != 3 || person.ScopeId != options.HeimdallScopeId
             || person.Name != name || !string.Equals(person.Email, email, StringComparison.OrdinalIgnoreCase))

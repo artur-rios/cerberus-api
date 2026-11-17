@@ -8,7 +8,7 @@ namespace ArturRios.Cerberus.Command.Tests;
 
 public class RevokeCollectionAccessContractTests
 {
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json)
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json)
     {
         NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
@@ -25,8 +25,8 @@ public class RevokeCollectionAccessContractTests
     [InlineData("[]")]
     public void GivenMissingOrAmbiguousRevision_WhenParsing_ThenReject(string body)
     {
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RevokeCollectionAccessCommand>(body, Json));
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionGrantRevocationInput>(body, Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RevokeCollectionAccessCommand>(body, s_json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionGrantRevocationInput>(body, s_json));
     }
 
     [UnitTheory]
@@ -45,8 +45,8 @@ public class RevokeCollectionAccessContractTests
     public void GivenForgedContextOrUnknownMember_WhenParsing_ThenReject(string member)
     {
         var body = "{\"expectedRevision\":1,\"" + member + "\":null}";
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RevokeCollectionAccessCommand>(body, Json));
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionGrantRevocationInput>(body, Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RevokeCollectionAccessCommand>(body, s_json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionGrantRevocationInput>(body, s_json));
     }
 
     // Trusted context must never leak back into the caller's one-field body.
@@ -62,14 +62,14 @@ public class RevokeCollectionAccessContractTests
     public void GivenRevision_WhenParsing_ThenExposeOnlyBodyAndEnforceSafeAdvance(long revision, bool valid)
     {
         var body = "{\"expectedRevision\":" + revision.ToString(System.Globalization.CultureInfo.InvariantCulture) + "}";
-        var command = JsonSerializer.Deserialize<RevokeCollectionAccessCommand>(body, Json)!;
-        var input = JsonSerializer.Deserialize<CollectionGrantRevocationInput>(body, Json)!;
+        var command = JsonSerializer.Deserialize<RevokeCollectionAccessCommand>(body, s_json)!;
+        var input = JsonSerializer.Deserialize<CollectionGrantRevocationInput>(body, s_json)!;
         command.SetContext(Guid.NewGuid(), "secret-handle", Guid.NewGuid(), Guid.NewGuid());
         Assert.Equal(revision, command.ExpectedRevision);
         Assert.Equal(revision, command.ToInput().ExpectedRevision);
         Assert.Equal(valid, input.IsValid(Guid.Parse("11111111-1111-4111-8111-111111111111")));
         Assert.False(input.IsValid(Guid.Empty));
-        Assert.Equal(body, JsonSerializer.Serialize(command, Json));
-        Assert.Equal(body, JsonSerializer.Serialize(input, Json));
+        Assert.Equal(body, JsonSerializer.Serialize(command, s_json));
+        Assert.Equal(body, JsonSerializer.Serialize(input, s_json));
     }
 }

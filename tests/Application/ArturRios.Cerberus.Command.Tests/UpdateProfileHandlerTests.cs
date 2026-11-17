@@ -8,7 +8,7 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class UpdateProfileHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid(), id = Guid.NewGuid();
+    private readonly Guid _actor = Guid.NewGuid(), _id = Guid.NewGuid();
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -24,7 +24,7 @@ public class UpdateProfileHandlerTests
     public async Task GivenInvalidCommandOrAccess_WhenUpdating_ThenRejectBeforeStore(string kind, string error)
     {
         var c = Command();
-        c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access, kind == "id" ? Guid.Empty : id);
+        c.SetContext(kind == "actor" ? Guid.Empty : _actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access, kind == "id" ? Guid.Empty : _id);
         if (kind == "envelope")
             c.Envelope = null!;
         if (kind == "revision")
@@ -52,16 +52,16 @@ public class UpdateProfileHandlerTests
         c.EditedAt = DateTimeOffset.Parse(submitted);
         ProfileUpdateRequest? captured = null;
         var store = new Mock<IProfileUpdateStore>(MockBehavior.Strict);
-        store.Setup(x => x.UpdateAsync(It.IsAny<ProfileUpdateRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileUpdateRequest, CancellationToken>((r, _) => { captured = r; return Task.FromResult(new VaultResult<ProfileCreateDetails>(new(id, 2, 7, DateTimeOffset.Parse(expected)))); });
+        store.Setup(x => x.UpdateAsync(It.IsAny<ProfileUpdateRequest>(), It.IsAny<CancellationToken>())).Returns<ProfileUpdateRequest, CancellationToken>((r, _) => { captured = r; return Task.FromResult(new VaultResult<ProfileCreateDetails>(new(_id, 2, 7, DateTimeOffset.Parse(expected)))); });
         var result = await Handler(store.Object).HandleAsync(c);
         Assert.True(result.Success);
         Assert.Contains("profile_updated", result.Messages);
-        Assert.Equal(id, result.Data!.ProfileId);
+        Assert.Equal(_id, result.Data!.ProfileId);
         Assert.Equal(2, result.Data.Revision);
         Assert.Equal(7, result.Data.ServerSequence);
         Assert.Equal(DateTimeOffset.Parse(expected), result.Data.EditedAt);
-        Assert.Equal(actor, captured!.Actor);
-        Assert.Equal(id, captured.ProfileId);
+        Assert.Equal(_actor, captured!.Actor);
+        Assert.Equal(_id, captured.ProfileId);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier);
         Assert.Equal(c.ToInput(), captured.Input);
         var json = JsonSerializer.Serialize(c);
@@ -88,10 +88,10 @@ public class UpdateProfileHandlerTests
     [InlineData("offset")]
     [InlineData("ticks")]
     public async Task GivenCorruptStoreMetadata_WhenHandling_Then503WithoutData(string kind)
-    { var c = Command(); var d = new ProfileCreateDetails(id, 2, 7, c.EditedAt); d = kind switch { "null" => null!, "id" => d with { ProfileId = Guid.NewGuid() }, "revision" => d with { Revision = 1 }, "sequence" => d with { ServerSequence = 0 }, "unsafe" => d with { ServerSequence = 9007199254740992 }, "time" => d with { EditedAt = c.EditedAt.AddMinutes(1) }, "offset" => d with { EditedAt = c.EditedAt.ToOffset(TimeSpan.FromHours(1)) }, _ => d with { EditedAt = c.EditedAt.AddTicks(1) } }; var store = new Mock<IProfileUpdateStore>(); store.Setup(x => x.UpdateAsync(It.IsAny<ProfileUpdateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<ProfileCreateDetails>(d)); var r = await Handler(store.Object).HandleAsync(c); Assert.Contains("persistence_unavailable", r.Errors); Assert.Null(r.Data); }
+    { var c = Command(); var d = new ProfileCreateDetails(_id, 2, 7, c.EditedAt); d = kind switch { "null" => null!, "id" => d with { ProfileId = Guid.NewGuid() }, "revision" => d with { Revision = 1 }, "sequence" => d with { ServerSequence = 0 }, "unsafe" => d with { ServerSequence = 9007199254740992 }, "time" => d with { EditedAt = c.EditedAt.AddMinutes(1) }, "offset" => d with { EditedAt = c.EditedAt.ToOffset(TimeSpan.FromHours(1)) }, _ => d with { EditedAt = c.EditedAt.AddTicks(1) } }; var store = new Mock<IProfileUpdateStore>(); store.Setup(x => x.UpdateAsync(It.IsAny<ProfileUpdateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<ProfileCreateDetails>(d)); var r = await Handler(store.Object).HandleAsync(c); Assert.Contains("persistence_unavailable", r.Errors); Assert.Null(r.Data); }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenUpdating_ThenPropagateWithoutStore()
     { using var c = new CancellationTokenSource(); c.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new Mock<IProfileUpdateStore>(MockBehavior.Strict).Object).HandleAsync(Command(), c.Token)); }
-    private UpdateProfileCommand Command() { var c = new UpdateProfileCommand { ExpectedRevision = 1, Envelope = new("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), EditedAt = DateTimeOffset.Parse("2026-10-08T12:00:00Z") }; c.SetContext(actor, Access, id); return c; }
+    private UpdateProfileCommand Command() { var c = new UpdateProfileCommand { ExpectedRevision = 1, Envelope = new("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), EditedAt = DateTimeOffset.Parse("2026-10-08T12:00:00Z") }; c.SetContext(_actor, Access, _id); return c; }
     private static UpdateProfileHandler Handler(IProfileUpdateStore store) => new(new UpdateProfileValidator(), store);
 }

@@ -15,8 +15,8 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
-    private static readonly byte[] Body = Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1}");
-    private static string Hash => ProtocolBinary.Encode(SHA256.HashData(Body));
+    private static readonly byte[] s_body = Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1}");
+    private static string Hash => ProtocolBinary.Encode(SHA256.HashData(s_body));
 
     [FunctionalTheory]
     [InlineData("active", null)]
@@ -118,7 +118,7 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
         using var client = new ProtectionFixture();
         var input = await Setup(state, true, client.Material);
         var challenge = (await Store().ChallengeAsync(input.Actor, Hash, default)).Data!;
-        var result = await Store().UnlockAsync(input.Actor, 1, challenge.ChallengeId, client.Sign(challenge), Body, default);
+        var result = await Store().UnlockAsync(input.Actor, 1, challenge.ChallengeId, client.Sign(challenge), s_body, default);
         Assert.Null(result.Error);
         Assert.Equal(input.Id, result.Data!.AccountId);
         Assert.True(OpaqueAccessHandle.TryHash(result.Data.Access, out var verifier));
@@ -138,7 +138,7 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
             Assert.Equal(TimeSpan.FromHours(24), access.ExpiresAt - access.IssuedAt);
         Assert.True((await after.Set<VaultUnlockChallenge>().SingleAsync(x => x.PublicId == challenge.ChallengeId)).Consumed);
         Assert.Equal(input.Before, await Snapshot(input.Actor));
-        var replay = await Store().UnlockAsync(input.Actor, 1, challenge.ChallengeId, client.Sign(challenge), Body, default);
+        var replay = await Store().UnlockAsync(input.Actor, 1, challenge.ChallengeId, client.Sign(challenge), s_body, default);
         Assert.Equal("vault_proof_rejected", replay.Error);
         Assert.Single(await after.VaultAccessSessions.Where(x => x.AccountId == input.InternalId).ToListAsync());
     }
@@ -187,7 +187,7 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
         var before = await Snapshot(input.Actor);
         var result = await Store().UnlockAsync(invalid == "actor" ? Guid.NewGuid() : input.Actor, invalid == "revision" ? 2 : 1,
             invalid == "missing" ? Guid.NewGuid() : challenge.ChallengeId,
-            invalid == "proof" ? ProtocolBinary.Encode(new byte[64]) : client.Sign(challenge), invalid == "body" ? Encoding.UTF8.GetBytes("{ \"expectedProtectionRevision\":1}") : Body, default);
+            invalid == "proof" ? ProtocolBinary.Encode(new byte[64]) : client.Sign(challenge), invalid == "body" ? Encoding.UTF8.GetBytes("{ \"expectedProtectionRevision\":1}") : s_body, default);
         Assert.Equal(error, result.Error);
         Assert.Null(result.Data);
         await using var after = fixture.CreateContext();
@@ -203,7 +203,7 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
         var input = await Setup("active", true, client.Material);
         var c = (await Store().ChallengeAsync(input.Actor, Hash, default)).Data!;
         var proof = client.Sign(c);
-        var results = await Task.WhenAll(Store().UnlockAsync(input.Actor, 1, c.ChallengeId, proof, Body, default), Store().UnlockAsync(input.Actor, 1, c.ChallengeId, proof, Body, default));
+        var results = await Task.WhenAll(Store().UnlockAsync(input.Actor, 1, c.ChallengeId, proof, s_body, default), Store().UnlockAsync(input.Actor, 1, c.ChallengeId, proof, s_body, default));
         Assert.Single(results, x => x.Data is not null);
         Assert.Single(results, x => x.Error == "vault_proof_rejected");
         await using var after = fixture.CreateContext();
@@ -216,7 +216,7 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
         using var client = new ProtectionFixture();
         var input = await Setup("active", true, client.Material);
         var c = (await Store().ChallengeAsync(input.Actor, Hash, default)).Data!;
-        var expires = RealTime.SoonSeconds(RealTime.SetupLead);
+        var expires = RealTime.SoonSeconds(RealTime.s_setupLead);
         c = c with { IssuedAt = expires - 60, ExpiresAt = expires };
         await using (var edit = fixture.CreateContext())
         {
@@ -230,7 +230,7 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
         await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id = {input.InternalId} FOR UPDATE");
         var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var waiting = new VaultProtectionStore(new Factory(fixture, new LockSignal(started)));
-        var task = waiting.UnlockAsync(input.Actor, 1, c.ChallengeId, client.Sign(c), Body, default);
+        var task = waiting.UnlockAsync(input.Actor, 1, c.ChallengeId, client.Sign(c), s_body, default);
         await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
         // Let the unchanged expiry pass while the real account lock blocks the query.
         await RealTime.Past(expires);
@@ -255,7 +255,7 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
         await holder.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM cerberus.account WHERE id = {input.InternalId} FOR UPDATE");
         var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var waiting = new VaultProtectionStore(new Factory(fixture, new LockSignal(started)));
-        var task = waiting.UnlockAsync(input.Actor, 1, c.ChallengeId, client.Sign(c), Body, default);
+        var task = waiting.UnlockAsync(input.Actor, 1, c.ChallengeId, client.Sign(c), s_body, default);
         await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
         var account = await holder.Accounts.SingleAsync(x => x.Id == input.InternalId);
         if (change == "closing")
@@ -300,7 +300,7 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
             "init" => (await store.InitializeAsync(id, Guid.NewGuid(), 3, client.Material, default)).Error,
             "read" => (await store.ReadAsync(id, default)).Error,
             "challenge" => (await store.ChallengeAsync(id, Hash, default)).Error,
-            _ => (await store.UnlockAsync(id, 1, Guid.NewGuid(), "proof", Body, default)).Error
+            _ => (await store.UnlockAsync(id, 1, Guid.NewGuid(), "proof", s_body, default)).Error
         };
         Assert.Equal("persistence_unavailable", error);
     }
@@ -324,12 +324,12 @@ public class VaultProtectionStoreTests(PostgresFixture fixture) : IClassFixture<
         var input = await Setup("active", true, client.Material);
         var c = (await Store().ChallengeAsync(input.Actor, Hash, default)).Data!;
         var failure = new VaultProtectionStore(new Factory(fixture, new RejectInsert()));
-        var result = await failure.UnlockAsync(input.Actor, 1, c.ChallengeId, client.Sign(c), Body, default);
+        var result = await failure.UnlockAsync(input.Actor, 1, c.ChallengeId, client.Sign(c), s_body, default);
         Assert.Equal("persistence_unavailable", result.Error);
         await using var after = fixture.CreateContext();
         Assert.False((await after.Set<VaultUnlockChallenge>().SingleAsync(x => x.PublicId == c.ChallengeId)).Consumed);
         Assert.Empty(await after.VaultAccessSessions.Where(x => x.AccountId == input.InternalId).ToListAsync());
-        Assert.Null((await Store().UnlockAsync(input.Actor, 1, c.ChallengeId, client.Sign(c), Body, default)).Error);
+        Assert.Null((await Store().UnlockAsync(input.Actor, 1, c.ChallengeId, client.Sign(c), s_body, default)).Error);
     }
 
     private VaultProtectionStore Store() => new(fixture);

@@ -209,7 +209,7 @@ public class ProfileUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
         var s = await ProfileSetup.Create(fixture, owner);
         var i = await Add(s, owner, scoped);
         var before = await Snapshot(i.ProfileId);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         await using var holder = fixture.CreateContext();
@@ -237,7 +237,7 @@ public class ProfileUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
         var s = await ProfileSetup.Create(fixture, owner);
         var i = await Add(s, owner, scoped);
         var before = await Snapshot(i.ProfileId);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var r = await new ProfileUpdateStore(new ProfileSetup.Factory(fixture, new Expire(deadline))).UpdateAsync(new(s.Actor, s.Verifier, i.ProfileId, Input()), default);
@@ -307,5 +307,5 @@ public class ProfileUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
     private sealed class Expire(DateTimeOffset deadline) : DbCommandInterceptor
     { public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (c.CommandText.Contains("UPDATE cerberus.profile")) { await RealTime.Past(deadline, ct); } return r; } }
     private sealed class Fail : DbCommandInterceptor
-    { private bool written; public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (c.CommandText.Contains("UPDATE cerberus.profile")) written = true; return ValueTask.FromResult(r); } public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (written) throw new TimeoutException("synthetic post-update failure"); return ValueTask.FromResult(r); } }
+    { private bool _written; public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (c.CommandText.Contains("UPDATE cerberus.profile")) _written = true; return ValueTask.FromResult(r); } public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (_written) throw new TimeoutException("synthetic post-update failure"); return ValueTask.FromResult(r); } }
 }

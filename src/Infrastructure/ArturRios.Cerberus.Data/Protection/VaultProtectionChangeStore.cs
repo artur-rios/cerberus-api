@@ -13,7 +13,7 @@ namespace ArturRios.Cerberus.Data.Protection;
 
 public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> factory) : IVaultProtectionChangeStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
 
     public async Task<VaultResult<ProtectionChangeDetails>> ChangeAsync(ProtectionChangeRequest request, CancellationToken cancellationToken)
@@ -55,7 +55,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 return new(Error: "vault_access_denied");
 
             var protection = await db.VaultProtections.SingleAsync(x => x.Id == metadata.Id, cancellationToken);
-            var current = JsonSerializer.Deserialize<ProtectionMaterial>(protection.Material, Json);
+            var current = JsonSerializer.Deserialize<ProtectionMaterial>(protection.Material, s_json);
             if (current?.IsValid() != true || current.PasswordWrapper.KeyEpoch != metadata.KeyEpoch
                 || current.RecoveryWrapper.Generation != metadata.RecoveryGeneration)
                 return new(Error: "persistence_unavailable");
@@ -68,7 +68,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
             if (input.Mode == "rotate-content")
             {
                 var existing = await db.Accounts.Where(x => x.Id == a.Id).Select(x => x.DetailsEnvelope).SingleAsync(cancellationToken);
-                var content = JsonSerializer.Deserialize<EncryptedEnvelope>(existing, Json);
+                var content = JsonSerializer.Deserialize<EncryptedEnvelope>(existing, s_json);
                 if (content?.IsValid() != true)
                     return new(Error: "persistence_unavailable");
                 if (content.KeyEpoch >= ProtocolBinary.MaxInteger)
@@ -77,7 +77,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 if (accountReplacement.Envelope.KeyEpoch != content.KeyEpoch + 1
                     || accountReplacement.Envelope.KeySalt == content.KeySalt || accountReplacement.Envelope.Nonce == content.Nonce)
                     return new(Error: "validation_failed");
-                replacement = JsonSerializer.SerializeToUtf8Bytes(accountReplacement.Envelope, Json);
+                replacement = JsonSerializer.SerializeToUtf8Bytes(accountReplacement.Envelope, s_json);
                 // Include trash: retained ciphertext must not escape a complete rotation.
                 var profiles = await db.Profiles.Where(x => x.AccountId == a.Id).ToListAsync(cancellationToken);
                 // Collections precede grants in the shared cross-owner lock order. The
@@ -96,8 +96,8 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                         return new(Error: "persistence_unavailable");
                     if (profile.Revision != item.ExpectedRevision || profile.Revision >= ProtocolBinary.MaxInteger)
                         return new(Error: "revision_conflict");
-                    var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(profile.Envelope, Json);
-                    var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(profile.KeyWrappers, Json);
+                    var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(profile.Envelope, s_json);
+                    var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(profile.KeyWrappers, s_json);
                     if (envelope?.IsValid() != true || wrappers?.IsValid() != true
                         || wrappers.MasterKeyWrapper.GrantRevision > profile.Revision
                         || !wrappers.IsBound(a.PublicId, profile.PublicId, envelope.KeyEpoch, wrappers.MasterKeyWrapper.GrantRevision, request.Actor, current))
@@ -119,7 +119,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                         return "persistence_unavailable";
                     if (revision != item.ExpectedRevision || revision == ProtocolBinary.MaxInteger)
                         return "revision_conflict";
-                    var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(raw, Json);
+                    var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(raw, s_json);
                     if (envelope?.IsValid() != true || epoch is not null && epoch != envelope.KeyEpoch)
                         return "persistence_unavailable";
                     if (envelope.KeyEpoch == ProtocolBinary.MaxInteger)
@@ -172,7 +172,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                         || !CollectionGrantBinding.TryReadPins(pins.GetValueOrDefault(grant.RecipientAccountId), out var recipient)
                         || !CollectionGrantBinding.IsBound(grant, collection, a.PublicId, identity.HeimdallPublicId, current, recipient!))
                         return new(Error: "persistence_unavailable");
-                    var old = JsonSerializer.Deserialize<RecipientEnvelope>(grant.RecipientKeyEnvelope, Json)!;
+                    var old = JsonSerializer.Deserialize<RecipientEnvelope>(grant.RecipientKeyEnvelope, s_json)!;
                     if (!item.KeyEnvelope.Verify(a.PublicId, "collection", collection.PublicId, collection.KeyEpoch + 1, grant.PublicId, grant.Revision + 1,
                             identity.HeimdallPublicId, recipient!.RecipientKey, current.AuthorKey)
                         || item.KeyEnvelope.Enc == old.Enc || item.KeyEnvelope.Ciphertext == old.Ciphertext)
@@ -184,7 +184,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
             var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == a.Id && x.PublicId == request.ChallengeId, cancellationToken);
             if (row is null || row.Consumed)
                 return new(Error: "vault_proof_rejected");
-            var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, Json) ?? throw new JsonException();
+            var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, s_json) ?? throw new JsonException();
             if (challenge.ChallengeId != row.PublicId || row.ExpiresAt != DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt))
                 return new(Error: "persistence_unavailable");
             if (row.PolicyRevision != a.PolicyRevision || row.RevocationGeneration != a.RevocationGeneration
@@ -212,7 +212,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 """, cancellationToken);
             if (consumed != 1)
                 return new(Error: Permitted(await Now(db, cancellationToken)) ? "vault_proof_rejected" : "vault_access_denied");
-            protection.Material = JsonSerializer.SerializeToUtf8Bytes(input.Material, Json);
+            protection.Material = JsonSerializer.SerializeToUtf8Bytes(input.Material, s_json);
             protection.Revision++;
             protection.KeyEpoch = input.Material.PasswordWrapper.KeyEpoch;
             var account = db.Accounts.Where(x => x.Id == a.Id && x.Revision == input.ExpectedAccountRevision);
@@ -224,8 +224,8 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 return new(Error: "revision_conflict");
             foreach (var (profile, item) in profileWrites)
             {
-                profile.Envelope = JsonSerializer.SerializeToUtf8Bytes(item.Envelope, Json);
-                profile.KeyWrappers = JsonSerializer.SerializeToUtf8Bytes(item.KeyWrappers, Json);
+                profile.Envelope = JsonSerializer.SerializeToUtf8Bytes(item.Envelope, s_json);
+                profile.KeyWrappers = JsonSerializer.SerializeToUtf8Bytes(item.KeyWrappers, s_json);
                 profile.Revision++;
                 var sequence = await db.Database.SqlQuery<long>($"SELECT nextval('cerberus.server_sequence') AS \"Value\"").SingleAsync(cancellationToken);
                 if (sequence <= profile.ServerSequence || sequence > ProtocolBinary.MaxInteger)
@@ -237,11 +237,11 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
                 var sequence = await db.Database.SqlQuery<long>($"SELECT nextval('cerberus.server_sequence') AS \"Value\"").SingleAsync(cancellationToken);
                 if (sequence <= previousSequence || sequence > ProtocolBinary.MaxInteger)
                     return new(Error: "persistence_unavailable");
-                apply(JsonSerializer.SerializeToUtf8Bytes(item.Envelope, Json), sequence);
+                apply(JsonSerializer.SerializeToUtf8Bytes(item.Envelope, s_json), sequence);
             }
             foreach (var (grant, item) in grantWrites)
             {
-                grant.RecipientKeyEnvelope = JsonSerializer.SerializeToUtf8Bytes(item.KeyEnvelope, Json);
+                grant.RecipientKeyEnvelope = JsonSerializer.SerializeToUtf8Bytes(item.KeyEnvelope, s_json);
                 grant.Revision++;
             }
             await db.SaveChangesAsync(cancellationToken);
@@ -259,7 +259,7 @@ public sealed class VaultProtectionChangeStore(IDbContextFactory<AppDbContext> f
     {
         try
         {
-            var signed = JsonSerializer.Deserialize<ProtectionChange>(raw, Json);
+            var signed = JsonSerializer.Deserialize<ProtectionChange>(raw, s_json);
             return signed is not null && signed.AccountId == input.AccountId
                 && signed.ExpectedProtectionRevision == input.ExpectedProtectionRevision
                 && signed.ExpectedAccountRevision == input.ExpectedAccountRevision && signed.Mode == input.Mode

@@ -21,12 +21,12 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
-    private static readonly CerberusOptions Options = new() { MaxPageSize = 100, SyncRetention = "30.00:00:00" };
+    private static readonly CerberusOptions s_options = new() { MaxPageSize = 100, SyncRetention = "30.00:00:00" };
     [FunctionalFact]
     public async Task GivenSelectedProfile_WhenDownloadingThenContinuing_ThenReturnInitialSnapshotAndEmptyUnchangedDelta()
     {
         var s = await Setup();
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(s.Request, default);
         Assert.Null(first.Error);
         var p = first.Page!;
@@ -51,7 +51,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenPreviouslyDisclosedRecord_WhenItsStateChanges_ThenReturnOnlyCurrentDeltaOrMinimalKnownTombstone(string change)
     {
         var s = await Setup(withRecord: true);
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(s.Request, default);
         Assert.Null(first.Error);
         Assert.Equal(2, first.Page!.Items.Count);
@@ -86,7 +86,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenSoftRemovalAlreadyDelivered_WhenPermanentDeletionFollows_ThenRetainKnownIdentityAndEmitTombstone()
     {
         var s = await Setup(withRecord: true);
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(s.Request, default);
         Assert.Null(first.Error);
         await using var db = fixture.CreateContext();
@@ -109,7 +109,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenMultipageSnapshot_WhenContinuingAndReplaying_ThenKeepBoundaryAndRevalidateEachPage()
     {
         var s = await Setup(withRecord: true);
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var request = s.Request with { PageSize = 1 };
         var first = await store.DownloadAsync(request, default);
         Assert.Null(first.Error);
@@ -128,7 +128,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenVisibilityChangedDuringSnapshot_WhenContinuing_ThenRequireClearScopeBeforeFurtherData()
     {
         var s = await Setup(withRecord: true);
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var request = s.Request with { PageSize = 1 };
         var first = await store.DownloadAsync(request, default);
         Assert.Null(first.Error);
@@ -146,7 +146,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenExpiredRetainedCheckpoint_WhenContinuing_ThenDeleteItsHistoryAndRequireFreshSnapshot()
     {
         var s = await Setup();
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(s.Request, default);
         Assert.Null(first.Error);
         var checkpoint = first.Page!.Checkpoint!;
@@ -166,7 +166,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenFreshUnlockOfTheSameProfile_WhenContinuing_ThenKeepDurableCursorAcrossHandleReplacement()
     {
         var s = await Setup();
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(s.Request, default);
         Assert.Null(first.Error);
         await using var db = fixture.CreateContext();
@@ -218,7 +218,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
             await db.Accounts.Where(x => x.Id == s.Owner).ExecuteUpdateAsync(x => x.SetProperty(a => a.PolicyRevision, 2));
         if (state == "profile")
             await db.Profiles.Where(x => x.Id == s.Profile).ExecuteUpdateAsync(x => x.SetProperty(p => p.DeletedAt, DateTimeOffset.UtcNow));
-        var result = await new SyncDownloadStore(fixture, Options).DownloadAsync(request, default);
+        var result = await new SyncDownloadStore(fixture, s_options).DownloadAsync(request, default);
         Assert.Equal(error, result.Error);
         Assert.Null(result.Page);
         Assert.False(await db.SyncStreams.AnyAsync(x => x.AccountId == s.Owner));
@@ -288,12 +288,12 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         });
         await db.SaveChangesAsync();
         var request = new SyncDownloadRequest(reader.Actor, verifier, 100);
-        var first = await new SyncDownloadStore(fixture, Options).DownloadAsync(request, default);
+        var first = await new SyncDownloadStore(fixture, s_options).DownloadAsync(request, default);
         Assert.Null(first.Error);
         var complete = first;
         while (complete.Page!.HasMore)
         {
-            complete = await new SyncDownloadStore(fixture, Options).DownloadAsync(request with { Checkpoint = complete.Page.Checkpoint }, default);
+            complete = await new SyncDownloadStore(fixture, s_options).DownloadAsync(request with { Checkpoint = complete.Page.Checkpoint }, default);
             Assert.Null(complete.Error);
         }
         var target = (kind == "record" ? records.Select(r => (r.PublicId, r.ServerSequence)) : folders.Select(f => (f.PublicId, f.ServerSequence))).MaxBy(x => x.ServerSequence);
@@ -321,14 +321,14 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
                 await Task.Delay(10, timeout.Token);
             }
         });
-        var delta = await new SyncDownloadStore(new ProfileSetup.Factory(fixture, barrier), Options)
+        var delta = await new SyncDownloadStore(new ProfileSetup.Factory(fixture, barrier), s_options)
             .DownloadAsync(request with { Checkpoint = complete.Page.Checkpoint }, default);
         Assert.Equal(2, barrier.Pages);
         Assert.Null(delta.Error);
         Assert.False(delta.Page!.ResynchronizationRequired);
         Assert.DoesNotContain(delta.Page.Items, x => x.ResourceId == target.PublicId && x.EventType != "upsert");
         await editing!.WaitAsync(TimeSpan.FromSeconds(5));
-        var following = await new SyncDownloadStore(fixture, Options).DownloadAsync(request with { Checkpoint = delta.Page.Checkpoint }, default);
+        var following = await new SyncDownloadStore(fixture, s_options).DownloadAsync(request with { Checkpoint = delta.Page.Checkpoint }, default);
         Assert.Null(following.Error);
         var item = Assert.Single(delta.Page.Items.Concat(following.Page!.Items), x => x.ResourceId == target.PublicId);
         Assert.Equal(kind, item.ResourceKind);
@@ -340,7 +340,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenRegressedDescriptorSequence_WhenStartingNewWindow_ThenRollbackWithoutAdvancingCheckpoint()
     {
         var s = await Setup(withRecord: true);
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(s.Request, default);
         Assert.Null(first.Error);
         await using var db = fixture.CreateContext();
@@ -370,7 +370,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenUnusableCheckpoint_WhenContinuing_ThenReturnAuthorizedClearScopeWithoutAdvancingHistory(string kind)
     {
         var s = await Setup();
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(s.Request, default);
         Assert.Null(first.Error);
         var cp = first.Page!.Checkpoint!;
@@ -408,7 +408,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         await using var tx = await writer.Database.BeginTransactionAsync();
         await writer.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={s.Owner} FOR NO KEY UPDATE");
         var signal = new BeforeRoot();
-        var downloading = new SyncDownloadStore(new ProfileSetup.Factory(fixture, signal), Options).DownloadAsync(s.Request, default);
+        var downloading = new SyncDownloadStore(new ProfileSetup.Factory(fixture, signal), s_options).DownloadAsync(s.Request, default);
         try
         {
             await signal.Reached.Task.WaitAsync(TimeSpan.FromSeconds(5));
@@ -438,7 +438,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenConcurrentSameCursor_WhenContinuing_ThenSerializeCheckpointAndReturnSameCurrentPage()
     {
         var s = await Setup(withRecord: true);
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var request = s.Request with { PageSize = 1 };
         await AddCollection(s);
         var first = await store.DownloadAsync(request, default);
@@ -454,7 +454,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     {
         var s = await Setup(withRecord: true);
         await AddCollection(s);
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(s.Request, default);
         var second = await store.DownloadAsync(s.Request, default);
         Assert.Null(first.Error);
@@ -462,7 +462,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         await using var db = fixture.CreateContext();
         await db.Records.Where(x => x.Id == s.Record).ExecuteUpdateAsync(x => x.SetProperty(r => r.Revision, 2));
         var barrier = new BothBeforeCollections();
-        var guarded = new SyncDownloadStore(new ProfileSetup.Factory(fixture, barrier), Options);
+        var guarded = new SyncDownloadStore(new ProfileSetup.Factory(fixture, barrier), s_options);
         using var ct = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         var results = await Task.WhenAll(guarded.DownloadAsync(s.Request with { Checkpoint = first.Page!.Checkpoint }, ct.Token),
             guarded.DownloadAsync(s.Request with { Checkpoint = second.Page!.Checkpoint }, ct.Token));
@@ -487,14 +487,14 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     }
     private sealed class BothBeforeCollections : DbCommandInterceptor
     {
-        private int arrivals;
-        public int Arrivals => arrivals;
-        private readonly TaskCompletionSource both = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _arrivals;
+        public int Arrivals => _arrivals;
+        private readonly TaskCompletionSource _both = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData data,
             InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
             if (command.CommandText.Contains("FROM cerberus.collection c JOIN cerberus.account owner", StringComparison.Ordinal))
-            { if (Interlocked.Increment(ref arrivals) == 2) both.TrySetResult(); await both.Task.WaitAsync(cancellationToken); }
+            { if (Interlocked.Increment(ref _arrivals) == 2) _both.TrySetResult(); await _both.Task.WaitAsync(cancellationToken); }
             return result;
         }
     }
@@ -503,7 +503,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenUnrelatedTerminalIdentity_WhenDownloadingDelta_ThenNeverDiscloseItsTombstone()
     {
         var s = await Setup();
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(s.Request, default);
         Assert.Null(first.Error);
         await using var db = fixture.CreateContext();
@@ -522,7 +522,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     public async Task GivenCorruptRetainedMetadata_WhenContinuing_ThenFailClosedWithoutCheckpointAdvance(string kind)
     {
         var s = await Setup();
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(s.Request, default);
         Assert.Null(first.Error);
         var cp = first.Page!.Checkpoint!;
@@ -551,14 +551,14 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     {
         var s = await Setup(withRecord: true);
         using var ct = new CancellationTokenSource();
-        var store = new SyncDownloadStore(new ProfileSetup.Factory(fixture, new AfterDescriptors(ct, cancelled)), Options);
+        var store = new SyncDownloadStore(new ProfileSetup.Factory(fixture, new AfterDescriptors(ct, cancelled)), s_options);
         if (cancelled)
             await Assert.ThrowsAnyAsync<OperationCanceledException>(() => store.DownloadAsync(s.Request, ct.Token));
         else
         { var failed = await store.DownloadAsync(s.Request, ct.Token); Assert.Equal("persistence_unavailable", failed.Error); Assert.Null(failed.Page); }
         await using var db = fixture.CreateContext();
         Assert.False(await db.SyncStreams.AnyAsync(x => x.AccountId == s.Owner));
-        var retry = await new SyncDownloadStore(fixture, Options).DownloadAsync(s.Request, default);
+        var retry = await new SyncDownloadStore(fixture, s_options).DownloadAsync(s.Request, default);
         Assert.Null(retry.Error);
         Assert.Equal(2, retry.Page!.Items.Count);
     }
@@ -569,12 +569,12 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         var s = await Setup();
         var dead = new ProfileSetup.Factory(new DbContextOptionsBuilder<AppDbContext>()
             .UseNpgsql("Host=127.0.0.1;Port=1;Database=unavailable;Username=none;Timeout=1;Pooling=false").Options);
-        var result = await new SyncDownloadStore(dead, Options).DownloadAsync(s.Request, default);
+        var result = await new SyncDownloadStore(dead, s_options).DownloadAsync(s.Request, default);
         Assert.Equal("persistence_unavailable", result.Error);
         Assert.Null(result.Page);
         using var ct = new CancellationTokenSource();
         ct.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new SyncDownloadStore(fixture, Options).DownloadAsync(s.Request, ct.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new SyncDownloadStore(fixture, s_options).DownloadAsync(s.Request, ct.Token));
     }
 
     [FunctionalTheory]
@@ -613,7 +613,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         });
         await db.SaveChangesAsync();
         var request = new SyncDownloadRequest(reader.Actor, verifier, 10);
-        var store = new SyncDownloadStore(fixture, Options);
+        var store = new SyncDownloadStore(fixture, s_options);
         var first = await store.DownloadAsync(request, default);
         Assert.Null(first.Error);
         Assert.Equal(5, first.Page!.Items.Count);
@@ -649,10 +649,10 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
     {
         var s = await Setup(withRecord: true);
         await using var db = fixture.CreateContext();
-        var deadline = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp()+{RealTime.SetupLead} AS \"Value\"").SingleAsync();
+        var deadline = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp()+{RealTime.s_setupLead} AS \"Value\"").SingleAsync();
         await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Request.AccessVerifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var barrier = new BeforeDescriptors(() => RealTime.Past(deadline));
-        var result = await new SyncDownloadStore(new ProfileSetup.Factory(fixture, barrier), Options).DownloadAsync(s.Request, default);
+        var result = await new SyncDownloadStore(new ProfileSetup.Factory(fixture, barrier), s_options).DownloadAsync(s.Request, default);
         Assert.True(barrier.Reached);
         Assert.Equal("vault_access_denied", result.Error);
         Assert.Null(result.Page);
@@ -668,7 +668,7 @@ public class SyncDownloadStoreTests(PostgresFixture fixture) : IClassFixture<Pos
         try
         {
             await db.Database.ExecuteSqlInterpolatedAsync($"SELECT setval('cerberus.server_sequence',{ArturRios.Cerberus.Domain.Protection.ProtocolBinary.MaxInteger},true)");
-            var result = await new SyncDownloadStore(fixture, Options).DownloadAsync(s.Request, default);
+            var result = await new SyncDownloadStore(fixture, s_options).DownloadAsync(s.Request, default);
             Assert.Equal("revision_conflict", result.Error);
             Assert.Null(result.Page);
             Assert.False(await db.SyncStreams.AnyAsync(x => x.AccountId == s.Owner));

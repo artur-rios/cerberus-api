@@ -13,7 +13,7 @@ public class GetFolderHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     private const string Verifier = "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
-    private static readonly Guid Actor = Guid.NewGuid();
+    private static readonly Guid s_actor = Guid.NewGuid();
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -24,7 +24,7 @@ public class GetFolderHandlerTests
     public async Task GivenInvalidContext_WhenGetting_ThenRejectBeforePersistence(string kind, string error)
     {
         var store = new Mock<IFolderReadStore>(MockBehavior.Strict);
-        var r = await Handler(store).HandleAsync(new(kind == "actor" ? Guid.Empty : Actor, kind switch { "missing" => null, "bad" => "bad", "empty" => "", "padded" => Access + "=", _ => Access }, kind == "target" ? Guid.Empty : Guid.NewGuid()));
+        var r = await Handler(store).HandleAsync(new(kind == "actor" ? Guid.Empty : s_actor, kind switch { "missing" => null, "bad" => "bad", "empty" => "", "padded" => Access + "=", _ => Access }, kind == "target" ? Guid.Empty : Guid.NewGuid()));
         Assert.Contains(error, r.Errors);
         Assert.Null(r.Data);
         store.VerifyNoOtherCalls();
@@ -40,8 +40,8 @@ public class GetFolderHandlerTests
         Guid? folder = references ? Guid.NewGuid() : null;
         using var ct = new CancellationTokenSource();
         var store = new Mock<IFolderReadStore>(MockBehavior.Strict);
-        store.Setup(x => x.ReadAsync(new(Actor, Verifier, row.FolderId), ct.Token)).ReturnsAsync(new VaultResult<FolderReadDetails>(new(row, profiles, folder, collections)));
-        var result = await Handler(store).HandleAsync(new(Actor, Access, row.FolderId), ct.Token);
+        store.Setup(x => x.ReadAsync(new(s_actor, Verifier, row.FolderId), ct.Token)).ReturnsAsync(new VaultResult<FolderReadDetails>(new(row, profiles, folder, collections)));
+        var result = await Handler(store).HandleAsync(new(s_actor, Access, row.FolderId), ct.Token);
         Assert.True(result.Success);
         Assert.Contains("folder_found", result.Messages);
         var item = result.Data!;
@@ -99,9 +99,9 @@ public class GetFolderHandlerTests
             "precision" => good with { EditedAt = good.EditedAt.AddTicks(1) },
             _ => good
         };
-        Guid[] profiles = kind switch { "nullProfiles" => null!, "zeroProfile" => [Guid.Empty], "duplicateProfile" => [Actor, Actor], _ => [] };
-        Guid[] collections = kind switch { "nullCollections" => null!, "zeroCollection" => [Guid.Empty], "duplicateCollection" => [Actor, Actor], _ => [] };
-        var result = await Handler(MockStore(new(new(row, profiles, kind == "zeroParent" ? Guid.Empty : kind == "selfParent" ? good.FolderId : null, collections)))).HandleAsync(new(Actor, Access, good.FolderId));
+        Guid[] profiles = kind switch { "nullProfiles" => null!, "zeroProfile" => [Guid.Empty], "duplicateProfile" => [s_actor, s_actor], _ => [] };
+        Guid[] collections = kind switch { "nullCollections" => null!, "zeroCollection" => [Guid.Empty], "duplicateCollection" => [s_actor, s_actor], _ => [] };
+        var result = await Handler(MockStore(new(new(row, profiles, kind == "zeroParent" ? Guid.Empty : kind == "selfParent" ? good.FolderId : null, collections)))).HandleAsync(new(s_actor, Access, good.FolderId));
         Assert.Contains("persistence_unavailable", result.Errors);
         Assert.Null(result.Data);
     }
@@ -110,7 +110,7 @@ public class GetFolderHandlerTests
     [InlineData("vault_access_denied")]
     [InlineData("persistence_unavailable")]
     public async Task GivenAllowlistedStoreError_WhenGetting_ThenReturnSafeErrorWithoutPayload(string error)
-    { var result = await Handler(MockStore(new(Error: error))).HandleAsync(new(Actor, Access, Guid.NewGuid())); Assert.Contains(error, result.Errors); Assert.Null(result.Data); }
+    { var result = await Handler(MockStore(new(Error: error))).HandleAsync(new(s_actor, Access, Guid.NewGuid())); Assert.Contains(error, result.Errors); Assert.Null(result.Data); }
     [UnitTheory]
     [InlineData("nullResult")]
     [InlineData("nullData")]
@@ -122,17 +122,17 @@ public class GetFolderHandlerTests
     {
         var row = Row(1);
         VaultResult<FolderReadDetails>? data = kind switch { "nullResult" => null, "nullData" => new(), "unknownError" => new(Error: "SELECT private table failed"), "errorWithData" => new(new(row, [], null, []), "not_found"), "successAsError" => new(Error: "folder_found"), _ => new(Error: "authentication_required") };
-        var r = await Handler(MockStore(data!)).HandleAsync(new(Actor, Access, row.FolderId));
+        var r = await Handler(MockStore(data!)).HandleAsync(new(s_actor, Access, row.FolderId));
         Assert.Contains("persistence_unavailable", r.Errors);
         Assert.Null(r.Data);
         Assert.DoesNotContain("SELECT private table failed", r.Errors);
     }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenGetting_ThenPropagateBeforeStore()
-    { using var ct = new CancellationTokenSource(); ct.Cancel(); var store = new Mock<IFolderReadStore>(MockBehavior.Strict); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store).HandleAsync(new(Actor, Access, Guid.NewGuid()), ct.Token)); store.VerifyNoOtherCalls(); }
+    { using var ct = new CancellationTokenSource(); ct.Cancel(); var store = new Mock<IFolderReadStore>(MockBehavior.Strict); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store).HandleAsync(new(s_actor, Access, Guid.NewGuid()), ct.Token)); store.VerifyNoOtherCalls(); }
     [UnitFact]
     public async Task GivenStoreCancellation_WhenGetting_ThenPropagateSameCallerToken()
-    { using var ct = new CancellationTokenSource(); var target = Guid.NewGuid(); var store = new Mock<IFolderReadStore>(MockBehavior.Strict); store.Setup(x => x.ReadAsync(new(Actor, Verifier, target), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token)); var ex = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store).HandleAsync(new(Actor, Access, target), ct.Token)); Assert.Equal(ct.Token, ex.CancellationToken); store.VerifyAll(); }
+    { using var ct = new CancellationTokenSource(); var target = Guid.NewGuid(); var store = new Mock<IFolderReadStore>(MockBehavior.Strict); store.Setup(x => x.ReadAsync(new(s_actor, Verifier, target), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token)); var ex = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store).HandleAsync(new(s_actor, Access, target), ct.Token)); Assert.Equal(ct.Token, ex.CancellationToken); store.VerifyAll(); }
     [UnitTheory]
     [InlineData("nullBytes")]
     [InlineData("badJson")]
@@ -177,7 +177,7 @@ public class GetFolderHandlerTests
             _ => json
         };
         row = row with { Envelope = kind == "nullBytes" ? null! : Encoding.UTF8.GetBytes(json) };
-        var result = await Handler(MockStore(new(new(row, [], null, [])))).HandleAsync(new(Actor, Access, row.FolderId));
+        var result = await Handler(MockStore(new(new(row, [], null, [])))).HandleAsync(new(s_actor, Access, row.FolderId));
         Assert.Contains("persistence_unavailable", result.Errors);
         Assert.Null(result.Data);
     }

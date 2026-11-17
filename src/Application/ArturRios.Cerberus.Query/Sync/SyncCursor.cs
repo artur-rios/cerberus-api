@@ -20,21 +20,21 @@ public sealed record SyncContinuation(
 
 public sealed class SyncCursor
 {
-    private static readonly byte[] Purpose = "cerberus-sync-download-cursor-v1"u8.ToArray();
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly byte[] s_purpose = "cerberus-sync-download-cursor-v1"u8.ToArray();
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
     private readonly byte[] _key;
-    public SyncCursor(CerberusOptions options) => _key = HMACSHA256.HashData(Encoding.UTF8.GetBytes(options.RegistrationFingerprintKey!), Purpose);
+    public SyncCursor(CerberusOptions options) => _key = HMACSHA256.HashData(Encoding.UTF8.GetBytes(options.RegistrationFingerprintKey!), s_purpose);
 
     public string Encode(SyncContinuation continuation)
     {
         if (continuation?.IsValid() != true)
             throw new ArgumentException("Invalid synchronization continuation.");
-        var plaintext = JsonSerializer.SerializeToUtf8Bytes(continuation, Json);
+        var plaintext = JsonSerializer.SerializeToUtf8Bytes(continuation, s_json);
         var encoded = new byte[28 + plaintext.Length];
         RandomNumberGenerator.Fill(encoded.AsSpan(0, 12));
         using var cipher = new AesGcm(_key, 16);
-        cipher.Encrypt(encoded.AsSpan(0, 12), plaintext, encoded.AsSpan(28), encoded.AsSpan(12, 16), Purpose);
+        cipher.Encrypt(encoded.AsSpan(0, 12), plaintext, encoded.AsSpan(28), encoded.AsSpan(12, 16), s_purpose);
         return ProtocolBinary.Encode(encoded);
     }
 
@@ -47,8 +47,8 @@ public sealed class SyncCursor
         {
             var plaintext = new byte[encoded.Length - 28];
             using var cipher = new AesGcm(_key, 16);
-            cipher.Decrypt(encoded.AsSpan(0, 12), encoded.AsSpan(28), encoded.AsSpan(12, 16), plaintext, Purpose);
-            var value = JsonSerializer.Deserialize<SyncContinuation>(plaintext, Json);
+            cipher.Decrypt(encoded.AsSpan(0, 12), encoded.AsSpan(28), encoded.AsSpan(12, 16), plaintext, s_purpose);
+            var value = JsonSerializer.Deserialize<SyncContinuation>(plaintext, s_json);
             if (value?.IsValid() != true)
                 return false;
             continuation = value;

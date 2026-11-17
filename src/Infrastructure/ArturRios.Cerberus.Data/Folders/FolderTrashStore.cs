@@ -15,7 +15,7 @@ namespace ArturRios.Cerberus.Data.Folders;
 
 public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : IFolderTrashStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
     public async Task<VaultResult<FolderTrashDetails>> TrashAsync(FolderTrashRequest request, CancellationToken ct)
     {
@@ -39,11 +39,11 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
             var error = StateError(initial);
             if (error is not null)
                 return new(Error: error);
-            var target = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
+            var target = JsonSerializer.Deserialize<Item>(initial.Item!, s_json)!;
             if (target.AccountId != account.Id)
                 return new(Error: ValidNative(initial) ? "vault_access_denied" : "persistence_unavailable");
             var captured = await InventoryAsync(db, request, ct);
-            var inventory = JsonSerializer.Deserialize<Inventory>(captured, Json)!;
+            var inventory = JsonSerializer.Deserialize<Inventory>(captured, s_json)!;
             if (inventory.Cycle)
                 return new(Error: "persistence_unavailable");
             var folderIds = inventory.Folders.Select(x => x.Id).ToArray();
@@ -136,7 +136,7 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
                     OperationId = operation.Id,
                     ResourceKind = "folder",
                     ResourceId = row.PublicId,
-                    AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new FolderAssociationSnapshot(FolderGuid(row.Parent), Profiles(inventory.ProfileFolders.Where(x => x.FolderId == row.Id).Select(x => x.ProfileId)), Collections(inventory.CollectionFolders.Where(x => x.FolderId == row.Id).Select(x => x.CollectionId))), Json)
+                    AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new FolderAssociationSnapshot(FolderGuid(row.Parent), Profiles(inventory.ProfileFolders.Where(x => x.FolderId == row.Id).Select(x => x.ProfileId)), Collections(inventory.CollectionFolders.Where(x => x.FolderId == row.Id).Select(x => x.CollectionId))), s_json)
                 });
             foreach (var row in inventory.Records)
                 db.TrashEntries.Add(new()
@@ -144,7 +144,7 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
                     OperationId = operation.Id,
                     ResourceKind = "record",
                     ResourceId = row.PublicId,
-                    AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(FolderGuid(row.Parent), Profiles(inventory.ProfileRecords.Where(x => x.RecordId == row.Id).Select(x => x.ProfileId)), Collections(inventory.CollectionRecords.Where(x => x.RecordId == row.Id).Select(x => x.CollectionId))), Json)
+                    AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(FolderGuid(row.Parent), Profiles(inventory.ProfileRecords.Where(x => x.RecordId == row.Id).Select(x => x.ProfileId)), Collections(inventory.CollectionRecords.Where(x => x.RecordId == row.Id).Select(x => x.CollectionId))), s_json)
                 });
             await db.SaveChangesAsync(ct);
             db.RetentionWorkItems.Add(new RetentionWorkItem { OperationKey = "trash/" + operation.PublicId, DueAt = purge });
@@ -231,10 +231,10 @@ public sealed class FolderTrashStore(IDbContextFactory<AppDbContext> factory) : 
     private static string? StateError(Snapshot s) => !s.ActorActive ? "not_found" : !s.Allowed ? "vault_access_denied" : s.CorruptAncestry ? "persistence_unavailable" : s.Item is null ? "not_found" : null;
     private static bool ValidNative(Snapshot snapshot)
     {
-        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
+        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, s_json)!;
         if (grants.Length == 0)
             return true;
-        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, Json);
+        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, s_json);
         if (p is null || !CollectionGrantBinding.TryReadPins(Pins(p.OwnerMaterial, p.OwnerRevision, p.OwnerEpoch, p.OwnerGeneration), out var owner)
             || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient))
             return false;

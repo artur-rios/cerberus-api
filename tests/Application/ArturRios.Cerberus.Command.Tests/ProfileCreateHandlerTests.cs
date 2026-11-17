@@ -10,7 +10,7 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class ProfileCreateHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid(), account = Guid.NewGuid();
+    private readonly Guid _actor = Guid.NewGuid(), _account = Guid.NewGuid();
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -25,7 +25,7 @@ public class ProfileCreateHandlerTests
         using var client = new ProtectionFixture();
         using var scoped = new ProtectionFixture();
         var c = Command(client, scoped);
-        c.SetContext(invalid == "actor" ? Guid.Empty : actor, invalid == "missing" ? null : invalid == "empty" ? "" : invalid == "bad" ? "bad" : Access);
+        c.SetContext(invalid == "actor" ? Guid.Empty : _actor, invalid == "missing" ? null : invalid == "empty" ? "" : invalid == "bad" ? "bad" : Access);
         if (invalid == "id")
             c.ProfileId = Guid.Empty;
         if (invalid == "envelope")
@@ -53,7 +53,7 @@ public class ProfileCreateHandlerTests
         Assert.Contains("profile_created", result.Messages);
         Assert.Equal(c.ProfileId, result.Data!.ProfileId);
         Assert.Equal(7, result.Data.ServerSequence);
-        Assert.Equal(actor, captured!.Actor);
+        Assert.Equal(_actor, captured!.Actor);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier);
         Assert.Equal(c.ToInput(), captured.Input);
         var json = JsonSerializer.Serialize(c);
@@ -113,13 +113,13 @@ public class ProfileCreateHandlerTests
         {
             ProfileId = id,
             Envelope = new("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"),
-            KeyWrappers = new("Master", scoped.Material.UnlockVerifier, client.Wrap(account, "profile", id, actor), null),
+            KeyWrappers = new("Master", scoped.Material.UnlockVerifier, client.Wrap(_account, "profile", id, _actor), null),
             EditedAt = DateTimeOffset.UtcNow,
             RecordIds = [],
             FolderIds = [],
             CollectionIds = []
         };
-        c.SetContext(actor, Access);
+        c.SetContext(_actor, Access);
         return c;
     }
     private static CreateProfileHandler Handler(IProfileCreateStore store) => new(new CreateProfileValidator(), store);

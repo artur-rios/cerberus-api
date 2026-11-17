@@ -11,8 +11,8 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class MoveFolderHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid(), target = Guid.NewGuid(), parent = Guid.NewGuid();
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict, Converters = { new CanonicalGuidConverter() } };
+    private readonly Guid _actor = Guid.NewGuid(), _target = Guid.NewGuid(), _parent = Guid.NewGuid();
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict, Converters = { new CanonicalGuidConverter() } };
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -26,7 +26,7 @@ public class MoveFolderHandlerTests
     [InlineData("negative", "validation_failed")]
     [InlineData("unsafe", "validation_failed")]
     public async Task GivenInvalidContextRevisionOrSelfParent_WhenHandling_ThenRejectBeforePersistence(string kind, string error)
-    { var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : kind == "noncanonical" ? new string('A', 42) + "B" : Access, kind == "id" ? Guid.Empty : target); c.ExpectedRevision = kind == "zero" ? 0 : kind == "negative" ? -1 : kind == "unsafe" ? ProtocolBinary.MaxInteger + 1 : 1; if (kind == "parent") c.ParentFolderId = Guid.Empty; if (kind == "self") c.ParentFolderId = target; var r = await Handler(new Mock<IFolderMoveStore>(MockBehavior.Strict).Object).HandleAsync(c); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains(error, r.Errors); }
+    { var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : _actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : kind == "noncanonical" ? new string('A', 42) + "B" : Access, kind == "id" ? Guid.Empty : _target); c.ExpectedRevision = kind == "zero" ? 0 : kind == "negative" ? -1 : kind == "unsafe" ? ProtocolBinary.MaxInteger + 1 : 1; if (kind == "parent") c.ParentFolderId = Guid.Empty; if (kind == "self") c.ParentFolderId = _target; var r = await Handler(new Mock<IFolderMoveStore>(MockBehavior.Strict).Object).HandleAsync(c); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains(error, r.Errors); }
     [UnitTheory]
     [InlineData(false, false)]
     [InlineData(true, false)]
@@ -35,10 +35,10 @@ public class MoveFolderHandlerTests
     public async Task GivenValidMoveMetadata_WhenHandling_ThenForwardTrustedContextAndReturnExactFourFields(bool nullParent, bool largestRevision)
     {
         var c = Command();
-        c.ParentFolderId = nullParent ? null : parent;
+        c.ParentFolderId = nullParent ? null : _parent;
         if (largestRevision)
             c.ExpectedRevision = ProtocolBinary.MaxInteger - 1;
-        var d = new FolderMoveDetails(target, c.ParentFolderId, c.ExpectedRevision + 1, largestRevision ? ProtocolBinary.MaxInteger : 1);
+        var d = new FolderMoveDetails(_target, c.ParentFolderId, c.ExpectedRevision + 1, largestRevision ? ProtocolBinary.MaxInteger : 1);
         using var ct = new CancellationTokenSource();
         FolderMoveRequest? received = null;
         CancellationToken token = default;
@@ -47,20 +47,20 @@ public class MoveFolderHandlerTests
         var result = await Handler(store.Object).HandleAsync(c, ct.Token);
         Assert.True(result.Success);
         Assert.Contains("folder_moved", result.Messages);
-        Assert.Equal(target, result.Data!.FolderId);
+        Assert.Equal(_target, result.Data!.FolderId);
         Assert.Equal(c.ParentFolderId, result.Data.ParentFolderId);
         Assert.Equal(d.Revision, result.Data.Revision);
         Assert.Equal(d.ServerSequence, result.Data.ServerSequence);
-        Assert.Equal(actor, received!.Actor);
-        Assert.Equal(target, received.FolderId);
+        Assert.Equal(_actor, received!.Actor);
+        Assert.Equal(_target, received.FolderId);
         Assert.Equal(c.ExpectedRevision, received.ExpectedRevision);
         Assert.Equal(c.ParentFolderId, received.ParentFolderId);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
         Assert.Equal(ct.Token, token);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, s_json));
         Assert.Equal(["folderId", "parentFolderId", "revision", "serverSequence"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         Assert.Equal(nullParent ? JsonValueKind.Null : JsonValueKind.String, output.RootElement.GetProperty("parentFolderId").ValueKind);
-        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, s_json));
         Assert.Equal(["expectedRevision", "parentFolderId"], input.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
@@ -110,7 +110,7 @@ public class MoveFolderHandlerTests
     [InlineData("{}")]
     [InlineData("{\"expectedRevision\":1}")]
     [InlineData("{\"parentFolderId\":null}")]
-    public void GivenOmittedRequiredMember_WhenParsing_ThenReject(string raw) => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveFolderCommand>(raw, Json));
+    public void GivenOmittedRequiredMember_WhenParsing_ThenReject(string raw) => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveFolderCommand>(raw, s_json));
     [UnitTheory]
     [InlineData("actor")]
     [InlineData("vaultAccess")]
@@ -129,7 +129,7 @@ public class MoveFolderHandlerTests
     [InlineData("deletedAt")]
     [InlineData("purgeAt")]
     public void GivenForgedContextOrAlternateInput_WhenParsing_ThenReject(string field)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); body[field] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveFolderCommand>(body.ToJsonString(), Json)); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); body[field] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveFolderCommand>(body.ToJsonString(), s_json)); }
     [UnitTheory]
     [InlineData("duplicateRevision")]
     [InlineData("duplicateFolder")]
@@ -142,7 +142,7 @@ public class MoveFolderHandlerTests
     [InlineData("badFolder")]
     [InlineData("numericFolder")]
     public void GivenAlternateJson_WhenParsing_ThenReject(string kind)
-    { var raw = kind switch { "duplicateRevision" => "{\"expectedRevision\":1,\"expectedRevision\":1,\"parentFolderId\":null}", "duplicateFolder" => "{\"expectedRevision\":1,\"parentFolderId\":null,\"parentFolderId\":null}", "caseRevision" => "{\"ExpectedRevision\":1,\"parentFolderId\":null}", "caseFolder" => "{\"expectedRevision\":1,\"ParentFolderId\":null}", "numericString" => "{\"expectedRevision\":\"1\",\"parentFolderId\":null}", "null" => "{\"expectedRevision\":null,\"parentFolderId\":null}", "fraction" => "{\"expectedRevision\":1.5,\"parentFolderId\":null}", "overflow" => "{\"expectedRevision\":9223372036854775808,\"parentFolderId\":null}", "badFolder" => "{\"expectedRevision\":1,\"parentFolderId\":\"bad\"}", _ => "{\"expectedRevision\":1,\"parentFolderId\":1}" }; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveFolderCommand>(raw, Json)); }
+    { var raw = kind switch { "duplicateRevision" => "{\"expectedRevision\":1,\"expectedRevision\":1,\"parentFolderId\":null}", "duplicateFolder" => "{\"expectedRevision\":1,\"parentFolderId\":null,\"parentFolderId\":null}", "caseRevision" => "{\"ExpectedRevision\":1,\"parentFolderId\":null}", "caseFolder" => "{\"expectedRevision\":1,\"ParentFolderId\":null}", "numericString" => "{\"expectedRevision\":\"1\",\"parentFolderId\":null}", "null" => "{\"expectedRevision\":null,\"parentFolderId\":null}", "fraction" => "{\"expectedRevision\":1.5,\"parentFolderId\":null}", "overflow" => "{\"expectedRevision\":9223372036854775808,\"parentFolderId\":null}", "badFolder" => "{\"expectedRevision\":1,\"parentFolderId\":\"bad\"}", _ => "{\"expectedRevision\":1,\"parentFolderId\":1}" }; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveFolderCommand>(raw, s_json)); }
     [UnitTheory]
     [InlineData("bad")]
     [InlineData("zero")]
@@ -160,12 +160,12 @@ public class MoveFolderHandlerTests
         var value = kind switch { "bad" => "bad", "zero" => Guid.Empty.ToString(), "uppercase" => id.ToString().ToUpperInvariant(), "compact" => id.ToString("N"), "braced" => id.ToString("B"), "urn" => "urn:uuid:" + id, _ => " " + id };
         var rawValue = kind switch { "array" => "[]", "object" => "{}", "boolean" => "false", _ => JsonSerializer.Serialize(value) };
         var raw = "{\"expectedRevision\":1,\"parentFolderId\":" + rawValue + "}";
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveFolderCommand>(raw, Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveFolderCommand>(raw, s_json));
     }
     [UnitFact] public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforePersistence() { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new Mock<IFolderMoveStore>(MockBehavior.Strict).Object).HandleAsync(Command(), ct.Token)); }
     [UnitFact] public async Task GivenPersistenceCancellation_WhenHandling_ThenPropagateExactToken() { using var ct = new CancellationTokenSource(); var store = new Mock<IFolderMoveStore>(); store.Setup(x => x.MoveAsync(It.IsAny<FolderMoveRequest>(), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token)); var e = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store.Object).HandleAsync(Command(), ct.Token)); Assert.Equal(ct.Token, e.CancellationToken); }
     [UnitFact] public void GivenMovedMessage_WhenMapping_Then200() => Assert.Equal(200, MoveFolderMessages.StatusCodes["folder_moved"]);
-    private MoveFolderCommand Command() { var c = new MoveFolderCommand { ExpectedRevision = 1, ParentFolderId = parent }; c.SetContext(actor, Access, target); return c; }
-    private FolderMoveDetails Details() => new(target, parent, 2, 7);
+    private MoveFolderCommand Command() { var c = new MoveFolderCommand { ExpectedRevision = 1, ParentFolderId = _parent }; c.SetContext(_actor, Access, _target); return c; }
+    private FolderMoveDetails Details() => new(_target, _parent, 2, 7);
     private static MoveFolderHandler Handler(IFolderMoveStore store) => new(new MoveFolderValidator(), store);
 }

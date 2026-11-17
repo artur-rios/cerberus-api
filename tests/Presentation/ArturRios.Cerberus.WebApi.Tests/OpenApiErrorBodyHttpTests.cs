@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
@@ -21,7 +20,8 @@ public class OpenApiErrorBodyHttpTests(RegistrationApiFixture fixture, SharedApi
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var body = await response.Content.ReadAsStringAsync();
         // The handler's own DataOutput: the member a ProcessOutput-only schema refused.
-        Assert.Equal(JsonValueKind.Null, JsonNode.Parse(body)!["data"].GetValueKind());
+        Assert.True(JsonNode.Parse(body)!.AsObject().TryGetPropertyValue("data", out var data));
+        Assert.Null(data);
         Assert.Null(Reject("/api/auth/login", "post", "400", response, body));
         Assert.Equal(calls, fixture.IdentityCalls);
     }
@@ -33,7 +33,7 @@ public class OpenApiErrorBodyHttpTests(RegistrationApiFixture fixture, SharedApi
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         var body = await response.Content.ReadAsStringAsync();
-        Assert.False(JsonNode.Parse(body)!.AsObject().ContainsKey("data"));
+        Assert.DoesNotContain("\"data\"", body);
         Assert.Null(Reject("/api/accounts/me", "get", "401", response, body));
     }
 

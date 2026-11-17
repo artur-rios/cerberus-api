@@ -132,8 +132,8 @@ public sealed class OpenApiErrorBodyContractTests
         foreach (var (path, method, operation) in operations)
         {
             var response = operation["responses"]!["413"];
-            Assert.True(response is JsonObject, method + " " + path);
-            Assert.Null(response!["content"]);
+            Assert.NotNull(response);
+            Assert.Null(response["content"]);
         }
     }
 
@@ -224,7 +224,8 @@ public sealed class OpenApiErrorBodyContractTests
             {
                 if (status == 403 && neverForbidden.Contains(method + " " + path))
                     continue;
-                Assert.True(documented.Contains(status.ToString(System.Globalization.CultureInfo.InvariantCulture)), $"{method} {path} {status}");
+                if (!documented.Contains(status.ToString(System.Globalization.CultureInfo.InvariantCulture)))
+                    Assert.Fail($"{method} {path} does not document {status}");
             }
         }
     }

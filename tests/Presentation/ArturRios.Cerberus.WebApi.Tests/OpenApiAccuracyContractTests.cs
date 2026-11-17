@@ -189,10 +189,9 @@ public sealed class OpenApiAccuracyContractTests
         var account = schemas["AuthenticationOutput"]!["properties"]!["account"]!;
         // OpenAPI 3.1: the reference or null, and nothing beside it.
         Assert.Equal(["anyOf"], account.AsObject().Select(keyword => keyword.Key));
-        var branches = account["anyOf"]!.AsArray();
-        Assert.Equal(2, branches.Count);
-        Assert.Equal("#/components/schemas/AuthenticationAccount", branches[0]!["$ref"]!.GetValue<string>());
-        Assert.Equal("null", branches[1]!["type"]!.GetValue<string>());
+        Assert.Collection(account["anyOf"]!.AsArray(),
+            reference => Assert.Equal("#/components/schemas/AuthenticationAccount", reference!["$ref"]!.GetValue<string>()),
+            nothing => Assert.Equal("null", nothing!["type"]!.GetValue<string>()));
         // Not every reference turns nullable: the login itself is always present.
         Assert.Equal("#/components/schemas/HeimdallLogin", schemas["AuthenticationOutput"]!["properties"]!["identity"]!["$ref"]!.GetValue<string>());
     }

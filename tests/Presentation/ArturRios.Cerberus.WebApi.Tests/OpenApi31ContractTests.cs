@@ -30,7 +30,9 @@ public sealed class OpenApi31ContractTests
         var composed = 0;
         foreach (var (name, schema) in document["components"]!["schemas"]!.AsObject())
         {
-            foreach (var (property, value) in schema!["properties"]?.AsObject() ?? [])
+            if (schema!["properties"] is not JsonObject properties)
+                continue;
+            foreach (var (property, value) in properties)
             {
                 if (!s_compositions.Any(keyword => value![keyword] is JsonArray branches && branches.Any(b => b!["$ref"] is not null)))
                     continue;

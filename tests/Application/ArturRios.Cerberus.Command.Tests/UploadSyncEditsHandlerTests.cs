@@ -8,14 +8,14 @@ namespace ArturRios.Cerberus.Command.Tests;
 
 public class UploadSyncEditsHandlerTests
 {
-    private static readonly Guid Actor = Guid.NewGuid(), Account = Guid.NewGuid(), Id = Guid.NewGuid(), Operation = Guid.NewGuid();
+    private static readonly Guid s_actor = Guid.NewGuid(), s_account = Guid.NewGuid(), s_id = Guid.NewGuid(), s_operation = Guid.NewGuid();
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static readonly DateTimeOffset Time = DateTimeOffset.FromUnixTimeSeconds(1000);
-    private static readonly CerberusOptions Options = new() { MaxPageSize = 100 };
-    private static SyncEditInput Edit() => new SyncRecordUpdate(Operation, new(Id, new("cerberus-content-v1", 1,
-        ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16])), Time));
+    private static readonly DateTimeOffset s_time = DateTimeOffset.FromUnixTimeSeconds(1000);
+    private static readonly CerberusOptions s_options = new() { MaxPageSize = 100 };
+    private static SyncEditInput Edit() => new SyncRecordUpdate(s_operation, new(s_id, new("cerberus-content-v1", 1,
+        ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16])), s_time));
     private static UploadSyncEditsCommand Command()
-    { var command = new UploadSyncEditsCommand { Edits = [Edit()] }; command.SetContext(Actor, Access); return command; }
+    { var command = new UploadSyncEditsCommand { Edits = [Edit()] }; command.SetContext(s_actor, Access); return command; }
     [UnitTheory]
     [InlineData("identity", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -25,12 +25,12 @@ public class UploadSyncEditsHandlerTests
     public async Task GivenInvalidCurrentContextOrBatch_WhenUploading_ThenRejectBeforePersistence(string kind, string error)
     {
         var command = Command();
-        command.SetContext(kind == "identity" ? Guid.Empty : Actor, kind == "missing" ? null : kind == "handle" ? "invalid" : Access);
+        command.SetContext(kind == "identity" ? Guid.Empty : s_actor, kind == "missing" ? null : kind == "handle" ? "invalid" : Access);
         if (kind == "empty")
             command.Edits = [];
         if (kind == "duplicate")
             command.Edits = [Edit(), Edit()];
-        var output = await new UploadSyncEditsHandler(new Mock<ISyncEditsStore>(MockBehavior.Strict).Object, Options).HandleAsync(command);
+        var output = await new UploadSyncEditsHandler(new Mock<ISyncEditsStore>(MockBehavior.Strict).Object, s_options).HandleAsync(command);
         Assert.Contains(error, output.Errors);
         Assert.Null(output.Data);
     }
@@ -53,11 +53,11 @@ public class UploadSyncEditsHandlerTests
     public async Task GivenValidPerItemResult_WhenHandling_ThenPreserveBoundOrderedOutcomes(string status)
     {
         var winning = status is "applied" or "superseded";
-        var item = new SyncEditOutcome(Operation, "record", Id, status, winning ? 1 : null, winning ? 2 : null, winning ? Time : null);
-        var output = await Handler(new(new(Account, null, Time, [item]))).HandleAsync(Command());
+        var item = new SyncEditOutcome(s_operation, "record", s_id, status, winning ? 1 : null, winning ? 2 : null, winning ? s_time : null);
+        var output = await Handler(new(new(s_account, null, s_time, [item]))).HandleAsync(Command());
         Assert.True(output.Success);
         Assert.Equal(item, Assert.Single(output.Data!.Outcomes));
-        Assert.Equal(Account, output.Data.AccountId);
+        Assert.Equal(s_account, output.Data.AccountId);
     }
     [UnitTheory]
     [InlineData("account")]
@@ -71,17 +71,17 @@ public class UploadSyncEditsHandlerTests
     [InlineData("errorData")]
     public async Task GivenInconsistentStoredResult_WhenHandling_ThenFailClosed(string kind)
     {
-        var item = new SyncEditOutcome(Operation, "record", Id, "applied", 1, 2, Time);
+        var item = new SyncEditOutcome(s_operation, "record", s_id, "applied", 1, 2, s_time);
         item = kind switch
         {
             "operation" => item with { OperationId = Guid.NewGuid() },
             "kind" => item with { ResourceKind = "folder" },
             "identifier" => item with { ResourceId = Guid.NewGuid() },
             "metadata" => item with { Status = "denied" },
-            "timestamp" => item with { EditedAt = Time.AddSeconds(1) },
+            "timestamp" => item with { EditedAt = s_time.AddSeconds(1) },
             _ => item
         };
-        var details = new SyncEditsDetails(kind == "account" ? Guid.Empty : Account, null, Time, kind == "count" ? [] : [item]);
+        var details = new SyncEditsDetails(kind == "account" ? Guid.Empty : s_account, null, s_time, kind == "count" ? [] : [item]);
         var result = kind == "unknownError" ? new SyncEditsResult(Error: "internal") : new(details, kind == "errorData" ? "vault_access_denied" : null);
         var output = await Handler(result).HandleAsync(Command());
         Assert.Contains("persistence_unavailable", output.Errors);
@@ -97,8 +97,8 @@ public class UploadSyncEditsHandlerTests
     private static UploadSyncEditsHandler Handler(SyncEditsResult result)
     {
         var store = new Mock<ISyncEditsStore>(MockBehavior.Strict);
-        store.Setup(x => x.UploadAsync(It.Is<SyncEditsRequest>(r => r.Actor == Actor
+        store.Setup(x => x.UploadAsync(It.Is<SyncEditsRequest>(r => r.Actor == s_actor
             && r.AccessVerifier == "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925"), It.IsAny<CancellationToken>())).ReturnsAsync(result);
-        return new(store.Object, Options);
+        return new(store.Object, s_options);
     }
 }

@@ -374,7 +374,7 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
         var p = await AssociationSetup.Profile(fixture, s, owner);
         await Sql("INSERT INTO cerberus.profile_collection(profile_id,collection_id) VALUES({0},{1})", p, a.Collection.Id);
         s = s with { Verifier = await Selected(s, p) };
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier);
         var before = await Stable(s, r, a.Collection);
         var grants = await Grants(a.Collection);
@@ -405,7 +405,7 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
         var s = await ProfileSetup.Create(fixture, owner);
         var r = await ProfileSetup.Create(fixture, client);
         var a = await AssociationSetup.Items(fixture, s);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Verifier);
         DbCommandInterceptor hook = after ? new After(Write, async _ => await Past(deadline)) : new Before(Write, async _ => await Past(deadline));
         var result = await Grant(s, a.Collection, Input(s, owner, r, client, a.Collection), new ProfileSetup.Factory(fixture, hook));
@@ -813,15 +813,15 @@ public class CollectionGrantStoreTests(PostgresFixture fixture) : IClassFixture<
     { await using var command = c.Connection!.CreateCommand(); command.Transaction = c.Transaction; command.CommandText = sql; foreach (var p in parameters) command.Parameters.Add(p); await command.ExecuteNonQueryAsync(); }
     private sealed class Before(Func<DbCommand, bool> match, Func<DbCommand, Task> action) : DbCommandInterceptor
     {
-        private bool used;
-        private async Task Check(DbCommand c) { if (!used && match(c)) { used = true; await action(c); } }
+        private bool _used;
+        private async Task Check(DbCommand c) { if (!_used && match(c)) { _used = true; await action(c); } }
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { await Check(c); return r; }
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { await Check(c); return r; }
     }
     private sealed class After(Func<DbCommand, bool> match, Func<DbCommand, Task> action) : DbCommandInterceptor
     {
-        private bool used;
-        public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (!used && match(c)) { used = true; await action(c); } return r; }
+        private bool _used;
+        public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (!_used && match(c)) { _used = true; await action(c); } return r; }
     }
 
     private async Task Outcome(ProfileSetup.State s, ProfileSetup.State r, VaultCollection c, CollectionGrantInput input, string? error)

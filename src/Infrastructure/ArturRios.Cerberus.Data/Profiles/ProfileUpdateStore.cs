@@ -11,7 +11,7 @@ namespace ArturRios.Cerberus.Data.Profiles;
 
 public sealed class ProfileUpdateStore(IDbContextFactory<AppDbContext> factory) : IProfileUpdateStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
     public async Task<VaultResult<ProfileCreateDetails>> UpdateAsync(ProfileUpdateRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -52,9 +52,9 @@ public sealed class ProfileUpdateStore(IDbContextFactory<AppDbContext> factory) 
             var protection = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id, cancellationToken);
             if (protection is null)
                 return new(Error: "persistence_unavailable");
-            var pins = JsonSerializer.Deserialize<ProtectionMaterial>(protection.Material, Json);
-            var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(profile.Envelope, Json);
-            var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(profile.KeyWrappers, Json);
+            var pins = JsonSerializer.Deserialize<ProtectionMaterial>(protection.Material, s_json);
+            var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(profile.Envelope, s_json);
+            var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(profile.KeyWrappers, s_json);
             if (pins?.IsValid() != true || protection.KeyEpoch != pins.PasswordWrapper.KeyEpoch || protection.RecoveryGeneration != pins.RecoveryWrapper.Generation
                 || protection.Revision is <= 0 or > ProtocolBinary.MaxInteger || envelope?.IsValid() != true || wrappers?.IsValid() != true
                 || wrappers.MasterKeyWrapper.GrantRevision > profile.Revision
@@ -83,7 +83,7 @@ public sealed class ProfileUpdateStore(IDbContextFactory<AppDbContext> factory) 
                     return new(Error: "revision_conflict");
                 input = input with { ExpectedRevision = profile.Revision };
             }
-            var bytes = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, s_json);
             var editedAt = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             var changed = await db.Database.ExecuteSqlInterpolatedAsync($"""
                 UPDATE cerberus.profile AS p SET envelope={bytes},edited_at={editedAt},revision=p.revision+1,

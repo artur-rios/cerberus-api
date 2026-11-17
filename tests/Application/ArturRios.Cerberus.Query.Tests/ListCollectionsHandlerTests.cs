@@ -18,7 +18,7 @@ public class ListCollectionsHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     private const string Verifier = "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
-    private static readonly Guid Actor = Guid.NewGuid();
+    private static readonly Guid s_actor = Guid.NewGuid();
     private static CerberusOptions Options() => new() { MaxPageSize = 100, RegistrationFingerprintKey = "fixture-dedicated-key-at-least-32-chars" };
 
     [UnitTheory]
@@ -37,7 +37,7 @@ public class ListCollectionsHandlerTests
     public async Task GivenInvalidContext_WhenListing_ThenRejectBeforePersistence(string kind, string error)
     {
         var store = new Mock<ICollectionListStore>(MockBehavior.Strict);
-        var query = new ListCollectionsQuery(kind == "actor" ? Guid.Empty : Actor,
+        var query = new ListCollectionsQuery(kind == "actor" ? Guid.Empty : s_actor,
             kind switch { "missing" => null, "access" => "bad", "emptyAccess" => "", "paddedAccess" => Access + "=", _ => Access },
             kind switch { "zero" => 0, "negative" => -1, "large" => 101, _ => null },
             kind switch { "empty" => "", "cursor" => "invalid", "huge" => new string('A', 2049), "paddedCursor" => "AAAA=", _ => null });
@@ -59,9 +59,9 @@ public class ListCollectionsHandlerTests
         options.MaxPageSize = maximum;
         using var ct = new CancellationTokenSource();
         var store = new Mock<ICollectionListStore>(MockBehavior.Strict);
-        store.Setup(x => x.ListAsync(new(Actor, Verifier, expected, 0, null), ct.Token))
+        store.Setup(x => x.ListAsync(new(s_actor, Verifier, expected, 0, null), ct.Token))
             .ReturnsAsync(new VaultResult<CollectionListPage>(new([], 0, false)));
-        var result = await new ListCollectionsHandler(store.Object, options, new(options)).HandleAsync(new(Actor, Access, requested, null), ct.Token);
+        var result = await new ListCollectionsHandler(store.Object, options, new(options)).HandleAsync(new(s_actor, Access, requested, null), ct.Token);
         Assert.True(result.Success);
         Assert.Contains("collections_found", result.Messages);
         Assert.Empty(result.Data!.Items);
@@ -74,12 +74,12 @@ public class ListCollectionsHandlerTests
     {
         var row = Row(1);
         var store = new Mock<ICollectionListStore>(MockBehavior.Strict);
-        store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 0, null), It.IsAny<CancellationToken>()))
+        store.Setup(x => x.ListAsync(new(s_actor, Verifier, 1, 0, null), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new VaultResult<CollectionListPage>(new([row], 3, true)));
-        store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 1, 3), It.IsAny<CancellationToken>()))
+        store.Setup(x => x.ListAsync(new(s_actor, Verifier, 1, 1, 3), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new VaultResult<CollectionListPage>(new([Row(3)], 3, false)));
         var handler = Handler(store);
-        var result = await handler.HandleAsync(new(Actor, Access, 1, null));
+        var result = await handler.HandleAsync(new(s_actor, Access, 1, null));
         Assert.True(result.Success);
         var item = Assert.Single(result.Data!.Items);
         Assert.Equal(row.CollectionId, item.CollectionId);
@@ -92,11 +92,11 @@ public class ListCollectionsHandlerTests
         Assert.Equal(["collectionId", "editedAt", "envelope", "revision", "serverSequence"],
             json.RootElement.GetProperty("items")[0].EnumerateObject().Select(x => x.Name).Order());
         var cursor = Assert.IsType<string>(result.Data.NextCursor);
-        Assert.DoesNotContain(Actor.ToString(), cursor);
+        Assert.DoesNotContain(s_actor.ToString(), cursor);
         Assert.DoesNotContain(Verifier, cursor);
         Assert.True(new CollectionListCursor(Options()).TryDecode(cursor, out var decoded));
-        Assert.Equal(new CollectionListContinuation(Actor, Verifier, 1, 1, 3), decoded);
-        var next = await handler.HandleAsync(new(Actor, Access, 1, cursor));
+        Assert.Equal(new CollectionListContinuation(s_actor, Verifier, 1, 1, 3), decoded);
+        var next = await handler.HandleAsync(new(s_actor, Access, 1, cursor));
         Assert.True(next.Success);
         Assert.Equal(3, Assert.Single(next.Data!.Items).ServerSequence);
         Assert.Null(next.Data.NextCursor);
@@ -115,14 +115,14 @@ public class ListCollectionsHandlerTests
     {
         var options = Options();
         var codec = new CollectionListCursor(options);
-        var cursor = kind == "folderPurpose" ? new FolderListCursor(options).Encode(new(Actor, Verifier, 1, 1, 3)) : kind == "profilePurpose" ? new ProfileListCursor(options).Encode(new(Actor, Verifier, 1, 1, 3)) : kind == "recordPurpose" ? new RecordListCursor(options).Encode(new(Actor, Verifier, 1, 1, 3)) : codec.Encode(new(Actor, Verifier, 1, 1, 3));
+        var cursor = kind == "folderPurpose" ? new FolderListCursor(options).Encode(new(s_actor, Verifier, 1, 1, 3)) : kind == "profilePurpose" ? new ProfileListCursor(options).Encode(new(s_actor, Verifier, 1, 1, 3)) : kind == "recordPurpose" ? new RecordListCursor(options).Encode(new(s_actor, Verifier, 1, 1, 3)) : codec.Encode(new(s_actor, Verifier, 1, 1, 3));
         if (kind == "tamper")
         { Assert.True(ProtocolBinary.TryDecode(cursor, null, out var bytes)); bytes[^1] ^= 1; cursor = ProtocolBinary.Encode(bytes); }
         if (kind == "key")
             options.RegistrationFingerprintKey = new string('z', 40);
         var store = new Mock<ICollectionListStore>(MockBehavior.Strict);
         var result = await new ListCollectionsHandler(store.Object, options, new(options)).HandleAsync(new(
-            kind == "actor" ? Guid.NewGuid() : Actor,
+            kind == "actor" ? Guid.NewGuid() : s_actor,
             kind == "access" ? ProtocolBinary.Encode([.. Enumerable.Repeat((byte)1, 32)]) : Access,
             kind == "size" ? 2 : 1, cursor));
         Assert.Contains("validation_failed", result.Errors);
@@ -145,7 +145,7 @@ public class ListCollectionsHandlerTests
     [InlineData("verifierNonHex")]
     public void GivenAuthenticatedInvalidCursorTuple_WhenDecoding_ThenReject(string kind)
     {
-        var tuple = new CollectionListContinuation(kind == "actor" ? Guid.Empty : Actor,
+        var tuple = new CollectionListContinuation(kind == "actor" ? Guid.Empty : s_actor,
             kind switch { "verifierLength" => "bad", "verifierCase" => Verifier.ToUpperInvariant(), "verifierNonHex" => new string('g', 64), _ => Verifier },
             kind switch { "sizeZero" => 0, "sizeNegative" => -1, _ => 1 },
             kind switch { "afterZero" => 0, "afterNegative" => -1, "afterBoundary" => 3, "afterPast" => 4, _ => 1 },
@@ -168,7 +168,7 @@ public class ListCollectionsHandlerTests
     [InlineData("missingBoundary")]
     public void GivenAuthenticatedMalformedCursorJson_WhenDecoding_ThenReject(string kind)
     {
-        var json = JsonSerializer.Serialize(new CollectionListContinuation(Actor, Verifier, 1, 1, 3), ProtectionFixture.Json);
+        var json = JsonSerializer.Serialize(new CollectionListContinuation(s_actor, Verifier, 1, 1, 3), ProtectionFixture.Json);
         json = kind switch
         {
             "duplicate" => json.Replace("{", "{\"after\":1,"),
@@ -177,7 +177,7 @@ public class ListCollectionsHandlerTests
             "numericString" => json.Replace("\"after\":1", "\"after\":\"1\""),
             "unsafeInteger" => json.Replace("\"after\":1", "\"after\":9223372036854775808"),
             "null" => "null",
-            "missingActor" => json.Replace($"\"actor\":\"{Actor}\",", ""),
+            "missingActor" => json.Replace($"\"actor\":\"{s_actor}\",", ""),
             "missingVerifier" => json.Replace($"\"accessVerifier\":\"{Verifier}\",", ""),
             "missingSize" => json.Replace("\"pageSize\":1,", ""),
             "missingAfter" => json.Replace("\"after\":1,", ""),
@@ -192,7 +192,7 @@ public class ListCollectionsHandlerTests
     [InlineData("vault_access_denied")]
     [InlineData("persistence_unavailable")]
     public async Task GivenAllowlistedStoreError_WhenListing_ThenReturnSafeErrorWithoutPayload(string error)
-    { var result = await Handler(MockStore(new(Error: error))).HandleAsync(new(Actor, Access, null, null)); Assert.Contains(error, result.Errors); Assert.Null(result.Data); }
+    { var result = await Handler(MockStore(new(Error: error))).HandleAsync(new(s_actor, Access, null, null)); Assert.Contains(error, result.Errors); Assert.Null(result.Data); }
 
     [UnitTheory]
     [InlineData("nullResult")]
@@ -212,7 +212,7 @@ public class ListCollectionsHandlerTests
             "successAsError" => new(Error: "collections_found"),
             _ => new(Error: "authentication_required")
         };
-        var result = await Handler(MockStore(page!)).HandleAsync(new(Actor, Access, null, null));
+        var result = await Handler(MockStore(page!)).HandleAsync(new(s_actor, Access, null, null));
         Assert.Contains("persistence_unavailable", result.Errors);
         Assert.Null(result.Data);
         Assert.DoesNotContain("SELECT private table failed", result.Errors);
@@ -273,7 +273,7 @@ public class ListCollectionsHandlerTests
         };
         var boundary = kind switch { "boundaryNegative" => -1, "boundaryUnsafe" => ProtocolBinary.MaxInteger + 1, "outsideBoundary" => 0, "atBoundaryMore" => 1, _ => 100 };
         var result = await Handler(MockStore(new(new(rows, boundary, kind is "emptyMore" or "shortMore" or "atBoundaryMore"))))
-            .HandleAsync(new(Actor, Access, kind == "atBoundaryMore" ? 1 : null, null));
+            .HandleAsync(new(s_actor, Access, kind == "atBoundaryMore" ? 1 : null, null));
         Assert.Contains("persistence_unavailable", result.Errors);
         Assert.Null(result.Data);
     }
@@ -322,7 +322,7 @@ public class ListCollectionsHandlerTests
             _ => json
         };
         row = row with { Envelope = kind == "nullBytes" ? null! : Encoding.UTF8.GetBytes(json) };
-        var result = await Handler(MockStore(new(new([Row(1), row], 2, false)))).HandleAsync(new(Actor, Access, null, null));
+        var result = await Handler(MockStore(new(new([Row(1), row], 2, false)))).HandleAsync(new(s_actor, Access, null, null));
         Assert.Contains("persistence_unavailable", result.Errors);
         Assert.Null(result.Data);
     }
@@ -333,32 +333,32 @@ public class ListCollectionsHandlerTests
     [InlineData("afterRepeated")]
     public async Task GivenInvalidContinuationPage_WhenListing_ThenRejectStoreViolation(string kind)
     {
-        var cursor = new CollectionListCursor(Options()).Encode(new(Actor, Verifier, 1, 1, 3));
+        var cursor = new CollectionListCursor(Options()).Encode(new(s_actor, Verifier, 1, 1, 3));
         var store = new Mock<ICollectionListStore>(MockBehavior.Strict);
-        store.Setup(x => x.ListAsync(new(Actor, Verifier, 1, 1, 3), It.IsAny<CancellationToken>())).ReturnsAsync(
+        store.Setup(x => x.ListAsync(new(s_actor, Verifier, 1, 1, 3), It.IsAny<CancellationToken>())).ReturnsAsync(
             new VaultResult<CollectionListPage>(new([Row(kind == "afterRepeated" ? 1 : 2)], kind == "boundaryChanged" ? 4 : kind == "boundaryBehind" ? 0 : 3, false)));
-        var result = await Handler(store).HandleAsync(new(Actor, Access, 1, cursor));
+        var result = await Handler(store).HandleAsync(new(s_actor, Access, 1, cursor));
         Assert.Contains("persistence_unavailable", result.Errors);
         Assert.Null(result.Data);
     }
 
     [UnitFact]
     public async Task GivenCancelledCaller_WhenListing_ThenPropagateBeforeStore()
-    { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new(MockBehavior.Strict)).HandleAsync(new(Actor, Access, null, null), ct.Token)); }
+    { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new(MockBehavior.Strict)).HandleAsync(new(s_actor, Access, null, null), ct.Token)); }
 
     [UnitFact]
     public async Task GivenStoreCancellation_WhenListing_ThenPropagateSameCallerToken()
     {
         using var ct = new CancellationTokenSource();
         var store = new Mock<ICollectionListStore>(MockBehavior.Strict);
-        store.Setup(x => x.ListAsync(new(Actor, Verifier, 50, 0, null), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token));
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store).HandleAsync(new(Actor, Access, null, null), ct.Token));
+        store.Setup(x => x.ListAsync(new(s_actor, Verifier, 50, 0, null), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store).HandleAsync(new(s_actor, Access, null, null), ct.Token));
     }
 
     private static Mock<ICollectionListStore> MockStore(VaultResult<CollectionListPage> result)
     {
         var store = new Mock<ICollectionListStore>(MockBehavior.Strict);
-        store.Setup(x => x.ListAsync(It.Is<CollectionListRequest>(r => r.Actor == Actor && r.AccessVerifier == Verifier && r.After == 0 && r.Boundary == null), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        store.Setup(x => x.ListAsync(It.Is<CollectionListRequest>(r => r.Actor == s_actor && r.AccessVerifier == Verifier && r.After == 0 && r.Boundary == null), It.IsAny<CancellationToken>())).ReturnsAsync(result);
         return store;
     }
     private static ListCollectionsHandler Handler(Mock<ICollectionListStore> store) => new(store.Object, Options(), new(Options()));

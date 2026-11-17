@@ -11,7 +11,7 @@ namespace ArturRios.Cerberus.Data.Records;
 
 public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : IRecordListStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
 
     public async Task<VaultResult<RecordListPage>> ListAsync(RecordListRequest request, CancellationToken ct)
@@ -146,10 +146,10 @@ public sealed class RecordListStore(IDbContextFactory<AppDbContext> factory) : I
                 return new(Error: "vault_access_denied");
             if (snapshot.CorruptOrdering || snapshot.CorruptAncestry)
                 return new(Error: "persistence_unavailable");
-            foreach (var evidence in JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!)
+            foreach (var evidence in JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, s_json)!)
                 if (!evidence.IsBound())
                     return new(Error: "persistence_unavailable");
-            var items = JsonSerializer.Deserialize<Item[]>(snapshot.Items, Json)!
+            var items = JsonSerializer.Deserialize<Item[]>(snapshot.Items, s_json)!
                 .Select(x => new RecordListRow(x.RecordId, x.Revision, x.ServerSequence, x.EditedAt, Convert.FromHexString(x.Envelope))).ToArray();
             return new(new(items, snapshot.Boundary, snapshot.HasMore));
         }

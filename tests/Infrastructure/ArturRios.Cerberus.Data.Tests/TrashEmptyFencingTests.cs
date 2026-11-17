@@ -30,7 +30,7 @@ public partial class TrashEmptyStoreTests
         Assert.Equal("persistence_unavailable", (await Store(ledger).EmptyAsync(Request(s), default)).Error);
         Assert.Equal(before, await TrashRestoreSetup.Snapshot(fixture, s));
         Assert.True(await Exists(root));
-        Assert.Single(Directory.GetFiles(directory, "*.json"));
+        Assert.Single(Directory.GetFiles(_directory, "*.json"));
         await Expire(s);
         Assert.Null((await Store().EmptyAsync(Request(s), default)).Error);
         Assert.False(await Exists(root));
@@ -69,7 +69,7 @@ public partial class TrashEmptyStoreTests
         Assert.Equal(0, hook.Affected);
         Assert.Equal(before, await TrashRestoreSetup.Snapshot(fixture, s));
         Assert.True(await Exists(root));
-        Assert.Single(Directory.GetFiles(directory, "*.json"));
+        Assert.Single(Directory.GetFiles(_directory, "*.json"));
         await Expire(s);
         Assert.Null((await Store().EmptyAsync(Request(s), default)).Error);
         Assert.False(await Exists(root));
@@ -113,7 +113,7 @@ public partial class TrashEmptyStoreTests
         finally { await tx.CommitAsync(); }
         Assert.Equal("vault_access_denied", (await pending).Error);
         Assert.Equal(before, await State(s));
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
     }
     [FunctionalFact]
     public async Task GivenSessionExpiresImmediatelyBeforeGuardedAdmission_WhenEmptying_Then403WithoutQueueOrTerminalIntent()
@@ -127,7 +127,7 @@ public partial class TrashEmptyStoreTests
         Assert.Equal("vault_access_denied", (await Store(factory: new ProfileSetup.Factory(fixture, hook)).EmptyAsync(Request(s), default)).Error);
         Assert.True(hook.Reached);
         Assert.Equal(before, await State(s));
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
     }
     [FunctionalTheory]
     [InlineData("account")]
@@ -143,7 +143,7 @@ public partial class TrashEmptyStoreTests
         var root = await TrashRestoreSetup.RootAsync(fixture, s, keys, "record");
         await AssociationSetup.Profile(fixture, s, keys);
         Assert.Equal("persistence_unavailable", (await Store(new PermanentDeleteSetup.LedgerBoundary(Ledger, () => throw new IOException("leave pending intent"))).EmptyAsync(Request(s), default)).Error);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         RetentionClaim claim;
         await using (var db = fixture.CreateContext())
         { var job = await db.RetentionWorkItems.SingleAsync(x => x.OperationKey == "trash-erase/" + s.AccountId); job.ClaimExpiresAt = deadline; await db.SaveChangesAsync(); claim = new(job.PublicId, job.ClaimToken!.Value, job.OperationKey, deadline); }

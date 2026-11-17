@@ -9,8 +9,8 @@ public class EmptyTrashHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     private const string Verifier = "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
-    private static readonly Guid Actor = Guid.NewGuid(), Account = Guid.NewGuid();
-    private static readonly DateTimeOffset Time = DateTimeOffset.FromUnixTimeSeconds(1780000000);
+    private static readonly Guid s_actor = Guid.NewGuid(), s_account = Guid.NewGuid();
+    private static readonly DateTimeOffset s_time = DateTimeOffset.FromUnixTimeSeconds(1780000000);
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -24,7 +24,7 @@ public class EmptyTrashHandlerTests
     {
         var store = new Mock<ITrashEmptyStore>(MockBehavior.Strict);
         var command = Command();
-        command.SetContext(damage == "actor" ? Guid.Empty : Actor, damage switch { "missing" => null, "access" => "bad", "empty" => "", "padded" => Access + "=", _ => Access });
+        command.SetContext(damage == "actor" ? Guid.Empty : s_actor, damage switch { "missing" => null, "access" => "bad", "empty" => "", "padded" => Access + "=", _ => Access });
         command.ExpectedRevision = damage switch { "zero" => 0, "negative" => -1, "unsafe" => ProtocolBinary.MaxInteger + 1, _ => 1 };
         var result = await Handler(store).HandleAsync(command);
         Assert.Contains(error, result.Errors);
@@ -39,12 +39,12 @@ public class EmptyTrashHandlerTests
     {
         using var ct = new CancellationTokenSource();
         var store = new Mock<ITrashEmptyStore>(MockBehavior.Strict);
-        store.Setup(s => s.EmptyAsync(new(Actor, Verifier, 1), ct.Token)).ReturnsAsync(new VaultResult<TrashEmptyDetails>(Details(count)));
+        store.Setup(s => s.EmptyAsync(new(s_actor, Verifier, 1), ct.Token)).ReturnsAsync(new VaultResult<TrashEmptyDetails>(Details(count)));
         var r = await Handler(store).HandleAsync(Command(), ct.Token);
         Assert.True(r.Success);
         Assert.Contains("trash_emptied", r.Messages);
-        Assert.Equal(Account, r.Data!.AccountId);
-        Assert.Equal(Time, r.Data.PurgedAt);
+        Assert.Equal(s_account, r.Data!.AccountId);
+        Assert.Equal(s_time, r.Data.PurgedAt);
         Assert.Equal(count, r.Data.TotalPurged);
         Assert.Equal(4, r.Data.Counts.Count);
         Assert.Equal(count, r.Data.Counts.Single(x => x.Kind == "record").Count);
@@ -110,7 +110,7 @@ public class EmptyTrashHandlerTests
             "unsafeCount" => [new("record", ProtocolBinary.MaxInteger + 1), .. d.Counts.Skip(1)],
             _ => d.Counts
         };
-        d = d with { AccountId = damage == "account" ? Guid.Empty : Account, PurgedAt = damage switch { "time" => default, "precision" => Time.AddTicks(1), "offset" => Time.ToOffset(TimeSpan.FromHours(1)), _ => Time }, Counts = counts, TotalPurged = damage switch { "negativeTotal" => -1, "unsafeTotal" => ProtocolBinary.MaxInteger + 1, "mismatch" => 2, _ => 1 } };
+        d = d with { AccountId = damage == "account" ? Guid.Empty : s_account, PurgedAt = damage switch { "time" => default, "precision" => s_time.AddTicks(1), "offset" => s_time.ToOffset(TimeSpan.FromHours(1)), _ => s_time }, Counts = counts, TotalPurged = damage switch { "negativeTotal" => -1, "unsafeTotal" => ProtocolBinary.MaxInteger + 1, "mismatch" => 2, _ => 1 } };
         var r = await Handler(Store(new(d))).HandleAsync(Command());
         Assert.Contains("persistence_unavailable", r.Errors);
         Assert.Null(r.Data);
@@ -125,7 +125,7 @@ public class EmptyTrashHandlerTests
         if (kind == "caller")
             ct.Cancel();
         else
-            store.Setup(s => s.EmptyAsync(new(Actor, Verifier, 1), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token));
+            store.Setup(s => s.EmptyAsync(new(s_actor, Verifier, 1), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token));
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store).HandleAsync(Command(), ct.Token));
     }
     [UnitTheory]
@@ -141,8 +141,8 @@ public class EmptyTrashHandlerTests
     [UnitFact]
     public void GivenEmptyTrashMessages_WhenMapping_ThenStableSuccessAndAllRequiredFailureStatuses()
     { var x = EmptyTrashMessages.StatusCodes; Assert.Equal(200, x["trash_emptied"]); Assert.Equal(400, x["validation_failed"]); Assert.Equal(401, x["authentication_required"]); Assert.Equal(401, x["vault_access_required"]); Assert.Equal(403, x["vault_access_denied"]); Assert.Equal(404, x["not_found"]); Assert.Equal(409, x["revision_conflict"]); Assert.Equal(503, x["identity_unavailable"]); Assert.Equal(503, x["persistence_unavailable"]); Assert.Equal(9, x.Count); }
-    private static EmptyTrashCommand Command() { var c = new EmptyTrashCommand { ExpectedRevision = 1 }; c.SetContext(Actor, Access); return c; }
-    private static TrashEmptyDetails Details(long count = 1) => new(Account, Time, [new("record", count), new("folder", 0), new("collection", 0), new("profile", 0)], count);
-    private static Mock<ITrashEmptyStore> Store(VaultResult<TrashEmptyDetails> value) { var s = new Mock<ITrashEmptyStore>(MockBehavior.Strict); s.Setup(x => x.EmptyAsync(new(Actor, Verifier, 1), It.IsAny<CancellationToken>())).ReturnsAsync(value); return s; }
+    private static EmptyTrashCommand Command() { var c = new EmptyTrashCommand { ExpectedRevision = 1 }; c.SetContext(s_actor, Access); return c; }
+    private static TrashEmptyDetails Details(long count = 1) => new(s_account, s_time, [new("record", count), new("folder", 0), new("collection", 0), new("profile", 0)], count);
+    private static Mock<ITrashEmptyStore> Store(VaultResult<TrashEmptyDetails> value) { var s = new Mock<ITrashEmptyStore>(MockBehavior.Strict); s.Setup(x => x.EmptyAsync(new(s_actor, Verifier, 1), It.IsAny<CancellationToken>())).ReturnsAsync(value); return s; }
     private static EmptyTrashHandler Handler(Mock<ITrashEmptyStore> store) => new(new EmptyTrashValidator(), store.Object);
 }

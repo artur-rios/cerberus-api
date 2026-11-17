@@ -13,7 +13,7 @@ namespace ArturRios.Cerberus.Data.Folders;
 
 public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : IFolderMoveStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<VaultResult<FolderMoveDetails>> MoveAsync(FolderMoveRequest request, CancellationToken ct)
@@ -38,7 +38,7 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
             var error = StateError(initial, account.Id);
             if (error is not null)
                 return new(Error: error);
-            var item = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
+            var item = JsonSerializer.Deserialize<Item>(initial.Item!, s_json)!;
             var original = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == item.Id, ct);
             var originalParent = original.ParentFolderId;
             var selection = await db.VaultAccessSessions.Where(x => x.AccountId == account.Id && x.HandleVerifier == request.AccessVerifier).Select(x => x.ProfileId).SingleAsync(ct);
@@ -64,7 +64,7 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
             error = StateError(await SnapshotAsync(db, request, ct), account.Id);
             if (error is not null)
                 return new(Error: error);
-            var inventory = JsonSerializer.Deserialize<Member[]>(initial.Members, Json)!;
+            var inventory = JsonSerializer.Deserialize<Member[]>(initial.Members, s_json)!;
             var capturedFolders = inventory.Where(x => x.Kind == "folder").Select(x => x.Id).ToArray();
             var capturedRecords = inventory.Where(x => x.Kind == "record").Select(x => x.Id).ToArray();
             var folderIds = capturedFolders.Concat(new[] { originalParent, initial.DestinationId }.OfType<long>()).Distinct().ToArray();
@@ -105,7 +105,7 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
             original = await db.Folders.AsNoTracking().SingleAsync(x => x.Id == item.Id, ct);
             if (!ValidMetadata(original.Revision, original.ServerSequence, original.EditedAt, original.PurgeAt)
                 || inventory.Any(x => !ValidMetadata(x.Revision, x.Sequence, x.EditedAt, x.PurgeAt))
-                || JsonSerializer.Deserialize<EncryptedEnvelope>(original.Envelope, Json)?.IsValid() != true)
+                || JsonSerializer.Deserialize<EncryptedEnvelope>(original.Envelope, s_json)?.IsValid() != true)
                 return new(Error: "persistence_unavailable");
             if (original.Revision != request.ExpectedRevision || original.Revision == ProtocolBinary.MaxInteger)
                 return new(Error: "revision_conflict");
@@ -178,7 +178,7 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
             return "persistence_unavailable";
         if (s.Item is null)
             return "not_found";
-        if (JsonSerializer.Deserialize<Item>(s.Item, Json)!.AccountId != owner)
+        if (JsonSerializer.Deserialize<Item>(s.Item, s_json)!.AccountId != owner)
             return ValidForeignNative(s) ? "vault_access_denied" : "persistence_unavailable";
         if (s.DestinationCorrupt || s.MemberCorrupt)
             return "persistence_unavailable";
@@ -190,7 +190,7 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
     }
     private static bool ValidResultNative(Snapshot snapshot)
     {
-        var evidence = JsonSerializer.Deserialize<ResultEvidence[]>(snapshot.NativeEvidence, Json)!;
+        var evidence = JsonSerializer.Deserialize<ResultEvidence[]>(snapshot.NativeEvidence, s_json)!;
         if (evidence.Length == 0)
             return true;
         // Parse each current pin bundle once per exact row, including recipients with
@@ -217,10 +217,10 @@ public sealed class FolderMoveStore(IDbContextFactory<AppDbContext> factory) : I
     }
     private static bool ValidForeignNative(Snapshot snapshot)
     {
-        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
+        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, s_json)!;
         if (grants.Length == 0)
             return true;
-        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, Json);
+        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, s_json);
         if (p is null || !CollectionGrantBinding.TryReadPins(Pins(p.OwnerMaterial, p.OwnerRevision, p.OwnerEpoch, p.OwnerGeneration), out var owner)
             || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient))
             return false;

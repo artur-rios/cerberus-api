@@ -193,16 +193,16 @@ public partial class AccountExportHttpTests
     { public AppDbContext CreateDbContext() { var options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(connection); if (interceptor is not null) options.AddInterceptors(interceptor); return new(options.Options); } }
     private sealed class WireFetchGate(bool fail) : DbCommandInterceptor
     {
-        private int calls; public TaskCompletionSource Reached { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously); public TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _calls; public TaskCompletionSource Reached { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously); public TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
-        { if (c.CommandText.TrimStart().StartsWith("FETCH ", StringComparison.OrdinalIgnoreCase) && ++calls == 2) { Reached.TrySetResult(); await Release.Task.WaitAsync(ct); if (fail) throw new IOException("private-export-wire-canary"); } return r; }
+        { if (c.CommandText.TrimStart().StartsWith("FETCH ", StringComparison.OrdinalIgnoreCase) && ++_calls == 2) { Reached.TrySetResult(); await Release.Task.WaitAsync(ct); if (fail) throw new IOException("private-export-wire-canary"); } return r; }
     }
     private sealed class WireDatabaseWait : DbCommandInterceptor
     {
-        private int calls; public TaskCompletionSource Reached { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _calls; public TaskCompletionSource Reached { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
         {
-            if (c.CommandText.TrimStart().StartsWith("FETCH ", StringComparison.OrdinalIgnoreCase) && ++calls == 2)
+            if (c.CommandText.TrimStart().StartsWith("FETCH ", StringComparison.OrdinalIgnoreCase) && ++_calls == 2)
             { await using var sleep = c.Connection!.CreateCommand(); sleep.Transaction = c.Transaction; sleep.CommandText = "SELECT pg_sleep(60)"; sleep.CommandTimeout = 60; Reached.TrySetResult(); await sleep.ExecuteNonQueryAsync(ct); }
             return r;
         }
@@ -211,7 +211,7 @@ public partial class AccountExportHttpTests
     { public Task<AccountExportOpenResult> OpenAsync(AccountExportRequest request, CancellationToken ct) { ct.ThrowIfCancellationRequested(); lease.Arm(); return Task.FromResult(new AccountExportOpenResult(Lease: lease)); } }
     private sealed class WireFaultLease(ExportState state, string? failure = null, string? initialError = null) : IAccountExportLease
     {
-        private int attempts; public bool DisposalAttempted => attempts > 0;
+        private int _attempts; public bool DisposalAttempted => _attempts > 0;
         public TaskCompletionSource EndReached { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously); public TaskCompletionSource EndRelease { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public TaskCompletionSource Disposed { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public AccountExportHeader Header { get; private set; } = null!;
@@ -219,14 +219,14 @@ public partial class AccountExportHttpTests
         private string? Failure => failure;
         public void Arm() => Header = new(state.AccountId, state.Actor, 1, 1, 1, true, 86400, DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
         public IAsyncEnumerable<AccountExportEntry> ReadAsync(CancellationToken ct) => new FaultReader(this, ct);
-        public ValueTask DisposeAsync() { var attempt = ++attempts; Disposed.TrySetResult(); if (attempt == 1 && failure == "lease") throw new IOException("private-export-wire-canary"); return ValueTask.CompletedTask; }
+        public ValueTask DisposeAsync() { var attempt = ++_attempts; Disposed.TrySetResult(); if (attempt == 1 && failure == "lease") throw new IOException("private-export-wire-canary"); return ValueTask.CompletedTask; }
         private sealed class FaultReader(WireFaultLease owner, CancellationToken ct) : IAsyncEnumerable<AccountExportEntry>, IAsyncEnumerator<AccountExportEntry>
         {
-            private int count;
+            private int _count;
             public AccountExportEntry Current => new AccountExportAccount([1, 2, 3]);
             public IAsyncEnumerator<AccountExportEntry> GetAsyncEnumerator(CancellationToken cancellationToken = default) => this;
             public async ValueTask<bool> MoveNextAsync()
-            { ct.ThrowIfCancellationRequested(); if (count++ == 0) { if (owner.InitialError is { } error) { if (error == "io") throw new IOException("private-export-wire-canary"); throw new AccountExportException(error); } return true; } owner.EndReached.TrySetResult(); await owner.EndRelease.Task.WaitAsync(ct); return false; }
+            { ct.ThrowIfCancellationRequested(); if (_count++ == 0) { if (owner.InitialError is { } error) { if (error == "io") throw new IOException("private-export-wire-canary"); throw new AccountExportException(error); } return true; } owner.EndReached.TrySetResult(); await owner.EndRelease.Task.WaitAsync(ct); return false; }
             public ValueTask DisposeAsync() { if (owner.Failure == "enumerator") throw new IOException("private-export-wire-canary"); return ValueTask.CompletedTask; }
         }
     }

@@ -11,9 +11,9 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class RevokeCollectionAccessHandlerTests
 {
     private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static readonly Guid Actor = Guid.Parse("11111111-1111-4111-8111-111111111111");
-    private static readonly Guid Collection = Guid.Parse("22222222-2222-4222-8222-222222222222");
-    private static readonly Guid Grant = Guid.Parse("33333333-3333-4333-8333-333333333333");
+    private static readonly Guid s_actor = Guid.Parse("11111111-1111-4111-8111-111111111111");
+    private static readonly Guid s_collection = Guid.Parse("22222222-2222-4222-8222-222222222222");
+    private static readonly Guid s_grant = Guid.Parse("33333333-3333-4333-8333-333333333333");
 
     // Omitting any validation gate would reach the rejecting store instead of returning 400.
     [UnitTheory]
@@ -35,7 +35,7 @@ public class RevokeCollectionAccessHandlerTests
             "overflowRevision" => long.MaxValue,
             _ => 1
         });
-        command.SetContext(Actor, Handle, kind == "collection" ? Guid.Empty : Collection, kind == "grant" ? Guid.Empty : Grant);
+        command.SetContext(s_actor, Handle, kind == "collection" ? Guid.Empty : s_collection, kind == "grant" ? Guid.Empty : s_grant);
         Assert.False((await new RevokeCollectionAccessValidator().ValidateAsync(command)).IsValid);
         AssertFailure(await Handler(RejectingStore()).HandleAsync(command), "validation_failed", 400);
     }
@@ -51,7 +51,7 @@ public class RevokeCollectionAccessHandlerTests
     public async Task GivenMissingAuthorityOrInvalidHandle_WhenHandling_ThenRejectBeforeValidation(string kind, string error, int status)
     {
         var command = Command(0);
-        command.SetContext(kind == "actor" ? Guid.Empty : Actor, kind switch
+        command.SetContext(kind == "actor" ? Guid.Empty : s_actor, kind switch
         {
             "actor" or "missingAccess" => null,
             "emptyAccess" => "",
@@ -78,14 +78,14 @@ public class RevokeCollectionAccessHandlerTests
         {
             received = request;
             receivedToken = token;
-            return Task.FromResult(new VaultResult<CollectionGrantRevocationDetails>(new(Collection, Grant, revision)));
+            return Task.FromResult(new VaultResult<CollectionGrantRevocationDetails>(new(s_collection, s_grant, revision)));
         });
         var result = await Handler(store).HandleAsync(command, cancellation.Token);
         Assert.True(result.Success);
         Assert.Empty(result.Errors);
         Assert.Equal(new[] { "collection_access_revoked" }, result.Messages);
-        Assert.Equal(Collection, result.Data!.CollectionId);
-        Assert.Equal(Grant, result.Data.GrantId);
+        Assert.Equal(s_collection, result.Data!.CollectionId);
+        Assert.Equal(s_grant, result.Data.GrantId);
         Assert.Equal(command.ExpectedRevision + 1, result.Data.Revision);
         Assert.Equal(revision, result.Data.Revision);
         Assert.Equal(new[] { "CollectionId", "GrantId", "Revision" },
@@ -93,9 +93,9 @@ public class RevokeCollectionAccessHandlerTests
         Assert.Equal("{\"collectionId\":\"22222222-2222-4222-8222-222222222222\",\"grantId\":\"33333333-3333-4333-8333-333333333333\",\"revision\":" + revision + "}",
             JsonSerializer.Serialize(result.Data, ProtectionFixture.Json));
         Assert.Equal(200, CollectionGrantRevocationMessages.StatusCodes[result.Messages.Single()]);
-        Assert.Equal(Actor, received!.Actor);
-        Assert.Equal(Collection, received.CollectionId);
-        Assert.Equal(Grant, received.GrantId);
+        Assert.Equal(s_actor, received!.Actor);
+        Assert.Equal(s_collection, received.CollectionId);
+        Assert.Equal(s_grant, received.GrantId);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
         Assert.Equal(expected, received.Input.ExpectedRevision);
         Assert.Equal(cancellation.Token, receivedToken);
@@ -125,7 +125,7 @@ public class RevokeCollectionAccessHandlerTests
     [InlineData("secret_recipient_123")]
     [InlineData("")]
     public async Task GivenStoreErrorWithData_WhenHandling_ThenFailClosed(string error) =>
-        AssertFailure(await Handler(ReturningStore(new(new(Collection, Grant, 2), error))).HandleAsync(Command()), "persistence_unavailable", 503);
+        AssertFailure(await Handler(ReturningStore(new(new(s_collection, s_grant, 2), error))).HandleAsync(Command()), "persistence_unavailable", 503);
 
     // Trusting null/corrupt store evidence or an unadvanced revision would falsely acknowledge revocation.
     [UnitTheory]
@@ -142,13 +142,13 @@ public class RevokeCollectionAccessHandlerTests
     [InlineData("unsafeRevision")]
     public async Task GivenMalformedStoreSuccess_WhenHandling_Then503WithoutPayload(string kind)
     {
-        CollectionGrantRevocationDetails? details = new(Collection, Grant, 2);
+        CollectionGrantRevocationDetails? details = new(s_collection, s_grant, 2);
         details = kind switch
         {
             "nullData" => null,
-            "collection" => details with { CollectionId = Actor },
+            "collection" => details with { CollectionId = s_actor },
             "zeroCollection" => details with { CollectionId = Guid.Empty },
-            "grant" => details with { GrantId = Actor },
+            "grant" => details with { GrantId = s_actor },
             "zeroGrant" => details with { GrantId = Guid.Empty },
             "zeroRevision" => details with { Revision = 0 },
             "negativeRevision" => details with { Revision = -1 },
@@ -183,7 +183,7 @@ public class RevokeCollectionAccessHandlerTests
     private static RevokeCollectionAccessCommand Command(long revision = 1)
     {
         var command = new RevokeCollectionAccessCommand { ExpectedRevision = revision };
-        command.SetContext(Actor, Handle, Collection, Grant);
+        command.SetContext(s_actor, Handle, s_collection, s_grant);
         return command;
     }
 

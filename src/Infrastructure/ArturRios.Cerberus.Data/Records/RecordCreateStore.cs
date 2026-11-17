@@ -13,7 +13,7 @@ namespace ArturRios.Cerberus.Data.Records;
 
 public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) : IRecordCreateStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web);
 
     public async Task<VaultResult<RecordCreateDetails>> CreateAsync(RecordCreateRequest request, CancellationToken ct)
     {
@@ -105,7 +105,7 @@ public sealed class RecordCreateStore(IDbContextFactory<AppDbContext> factory) :
             }
             if (await db.Records.AnyAsync(x => x.PublicId == input.RecordId, ct) || await db.TerminalErasures.AnyAsync(x => (x.ResourceKind == "record" && x.ResourceId == input.RecordId), ct))
                 return new(Error: "revision_conflict");
-            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
+            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, s_json);
             var editedAt = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             var folderIds = folders.Select(x => x.Id).ToArray();
             long? parentId = parent?.Id;

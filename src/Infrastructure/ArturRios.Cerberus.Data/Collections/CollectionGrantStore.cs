@@ -14,7 +14,7 @@ namespace ArturRios.Cerberus.Data.Collections;
 
 public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory) : ICollectionGrantStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<VaultResult<CollectionGrantDetails>> GrantAsync(CollectionGrantRequest request, CancellationToken ct)
@@ -57,7 +57,7 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
                 return new(Error: error);
             if (captured.Selection != initial.Selection)
                 return new(Error: "revision_conflict");
-            var item = JsonSerializer.Deserialize<Item>(captured.Item!, Json)!;
+            var item = JsonSerializer.Deserialize<Item>(captured.Item!, s_json)!;
             async Task<string?> Recheck()
             {
                 var current = await SnapshotAsync(db, request, ct);
@@ -83,11 +83,11 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
             if (!CollectionGrantBinding.TryReadPins(protections.SingleOrDefault(x => x.AccountId == captured.OwnerId), out var ownerPins)
                 || !CollectionGrantBinding.TryReadPins(protections.SingleOrDefault(x => x.AccountId == captured.RecipientId), out var recipientPins))
                 return new(Error: "persistence_unavailable");
-            var collectionEnvelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(item.Envelope), Json);
+            var collectionEnvelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(item.Envelope), s_json);
             if (collectionEnvelope?.IsValid() != true || collectionEnvelope.KeyEpoch != item.KeyEpoch || item.PurgeAt is not null
                 || item.Revision is <= 0 or > ProtocolBinary.MaxInteger || item.Sequence is <= 0 or > ProtocolBinary.MaxInteger)
                 return new(Error: "persistence_unavailable");
-            var rows = JsonSerializer.Deserialize<GrantRow[]>(captured.Rows, Json)!;
+            var rows = JsonSerializer.Deserialize<GrantRow[]>(captured.Rows, s_json)!;
             var pair = rows.SingleOrDefault(x => x.CollectionId == item.Id && x.RecipientId == captured.RecipientId);
             var input = request.Input;
             if (captured.Reserved || rows.Any(x => x.PublicId == input.GrantId && x != pair)
@@ -99,7 +99,7 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
             if (!input.KeyEnvelope.Verify(captured.OwnerPublicId, "collection", request.CollectionId, item.KeyEpoch,
                 input.GrantId, revision, captured.RecipientIdentity!.Value, recipientPins!.RecipientKey, ownerPins!.AuthorKey))
                 return new(Error: "validation_failed");
-            var bytes = JsonSerializer.SerializeToUtf8Bytes(input.KeyEnvelope, Json);
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(input.KeyEnvelope, s_json);
             var stamp = Guid.NewGuid();
             var access = input.Access == "read-only" ? CollectionGrantAccess.ReadOnly : CollectionGrantAccess.ReadWrite;
             var parameters = Parameters(request).Concat(
@@ -161,8 +161,8 @@ public sealed class CollectionGrantStore(IDbContextFactory<AppDbContext> factory
             return "not_found";
         if (!s.ForeignTarget)
             return null;
-        var item = JsonSerializer.Deserialize<Item>(s.Item, Json)!;
-        var g = s.Native is null ? null : JsonSerializer.Deserialize<Native>(s.Native, Json);
+        var item = JsonSerializer.Deserialize<Item>(s.Item, s_json)!;
+        var g = s.Native is null ? null : JsonSerializer.Deserialize<Native>(s.Native, s_json);
         return g is not null && CollectionGrantBinding.TryReadPins(Pins(g.OwnerMaterial, g.OwnerRevision, g.OwnerEpoch, g.OwnerGeneration), out var owner)
             && CollectionGrantBinding.TryReadPins(Pins(g.RecipientMaterial, g.RecipientRevision, g.RecipientEpoch, g.RecipientGeneration), out var recipient)
             && CollectionGrantBinding.IsBound(new() { PublicId = g.GrantId, Revision = g.Revision, RecipientKeyEnvelope = Convert.FromHexString(g.Envelope) },

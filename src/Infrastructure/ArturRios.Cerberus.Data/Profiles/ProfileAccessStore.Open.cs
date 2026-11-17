@@ -21,7 +21,7 @@ public sealed partial class ProfileAccessStore : IProfileAccessStore
             var row = await db.VaultUnlockChallenges.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == account.Id && x.PublicId == request.ChallengeId, token);
             if (row is null || row.Consumed)
                 return new(Error: "vault_proof_rejected");
-            var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, Json) ?? throw new JsonException();
+            var challenge = JsonSerializer.Deserialize<VaultProofChallenge>(row.Challenge, s_json) ?? throw new JsonException();
             if (challenge.ChallengeId != row.PublicId || row.ExpiresAt != DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt))
                 return new(Error: "persistence_unavailable");
             if (row.PolicyRevision != account.PolicyRevision || row.RevocationGeneration != account.RevocationGeneration
@@ -79,7 +79,7 @@ public sealed partial class ProfileAccessStore : IProfileAccessStore
     private static bool MatchesBody(ProfileAccessRequest request)
     {
         try
-        { return JsonSerializer.Deserialize<ProfileAccessInput>(request.RawBody, Json) is { } input && input.IsValid() && input.ExpectedRevision == request.ExpectedRevision; }
+        { return JsonSerializer.Deserialize<ProfileAccessInput>(request.RawBody, s_json) is { } input && input.IsValid() && input.ExpectedRevision == request.ExpectedRevision; }
         catch (JsonException) { return false; }
     }
 }

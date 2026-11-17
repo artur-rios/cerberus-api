@@ -11,7 +11,7 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
-    private static readonly DateTimeOffset Now = new(DateTimeOffset.UtcNow.Ticks / 10 * 10, TimeSpan.Zero);
+    private static readonly DateTimeOffset s_now = new(DateTimeOffset.UtcNow.Ticks / 10 * 10, TimeSpan.Zero);
 
     [FunctionalTheory]
     [InlineData("active", null)]
@@ -100,9 +100,9 @@ public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
             if (change == "policy")
                 account.PolicyRevision++;
             if (change == "expiry")
-                session.ExpiresAt = Now;
+                session.ExpiresAt = s_now;
             if (change == "erasure")
-                competing.TerminalErasures.Add(new TerminalErasure { ResourceId = input.AccountId, ResourceKind = "account", DeletedAt = Now });
+                competing.TerminalErasures.Add(new TerminalErasure { ResourceId = input.AccountId, ResourceKind = "account", DeletedAt = s_now });
             await competing.SaveChangesAsync();
         });
         var result = await new AccountUpdateStore(new InterceptingFactory(fixture, interceptor)).UpdateAsync(input.Request, default);
@@ -127,7 +127,7 @@ public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
         // The preflight uses a valid captured instant. Pause only the final
         // statement until the unchanged session expires, then execute the UPDATE.
         var captured = RealTime.Now;
-        var expires = new DateTimeOffset((captured + RealTime.Lead).Ticks / 10 * 10, TimeSpan.Zero);
+        var expires = new DateTimeOffset((captured + RealTime.s_lead).Ticks / 10 * 10, TimeSpan.Zero);
         await using (var setup = fixture.CreateContext())
         {
             var session = await setup.VaultAccessSessions.SingleAsync(x => x.HandleVerifier == input.Request.Verifier);
@@ -156,7 +156,7 @@ public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
     [FunctionalFact]
     public async Task GivenUnavailableDatabase_WhenUpdating_ThenReturnRetryableFailure()
     {
-        var request = new AccountUpdateRequest(Guid.NewGuid(), new string('a', 64), 1, [7], Now);
+        var request = new AccountUpdateRequest(Guid.NewGuid(), new string('a', 64), 1, [7], s_now);
         var result = await new AccountUpdateStore(new UnavailableFactory()).UpdateAsync(request, default);
         Assert.Equal("persistence_unavailable", result.Error);
         Assert.Null(result.Id);
@@ -204,17 +204,17 @@ public class AccountUpdateStoreTests(PostgresFixture fixture) : IClassFixture<Po
                 AccountId = sessionOwner,
                 HandleVerifier = verifier,
                 ProfileId = state == "profile" ? 42 : null,
-                IssuedAt = state == "futureIssue" ? Now.AddSeconds(1) : Now.AddMinutes(-5),
-                ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? Now : state == "expired" ? Now.AddSeconds(-1) : Now.AddMinutes(5),
+                IssuedAt = state == "futureIssue" ? s_now.AddSeconds(1) : s_now.AddMinutes(-5),
+                ExpiresAt = state is "noExpiry" or "missingExpiry" ? null : state == "expiryEquality" ? s_now : state == "expired" ? s_now.AddSeconds(-1) : s_now.AddMinutes(5),
                 Revoked = state == "revoked",
                 PolicyRevision = state == "stalePolicy" ? 0 : 1,
                 RevocationGeneration = state == "staleGeneration" ? 0 : 1
             });
         if (state == "erased")
-            context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = Now });
+            context.TerminalErasures.Add(new TerminalErasure { ResourceId = id, ResourceKind = "account", DeletedAt = s_now });
         await context.SaveChangesAsync();
         return (id, identity, new(state == "missing" ? Guid.NewGuid() : identity, verifier,
-            state == "staleRevision" ? 2 : account.Revision, [7, 8, 9], Now));
+            state == "staleRevision" ? 2 : account.Revision, [7, 8, 9], s_now));
     }
 
     private sealed class BeforeUpdate(Func<Task> action) : DbCommandInterceptor

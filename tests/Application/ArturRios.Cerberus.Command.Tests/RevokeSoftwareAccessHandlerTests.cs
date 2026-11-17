@@ -11,8 +11,8 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class RevokeSoftwareAccessHandlerTests
 {
     private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static readonly Guid Actor = Guid.Parse("11111111-1111-4111-8111-111111111111");
-    private static readonly Guid Grant = Guid.Parse("33333333-3333-4333-8333-333333333333");
+    private static readonly Guid s_actor = Guid.Parse("11111111-1111-4111-8111-111111111111");
+    private static readonly Guid s_grant = Guid.Parse("33333333-3333-4333-8333-333333333333");
 
     // Removing a route/revision gate would allow rejected input to reach persistence.
     [UnitTheory]
@@ -26,7 +26,7 @@ public class RevokeSoftwareAccessHandlerTests
     public async Task GivenInvalidRouteOrRevision_WhenHandling_ThenRejectBeforeStore(string kind, long revision)
     {
         var command = Command(revision);
-        command.SetContext(Actor, Handle, kind == "grant" ? Guid.Empty : Grant);
+        command.SetContext(s_actor, Handle, kind == "grant" ? Guid.Empty : s_grant);
         Assert.False((await new RevokeSoftwareAccessValidator().ValidateAsync(command)).IsValid);
         AssertFailure(await Handler(RejectingStore()).HandleAsync(command), "validation_failed", 400);
     }
@@ -43,7 +43,7 @@ public class RevokeSoftwareAccessHandlerTests
     public async Task GivenMissingAuthorityOrInvalidHandle_WhenHandling_ThenRejectBeforeValidation(string kind, string error, int status)
     {
         var command = Command(0);
-        command.SetContext(kind == "actor" ? Guid.Empty : Actor, kind switch
+        command.SetContext(kind == "actor" ? Guid.Empty : s_actor, kind switch
         {
             "actor" or "missingAccess" => null,
             "emptyAccess" => "",
@@ -70,20 +70,20 @@ public class RevokeSoftwareAccessHandlerTests
         {
             received = request;
             receivedToken = token;
-            return Task.FromResult(new VaultResult<SoftwareGrantRevocationDetails>(new(Grant, revision)));
+            return Task.FromResult(new VaultResult<SoftwareGrantRevocationDetails>(new(s_grant, revision)));
         });
         var result = await Handler(store).HandleAsync(Command(expected), cancellation.Token);
         Assert.True(result.Success);
         Assert.Empty(result.Errors);
         Assert.Equal(new[] { "software_access_revoked" }, result.Messages);
-        Assert.Equal(Grant, result.Data!.GrantId);
+        Assert.Equal(s_grant, result.Data!.GrantId);
         Assert.Equal(revision, result.Data.Revision);
         Assert.Equal(new[] { "GrantId", "Revision" }, typeof(RevokeSoftwareAccessOutput).GetProperties().Select(x => x.Name).Order().ToArray());
         Assert.Equal("{\"grantId\":\"33333333-3333-4333-8333-333333333333\",\"revision\":" + revision + "}",
             JsonSerializer.Serialize(result.Data, ProtectionFixture.Json));
         Assert.Equal(200, SoftwareGrantRevocationMessages.StatusCodes[result.Messages.Single()]);
-        Assert.Equal(Actor, received!.Actor);
-        Assert.Equal(Grant, received.GrantId);
+        Assert.Equal(s_actor, received!.Actor);
+        Assert.Equal(s_grant, received.GrantId);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
         Assert.Equal(expected, received.Input.ExpectedRevision);
         Assert.Equal(cancellation.Token, receivedToken);
@@ -115,7 +115,7 @@ public class RevokeSoftwareAccessHandlerTests
     [InlineData("vault_access_required")]
     [InlineData("")]
     public async Task GivenStoreErrorWithData_WhenHandling_ThenFailClosed(string error) =>
-        AssertFailure(await Handler(ReturningStore(new(new(Grant, 2), error))).HandleAsync(Command()), "persistence_unavailable", 503);
+        AssertFailure(await Handler(ReturningStore(new(new(s_grant, 2), error))).HandleAsync(Command()), "persistence_unavailable", 503);
 
     // Acknowledging malformed or unadvanced store evidence would falsely report revocation.
     [UnitTheory]
@@ -131,11 +131,11 @@ public class RevokeSoftwareAccessHandlerTests
     [InlineData("overflowRevision")]
     public async Task GivenMalformedStoreSuccess_WhenHandling_Then503WithoutPayload(string kind)
     {
-        SoftwareGrantRevocationDetails? details = new(Grant, 2);
+        SoftwareGrantRevocationDetails? details = new(s_grant, 2);
         details = kind switch
         {
             "nullData" => null,
-            "grant" => details with { GrantId = Actor },
+            "grant" => details with { GrantId = s_actor },
             "zeroGrant" => details with { GrantId = Guid.Empty },
             "zeroRevision" => details with { Revision = 0 },
             "negativeRevision" => details with { Revision = -1 },
@@ -173,7 +173,7 @@ public class RevokeSoftwareAccessHandlerTests
     private static RevokeSoftwareAccessCommand Command(long revision = 1)
     {
         var command = new RevokeSoftwareAccessCommand { ExpectedRevision = revision };
-        command.SetContext(Actor, Handle, Grant);
+        command.SetContext(s_actor, Handle, s_grant);
         return command;
     }
 

@@ -21,8 +21,8 @@ public partial class TrashExpiryHandlerTests
         await TrashRestoreSetup.Deadline(fixture, root, DateTimeOffset.UtcNow.AddSeconds(-1));
         var plan = new ExpiryInventoryPlan(fixture);
         await Executor(factory: new ProfileSetup.Factory(fixture, plan)).ExecuteAsync(await Claim(root), default);
-        Assert.NotNull(plan.Plan);
-        using var json = JsonDocument.Parse(plan.Plan);
+        Assert.NotNull(plan._plan);
+        using var json = JsonDocument.Parse(plan._plan);
         Assert.Equal(1m, json.RootElement[0].GetProperty("Plan").GetProperty("Actual Rows").GetDecimal());
     }
     [UnitTheory]
@@ -36,16 +36,16 @@ public partial class TrashExpiryHandlerTests
     {
         var claim = new RetentionClaim(Guid.NewGuid(), Guid.NewGuid(), key, DateTimeOffset.UtcNow.AddMinutes(5));
         await Assert.ThrowsAsync<InvalidOperationException>(() => new TrashExpiryHandler(new NoExpiryDatabase(), Ledger).ExecuteAsync(claim, default));
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
     }
     private sealed class NoExpiryDatabase : IDbContextFactory<AppDbContext>
     { public AppDbContext CreateDbContext() => throw new IOException("Unexpected database access"); }
     private sealed class ExpiryInventoryPlan(PostgresFixture postgres) : DbCommandInterceptor
     {
-        internal string? Plan;
+        internal string? _plan;
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
         {
-            if (Plan is null && command.CommandText.Contains("r.public_id resource_id") && command.CommandText.Contains("LEFT JOIN cerberus.terminal_erasure"))
+            if (_plan is null && command.CommandText.Contains("r.public_id resource_id") && command.CommandText.Contains("LEFT JOIN cerberus.terminal_erasure"))
             {
                 await using var db = postgres.CreateContext();
                 await db.Database.OpenConnectionAsync(ct);
@@ -53,7 +53,7 @@ public partial class TrashExpiryHandlerTests
                 explain.CommandText = "EXPLAIN (ANALYZE, FORMAT JSON) " + command.CommandText;
                 foreach (var parameter in command.Parameters.Cast<NpgsqlParameter>())
                     explain.Parameters.Add(parameter.Clone());
-                Plan = (string)(await explain.ExecuteScalarAsync(ct))!;
+                _plan = (string)(await explain.ExecuteScalarAsync(ct))!;
             }
             return result;
         }

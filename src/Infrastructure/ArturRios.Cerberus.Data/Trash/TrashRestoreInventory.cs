@@ -54,14 +54,14 @@ internal static class TrashRestoreInventory
     {
         try
         {
-            var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, TrashJson.Options);
+            var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, TrashJson.s_options);
             if (envelope?.IsValid() != true)
                 return false;
             if (row.Kind == "collection" && row.KeyEpoch != envelope.KeyEpoch)
                 return false;
             if (row.Kind != "profile")
                 return true;
-            var wrappers = row.KeyWrappers is null ? null : JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, TrashJson.Options);
+            var wrappers = row.KeyWrappers is null ? null : JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, TrashJson.s_options);
             var protection = await db.VaultProtections.AsNoTracking().SingleOrDefaultAsync(x => x.AccountId == row.AccountId, ct);
             return CollectionGrantBinding.TryReadPins(protection, out var pins) && wrappers?.IsValid() == true
                 && wrappers.MasterKeyWrapper.GrantRevision <= row.Revision
@@ -140,6 +140,6 @@ internal static class TrashRestoreInventory
 }
 internal static class TrashJson
 {
-    internal static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web)
+    internal static readonly JsonSerializerOptions s_options = new(JsonSerializerDefaults.Web)
     { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.Strict };
 }

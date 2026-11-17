@@ -10,8 +10,8 @@ namespace ArturRios.Cerberus.Shared.Identity;
 
 public sealed partial class HeimdallClient(HttpClient client, CerberusOptions options, HeimdallTokenValidator tokens) : IHeimdallClient
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
-    private static readonly JsonSerializerOptions ApplicationJson = new(Json)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_applicationJson = new(s_json)
     { PropertyNameCaseInsensitive = false, RespectNullableAnnotations = true };
 
     public async Task<HeimdallApplicationStatus> VerifyApplicationAsync(Guid applicationId, CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ public sealed partial class HeimdallClient(HttpClient client, CerberusOptions op
             ? HeimdallApplicationStatus.NotFound : HeimdallApplicationStatus.Unavailable;
         ApplicationSnapshot? application;
         try
-        { application = response.Data.Value.Deserialize<ApplicationSnapshot>(ApplicationJson); }
+        { application = response.Data.Value.Deserialize<ApplicationSnapshot>(s_applicationJson); }
         catch (JsonException) { return HeimdallApplicationStatus.Unavailable; }
         if (application is null || application.Id != applicationId || application.ScopeId != options.HeimdallScopeId)
             return HeimdallApplicationStatus.Unavailable;
@@ -140,7 +140,7 @@ public sealed partial class HeimdallClient(HttpClient client, CerberusOptions op
             return false;
         ScopeSnapshot? scope;
         try
-        { scope = data.Value.Deserialize<ScopeSnapshot>(Json); }
+        { scope = data.Value.Deserialize<ScopeSnapshot>(s_json); }
         catch (JsonException) { return false; }
         if (scope is null || scope.Id != options.HeimdallScopeId || scope.IsDeleted || scope.OwnerIds?.Contains(id) != true)
             return false;
@@ -196,7 +196,7 @@ public sealed partial class HeimdallClient(HttpClient client, CerberusOptions op
             return null;
         HeimdallLogin? result;
         try
-        { result = data.Value.Deserialize<HeimdallLogin>(Json); }
+        { result = data.Value.Deserialize<HeimdallLogin>(s_json); }
         catch (JsonException) { return null; }
         if (result is null)
             return null;
@@ -218,15 +218,15 @@ public sealed partial class HeimdallClient(HttpClient client, CerberusOptions op
             return null;
         try
         {
-            var person = data.Value.Deserialize<HeimdallPerson>(Json);
+            var person = data.Value.Deserialize<HeimdallPerson>(s_json);
             return person?.Id != Guid.Empty ? person : null;
         }
         catch (JsonException) { return null; }
     }
 
     private sealed record DependencyResponse(JsonElement? Data, HeimdallAuthorization Status, HttpStatusCode? HttpStatus = null);
-    private static readonly DependencyResponse Unavailable = new(null, HeimdallAuthorization.Unavailable);
-    private static readonly DependencyResponse Denied = new(null, HeimdallAuthorization.Denied);
+    private static readonly DependencyResponse s_unavailable = new(null, HeimdallAuthorization.Unavailable);
+    private static readonly DependencyResponse s_denied = new(null, HeimdallAuthorization.Denied);
 
     private async Task<DependencyResponse> SendAsync(HttpMethod method, string route, object? body, string? bearer, CancellationToken cancellationToken)
     {
@@ -237,17 +237,17 @@ public sealed partial class HeimdallClient(HttpClient client, CerberusOptions op
         var dependencyToken = timeout.Token;
         using var request = new HttpRequestMessage(method, route);
         if (body is not null)
-            request.Content = JsonContent.Create(body, options: Json);
+            request.Content = JsonContent.Create(body, options: s_json);
         if (bearer is not null)
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
         try
         {
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, dependencyToken);
             if (response.StatusCode is System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.NotFound)
-                return Denied with { HttpStatus = response.StatusCode };
+                return s_denied with { HttpStatus = response.StatusCode };
             if (!response.IsSuccessStatusCode || response.Content.Headers.ContentType?.MediaType != "application/json"
                 || response.Content.Headers.ContentLength > options.MaxRequestBytes)
-                return Unavailable with { HttpStatus = response.StatusCode };
+                return s_unavailable with { HttpStatus = response.StatusCode };
             await using var stream = await response.Content.ReadAsStreamAsync(dependencyToken);
             using var buffer = new MemoryStream();
             var block = new byte[4096];
@@ -255,7 +255,7 @@ public sealed partial class HeimdallClient(HttpClient client, CerberusOptions op
             while ((read = await stream.ReadAsync(block, dependencyToken)) != 0)
             {
                 if (buffer.Length > options.MaxRequestBytes - read)
-                    return Unavailable;
+                    return s_unavailable;
                 await buffer.WriteAsync(block.AsMemory(0, read), dependencyToken);
             }
             using var document = JsonDocument.Parse(buffer.ToArray(), new JsonDocumentOptions { AllowDuplicateProperties = false });
@@ -263,12 +263,12 @@ public sealed partial class HeimdallClient(HttpClient client, CerberusOptions op
             if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("success", out var success) || success.ValueKind != JsonValueKind.True
                 || !root.TryGetProperty("errors", out var errors) || errors.ValueKind != JsonValueKind.Array || errors.GetArrayLength() != 0
                 || !root.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Object)
-                return Unavailable;
+                return s_unavailable;
             return new DependencyResponse(data.Clone(), HeimdallAuthorization.Authorized);
         }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return Unavailable; }
-        catch (HttpRequestException) { return Unavailable; }
-        catch (JsonException) { return Unavailable; }
-        catch (IOException) { return Unavailable; }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return s_unavailable; }
+        catch (HttpRequestException) { return s_unavailable; }
+        catch (JsonException) { return s_unavailable; }
+        catch (IOException) { return s_unavailable; }
     }
 }

@@ -10,9 +10,9 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class ProfileAccessHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static readonly string Proof = ProtocolBinary.Encode(new byte[64]);
-    private readonly Guid actor = Guid.NewGuid(), account = Guid.NewGuid(), id = Guid.NewGuid(), challengeId = Guid.NewGuid();
-    private static readonly DateTimeOffset Issued = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
+    private static readonly string s_proof = ProtocolBinary.Encode(new byte[64]);
+    private readonly Guid _actor = Guid.NewGuid(), _account = Guid.NewGuid(), _id = Guid.NewGuid(), _challengeId = Guid.NewGuid();
+    private static readonly DateTimeOffset s_issued = new(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
 
     [UnitTheory]
     [InlineData("Master")]
@@ -39,21 +39,21 @@ public class ProfileAccessHandlerTests
         Assert.Contains("profile_access_challenge_issued", challenge.Messages);
         Assert.Equal(details.Challenge, challenge.Data!.Challenge);
         Assert.Equal(material, challenge.Data.Profile);
-        Assert.Equal(new ProfileChallengeRequest(actor, id, 1, Access), capturedChallenge);
+        Assert.Equal(new ProfileChallengeRequest(_actor, _id, 1, Access), capturedChallenge);
         Assert.Equal(source.Token, challengeToken);
         Assert.True(result.Success);
         Assert.Contains("profile_access_opened", result.Messages);
-        Assert.Equal(account, result.Data!.AccountId);
+        Assert.Equal(_account, result.Data!.AccountId);
         Assert.Equal(Access, result.Data.VaultAccess);
         Assert.Equal(access.Profile, result.Data.Profile);
-        Assert.Equal(Issued, result.Data.IssuedAt);
+        Assert.Equal(s_issued, result.Data.IssuedAt);
         Assert.Equal(access.ExpiresAt, result.Data.ExpiresAt);
-        Assert.Equal(actor, capturedOpen!.Actor);
-        Assert.Equal(id, capturedOpen.ProfileId);
+        Assert.Equal(_actor, capturedOpen!.Actor);
+        Assert.Equal(_id, capturedOpen.ProfileId);
         Assert.Equal(1, capturedOpen.ExpectedRevision);
-        Assert.Equal(challengeId, capturedOpen.ChallengeId);
-        Assert.Equal(Proof, capturedOpen.Proof);
-        Assert.Same(RawBody, capturedOpen.RawBody);
+        Assert.Equal(_challengeId, capturedOpen.ChallengeId);
+        Assert.Equal(s_proof, capturedOpen.Proof);
+        Assert.Same(s_rawBody, capturedOpen.RawBody);
         Assert.Equal(source.Token, openToken);
         AssertFields(command, "expectedRevision", "requestHash");
         AssertFields(open, "expectedRevision");
@@ -90,7 +90,7 @@ public class ProfileAccessHandlerTests
     public async Task GivenInvalidChallengeInput_WhenHandling_ThenRejectBeforeStore(string invalid, string error)
     {
         var c = ChallengeCommand();
-        c.SetContext(invalid == "actor" ? Guid.Empty : actor, invalid == "id" ? Guid.Empty : id);
+        c.SetContext(invalid == "actor" ? Guid.Empty : _actor, invalid == "id" ? Guid.Empty : _id);
         if (invalid == "revision")
             c.ExpectedRevision = 0;
         if (invalid == "unsafe")
@@ -122,7 +122,7 @@ public class ProfileAccessHandlerTests
             c.ExpectedRevision = 0;
         if (invalid == "unsafe")
             c.ExpectedRevision = ProtocolBinary.MaxInteger + 1;
-        c.SetContext(invalid == "actor" ? Guid.Empty : actor, invalid == "id" ? Guid.Empty : id, invalid == "challenge" ? Guid.Empty : challengeId, invalid == "proof" ? "bad" : invalid == "nullProof" ? null! : Proof, invalid == "body" ? [] : invalid == "nullBody" ? null! : invalid == "oversized" ? new byte[1048577] : RawBody);
+        c.SetContext(invalid == "actor" ? Guid.Empty : _actor, invalid == "id" ? Guid.Empty : _id, invalid == "challenge" ? Guid.Empty : _challengeId, invalid == "proof" ? "bad" : invalid == "nullProof" ? null! : s_proof, invalid == "body" ? [] : invalid == "nullBody" ? null! : invalid == "oversized" ? new byte[1048577] : s_rawBody);
         var r = await OpenHandler(new Mock<IProfileAccessStore>(MockBehavior.Strict).Object).HandleAsync(c);
         Assert.Contains(error, r.Errors);
         Assert.Null(r.Data);
@@ -233,9 +233,9 @@ public class ProfileAccessHandlerTests
         using var scoped = new ProtectionFixture();
         var d = Details(Material(owner, scoped, "Master"));
         var p = d.Profile;
-        p = kind switch { "profileId" => p with { ProfileId = Guid.NewGuid() }, "revision" => p with { Revision = 2 }, "sequence" => p with { ServerSequence = 0 }, "unsafeSequence" => p with { ServerSequence = ProtocolBinary.MaxInteger + 1 }, "editedDefault" => p with { EditedAt = default }, "editedOffset" => p with { EditedAt = Issued.ToOffset(TimeSpan.FromHours(1)) }, "editedPrecision" => p with { EditedAt = Issued.AddTicks(1) }, "envelope" => p with { Envelope = null! }, "wrappers" => p with { KeyWrappers = null! }, "recipient" => p with { KeyWrappers = p.KeyWrappers with { MasterKeyWrapper = p.KeyWrappers.MasterKeyWrapper with { RecipientIdentityId = Guid.NewGuid() } } }, "wrapperId" => p with { KeyWrappers = p.KeyWrappers with { MasterKeyWrapper = p.KeyWrappers.MasterKeyWrapper with { GrantId = Guid.NewGuid() } } }, "nullRecords" => p with { RecordIds = null! }, "nullFolders" => p with { FolderIds = null! }, "nullCollections" => p with { CollectionIds = null! }, "zeroRecord" => p with { RecordIds = [Guid.Empty] }, "duplicateFolder" => p with { FolderIds = [id, id] }, "duplicateCollection" => p with { CollectionIds = [id, id] }, _ => p };
+        p = kind switch { "profileId" => p with { ProfileId = Guid.NewGuid() }, "revision" => p with { Revision = 2 }, "sequence" => p with { ServerSequence = 0 }, "unsafeSequence" => p with { ServerSequence = ProtocolBinary.MaxInteger + 1 }, "editedDefault" => p with { EditedAt = default }, "editedOffset" => p with { EditedAt = s_issued.ToOffset(TimeSpan.FromHours(1)) }, "editedPrecision" => p with { EditedAt = s_issued.AddTicks(1) }, "envelope" => p with { Envelope = null! }, "wrappers" => p with { KeyWrappers = null! }, "recipient" => p with { KeyWrappers = p.KeyWrappers with { MasterKeyWrapper = p.KeyWrappers.MasterKeyWrapper with { RecipientIdentityId = Guid.NewGuid() } } }, "wrapperId" => p with { KeyWrappers = p.KeyWrappers with { MasterKeyWrapper = p.KeyWrappers.MasterKeyWrapper with { GrantId = Guid.NewGuid() } } }, "nullRecords" => p with { RecordIds = null! }, "nullFolders" => p with { FolderIds = null! }, "nullCollections" => p with { CollectionIds = null! }, "zeroRecord" => p with { RecordIds = [Guid.Empty] }, "duplicateFolder" => p with { FolderIds = [_id, _id] }, "duplicateCollection" => p with { CollectionIds = [_id, _id] }, _ => p };
         d = d with { Profile = kind == "profile" ? null! : p };
-        d = kind switch { "account" => d with { AccountId = Guid.Empty }, "handle" => d with { Access = Access + "=" }, "nullHandle" => d with { Access = null! }, "issuedDefault" => d with { IssuedAt = default }, "issuedBeforeEpoch" => d with { IssuedAt = DateTimeOffset.UnixEpoch.AddSeconds(-1) }, "issuedOffset" => d with { IssuedAt = Issued.ToOffset(TimeSpan.FromHours(1)) }, "issuedPrecision" => d with { IssuedAt = Issued.AddTicks(1) }, "expiresBefore" => d with { ExpiresAt = Issued.AddSeconds(-1) }, "expiresEqual" => d with { ExpiresAt = Issued }, "expiresOffset" => d with { ExpiresAt = Issued.AddMinutes(1).ToOffset(TimeSpan.FromHours(1)) }, "expiresPrecision" => d with { ExpiresAt = Issued.AddMinutes(1).AddTicks(1) }, _ => d };
+        d = kind switch { "account" => d with { AccountId = Guid.Empty }, "handle" => d with { Access = Access + "=" }, "nullHandle" => d with { Access = null! }, "issuedDefault" => d with { IssuedAt = default }, "issuedBeforeEpoch" => d with { IssuedAt = DateTimeOffset.UnixEpoch.AddSeconds(-1) }, "issuedOffset" => d with { IssuedAt = s_issued.ToOffset(TimeSpan.FromHours(1)) }, "issuedPrecision" => d with { IssuedAt = s_issued.AddTicks(1) }, "expiresBefore" => d with { ExpiresAt = s_issued.AddSeconds(-1) }, "expiresEqual" => d with { ExpiresAt = s_issued }, "expiresOffset" => d with { ExpiresAt = s_issued.AddMinutes(1).ToOffset(TimeSpan.FromHours(1)) }, "expiresPrecision" => d with { ExpiresAt = s_issued.AddMinutes(1).AddTicks(1) }, _ => d };
         var r = await OpenHandler(Store(open: kind == "result" ? null! : new(kind == "data" ? null : d))).HandleAsync(OpenCommand());
         Assert.Contains("persistence_unavailable", r.Errors);
         Assert.Null(r.Data);
@@ -299,12 +299,12 @@ public class ProfileAccessHandlerTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => ChallengeHandler(store.Object).HandleAsync(ChallengeCommand()));
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => OpenHandler(store.Object).HandleAsync(OpenCommand()));
     }
-    private static readonly byte[] RawBody = "{\"expectedRevision\":1}"u8.ToArray();
-    private IssueProfileAccessChallengeCommand ChallengeCommand() { var c = new IssueProfileAccessChallengeCommand { ExpectedRevision = 1, RequestHash = Access }; c.SetContext(actor, id); return c; }
-    private OpenProfileAccessCommand OpenCommand() { var c = new OpenProfileAccessCommand { ExpectedRevision = 1 }; c.SetContext(actor, id, challengeId, Proof, RawBody); return c; }
-    private ProfileAccessMaterial Material(ProtectionFixture owner, ProtectionFixture scoped, string mode) => new(account, id, 1, new("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), new(mode, scoped.Material.UnlockVerifier, owner.Wrap(account, "profile", id, actor), mode == "PerProfile" ? scoped.Material.PasswordWrapper : null));
-    private VaultProofChallenge Challenge() => new("cerberus-challenge-v1", challengeId, Access, "unlock-profile", actor, account, "profile", id, 1, 1, null, Access, Issued.ToUnixTimeSeconds(), Issued.ToUnixTimeSeconds() + 60);
-    private static ProfileAccessDetails Details(ProfileAccessMaterial m) => new(m.AccountId, Access, Issued, Issued.AddMinutes(1), new(m.ProfileId, m.Revision, 9, Issued, m.Envelope, m.KeyWrappers, [m.ProfileId], [m.ProfileId], [m.ProfileId]));
+    private static readonly byte[] s_rawBody = "{\"expectedRevision\":1}"u8.ToArray();
+    private IssueProfileAccessChallengeCommand ChallengeCommand() { var c = new IssueProfileAccessChallengeCommand { ExpectedRevision = 1, RequestHash = Access }; c.SetContext(_actor, _id); return c; }
+    private OpenProfileAccessCommand OpenCommand() { var c = new OpenProfileAccessCommand { ExpectedRevision = 1 }; c.SetContext(_actor, _id, _challengeId, s_proof, s_rawBody); return c; }
+    private ProfileAccessMaterial Material(ProtectionFixture owner, ProtectionFixture scoped, string mode) => new(_account, _id, 1, new("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), new(mode, scoped.Material.UnlockVerifier, owner.Wrap(_account, "profile", _id, _actor), mode == "PerProfile" ? scoped.Material.PasswordWrapper : null));
+    private VaultProofChallenge Challenge() => new("cerberus-challenge-v1", _challengeId, Access, "unlock-profile", _actor, _account, "profile", _id, 1, 1, null, Access, s_issued.ToUnixTimeSeconds(), s_issued.ToUnixTimeSeconds() + 60);
+    private static ProfileAccessDetails Details(ProfileAccessMaterial m) => new(m.AccountId, Access, s_issued, s_issued.AddMinutes(1), new(m.ProfileId, m.Revision, 9, s_issued, m.Envelope, m.KeyWrappers, [m.ProfileId], [m.ProfileId], [m.ProfileId]));
     private static IssueProfileAccessChallengeHandler ChallengeHandler(IProfileAccessStore s) => new(new IssueProfileAccessChallengeValidator(), s);
     private static OpenProfileAccessHandler OpenHandler(IProfileAccessStore s) => new(new OpenProfileAccessValidator(), s);
     private static IProfileAccessStore Store(VaultResult<ProfileChallengeDetails>? challenge = null, VaultResult<ProfileAccessDetails>? open = null)

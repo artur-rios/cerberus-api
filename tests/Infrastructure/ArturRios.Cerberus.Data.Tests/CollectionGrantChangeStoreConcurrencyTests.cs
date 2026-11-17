@@ -142,7 +142,7 @@ public partial class CollectionGrantChangeStoreTests
         var profile = await AssociationSetup.Profile(fixture, s.Owner, s.OwnerKey);
         await Sql("INSERT INTO cerberus.profile_collection(profile_id,collection_id) VALUES({0},{1})", profile, s.Items.Collection.Id);
         s.Owner = s.Owner with { Verifier = await Selected(s.Owner, profile) };
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         if (change == "expiry")
             await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
         var before = await Grants(s);

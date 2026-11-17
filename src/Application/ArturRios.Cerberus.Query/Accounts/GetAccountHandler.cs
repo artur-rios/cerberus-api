@@ -9,7 +9,7 @@ namespace ArturRios.Cerberus.Query.Accounts;
 
 public sealed class GetAccountHandler(IAccountReadStore accounts, TimeProvider clock) : IQueryHandlerAsync<GetAccountQuery, AccountOutput>
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<DataOutput<AccountOutput?>> HandleAsync(GetAccountQuery query, CancellationToken cancellationToken = default)
@@ -29,7 +29,7 @@ public sealed class GetAccountHandler(IAccountReadStore accounts, TimeProvider c
             return output.WithError("persistence_unavailable");
         EncryptedEnvelope? details;
         try
-        { details = JsonSerializer.Deserialize<EncryptedEnvelope>(result.Account.DetailsEnvelope, Json); }
+        { details = JsonSerializer.Deserialize<EncryptedEnvelope>(result.Account.DetailsEnvelope, s_json); }
         catch (JsonException) { return output.WithError("persistence_unavailable"); }
         if (details?.IsValid() != true)
             return output.WithError("persistence_unavailable");

@@ -97,7 +97,7 @@ public class ProfileAssociationStoreTests(PostgresFixture fixture) : IClassFixtu
         var s = await ProfileSetup.Create(fixture, owner);
         var i = await Add(s, owner, scoped);
         var before = await Snapshot(i.ProfileId);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var r = await new ProfileAssociationStore(new ProfileSetup.Factory(fixture, new Expire(deadline))).SetAsync(new(s.Actor, s.Verifier, i.ProfileId, Input()), default);
@@ -407,7 +407,7 @@ public class ProfileAssociationStoreTests(PostgresFixture fixture) : IClassFixtu
         var profile = await Add(state, client, scoped);
         var items = await AssociationSetup.Items(fixture, foreign);
         var grant = await AssociationSetup.Grant(fixture, foreign, owner, state, client, items.Collection);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == state.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         await using var holder = fixture.CreateContext();
@@ -552,7 +552,7 @@ public class ProfileAssociationStoreTests(PostgresFixture fixture) : IClassFixtu
     private sealed class ChangeBeforeWrite(PostgresFixture fixture, string kind, long owner, long record) : DbCommandInterceptor
     { public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (c.CommandText.Contains("UPDATE cerberus.profile")) { await using var db = fixture.CreateContext(); if (kind == "ownerClosing") await db.Accounts.Where(x => x.Id == owner).ExecuteUpdateAsync(x => x.SetProperty(a => a.State, AccountState.ClosurePending), ct); else await db.Records.Where(x => x.Id == record).ExecuteUpdateAsync(x => x.SetProperty(a => a.DeletedAt, DateTimeOffset.UtcNow), ct); } return r; } }
     private sealed class Fail(string stage) : DbCommandInterceptor
-    { private bool written; public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (c.CommandText.Contains("UPDATE cerberus.profile")) written = true; return ValueTask.FromResult(r); } public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (stage == "delete" && c.CommandText.Contains("DELETE FROM cerberus.profile_record")) throw new TimeoutException("synthetic link delete failure"); return ValueTask.FromResult(r); } public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (stage == "write" && written || stage == "insert" && c.CommandText.Contains("INSERT INTO cerberus.profile_record")) throw new TimeoutException("synthetic replacement failure"); return ValueTask.FromResult(r); } }
+    { private bool _written; public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (c.CommandText.Contains("UPDATE cerberus.profile")) _written = true; return ValueTask.FromResult(r); } public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (stage == "delete" && c.CommandText.Contains("DELETE FROM cerberus.profile_record")) throw new TimeoutException("synthetic link delete failure"); return ValueTask.FromResult(r); } public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (stage == "write" && _written || stage == "insert" && c.CommandText.Contains("INSERT INTO cerberus.profile_record")) throw new TimeoutException("synthetic replacement failure"); return ValueTask.FromResult(r); } }
     private ProfileAssociationStore Store() => new(fixture);
     private static ProfileAssociationInput Input(long revision = 1) => new(revision, [], [], []);
     private async Task<ProfileCreateInput> Add(ProfileSetup.State s, ProtectionFixture owner, ProtectionFixture scoped, string mode = "Master") { var i = ProfileSetup.Input(s, owner, scoped, mode); Assert.Null((await new ProfileCreateStore(fixture).CreateAsync(new(s.Actor, s.Verifier, i), default)).Error); return i; }

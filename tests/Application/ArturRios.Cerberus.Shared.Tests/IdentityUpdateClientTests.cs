@@ -9,7 +9,7 @@ namespace ArturRios.Cerberus.Shared.Tests;
 
 public class IdentityUpdateClientTests
 {
-    private static readonly Guid Identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
+    private static readonly Guid s_identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
     private const string Name = "Updated Owner";
     private const string Email = "updated@example.test";
 
@@ -20,7 +20,7 @@ public class IdentityUpdateClientTests
         var result = await Client(async (request, cancellationToken) =>
         {
             Assert.Equal(HttpMethod.Put, request.Method);
-            Assert.Equal("/api/persons/" + Identity.ToString("D"), request.RequestUri!.AbsolutePath);
+            Assert.Equal("/api/persons/" + s_identity.ToString("D"), request.RequestUri!.AbsolutePath);
             Assert.Equal(token, request.Headers.Authorization?.Parameter);
             Assert.NotEqual(Options().HeimdallServiceCredential, request.Headers.Authorization?.Parameter);
             using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(cancellationToken));
@@ -28,9 +28,9 @@ public class IdentityUpdateClientTests
             Assert.Equal(Name, body.RootElement.GetProperty("name").GetString());
             Assert.Equal(Email, body.RootElement.GetProperty("email").GetString());
             return Response();
-        }).UpdateIdentityAsync(token, Identity, Name, Email, default);
+        }).UpdateIdentityAsync(token, s_identity, Name, Email, default);
         Assert.Null(result.Error);
-        Assert.Equal(Identity, result.Identity!.Id);
+        Assert.Equal(s_identity, result.Identity!.Id);
         Assert.Equal(Name, result.Identity.Name);
         Assert.Equal(Email, result.Identity.Email);
         Assert.False(result.Identity.EmailVerified);
@@ -45,7 +45,7 @@ public class IdentityUpdateClientTests
     public async Task GivenInvalidOrMismatchedActorToken_WhenUpdating_ThenRejectBeforeTransport(string invalid)
     {
         var token = invalid == "invalid" ? "not-a-token" : Token(invalid == "foreignScope" ? Guid.NewGuid() : null);
-        var actor = invalid == "otherActor" ? Guid.NewGuid() : Identity;
+        var actor = invalid == "otherActor" ? Guid.NewGuid() : s_identity;
         var client = Client((_, _) => throw new InvalidOperationException("Transport must not be called."));
         var result = await client.UpdateIdentityAsync(token, actor, Name, Email, default);
         Assert.Equal("authentication_required", result.Error);
@@ -64,7 +64,7 @@ public class IdentityUpdateClientTests
     {
         var result = await Client((_, _) => Task.FromResult(new HttpResponseMessage((HttpStatusCode)status)
         { Content = new StringContent("provider-private-details", Encoding.UTF8, "application/json") }))
-            .UpdateIdentityAsync(Token(), Identity, Name, Email, default);
+            .UpdateIdentityAsync(Token(), s_identity, Name, Email, default);
         Assert.Equal(error, result.Error);
         Assert.Null(result.Identity);
         Assert.DoesNotContain("provider-private", JsonSerializer.Serialize(result));
@@ -125,7 +125,7 @@ public class IdentityUpdateClientTests
             body = "not-json";
         var result = await Client((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
         { Content = new StringContent(body, Encoding.UTF8, "application/json") }))
-            .UpdateIdentityAsync(Token(), Identity, Name, Email, default);
+            .UpdateIdentityAsync(Token(), s_identity, Name, Email, default);
         Assert.Equal("identity_unavailable", result.Error);
         Assert.Null(result.Identity);
     }
@@ -134,7 +134,7 @@ public class IdentityUpdateClientTests
     public async Task GivenProviderTimeout_WhenUpdating_ThenReturnUnavailableWithoutIdentityData()
     {
         var result = await Client((_, _) => throw new TaskCanceledException("provider-private-details"))
-            .UpdateIdentityAsync(Token(), Identity, Name, Email, default);
+            .UpdateIdentityAsync(Token(), s_identity, Name, Email, default);
         Assert.Equal("identity_unavailable", result.Error);
         Assert.Null(result.Identity);
     }
@@ -145,12 +145,12 @@ public class IdentityUpdateClientTests
         using var cancelled = new CancellationTokenSource();
         cancelled.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Client((_, _) => throw new InvalidOperationException())
-            .UpdateIdentityAsync(Token(), Identity, Name, Email, cancelled.Token));
+            .UpdateIdentityAsync(Token(), s_identity, Name, Email, cancelled.Token));
     }
 
     private static Dictionary<string, object?> Data() => new()
     {
-        ["id"] = Identity,
+        ["id"] = s_identity,
         ["name"] = Name,
         ["email"] = Email,
         ["role"] = 3,
@@ -165,7 +165,7 @@ public class IdentityUpdateClientTests
     {
         var options = Options();
         return new JwtHandler().CreateToken(new JwtConfiguration(60, options.AuthIssuer!, options.AuthAudience!, options.AuthValidationSecret!,
-            new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = "3", ["scopeId"] = (scope ?? options.HeimdallScopeId).ToString() }));
+            new Dictionary<string, string> { ["id"] = s_identity.ToString(), ["roleId"] = "3", ["scopeId"] = (scope ?? options.HeimdallScopeId).ToString() }));
     }
     private static HttpResponseMessage Response() => new(HttpStatusCode.OK)
     { Content = new StringContent(JsonSerializer.Serialize(new { success = true, errors = Array.Empty<string>(), data = Data() }), Encoding.UTF8, "application/json") };

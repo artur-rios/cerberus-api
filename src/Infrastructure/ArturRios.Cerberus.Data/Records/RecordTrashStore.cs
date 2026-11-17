@@ -16,7 +16,7 @@ namespace ArturRios.Cerberus.Data.Records;
 
 public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory) : IRecordTrashStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<VaultResult<RecordTrashDetails>> TrashAsync(RecordTrashRequest request, CancellationToken ct)
@@ -39,7 +39,7 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory) : 
             var error = StateError(initial);
             if (error is not null)
                 return new(Error: error);
-            var item = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
+            var item = JsonSerializer.Deserialize<Item>(initial.Item!, s_json)!;
             // Foreign routes establish only whether this denial is visible. No foreign locks
             // or content inspection are necessary to deny both RO and RW delete requests.
             if (item.AccountId != account.Id)
@@ -154,7 +154,7 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory) : 
             };
             db.TrashOperations.Add(operation);
             await db.SaveChangesAsync(ct);
-            db.TrashEntries.Add(new() { OperationId = operation.Id, ResourceKind = "record", ResourceId = row.PublicId, AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(snapshot, Json) });
+            db.TrashEntries.Add(new() { OperationId = operation.Id, ResourceKind = "record", ResourceId = row.PublicId, AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(snapshot, s_json) });
             db.RetentionWorkItems.Add(new RetentionWorkItem { OperationKey = "trash/" + operation.PublicId, DueAt = operation.PurgeAt });
             await db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
@@ -187,10 +187,10 @@ public sealed class RecordTrashStore(IDbContextFactory<AppDbContext> factory) : 
     private static string? StateError(Snapshot s) => !s.ActorActive ? "not_found" : !s.Allowed ? "vault_access_denied" : s.CorruptAncestry ? "persistence_unavailable" : s.Item is null ? "not_found" : null;
     private static bool ValidNative(Snapshot snapshot)
     {
-        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
+        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, s_json)!;
         if (grants.Length == 0)
             return true;
-        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, Json);
+        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, s_json);
         if (p is null || !CollectionGrantBinding.TryReadPins(Pins(p.OwnerMaterial, p.OwnerRevision, p.OwnerEpoch, p.OwnerGeneration), out var owner)
             || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient))
             return false;

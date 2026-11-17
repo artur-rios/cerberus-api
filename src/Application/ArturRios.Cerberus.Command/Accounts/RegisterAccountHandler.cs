@@ -14,7 +14,7 @@ namespace ArturRios.Cerberus.Command.Accounts;
 public sealed class RegisterAccountHandler(IValidator<RegisterAccountCommand> validator, IRegistrationStore store,
     IHeimdallClient identity, CerberusOptions options) : ICommandHandlerAsync<RegisterAccountCommand, RegisterAccountOutput>
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web);
 
     public async Task<DataOutput<RegisterAccountOutput?>> HandleAsync(RegisterAccountCommand command, CancellationToken cancellationToken = default)
     {
@@ -26,7 +26,7 @@ public sealed class RegisterAccountHandler(IValidator<RegisterAccountCommand> va
         {
             "cerberus-registration-input-v1", options.HeimdallScopeId, command.AccountId,
             command.IdempotencyKey, command.Identity, command.Details
-        }, Json);
+        }, s_json);
         RegistrationRequest request;
         try
         {
@@ -39,7 +39,7 @@ public sealed class RegisterAccountHandler(IValidator<RegisterAccountCommand> va
             {
                 var identityLock = BinaryPrimitives.ReadInt64BigEndian(HMACSHA256.HashData(key, address));
                 request = new(command.IdempotencyKey, command.AccountId,
-                    JsonSerializer.SerializeToUtf8Bytes(command.Details, Json), fingerprint, identityLock);
+                    JsonSerializer.SerializeToUtf8Bytes(command.Details, s_json), fingerprint, identityLock);
             }
             finally { CryptographicOperations.ZeroMemory(address); }
         }

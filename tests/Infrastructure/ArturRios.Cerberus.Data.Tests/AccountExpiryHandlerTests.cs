@@ -46,7 +46,7 @@ public partial class AccountDeletionStoreTests
         Assert.Equal(2, await db.Accounts.Where(x => x.Id == w.Recipient.InternalId).Select(x => x.RevocationGeneration).SingleAsync());
         await foreach (var entry in Ledger.ReadAsync(default))
             Assert.True(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == entry.ResourceKind && x.ResourceId == entry.ResourceId && x.DeletedAt == entry.DeletedAt));
-        Assert.True(Directory.GetFiles(directory, "*.json").Length >= 9);
+        Assert.True(Directory.GetFiles(_directory, "*.json").Length >= 9);
     }
     [FunctionalTheory]
     [InlineData(false)]
@@ -65,7 +65,7 @@ public partial class AccountDeletionStoreTests
         Assert.Equal(foreign, await Foreign(db, w));
         Assert.True(await db.Records.AnyAsync(x => x.Id == w.Owned.Record.Id));
         Assert.True(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == w.Owner.AccountId));
-        Assert.Equal(partial ? 1 : 0, Directory.GetFiles(directory, "*.json").Length);
+        Assert.Equal(partial ? 1 : 0, Directory.GetFiles(_directory, "*.json").Length);
         Assert.Equal("authentication_required", (await new AccountClosureRecoveryStore(fixture).ReadAsync(new(w.Owner.Actor, DateTimeOffset.UtcNow.ToUnixTimeSeconds()), default)).Error);
         await db.RetentionWorkItems.Where(x => x.PublicId == claim.WorkId).ExecuteUpdateAsync(x => x.SetProperty(j => j.ClaimExpiresAt, DateTimeOffset.UtcNow.AddSeconds(-1)));
         var retry = Assert.IsType<RetentionClaim>(await new RetentionWorkStore(fixture).TryClaimAsync(claim.WorkId, DateTimeOffset.UnixEpoch, TimeSpan.FromMinutes(5), default));
@@ -122,7 +122,7 @@ public partial class AccountDeletionStoreTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => ExpiryExecutor().ExecuteAsync(claim, default));
         Assert.Equal(before, await Snapshot(db, w.Owner));
         Assert.Equal(foreign, await Foreign(db, w));
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
         Assert.False(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == "account" && x.ResourceId == w.Owner.AccountId));
     }
     [FunctionalTheory]
@@ -152,7 +152,7 @@ public partial class AccountDeletionStoreTests
         await using var check = fixture.CreateContext();
         Assert.True(await check.Accounts.AnyAsync(x => x.Id == w.Owner.InternalId));
         Assert.True(await check.Records.AnyAsync(x => x.Id == w.Owned.Record.Id));
-        Assert.NotEmpty(Directory.GetFiles(directory, "*.json"));
+        Assert.NotEmpty(Directory.GetFiles(_directory, "*.json"));
         await check.RetentionWorkItems.Where(x => x.PublicId == claim.WorkId).ExecuteUpdateAsync(x => x.SetProperty(j => j.ClaimExpiresAt, DateTimeOffset.UtcNow.AddSeconds(-1)));
         var retry = Assert.IsType<RetentionClaim>(await new RetentionWorkStore(fixture).TryClaimAsync(claim.WorkId, DateTimeOffset.UnixEpoch, TimeSpan.FromMinutes(5), default));
         await ExpiryExecutor().ExecuteAsync(retry, default);

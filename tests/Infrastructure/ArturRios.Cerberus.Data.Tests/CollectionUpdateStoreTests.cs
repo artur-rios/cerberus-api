@@ -430,7 +430,7 @@ public class CollectionUpdateStoreTests(PostgresFixture fixture) : IClassFixture
         var target = await Collection(s);
         var p = await Profile(s, owner, key, [target.PublicId]);
         s = s with { Verifier = await Selected(s, p.Id) };
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await Snapshot(s);
@@ -505,7 +505,7 @@ public class CollectionUpdateStoreTests(PostgresFixture fixture) : IClassFixture
         var target = await Collection(s);
         var p = await Profile(s, owner, key, [target.PublicId]);
         s = s with { Verifier = await Selected(s, p.Id) };
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         if (kind == "expiry")
         { await using var db = fixture.CreateContext(); await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline)); }
         var original = await Row(target.Id);
@@ -771,15 +771,15 @@ public class CollectionUpdateStoreTests(PostgresFixture fixture) : IClassFixture
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { Check(c); return ValueTask.FromResult(r); }
     }
     private sealed class BeforeWrite(Func<DbCommand, Task> action) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<int> r, CancellationToken ct = default) { if (IsWrite(c) && !used) { used = true; await action(c); } return r; } }
+    { private bool _used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<int> r, CancellationToken ct = default) { if (IsWrite(c) && !_used) { _used = true; await action(c); } return r; } }
     private sealed class AfterWrite(string kind, VaultCollection target) : DbCommandInterceptor
     {
-        private bool wrote;
+        private bool _wrote;
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData e, int result, CancellationToken ct = default)
         {
             if (IsWrite(c) && result > 0)
             {
-                wrote = true;
+                _wrote = true;
                 if (kind != "failure")
                 {
                     await using var change = c.Connection!.CreateCommand();
@@ -792,10 +792,10 @@ public class CollectionUpdateStoreTests(PostgresFixture fixture) : IClassFixture
             }
             return result;
         }
-        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (wrote && kind == "failure") throw new TimeoutException("synthetic post-write outage"); return ValueTask.FromResult(r); }
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (_wrote && kind == "failure") throw new TimeoutException("synthetic post-write outage"); return ValueTask.FromResult(r); }
     }
     private sealed class PauseRotation(TaskCompletionSource reached, TaskCompletionSource release) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (!used && c.CommandText.Contains("FROM cerberus.collection ") && c.CommandText.Contains("FOR UPDATE")) { used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; } }
+    { private bool _used; public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData e, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { if (!_used && c.CommandText.Contains("FROM cerberus.collection ") && c.CommandText.Contains("FOR UPDATE")) { _used = true; reached.TrySetResult(); await release.Task.WaitAsync(ct); } return r; } }
     private sealed class ThrowingFactory(Exception exception) : IDbContextFactory<AppDbContext>
     { public AppDbContext CreateDbContext() => throw exception; public Task<AppDbContext> CreateDbContextAsync(CancellationToken ct = default) => Task.FromException<AppDbContext>(exception); }
     private sealed class Capture : DbCommandInterceptor

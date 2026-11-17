@@ -18,7 +18,7 @@ namespace ArturRios.Cerberus.WebApi.Tests;
 public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     private const string Header = "X-Cerberus-Vault-Access";
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web);
 
     [FunctionalTheory]
     [InlineData(false)]
@@ -134,7 +134,7 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
             });
             Assert.Equal(400, raw.Response.StatusCode);
             Assert.Contains("no-store", raw.Response.Headers.CacheControl.ToString());
-            var result = (await JsonSerializer.DeserializeAsync<DataOutput<UpdateIdentityOutput>>(raw.Response.Body, Json))!;
+            var result = (await JsonSerializer.DeserializeAsync<DataOutput<UpdateIdentityOutput>>(raw.Response.Body, s_json))!;
             Assert.False(result.Success);
             Assert.Null(result.Data);
         }
@@ -231,7 +231,7 @@ public class IdentityUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHo
                 PublicId = Guid.NewGuid(),
                 HeimdallPublicId = actor,
                 Revision = 3,
-                DetailsEnvelope = JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), Json),
+                DetailsEnvelope = JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), s_json),
                 State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
             };
             context.Accounts.Add(account);

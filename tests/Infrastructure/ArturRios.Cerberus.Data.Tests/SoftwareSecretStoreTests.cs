@@ -217,7 +217,7 @@ public class SoftwareSecretStoreTests(PostgresFixture fixture) : IClassFixture<P
         await Sql("INSERT INTO cerberus.collection_record(account_id,collection_id,record_id) VALUES({0},{1},{2})", s.Owner.InternalId, s.Items.Collection.Id, s.Items.Record.Id);
         var request = Request(s, member: mode == "membership");
         if (mode == "expiry")
-            request = request with { Identity = request.Identity with { ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.SetupLead)) } };
+            request = request with { Identity = request.Identity with { ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.s_setupLead)) } };
         await using var writer = fixture.CreateContext();
         await using var tx = await writer.Database.BeginTransactionAsync();
         await writer.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={s.Owner.InternalId} FOR UPDATE");
@@ -266,10 +266,10 @@ public class SoftwareSecretStoreTests(PostgresFixture fixture) : IClassFixture<P
     }
     private sealed class MissingAncestor : DbCommandInterceptor
     {
-        private int reads;
+        private int _reads;
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
         {
-            if (c.CommandText.Contains("WITH RECURSIVE grant_row") && ++reads == 2)
+            if (c.CommandText.Contains("WITH RECURSIVE grant_row") && ++_reads == 2)
             {
                 await using var fault = c.Connection!.CreateCommand();
                 fault.Transaction = c.Transaction;
@@ -328,10 +328,10 @@ public class SoftwareSecretStoreTests(PostgresFixture fixture) : IClassFixture<P
     }
     private sealed class FinalFault(string kind, long owner) : DbCommandInterceptor
     {
-        private int reads;
+        private int _reads;
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
         {
-            if (c.CommandText.Contains("WITH RECURSIVE grant_row") && ++reads == 3)
+            if (c.CommandText.Contains("WITH RECURSIVE grant_row") && ++_reads == 3)
             {
                 await using var fault = c.Connection!.CreateCommand();
                 fault.Transaction = c.Transaction;

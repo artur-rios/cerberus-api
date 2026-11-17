@@ -11,7 +11,7 @@ namespace ArturRios.Cerberus.Data.Collections;
 
 public sealed class CollectionReadStore(IDbContextFactory<AppDbContext> factory) : ICollectionReadStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
 
     public async Task<VaultResult<CollectionReadDetails>> ReadAsync(CollectionReadRequest request, CancellationToken ct)
@@ -121,13 +121,13 @@ public sealed class CollectionReadStore(IDbContextFactory<AppDbContext> factory)
                 return new(Error: "persistence_unavailable");
             if (snapshot.Item is null)
                 return new(Error: "not_found");
-            var item = JsonSerializer.Deserialize<Item>(snapshot.Item, Json)!;
+            var item = JsonSerializer.Deserialize<Item>(snapshot.Item, s_json)!;
             var envelope = Convert.FromHexString(item.Envelope);
             if (snapshot.ForeignTarget)
             {
                 // Exactly one native target: read each party's current pins once and
                 // verify against the envelope captured by the same SQL statement.
-                var evidence = snapshot.Grant is null ? null : JsonSerializer.Deserialize<GrantEvidence>(snapshot.Grant, Json);
+                var evidence = snapshot.Grant is null ? null : JsonSerializer.Deserialize<GrantEvidence>(snapshot.Grant, s_json);
                 if (evidence is null
                     || !CollectionGrantBinding.TryReadPins(Pins(evidence.OwnerMaterial, evidence.OwnerRevision, evidence.OwnerEpoch, evidence.OwnerGeneration), out var owner)
                     || !CollectionGrantBinding.TryReadPins(Pins(evidence.RecipientMaterial, evidence.RecipientRevision, evidence.RecipientEpoch, evidence.RecipientGeneration), out var recipient)

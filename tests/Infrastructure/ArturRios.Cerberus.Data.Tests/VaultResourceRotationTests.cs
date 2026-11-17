@@ -250,7 +250,7 @@ public class VaultResourceRotationTests(PostgresFixture fixture) : IClassFixture
         using var scoped = new ProtectionFixture();
         var s = await Setup(owner, recipient, scoped);
         var request = await Request(s, owner, Change(s, owner, recipient, scoped));
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Owner.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         await using var holder = fixture.CreateContext();

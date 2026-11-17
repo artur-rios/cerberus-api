@@ -76,7 +76,7 @@ public partial class TrashEmptyStoreTests
         Assert.Equal(2, retry.Data!.TotalPurged);
         Assert.False(await Exists(first));
         Assert.False(await Exists(second!));
-        Assert.Equal(2, Directory.GetFiles(directory, "*.json").Length);
+        Assert.Equal(2, Directory.GetFiles(_directory, "*.json").Length);
     }
     [FunctionalFact]
     public async Task GivenNewRecoverableTrashAfterAdmission_WhenPurgeCompletes_ThenKeepUnmarkedNewTrashAndItsOriginalOperation()
@@ -111,14 +111,14 @@ public partial class TrashEmptyStoreTests
         Assert.Equal("persistence_unavailable", (await Store(ledger).EmptyAsync(Request(s), default)).Error);
         Assert.True(await Exists(first));
         Assert.True(await Exists(second));
-        Assert.Single(Directory.GetFiles(directory, "*.json"));
+        Assert.Single(Directory.GetFiles(_directory, "*.json"));
         await Expire(s);
         var retry = await Store().EmptyAsync(Request(s), default);
         Assert.Null(retry.Error);
         Assert.Equal(2, retry.Data!.TotalPurged);
         Assert.False(await Exists(first));
         Assert.False(await Exists(second));
-        Assert.Equal(2, Directory.GetFiles(directory, "*.json").Length);
+        Assert.Equal(2, Directory.GetFiles(_directory, "*.json").Length);
     }
     [FunctionalTheory]
     [InlineData("record", false)]
@@ -149,7 +149,7 @@ public partial class TrashEmptyStoreTests
         Assert.True(hook.Reached);
         Assert.Equal(before, await TrashRestoreSetup.Snapshot(fixture, s));
         Assert.True(await Exists(root));
-        Assert.Single(Directory.GetFiles(directory, "*.json"));
+        Assert.Single(Directory.GetFiles(_directory, "*.json"));
         await using (var db = fixture.CreateContext())
         { Assert.True(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == kind && x.ResourceId == root.ResourceId)); Assert.Null((await db.RetentionWorkItems.AsNoTracking().SingleAsync(x => x.OperationKey == "trash-erase/" + s.AccountId)).CompletedAt); }
         await Expire(s);

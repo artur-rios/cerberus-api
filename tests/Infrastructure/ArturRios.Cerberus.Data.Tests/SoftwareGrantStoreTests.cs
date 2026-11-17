@@ -406,11 +406,11 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
     { await using var db = fixture.CreateContext(); db.TerminalErasures.Add(new() { ResourceKind = kind, ResourceId = id, DeletedAt = DateTimeOffset.UtcNow }); await db.SaveChangesAsync(); }
     private sealed class Fault(string stage) : DbCommandInterceptor
     {
-        private bool written;
+        private bool _written;
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int result, CancellationToken ct = default)
         {
             if (c.CommandText.Contains("INSERT INTO cerberus.software_grant(") || c.CommandText.Contains("UPDATE cerberus.software_grant AS"))
-                written = true;
+                _written = true;
             if (stage == "mismatchKey" && c.CommandText.Contains("INSERT INTO cerberus.software_grant_collection"))
             {
                 await using var cmd = c.Connection!.CreateCommand();
@@ -437,7 +437,7 @@ public class SoftwareGrantStoreTests(PostgresFixture fixture) : IClassFixture<Po
             return ValueTask.FromResult(result);
         }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> result, CancellationToken ct = default)
-        { if (stage == "post" && written) throw new TimeoutException("Injected post-write read failure"); return ValueTask.FromResult(result); }
+        { if (stage == "post" && _written) throw new TimeoutException("Injected post-write read failure"); return ValueTask.FromResult(result); }
     }
     private sealed class Failure(Exception exception) : DbCommandInterceptor
     {

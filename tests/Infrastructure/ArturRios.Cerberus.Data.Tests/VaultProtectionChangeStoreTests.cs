@@ -247,7 +247,7 @@ public class VaultProtectionChangeStoreTests(PostgresFixture fixture) : IClassFi
         using var client = new ProtectionFixture();
         var s = await Setup(client);
         var request = await Request(s, client, Change(s, client));
-        var deadline = DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.SetupLead));
+        var deadline = DateTimeOffset.FromUnixTimeSeconds(RealTime.SoonSeconds(RealTime.s_setupLead));
         await using (var db = fixture.CreateContext())
         {
             if (expiry == "session")
@@ -383,11 +383,11 @@ public class VaultProtectionChangeStoreTests(PostgresFixture fixture) : IClassFi
     }
     private sealed class Factory : IDbContextFactory<AppDbContext>
     {
-        private readonly DbContextOptions<AppDbContext> options;
-        public Factory(DbContextOptions<AppDbContext> value) => options = value;
+        private readonly DbContextOptions<AppDbContext> _options;
+        public Factory(DbContextOptions<AppDbContext> value) => _options = value;
         public Factory(PostgresFixture f, IInterceptor interceptor)
-        { using var db = f.CreateContext(); options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(db.Database.GetConnectionString()).AddInterceptors(interceptor).Options; }
-        public AppDbContext CreateDbContext() => new(options);
+        { using var db = f.CreateContext(); _options = new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(db.Database.GetConnectionString()).AddInterceptors(interceptor).Options; }
+        public AppDbContext CreateDbContext() => new(_options);
     }
     private sealed class LockSignal(TaskCompletionSource reached, string locked) : DbCommandInterceptor
     {

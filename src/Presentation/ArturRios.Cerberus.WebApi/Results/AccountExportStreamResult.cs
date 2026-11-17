@@ -13,7 +13,7 @@ namespace ArturRios.Cerberus.WebApi.Streaming;
 public sealed class AccountExportStreamResult(IAccountExportLease lease) : IActionResult
 {
     public const string Format = "cerberus-account-export-v1";
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web);
 
     public async Task ExecuteResultAsync(ActionContext context)
     {
@@ -28,8 +28,8 @@ public sealed class AccountExportStreamResult(IAccountExportLease lease) : IActi
             if (!await reader.MoveNextAsync())
                 throw new AccountExportException("persistence_unavailable");
             // Validate/serialize the first entry before committing status/attachment headers.
-            var encoded = JsonSerializer.SerializeToUtf8Bytes<AccountExportEntry>(reader.Current, Json);
-            var prefix = Encoding.UTF8.GetBytes("{\"format\":\"" + Format + "\",\"header\":" + JsonSerializer.Serialize(lease.Header, Json) + ",\"entries\":[");
+            var encoded = JsonSerializer.SerializeToUtf8Bytes<AccountExportEntry>(reader.Current, s_json);
+            var prefix = Encoding.UTF8.GetBytes("{\"format\":\"" + Format + "\",\"header\":" + JsonSerializer.Serialize(lease.Header, s_json) + ",\"entries\":[");
             ct.ThrowIfCancellationRequested();
             response.StatusCode = StatusCodes.Status200OK;
             response.ContentType = "application/json; charset=utf-8";
@@ -50,7 +50,7 @@ public sealed class AccountExportStreamResult(IAccountExportLease lease) : IActi
                     throw new AccountExportException("persistence_unavailable");
                 if (!await reader.MoveNextAsync())
                     break;
-                encoded = JsonSerializer.SerializeToUtf8Bytes<AccountExportEntry>(reader.Current, Json);
+                encoded = JsonSerializer.SerializeToUtf8Bytes<AccountExportEntry>(reader.Current, s_json);
             } while (true);
             // Both cleanup boundaries can fail: neither may follow a success footer.
             await reader.DisposeAsync();

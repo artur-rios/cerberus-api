@@ -11,7 +11,7 @@ namespace ArturRios.Cerberus.Data.Folders;
 
 public sealed class FolderListStore(IDbContextFactory<AppDbContext> factory) : IFolderListStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
 
     public async Task<VaultResult<FolderListPage>> ListAsync(FolderListRequest request, CancellationToken ct)
@@ -140,7 +140,7 @@ public sealed class FolderListStore(IDbContextFactory<AppDbContext> factory) : I
                 return new(Error: "vault_access_denied");
             if (snapshot.CorruptOrdering || snapshot.CorruptAncestry)
                 return new(Error: "persistence_unavailable");
-            var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
+            var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, s_json)!;
             if (grants.Length > 0)
             {
                 var first = grants[0];
@@ -161,7 +161,7 @@ public sealed class FolderListStore(IDbContextFactory<AppDbContext> factory) : I
                         return new(Error: "persistence_unavailable");
                 }
             }
-            var items = JsonSerializer.Deserialize<Item[]>(snapshot.Items, Json)!
+            var items = JsonSerializer.Deserialize<Item[]>(snapshot.Items, s_json)!
                 .Select(x => new FolderListRow(x.FolderId, x.Revision, x.ServerSequence, x.EditedAt, Convert.FromHexString(x.Envelope))).ToArray();
             return new(new(items, snapshot.Boundary, snapshot.HasMore));
         }

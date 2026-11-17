@@ -8,20 +8,20 @@ namespace ArturRios.Cerberus.Data.Resources;
 // caller's connection nor transaction. Native mutations use savepoints.
 public sealed class TransactionContextFactory : IDbContextFactory<AppDbContext>
 {
-    private readonly IDbContextFactory<AppDbContext> contexts;
-    private readonly DbConnection connection;
-    private readonly DbTransaction transaction;
+    private readonly IDbContextFactory<AppDbContext> _contexts;
+    private readonly DbConnection _connection;
+    private readonly DbTransaction _transaction;
     public TransactionContextFactory(IDbContextFactory<AppDbContext> contexts, AppDbContext db)
     {
-        this.contexts = contexts;
-        connection = db.Database.GetDbConnection();
-        transaction = (db.Database.CurrentTransaction ?? throw new InvalidOperationException("An external transaction is required.")).GetDbTransaction();
+        this._contexts = contexts;
+        _connection = db.Database.GetDbConnection();
+        _transaction = (db.Database.CurrentTransaction ?? throw new InvalidOperationException("An external transaction is required.")).GetDbTransaction();
     }
     public AppDbContext CreateDbContext()
     {
-        var context = contexts.CreateDbContext();
-        context.Database.SetDbConnection(connection, contextOwnsConnection: false);
-        context.Database.UseTransaction(transaction);
+        var context = _contexts.CreateDbContext();
+        context.Database.SetDbConnection(_connection, contextOwnsConnection: false);
+        context.Database.UseTransaction(_transaction);
         return context;
     }
 }

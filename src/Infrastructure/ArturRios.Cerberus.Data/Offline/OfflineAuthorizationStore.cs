@@ -9,7 +9,7 @@ namespace ArturRios.Cerberus.Data.Offline;
 
 public sealed class OfflineAuthorizationStore(IDbContextFactory<AppDbContext> factory, IOfflineLeaseSigner signer) : IOfflineAuthorizationStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
 
     public async Task<OfflineAuthorizationResult> RenewAsync(OfflineAuthorizationRequest request, CancellationToken ct)
@@ -32,7 +32,7 @@ public sealed class OfflineAuthorizationStore(IDbContextFactory<AppDbContext> fa
             if (error is not null)
                 return new(Error: error);
             var original = initial!;
-            var related = JsonSerializer.Deserialize<RelatedCollection[]>(original.Related, Json) ?? throw new JsonException();
+            var related = JsonSerializer.Deserialize<RelatedCollection[]>(original.Related, s_json) ?? throw new JsonException();
             async Task<string?> Recheck() => RecheckError(await Read(db, request, ct), original);
             var accounts = related.Select(c => c.OwnerPublicId).Append(original.AccountId).Distinct().ToArray();
             // Match the public-id order of sharing/lifecycle writers. No lock

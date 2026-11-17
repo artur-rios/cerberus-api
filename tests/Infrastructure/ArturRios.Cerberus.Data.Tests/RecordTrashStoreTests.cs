@@ -365,7 +365,7 @@ public class RecordTrashStoreTests(PostgresFixture fixture) : IClassFixture<Post
         await Members(s, a.Collection, [target.Id], []);
         var p = await Profile(s, owner, scoped, records: [target.PublicId]);
         s = s with { Verifier = await Selected(s, p.Id) };
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using (var db = fixture.CreateContext())
             await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await Snapshot(s);
@@ -400,7 +400,7 @@ public class RecordTrashStoreTests(PostgresFixture fixture) : IClassFixture<Post
         var hidden = await Folder(s);
         await using (var db = fixture.CreateContext())
             await db.Folders.Where(x => x.Id == hidden.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow));
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         if (kind == "expiry")
             await using (var db = fixture.CreateContext())
                 await db.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
@@ -688,7 +688,7 @@ public class RecordTrashStoreTests(PostgresFixture fixture) : IClassFixture<Post
         Assert.Equal(2d, Assert.Single(nodes, x => x.TryGetProperty("Subplan Name", out var name) && name.GetString() == "CTE ancestry").GetProperty("Actual Rows").GetDouble());
     }
     private sealed class BeforeAssociations(Func<Task> action) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!used && c.CommandText.Contains("FROM cerberus.profile_record") && c.CommandText.Contains("FOR UPDATE")) { used = true; await action(); } return r; } }
+    { private bool _used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!_used && c.CommandText.Contains("FROM cerberus.profile_record") && c.CommandText.Contains("FOR UPDATE")) { _used = true; await action(); } return r; } }
     private sealed class Capture(PostgresFixture fixture, bool analyze = false) : DbCommandInterceptor
     {
         public List<string> Locks { get; } = []; public string? Plan { get; private set; }
@@ -747,7 +747,7 @@ public class RecordTrashStoreTests(PostgresFixture fixture) : IClassFixture<Post
     public async Task GivenUnsafeParentSequence_WhenTrashing_ThenNoPartialGraphMutation(string kind)
     { using var owner = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, owner); var a = await AssociationSetup.Items(fixture, s); var target = await Record(s, a.Folder.Id); await Members(s, a.Collection, [target.Id], []); var p = await Profile(s, owner, scoped, records: [target.PublicId]); await using (var db = fixture.CreateContext()) { if (kind == "profile") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, 0)); if (kind == "collection") await db.Collections.Where(x => x.Id == a.Collection.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, 0)); if (kind == "folder") await db.Folders.Where(x => x.Id == a.Folder.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.ServerSequence, 0)); } var before = await Snapshot(s); Assert.Equal("persistence_unavailable", (await Trash(s, target)).Error); Assert.Equal(before, await Snapshot(s)); }
     private sealed class BeforeParent(Func<Task> action) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!used && (c.CommandText.StartsWith("UPDATE cerberus.profile SET") || c.CommandText.StartsWith("UPDATE cerberus.collection SET") || c.CommandText.StartsWith("UPDATE cerberus.folder SET"))) { used = true; await action(); } return r; } }
+    { private bool _used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!_used && (c.CommandText.StartsWith("UPDATE cerberus.profile SET") || c.CommandText.StartsWith("UPDATE cerberus.collection SET") || c.CommandText.StartsWith("UPDATE cerberus.folder SET"))) { _used = true; await action(); } return r; } }
 
 
     [FunctionalTheory]
@@ -825,14 +825,14 @@ public class RecordTrashStoreTests(PostgresFixture fixture) : IClassFixture<Post
     private sealed class Signal(TaskCompletionSource reached, string table) : DbCommandInterceptor
     { private void Check(DbCommand c) { if (c.CommandText.Contains("cerberus." + table) && c.CommandText.Contains("FOR ")) reached.TrySetResult(); } public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { Check(c); return ValueTask.FromResult(r); } public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { Check(c); return ValueTask.FromResult(r); } }
     private sealed class BeforeWrite(Func<Task> action) : DbCommandInterceptor
-    { private bool done; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!done && IsWrite(c)) { done = true; await action(); } return r; } }
+    { private bool _done; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!_done && IsWrite(c)) { _done = true; await action(); } return r; } }
     private sealed class BeforeTarget(Func<Task> action) : DbCommandInterceptor
-    { private bool done; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!done && c.CommandText.Contains("cerberus.record") && c.CommandText.Contains("FOR UPDATE")) { done = true; await action(); } return r; } }
+    { private bool _done; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!_done && c.CommandText.Contains("cerberus.record") && c.CommandText.Contains("FOR UPDATE")) { _done = true; await action(); } return r; } }
     private sealed class Fail(string stage) : DbCommandInterceptor
     {
-        private bool written, failed;
-        private void Check(DbCommand c) { if (failed) return; var s = c.CommandText; var hit = stage == "write" && written || stage == "links" && s.Contains("DELETE FROM cerberus.profile_record") || stage == "parent" && (s.Contains("UPDATE cerberus.profile SET") || s.Contains("UPDATE cerberus.collection SET") || s.Contains("UPDATE cerberus.folder SET")) || stage == "operation" && s.Contains("INSERT INTO cerberus.trash_operation") || stage == "entry" && s.Contains("INSERT INTO cerberus.trash_entry") || stage == "queue" && s.Contains("INSERT INTO cerberus.retention_work_item"); if (hit) { failed = true; throw new TimeoutException("injected recordtrash persistence fault"); } }
-        public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (IsWrite(c)) written = true; return ValueTask.FromResult(r); }
+        private bool _written, _failed;
+        private void Check(DbCommand c) { if (_failed) return; var s = c.CommandText; var hit = stage == "write" && _written || stage == "links" && s.Contains("DELETE FROM cerberus.profile_record") || stage == "parent" && (s.Contains("UPDATE cerberus.profile SET") || s.Contains("UPDATE cerberus.collection SET") || s.Contains("UPDATE cerberus.folder SET")) || stage == "operation" && s.Contains("INSERT INTO cerberus.trash_operation") || stage == "entry" && s.Contains("INSERT INTO cerberus.trash_entry") || stage == "queue" && s.Contains("INSERT INTO cerberus.retention_work_item"); if (hit) { _failed = true; throw new TimeoutException("injected recordtrash persistence fault"); } }
+        public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (IsWrite(c)) _written = true; return ValueTask.FromResult(r); }
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { Check(c); return ValueTask.FromResult(r); }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { Check(c); return ValueTask.FromResult(r); }
     }

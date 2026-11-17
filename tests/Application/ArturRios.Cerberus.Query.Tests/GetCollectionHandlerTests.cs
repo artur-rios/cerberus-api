@@ -13,11 +13,11 @@ public class GetCollectionHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     private const string Verifier = "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
-    private static readonly Guid Actor = Guid.Parse("10000000-0000-0000-0000-000000000001");
-    private static readonly Guid Target = Guid.Parse("20000000-0000-0000-0000-000000000001");
-    private static readonly Guid First = Guid.Parse("00000001-0000-0000-0000-000000000001");
-    private static readonly Guid Middle = Guid.Parse("00000002-0000-0000-0000-000000000001");
-    private static readonly Guid Last = Guid.Parse("00000003-0000-0000-0000-000000000001");
+    private static readonly Guid s_actor = Guid.Parse("10000000-0000-0000-0000-000000000001");
+    private static readonly Guid s_target = Guid.Parse("20000000-0000-0000-0000-000000000001");
+    private static readonly Guid s_first = Guid.Parse("00000001-0000-0000-0000-000000000001");
+    private static readonly Guid s_middle = Guid.Parse("00000002-0000-0000-0000-000000000001");
+    private static readonly Guid s_last = Guid.Parse("00000003-0000-0000-0000-000000000001");
 
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
@@ -31,9 +31,9 @@ public class GetCollectionHandlerTests
     {
         var store = new Mock<ICollectionReadStore>(MockBehavior.Strict);
         var result = await new GetCollectionHandler(store.Object).HandleAsync(new(
-            kind == "actor" ? Guid.Empty : Actor,
+            kind == "actor" ? Guid.Empty : s_actor,
             kind switch { "missing" => null, "malformed" => "bad", "empty" => "", "padded" => Access + "=", "noncanonical" => Access[..^1] + "B", _ => Access },
-            kind == "target" ? Guid.Empty : Target));
+            kind == "target" ? Guid.Empty : s_target));
 
         Assert.Equal(new[] { error }, result.Errors);
         Assert.Null(result.Data);
@@ -46,33 +46,33 @@ public class GetCollectionHandlerTests
     [InlineData(true)]
     public async Task GivenVisibleDetails_WhenGetting_ThenForwardVerifierIdAndTokenAndReturnExactlyEightPublicFields(bool relationships)
     {
-        Guid[] profiles = relationships ? [Last, First, Middle] : [];
-        Guid[] records = relationships ? [Middle, First] : [];
-        Guid[] folders = relationships ? [Last, First] : [];
+        Guid[] profiles = relationships ? [s_last, s_first, s_middle] : [];
+        Guid[] records = relationships ? [s_middle, s_first] : [];
+        Guid[] folders = relationships ? [s_last, s_first] : [];
         using var caller = new CancellationTokenSource();
         var store = new Mock<ICollectionReadStore>(MockBehavior.Strict);
-        store.Setup(x => x.ReadAsync(new(Actor, Verifier, Target), caller.Token))
+        store.Setup(x => x.ReadAsync(new(s_actor, Verifier, s_target), caller.Token))
             .ReturnsAsync(new VaultResult<CollectionReadDetails>(new(Row(), profiles, records, folders)));
 
-        var result = await new GetCollectionHandler(store.Object).HandleAsync(new(Actor, Access, Target), caller.Token);
+        var result = await new GetCollectionHandler(store.Object).HandleAsync(new(s_actor, Access, s_target), caller.Token);
 
         Assert.True(result.Success);
         Assert.Empty(result.Errors);
         Assert.Equal(new[] { "collection_found" }, result.Messages);
         var item = Assert.IsType<CollectionDetailsOutput>(result.Data);
-        Assert.Equal(Target, item.CollectionId);
+        Assert.Equal(s_target, item.CollectionId);
         Assert.Equal(1, item.Revision);
         Assert.Equal(2, item.ServerSequence);
         Assert.Equal(DateTimeOffset.FromUnixTimeSeconds(1780000000), item.EditedAt);
         Assert.Equal(new EncryptedEnvelope("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), item.Envelope);
-        Assert.Equal(relationships ? [First, Middle, Last] : [], item.ProfileIds);
-        Assert.Equal(relationships ? [First, Middle] : [], item.RecordIds);
-        Assert.Equal(relationships ? [First, Last] : [], item.FolderIds);
+        Assert.Equal(relationships ? [s_first, s_middle, s_last] : [], item.ProfileIds);
+        Assert.Equal(relationships ? [s_first, s_middle] : [], item.RecordIds);
+        Assert.Equal(relationships ? [s_first, s_last] : [], item.FolderIds);
         if (relationships)
         {
-            Assert.Equal(new[] { Last, First, Middle }, profiles);
-            Assert.Equal(new[] { Middle, First }, records);
-            Assert.Equal(new[] { Last, First }, folders);
+            Assert.Equal(new[] { s_last, s_first, s_middle }, profiles);
+            Assert.Equal(new[] { s_middle, s_first }, records);
+            Assert.Equal(new[] { s_last, s_first }, folders);
         }
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(item, ProtectionFixture.Json));
         Assert.Equal(["collectionId", "editedAt", "envelope", "folderIds", "profileIds", "recordIds", "revision", "serverSequence"],
@@ -105,7 +105,7 @@ public class GetCollectionHandlerTests
         var row = kind switch
         {
             "nullCollection" => null!,
-            "targetMismatch" => good with { CollectionId = First },
+            "targetMismatch" => good with { CollectionId = s_first },
             "zeroId" => good with { CollectionId = Guid.Empty },
             "revisionZero" => good with { Revision = 0 },
             "revisionNegative" => good with { Revision = -1 },
@@ -123,7 +123,7 @@ public class GetCollectionHandlerTests
             "precision" => good with { EditedAt = good.EditedAt.AddTicks(1) },
             _ => good
         };
-        var result = await Handler(new(new(row, [First], [Middle], [Last]))).HandleAsync(new(Actor, Access, Target));
+        var result = await Handler(new(new(row, [s_first], [s_middle], [s_last]))).HandleAsync(new(s_actor, Access, s_target));
 
         Assert.Equal(new[] { "persistence_unavailable" }, result.Errors);
         Assert.Null(result.Data);
@@ -143,7 +143,7 @@ public class GetCollectionHandlerTests
             EditedAt = new DateTimeOffset(ticks, TimeSpan.Zero),
             Envelope = JsonSerializer.SerializeToUtf8Bytes(new EncryptedEnvelope("cerberus-content-v1", epoch, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), ProtectionFixture.Json)
         };
-        var result = await Handler(new(new(row, [], [], []))).HandleAsync(new(Actor, Access, Target));
+        var result = await Handler(new(new(row, [], [], []))).HandleAsync(new(s_actor, Access, s_target));
 
         Assert.True(result.Success);
         Assert.Equal(new[] { "collection_found" }, result.Messages);
@@ -165,10 +165,10 @@ public class GetCollectionHandlerTests
     [InlineData("folder", "duplicate")]
     public async Task GivenInvalidTypedRelationshipArray_WhenGetting_ThenRejectWholePayload(string resource, string corruption)
     {
-        Guid[] invalid = corruption switch { "null" => null!, "zero" => [Guid.Empty], _ => [First, First] };
-        var details = new CollectionReadDetails(Row(), resource == "profile" ? invalid : [First],
-            resource == "record" ? invalid : [Middle], resource == "folder" ? invalid : [Last]);
-        var result = await Handler(new(details)).HandleAsync(new(Actor, Access, Target));
+        Guid[] invalid = corruption switch { "null" => null!, "zero" => [Guid.Empty], _ => [s_first, s_first] };
+        var details = new CollectionReadDetails(Row(), resource == "profile" ? invalid : [s_first],
+            resource == "record" ? invalid : [s_middle], resource == "folder" ? invalid : [s_last]);
+        var result = await Handler(new(details)).HandleAsync(new(s_actor, Access, s_target));
 
         Assert.Equal(new[] { "persistence_unavailable" }, result.Errors);
         Assert.Null(result.Data);
@@ -254,7 +254,7 @@ public class GetCollectionHandlerTests
             _ => json
         };
         var row = Row() with { Envelope = kind == "nullBytes" ? null! : Encoding.UTF8.GetBytes(json) };
-        var result = await Handler(new(new(row, [First], [Middle], [Last]))).HandleAsync(new(Actor, Access, Target));
+        var result = await Handler(new(new(row, [s_first], [s_middle], [s_last]))).HandleAsync(new(s_actor, Access, s_target));
 
         Assert.Equal(new[] { "persistence_unavailable" }, result.Errors);
         Assert.Null(result.Data);
@@ -267,7 +267,7 @@ public class GetCollectionHandlerTests
     [InlineData("persistence_unavailable")]
     public async Task GivenSafeStoreError_WhenGetting_ThenReturnOnlyAllowlistedError(string error)
     {
-        var result = await Handler(new(Error: error)).HandleAsync(new(Actor, Access, Target));
+        var result = await Handler(new(Error: error)).HandleAsync(new(s_actor, Access, s_target));
         Assert.Equal(new[] { error }, result.Errors);
         Assert.Null(result.Data);
         Assert.Empty(result.Messages);
@@ -295,7 +295,7 @@ public class GetCollectionHandlerTests
             "identityAsError" => new(Error: "identity_unavailable"),
             _ => new(Error: "authentication_required")
         };
-        var result = await Handler(details!).HandleAsync(new(Actor, Access, Target));
+        var result = await Handler(details!).HandleAsync(new(s_actor, Access, s_target));
         Assert.Equal(new[] { "persistence_unavailable" }, result.Errors);
         Assert.Null(result.Data);
         Assert.Empty(result.Messages);
@@ -308,7 +308,7 @@ public class GetCollectionHandlerTests
         caller.Cancel();
         var store = new Mock<ICollectionReadStore>(MockBehavior.Strict);
         var exception = await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
-            new GetCollectionHandler(store.Object).HandleAsync(new(Actor, Access, Target), caller.Token));
+            new GetCollectionHandler(store.Object).HandleAsync(new(s_actor, Access, s_target), caller.Token));
         Assert.Equal(caller.Token, exception.CancellationToken);
         store.VerifyNoOtherCalls();
     }
@@ -318,13 +318,13 @@ public class GetCollectionHandlerTests
     {
         using var caller = new CancellationTokenSource();
         var store = new Mock<ICollectionReadStore>(MockBehavior.Strict);
-        store.Setup(x => x.ReadAsync(new(Actor, Verifier, Target), caller.Token)).Returns(() =>
+        store.Setup(x => x.ReadAsync(new(s_actor, Verifier, s_target), caller.Token)).Returns(() =>
         {
             caller.Cancel();
             throw new OperationCanceledException(caller.Token);
         });
         var exception = await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
-            new GetCollectionHandler(store.Object).HandleAsync(new(Actor, Access, Target), caller.Token));
+            new GetCollectionHandler(store.Object).HandleAsync(new(s_actor, Access, s_target), caller.Token));
         Assert.Equal(caller.Token, exception.CancellationToken);
         store.VerifyAll();
     }
@@ -339,9 +339,9 @@ public class GetCollectionHandlerTests
         using var dependency = new CancellationTokenSource();
         dependency.Cancel();
         var store = new Mock<ICollectionReadStore>(MockBehavior.Strict);
-        store.Setup(x => x.ReadAsync(new(Actor, Verifier, Target), caller.Token))
+        store.Setup(x => x.ReadAsync(new(s_actor, Verifier, s_target), caller.Token))
             .ThrowsAsync(new OperationCanceledException(kind switch { "unrelated" => dependency.Token, "uncancelledCaller" => caller.Token, _ => CancellationToken.None }));
-        var result = await new GetCollectionHandler(store.Object).HandleAsync(new(Actor, Access, Target), caller.Token);
+        var result = await new GetCollectionHandler(store.Object).HandleAsync(new(s_actor, Access, s_target), caller.Token);
         Assert.Equal(new[] { "persistence_unavailable" }, result.Errors);
         Assert.Null(result.Data);
         Assert.Empty(result.Messages);
@@ -363,10 +363,10 @@ public class GetCollectionHandlerTests
     private static GetCollectionHandler Handler(VaultResult<CollectionReadDetails> result)
     {
         var store = new Mock<ICollectionReadStore>(MockBehavior.Strict);
-        store.Setup(x => x.ReadAsync(new(Actor, Verifier, Target), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        store.Setup(x => x.ReadAsync(new(s_actor, Verifier, s_target), It.IsAny<CancellationToken>())).ReturnsAsync(result);
         return new(store.Object);
     }
 
-    private static CollectionListRow Row() => new(Target, 1, 2, DateTimeOffset.FromUnixTimeSeconds(1780000000),
+    private static CollectionListRow Row() => new(s_target, 1, 2, DateTimeOffset.FromUnixTimeSeconds(1780000000),
         Encoding.UTF8.GetBytes("{\"format\":\"cerberus-content-v1\",\"keyEpoch\":1,\"keySalt\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"nonce\":\"AAAAAAAAAAAAAAAA\",\"ciphertext\":\"AQID\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA\"}"), 1);
 }

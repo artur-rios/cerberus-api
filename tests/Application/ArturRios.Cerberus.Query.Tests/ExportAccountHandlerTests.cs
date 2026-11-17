@@ -9,12 +9,12 @@ public sealed class ExportAccountHandlerTests
 {
     private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     private const string Verifier = "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
-    private static readonly Guid Actor = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
-    private static readonly Guid Account = Guid.Parse("527a1001-8ef5-4c9b-a565-333333333333");
-    private static readonly Guid Foreign = Guid.Parse("527a1001-8ef5-4c9b-a565-444444444444");
-    private static readonly DateTimeOffset Now = new(2026, 10, 15, 12, 0, 0, TimeSpan.Zero);
-    private static AccountExportHeader Header => new(Account, Actor, 3, 2, 4, true, 86400, Now);
-    private static ExportAccountQuery Query => new(Actor, Now.ToUnixTimeSeconds(), Handle, 3);
+    private static readonly Guid s_actor = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
+    private static readonly Guid s_account = Guid.Parse("527a1001-8ef5-4c9b-a565-333333333333");
+    private static readonly Guid s_foreign = Guid.Parse("527a1001-8ef5-4c9b-a565-444444444444");
+    private static readonly DateTimeOffset s_now = new(2026, 10, 15, 12, 0, 0, TimeSpan.Zero);
+    private static AccountExportHeader Header => new(s_account, s_actor, 3, 2, 4, true, 86400, s_now);
+    private static ExportAccountQuery Query => new(s_actor, s_now.ToUnixTimeSeconds(), Handle, 3);
 
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
@@ -29,7 +29,7 @@ public sealed class ExportAccountHandlerTests
         // Given: a strict store makes any unauthorized persistence call observable.
         var store = new Mock<IAccountExportStore>(MockBehavior.Strict);
         var access = invalid switch { "missing" => null, "malformed" => "invalid", "padding" => Handle + "=", "noncanonical" => Handle[..^1] + "B", _ => Handle };
-        var query = new ExportAccountQuery(invalid == "actor" ? Guid.Empty : Actor, invalid == "zeroIat" ? 0 : invalid == "negativeIat" ? -1 : Now.ToUnixTimeSeconds(), access, 3);
+        var query = new ExportAccountQuery(invalid == "actor" ? Guid.Empty : s_actor, invalid == "zeroIat" ? 0 : invalid == "negativeIat" ? -1 : s_now.ToUnixTimeSeconds(), access, 3);
         // When/Then: reject without producing an export lease.
         var result = await new ExportAccountHandler(store.Object).HandleAsync(query);
         Assert.Equal([error], result.Errors);
@@ -45,7 +45,7 @@ public sealed class ExportAccountHandlerTests
     {
         // Given/When: unsafe wire integers must not reach a reader.
         var result = await new ExportAccountHandler(new Mock<IAccountExportStore>(MockBehavior.Strict).Object)
-            .HandleAsync(new(Actor, Now.ToUnixTimeSeconds(), Handle, revision));
+            .HandleAsync(new(s_actor, s_now.ToUnixTimeSeconds(), Handle, revision));
         // Then: no archive is disclosed.
         Assert.Equal(["validation_failed"], result.Errors);
         Assert.Null(result.Data);
@@ -60,11 +60,11 @@ public sealed class ExportAccountHandlerTests
         // Given: an independently hand-checked SHA256 of the 32 zero handle bytes.
         var lease = new Lease(Header with { Revision = revision });
         var store = new Mock<IAccountExportStore>(MockBehavior.Strict);
-        store.Setup(x => x.OpenAsync(It.Is<AccountExportRequest>(r => r.Actor == Actor && r.AccessVerifier == Verifier
-            && r.AuthenticationIssuedAt == Now.ToUnixTimeSeconds() && r.ExpectedRevision == revision), It.IsAny<CancellationToken>()))
+        store.Setup(x => x.OpenAsync(It.Is<AccountExportRequest>(r => r.Actor == s_actor && r.AccessVerifier == Verifier
+            && r.AuthenticationIssuedAt == s_now.ToUnixTimeSeconds() && r.ExpectedRevision == revision), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AccountExportOpenResult(lease));
         // When/Then: preserve ownership for the streaming consumer, without disposal.
-        var result = await new ExportAccountHandler(store.Object).HandleAsync(new(Actor, Now.ToUnixTimeSeconds(), Handle, revision));
+        var result = await new ExportAccountHandler(store.Object).HandleAsync(new(s_actor, s_now.ToUnixTimeSeconds(), Handle, revision));
         Assert.True(result.Success);
         Assert.Same(lease, result.Data!.Lease);
         Assert.False(lease.Disposed);
@@ -125,7 +125,7 @@ public sealed class ExportAccountHandlerTests
         // Given: a producer must not turn malformed context into a usable archive.
         var header = invalid switch
         {
-            "foreignActor" => Header with { IdentityId = Foreign },
+            "foreignActor" => Header with { IdentityId = s_foreign },
             "emptyAccount" => Header with { AccountId = Guid.Empty },
             "wrongRevision" => Header with { Revision = 4 },
             "zeroPolicy" => Header with { PolicyRevision = 0 },
@@ -134,11 +134,11 @@ public sealed class ExportAccountHandlerTests
             "disabledWithInterval" => Header with { RenewalEnabled = false },
             "zeroInterval" => Header with { RenewalIntervalSeconds = 0 },
             "unsafeInterval" => Header with { RenewalIntervalSeconds = 9007199254740992 },
-            "nonUtc" => Header with { ServerTime = Now.ToOffset(TimeSpan.FromHours(1)) },
-            "subMicrosecond" => Header with { ServerTime = Now.AddTicks(1) },
+            "nonUtc" => Header with { ServerTime = s_now.ToOffset(TimeSpan.FromHours(1)) },
+            "subMicrosecond" => Header with { ServerTime = s_now.AddTicks(1) },
             "beforeEpoch" => Header with { ServerTime = DateTimeOffset.UnixEpoch.AddTicks(-10) },
             "nullHeader" => null,
-            _ => Header with { ServerTime = Now.AddSeconds(60) }
+            _ => Header with { ServerTime = s_now.AddSeconds(60) }
         };
         var lease = new Lease(header!);
         // When/Then: fail without exposing even the foreign header and close the reader.
@@ -164,7 +164,7 @@ public sealed class ExportAccountHandlerTests
     public async Task GivenFailureDisposingAnUnpublishedLease_WhenRejectingTheHeader_ThenReturnUnavailableWithoutPrivateText()
     {
         // Given/When: cleanup failure cannot publish a foreign lease or dependency text.
-        var lease = new Lease(Header with { IdentityId = Foreign }) { ThrowOnDispose = true };
+        var lease = new Lease(Header with { IdentityId = s_foreign }) { ThrowOnDispose = true };
         var result = await Handler(new(lease)).HandleAsync(Query);
         // Then: stable failure and attempted resource release.
         Assert.Equal(["persistence_unavailable"], result.Errors);
@@ -208,7 +208,7 @@ public sealed class ExportAccountHandlerTests
     private static ExportAccountHandler Handler(AccountExportOpenResult result)
     {
         var store = new Mock<IAccountExportStore>(MockBehavior.Strict);
-        store.Setup(x => x.OpenAsync(It.Is<AccountExportRequest>(r => r.Actor == Actor && r.AccessVerifier == Verifier && r.ExpectedRevision == 3), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        store.Setup(x => x.OpenAsync(It.Is<AccountExportRequest>(r => r.Actor == s_actor && r.AccessVerifier == Verifier && r.ExpectedRevision == 3), It.IsAny<CancellationToken>())).ReturnsAsync(result);
         return new(store.Object);
     }
     private sealed class Lease(AccountExportHeader header) : IAccountExportLease

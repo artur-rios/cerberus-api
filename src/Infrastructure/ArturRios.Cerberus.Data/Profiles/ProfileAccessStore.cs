@@ -9,7 +9,7 @@ namespace ArturRios.Cerberus.Data.Profiles;
 
 public sealed partial class ProfileAccessStore(IDbContextFactory<AppDbContext> factory)
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
     public Task<VaultResult<ProfileChallengeDetails>> ChallengeAsync(ProfileChallengeRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
@@ -28,7 +28,7 @@ public sealed partial class ProfileAccessStore(IDbContextFactory<AppDbContext> f
             {
                 AccountId = account.Id,
                 PublicId = challenge.ChallengeId,
-                Challenge = JsonSerializer.SerializeToUtf8Bytes(challenge, Json),
+                Challenge = JsonSerializer.SerializeToUtf8Bytes(challenge, s_json),
                 PolicyRevision = account.PolicyRevision,
                 RevocationGeneration = account.RevocationGeneration,
                 ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(challenge.ExpiresAt)

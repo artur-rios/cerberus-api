@@ -12,8 +12,8 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class FolderCreateHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid();
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json) { NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.Strict };
+    private readonly Guid _actor = Guid.NewGuid();
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json) { NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.Strict };
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -30,7 +30,7 @@ public class FolderCreateHandlerTests
     public async Task GivenInvalidInputOrAuthority_WhenHandling_ThenRejectWithoutPersistence(string kind, string error)
     {
         var c = Command();
-        c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access);
+        c.SetContext(kind == "actor" ? Guid.Empty : _actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "bad" ? "bad" : Access);
         if (kind == "id")
             c.FolderId = Guid.Empty;
         if (kind == "envelope")
@@ -40,7 +40,7 @@ public class FolderCreateHandlerTests
         if (kind == "profiles")
             c.ProfileIds = null!;
         if (kind == "duplicates")
-            c.ProfileIds = [actor, actor];
+            c.ProfileIds = [_actor, _actor];
         if (kind == "folder")
             c.ParentFolderId = Guid.Empty;
         if (kind == "time")
@@ -73,13 +73,13 @@ public class FolderCreateHandlerTests
         Assert.Equal(1, result.Data.Revision);
         Assert.Equal(7, result.Data.ServerSequence);
         Assert.Equal(Normalize(c.EditedAt), result.Data.EditedAt);
-        Assert.Equal(actor, captured!.Actor);
+        Assert.Equal(_actor, captured!.Actor);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", captured.AccessVerifier);
         Assert.Equal(c.ToInput(), captured.Input);
         Assert.Equal(source.Token, received);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, s_json));
         Assert.Equal(["editedAt", "folderId", "revision", "serverSequence"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        using var wire = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        using var wire = JsonDocument.Parse(JsonSerializer.Serialize(c, s_json));
         Assert.Equal(["editedAt", "envelope", "folderId", "parentFolderId", "profileIds"], wire.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
@@ -136,7 +136,7 @@ public class FolderCreateHandlerTests
     [InlineData("editedAt")]
     [InlineData("profileIds")]
     public void GivenOmittedRequiredBodyMember_WhenParsing_ThenReject(string name)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); body.Remove(name); Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateFolderCommand>(body.ToJsonString(), Json)); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); body.Remove(name); Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateFolderCommand>(body.ToJsonString(), s_json)); }
     [UnitTheory]
     [InlineData("actor")]
     [InlineData("accountId")]
@@ -147,18 +147,18 @@ public class FolderCreateHandlerTests
     [InlineData("collectionIds")]
     [InlineData("unknown")]
     public void GivenUnknownOrForgedBodyMember_WhenParsing_ThenReject(string name)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); body[name] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateFolderCommand>(body.ToJsonString(), Json)); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); body[name] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateFolderCommand>(body.ToJsonString(), s_json)); }
     [UnitTheory]
     [InlineData("duplicate")]
     [InlineData("case")]
     [InlineData("numeric")]
     public void GivenAmbiguousStrictBody_WhenParsing_ThenReject(string kind)
-    { var body = JsonSerializer.Serialize(Command(), Json); body = kind == "duplicate" ? body.Insert(1, "\"profileIds\":[],") : kind == "case" ? body.Replace("profileIds", "ProfileIds") : body.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""); Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateFolderCommand>(body, Json)); }
+    { var body = JsonSerializer.Serialize(Command(), s_json); body = kind == "duplicate" ? body.Insert(1, "\"profileIds\":[],") : kind == "case" ? body.Replace("profileIds", "ProfileIds") : body.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\""); Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CreateFolderCommand>(body, s_json)); }
     [UnitTheory]
     [InlineData(false)]
     [InlineData(true)]
     public void GivenOmittedOrNullOptionalFolder_WhenParsing_ThenPreserveUnfolderedCreation(bool omit)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); if (omit) body.Remove("parentFolderId"); else body["parentFolderId"] = null; var c = JsonSerializer.Deserialize<CreateFolderCommand>(body.ToJsonString(), Json)!; Assert.Null(c.ParentFolderId); Assert.True(c.ToInput().IsValid()); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); if (omit) body.Remove("parentFolderId"); else body["parentFolderId"] = null; var c = JsonSerializer.Deserialize<CreateFolderCommand>(body.ToJsonString(), s_json)!; Assert.Null(c.ParentFolderId); Assert.True(c.ToInput().IsValid()); }
     [UnitFact]
     public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforePersistence()
     { using var source = new CancellationTokenSource(); source.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new Mock<IFolderCreateStore>(MockBehavior.Strict).Object).HandleAsync(Command(), source.Token)); }
@@ -167,7 +167,7 @@ public class FolderCreateHandlerTests
     { using var source = new CancellationTokenSource(); var store = new Mock<IFolderCreateStore>(); store.Setup(x => x.CreateAsync(It.IsAny<FolderCreateRequest>(), source.Token)).ThrowsAsync(new OperationCanceledException(source.Token)); var e = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store.Object).HandleAsync(Command(), source.Token)); Assert.Equal(source.Token, e.CancellationToken); }
     [UnitFact]
     public void GivenFolderCreatedMessage_WhenMapping_ThenReturn201() => Assert.Equal(201, FolderCreateMessages.StatusCodes["folder_created"]);
-    private CreateFolderCommand Command() { var c = new CreateFolderCommand { FolderId = Guid.NewGuid(), Envelope = new EncryptedEnvelope("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), EditedAt = DateTimeOffset.UnixEpoch.AddTicks(19), ProfileIds = [], ParentFolderId = null }; c.SetContext(actor, Access); return c; }
+    private CreateFolderCommand Command() { var c = new CreateFolderCommand { FolderId = Guid.NewGuid(), Envelope = new EncryptedEnvelope("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), EditedAt = DateTimeOffset.UnixEpoch.AddTicks(19), ProfileIds = [], ParentFolderId = null }; c.SetContext(_actor, Access); return c; }
     private static DateTimeOffset Normalize(DateTimeOffset value) => value.AddTicks(-(value.Ticks % 10));
     private static CreateFolderHandler Handler(IFolderCreateStore store) => new(new CreateFolderValidator(), store);
 }

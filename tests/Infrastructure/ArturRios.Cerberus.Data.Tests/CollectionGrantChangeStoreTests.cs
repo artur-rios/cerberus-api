@@ -319,7 +319,7 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     public async Task GivenExpiryAtAuthorization_WhenChanging_ThenOnlyPostAuthorizationExpiryCanCommit(bool after)
     {
         using var s = await Setup();
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await Sql("UPDATE cerberus.vault_access_session SET expires_at={0} WHERE handle_verifier={1}", deadline, s.Owner.Verifier);
         Task Pause(DbCommand _) => RealTime.Past(deadline);
         DbCommandInterceptor hook = after ? new After(Write, Pause) : new Before(Write, Pause);
@@ -547,13 +547,13 @@ public partial class CollectionGrantChangeStoreTests(PostgresFixture fixture) : 
     { await using var command = c.Connection!.CreateCommand(); command.Transaction = c.Transaction; command.CommandText = sql; foreach (var p in parameters) command.Parameters.Add(p); await command.ExecuteNonQueryAsync(); }
     private sealed class Before(Func<DbCommand, bool> match, Func<DbCommand, Task> action) : DbCommandInterceptor
     {
-        private bool used;
-        private async Task Check(DbCommand c) { if (!used && match(c)) { used = true; await action(c); } }
+        private bool _used;
+        private async Task Check(DbCommand c) { if (!_used && match(c)) { _used = true; await action(c); } }
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { await Check(c); return r; }
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { await Check(c); return r; }
     }
     private sealed class After(Func<DbCommand, bool> match, Func<DbCommand, Task> action) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (!used && match(c)) { used = true; await action(c); } return r; } }
+    { private bool _used; public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default) { if (!_used && match(c)) { _used = true; await action(c); } return r; } }
     private sealed class Capture : DbCommandInterceptor
     {
         public List<string> Locks { get; } = []; public List<object[]> Values { get; } = []; public int Writes { get; private set; }

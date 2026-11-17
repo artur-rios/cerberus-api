@@ -23,7 +23,7 @@ namespace ArturRios.Cerberus.WebApi.Tests;
 [Collection("Registration host")]
 public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
-    private static readonly byte[] Raw = "{\"expectedRevision\":1}"u8.ToArray();
+    private static readonly byte[] s_raw = "{\"expectedRevision\":1}"u8.ToArray();
     [FunctionalTheory]
     [InlineData("Master", true)]
     [InlineData("Master", false)]
@@ -136,7 +136,7 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
         await using (var db = fixture.Context())
         { if (kind == "trash") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.DeletedAt, DateTimeOffset.UtcNow)); if (kind == "closing") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.State, AccountState.ClosurePending)); if (kind is "erased" or "accountErased") db.TerminalErasures.Add(new() { ResourceId = kind == "erased" ? p.PublicId : s.AccountId, ResourceKind = kind == "erased" ? "profile" : "account", DeletedAt = DateTimeOffset.UtcNow }); if (kind == "missingAccount") { actor = Guid.NewGuid(); fixture.Users[actor + "@example.test"] = new(actor, "fixture-password"); } await db.SaveChangesAsync(); await db.VaultProtections.Where(x => x.AccountId == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.Material, [1])); }
         var before = await SecuritySnapshot(s);
-        using var request = Request(s with { Actor = actor }, kind == "missing" ? Guid.NewGuid() : p.PublicId, open, Encoding.UTF8.GetBytes(open ? "{\"expectedRevision\":9}" : "{\"expectedRevision\":9,\"requestHash\":\"" + Hash(Raw) + "\"}"));
+        using var request = Request(s with { Actor = actor }, kind == "missing" ? Guid.NewGuid() : p.PublicId, open, Encoding.UTF8.GetBytes(open ? "{\"expectedRevision\":9}" : "{\"expectedRevision\":9,\"requestHash\":\"" + Hash(s_raw) + "\"}"));
         using var response = await Gateway.Client.SendAsync(request);
         await Failure(response, 404, "not_found");
         Assert.Equal(before, await SecuritySnapshot(s));
@@ -175,7 +175,7 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
         await using (var db = fixture.Context())
         { if (kind == "revision") await db.Profiles.Where(x => x.Id == p.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.Revision, 2)); if (kind == "policy") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.PolicyRevision, 2)); if (kind == "generation") await db.Accounts.Where(x => x.Id == s.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.RevocationGeneration, 2)); }
         var before = await SecuritySnapshot(s);
-        using var response = await Open(s, p.PublicId, c.Challenge, scoped.Sign(c.Challenge), kind == "expected" ? "{\"expectedRevision\":2}"u8.ToArray() : Raw);
+        using var response = await Open(s, p.PublicId, c.Challenge, scoped.Sign(c.Challenge), kind == "expected" ? "{\"expectedRevision\":2}"u8.ToArray() : s_raw);
         await Failure(response, 409, "revision_conflict");
         Assert.Equal(before, await SecuritySnapshot(s));
     }
@@ -203,7 +203,7 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
         { signed = signed with { IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (kind == "expired" ? -120 : 120), ExpiresAt = 0 }; signed = signed with { ExpiresAt = signed.IssuedAt + 60 }; await using var db = fixture.Context(); var row = await db.VaultUnlockChallenges.SingleAsync(x => x.PublicId == signed.ChallengeId); row.Challenge = JsonSerializer.SerializeToUtf8Bytes(signed, ProtectionFixture.Json); row.ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(signed.ExpiresAt); await db.SaveChangesAsync(); }
         var before = await SecuritySnapshot(s);
         var proof = (kind == "accountKey" ? client : kind is "otherProfileKey" or "otherProfileChallenge" ? otherScoped : scoped).Sign(signed);
-        using var response = await Open(s, p.PublicId, c.Challenge, proof, kind == "body" ? "{ \"expectedRevision\":1}"u8.ToArray() : Raw);
+        using var response = await Open(s, p.PublicId, c.Challenge, proof, kind == "body" ? "{ \"expectedRevision\":1}"u8.ToArray() : s_raw);
         await Failure(response, 401, "vault_proof_rejected");
         Assert.Equal(before, await SecuritySnapshot(s));
     }
@@ -216,7 +216,7 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
         using var scoped = new ProtectionFixture();
         var s = await Setup(client);
         var p = await Add(s, client, scoped);
-        var raw = open ? Encoding.UTF8.GetString(Raw) : Encoding.UTF8.GetString(ChallengeBody());
+        var raw = open ? Encoding.UTF8.GetString(s_raw) : Encoding.UTF8.GetString(ChallengeBody());
         if (kind is "actor" or "profileId" or "vaultAccess" or "password" or "unknown")
             raw = raw.Insert(1, "\"" + kind + "\":null,");
         if (kind == "missingRevision")
@@ -256,12 +256,12 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
     [InlineData("bad")]
     [InlineData("padded")]
     public async Task GivenMalformedChallengeDigest_WhenChallenging_Then400(string kind)
-    { using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); var body = kind == "missing" ? "{\"expectedRevision\":1}" : "{\"expectedRevision\":1,\"requestHash\":" + (kind == "null" ? "null" : JsonSerializer.Serialize(kind == "bad" ? "bad" : Hash(Raw) + "=")) + "}"; var before = await SecuritySnapshot(s); using var response = await Gateway.Client.SendAsync(Request(s, p.PublicId, false, Encoding.UTF8.GetBytes(body))); await Failure(response, 400); Assert.Equal(before, await SecuritySnapshot(s)); }
+    { using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); var body = kind == "missing" ? "{\"expectedRevision\":1}" : "{\"expectedRevision\":1,\"requestHash\":" + (kind == "null" ? "null" : JsonSerializer.Serialize(kind == "bad" ? "bad" : Hash(s_raw) + "=")) + "}"; var before = await SecuritySnapshot(s); using var response = await Gateway.Client.SendAsync(Request(s, p.PublicId, false, Encoding.UTF8.GetBytes(body))); await Failure(response, 400); Assert.Equal(before, await SecuritySnapshot(s)); }
     public static TheoryData<bool, string> RouteCases => Pairs("bad", "uppercase", "zero", "compact", "query");
     [FunctionalTheory]
     [MemberData(nameof(RouteCases))]
     public async Task GivenInvalidRouteOrQuery_WhenChallengingOrOpening_Then400(bool open, string kind)
-    { using var client = new ProtectionFixture(); var s = await Setup(client); var id = kind == "bad" ? "invalid" : kind == "uppercase" ? "ABCDEFAB-1234-1234-1234-ABCDEFABCDEF" : kind == "zero" ? Guid.Empty.ToString() : kind == "compact" ? Guid.NewGuid().ToString("N") : Guid.NewGuid().ToString(); using var request = Request(s, Guid.NewGuid(), open, open ? Raw : ChallengeBody()); request.RequestUri = new("/api/profiles/" + id + "/access" + (open ? "" : "/challenges") + (kind == "query" ? "?unexpected=1" : ""), UriKind.Relative); using var response = await Gateway.Client.SendAsync(request); await Failure(response, 400); }
+    { using var client = new ProtectionFixture(); var s = await Setup(client); var id = kind == "bad" ? "invalid" : kind == "uppercase" ? "ABCDEFAB-1234-1234-1234-ABCDEFABCDEF" : kind == "zero" ? Guid.Empty.ToString() : kind == "compact" ? Guid.NewGuid().ToString("N") : Guid.NewGuid().ToString(); using var request = Request(s, Guid.NewGuid(), open, open ? s_raw : ChallengeBody()); request.RequestUri = new("/api/profiles/" + id + "/access" + (open ? "" : "/challenges") + (kind == "query" ? "?unexpected=1" : ""), UriKind.Relative); using var response = await Gateway.Client.SendAsync(request); await Failure(response, 400); }
     [FunctionalTheory]
     [InlineData("missingId", 401)]
     [InlineData("missingProof", 401)]
@@ -279,7 +279,7 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
         var s = await Setup(client);
         var p = await Add(s, client, scoped);
         var before = await SecuritySnapshot(s);
-        using var request = Request(s, p.PublicId, true, Raw);
+        using var request = Request(s, p.PublicId, true, s_raw);
         if (kind is "missingId" or "emptyId" or "badId" or "uppercaseId")
             request.Headers.Remove("X-Cerberus-Challenge-Id");
         if (kind is "missingProof" or "emptyProof" or "badProof")
@@ -297,7 +297,7 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
         if (kind is "emptyId" or "emptyProof")
         {
             using var host = new WebApplicationFactory<Program>();
-            var context = await host.Server.SendAsync(c => { c.Request.Method = "POST"; c.Request.Path = "/api/profiles/" + p.PublicId + "/access"; c.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(s.Actor); c.Request.Headers["X-Cerberus-Challenge-Id"] = kind == "emptyId" ? "" : Guid.NewGuid().ToString(); c.Request.Headers["X-Cerberus-Proof"] = kind == "emptyProof" ? "" : ProtocolBinary.Encode(new byte[64]); c.Request.ContentType = "application/json"; c.Request.Body = new MemoryStream(Raw); c.Request.ContentLength = Raw.Length; });
+            var context = await host.Server.SendAsync(c => { c.Request.Method = "POST"; c.Request.Path = "/api/profiles/" + p.PublicId + "/access"; c.Request.Headers.Authorization = "Bearer " + RegistrationApiFixture.Token(s.Actor); c.Request.Headers["X-Cerberus-Challenge-Id"] = kind == "emptyId" ? "" : Guid.NewGuid().ToString(); c.Request.Headers["X-Cerberus-Proof"] = kind == "emptyProof" ? "" : ProtocolBinary.Encode(new byte[64]); c.Request.ContentType = "application/json"; c.Request.Body = new MemoryStream(s_raw); c.Request.ContentLength = s_raw.Length; });
             Assert.Equal(status, context.Response.StatusCode);
             Assert.Contains("no-store", context.Response.Headers.CacheControl.ToString());
         }
@@ -309,7 +309,7 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
     [FunctionalTheory]
     [MemberData(nameof(IdentityCases))]
     public async Task GivenInvalidCurrentIdentity_WhenChallengingOrOpening_ThenFailClosed(bool open, string kind)
-    { using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); if (kind is "deleted" or "unavailable") { var pair = fixture.Users.Single(x => x.Value.Id == s.Actor); fixture.Users[pair.Key] = pair.Value with { Deleted = kind == "deleted", IdentityUnavailable = kind == "unavailable" }; } var before = await SecuritySnapshot(s); using var request = Request(s, p.PublicId, open, open ? Raw : ChallengeBody()); request.Headers.Authorization = kind == "missing" ? null : new("Bearer", RegistrationApiFixture.Token(s.Actor, kind == "wrongScope" ? Guid.NewGuid() : null)); using var response = await Gateway.Client.SendAsync(request); await Failure(response, kind == "unavailable" ? 503 : 401); Assert.Equal(before, await SecuritySnapshot(s)); }
+    { using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); if (kind is "deleted" or "unavailable") { var pair = fixture.Users.Single(x => x.Value.Id == s.Actor); fixture.Users[pair.Key] = pair.Value with { Deleted = kind == "deleted", IdentityUnavailable = kind == "unavailable" }; } var before = await SecuritySnapshot(s); using var request = Request(s, p.PublicId, open, open ? s_raw : ChallengeBody()); request.Headers.Authorization = kind == "missing" ? null : new("Bearer", RegistrationApiFixture.Token(s.Actor, kind == "wrongScope" ? Guid.NewGuid() : null)); using var response = await Gateway.Client.SendAsync(request); await Failure(response, kind == "unavailable" ? 503 : 401); Assert.Equal(before, await SecuritySnapshot(s)); }
     [FunctionalTheory]
     [InlineData("old")]
     [InlineData("future")]
@@ -329,11 +329,11 @@ public class ProfileAccessHttpTests(RegistrationApiFixture fixture, SharedApiHos
     { using var client = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var s = await Setup(client); var p = await Add(s, client, scoped); var c = open ? await Challenge(s, p.PublicId) : null; var before = await SecuritySnapshot(s); await using var db = fixture.Context(); await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.profile RENAME TO fixture_unavailable_profile"); try { using var response = open ? await Open(s, p.PublicId, c!.Challenge, scoped.Sign(c.Challenge)) : await Gateway.Client.SendAsync(Request(s, p.PublicId, false, ChallengeBody())); await Failure(response, 503); } finally { await db.Database.ExecuteSqlRawAsync("ALTER TABLE cerberus.fixture_unavailable_profile RENAME TO profile"); } Assert.Equal(before, await SecuritySnapshot(s)); }
     private static TheoryData<bool, string> Pairs(params string[] names) { var cases = new TheoryData<bool, string>(); foreach (var open in new[] { false, true }) foreach (var n in names) cases.Add(open, n); return cases; }
     private static string Hash(byte[] bytes) => ProtocolBinary.Encode(SHA256.HashData(bytes));
-    private static byte[] ChallengeBody() => JsonSerializer.SerializeToUtf8Bytes(new { expectedRevision = 1, requestHash = Hash(Raw) });
+    private static byte[] ChallengeBody() => JsonSerializer.SerializeToUtf8Bytes(new { expectedRevision = 1, requestHash = Hash(s_raw) });
     private static HttpRequestMessage Request(State s, Guid id, bool open, byte[] body)
     { var r = new HttpRequestMessage(HttpMethod.Post, "/api/profiles/" + id + "/access" + (open ? "" : "/challenges")) { Content = new ByteArrayContent(body) }; r.Content.Headers.ContentType = new("application/json") { CharSet = "utf-8" }; r.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor)); if (open) { r.Headers.Add("X-Cerberus-Challenge-Id", Guid.NewGuid().ToString()); r.Headers.Add("X-Cerberus-Proof", ProtocolBinary.Encode(new byte[64])); } return r; }
     private async Task<IssueProfileAccessChallengeOutput> Challenge(State s, Guid id) { using var request = Request(s, id, false, ChallengeBody()); using var r = await Gateway.Client.SendAsync(request); var output = await Success<IssueProfileAccessChallengeOutput>(r, 201); AssertFields(output, "challenge", "profile"); AssertFields(output.Profile, "accountId", "envelope", "keyWrappers", "profileId", "revision"); return output; }
-    private async Task<HttpResponseMessage> Open(State s, Guid id, VaultProofChallenge challenge, string proof, byte[]? raw = null) { using var r = Request(s, id, true, raw ?? Raw); r.Headers.Remove("X-Cerberus-Challenge-Id"); r.Headers.Remove("X-Cerberus-Proof"); r.Headers.Add("X-Cerberus-Challenge-Id", challenge.ChallengeId.ToString()); r.Headers.Add("X-Cerberus-Proof", proof); return await Gateway.Client.SendAsync(r); }
+    private async Task<HttpResponseMessage> Open(State s, Guid id, VaultProofChallenge challenge, string proof, byte[]? raw = null) { using var r = Request(s, id, true, raw ?? s_raw); r.Headers.Remove("X-Cerberus-Challenge-Id"); r.Headers.Remove("X-Cerberus-Proof"); r.Headers.Add("X-Cerberus-Challenge-Id", challenge.ChallengeId.ToString()); r.Headers.Add("X-Cerberus-Proof", proof); return await Gateway.Client.SendAsync(r); }
     private async Task<HttpResponseMessage> WithAccess(State s, HttpMethod method, string path, string access, object? body = null) { using var r = new HttpRequestMessage(method, path); r.Headers.Authorization = new("Bearer", RegistrationApiFixture.Token(s.Actor)); r.Headers.Add("X-Cerberus-Vault-Access", access); if (body is not null) r.Content = JsonContent.Create(body); return await Gateway.Client.SendAsync(r); }
     private static async Task<T> Success<T>(HttpResponseMessage r, int status) where T : class { Assert.Equal((HttpStatusCode)status, r.StatusCode); Assert.True(r.Headers.CacheControl?.NoStore); var output = await r.Content.ReadFromJsonAsync<DataOutput<T>>(); Assert.True(output!.Success); return Assert.IsType<T>(output.Data); }
     private static void AssertFields(object value, params string[] names) { using var d = JsonDocument.Parse(JsonSerializer.Serialize(value, ProtectionFixture.Json)); Assert.Equal(names.Order(), d.RootElement.EnumerateObject().Select(x => x.Name).Order()); }

@@ -35,7 +35,7 @@ public partial class RetentionMaintenanceTests
         using var keys = new ProtectionFixture();
         var s = await Owner(keys);
         var root = await TrashRestoreSetup.RootAsync(fixture, s, keys, "record");
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await TrashRestoreSetup.Deadline(fixture, root, deadline);
         await using (var db = fixture.CreateContext())
             await db.RetentionWorkItems.Where(x => x.OperationKey == "trash/" + root.OperationId).ExecuteDeleteAsync();
@@ -103,8 +103,8 @@ public partial class RetentionMaintenanceTests
     private static Task MaintenanceWaitPast(DateTimeOffset deadline) => RealTime.Past(deadline);
     private sealed class AfterMaintenanceRestore(Func<Task> action) : DbCommandInterceptor
     {
-        private bool reached;
+        private bool _reached;
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default)
-        { if (!reached && c.CommandText.Contains("DELETE FROM cerberus.retention_work_item", StringComparison.Ordinal)) { reached = true; await action(); } return r; }
+        { if (!_reached && c.CommandText.Contains("DELETE FROM cerberus.retention_work_item", StringComparison.Ordinal)) { _reached = true; await action(); } return r; }
     }
 }

@@ -87,10 +87,10 @@ public partial class AccountClosureCancellationStoreTests
     }
     private sealed class CancelAfterWrite(Func<DbCommand, Task> action) : DbCommandInterceptor
     {
-        private bool written, used;
+        private bool _written, _used;
         public override ValueTask<DbDataReader> ReaderExecutedAsync(DbCommand c, CommandExecutedEventData d, DbDataReader r, CancellationToken ct = default)
-        { if (c.CommandText.Contains("WITH authorized AS")) written = true; return ValueTask.FromResult(r); }
+        { if (c.CommandText.Contains("WITH authorized AS")) _written = true; return ValueTask.FromResult(r); }
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
-        { if (written && !used) { used = true; await action(c); } return r; }
+        { if (_written && !_used) { _used = true; await action(c); } return r; }
     }
 }

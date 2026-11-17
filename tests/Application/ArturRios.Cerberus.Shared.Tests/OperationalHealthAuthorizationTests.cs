@@ -12,9 +12,9 @@ namespace ArturRios.Cerberus.Shared.Tests;
 
 public sealed class OperationalHealthAuthorizationTests
 {
-    private static readonly Guid Subject = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
-    private static readonly Guid Credential = Guid.Parse("527a1001-8ef5-4c9b-a565-444444444444");
-    private static readonly Guid Other = Guid.Parse("527a1001-8ef5-4c9b-a565-555555555555");
+    private static readonly Guid s_subject = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
+    private static readonly Guid s_credential = Guid.Parse("527a1001-8ef5-4c9b-a565-444444444444");
+    private static readonly Guid s_other = Guid.Parse("527a1001-8ef5-4c9b-a565-555555555555");
     [UnitTheory]
     [InlineData("person")]
     [InlineData("operator")]
@@ -26,7 +26,7 @@ public sealed class OperationalHealthAuthorizationTests
         var paths = new List<string>();
         using var http = Transport(options, request => { Assert.Equal(HttpMethod.Get, request.Method); Assert.Null(request.Content); Assert.Equal(token, request.Headers.Authorization!.Parameter); paths.Add(request.RequestUri!.AbsolutePath); return Task.FromResult(Live(options, actor, request)); });
         Assert.Equal(OperationalAuthorization.Authorized, await Authorizer(http, options).AuthorizeAsync(token, default));
-        Assert.Equal(actor == "application" ? new[] { "/api/applications/self" } : actor == "operator" ? ["/api/persons/" + Subject, "/api/scopes/" + options.HeimdallScopeId] : ["/api/persons/" + Subject], paths);
+        Assert.Equal(actor == "application" ? new[] { "/api/applications/self" } : actor == "operator" ? ["/api/persons/" + s_subject, "/api/scopes/" + options.HeimdallScopeId] : ["/api/persons/" + s_subject], paths);
     }
     [UnitTheory]
     [InlineData("person")]
@@ -46,8 +46,8 @@ public sealed class OperationalHealthAuthorizationTests
     public async Task GivenSameUuidGrantedOnlyToOtherActorKind_WhenAuthorizing_ThenNeverCrossTypedGrant(string actor)
     {
         var options = Options(actor);
-        options.OperationalPersonIds = actor == "application" ? Subject.ToString() : null;
-        options.OperationalApplicationIds = actor == "person" ? Subject.ToString() : null;
+        options.OperationalPersonIds = actor == "application" ? s_subject.ToString() : null;
+        options.OperationalApplicationIds = actor == "person" ? s_subject.ToString() : null;
         using var http = Transport(options, _ => throw new InvalidOperationException("Wrong subject kind reached provider"));
         Assert.Equal(OperationalAuthorization.Forbidden, await Authorizer(http, options).AuthorizeAsync(Token(options, actor), default));
     }
@@ -75,7 +75,7 @@ public sealed class OperationalHealthAuthorizationTests
         switch (kind)
         {
             case "wrong-scope":
-                claims["scopeId"] = Other.ToString();
+                claims["scopeId"] = s_other.ToString();
                 break;
             case "wrong-audience":
                 claims["aud"] = "other";
@@ -94,13 +94,13 @@ public sealed class OperationalHealthAuthorizationTests
                 claims["tokenKind"] = "application";
                 break;
             case "mixed-credential":
-                claims["credentialId"] = Credential.ToString();
+                claims["credentialId"] = s_credential.ToString();
                 break;
             case "alias-role":
                 claims["roles"] = "operator";
                 break;
             case "noncanonical-id":
-                claims["id"] = Subject.ToString("N");
+                claims["id"] = s_subject.ToString("N");
                 break;
             case "admin":
                 claims["roleId"] = "1";
@@ -108,7 +108,7 @@ public sealed class OperationalHealthAuthorizationTests
             case "operator-wrong-scope":
                 claims.Remove("scopeId");
                 claims["roleId"] = "2";
-                claims["ownedScopeIds"] = Other.ToString();
+                claims["ownedScopeIds"] = s_other.ToString();
                 break;
             case "operator-duplicate-scope":
                 claims.Remove("scopeId");
@@ -118,7 +118,7 @@ public sealed class OperationalHealthAuthorizationTests
         }
         var json = JsonSerializer.Serialize(claims);
         if (kind == "duplicate-id")
-            json = json.Replace("\"id\":", $"\"id\":\"{Other}\",\"id\":", StringComparison.Ordinal);
+            json = json.Replace("\"id\":", $"\"id\":\"{s_other}\",\"id\":", StringComparison.Ordinal);
         var token = kind == "empty" ? "" : kind == "malformed" ? "not-a-token" : Sign(options, json);
         Assert.Equal(OperationalAuthorization.Unauthenticated, await Authorizer(http, options).AuthorizeAsync(token, default));
     }
@@ -204,15 +204,15 @@ public sealed class OperationalHealthAuthorizationTests
         Assert.Equal(OperationalAuthorization.Unavailable, await Authorizer(http, options).AuthorizeAsync(Token(options, actor), default).WaitAsync(TimeSpan.FromSeconds(2)));
     }
     private static CerberusOptions Options(string actor)
-    { var o = CerberusOptionsValidatorTests.ValidOptions(); o.OperationalPersonIds = actor == "application" ? null : Subject.ToString(); o.OperationalApplicationIds = actor == "application" ? Subject.ToString() : null; o.HeimdallServiceCredential = "configured-credential-must-not-be-substituted"; return o; }
+    { var o = CerberusOptionsValidatorTests.ValidOptions(); o.OperationalPersonIds = actor == "application" ? null : s_subject.ToString(); o.OperationalApplicationIds = actor == "application" ? s_subject.ToString() : null; o.HeimdallServiceCredential = "configured-credential-must-not-be-substituted"; return o; }
     private static Dictionary<string, object> Claims(CerberusOptions o, string actor)
     {
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var d = new Dictionary<string, object> { { "iss", o.AuthIssuer! }, { "aud", actor == "application" ? o.AuthApplicationAudience! : o.AuthAudience! }, { "id", Subject.ToString() }, { "iat", now }, { "nbf", now - 1 }, { "exp", now + 60 } };
+        var d = new Dictionary<string, object> { { "iss", o.AuthIssuer! }, { "aud", actor == "application" ? o.AuthApplicationAudience! : o.AuthAudience! }, { "id", s_subject.ToString() }, { "iat", now }, { "nbf", now - 1 }, { "exp", now + 60 } };
         if (actor == "application")
-        { d["tokenKind"] = "application"; d["credentialId"] = Credential.ToString(); d["scopeId"] = o.HeimdallScopeId.ToString(); }
+        { d["tokenKind"] = "application"; d["credentialId"] = s_credential.ToString(); d["scopeId"] = o.HeimdallScopeId.ToString(); }
         else
-        { d["roleId"] = actor == "operator" ? "2" : "3"; if (actor == "operator") d["ownedScopeIds"] = $"{Other},{o.HeimdallScopeId}"; else d["scopeId"] = o.HeimdallScopeId.ToString(); }
+        { d["roleId"] = actor == "operator" ? "2" : "3"; if (actor == "operator") d["ownedScopeIds"] = $"{s_other},{o.HeimdallScopeId}"; else d["scopeId"] = o.HeimdallScopeId.ToString(); }
         return d;
     }
     private static string Token(CerberusOptions o, string actor) => Sign(o, JsonSerializer.Serialize(Claims(o, actor)));
@@ -226,11 +226,11 @@ public sealed class OperationalHealthAuthorizationTests
             return new(HttpStatusCode.OK) { Content = new StringContent("private-provider-diagnostic", Encoding.UTF8, "application/json") };
         object data;
         if (actor == "application")
-            data = new { applicationId = Subject, name = "Fixture", scopeId = o.HeimdallScopeId, credentialId = kind == "wrong-credential" ? Other : Credential, expiresAt = DateTimeOffset.FromUnixTimeSeconds(new JwtSecurityTokenHandler().ReadJwtToken(r.Headers.Authorization!.Parameter).Payload.Expiration!.Value) };
+            data = new { applicationId = s_subject, name = "Fixture", scopeId = o.HeimdallScopeId, credentialId = kind == "wrong-credential" ? s_other : s_credential, expiresAt = DateTimeOffset.FromUnixTimeSeconds(new JwtSecurityTokenHandler().ReadJwtToken(r.Headers.Authorization!.Parameter).Payload.Expiration!.Value) };
         else if (r.RequestUri!.AbsolutePath.Contains("/api/scopes/", StringComparison.Ordinal))
-            data = new { id = o.HeimdallScopeId, isDeleted = false, ownerIds = kind == "lost-owner" ? [] : new[] { Subject }, name = "Fixture" };
+            data = new { id = o.HeimdallScopeId, isDeleted = false, ownerIds = kind == "lost-owner" ? [] : new[] { s_subject }, name = "Fixture" };
         else
-            data = new { id = kind == "wrong-id" ? Other : Subject, scopeId = actor == "operator" ? (Guid?)null : kind == "wrong-scope" ? Other : o.HeimdallScopeId, role = kind == "wrong-role" ? 1 : actor == "operator" ? 2 : 3, isDeleted = kind == "deleted", ownedScopeIds = kind == "lost-scope" ? [] : new[] { Other, o.HeimdallScopeId }, name = "Fixture", email = "fixture@example.test", emailVerified = true, twoFactorEnabled = false };
+            data = new { id = kind == "wrong-id" ? s_other : s_subject, scopeId = actor == "operator" ? (Guid?)null : kind == "wrong-scope" ? s_other : o.HeimdallScopeId, role = kind == "wrong-role" ? 1 : actor == "operator" ? 2 : 3, isDeleted = kind == "deleted", ownedScopeIds = kind == "lost-scope" ? [] : new[] { s_other, o.HeimdallScopeId }, name = "Fixture", email = "fixture@example.test", emailVerified = true, twoFactorEnabled = false };
         return new(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(new { success = true, errors = Array.Empty<string>(), messages = Array.Empty<string>(), data }), Encoding.UTF8, "application/json") };
     }
     private static HttpClient Transport(CerberusOptions o, Func<HttpRequestMessage, Task<HttpResponseMessage>> send) => new(new Handler(send)) { BaseAddress = new Uri(o.HeimdallBaseUrl!) };

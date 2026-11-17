@@ -112,12 +112,12 @@ public partial class AccountDeletionHttpTests
     private sealed class ClaimCommittedIntent(RegistrationApiFixture fixture, Guid account) : DbTransactionInterceptor
     {
         public RetentionClaim? Claim { get; private set; }
-        private bool attempted;
+        private bool _attempted;
         public override async Task TransactionCommittedAsync(DbTransaction transaction, TransactionEndEventData eventData, CancellationToken cancellationToken = default)
         {
-            if (attempted)
+            if (_attempted)
                 return;
-            attempted = true;
+            _attempted = true;
             await using var db = fixture.Context();
             var job = await db.RetentionWorkItems.AsNoTracking().SingleAsync(x => x.OperationKey == "account-erase/" + account, cancellationToken);
             Claim = await new RetentionWorkStore(new TestFactory(db.Database.GetConnectionString()!)).TryClaimAsync(job.PublicId, DateTimeOffset.UtcNow, TimeSpan.FromMinutes(1), cancellationToken);

@@ -6,7 +6,7 @@ namespace ArturRios.Cerberus.Domain.Tests;
 
 public class AccountClosureTests
 {
-    private static readonly DateTimeOffset Now = DateTimeOffset.FromUnixTimeSeconds(1800000000);
+    private static readonly DateTimeOffset s_now = DateTimeOffset.FromUnixTimeSeconds(1800000000);
     [UnitTheory]
     [InlineData(-1, false)]
     [InlineData(0, true)]
@@ -14,14 +14,14 @@ public class AccountClosureTests
     [InlineData(60, false)]
     [InlineData(61, false)]
     public void GivenSignedAuthenticationAge_WhenRequestingClosure_ThenRequireCurrentSixtySecondWindow(int age, bool valid)
-    { Assert.Equal(valid, FreshAuthentication.IsFresh(Now.ToUnixTimeSeconds() - age, Now)); }
+    { Assert.Equal(valid, FreshAuthentication.IsFresh(s_now.ToUnixTimeSeconds() - age, s_now)); }
 
     [UnitTheory]
     [InlineData(0)]
     [InlineData(-1)]
     [InlineData(long.MaxValue)]
     public void GivenUnsupportedAuthenticationTime_WhenClosing_ThenReject(long issued)
-    { Assert.False(FreshAuthentication.IsFresh(issued, Now)); }
+    { Assert.False(FreshAuthentication.IsFresh(issued, s_now)); }
 
     [UnitTheory]
     [InlineData(0, false)]
@@ -42,17 +42,17 @@ public class AccountClosureTests
     [InlineData("future")]
     public void GivenMalformedRetainedDeadline_WhenValidatingClosureResult_ThenFailClosed(string invalid)
     {
-        var result = new AccountClosureDetails(Guid.NewGuid(), 2, 2, Now, Now.AddDays(30), Now, true);
+        var result = new AccountClosureDetails(Guid.NewGuid(), 2, 2, s_now, s_now.AddDays(30), s_now, true);
         Assert.True(result.IsValid());
         result = invalid switch
         {
             "identifier" => result with { AccountId = Guid.Empty },
             "revision" => result with { Revision = ProtocolBinary.MaxInteger + 1 },
             "generation" => result with { RevocationGeneration = 0 },
-            "offset" => result with { ClosureRequestedAt = Now.ToOffset(TimeSpan.FromHours(1)) },
-            "precision" => result with { ClosureDeadline = Now.AddDays(30).AddTicks(1) },
-            "window" => result with { ClosureDeadline = Now.AddDays(31) },
-            _ => result with { ServerTime = Now.AddSeconds(-1) }
+            "offset" => result with { ClosureRequestedAt = s_now.ToOffset(TimeSpan.FromHours(1)) },
+            "precision" => result with { ClosureDeadline = s_now.AddDays(30).AddTicks(1) },
+            "window" => result with { ClosureDeadline = s_now.AddDays(31) },
+            _ => result with { ServerTime = s_now.AddSeconds(-1) }
         };
         Assert.False(result.IsValid());
     }

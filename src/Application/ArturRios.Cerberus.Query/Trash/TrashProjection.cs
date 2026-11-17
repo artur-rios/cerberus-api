@@ -8,7 +8,7 @@ namespace ArturRios.Cerberus.Query.Trash;
 
 internal static class TrashProjection
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
     private static bool Safe(long n) => n is > 0 and <= ProtocolBinary.MaxInteger;
     private static bool Time(DateTimeOffset t) => t.Ticks >= TimeSpan.TicksPerMicrosecond && t.Offset == TimeSpan.Zero
@@ -25,7 +25,7 @@ internal static class TrashProjection
             return false;
         try
         {
-            var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json);
+            var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, s_json);
             if (envelope?.IsValid() != true)
                 return false;
             switch (row.Kind)
@@ -45,7 +45,7 @@ internal static class TrashProjection
                         row.EditedAt, row.DeletedAt, row.PurgeAt, envelope, row.KeyEpoch.Value);
                     break;
                 case "profile":
-                    var keys = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers!, Json);
+                    var keys = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers!, s_json);
                     if (keys?.IsValid() != true || keys.MasterKeyWrapper.GrantId != row.ResourceId
                         || keys.MasterKeyWrapper.RecipientIdentityId != actor || keys.MasterKeyWrapper.GrantRevision > row.Revision
                         || keys.MasterKeyWrapper.KeyEpoch != envelope.KeyEpoch)

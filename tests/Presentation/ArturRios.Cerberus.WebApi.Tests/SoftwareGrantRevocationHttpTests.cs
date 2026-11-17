@@ -70,12 +70,12 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
         public void Dispose() => Factory.Dispose();
     }
 
-    private readonly RegistrationApiFixture fixture;
+    private readonly RegistrationApiFixture _fixture;
     private (HttpClient Client, TestServer Server) Gateway { get; }
 
     public SoftwareGrantRevocationHttpTests(RegistrationApiFixture fixture, Host host)
     {
-        this.fixture = fixture;
+        this._fixture = fixture;
         Gateway = (host.Factory.CreateClient(), host.Factory.Server);
     }
 
@@ -87,13 +87,13 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
     {
         var s = await Setup();
         var before = await Snapshot(s, excludeRevokedGrant: true);
-        await using var db = fixture.Context();
+        await using var db = _fixture.Context();
         var old = await db.SoftwareGrants.AsNoTracking().SingleAsync(x => x.PublicId == s.Grant);
-        var identityCalls = fixture.IdentityCalls;
+        var identityCalls = _fixture.IdentityCalls;
         using var request = Request(s);
         using var response = await Gateway.Client.SendAsync(request);
         await Success(response, s);
-        Assert.Equal(identityCalls + 1, fixture.IdentityCalls);
+        Assert.Equal(identityCalls + 1, _fixture.IdentityCalls);
         var saved = await db.SoftwareGrants.AsNoTracking().SingleAsync(x => x.PublicId == s.Grant);
         Assert.Equal(old.Id, saved.Id);
         Assert.Equal(old.AccountId, saved.AccountId);
@@ -273,7 +273,7 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
         var s = await Setup();
         var actor = s;
         var id = s.Grant;
-        await using var db = fixture.Context();
+        await using var db = _fixture.Context();
         if (kind == "missing")
             id = Guid.NewGuid();
         if (kind == "foreign")
@@ -301,9 +301,9 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
         if (kind == "storedRevision")
             await db.SoftwareGrants.Where(x => x.PublicId == s.Grant).ExecuteUpdateAsync(x => x.SetProperty(g => g.Revision, 0));
         if (kind is "deletedIdentity" or "identityUnavailable")
-            fixture.Users[s.Actor + "@example.test"] = new(s.Actor, "fixture-password", Deleted: kind == "deletedIdentity", IdentityUnavailable: kind == "identityUnavailable");
+            _fixture.Users[s.Actor + "@example.test"] = new(s.Actor, "fixture-password", Deleted: kind == "deletedIdentity", IdentityUnavailable: kind == "identityUnavailable");
         if (kind == "missingIdentity")
-            fixture.Users.TryRemove(s.Actor + "@example.test", out _);
+            _fixture.Users.TryRemove(s.Actor + "@example.test", out _);
         await db.SaveChangesAsync();
         var before = await Snapshot(s);
         var actorBefore = await Snapshot(actor);
@@ -325,7 +325,7 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
     {
         var s = await Setup();
         var before = await Snapshot(s);
-        await using var db = fixture.Context();
+        await using var db = _fixture.Context();
         var table = kind == "update" ? "software_grant" : kind == "recordDelete" ? "software_grant_record" : "software_grant_collection";
         var operation = kind == "update" ? "UPDATE" : "DELETE";
         // Identifiers are selected only from the literal table/operation allowlist above.
@@ -381,10 +381,10 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
 
     private async Task<State> Setup()
     {
-        await using var db = fixture.Context();
+        await using var db = _fixture.Context();
         var actor = Guid.NewGuid();
         var account = new Account { PublicId = Guid.NewGuid(), HeimdallPublicId = actor };
-        fixture.Users[actor + "@example.test"] = new(actor, "fixture-password");
+        _fixture.Users[actor + "@example.test"] = new(actor, "fixture-password");
         db.Accounts.Add(account);
         await db.SaveChangesAsync();
         var access = ProtocolBinary.Encode(RandomNumberGenerator.GetBytes(32));
@@ -498,7 +498,7 @@ public sealed class SoftwareGrantRevocationHttpTests : IClassFixture<SoftwareGra
 
     private async Task<string> Snapshot(State s, bool excludeRevokedGrant = false)
     {
-        await using var db = fixture.Context();
+        await using var db = _fixture.Context();
         return await db.Database.SqlQuery<string>($"""
             SELECT jsonb_build_object(
               'account',(SELECT to_jsonb(a) FROM cerberus.account a WHERE id={s.AccountId}),

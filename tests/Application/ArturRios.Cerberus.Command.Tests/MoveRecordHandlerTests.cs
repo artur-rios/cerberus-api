@@ -10,8 +10,8 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class MoveRecordHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid(), target = Guid.NewGuid(), folder = Guid.NewGuid();
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict };
+    private readonly Guid _actor = Guid.NewGuid(), _target = Guid.NewGuid(), _folder = Guid.NewGuid();
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict };
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -24,7 +24,7 @@ public class MoveRecordHandlerTests
     [InlineData("negative", "validation_failed")]
     [InlineData("unsafe", "validation_failed")]
     public async Task GivenInvalidAuthorityOrInput_WhenHandling_ThenRejectBeforePersistence(string kind, string error)
-    { var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : kind == "noncanonical" ? new string('A', 42) + "B" : Access, kind == "id" ? Guid.Empty : target); c.ExpectedRevision = kind == "zero" ? 0 : kind == "negative" ? -1 : kind == "unsafe" ? ProtocolBinary.MaxInteger + 1 : 1; if (kind == "folder") c.FolderId = Guid.Empty; var r = await Handler(new Mock<IRecordMoveStore>(MockBehavior.Strict).Object).HandleAsync(c); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains(error, r.Errors); }
+    { var c = Command(); c.SetContext(kind == "actor" ? Guid.Empty : _actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : kind == "noncanonical" ? new string('A', 42) + "B" : Access, kind == "id" ? Guid.Empty : _target); c.ExpectedRevision = kind == "zero" ? 0 : kind == "negative" ? -1 : kind == "unsafe" ? ProtocolBinary.MaxInteger + 1 : 1; if (kind == "folder") c.FolderId = Guid.Empty; var r = await Handler(new Mock<IRecordMoveStore>(MockBehavior.Strict).Object).HandleAsync(c); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains(error, r.Errors); }
     [UnitTheory]
     [InlineData(false, false)]
     [InlineData(true, false)]
@@ -33,10 +33,10 @@ public class MoveRecordHandlerTests
     public async Task GivenValidMoveMetadata_WhenHandling_ThenForwardTrustedContextAndReturnExactlyFourFieldsWithNullableParent(bool nullParent, bool largestRevision)
     {
         var c = Command();
-        c.FolderId = nullParent ? null : folder;
+        c.FolderId = nullParent ? null : _folder;
         if (largestRevision)
             c.ExpectedRevision = ProtocolBinary.MaxInteger - 1;
-        var d = new RecordMoveDetails(target, c.FolderId, c.ExpectedRevision + 1, largestRevision ? ProtocolBinary.MaxInteger : 1);
+        var d = new RecordMoveDetails(_target, c.FolderId, c.ExpectedRevision + 1, largestRevision ? ProtocolBinary.MaxInteger : 1);
         using var ct = new CancellationTokenSource();
         RecordMoveRequest? received = null;
         CancellationToken token = default;
@@ -45,20 +45,20 @@ public class MoveRecordHandlerTests
         var result = await Handler(store.Object).HandleAsync(c, ct.Token);
         Assert.True(result.Success);
         Assert.Contains("record_moved", result.Messages);
-        Assert.Equal(target, result.Data!.RecordId);
+        Assert.Equal(_target, result.Data!.RecordId);
         Assert.Equal(c.FolderId, result.Data.FolderId);
         Assert.Equal(d.Revision, result.Data.Revision);
         Assert.Equal(d.ServerSequence, result.Data.ServerSequence);
-        Assert.Equal(actor, received!.Actor);
-        Assert.Equal(target, received.RecordId);
+        Assert.Equal(_actor, received!.Actor);
+        Assert.Equal(_target, received.RecordId);
         Assert.Equal(c.ExpectedRevision, received.ExpectedRevision);
         Assert.Equal(c.FolderId, received.FolderId);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
         Assert.Equal(ct.Token, token);
-        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        using var output = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, s_json));
         Assert.Equal(["folderId", "recordId", "revision", "serverSequence"], output.RootElement.EnumerateObject().Select(x => x.Name).Order());
         Assert.Equal(nullParent ? JsonValueKind.Null : JsonValueKind.String, output.RootElement.GetProperty("folderId").ValueKind);
-        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        using var input = JsonDocument.Parse(JsonSerializer.Serialize(c, s_json));
         Assert.Equal(["expectedRevision", "folderId"], input.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
@@ -108,7 +108,7 @@ public class MoveRecordHandlerTests
     [InlineData("{}")]
     [InlineData("{\"expectedRevision\":1}")]
     [InlineData("{\"folderId\":null}")]
-    public void GivenOmittedRequiredMember_WhenParsing_ThenReject(string raw) => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveRecordCommand>(raw, Json));
+    public void GivenOmittedRequiredMember_WhenParsing_ThenReject(string raw) => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveRecordCommand>(raw, s_json));
     [UnitTheory]
     [InlineData("actor")]
     [InlineData("vaultAccess")]
@@ -125,7 +125,7 @@ public class MoveRecordHandlerTests
     [InlineData("deletedAt")]
     [InlineData("purgeAt")]
     public void GivenForgedContextOrAlternateInput_WhenParsing_ThenReject(string field)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); body[field] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveRecordCommand>(body.ToJsonString(), Json)); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); body[field] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveRecordCommand>(body.ToJsonString(), s_json)); }
     [UnitTheory]
     [InlineData("duplicateRevision")]
     [InlineData("duplicateFolder")]
@@ -138,11 +138,11 @@ public class MoveRecordHandlerTests
     [InlineData("badFolder")]
     [InlineData("numericFolder")]
     public void GivenAlternateJson_WhenParsing_ThenReject(string kind)
-    { var raw = kind switch { "duplicateRevision" => "{\"expectedRevision\":1,\"expectedRevision\":1,\"folderId\":null}", "duplicateFolder" => "{\"expectedRevision\":1,\"folderId\":null,\"folderId\":null}", "caseRevision" => "{\"ExpectedRevision\":1,\"folderId\":null}", "caseFolder" => "{\"expectedRevision\":1,\"FolderId\":null}", "numericString" => "{\"expectedRevision\":\"1\",\"folderId\":null}", "null" => "{\"expectedRevision\":null,\"folderId\":null}", "fraction" => "{\"expectedRevision\":1.5,\"folderId\":null}", "overflow" => "{\"expectedRevision\":9223372036854775808,\"folderId\":null}", "badFolder" => "{\"expectedRevision\":1,\"folderId\":\"bad\"}", _ => "{\"expectedRevision\":1,\"folderId\":1}" }; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveRecordCommand>(raw, Json)); }
+    { var raw = kind switch { "duplicateRevision" => "{\"expectedRevision\":1,\"expectedRevision\":1,\"folderId\":null}", "duplicateFolder" => "{\"expectedRevision\":1,\"folderId\":null,\"folderId\":null}", "caseRevision" => "{\"ExpectedRevision\":1,\"folderId\":null}", "caseFolder" => "{\"expectedRevision\":1,\"FolderId\":null}", "numericString" => "{\"expectedRevision\":\"1\",\"folderId\":null}", "null" => "{\"expectedRevision\":null,\"folderId\":null}", "fraction" => "{\"expectedRevision\":1.5,\"folderId\":null}", "overflow" => "{\"expectedRevision\":9223372036854775808,\"folderId\":null}", "badFolder" => "{\"expectedRevision\":1,\"folderId\":\"bad\"}", _ => "{\"expectedRevision\":1,\"folderId\":1}" }; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<MoveRecordCommand>(raw, s_json)); }
     [UnitFact] public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforePersistence() { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new Mock<IRecordMoveStore>(MockBehavior.Strict).Object).HandleAsync(Command(), ct.Token)); }
     [UnitFact] public async Task GivenPersistenceCancellation_WhenHandling_ThenPropagateExactToken() { using var ct = new CancellationTokenSource(); var store = new Mock<IRecordMoveStore>(); store.Setup(x => x.MoveAsync(It.IsAny<RecordMoveRequest>(), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token)); var e = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store.Object).HandleAsync(Command(), ct.Token)); Assert.Equal(ct.Token, e.CancellationToken); }
     [UnitFact] public void GivenMovedMessage_WhenMapping_Then200() => Assert.Equal(200, MoveRecordMessages.StatusCodes["record_moved"]);
-    private MoveRecordCommand Command() { var c = new MoveRecordCommand { ExpectedRevision = 1, FolderId = folder }; c.SetContext(actor, Access, target); return c; }
-    private RecordMoveDetails Details() => new(target, folder, 2, 7);
+    private MoveRecordCommand Command() { var c = new MoveRecordCommand { ExpectedRevision = 1, FolderId = _folder }; c.SetContext(_actor, Access, _target); return c; }
+    private RecordMoveDetails Details() => new(_target, _folder, 2, 7);
     private static MoveRecordHandler Handler(IRecordMoveStore store) => new(new MoveRecordValidator(), store);
 }

@@ -27,7 +27,7 @@ public partial class ResourceErasureTests
         var jobs = new RetentionWorkStore(fixture);
         var claim = await jobs.TryClaimAsync(job.PublicId, DateTimeOffset.UtcNow, TimeSpan.FromMinutes(5), default);
         Assert.NotNull(claim);
-        await new TerminalErasureStore(fixture).ReapplyAsync(new(root.ResourceId, kind, Deleted), default);
+        await new TerminalErasureStore(fixture).ReapplyAsync(new(root.ResourceId, kind, s_deleted), default);
         Assert.False(await Exists(kind, root.ResourceId));
         Assert.False(await db.TrashOperations.AnyAsync(x => x.PublicId == root.OperationId));
         var retained = await db.RetentionWorkItems.AsNoTracking().SingleOrDefaultAsync(x => x.PublicId == job.PublicId);
@@ -55,7 +55,7 @@ public partial class ResourceErasureTests
             await db.Collections.Where(x => x.PublicId == root.ResourceId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, "bad"u8.ToArray()));
         if (kind == "profile")
             await db.Profiles.Where(x => x.PublicId == root.ResourceId).ExecuteUpdateAsync(x => x.SetProperty(r => r.Envelope, "bad"u8.ToArray()).SetProperty(r => r.KeyWrappers, "bad"u8.ToArray()));
-        await new TerminalErasureStore(fixture).ReapplyAsync(new(root.ResourceId, kind, Deleted), default);
+        await new TerminalErasureStore(fixture).ReapplyAsync(new(root.ResourceId, kind, s_deleted), default);
         Assert.False(await Exists(kind, root.ResourceId));
     }
     [FunctionalTheory]
@@ -79,13 +79,13 @@ public partial class ResourceErasureTests
         {
             var hook = new SkipDelete(kind, root.ResourceId);
             var store = new TerminalErasureStore(new ProfileSetup.Factory(fixture, hook));
-            await Assert.ThrowsAsync<InvalidOperationException>(() => store.ReapplyAsync(new(root.ResourceId, kind, Deleted), default));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => store.ReapplyAsync(new(root.ResourceId, kind, s_deleted), default));
             Assert.True(hook.Reached);
             Assert.Equal(before, await TrashRestoreSetup.Snapshot(fixture, s));
             Assert.False(await db.TerminalErasures.AnyAsync(x => x.ResourceKind == kind && x.ResourceId == root.ResourceId));
         }
         finally { await db.Database.ExecuteSqlRawAsync(Trigger(kind, true)); await db.Database.ExecuteSqlRawAsync("DROP FUNCTION cerberus.fixture_skip_erasure()"); }
-        await new TerminalErasureStore(fixture).ReapplyAsync(new(root.ResourceId, kind, Deleted), default);
+        await new TerminalErasureStore(fixture).ReapplyAsync(new(root.ResourceId, kind, s_deleted), default);
         Assert.False(await Exists(kind, root.ResourceId));
     }
     [FunctionalFact]
@@ -98,10 +98,10 @@ public partial class ResourceErasureTests
         { await db.Records.Where(x => x.Id == a.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(r => r.FolderId, a.Folder.Id)); }
         var root = await TrashRestoreSetup.TrashAsync(fixture, s, "folder", a.Folder.PublicId, 1, a.Folder.Id, a.Folder.EditedAt);
         var store = new TerminalErasureStore(fixture);
-        await store.ReapplyAsync(new(a.Folder.PublicId, "folder", Deleted), default);
+        await store.ReapplyAsync(new(a.Folder.PublicId, "folder", s_deleted), default);
         await using (var db = fixture.CreateContext())
         { Assert.True(await db.TrashOperations.AnyAsync(x => x.PublicId == root.OperationId)); Assert.True(await db.Records.AnyAsync(x => x.PublicId == a.Record.PublicId)); }
-        await store.ReapplyAsync(new(a.Record.PublicId, "record", Deleted), default);
+        await store.ReapplyAsync(new(a.Record.PublicId, "record", s_deleted), default);
         Assert.False(await Exists("record", a.Record.PublicId));
         await TrashRestoreSetup.NoOperation(fixture, root.OperationId);
     }

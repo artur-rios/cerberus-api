@@ -11,7 +11,7 @@ namespace ArturRios.Cerberus.Data.Records;
 
 public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : IRecordReadStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false };
 
     public async Task<VaultResult<RecordReadDetails>> ReadAsync(RecordReadRequest request, CancellationToken ct)
@@ -133,12 +133,12 @@ public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : I
                 return new(Error: "persistence_unavailable");
             if (snapshot.Item is null)
                 return new(Error: "not_found");
-            var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
+            var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, s_json)!;
             if (grants.Length > 0)
             {
                 // One owner per target: capture and validate each party's pins once,
                 // then bind every current collection grant contributing to this get.
-                var pins = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, Json);
+                var pins = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, s_json);
                 if (pins is null || !CollectionGrantBinding.TryReadPins(Pins(pins.OwnerMaterial, pins.OwnerRevision, pins.OwnerEpoch, pins.OwnerGeneration), out var owner)
                     || !CollectionGrantBinding.TryReadPins(Pins(pins.RecipientMaterial, pins.RecipientRevision, pins.RecipientEpoch, pins.RecipientGeneration), out var recipient))
                     return new(Error: "persistence_unavailable");
@@ -149,7 +149,7 @@ public sealed class RecordReadStore(IDbContextFactory<AppDbContext> factory) : I
                         pins.OwnerId, pins.RecipientIdentity, owner!, recipient!))
                         return new(Error: "persistence_unavailable");
             }
-            var item = JsonSerializer.Deserialize<Item>(snapshot.Item, Json)!;
+            var item = JsonSerializer.Deserialize<Item>(snapshot.Item, s_json)!;
             return new(new(new(item.RecordId, item.Revision, item.ServerSequence, item.EditedAt, Convert.FromHexString(item.Envelope)),
                 item.ProfileIds, item.FolderId, item.CollectionIds));
         }

@@ -87,7 +87,7 @@ public class SyncEditsConcurrencyTests(PostgresFixture fixture) : IClassFixture<
         using var key = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, key);
         var edit = new SyncRecordCreate(Guid.NewGuid(), new(Guid.NewGuid(), ProfileSetup.Envelope(), DateTimeOffset.FromUnixTimeSeconds(1000), []));
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using var blocker = fixture.CreateContext();
         if (change == "expiry")
             await blocker.VaultAccessSessions.Where(x => x.HandleVerifier == s.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
@@ -176,14 +176,14 @@ public class SyncEditsConcurrencyTests(PostgresFixture fixture) : IClassFixture<
     private static TaskCompletionSource Signal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
     private sealed class Before(Func<DbCommand, bool> match, Func<DbCommand, Task> action) : DbCommandInterceptor
     {
-        private bool used;
+        private bool _used;
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default)
-        { if (!used && match(c)) { used = true; await action(c); } return r; }
+        { if (!_used && match(c)) { _used = true; await action(c); } return r; }
     }
     private sealed class After(Func<DbCommand, bool> match, Func<DbCommand, Task> action) : DbCommandInterceptor
     {
-        private bool used;
+        private bool _used;
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default)
-        { if (!used && match(c)) { used = true; await action(c); } return r; }
+        { if (!_used && match(c)) { _used = true; await action(c); } return r; }
     }
 }

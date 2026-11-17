@@ -166,9 +166,9 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
     private sealed class BeforeTarget(Func<Task> callback) : DbCommandInterceptor
     {
-        private bool used;
+        private bool _used;
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<int> result, CancellationToken ct = default)
-        { if (!used && command.CommandText.Contains("FROM cerberus.record ") && command.CommandText.Contains("FOR ")) { used = true; await callback(); } return result; }
+        { if (!_used && command.CommandText.Contains("FROM cerberus.record ") && command.CommandText.Contains("FOR ")) { _used = true; await callback(); } return result; }
     }
     private sealed class CaptureTarget(PostgresFixture postgres) : DbCommandInterceptor
     {

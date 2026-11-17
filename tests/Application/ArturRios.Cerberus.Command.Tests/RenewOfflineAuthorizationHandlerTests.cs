@@ -8,9 +8,9 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class RenewOfflineAuthorizationHandlerTests
 {
     private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static readonly Guid Identity = Guid.NewGuid(), Profile = Guid.NewGuid();
+    private static readonly Guid s_identity = Guid.NewGuid(), s_profile = Guid.NewGuid();
     private static RenewOfflineAuthorizationCommand Command()
-    { var c = new RenewOfflineAuthorizationCommand { ProfileId = Profile, ExpectedProfileRevision = 3 }; c.SetContext(Identity, Handle); return c; }
+    { var c = new RenewOfflineAuthorizationCommand { ProfileId = s_profile, ExpectedProfileRevision = 3 }; c.SetContext(s_identity, Handle); return c; }
     [UnitTheory]
     [InlineData("identity", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -21,7 +21,7 @@ public class RenewOfflineAuthorizationHandlerTests
     public async Task GivenInvalidInput_WhenRenewing_ThenRejectBeforeStorage(string invalid, string error)
     {
         var c = Command();
-        c.SetContext(invalid == "identity" ? Guid.Empty : Identity, invalid == "missing" ? null : invalid == "handle" ? "invalid" : Handle);
+        c.SetContext(invalid == "identity" ? Guid.Empty : s_identity, invalid == "missing" ? null : invalid == "handle" ? "invalid" : Handle);
         if (invalid == "profile")
             c.ProfileId = Guid.Empty;
         if (invalid == "revision")
@@ -52,7 +52,7 @@ public class RenewOfflineAuthorizationHandlerTests
         var result = await Handler(new(details)).HandleAsync(Command());
         Assert.True(result.Success);
         Assert.Equal(details.Lease.Compact, result.Data!.Lease);
-        Assert.Equal(Profile, result.Data.ProfileId);
+        Assert.Equal(s_profile, result.Data.ProfileId);
         Assert.Equal(3, result.Data.ProtectionRevision);
         Assert.Equal(enabled, result.Data.RenewalEnabled);
         Assert.Equal(details.Lease.ExpiresAt, result.Data.ExpiresAt);
@@ -93,7 +93,7 @@ public class RenewOfflineAuthorizationHandlerTests
     }
     private static OfflineAuthorizationDetails Details(bool enabled)
     {
-        var s = new OfflineLeaseSnapshot(Identity, Guid.NewGuid(), Profile, 2, 3, 1, 1, [], enabled,
+        var s = new OfflineLeaseSnapshot(s_identity, Guid.NewGuid(), s_profile, 2, 3, 1, 1, [], enabled,
             enabled ? TimeSpan.FromHours(24) : null, DateTimeOffset.FromUnixTimeSeconds(1000));
         using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         return new(s, OfflineLease.Sign(s, "fixture-lease-issuer", key.ExportPkcs8PrivateKeyPem()));
@@ -101,7 +101,7 @@ public class RenewOfflineAuthorizationHandlerTests
     private static RenewOfflineAuthorizationHandler Handler(OfflineAuthorizationResult result)
     {
         var store = new Mock<IOfflineAuthorizationStore>(MockBehavior.Strict);
-        store.Setup(x => x.RenewAsync(It.Is<OfflineAuthorizationRequest>(r => r.IdentityId == Identity && r.ProfileId == Profile
+        store.Setup(x => x.RenewAsync(It.Is<OfflineAuthorizationRequest>(r => r.IdentityId == s_identity && r.ProfileId == s_profile
             && r.ExpectedProfileRevision == 3 && r.Verifier == "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925"), It.IsAny<CancellationToken>())).ReturnsAsync(result);
         return new(new RenewOfflineAuthorizationValidator(), store.Object);
     }

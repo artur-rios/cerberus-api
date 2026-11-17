@@ -246,7 +246,7 @@ public sealed class SyncDownloadStore(IDbContextFactory<AppDbContext> factory, C
         s.Generation,
         resources = items.OrderBy(x => x.Key.Kind, StringComparer.Ordinal).ThenBy(x => x.Key.Id.ToString("D"), StringComparer.Ordinal)
             .Select(x => new { x.Key.Kind, x.Key.Id, grantRevision = x.Value is SyncGrantData g ? g.Revision : 0 })
-    }, CurrentSyncInventory.Json));
+    }, CurrentSyncInventory.s_json));
     private static string? AuthorityError(Scope? s)
     {
         if (s is null || !s.ActorActive)

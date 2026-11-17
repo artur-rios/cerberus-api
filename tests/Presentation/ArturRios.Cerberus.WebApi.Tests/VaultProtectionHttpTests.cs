@@ -24,7 +24,7 @@ public class VaultProtectionHttpTests(RegistrationApiFixture fixture, SharedApiH
 {
     private const string ChallengeHeader = "X-Cerberus-Challenge-Id";
     private const string ProofHeader = "X-Cerberus-Proof";
-    private static readonly byte[] UnlockBody = Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1}");
+    private static readonly byte[] s_unlockBody = Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1}");
 
     [FunctionalFact]
     public async Task GivenCurrentOwner_WhenInitializingAndProvingUnlock_ThenIssueUsableHashedAccessWithoutVaultMutation()
@@ -181,7 +181,7 @@ public class VaultProtectionHttpTests(RegistrationApiFixture fixture, SharedApiH
         using var init = await Initialize(input.Id, client.Material);
         Assert.Equal(HttpStatusCode.Created, init.StatusCode);
         Authorize(TokenWithIssuedAt(input.Actor, freshness));
-        using var response = await Gateway.Client.PostAsJsonAsync("/api/vault/challenges", new { operation = "unlock-account", requestHash = ProtocolBinary.Encode(SHA256.HashData(UnlockBody)) });
+        using var response = await Gateway.Client.PostAsJsonAsync("/api/vault/challenges", new { operation = "unlock-account", requestHash = ProtocolBinary.Encode(SHA256.HashData(s_unlockBody)) });
         await Failure(response, HttpStatusCode.Unauthorized);
         await AssertSessions(input.Actor, 0);
         await using var db = fixture.Context();
@@ -225,9 +225,9 @@ public class VaultProtectionHttpTests(RegistrationApiFixture fixture, SharedApiH
             "duplicateBody" => Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":1,\"expectedProtectionRevision\":1}"),
             "numericString" => Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":\"1\"}"),
             "stale" => Encoding.UTF8.GetBytes("{\"expectedProtectionRevision\":2}"),
-            "bom" => [239, 187, 191, .. UnlockBody],
+            "bom" => [239, 187, 191, .. s_unlockBody],
             "invalidUtf8" => [123, 34, 120, 34, 58, 34, 255, 34, 125],
-            _ => UnlockBody
+            _ => s_unlockBody
         };
         using var request = new HttpRequestMessage(HttpMethod.Post, "/api/vault/unlock" + (invalid == "query" ? "?owner=untrusted" : ""))
         { Content = new ByteArrayContent(body) };
@@ -296,7 +296,7 @@ public class VaultProtectionHttpTests(RegistrationApiFixture fixture, SharedApiH
             var body = JsonSerializer.Serialize(new
             {
                 operation = invalid == "unknownOperation" ? "unsupported" : "unlock-account",
-                requestHash = invalid == "invalidHash" ? "bad" : ProtocolBinary.Encode(SHA256.HashData(UnlockBody))
+                requestHash = invalid == "invalidHash" ? "bad" : ProtocolBinary.Encode(SHA256.HashData(s_unlockBody))
             });
             if (invalid == "unknownField")
                 body = body.Insert(1, "\"owner\":\"untrusted\",");
@@ -371,14 +371,14 @@ public class VaultProtectionHttpTests(RegistrationApiFixture fixture, SharedApiH
         Gateway.Client.PostAsJsonAsync("/api/vault/protection", new { accountId, expectedAccountRevision = revision, material });
     private async Task<VaultProofChallenge> Challenge(byte[]? raw = null)
     {
-        using var response = await Gateway.Client.PostAsJsonAsync("/api/vault/challenges", new { operation = "unlock-account", requestHash = ProtocolBinary.Encode(SHA256.HashData(raw ?? UnlockBody)) });
+        using var response = await Gateway.Client.PostAsJsonAsync("/api/vault/challenges", new { operation = "unlock-account", requestHash = ProtocolBinary.Encode(SHA256.HashData(raw ?? s_unlockBody)) });
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.True(response.Headers.CacheControl?.NoStore);
         return (await response.Content.ReadFromJsonAsync<DataOutput<VaultChallengeOutput>>())!.Data!.Challenge;
     }
     private async Task<HttpResponseMessage> Unlock(VaultProofChallenge c, string proof, byte[]? raw = null)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/vault/unlock") { Content = new ByteArrayContent(raw ?? UnlockBody) };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/vault/unlock") { Content = new ByteArrayContent(raw ?? s_unlockBody) };
         request.Content.Headers.ContentType = new("application/json");
         request.Headers.Add(ChallengeHeader, c.ChallengeId.ToString());
         request.Headers.Add(ProofHeader, proof);

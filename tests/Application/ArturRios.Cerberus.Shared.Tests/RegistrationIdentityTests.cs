@@ -10,8 +10,8 @@ namespace ArturRios.Cerberus.Shared.Tests;
 
 public class RegistrationIdentityTests
 {
-    private static readonly Guid Identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
-    private static readonly HeimdallRegistration Input = new("Fixture Owner", "fixture@example.test", "fixture-password");
+    private static readonly Guid s_identity = Guid.Parse("527a1001-8ef5-4c9b-a565-222222222222");
+    private static readonly HeimdallRegistration s_input = new("Fixture Owner", "fixture@example.test", "fixture-password");
 
     [UnitFact]
     public async Task GivenNewIdentity_WhenRegistering_ThenCreateOnlyInConfiguredScope()
@@ -26,9 +26,9 @@ public class RegistrationIdentityTests
             Assert.Equal(options.HeimdallServiceCredential, request.Headers.Authorization?.Parameter);
             return Person(options);
         }, options);
-        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, null, default);
+        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(s_input, null, default);
         Assert.Equal(RegistrationIdentityStatus.Verified, result.Status);
-        Assert.Equal(Identity, result.IdentityId);
+        Assert.Equal(s_identity, result.IdentityId);
         Assert.Equal(new[] { "/api/auth/login", $"/api/scopes/{options.HeimdallScopeId:D}/persons" }, calls);
     }
 
@@ -44,9 +44,9 @@ public class RegistrationIdentityTests
             "/api/persons/527a1001-8ef5-4c9b-a565-222222222222" => Person(options),
             _ => throw new InvalidOperationException("An existing proved identity must not be created again.")
         }, options);
-        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, explicitProof ? Token(options) : null, default);
+        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(s_input, explicitProof ? Token(options) : null, default);
         Assert.Equal(RegistrationIdentityStatus.Verified, result.Status);
-        Assert.Equal(Identity, result.IdentityId);
+        Assert.Equal(s_identity, result.IdentityId);
     }
 
     [UnitTheory]
@@ -60,7 +60,7 @@ public class RegistrationIdentityTests
             Assert.Equal("/api/auth/login", request.RequestUri!.AbsolutePath);
             return Status(status);
         }, options);
-        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, null, default);
+        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(s_input, null, default);
         Assert.Equal(RegistrationIdentityStatus.Unavailable, result.Status);
         Assert.Null(result.IdentityId);
     }
@@ -74,7 +74,7 @@ public class RegistrationIdentityTests
             Assert.Equal("/api/auth/login", request.RequestUri!.AbsolutePath);
             return Envelope(new { requiresTwoFactor = true, challengeToken = "fixture-challenge", availableMethods = new[] { "App" } });
         }, options);
-        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, null, default);
+        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(s_input, null, default);
         Assert.Equal(RegistrationIdentityStatus.Denied, result.Status);
         Assert.Null(result.IdentityId);
     }
@@ -89,7 +89,7 @@ public class RegistrationIdentityTests
     {
         var options = Options();
         using var transport = Transport(request => request.RequestUri!.AbsolutePath == "/api/auth/login" ? Status(401) : Status(status), options);
-        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, null, default);
+        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(s_input, null, default);
         Assert.Equal(expected, result.Status);
         Assert.Null(result.IdentityId);
     }
@@ -102,9 +102,9 @@ public class RegistrationIdentityTests
     {
         var options = Options();
         using var transport = Transport(request => request.RequestUri!.AbsolutePath == "/api/auth/login" ? Status(401) :
-            Envelope(new { id = Identity, scopeId = invalid == 0 ? Guid.NewGuid() : options.HeimdallScopeId, role = invalid == 1 ? 2 : 3, isDeleted = invalid == 2 }), options);
+            Envelope(new { id = s_identity, scopeId = invalid == 0 ? Guid.NewGuid() : options.HeimdallScopeId, role = invalid == 1 ? 2 : 3, isDeleted = invalid == 2 }), options);
         Assert.Equal(RegistrationIdentityStatus.Unavailable,
-            (await Client(transport, options).EstablishRegistrationIdentityAsync(Input, null, default)).Status);
+            (await Client(transport, options).EstablishRegistrationIdentityAsync(s_input, null, default)).Status);
     }
 
     [UnitTheory]
@@ -116,7 +116,7 @@ public class RegistrationIdentityTests
         if (invalidService)
             options.HeimdallServiceCredential = "invalid-service-proof";
         using var transport = Transport(_ => throw new InvalidOperationException("No fallback may send credentials."), options);
-        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(Input, invalidService ? null : "invalid-user-proof", default);
+        var result = await Client(transport, options).EstablishRegistrationIdentityAsync(s_input, invalidService ? null : "invalid-user-proof", default);
         Assert.Equal(invalidService ? RegistrationIdentityStatus.Forbidden : RegistrationIdentityStatus.Denied, result.Status);
     }
 
@@ -131,17 +131,17 @@ public class RegistrationIdentityTests
             var path = request.RequestUri!.AbsolutePath;
             if (path == "/api/auth/login")
                 return created ? Login(options) : Status(401);
-            if (path == $"/api/persons/{Identity:D}")
+            if (path == $"/api/persons/{s_identity:D}")
                 return Person(options);
             creations++;
             created = true;
             throw new TaskCanceledException("Simulate response lost after upstream commit.");
         }, options);
         var client = Client(transport, options);
-        Assert.Equal(RegistrationIdentityStatus.Unavailable, (await client.EstablishRegistrationIdentityAsync(Input, null, default)).Status);
-        var retry = await client.EstablishRegistrationIdentityAsync(Input, null, default);
+        Assert.Equal(RegistrationIdentityStatus.Unavailable, (await client.EstablishRegistrationIdentityAsync(s_input, null, default)).Status);
+        var retry = await client.EstablishRegistrationIdentityAsync(s_input, null, default);
         Assert.Equal(RegistrationIdentityStatus.Verified, retry.Status);
-        Assert.Equal(Identity, retry.IdentityId);
+        Assert.Equal(s_identity, retry.IdentityId);
         Assert.Equal(1, creations);
     }
 
@@ -153,10 +153,10 @@ public class RegistrationIdentityTests
     }
     private static string Token(CerberusOptions options, bool service = false) => new JwtHandler().CreateToken(
         new JwtConfiguration(60, options.AuthIssuer!, options.AuthAudience!, options.AuthValidationSecret!,
-            service ? new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = "2", ["ownedScopeIds"] = options.HeimdallScopeId.ToString() }
-            : new Dictionary<string, string> { ["id"] = Identity.ToString(), ["roleId"] = "3", ["scopeId"] = options.HeimdallScopeId.ToString() }));
+            service ? new Dictionary<string, string> { ["id"] = s_identity.ToString(), ["roleId"] = "2", ["ownedScopeIds"] = options.HeimdallScopeId.ToString() }
+            : new Dictionary<string, string> { ["id"] = s_identity.ToString(), ["roleId"] = "3", ["scopeId"] = options.HeimdallScopeId.ToString() }));
     private static HttpResponseMessage Login(CerberusOptions options) => Envelope(new { token = Token(options), expiresAt = DateTimeOffset.UtcNow.AddMinutes(5), emailVerified = true, requiresTwoFactor = false });
-    private static HttpResponseMessage Person(CerberusOptions options) => Envelope(new { id = Identity, scopeId = options.HeimdallScopeId, role = 3, isDeleted = false });
+    private static HttpResponseMessage Person(CerberusOptions options) => Envelope(new { id = s_identity, scopeId = options.HeimdallScopeId, role = 3, isDeleted = false });
     private static HttpResponseMessage Envelope(object data) => new(HttpStatusCode.OK)
     { Content = new StringContent(JsonSerializer.Serialize(new { success = true, errors = Array.Empty<string>(), data }), Encoding.UTF8, "application/json") };
     private static HttpResponseMessage Status(int status) => new((HttpStatusCode)status)

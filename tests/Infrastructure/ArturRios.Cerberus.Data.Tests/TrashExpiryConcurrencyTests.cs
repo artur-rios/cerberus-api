@@ -27,9 +27,9 @@ public partial class TrashExpiryHandlerTests
         // The lease expires in the executor's own transaction right before its intent statement.
         var hook = new ExpiryStatement(c => c.CommandText.StartsWith("INSERT INTO cerberus.terminal_erasure AS t", StringComparison.Ordinal), c => RealTime.ExpireNow(c, "UPDATE cerberus.retention_work_item SET claim_expires_at=clock_timestamp() WHERE public_id=@work", ("work", claim.WorkId)));
         await Assert.ThrowsAsync<InvalidOperationException>(() => Executor(factory: new ProfileSetup.Factory(fixture, hook)).ExecuteAsync(claim, default));
-        Assert.True(hook.Reached);
+        Assert.True(hook._reached);
         Assert.True(await Exists(root));
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
         await using var check = fixture.CreateContext();
         Assert.False(await check.TerminalErasures.AnyAsync(x => x.ResourceKind == kind && x.ResourceId == root.ResourceId));
     }
@@ -39,7 +39,7 @@ public partial class TrashExpiryHandlerTests
         using var keys = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, keys);
         var root = await TrashRestoreSetup.RootAsync(fixture, s, keys, "record");
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await TrashRestoreSetup.Deadline(fixture, root, deadline);
         await using (var db = fixture.CreateContext())
             await db.RetentionWorkItems.Where(x => x.OperationKey == "trash/" + root.OperationId).ExecuteUpdateAsync(x => x.SetProperty(w => w.DueAt, DateTimeOffset.UtcNow.AddDays(-1)));
@@ -66,7 +66,7 @@ public partial class TrashExpiryHandlerTests
         var current = await TrashRestoreSetup.Resource(fixture, root);
         Assert.Equal(System.Text.Json.JsonValueKind.Null, current.GetProperty("deleted_at").ValueKind);
         Assert.Equal(root.Revision + 1, current.GetProperty("revision").GetInt64());
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
     }
     [FunctionalFact]
     public async Task GivenCascadedFolderAndIndependentTrash_WhenExpiring_ThenEraseOriginalUnitOnly()
@@ -89,7 +89,7 @@ public partial class TrashExpiryHandlerTests
         await using var check = fixture.CreateContext();
         Assert.False(await check.Records.AnyAsync(x => x.Id == items.Record.Id));
         Assert.Equal(before.GetRawText(), (await TrashRestoreSetup.Resource(fixture, independent)).GetRawText());
-        Assert.Equal(2, Directory.GetFiles(directory, "*.json").Length);
+        Assert.Equal(2, Directory.GetFiles(_directory, "*.json").Length);
     }
     [FunctionalTheory]
     [InlineData(false)]
@@ -115,7 +115,7 @@ public partial class TrashExpiryHandlerTests
         Assert.True(await Exists(root));
         await using (var db = fixture.CreateContext())
             Assert.True(await db.Records.AnyAsync(x => x.Id == items.Record.Id));
-        Assert.Equal(physicalFault ? 2 : 1, Directory.GetFiles(directory, "*.json").Length);
+        Assert.Equal(physicalFault ? 2 : 1, Directory.GetFiles(_directory, "*.json").Length);
         await Expire(claim);
         await Executor().ExecuteAsync(await Claim(root), default);
         Assert.False(await Exists(root));
@@ -123,15 +123,15 @@ public partial class TrashExpiryHandlerTests
     private static Task WaitPast(DateTimeOffset deadline) => RealTime.Past(deadline);
     private sealed class ExpiryStatement(Func<DbCommand, bool> match, Func<DbCommand, Task> action) : DbCommandInterceptor
     {
-        internal bool Reached;
-        private async Task Visit(DbCommand c) { if (!Reached && match(c)) { Reached = true; await action(c); } }
+        internal bool _reached;
+        private async Task Visit(DbCommand c) { if (!_reached && match(c)) { _reached = true; await action(c); } }
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { await Visit(c); return r; }
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { await Visit(c); return r; }
     }
     private sealed class AfterExpiryStatement(Func<DbCommand, bool> match, Func<Task> action) : DbCommandInterceptor
     {
-        private bool reached;
+        private bool _reached;
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int r, CancellationToken ct = default)
-        { if (!reached && match(c)) { reached = true; await action(); } return r; }
+        { if (!_reached && match(c)) { _reached = true; await action(); } return r; }
     }
 }

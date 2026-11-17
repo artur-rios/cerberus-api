@@ -45,7 +45,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal(error, (await Store().DeleteAsync(w.Request(), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalTheory]
@@ -109,7 +109,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal("persistence_unavailable", (await Store(factory: new ProfileSetup.Factory(fixture, new FailMutation(table))).DeleteAsync(w.Request(), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
         Assert.Null((await Store().DeleteAsync(w.Request(), default)).Error);
     }
 
@@ -140,14 +140,14 @@ public sealed partial class RecordPermanentDeleteStoreTests
         await using var check = fixture.CreateContext();
         Assert.True(await check.Records.AnyAsync(x => x.Id == w.Record.Id && x.DeletedAt == null));
         Assert.False(await check.RetentionWorkItems.AnyAsync(x => x.OperationKey == "record-purge/" + w.Record.PublicId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalFact]
     public async Task GivenFreshExpiryAtFinalStatement_WhenDeleting_Then403AndNoTerminalIntent()
     {
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await using var db = fixture.CreateContext();
         await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var hook = new BeforeIntent(() => RealTime.Past(deadline));
@@ -190,8 +190,8 @@ public sealed partial class RecordPermanentDeleteStoreTests
     }
     private sealed class BeforeIntent(Func<Task> callback) : DbCommandInterceptor
     {
-        private bool invoked;
+        private bool _invoked;
         public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData data, InterceptionResult<int> result, CancellationToken ct = default)
-        { if (!invoked && command.CommandText.Contains("UPDATE cerberus.record")) { invoked = true; await callback(); } return result; }
+        { if (!_invoked && command.CommandText.Contains("UPDATE cerberus.record")) { _invoked = true; await callback(); } return result; }
     }
 }

@@ -13,7 +13,7 @@ namespace ArturRios.Cerberus.Data.Records;
 
 public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory) : IRecordUpdateStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
     public async Task<VaultResult<RecordCreateDetails>> UpdateAsync(RecordUpdateRequest request, CancellationToken ct)
     {
@@ -38,7 +38,7 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory) :
             var error = StateError(initial);
             if (error is not null)
                 return new(Error: error);
-            var target = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
+            var target = JsonSerializer.Deserialize<Item>(initial.Item!, s_json)!;
             var selection = session?.ProfileId ?? 0;
             // Cross-owner order: own account/session/selection, collections, grants, target.
             // Do not lock foreign accounts/profiles or folders. Existing create locks folders
@@ -72,12 +72,12 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory) :
                 return new(Error: "persistence_unavailable");
             if (!current.Writable)
                 return new(Error: "vault_access_denied");
-            target = JsonSerializer.Deserialize<Item>(current.Item!, Json)!;
+            target = JsonSerializer.Deserialize<Item>(current.Item!, s_json)!;
             if (!Safe(target.Revision) || !Safe(target.Sequence) || target.EditedAt.Offset != TimeSpan.Zero
                 || target.EditedAt.Ticks < 10 || target.EditedAt.Ticks % 10 != 0)
                 return new(Error: "persistence_unavailable");
             var original = Convert.FromHexString(target.Envelope);
-            var old = JsonSerializer.Deserialize<EncryptedEnvelope>(original, Json);
+            var old = JsonSerializer.Deserialize<EncryptedEnvelope>(original, s_json);
             if (old?.IsValid() != true)
                 return new(Error: "persistence_unavailable");
             if (request.OfflineInspectOnly)
@@ -104,7 +104,7 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory) :
                 input = input with { ExpectedRevision = target.Revision };
             }
             var edited = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % 10));
-            var parameters = Parameters(request).Concat([new NpgsqlParameter("replacement", JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json)), new NpgsqlParameter("edited", edited), new NpgsqlParameter("stamp", Guid.NewGuid()), new NpgsqlParameter("expected", input.ExpectedRevision), new NpgsqlParameter("previous_sequence", target.Sequence), new NpgsqlParameter("original", original), new NpgsqlParameter("collections", current.Collections), new NpgsqlParameter("grants", current.GrantsIds)]).ToArray();
+            var parameters = Parameters(request).Concat([new NpgsqlParameter("replacement", JsonSerializer.SerializeToUtf8Bytes(input.Envelope, s_json)), new NpgsqlParameter("edited", edited), new NpgsqlParameter("stamp", Guid.NewGuid()), new NpgsqlParameter("expected", input.ExpectedRevision), new NpgsqlParameter("previous_sequence", target.Sequence), new NpgsqlParameter("original", original), new NpgsqlParameter("collections", current.Collections), new NpgsqlParameter("grants", current.GrantsIds)]).ToArray();
             var changed = await db.Database.ExecuteSqlRawAsync(Authority + """
                 UPDATE cerberus.record AS r SET envelope=@replacement,edited_at=@edited,revision=r.revision+1,
                   server_sequence=nextval('cerberus.server_sequence'),concurrency_stamp=@stamp
@@ -134,10 +134,10 @@ public sealed class RecordUpdateStore(IDbContextFactory<AppDbContext> factory) :
     private static string? StateError(Snapshot s) => !s.ActorActive ? "not_found" : !s.Allowed ? "vault_access_denied" : s.CorruptAncestry ? "persistence_unavailable" : s.Item is null ? "not_found" : null;
     private static bool ValidNative(Snapshot snapshot)
     {
-        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
+        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, s_json)!;
         if (grants.Length == 0)
             return true;
-        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, Json);
+        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, s_json);
         if (p is null || !CollectionGrantBinding.TryReadPins(Pins(p.OwnerMaterial, p.OwnerRevision, p.OwnerEpoch, p.OwnerGeneration), out var owner)
             || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient))
             return false;

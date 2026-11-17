@@ -9,9 +9,9 @@ namespace ArturRios.Cerberus.Command.Tests;
 
 public class VaultProtectionChangeHandlerTests
 {
-    private static readonly Guid Actor = Guid.NewGuid(); private static readonly Guid Account = Guid.NewGuid(); private static readonly Guid Challenge = Guid.NewGuid();
-    private static readonly byte[] Body = Encoding.UTF8.GetBytes("{\"original\":true}");
-    private static readonly string Access = ProtectionFixture.Encode(new byte[32]); private static readonly string Proof = ProtectionFixture.Encode(new byte[64]);
+    private static readonly Guid s_actor = Guid.NewGuid(); private static readonly Guid s_account = Guid.NewGuid(); private static readonly Guid s_challenge = Guid.NewGuid();
+    private static readonly byte[] s_body = Encoding.UTF8.GetBytes("{\"original\":true}");
+    private static readonly string s_access = ProtectionFixture.Encode(new byte[32]); private static readonly string s_proof = ProtectionFixture.Encode(new byte[64]);
 
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
@@ -42,8 +42,8 @@ public class VaultProtectionChangeHandlerTests
             c.Material = null!;
         if (invalid == "content")
             c.ContentReplacements = null!;
-        c.SetContext(invalid == "actor" ? Guid.Empty : Actor, invalid == "missingAccess" ? null : invalid == "access" ? "bad" : Access,
-            invalid == "challenge" ? Guid.Empty : Challenge, invalid == "proof" ? "bad" : Proof, invalid == "raw" ? [] : Body);
+        c.SetContext(invalid == "actor" ? Guid.Empty : s_actor, invalid == "missingAccess" ? null : invalid == "access" ? "bad" : s_access,
+            invalid == "challenge" ? Guid.Empty : s_challenge, invalid == "proof" ? "bad" : s_proof, invalid == "raw" ? [] : s_body);
         var result = await new ChangeVaultProtectionHandler(new ChangeVaultProtectionValidator(), Strict()).HandleAsync(c);
         Assert.Contains(error, result.Errors);
         Assert.Null(result.Data);
@@ -54,14 +54,14 @@ public class VaultProtectionChangeHandlerTests
     {
         using var client = new ProtectionFixture();
         var c = Command(client);
-        OpaqueAccessHandle.TryHash(Access, out var hash);
+        OpaqueAccessHandle.TryHash(s_access, out var hash);
         var store = new Mock<IVaultProtectionChangeStore>(MockBehavior.Strict);
-        store.Setup(x => x.ChangeAsync(It.Is<ProtectionChangeRequest>(r => r.Actor == Actor && r.AccessVerifier == hash && r.ChallengeId == Challenge
-            && r.Proof == Proof && r.RawBody == Body && r.Change.AccountId == Account && r.Change.Material == c.Material && r.Change.ExpectedProtectionRevision == 1 && r.Change.ExpectedAccountRevision == 3), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new VaultResult<ProtectionChangeDetails>(new(Account, 2, 2, 1, 3)));
+        store.Setup(x => x.ChangeAsync(It.Is<ProtectionChangeRequest>(r => r.Actor == s_actor && r.AccessVerifier == hash && r.ChallengeId == s_challenge
+            && r.Proof == s_proof && r.RawBody == s_body && r.Change.AccountId == s_account && r.Change.Material == c.Material && r.Change.ExpectedProtectionRevision == 1 && r.Change.ExpectedAccountRevision == 3), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new VaultResult<ProtectionChangeDetails>(new(s_account, 2, 2, 1, 3)));
         var result = await new ChangeVaultProtectionHandler(new ChangeVaultProtectionValidator(), store.Object).HandleAsync(c);
         Assert.True(result.Success);
-        Assert.Equal(Account, result.Data!.AccountId);
+        Assert.Equal(s_account, result.Data!.AccountId);
         Assert.Equal(2, result.Data.ProtectionRevision);
         Assert.Equal(3, result.Data.AccountRevision);
         Assert.Contains("protection_changed", result.Messages);
@@ -97,7 +97,7 @@ public class VaultProtectionChangeHandlerTests
     {
         using var client = new ProtectionFixture();
         var store = new Mock<IVaultProtectionChangeStore>();
-        var data = new ProtectionChangeDetails(invalid == "account" ? Guid.NewGuid() : Account, invalid == "protection" ? 1 : 2, invalid == "epoch" ? 1 : 2, invalid == "generation" ? 2 : 1, invalid == "accountRevision" ? 4 : 3);
+        var data = new ProtectionChangeDetails(invalid == "account" ? Guid.NewGuid() : s_account, invalid == "protection" ? 1 : 2, invalid == "epoch" ? 1 : 2, invalid == "generation" ? 2 : 1, invalid == "accountRevision" ? 4 : 3);
         store.Setup(x => x.ChangeAsync(It.IsAny<ProtectionChangeRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<ProtectionChangeDetails>(invalid == "missing" ? null : data));
         var result = await new ChangeVaultProtectionHandler(new ChangeVaultProtectionValidator(), store.Object).HandleAsync(Command(client));
         Assert.Contains("persistence_unavailable", result.Errors);
@@ -110,10 +110,10 @@ public class VaultProtectionChangeHandlerTests
     public async Task GivenChangeChallengeRequest_WhenHandling_ThenRequireMatchingReturnedPurpose(string returned, bool success)
     {
         var command = new IssueVaultChallengeCommand { Operation = "change-protection", RequestHash = ProtectionFixture.Encode(new byte[32]) };
-        command.SetActor(Actor);
-        var challenge = new VaultProofChallenge("cerberus-challenge-v1", Challenge, ProtectionFixture.Encode(new byte[32]), returned, Actor, Account, "account", Account, 1, 1, null, command.RequestHash, 1000, 1060);
+        command.SetActor(s_actor);
+        var challenge = new VaultProofChallenge("cerberus-challenge-v1", s_challenge, ProtectionFixture.Encode(new byte[32]), returned, s_actor, s_account, "account", s_account, 1, 1, null, command.RequestHash, 1000, 1060);
         var store = new Mock<IVaultProtectionStore>(MockBehavior.Strict);
-        store.Setup(x => x.ChallengeAsync(Actor, "change-protection", command.RequestHash, It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<VaultProofChallenge>(challenge));
+        store.Setup(x => x.ChallengeAsync(s_actor, "change-protection", command.RequestHash, It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<VaultProofChallenge>(challenge));
         var result = await new IssueVaultChallengeHandler(new IssueVaultChallengeValidator(), store.Object).HandleAsync(command);
         Assert.Equal(success, result.Success);
         if (success)
@@ -133,8 +133,8 @@ public class VaultProtectionChangeHandlerTests
     private static IVaultProtectionChangeStore Strict() => new Mock<IVaultProtectionChangeStore>(MockBehavior.Strict).Object;
     private static ChangeVaultProtectionCommand Command(ProtectionFixture client)
     {
-        var c = new ChangeVaultProtectionCommand { AccountId = Account, ExpectedProtectionRevision = 1, ExpectedAccountRevision = 3, Mode = "rewrap", Material = client.Rewrap(), ContentReplacements = [] };
-        c.SetContext(Actor, Access, Challenge, Proof, Body);
+        var c = new ChangeVaultProtectionCommand { AccountId = s_account, ExpectedProtectionRevision = 1, ExpectedAccountRevision = 3, Mode = "rewrap", Material = client.Rewrap(), ContentReplacements = [] };
+        c.SetContext(s_actor, s_access, s_challenge, s_proof, s_body);
         return c;
     }
 }

@@ -10,7 +10,7 @@ namespace ArturRios.Cerberus.WebApi;
 
 internal sealed class AccountExportSchemaFilter : ISchemaFilter
 {
-    internal static readonly IReadOnlyDictionary<Type, string> Kinds = new Dictionary<Type, string>
+    internal static readonly IReadOnlyDictionary<Type, string> s_kinds = new Dictionary<Type, string>
     {
         [typeof(AccountExportAccount)] = "account",
         [typeof(AccountExportProtection)] = "protection",
@@ -29,7 +29,7 @@ internal sealed class AccountExportSchemaFilter : ISchemaFilter
     {
         if (schema is not OpenApiSchema { Properties: not null } target)
             return;
-        var entry = Kinds.TryGetValue(context.Type, out var kind);
+        var entry = s_kinds.TryGetValue(context.Type, out var kind);
         if (!entry && context.Type != typeof(AccountExportArchive) && context.Type != typeof(AccountExportHeader) && context.Type != typeof(AccountExportInput))
             return;
         target.AdditionalPropertiesAllowed = false;

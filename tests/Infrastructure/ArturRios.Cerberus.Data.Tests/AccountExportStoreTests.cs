@@ -14,7 +14,7 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public partial class AccountExportStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IAsyncLifetime
 {
-    private readonly List<long> owners = [];
+    private readonly List<long> _owners = [];
 
     [FunctionalFact]
     public async Task GivenCurrentWideOwner_WhenExporting_ThenPreserveOwnedCiphertextKeysAndMetadataWithoutMutations()
@@ -337,7 +337,7 @@ public partial class AccountExportStoreTests(PostgresFixture fixture) : IClassFi
     {
         using var keys = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, keys);
-        owners.Add(s.InternalId);
+        _owners.Add(s.InternalId);
         var pid = await AssociationSetup.Profile(fixture, s, keys);
         var items = await AssociationSetup.Items(fixture, s);
         await using var db = fixture.CreateContext();
@@ -404,6 +404,6 @@ public partial class AccountExportStoreTests(PostgresFixture fixture) : IClassFi
         { if (d.Exception is PostgresException e) Failure = $"{e.SqlState} at {e.Position}: {e.MessageText}"; return Task.CompletedTask; }
     }
     public ValueTask InitializeAsync() => ValueTask.CompletedTask;
-    public async ValueTask DisposeAsync() { if (owners.Count == 0) return; await using var db = fixture.CreateContext(); await db.Accounts.Where(x => owners.Contains(x.Id)).ExecuteDeleteAsync(); }
+    public async ValueTask DisposeAsync() { if (_owners.Count == 0) return; await using var db = fixture.CreateContext(); await db.Accounts.Where(x => _owners.Contains(x.Id)).ExecuteDeleteAsync(); }
 }
 

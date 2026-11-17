@@ -11,23 +11,23 @@ public class GetProfileHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     private const string Verifier = "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925";
-    private static readonly Guid Actor = Guid.NewGuid(), Target = Guid.NewGuid();
+    private static readonly Guid s_actor = Guid.NewGuid(), s_target = Guid.NewGuid();
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
     [InlineData("access", "validation_failed")]
     [InlineData("target", "validation_failed")]
     public async Task GivenInvalidTrustedContext_WhenGettingProfile_ThenRejectBeforeStore(string kind, string error)
-    { var store = new Mock<IProfileReadStore>(MockBehavior.Strict); var r = await new GetProfileHandler(store.Object).HandleAsync(new(kind == "actor" ? Guid.Empty : Actor, kind == "missing" ? null : kind == "access" ? "bad" : Access, kind == "target" ? Guid.Empty : Target)); Assert.Contains(error, r.Errors); Assert.Null(r.Data); store.VerifyNoOtherCalls(); }
+    { var store = new Mock<IProfileReadStore>(MockBehavior.Strict); var r = await new GetProfileHandler(store.Object).HandleAsync(new(kind == "actor" ? Guid.Empty : s_actor, kind == "missing" ? null : kind == "access" ? "bad" : Access, kind == "target" ? Guid.Empty : s_target)); Assert.Contains(error, r.Errors); Assert.Null(r.Data); store.VerifyNoOtherCalls(); }
     [UnitFact]
     public async Task GivenAuthorizedOpaqueProfileAndVisibleLinks_WhenGetting_ThenReturnExactPublicData()
-    { var data = Details(); var r = await Handler(new(data)).HandleAsync(new(Actor, Access, Target)); Assert.True(r.Success); Assert.Equal(Target, r.Data!.ProfileId); Assert.Equal(data.Profile.Revision, r.Data.Revision); Assert.Equal(data.Profile.ServerSequence, r.Data.ServerSequence); Assert.Equal(data.Profile.EditedAt, r.Data.EditedAt); Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(data.Profile.Envelope, ProtectionFixture.Json), r.Data.Envelope); Assert.Equal(JsonSerializer.Deserialize<ProfileKeyWrappers>(data.Profile.KeyWrappers, ProtectionFixture.Json), r.Data.KeyWrappers); Assert.Equal(data.RecordIds, r.Data.RecordIds); Assert.Equal(data.FolderIds, r.Data.FolderIds); Assert.Equal(data.CollectionIds, r.Data.CollectionIds); }
+    { var data = Details(); var r = await Handler(new(data)).HandleAsync(new(s_actor, Access, s_target)); Assert.True(r.Success); Assert.Equal(s_target, r.Data!.ProfileId); Assert.Equal(data.Profile.Revision, r.Data.Revision); Assert.Equal(data.Profile.ServerSequence, r.Data.ServerSequence); Assert.Equal(data.Profile.EditedAt, r.Data.EditedAt); Assert.Equal(JsonSerializer.Deserialize<EncryptedEnvelope>(data.Profile.Envelope, ProtectionFixture.Json), r.Data.Envelope); Assert.Equal(JsonSerializer.Deserialize<ProfileKeyWrappers>(data.Profile.KeyWrappers, ProtectionFixture.Json), r.Data.KeyWrappers); Assert.Equal(data.RecordIds, r.Data.RecordIds); Assert.Equal(data.FolderIds, r.Data.FolderIds); Assert.Equal(data.CollectionIds, r.Data.CollectionIds); }
     [UnitTheory]
     [InlineData("not_found")]
     [InlineData("vault_access_denied")]
     [InlineData("persistence_unavailable")]
     public async Task GivenStoreFailure_WhenGetting_ThenNoCiphertextOrLinks(string error)
-    { var r = await Handler(new(Error: error)).HandleAsync(new(Actor, Access, Target)); Assert.Contains(error, r.Errors); Assert.Null(r.Data); }
+    { var r = await Handler(new(Error: error)).HandleAsync(new(s_actor, Access, s_target)); Assert.Contains(error, r.Errors); Assert.Null(r.Data); }
     [UnitTheory]
     [InlineData("missing")]
     [InlineData("nullProfile")]
@@ -90,17 +90,17 @@ public class GetProfileHandlerTests
             _ => p
         };
         d = d with { Profile = p };
-        d = kind switch { "nullRecords" => d with { RecordIds = null! }, "nullFolders" => d with { FolderIds = null! }, "nullCollections" => d with { CollectionIds = null! }, "emptyId" => d with { RecordIds = [Guid.Empty] }, "duplicateId" => d with { CollectionIds = [Target, Target] }, _ => d };
-        var r = await Handler(kind == "missing" ? new() : new(d)).HandleAsync(new(Actor, Access, Target));
+        d = kind switch { "nullRecords" => d with { RecordIds = null! }, "nullFolders" => d with { FolderIds = null! }, "nullCollections" => d with { CollectionIds = null! }, "emptyId" => d with { RecordIds = [Guid.Empty] }, "duplicateId" => d with { CollectionIds = [s_target, s_target] }, _ => d };
+        var r = await Handler(kind == "missing" ? new() : new(d)).HandleAsync(new(s_actor, Access, s_target));
         Assert.Contains("persistence_unavailable", r.Errors);
         Assert.Null(r.Data);
     }
     [UnitFact]
     public async Task GivenCancellation_WhenGetting_ThenPropagate()
-    { using var c = new CancellationTokenSource(); c.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new GetProfileHandler(new Mock<IProfileReadStore>(MockBehavior.Strict).Object).HandleAsync(new(Actor, Access, Target), c.Token)); }
+    { using var c = new CancellationTokenSource(); c.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new GetProfileHandler(new Mock<IProfileReadStore>(MockBehavior.Strict).Object).HandleAsync(new(s_actor, Access, s_target), c.Token)); }
     private static GetProfileHandler Handler(VaultResult<ProfileReadDetails> result)
-    { var s = new Mock<IProfileReadStore>(MockBehavior.Strict); s.Setup(x => x.ReadAsync(new(Actor, Verifier, Target), It.IsAny<CancellationToken>())).ReturnsAsync(result); return new(s.Object); }
+    { var s = new Mock<IProfileReadStore>(MockBehavior.Strict); s.Setup(x => x.ReadAsync(new(s_actor, Verifier, s_target), It.IsAny<CancellationToken>())).ReturnsAsync(result); return new(s.Object); }
     private static ProfileReadDetails Details()
-    { using var f = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var envelope = new EncryptedEnvelope("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"); return new(new(Target, 1, 7, DateTimeOffset.FromUnixTimeSeconds(1780000000), Bytes(envelope), Bytes(new ProfileKeyWrappers("Master", scoped.Material.UnlockVerifier, f.Wrap(Guid.NewGuid(), "profile", Target, Actor), null))), [Guid.NewGuid()], [Guid.NewGuid()], [Guid.NewGuid()]); }
+    { using var f = new ProtectionFixture(); using var scoped = new ProtectionFixture(); var envelope = new EncryptedEnvelope("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"); return new(new(s_target, 1, 7, DateTimeOffset.FromUnixTimeSeconds(1780000000), Bytes(envelope), Bytes(new ProfileKeyWrappers("Master", scoped.Material.UnlockVerifier, f.Wrap(Guid.NewGuid(), "profile", s_target, s_actor), null))), [Guid.NewGuid()], [Guid.NewGuid()], [Guid.NewGuid()]); }
     private static byte[] Bytes<T>(T value) => JsonSerializer.SerializeToUtf8Bytes(value, ProtectionFixture.Json);
 }

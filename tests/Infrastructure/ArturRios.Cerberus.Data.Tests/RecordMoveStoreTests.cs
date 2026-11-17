@@ -908,9 +908,9 @@ public class RecordMoveStoreTests(PostgresFixture fixture) : IClassFixture<Postg
     private sealed class Signal(TaskCompletionSource reached, string table) : DbCommandInterceptor
     { private void Check(DbCommand c) { if (c.CommandText.Contains("cerberus." + table) && c.CommandText.Contains("FOR ")) reached.TrySetResult(); } public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { Check(c); return ValueTask.FromResult(r); } public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default) { Check(c); return ValueTask.FromResult(r); } }
     private sealed class BeforeTarget(Func<Task> action) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!used && c.CommandText.Contains("cerberus.record WHERE") && c.CommandText.Contains("FOR NO KEY UPDATE")) { used = true; await action(); } return r; } }
+    { private bool _used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!_used && c.CommandText.Contains("cerberus.record WHERE") && c.CommandText.Contains("FOR NO KEY UPDATE")) { _used = true; await action(); } return r; } }
     private sealed class BeforeParent(Func<Task> action) : DbCommandInterceptor
-    { private bool used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!used && c.CommandText.StartsWith("UPDATE cerberus.folder SET")) { used = true; await action(); } return r; } }
+    { private bool _used; public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> r, CancellationToken ct = default) { if (!_used && c.CommandText.StartsWith("UPDATE cerberus.folder SET")) { _used = true; await action(); } return r; } }
     private sealed class Capture(PostgresFixture fixture, bool analyze = false) : DbCommandInterceptor
     {
         public List<string> Locks { get; } = []; public string? Plan { get; private set; }
@@ -961,16 +961,16 @@ public class RecordMoveStoreTests(PostgresFixture fixture) : IClassFixture<Postg
     private static bool IsWrite(DbCommand c) => c.CommandText.Contains("UPDATE cerberus.record AS");
     private sealed class BeforeWrite : DbCommandInterceptor
     {
-        private readonly Func<DbCommand, Task> action; private bool used;
+        private readonly Func<DbCommand, Task> _action; private bool _used;
         public BeforeWrite(Func<Task> value) : this(_ => value()) { }
-        public BeforeWrite(Func<DbCommand, Task> value) => action = value;
-        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> result, CancellationToken ct = default) { if (!used && IsWrite(c)) { used = true; await action(c); } return result; }
+        public BeforeWrite(Func<DbCommand, Task> value) => _action = value;
+        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> result, CancellationToken ct = default) { if (!_used && IsWrite(c)) { _used = true; await _action(c); } return result; }
     }
     private sealed class Fail(string stage) : DbCommandInterceptor
     {
-        private bool written, failed; private int parents, parentsDone;
-        private void Check(DbCommand c) { if (failed) return; if (c.CommandText.StartsWith("UPDATE cerberus.folder SET")) parents++; if ((stage == "afterRecord" && written) || (stage == "firstParent" && parents == 1) || (stage == "secondParent" && parents == 2) || (stage == "afterFirstParent" && parentsDone >= 1) || (stage == "afterSecondParent" && parentsDone >= 2)) { failed = true; throw new TimeoutException("controlled move persistence failure"); } }
-        public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int result, CancellationToken ct = default) { if (IsWrite(c)) written = true; if (c.CommandText.StartsWith("UPDATE cerberus.folder SET")) parentsDone++; return ValueTask.FromResult(result); }
+        private bool _written, _failed; private int _parents, _parentsDone;
+        private void Check(DbCommand c) { if (_failed) return; if (c.CommandText.StartsWith("UPDATE cerberus.folder SET")) _parents++; if ((stage == "afterRecord" && _written) || (stage == "firstParent" && _parents == 1) || (stage == "secondParent" && _parents == 2) || (stage == "afterFirstParent" && _parentsDone >= 1) || (stage == "afterSecondParent" && _parentsDone >= 2)) { _failed = true; throw new TimeoutException("controlled move persistence failure"); } }
+        public override ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int result, CancellationToken ct = default) { if (IsWrite(c)) _written = true; if (c.CommandText.StartsWith("UPDATE cerberus.folder SET")) _parentsDone++; return ValueTask.FromResult(result); }
         public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<int> result, CancellationToken ct = default) { Check(c); return ValueTask.FromResult(result); }
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> result, CancellationToken ct = default) { Check(c); return ValueTask.FromResult(result); }
     }

@@ -14,8 +14,8 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public partial class TrashEmptyStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
-    private readonly string directory = Directory.CreateTempSubdirectory("cerberus-uc52-ledger-").FullName;
-    private FileErasureLedger Ledger => new(directory);
+    private readonly string _directory = Directory.CreateTempSubdirectory("cerberus-uc52-ledger-").FullName;
+    private FileErasureLedger Ledger => new(_directory);
     private TrashEmptyStore Store(IErasureLedger? ledger = null, IDbContextFactory<AppDbContext>? factory = null) => new(factory ?? fixture, ledger ?? Ledger, new CerberusOptions { RetentionInterval = "00:05:00" }, TimeProvider.System);
     [FunctionalTheory]
     [InlineData("record")]
@@ -72,7 +72,7 @@ public partial class TrashEmptyStoreTests(PostgresFixture fixture) : IClassFixtu
         Assert.Equal(4, r.Data.Counts.Count);
         Assert.All(r.Data.Counts, x => Assert.Equal(0, x.Count));
         Assert.Equal(before, await State(s));
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
     }
     [FunctionalTheory]
     [InlineData("record")]
@@ -159,7 +159,7 @@ public partial class TrashEmptyStoreTests(PostgresFixture fixture) : IClassFixtu
         var r = await Store().EmptyAsync(request, default);
         Assert.Equal(error, r.Error);
         if (error is not null)
-        { Assert.Null(r.Data); Assert.Equal(before, await State(s)); Assert.Empty(Directory.GetFiles(directory, "*.json")); }
+        { Assert.Null(r.Data); Assert.Equal(before, await State(s)); Assert.Empty(Directory.GetFiles(_directory, "*.json")); }
         else
             Assert.False(await Exists(root));
     }
@@ -169,7 +169,7 @@ public partial class TrashEmptyStoreTests(PostgresFixture fixture) : IClassFixtu
     [InlineData(ProtocolBinary.MaxInteger + 1, "validation_failed")]
     [InlineData(2L, "revision_conflict")]
     public async Task GivenInvalidOrStaleAccountRevision_WhenEmptying_ThenNoIntentOrLedger(long revision, string error)
-    { using var keys = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, keys); await TrashRestoreSetup.RootAsync(fixture, s, keys, "record"); var before = await State(s); var r = await Store().EmptyAsync(Request(s) with { ExpectedRevision = revision }, default); Assert.Equal(error, r.Error); Assert.Equal(before, await State(s)); Assert.Empty(Directory.GetFiles(directory, "*.json")); }
+    { using var keys = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, keys); await TrashRestoreSetup.RootAsync(fixture, s, keys, "record"); var before = await State(s); var r = await Store().EmptyAsync(Request(s) with { ExpectedRevision = revision }, default); Assert.Equal(error, r.Error); Assert.Equal(before, await State(s)); Assert.Empty(Directory.GetFiles(_directory, "*.json")); }
     [FunctionalFact]
     public async Task GivenLedgerOutageAfterAdmission_WhenEmptying_ThenRetainIntentAndCipherAndHideRestoreUntilSafeRetry()
     {
@@ -209,7 +209,7 @@ public partial class TrashEmptyStoreTests(PostgresFixture fixture) : IClassFixtu
     }
     [FunctionalFact]
     public async Task GivenCallerCancellationBeforeAdmission_WhenEmptying_ThenPropagateWithoutIntent()
-    { using var keys = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, keys); await TrashRestoreSetup.RootAsync(fixture, s, keys, "record"); var before = await State(s); using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Store().EmptyAsync(Request(s), ct.Token)); Assert.Equal(before, await State(s)); Assert.Empty(Directory.GetFiles(directory, "*.json")); }
+    { using var keys = new ProtectionFixture(); var s = await ProfileSetup.Create(fixture, keys); await TrashRestoreSetup.RootAsync(fixture, s, keys, "record"); var before = await State(s); using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Store().EmptyAsync(Request(s), ct.Token)); Assert.Equal(before, await State(s)); Assert.Empty(Directory.GetFiles(_directory, "*.json")); }
     private static TrashEmptyRequest Request(ProfileSetup.State s) => new(s.Actor, s.Verifier, 1);
     private async Task<bool> Exists(TrashRestoreSetup.Root root) { await using var db = fixture.CreateContext(); return root.Kind switch { "record" => await db.Records.AnyAsync(x => x.PublicId == root.ResourceId), "folder" => await db.Folders.AnyAsync(x => x.PublicId == root.ResourceId), "collection" => await db.Collections.AnyAsync(x => x.PublicId == root.ResourceId), _ => await db.Profiles.AnyAsync(x => x.PublicId == root.ResourceId) }; }
     private async Task<string> State(ProfileSetup.State s)
@@ -217,5 +217,5 @@ public partial class TrashEmptyStoreTests(PostgresFixture fixture) : IClassFixtu
         await using var db = fixture.CreateContext();
         return JsonSerializer.Serialize(new { Owned = await TrashRestoreSetup.Snapshot(fixture, s), Markers = await db.TerminalErasures.AsNoTracking().OrderBy(x => x.ResourceKind).ThenBy(x => x.ResourceId).ToArrayAsync(), Work = await db.RetentionWorkItems.AsNoTracking().Where(x => x.OperationKey == "trash-erase/" + s.AccountId).ToArrayAsync() });
     }
-    public void Dispose() => Directory.Delete(directory, true);
+    public void Dispose() => Directory.Delete(_directory, true);
 }

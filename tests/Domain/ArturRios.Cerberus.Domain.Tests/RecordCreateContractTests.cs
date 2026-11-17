@@ -7,7 +7,7 @@ namespace ArturRios.Cerberus.Domain.Tests;
 
 public class RecordCreateContractTests
 {
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict };
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict };
     [UnitTheory]
     [InlineData("unlinked")]
     [InlineData("folder")]
@@ -84,9 +84,9 @@ public class RecordCreateContractTests
     [InlineData("profileIds")]
     public void GivenMissingRequiredCreationMember_WhenParsing_ThenReject(string field)
     {
-        var body = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(Input(), Json), Json)!;
+        var body = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(Input(), s_json), s_json)!;
         body.Remove(field);
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RecordCreateInput>(JsonSerializer.Serialize(body), Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RecordCreateInput>(JsonSerializer.Serialize(body), s_json));
     }
     [UnitTheory]
     [InlineData("accountId")]
@@ -101,8 +101,8 @@ public class RecordCreateContractTests
     [InlineData("collectionIds")]
     public void GivenForgedOwnershipMetadataOrPlaintextMembers_WhenParsing_ThenReject(string field)
     {
-        var body = JsonSerializer.Serialize(Input(), Json).Insert(1, "\"" + field + "\":null,");
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RecordCreateInput>(body, Json));
+        var body = JsonSerializer.Serialize(Input(), s_json).Insert(1, "\"" + field + "\":null,");
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RecordCreateInput>(body, s_json));
     }
     [UnitTheory]
     [InlineData("duplicate")]
@@ -113,7 +113,7 @@ public class RecordCreateContractTests
     public void GivenAmbiguousOrNonNativeWireBody_WhenParsing_ThenReject(string kind)
     {
         var input = Input();
-        var body = JsonSerializer.Serialize(input, Json);
+        var body = JsonSerializer.Serialize(input, s_json);
         body = kind switch
         {
             "duplicate" => body.Insert(1, "\"recordId\":\"" + input.RecordId + "\","),
@@ -122,7 +122,7 @@ public class RecordCreateContractTests
             "fractionalEpoch" => body.Replace("\"keyEpoch\":1", "\"keyEpoch\":1.5"),
             _ => body.Replace("\"envelope\":{", "\"envelope\":{\"unknown\":1,")
         };
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RecordCreateInput>(body, Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RecordCreateInput>(body, s_json));
     }
     [UnitTheory]
     [InlineData(false)]
@@ -130,10 +130,10 @@ public class RecordCreateContractTests
     public void GivenAbsentOrExplicitNullFolder_WhenParsing_ThenAcceptUnfolderedRecord(bool absent)
     {
         var input = Input();
-        var body = JsonSerializer.Serialize(input, Json);
+        var body = JsonSerializer.Serialize(input, s_json);
         if (absent)
             body = body.Replace(",\"folderId\":null", "");
-        var parsed = JsonSerializer.Deserialize<RecordCreateInput>(body, Json)!;
+        var parsed = JsonSerializer.Deserialize<RecordCreateInput>(body, s_json)!;
         Assert.True(parsed.IsValid());
         Assert.Null(parsed.FolderId);
         Assert.Equal(input.RecordId, parsed.RecordId);

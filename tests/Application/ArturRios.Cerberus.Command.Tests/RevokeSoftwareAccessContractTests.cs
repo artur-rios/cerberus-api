@@ -9,10 +9,10 @@ namespace ArturRios.Cerberus.Command.Tests;
 
 public class RevokeSoftwareAccessContractTests
 {
-    private static readonly Guid Actor = Guid.Parse("11111111-1111-4111-8111-111111111111");
-    private static readonly Guid Grant = Guid.Parse("33333333-3333-4333-8333-333333333333");
+    private static readonly Guid s_actor = Guid.Parse("11111111-1111-4111-8111-111111111111");
+    private static readonly Guid s_grant = Guid.Parse("33333333-3333-4333-8333-333333333333");
     private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static readonly JsonSerializerOptions PermissiveNumbers = new(ProtectionFixture.Json)
+    private static readonly JsonSerializerOptions s_permissiveNumbers = new(ProtectionFixture.Json)
     {
         NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
@@ -38,8 +38,8 @@ public class RevokeSoftwareAccessContractTests
     {
         Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RevokeSoftwareAccessCommand>(body, ProtectionFixture.Json));
         Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<SoftwareGrantRevocationInput>(body, ProtectionFixture.Json));
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RevokeSoftwareAccessCommand>(body, PermissiveNumbers));
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<SoftwareGrantRevocationInput>(body, PermissiveNumbers));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RevokeSoftwareAccessCommand>(body, s_permissiveNumbers));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<SoftwareGrantRevocationInput>(body, s_permissiveNumbers));
     }
 
     // Body input cannot supply trusted authority, route or software/recipient material.
@@ -79,11 +79,11 @@ public class RevokeSoftwareAccessContractTests
         var body = "{\"expectedRevision\":" + revision.ToString(CultureInfo.InvariantCulture) + "}";
         var command = JsonSerializer.Deserialize<RevokeSoftwareAccessCommand>(body, ProtectionFixture.Json)!;
         var input = JsonSerializer.Deserialize<SoftwareGrantRevocationInput>(body, ProtectionFixture.Json)!;
-        command.SetContext(Actor, Handle, Grant);
+        command.SetContext(s_actor, Handle, s_grant);
         Assert.Equal(revision, command.ExpectedRevision);
         Assert.Equal(revision, command.ToInput().ExpectedRevision);
-        Assert.Equal(valid, command.ToInput().IsValid(Grant));
-        Assert.Equal(valid, input.IsValid(Grant));
+        Assert.Equal(valid, command.ToInput().IsValid(s_grant));
+        Assert.Equal(valid, input.IsValid(s_grant));
         Assert.False(input.IsValid(Guid.Empty));
         Assert.Equal(body, JsonSerializer.Serialize(command, ProtectionFixture.Json));
         Assert.Equal(body, JsonSerializer.Serialize(input, ProtectionFixture.Json));

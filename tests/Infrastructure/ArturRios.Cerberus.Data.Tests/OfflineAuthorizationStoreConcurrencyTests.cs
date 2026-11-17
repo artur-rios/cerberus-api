@@ -110,7 +110,7 @@ public class OfflineAuthorizationStoreConcurrencyTests(PostgresFixture fixture) 
         {
             var s = await OfflineAuthorizationTestData.Setup(fixture);
             await using var held = fixture.CreateContext();
-            await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+{RealTime.SetupLead} WHERE id={s.Session}");
+            await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+{RealTime.s_setupLead} WHERE id={s.Session}");
             var expiry = await held.VaultAccessSessions.Where(x => x.Id == s.Session).Select(x => x.ExpiresAt).SingleAsync();
             await using var tx = await held.Database.BeginTransactionAsync();
             await held.Database.ExecuteSqlInterpolatedAsync($"SELECT FROM cerberus.account WHERE id={s.Owner} FOR UPDATE");
@@ -148,7 +148,7 @@ public class OfflineAuthorizationStoreConcurrencyTests(PostgresFixture fixture) 
         {
             var s = await OfflineAuthorizationTestData.Setup(fixture);
             await using var db = fixture.CreateContext();
-            await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+{RealTime.SetupLead} WHERE id={s.Session}");
+            await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.vault_access_session SET expires_at=statement_timestamp()+{RealTime.s_setupLead} WHERE id={s.Session}");
             var expiry = await db.VaultAccessSessions.Where(x => x.Id == s.Session).Select(x => x.ExpiresAt).SingleAsync();
             using var signer = new OfflineAuthorizationTestData.Signer(snapshot =>
             {

@@ -12,8 +12,8 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class UpdateRecordHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid(); private readonly Guid target = Guid.NewGuid();
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict };
+    private readonly Guid _actor = Guid.NewGuid(); private readonly Guid _target = Guid.NewGuid();
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json) { NumberHandling = JsonNumberHandling.Strict };
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("missing", "vault_access_required")]
@@ -34,7 +34,7 @@ public class UpdateRecordHandlerTests
     public async Task GivenInvalidAuthorityOrInput_WhenHandling_ThenRejectBeforePersistence(string kind, string error)
     {
         var c = Command();
-        c.SetContext(kind == "actor" ? Guid.Empty : actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : Access, kind == "id" ? Guid.Empty : target);
+        c.SetContext(kind == "actor" ? Guid.Empty : _actor, kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : Access, kind == "id" ? Guid.Empty : _target);
         if (kind == "revision")
             c.ExpectedRevision = 0;
         if (kind == "unsafeRevision")
@@ -77,22 +77,22 @@ public class UpdateRecordHandlerTests
         RecordUpdateRequest? received = null;
         CancellationToken token = default;
         var store = new Mock<IRecordUpdateStore>(MockBehavior.Strict);
-        store.Setup(x => x.UpdateAsync(It.IsAny<RecordUpdateRequest>(), It.IsAny<CancellationToken>())).Returns<RecordUpdateRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<RecordCreateDetails>(new(target, 2, 7, Normalize(c.EditedAt)))); });
+        store.Setup(x => x.UpdateAsync(It.IsAny<RecordUpdateRequest>(), It.IsAny<CancellationToken>())).Returns<RecordUpdateRequest, CancellationToken>((r, t) => { received = r; token = t; return Task.FromResult(new VaultResult<RecordCreateDetails>(new(_target, 2, 7, Normalize(c.EditedAt)))); });
         var result = await Handler(store.Object).HandleAsync(c, ct.Token);
         Assert.True(result.Success);
         Assert.Contains("record_updated", result.Messages);
-        Assert.Equal(target, result.Data!.RecordId);
+        Assert.Equal(_target, result.Data!.RecordId);
         Assert.Equal(2, result.Data.Revision);
         Assert.Equal(7, result.Data.ServerSequence);
         Assert.Equal(Normalize(c.EditedAt), result.Data.EditedAt);
-        Assert.Equal(actor, received!.Actor);
-        Assert.Equal(target, received.RecordId);
+        Assert.Equal(_actor, received!.Actor);
+        Assert.Equal(_target, received.RecordId);
         Assert.Equal(c.ToInput(), received.Input);
         Assert.Equal(ct.Token, token);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
-        using var data = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        using var data = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, s_json));
         Assert.Equal(["editedAt", "recordId", "revision", "serverSequence"], data.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        using var wire = JsonDocument.Parse(JsonSerializer.Serialize(c, Json));
+        using var wire = JsonDocument.Parse(JsonSerializer.Serialize(c, s_json));
         Assert.Equal(["editedAt", "envelope", "expectedRevision"], wire.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
     [UnitTheory]
@@ -117,7 +117,7 @@ public class UpdateRecordHandlerTests
     [InlineData("persistence_unavailable")]
     [InlineData("secret_owner_123")]
     public async Task GivenStoreErrorAndData_WhenHandling_ThenBrokenContract503WithoutPayload(string error)
-    { var c = Command(); var store = new Mock<IRecordUpdateStore>(); store.Setup(x => x.UpdateAsync(It.IsAny<RecordUpdateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecordCreateDetails>(new(target, 2, 7, Normalize(c.EditedAt)), error)); var r = await Handler(store.Object).HandleAsync(c); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains("persistence_unavailable", r.Errors); }
+    { var c = Command(); var store = new Mock<IRecordUpdateStore>(); store.Setup(x => x.UpdateAsync(It.IsAny<RecordUpdateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecordCreateDetails>(new(_target, 2, 7, Normalize(c.EditedAt)), error)); var r = await Handler(store.Object).HandleAsync(c); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains("persistence_unavailable", r.Errors); }
     [UnitTheory]
     [InlineData("nullResult")]
     [InlineData("nullData")]
@@ -134,13 +134,13 @@ public class UpdateRecordHandlerTests
     [InlineData("defaultTime")]
     [InlineData("precision")]
     public async Task GivenMalformedStoreSuccess_WhenHandling_Then503WithoutPartialMetadata(string kind)
-    { var c = Command(); RecordCreateDetails? d = new(target, 2, 7, Normalize(c.EditedAt)); d = kind switch { "nullData" => null, "id" => d with { RecordId = Guid.NewGuid() }, "revision0" => d with { Revision = 0 }, "revisionOld" => d with { Revision = 1 }, "revisionAhead" => d with { Revision = 3 }, "unsafeRevision" => d with { Revision = ProtocolBinary.MaxInteger + 1 }, "sequence0" => d with { ServerSequence = 0 }, "negativeSequence" => d with { ServerSequence = -1 }, "unsafeSequence" => d with { ServerSequence = ProtocolBinary.MaxInteger + 1 }, "time" => d with { EditedAt = d.EditedAt.AddTicks(10) }, "offset" => d with { EditedAt = d.EditedAt.ToOffset(TimeSpan.FromHours(1)) }, "defaultTime" => d with { EditedAt = default }, "precision" => d with { EditedAt = d.EditedAt.AddTicks(1) }, _ => d }; var store = new Mock<IRecordUpdateStore>(); store.Setup(x => x.UpdateAsync(It.IsAny<RecordUpdateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(kind == "nullResult" ? null! : new VaultResult<RecordCreateDetails>(d)); var r = await Handler(store.Object).HandleAsync(c); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains("persistence_unavailable", r.Errors); }
+    { var c = Command(); RecordCreateDetails? d = new(_target, 2, 7, Normalize(c.EditedAt)); d = kind switch { "nullData" => null, "id" => d with { RecordId = Guid.NewGuid() }, "revision0" => d with { Revision = 0 }, "revisionOld" => d with { Revision = 1 }, "revisionAhead" => d with { Revision = 3 }, "unsafeRevision" => d with { Revision = ProtocolBinary.MaxInteger + 1 }, "sequence0" => d with { ServerSequence = 0 }, "negativeSequence" => d with { ServerSequence = -1 }, "unsafeSequence" => d with { ServerSequence = ProtocolBinary.MaxInteger + 1 }, "time" => d with { EditedAt = d.EditedAt.AddTicks(10) }, "offset" => d with { EditedAt = d.EditedAt.ToOffset(TimeSpan.FromHours(1)) }, "defaultTime" => d with { EditedAt = default }, "precision" => d with { EditedAt = d.EditedAt.AddTicks(1) }, _ => d }; var store = new Mock<IRecordUpdateStore>(); store.Setup(x => x.UpdateAsync(It.IsAny<RecordUpdateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(kind == "nullResult" ? null! : new VaultResult<RecordCreateDetails>(d)); var r = await Handler(store.Object).HandleAsync(c); Assert.False(r.Success); Assert.Null(r.Data); Assert.Contains("persistence_unavailable", r.Errors); }
     [UnitTheory]
     [InlineData("expectedRevision")]
     [InlineData("envelope")]
     [InlineData("editedAt")]
     public void GivenOmittedRequiredMember_WhenParsing_ThenReject(string name)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); body.Remove(name); Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateRecordCommand>(body.ToJsonString(), Json)); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); body.Remove(name); Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateRecordCommand>(body.ToJsonString(), s_json)); }
     [UnitTheory]
     [InlineData("actor")]
     [InlineData("vaultAccess")]
@@ -153,18 +153,18 @@ public class UpdateRecordHandlerTests
     [InlineData("fields")]
     [InlineData("keyWrappers")]
     public void GivenForgedContextOrRelationshipMember_WhenParsing_ThenReject(string name)
-    { var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject(); body[name] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateRecordCommand>(body.ToJsonString(), Json)); }
+    { var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject(); body[name] = null; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateRecordCommand>(body.ToJsonString(), s_json)); }
     [UnitTheory]
     [InlineData("duplicate")]
     [InlineData("case")]
     [InlineData("numericRevision")]
     [InlineData("numericEpoch")]
     public void GivenAlternateJsonShape_WhenParsing_ThenReject(string kind)
-    { var body = JsonSerializer.Serialize(Command(), Json); body = kind switch { "duplicate" => body.Insert(1, "\"expectedRevision\":1,"), "case" => body.Replace("expectedRevision", "ExpectedRevision"), "numericRevision" => body.Replace("\"expectedRevision\":1", "\"expectedRevision\":\"1\""), _ => body.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\"") }; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateRecordCommand>(body, Json)); }
+    { var body = JsonSerializer.Serialize(Command(), s_json); body = kind switch { "duplicate" => body.Insert(1, "\"expectedRevision\":1,"), "case" => body.Replace("expectedRevision", "ExpectedRevision"), "numericRevision" => body.Replace("\"expectedRevision\":1", "\"expectedRevision\":\"1\""), _ => body.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\"") }; Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateRecordCommand>(body, s_json)); }
     [UnitFact] public async Task GivenCancelledCaller_WhenHandling_ThenPropagateBeforePersistence() { using var ct = new CancellationTokenSource(); ct.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(new Mock<IRecordUpdateStore>(MockBehavior.Strict).Object).HandleAsync(Command(), ct.Token)); }
     [UnitFact] public async Task GivenStoreCancellation_WhenHandling_ThenPropagateExactCallerToken() { using var ct = new CancellationTokenSource(); var store = new Mock<IRecordUpdateStore>(); store.Setup(x => x.UpdateAsync(It.IsAny<RecordUpdateRequest>(), ct.Token)).ThrowsAsync(new OperationCanceledException(ct.Token)); var e = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Handler(store.Object).HandleAsync(Command(), ct.Token)); Assert.Equal(ct.Token, e.CancellationToken); }
     [UnitFact] public void GivenUpdatedMessage_WhenMapping_Then200() => Assert.Equal(200, RecordUpdateMessages.StatusCodes["record_updated"]);
-    private UpdateRecordCommand Command() { var c = new UpdateRecordCommand { ExpectedRevision = 1, Envelope = new("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), EditedAt = DateTimeOffset.UnixEpoch.AddTicks(19) }; c.SetContext(actor, Access, target); return c; }
+    private UpdateRecordCommand Command() { var c = new UpdateRecordCommand { ExpectedRevision = 1, Envelope = new("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"), EditedAt = DateTimeOffset.UnixEpoch.AddTicks(19) }; c.SetContext(_actor, Access, _target); return c; }
     private static DateTimeOffset Normalize(DateTimeOffset time) => time.AddTicks(-(time.Ticks % 10));
     private static UpdateRecordHandler Handler(IRecordUpdateStore store) => new(new UpdateRecordValidator(), store);
 }

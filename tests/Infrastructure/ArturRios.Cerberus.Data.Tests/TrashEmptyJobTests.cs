@@ -21,7 +21,7 @@ public partial class TrashEmptyStoreTests
         Assert.Equal(0, r.Data!.TotalPurged);
         Assert.All(r.Data.Counts, x => Assert.Equal(0, x.Count));
         await TrashRestoreSetup.NoOperation(fixture, root.OperationId);
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
         await using var check = fixture.CreateContext();
         Assert.NotNull((await check.RetentionWorkItems.AsNoTracking().SingleAsync(x => x.OperationKey == "trash-erase/" + s.AccountId)).CompletedAt);
     }

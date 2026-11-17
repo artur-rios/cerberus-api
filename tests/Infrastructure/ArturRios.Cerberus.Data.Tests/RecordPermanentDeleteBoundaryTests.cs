@@ -28,7 +28,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
         using var w = await PermanentDeleteSetup.Create(fixture, "wide", false);
         var dead = new ProfileSetup.Factory(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql("Host=127.0.0.1;Port=1;Database=absent;Username=fixture;Password=fixture;Timeout=1").Options);
         Assert.Equal("persistence_unavailable", (await Store(factory: dead).DeleteAsync(w.Request(), default)).Error);
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalTheory]
@@ -55,7 +55,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
         Assert.True(await check.Records.AnyAsync(x => x.Id == w.Record.Id && x.DeletedAt == null && x.Revision == 1));
         Assert.False(await check.TerminalErasures.AnyAsync(x => x.ResourceKind == "record" && x.ResourceId == w.Record.PublicId));
         Assert.False(await check.RetentionWorkItems.AnyAsync(x => x.OperationKey == "record-purge/" + w.Record.PublicId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalTheory]
@@ -76,7 +76,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal(visible ? "persistence_unavailable" : "not_found", (await Store().DeleteAsync(new(recipient.Actor, recipient.Verifier, w.Record.PublicId, 99), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalTheory]
@@ -96,7 +96,7 @@ public sealed partial class RecordPermanentDeleteStoreTests
             var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
             Assert.Equal(regress ? "persistence_unavailable" : "revision_conflict", (await Store().DeleteAsync(w.Request(), default)).Error);
             Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-            Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+            Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
         }
         finally { await db.Database.ExecuteSqlInterpolatedAsync($"SELECT setval('cerberus.server_sequence',{previous},true)"); }
     }

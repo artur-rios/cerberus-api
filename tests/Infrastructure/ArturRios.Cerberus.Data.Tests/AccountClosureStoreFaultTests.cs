@@ -111,12 +111,12 @@ public partial class AccountClosureStoreTests
     }
     private sealed class ClosureAfter(string match, Func<DbCommand, Task> action, Guid? target = null) : DbCommandInterceptor
     {
-        private bool used;
+        private bool _used;
         public override async ValueTask<int> NonQueryExecutedAsync(DbCommand c, CommandExecutedEventData d, int result, CancellationToken ct = default)
         {
-            if (!used && c.CommandText.Contains(match, StringComparison.Ordinal)
+            if (!_used && c.CommandText.Contains(match, StringComparison.Ordinal)
                 && (target is null || c.Parameters.Cast<DbParameter>().Any(x => Equals(x.Value, target.Value))))
-            { used = true; await action(c); }
+            { _used = true; await action(c); }
             return result;
         }
     }

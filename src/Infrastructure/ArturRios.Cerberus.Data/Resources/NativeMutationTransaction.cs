@@ -8,12 +8,12 @@ namespace ArturRios.Cerberus.Data.Resources;
 // behavior through a savepoint without committing the batch prematurely.
 public sealed class NativeMutationTransaction : IAsyncDisposable
 {
-    private readonly IDbContextTransaction transaction;
-    private readonly string? savepoint;
-    private bool completed;
-    private bool disposed;
+    private readonly IDbContextTransaction _transaction;
+    private readonly string? _savepoint;
+    private bool _completed;
+    private bool _disposed;
     private NativeMutationTransaction(IDbContextTransaction transaction, string? savepoint)
-    { this.transaction = transaction; this.savepoint = savepoint; }
+    { this._transaction = transaction; this._savepoint = savepoint; }
 
     public static async Task<NativeMutationTransaction> BeginAsync(AppDbContext db, CancellationToken ct)
     {
@@ -29,27 +29,27 @@ public sealed class NativeMutationTransaction : IAsyncDisposable
     }
     public async Task CommitAsync(CancellationToken ct)
     {
-        ObjectDisposedException.ThrowIf(disposed, this);
-        if (completed)
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (_completed)
             throw new InvalidOperationException("Native mutation is already complete.");
-        if (savepoint is null)
-            await transaction.CommitAsync(ct);
+        if (_savepoint is null)
+            await _transaction.CommitAsync(ct);
         else
-            await transaction.ReleaseSavepointAsync(savepoint, ct);
-        completed = true;
+            await _transaction.ReleaseSavepointAsync(_savepoint, ct);
+        _completed = true;
     }
     public async ValueTask DisposeAsync()
     {
-        if (disposed)
+        if (_disposed)
             return;
-        disposed = true;
-        if (savepoint is null)
-        { await transaction.DisposeAsync(); return; }
-        if (!completed)
+        _disposed = true;
+        if (_savepoint is null)
+        { await _transaction.DisposeAsync(); return; }
+        if (!_completed)
         {
             // Cleanup must still roll back a caller-cancelled or failed statement.
-            await transaction.RollbackToSavepointAsync(savepoint, CancellationToken.None);
-            await transaction.ReleaseSavepointAsync(savepoint, CancellationToken.None);
+            await _transaction.RollbackToSavepointAsync(_savepoint, CancellationToken.None);
+            await _transaction.ReleaseSavepointAsync(_savepoint, CancellationToken.None);
         }
     }
 }

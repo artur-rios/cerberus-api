@@ -13,7 +13,7 @@ namespace ArturRios.Cerberus.Data.Trash;
 
 public sealed class TrashListStore(IDbContextFactory<AppDbContext> factory) : ITrashListStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
     public async Task<VaultResult<TrashListPage>> ListAsync(TrashListRequest request, CancellationToken ct)
     {
@@ -40,7 +40,7 @@ public sealed class TrashListStore(IDbContextFactory<AppDbContext> factory) : IT
                 """, Base(request)).ToListAsync(ct);
             var history = histories.Select(ParseHistory).Where(x => x is not null).ToArray();
             var parameters = Base(request).Concat([
-                new NpgsqlParameter("history",NpgsqlDbType.Jsonb){Value=JsonSerializer.Serialize(history,Json)},
+                new NpgsqlParameter("history",NpgsqlDbType.Jsonb){Value=JsonSerializer.Serialize(history,s_json)},
                 new NpgsqlParameter("boundary",NpgsqlDbType.Bigint){Value=(object?)request.Boundary??DBNull.Value},
                 new NpgsqlParameter("after",request.After),new NpgsqlParameter("size",request.PageSize),
                 new NpgsqlParameter("take",(long)request.PageSize+1),new NpgsqlParameter("max",ProtocolBinary.MaxInteger)]).ToArray();
@@ -53,13 +53,13 @@ public sealed class TrashListStore(IDbContextFactory<AppDbContext> factory) : IT
                 return new(Error: "vault_access_denied");
             if (snapshot.CorruptAncestry || snapshot.CorruptMetadata)
                 return new(Error: "persistence_unavailable");
-            var rows = JsonSerializer.Deserialize<Item[]>(snapshot.Items, Json)!.Select(x => new TrashListRow(x.Position, x.OperationId, x.Kind, x.ResourceId,
+            var rows = JsonSerializer.Deserialize<Item[]>(snapshot.Items, s_json)!.Select(x => new TrashListRow(x.Position, x.OperationId, x.Kind, x.ResourceId,
                 x.Revision, x.ServerSequence, x.EditedAt, x.DeletedAt, x.PurgeAt, Convert.FromHexString(x.Envelope), x.KeyEpoch,
                 x.KeyWrappers is null ? null : Convert.FromHexString(x.KeyWrappers))).ToArray();
             foreach (var row in rows.Where(x => x.Kind == "profile"))
             {
-                var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers!, Json);
-                var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json);
+                var wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers!, s_json);
+                var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, s_json);
                 var protection = snapshot.Material is null ? null : new VaultProtection
                 {
                     Material = Convert.FromHexString(snapshot.Material),

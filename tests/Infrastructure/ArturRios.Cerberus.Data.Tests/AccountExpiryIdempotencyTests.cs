@@ -13,10 +13,10 @@ public partial class AccountDeletionStoreTests
         var w = await Create();
         var claim = await ExpiredClosure(w);
         await ExpiryExecutor().ExecuteAsync(claim, default);
-        var files = Directory.GetFiles(directory, "*.json").Order().ToArray();
+        var files = Directory.GetFiles(_directory, "*.json").Order().ToArray();
         Assert.NotEmpty(files);
         await ExpiryExecutor().ExecuteAsync(claim, default);
-        Assert.Equal(files, Directory.GetFiles(directory, "*.json").Order().ToArray());
+        Assert.Equal(files, Directory.GetFiles(_directory, "*.json").Order().ToArray());
         Assert.True(await new RetentionWorkStore(fixture).TryCompleteAsync(claim, DateTimeOffset.UnixEpoch, default));
         await using var db = fixture.CreateContext();
         await Purged(db, w);
@@ -30,7 +30,7 @@ public partial class AccountDeletionStoreTests
     {
         var claim = new RetentionClaim(Guid.NewGuid(), Guid.NewGuid(), key, DateTimeOffset.UtcNow.AddMinutes(5));
         await Assert.ThrowsAsync<InvalidOperationException>(() => new AccountExpiryHandler(new NoAccountExpiryDatabase(), Ledger).ExecuteAsync(claim, default));
-        Assert.Empty(Directory.GetFiles(directory, "*.json"));
+        Assert.Empty(Directory.GetFiles(_directory, "*.json"));
     }
     private sealed class NoAccountExpiryDatabase : IDbContextFactory<AppDbContext>
     { public AppDbContext CreateDbContext() => throw new IOException("Unexpected database access"); }

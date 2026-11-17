@@ -13,7 +13,7 @@ namespace ArturRios.Cerberus.Data.Records;
 
 public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory) : IRecordMoveStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<VaultResult<RecordMoveDetails>> MoveAsync(RecordMoveRequest request, CancellationToken ct)
@@ -36,7 +36,7 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory) : I
             var error = StateError(initial, account.Id);
             if (error is not null)
                 return new(Error: error);
-            var item = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
+            var item = JsonSerializer.Deserialize<Item>(initial.Item!, s_json)!;
             var original = await db.Records.AsNoTracking().SingleAsync(x => x.Id == item.Id, ct);
             var originalParent = original.FolderId;
             var selection = await db.VaultAccessSessions.Where(x => x.AccountId == account.Id && x.HandleVerifier == request.AccessVerifier).Select(x => x.ProfileId).SingleAsync(ct);
@@ -85,7 +85,7 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory) : I
             if (original.FolderId != originalParent || current.SourceCollections.Concat(current.ResultCollections).Except(heldCollections).Any()
                 || current.ResultGrantIds.Except(heldGrants).Any() || current.DestinationId != initial.DestinationId)
                 return new(Error: "revision_conflict");
-            var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(original.Envelope, Json);
+            var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(original.Envelope, s_json);
             if (envelope?.IsValid() != true || !Safe(original.Revision) || !Safe(original.ServerSequence)
                 || original.EditedAt.Offset != TimeSpan.Zero || original.EditedAt.Ticks < 10 || original.EditedAt.Ticks % 10 != 0 || original.PurgeAt is not null)
                 return new(Error: "persistence_unavailable");
@@ -157,14 +157,14 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory) : I
             return "persistence_unavailable";
         if (s.Item is null)
             return "not_found";
-        var item = JsonSerializer.Deserialize<Item>(s.Item, Json)!;
+        var item = JsonSerializer.Deserialize<Item>(s.Item, s_json)!;
         if (item.AccountId != owner)
             return ValidForeignNative(s) ? "vault_access_denied" : "persistence_unavailable";
         return s.DestinationCorrupt ? "persistence_unavailable" : !s.DestinationAllowed || !s.Subset ? "not_found" : null;
     }
     private static bool ValidResultNative(Snapshot snapshot)
     {
-        var evidence = JsonSerializer.Deserialize<ResultEvidence[]>(snapshot.NativeEvidence, Json)!;
+        var evidence = JsonSerializer.Deserialize<ResultEvidence[]>(snapshot.NativeEvidence, s_json)!;
         if (evidence.Length == 0)
             return true;
         // Parse each current pin bundle once per exact row, including recipients with
@@ -191,10 +191,10 @@ public sealed class RecordMoveStore(IDbContextFactory<AppDbContext> factory) : I
     }
     private static bool ValidForeignNative(Snapshot snapshot)
     {
-        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
+        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, s_json)!;
         if (grants.Length == 0)
             return true;
-        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, Json);
+        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, s_json);
         if (p is null || !CollectionGrantBinding.TryReadPins(Pins(p.OwnerMaterial, p.OwnerRevision, p.OwnerEpoch, p.OwnerGeneration), out var owner)
             || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient))
             return false;

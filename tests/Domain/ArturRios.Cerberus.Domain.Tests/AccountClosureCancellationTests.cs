@@ -5,7 +5,7 @@ namespace ArturRios.Cerberus.Domain.Tests;
 
 public class AccountClosureCancellationTests
 {
-    private static readonly DateTimeOffset Now = DateTimeOffset.Parse("2026-10-14T08:00:00Z");
+    private static readonly DateTimeOffset s_now = DateTimeOffset.Parse("2026-10-14T08:00:00Z");
     [UnitTheory]
     [InlineData(0, false)]
     [InlineData(-1, false)]
@@ -24,15 +24,15 @@ public class AccountClosureCancellationTests
     [InlineData("offset", false)]
     public void GivenCancellationMetadata_WhenValidating_ThenBindSafeIdentityCountersAndUtcTimes(string kind, bool valid)
     {
-        var value = new AccountClosureCancellationDetails(Guid.NewGuid(), 3, 3, Now, Now);
+        var value = new AccountClosureCancellationDetails(Guid.NewGuid(), 3, 3, s_now, s_now);
         value = kind switch
         {
             "id" => value with { AccountId = Guid.Empty },
             "revision" => value with { Revision = ProtocolBinary.MaxInteger + 1 },
             "generation" => value with { RevocationGeneration = 0 },
-            "future" => value with { CancelledAt = Now.AddSeconds(1) },
-            "precision" => value with { CancelledAt = Now.AddTicks(-1) },
-            "offset" => value with { ServerTime = Now.ToOffset(TimeSpan.FromHours(1)) },
+            "future" => value with { CancelledAt = s_now.AddSeconds(1) },
+            "precision" => value with { CancelledAt = s_now.AddTicks(-1) },
+            "offset" => value with { ServerTime = s_now.ToOffset(TimeSpan.FromHours(1)) },
             _ => value
         };
         Assert.Equal(valid, value.IsValid());
@@ -47,15 +47,15 @@ public class AccountClosureCancellationTests
     [InlineData("precision", false)]
     public void GivenRestrictedRecoveryMetadata_WhenValidating_ThenRequireUnexpiredBoundedClosure(string kind, bool valid)
     {
-        var value = new AccountClosureRecoveryDetails(Guid.NewGuid(), 2, Now.AddDays(29), Now);
+        var value = new AccountClosureRecoveryDetails(Guid.NewGuid(), 2, s_now.AddDays(29), s_now);
         value = kind switch
         {
-            "expired" => value with { ClosureDeadline = Now.AddSeconds(-1) },
-            "boundary" => value with { ClosureDeadline = Now },
-            "extended" => value with { ClosureDeadline = Now.AddDays(30).AddSeconds(1) },
+            "expired" => value with { ClosureDeadline = s_now.AddSeconds(-1) },
+            "boundary" => value with { ClosureDeadline = s_now },
+            "extended" => value with { ClosureDeadline = s_now.AddDays(30).AddSeconds(1) },
             "id" => value with { AccountId = Guid.Empty },
             "revision" => value with { Revision = 0 },
-            "precision" => value with { ServerTime = Now.AddTicks(1) },
+            "precision" => value with { ServerTime = s_now.AddTicks(1) },
             _ => value
         };
         Assert.Equal(valid, value.IsValid());

@@ -11,7 +11,7 @@ namespace ArturRios.Cerberus.Domain.Tests;
 
 public class SyncEditTests
 {
-    private static readonly DateTimeOffset Time = DateTimeOffset.FromUnixTimeSeconds(1000);
+    private static readonly DateTimeOffset s_time = DateTimeOffset.FromUnixTimeSeconds(1000);
     private static EncryptedEnvelope Envelope() => new("cerberus-content-v1", 1, ProtectionFixture.Encode(new byte[32]), ProtectionFixture.Encode(new byte[12]), "AQID", ProtectionFixture.Encode(new byte[16]));
     [UnitTheory]
     [InlineData("record")]
@@ -20,7 +20,7 @@ public class SyncEditTests
     [InlineData("profile")]
     public void GivenValidOfflineUpdate_WhenValidating_ThenBindOperationAndTypedNativeContent(string kind)
     {
-        var input = new SyncContentEditInput(Guid.NewGuid(), Envelope(), Time);
+        var input = new SyncContentEditInput(Guid.NewGuid(), Envelope(), s_time);
         SyncEditInput edit = kind switch
         {
             "record" => new SyncRecordUpdate(Guid.NewGuid(), input),
@@ -32,7 +32,7 @@ public class SyncEditTests
         Assert.Equal(kind, edit.ResourceKind);
         Assert.Equal("update", edit.Action);
         Assert.Equal(input.ResourceId, edit.ResourceId);
-        Assert.Equal(Time, edit.EditedAt);
+        Assert.Equal(s_time, edit.EditedAt);
         Assert.True(new SyncEditsInput([edit]).IsValid(100));
         StrictVariant(edit);
     }
@@ -48,10 +48,10 @@ public class SyncEditTests
         var actor = Guid.NewGuid();
         SyncEditInput edit = kind switch
         {
-            "record" => new SyncRecordCreate(Guid.NewGuid(), new RecordCreateInput(id, Envelope(), Time, [])),
-            "folder" => new SyncFolderCreate(Guid.NewGuid(), new FolderCreateInput(id, Envelope(), Time, [])),
-            "collection" => new SyncCollectionCreate(Guid.NewGuid(), new CollectionCreateInput(id, Envelope(), Time, [], [], [])),
-            _ => new SyncProfileCreate(Guid.NewGuid(), new ProfileCreateInput(id, Envelope(), new("Master", keys.Material.UnlockVerifier, keys.Wrap(Guid.NewGuid(), "profile", id, actor), null), Time, [], [], []))
+            "record" => new SyncRecordCreate(Guid.NewGuid(), new RecordCreateInput(id, Envelope(), s_time, [])),
+            "folder" => new SyncFolderCreate(Guid.NewGuid(), new FolderCreateInput(id, Envelope(), s_time, [])),
+            "collection" => new SyncCollectionCreate(Guid.NewGuid(), new CollectionCreateInput(id, Envelope(), s_time, [], [], [])),
+            _ => new SyncProfileCreate(Guid.NewGuid(), new ProfileCreateInput(id, Envelope(), new("Master", keys.Material.UnlockVerifier, keys.Wrap(Guid.NewGuid(), "profile", id, actor), null), s_time, [], [], []))
         };
         Assert.True(edit.IsValid());
         Assert.Equal(kind, edit.ResourceKind);
@@ -80,14 +80,14 @@ public class SyncEditTests
     {
         var input = new SyncContentEditInput(invalid == "identifier" ? Guid.Empty : Guid.NewGuid(),
             invalid == "format" ? Envelope() with { Format = "unknown" } : Envelope(),
-            invalid == "utc" ? Time.ToOffset(TimeSpan.FromHours(1)) : invalid == "time" ? default : Time);
+            invalid == "utc" ? s_time.ToOffset(TimeSpan.FromHours(1)) : invalid == "time" ? default : s_time);
         var edit = new SyncRecordUpdate(invalid == "operation" ? Guid.Empty : Guid.NewGuid(), input);
         Assert.False(edit.IsValid());
     }
     [UnitFact]
     public void GivenEmptyOversizedOrRepeatedOperations_WhenValidatingBatch_ThenRejectBeforeAnyWrite()
     {
-        var edit = new SyncRecordUpdate(Guid.NewGuid(), new(Guid.NewGuid(), Envelope(), Time));
+        var edit = new SyncRecordUpdate(Guid.NewGuid(), new(Guid.NewGuid(), Envelope(), s_time));
         Assert.False(new SyncEditsInput([]).IsValid(100));
         Assert.False(new SyncEditsInput([edit, edit]).IsValid(100));
         Assert.False(new SyncEditsInput([edit]).IsValid(0));
@@ -99,13 +99,13 @@ public class SyncEditTests
     [InlineData(1, true)]
     public void GivenClientTimestamp_WhenComparingUnderCurrentResourceLock_ThenApplyLatestIncludingDeterministicTies(int offset, bool apply)
     {
-        Assert.Equal(apply, OfflineEditOrder.ShouldApply(Time.AddSeconds(offset), Time));
-        Assert.Equal(Time, OfflineEditOrder.Normalize(Time.AddTicks(9)));
+        Assert.Equal(apply, OfflineEditOrder.ShouldApply(s_time.AddSeconds(offset), s_time));
+        Assert.Equal(s_time, OfflineEditOrder.Normalize(s_time.AddTicks(9)));
     }
     [UnitFact]
     public void GivenPolymorphicEdit_WhenRoundtripping_ThenPreserveExactPayloadAndRejectUnknownOrMissingFields()
     {
-        var edit = new SyncRecordUpdate(Guid.NewGuid(), new(Guid.NewGuid(), Envelope(), Time));
+        var edit = new SyncRecordUpdate(Guid.NewGuid(), new(Guid.NewGuid(), Envelope(), s_time));
         var json = JsonSerializer.Serialize(new SyncEditsInput([edit]), new JsonSerializerOptions(JsonSerializerDefaults.Web));
         var parsed = JsonSerializer.Deserialize<SyncEditsInput>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         Assert.Equal(edit, Assert.IsType<SyncRecordUpdate>(Assert.Single(parsed!.Edits)));
@@ -119,7 +119,7 @@ public class SyncEditTests
     [InlineData("permanently-deleted", false)]
     public void GivenPerItemOutcome_WhenValidating_ThenExposeWinningMetadataOnlyForVisibleResults(string status, bool winning)
     {
-        var result = new SyncEditOutcome(Guid.NewGuid(), "record", Guid.NewGuid(), status, winning ? 1 : null, winning ? 2 : null, winning ? Time : null);
+        var result = new SyncEditOutcome(Guid.NewGuid(), "record", Guid.NewGuid(), status, winning ? 1 : null, winning ? 2 : null, winning ? s_time : null);
         Assert.True(result.IsValid());
         Assert.False((result with { Status = "unknown" }).IsValid());
         Assert.False((result with { Revision = winning ? null : 1 }).IsValid());

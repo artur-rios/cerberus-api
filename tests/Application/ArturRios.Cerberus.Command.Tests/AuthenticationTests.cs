@@ -8,9 +8,9 @@ namespace ArturRios.Cerberus.Command.Tests;
 
 public class AuthenticationTests
 {
-    private static readonly Guid IdentityId = Guid.NewGuid();
-    private static readonly HeimdallLogin Completed = new("signed-fixture-token", DateTimeOffset.UtcNow.AddHours(1), true, false, null, null);
-    private static readonly HeimdallLogin Pending = new(null, null, null, true, "fixture-challenge", ["App"]);
+    private static readonly Guid s_identityId = Guid.NewGuid();
+    private static readonly HeimdallLogin s_completed = new("signed-fixture-token", DateTimeOffset.UtcNow.AddHours(1), true, false, null, null);
+    private static readonly HeimdallLogin s_pending = new(null, null, null, true, "fixture-challenge", ["App"]);
 
     [UnitTheory]
     [InlineData("email")]
@@ -55,9 +55,9 @@ public class AuthenticationTests
     [UnitFact]
     public async Task GivenPendingMfa_WhenHandling_ThenReturnOnlyChallengeWithoutAccountLookup()
     {
-        var result = await Handle(false, new HeimdallAuthentication(Pending), new Mock<IAccountAuthenticationStore>(MockBehavior.Strict));
+        var result = await Handle(false, new HeimdallAuthentication(s_pending), new Mock<IAccountAuthenticationStore>(MockBehavior.Strict));
         Assert.True(result.Success);
-        Assert.Equal(Pending, result.Data!.Identity);
+        Assert.Equal(s_pending, result.Data!.Identity);
         Assert.Null(result.Data.Account);
         Assert.Contains("authentication_challenge_required", result.Messages);
     }
@@ -71,11 +71,11 @@ public class AuthenticationTests
     {
         var account = bound ? new AuthenticationAccount(Guid.NewGuid(), 3) : null;
         var store = Store(new AccountAuthenticationResult(account));
-        var result = await Handle(challenge, new HeimdallAuthentication(Completed, IdentityId), store);
+        var result = await Handle(challenge, new HeimdallAuthentication(s_completed, s_identityId), store);
         Assert.True(result.Success);
-        Assert.Equal(Completed, result.Data!.Identity);
+        Assert.Equal(s_completed, result.Data!.Identity);
         Assert.Equal(account, result.Data.Account);
-        store.Verify(x => x.FindAsync(IdentityId, It.IsAny<CancellationToken>()), Times.Once);
+        store.Verify(x => x.FindAsync(s_identityId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [UnitTheory]
@@ -85,7 +85,7 @@ public class AuthenticationTests
     [InlineData(true, "persistence_unavailable")]
     public async Task GivenInactiveAccountOrPersistenceFailure_WhenHandling_ThenReturnNoIdentityBearer(bool challenge, string error)
     {
-        var result = await Handle(challenge, new HeimdallAuthentication(Completed, IdentityId), Store(new AccountAuthenticationResult(Error: error)));
+        var result = await Handle(challenge, new HeimdallAuthentication(s_completed, s_identityId), Store(new AccountAuthenticationResult(Error: error)));
         Assert.False(result.Success);
         Assert.Contains(error, result.Errors);
         Assert.Null(result.Data);
@@ -96,7 +96,7 @@ public class AuthenticationTests
     [InlineData(true)]
     public async Task GivenIncompleteTypedAdapterResult_WhenHandling_ThenFailClosed(bool missingLogin)
     {
-        var result = await Handle(false, new HeimdallAuthentication(missingLogin ? null : Completed), new Mock<IAccountAuthenticationStore>(MockBehavior.Strict));
+        var result = await Handle(false, new HeimdallAuthentication(missingLogin ? null : s_completed), new Mock<IAccountAuthenticationStore>(MockBehavior.Strict));
         Assert.Contains("identity_unavailable", result.Errors);
         Assert.Null(result.Data);
     }
@@ -104,7 +104,7 @@ public class AuthenticationTests
     private static Mock<IAccountAuthenticationStore> Store(AccountAuthenticationResult result)
     {
         var store = new Mock<IAccountAuthenticationStore>(MockBehavior.Strict);
-        store.Setup(x => x.FindAsync(IdentityId, It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        store.Setup(x => x.FindAsync(s_identityId, It.IsAny<CancellationToken>())).ReturnsAsync(result);
         return store;
     }
     private static Task<DataOutput<AuthenticationOutput?>> Handle(bool challenge, HeimdallAuthentication result, Mock<IAccountAuthenticationStore> store)

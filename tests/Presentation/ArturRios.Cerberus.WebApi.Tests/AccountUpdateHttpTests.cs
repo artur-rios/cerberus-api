@@ -19,7 +19,7 @@ namespace ArturRios.Cerberus.WebApi.Tests;
 public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHost api) : SharedApiTest(api)
 {
     private const string Header = "X-Cerberus-Vault-Access";
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web);
     private static EncryptedEnvelope Envelope(string ciphertext = "BAUG") =>
         new("cerberus-content-v1", 1, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAA", ciphertext, "AAAAAAAAAAAAAAAAAAAAAA");
 
@@ -116,7 +116,7 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
     {
         var input = await Setup();
         Authorize(RegistrationApiFixture.Token(input.Identity));
-        var body = JsonSerializer.Serialize(new { expectedRevision = 3, details = Envelope() }, Json);
+        var body = JsonSerializer.Serialize(new { expectedRevision = 3, details = Envelope() }, s_json);
         body = invalid switch
         {
             "unknown" => body.Insert(1, "\"other\":true,"),
@@ -145,7 +145,7 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
             });
             Assert.Equal(400, raw.Response.StatusCode);
             Assert.Contains("no-store", raw.Response.Headers.CacheControl.ToString());
-            var result = (await JsonSerializer.DeserializeAsync<DataOutput<UpdateAccountOutput>>(raw.Response.Body, Json))!;
+            var result = (await JsonSerializer.DeserializeAsync<DataOutput<UpdateAccountOutput>>(raw.Response.Body, s_json))!;
             Assert.False(result.Success);
             Assert.Null(result.Data);
         }
@@ -224,7 +224,7 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
                 PublicId = id,
                 HeimdallPublicId = identity,
                 Revision = 3,
-                DetailsEnvelope = JsonSerializer.SerializeToUtf8Bytes(Envelope("AQID"), Json),
+                DetailsEnvelope = JsonSerializer.SerializeToUtf8Bytes(Envelope("AQID"), s_json),
                 State = state == "closing" ? AccountState.ClosurePending : AccountState.Active
             };
             context.Accounts.Add(account);
@@ -261,7 +261,7 @@ public class AccountUpdateHttpTests(RegistrationApiFixture fixture, SharedApiHos
         var account = await context.Accounts.SingleAsync(x => x.PublicId == id);
         Assert.Equal(identity, account.HeimdallPublicId);
         Assert.Equal(revision, account.Revision);
-        Assert.Equal(Envelope(ciphertext), JsonSerializer.Deserialize<EncryptedEnvelope>(account.DetailsEnvelope, Json));
+        Assert.Equal(Envelope(ciphertext), JsonSerializer.Deserialize<EncryptedEnvelope>(account.DetailsEnvelope, s_json));
         Assert.Equal(1, account.PolicyRevision);
         Assert.Equal(1, account.RevocationGeneration);
     }

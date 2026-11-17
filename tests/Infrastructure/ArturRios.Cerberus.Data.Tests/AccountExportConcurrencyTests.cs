@@ -173,7 +173,7 @@ public partial class AccountExportStoreTests
             await db.SaveChangesAsync();
             db.TrashEntries.AddRange(operations.Select(o => new TrashEntry { OperationId = o.Id, ResourceKind = "record", ResourceId = o.RootResourceId, AssociationSnapshot = JsonSerializer.SerializeToUtf8Bytes(new RecordAssociationSnapshot(o.RootResourceId == w.Record.PublicId ? w.Folder.PublicId : null, [], []), ProtectionFixture.Json) }));
             await db.SaveChangesAsync();
-            deadline = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp()+{RealTime.SetupLead} AS \"Value\"").SingleAsync();
+            deadline = await db.Database.SqlQuery<DateTimeOffset>($"SELECT statement_timestamp()+{RealTime.s_setupLead} AS \"Value\"").SingleAsync();
             await db.Records.Where(x => x.AccountId == w.Owner.InternalId).ExecuteUpdateAsync(x => x.SetProperty(r => r.DeletedAt, deadline.AddHours(-720)).SetProperty(r => r.PurgeAt, deadline));
             await db.TrashOperations.Where(x => x.AccountId == w.Owner.InternalId).ExecuteUpdateAsync(x => x.SetProperty(o => o.DeletedAt, deadline.AddHours(-720)).SetProperty(o => o.PurgeAt, deadline));
             gate.Release.TrySetResult();
@@ -292,9 +292,9 @@ public partial class AccountExportStoreTests
     }
     private sealed class FetchGate : DbCommandInterceptor
     {
-        private int calls;
+        private int _calls;
         public TaskCompletionSource Reached { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand c, CommandEventData d, InterceptionResult<DbDataReader> r, CancellationToken ct = default)
-        { if (c.CommandText.TrimStart().StartsWith("FETCH ", StringComparison.OrdinalIgnoreCase) && ++calls == 2) { Reached.TrySetResult(); await Task.Delay(Timeout.Infinite, ct); } return r; }
+        { if (c.CommandText.TrimStart().StartsWith("FETCH ", StringComparison.OrdinalIgnoreCase) && ++_calls == 2) { Reached.TrySetResult(); await Task.Delay(Timeout.Infinite, ct); } return r; }
     }
 }

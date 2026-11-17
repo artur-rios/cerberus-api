@@ -46,7 +46,7 @@ public partial class AccountClosureCancellationStoreTests
         var s = await Setup(key);
         await Close(s);
         await using var held = fixture.CreateContext();
-        var bound = RealTime.Soon(RealTime.SetupLead);
+        var bound = RealTime.Soon(RealTime.s_setupLead);
         if (change == "deadline")
         {
             await held.Database.ExecuteSqlInterpolatedAsync($"UPDATE cerberus.account SET closure_requested_at={bound}-interval '720 hours',closure_purge_at={bound} WHERE id={s.InternalId}");

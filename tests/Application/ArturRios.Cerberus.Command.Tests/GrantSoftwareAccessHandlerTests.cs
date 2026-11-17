@@ -14,11 +14,11 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class GrantSoftwareAccessHandlerTests
 {
     private const string Handle = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private static readonly Guid Actor = Guid.Parse("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
-    private static readonly Guid Grant = Guid.Parse("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
-    private static readonly Guid Identity = Guid.Parse("cccccccc-cccc-4ccc-8ccc-cccccccccccc");
-    private static readonly Guid Target = Guid.Parse("dddddddd-dddd-4ddd-8ddd-dddddddddddd");
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json)
+    private static readonly Guid s_actor = Guid.Parse("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+    private static readonly Guid s_grant = Guid.Parse("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
+    private static readonly Guid s_identity = Guid.Parse("cccccccc-cccc-4ccc-8ccc-cccccccccccc");
+    private static readonly Guid s_target = Guid.Parse("dddddddd-dddd-4ddd-8ddd-dddddddddddd");
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json)
     {
         NumberHandling = JsonNumberHandling.Strict,
         Converters = { new CanonicalGuidConverter() }
@@ -96,8 +96,8 @@ public class GrantSoftwareAccessHandlerTests
     [InlineData("recipientIdentityId", "envelope")]
     public void GivenNoncanonicalOrZeroUuid_WhenParsing_ThenRejectJson(string member, string path)
     {
-        foreach (var value in new[] { Target.ToString().ToUpperInvariant(), Target.ToString("N"), Target.ToString("B"),
-                     " " + Target, Target + " ", Guid.Empty.ToString(), "invalid" })
+        foreach (var value in new[] { s_target.ToString().ToUpperInvariant(), s_target.ToString("N"), s_target.ToString("B"),
+                     " " + s_target, s_target + " ", Guid.Empty.ToString(), "invalid" })
         {
             var body = Body();
             Node(body, path)[member] = value;
@@ -126,8 +126,8 @@ public class GrantSoftwareAccessHandlerTests
         var envelope = Node(body, "envelope");
         var value = envelope[member]!.DeepClone();
         envelope.Remove(member);
-        Assert.False(JsonSerializer.Deserialize<SoftwareGrantInput>(body.ToJsonString(), Json)!.IsValid());
-        Assert.False(JsonSerializer.Deserialize<GrantSoftwareAccessCommand>(body.ToJsonString(), Json)!.ToInput().IsValid());
+        Assert.False(JsonSerializer.Deserialize<SoftwareGrantInput>(body.ToJsonString(), s_json)!.IsValid());
+        Assert.False(JsonSerializer.Deserialize<GrantSoftwareAccessCommand>(body.ToJsonString(), s_json)!.ToInput().IsValid());
         envelope[char.ToUpperInvariant(member[0]) + member[1..]] = value;
         AssertRejected(body.ToJsonString());
         envelope.Remove(char.ToUpperInvariant(member[0]) + member[1..]);
@@ -241,8 +241,8 @@ public class GrantSoftwareAccessHandlerTests
                     "format" => envelope with { Format = "other" },
                     "epoch" => envelope with { KeyEpoch = 0 },
                     "unsafeEpoch" => envelope with { KeyEpoch = 9007199254740992 },
-                    "envelopeGrant" => envelope with { GrantId = Target },
-                    "envelopeIdentity" => envelope with { RecipientIdentityId = Actor },
+                    "envelopeGrant" => envelope with { GrantId = s_target },
+                    "envelopeIdentity" => envelope with { RecipientIdentityId = s_actor },
                     "envelopeKey" => envelope with { RecipientKeyFingerprint = Handle },
                     "envelopeRevision" => envelope with { GrantRevision = 2 },
                     "unsafeEnvelopeRevision" => envelope with { GrantRevision = 9007199254740992 },
@@ -269,9 +269,9 @@ public class GrantSoftwareAccessHandlerTests
     {
         var command = Command(expected, revision);
         command.Targets = [command.Targets[0], command.Targets[0] with { Kind = "collection" }];
-        var body = JsonSerializer.Serialize(command, Json);
-        var parsed = JsonSerializer.Deserialize<GrantSoftwareAccessCommand>(body, Json)!;
-        var input = JsonSerializer.Deserialize<SoftwareGrantInput>(body, Json)!;
+        var body = JsonSerializer.Serialize(command, s_json);
+        var parsed = JsonSerializer.Deserialize<GrantSoftwareAccessCommand>(body, s_json)!;
+        var input = JsonSerializer.Deserialize<SoftwareGrantInput>(body, s_json)!;
         Assert.True(parsed.ToInput().IsValid());
         Assert.True(input.IsValid());
         Assert.Equal(expected, parsed.ExpectedRevision);
@@ -304,7 +304,7 @@ public class GrantSoftwareAccessHandlerTests
         var command = Command();
         if (mutation is "actor" or "missingAccess" or "input")
             command.Targets = null!;
-        command.SetContext(mutation == "actor" ? Guid.Empty : Actor, mutation switch
+        command.SetContext(mutation == "actor" ? Guid.Empty : s_actor, mutation switch
         {
             "actor" or "missingAccess" => null,
             "emptyAccess" => "",
@@ -328,7 +328,7 @@ public class GrantSoftwareAccessHandlerTests
     public async Task GivenNoncanonicalAccessHandle_WhenHandlingValidInput_ThenRejectBeforeDependencies(string access)
     {
         var command = Command();
-        command.SetContext(Actor, access);
+        command.SetContext(s_actor, access);
         var result = await Handler(new Mock<ISoftwareGrantStore>(MockBehavior.Strict).Object,
             new Mock<IHeimdallClient>(MockBehavior.Strict).Object).HandleAsync(command);
         Assert.Equal(new[] { "validation_failed" }, result.Errors);
@@ -362,7 +362,7 @@ public class GrantSoftwareAccessHandlerTests
         using var cancellation = new CancellationTokenSource();
         var lookedUp = false;
         var heimdall = new Mock<IHeimdallClient>(MockBehavior.Strict);
-        heimdall.Setup(x => x.VerifyApplicationAsync(Identity, cancellation.Token)).Returns(() =>
+        heimdall.Setup(x => x.VerifyApplicationAsync(s_identity, cancellation.Token)).Returns(() =>
         {
             lookedUp = true;
             return Task.FromResult(HeimdallApplicationStatus.Active);
@@ -374,19 +374,19 @@ public class GrantSoftwareAccessHandlerTests
             {
                 Assert.True(lookedUp);
                 received = request;
-                return Task.FromResult(new VaultResult<SoftwareGrantDetails>(new(Grant, revision)));
+                return Task.FromResult(new VaultResult<SoftwareGrantDetails>(new(s_grant, revision)));
             });
         var result = await Handler(store.Object, heimdall.Object).HandleAsync(command, cancellation.Token);
         Assert.True(result.Success);
         Assert.Empty(result.Errors);
         Assert.Equal(new[] { "software_access_granted" }, result.Messages);
-        Assert.Equal(Grant, result.Data!.GrantId);
+        Assert.Equal(s_grant, result.Data!.GrantId);
         Assert.Equal(revision, result.Data.Revision);
         AssertFields(result.Data, ["grantId", "revision"]);
-        Assert.Equal(Actor, received!.Actor);
+        Assert.Equal(s_actor, received!.Actor);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
-        Assert.Equal(Grant, received.Input.GrantId);
-        Assert.Equal(Identity, received.Input.SoftwareIdentityId);
+        Assert.Equal(s_grant, received.Input.GrantId);
+        Assert.Equal(s_identity, received.Input.SoftwareIdentityId);
         Assert.Equal(expected, received.Input.ExpectedRevision);
         Assert.Equal(command.RecipientKey, received.Input.RecipientKey);
         Assert.Equal(command.Targets, received.Input.Targets);
@@ -429,13 +429,13 @@ public class GrantSoftwareAccessHandlerTests
         SoftwareGrantDetails? details = mutation switch
         {
             "nullData" => null,
-            "wrongGrant" => new(Target, 1),
+            "wrongGrant" => new(s_target, 1),
             "zeroGrant" => new(Guid.Empty, 1),
-            "wrongRevision" => new(Grant, 2),
-            "zeroRevision" => new(Grant, 0),
-            "negativeRevision" => new(Grant, -1),
-            "unsafeRevision" => new(Grant, 9007199254740992),
-            _ => new(Grant, 1)
+            "wrongRevision" => new(s_grant, 2),
+            "zeroRevision" => new(s_grant, 0),
+            "negativeRevision" => new(s_grant, -1),
+            "unsafeRevision" => new(s_grant, 9007199254740992),
+            _ => new(s_grant, 1)
         };
         var store = Store(mutation == "nullResult" ? null! : new(details,
             mutation == "errorWithData" ? "not_found" : null));
@@ -461,11 +461,11 @@ public class GrantSoftwareAccessHandlerTests
             command.SetContext(Guid.Empty, null);
         }
         else if (origin == "heimdall")
-            heimdall.Setup(x => x.VerifyApplicationAsync(Identity, cancellation.Token))
+            heimdall.Setup(x => x.VerifyApplicationAsync(s_identity, cancellation.Token))
                 .ThrowsAsync(new OperationCanceledException(cancellation.Token));
         else
         {
-            heimdall.Setup(x => x.VerifyApplicationAsync(Identity, cancellation.Token)).ReturnsAsync(HeimdallApplicationStatus.Active);
+            heimdall.Setup(x => x.VerifyApplicationAsync(s_identity, cancellation.Token)).ReturnsAsync(HeimdallApplicationStatus.Active);
             store.Setup(x => x.GrantAsync(It.IsAny<SoftwareGrantRequest>(), cancellation.Token))
                 .ThrowsAsync(new OperationCanceledException(cancellation.Token));
         }
@@ -480,7 +480,7 @@ public class GrantSoftwareAccessHandlerTests
     private static Mock<IHeimdallClient> Heimdall(HeimdallApplicationStatus status)
     {
         var heimdall = new Mock<IHeimdallClient>(MockBehavior.Strict);
-        heimdall.Setup(x => x.VerifyApplicationAsync(Identity, It.IsAny<CancellationToken>())).ReturnsAsync(status);
+        heimdall.Setup(x => x.VerifyApplicationAsync(s_identity, It.IsAny<CancellationToken>())).ReturnsAsync(status);
         return heimdall;
     }
 
@@ -497,17 +497,17 @@ public class GrantSoftwareAccessHandlerTests
         var key = fixture.Material.RecipientKey;
         var command = new GrantSoftwareAccessCommand
         {
-            GrantId = Grant,
-            SoftwareIdentityId = Identity,
+            GrantId = s_grant,
+            SoftwareIdentityId = s_identity,
             ExpectedRevision = expected,
             RecipientKey = new(key.Crv, key.Kty, key.X, key.Y),
-            Targets = [new("record", Target, fixture.Wrap(Actor, "record", Target, Identity, revision: revision) with { GrantId = Grant })]
+            Targets = [new("record", s_target, fixture.Wrap(s_actor, "record", s_target, s_identity, revision: revision) with { GrantId = s_grant })]
         };
-        command.SetContext(Actor, Handle);
+        command.SetContext(s_actor, Handle);
         return command;
     }
 
-    private static JsonObject Body() => JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
+    private static JsonObject Body() => JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
     private static JsonObject Node(JsonObject body, string path) => path switch
     {
         "body" => body,
@@ -519,13 +519,13 @@ public class GrantSoftwareAccessHandlerTests
 
     private static void AssertRejected(string body)
     {
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<GrantSoftwareAccessCommand>(body, Json));
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<SoftwareGrantInput>(body, Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<GrantSoftwareAccessCommand>(body, s_json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<SoftwareGrantInput>(body, s_json));
     }
 
     private static void AssertFields<T>(T value, string[] fields)
     {
-        using var json = JsonDocument.Parse(JsonSerializer.Serialize(value, Json));
+        using var json = JsonDocument.Parse(JsonSerializer.Serialize(value, s_json));
         Assert.Equal(fields, json.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
 }

@@ -20,28 +20,28 @@ namespace ArturRios.Cerberus.Data.Tests;
 internal static class RealTime
 {
     // A bound that only has to outlast one or two statements (a read store's single query, an armed row wait).
-    internal static readonly TimeSpan Lead = TimeSpan.FromMilliseconds(300);
+    internal static readonly TimeSpan s_lead = TimeSpan.FromMilliseconds(300);
 
     // Time a bound set before the store starts must last: the test's last setup statements and the store's path up to
     // the statement under test. The shortest lead that already ran stably in CI for such a path (the whole-second
     // bounds, set to the next second but one, were at least one second ahead).
-    internal static readonly TimeSpan SetupLead = TimeSpan.FromSeconds(1);
+    internal static readonly TimeSpan s_setupLead = TimeSpan.FromSeconds(1);
 
     // How far past the bound a test waits before it lets the store go on, so the database clock is surely past it.
-    internal static readonly TimeSpan Margin = TimeSpan.FromMilliseconds(100);
+    internal static readonly TimeSpan s_margin = TimeSpan.FromMilliseconds(100);
 
     // The database clock minus this machine's, measured once when the server starts. In CI they are the same clock;
     // a Docker VM's clock can drift from its host's, and the short leads would not absorb that.
-    private static long _offsetTicks;
+    private static long s_offsetTicks;
 
     internal static void Calibrate(DateTimeOffset databaseNow, DateTimeOffset before, DateTimeOffset after) =>
-        Interlocked.Exchange(ref _offsetTicks, (databaseNow - (before + (after - before) / 2)).Ticks);
+        Interlocked.Exchange(ref s_offsetTicks, (databaseNow - (before + (after - before) / 2)).Ticks);
 
     // This machine's estimate of the database clock.
-    internal static DateTimeOffset Now => DateTimeOffset.UtcNow + TimeSpan.FromTicks(Interlocked.Read(ref _offsetTicks));
+    internal static DateTimeOffset Now => DateTimeOffset.UtcNow + TimeSpan.FromTicks(Interlocked.Read(ref s_offsetTicks));
 
     // A bound one lead from now (Lead by default).
-    internal static DateTimeOffset Soon(TimeSpan? lead = null) => Now + (lead ?? Lead);
+    internal static DateTimeOffset Soon(TimeSpan? lead = null) => Now + (lead ?? s_lead);
 
     // The first whole second (Unix time) at least one lead from now, for bounds the protocol keeps in whole seconds.
     internal static long SoonSeconds(TimeSpan? lead = null) => (Soon(lead).ToUnixTimeMilliseconds() + 999) / 1000;
@@ -49,7 +49,7 @@ internal static class RealTime
     // Waits until the database clock is past the bound.
     internal static async Task Past(DateTimeOffset bound, CancellationToken ct = default)
     {
-        var wait = bound + Margin - Now;
+        var wait = bound + s_margin - Now;
         if (wait > TimeSpan.Zero)
             await Task.Delay(wait, ct);
     }
@@ -61,14 +61,14 @@ internal static class RealTime
     // SetupLead from now: fresh means fewer than windowSeconds whole seconds old on the database clock.
     internal static (long IssuedAt, DateTimeOffset StaleAt) StaleSoon(int windowSeconds)
     {
-        var stale = SoonSeconds(SetupLead);
+        var stale = SoonSeconds(s_setupLead);
         return (stale - windowSeconds, DateTimeOffset.FromUnixTimeSeconds(stale));
     }
 
     // Commits the presented session's expiry SetupLead ahead, before the store starts.
     internal static async Task<DateTimeOffset> SessionExpiresSoon(PostgresFixture fixture, string verifier)
     {
-        var deadline = Soon(SetupLead);
+        var deadline = Soon(s_setupLead);
         await using var db = fixture.CreateContext();
         Assert.True(await db.Database.ExecuteSqlInterpolatedAsync(
             $"UPDATE cerberus.vault_access_session SET expires_at={deadline} WHERE handle_verifier={verifier}") > 0, "The session was not found.");

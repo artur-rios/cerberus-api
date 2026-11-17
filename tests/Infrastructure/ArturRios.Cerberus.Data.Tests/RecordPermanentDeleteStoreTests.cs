@@ -19,8 +19,8 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>, IDisposable
 {
-    private readonly string directory = Directory.CreateTempSubdirectory("cerberus-record-erasure-").FullName;
-    private FileErasureLedger Ledger => new(directory);
+    private readonly string _directory = Directory.CreateTempSubdirectory("cerberus-record-erasure-").FullName;
+    private FileErasureLedger Ledger => new(_directory);
     private RecordPermanentDeleteStore Store(IErasureLedger? ledger = null, IDbContextFactory<AppDbContext>? factory = null) =>
         new(factory ?? fixture, ledger ?? Ledger, new CerberusOptions { RetentionInterval = "00:00:30" }, TimeProvider.System);
 
@@ -120,7 +120,7 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal(error, (await Store().DeleteAsync(request, default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalTheory]
@@ -149,7 +149,7 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         Assert.Equal("vault_access_denied", (await Store().DeleteAsync(new(recipient.Actor, recipient.Verifier, w.Record.PublicId, 99), default)).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalTheory]
@@ -246,7 +246,7 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         await db.Records.Where(x => x.Id == w.Record.Id).ExecuteUpdateAsync(x => x.SetProperty(v => v.FolderId, w.Items.Folder.Id));
         db.CollectionRecords.Add(new() { AccountId = w.State.InternalId, CollectionId = w.Items.Collection.Id, RecordId = w.Record.Id });
         await db.SaveChangesAsync();
-        var deadline = RealTime.Soon(RealTime.SetupLead);
+        var deadline = RealTime.Soon(RealTime.s_setupLead);
         await db.VaultAccessSessions.Where(x => x.HandleVerifier == w.State.Verifier).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, deadline));
         var before = await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId);
         await using var held = fixture.CreateContext();
@@ -266,7 +266,7 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         await transaction.CommitAsync();
         Assert.Equal("vault_access_denied", (await pending).Error);
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
-        Assert.Empty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.Empty(Directory.EnumerateFiles(_directory, "*.json"));
     }
 
     [FunctionalFact]
@@ -280,7 +280,7 @@ public sealed partial class RecordPermanentDeleteStoreTests(PostgresFixture fixt
         Assert.Equal(before, await PermanentDeleteSetup.Snapshot(fixture, w.State.InternalId));
     }
 
-    public void Dispose() => Directory.Delete(directory, recursive: true);
+    public void Dispose() => Directory.Delete(_directory, recursive: true);
 }
 
 internal static class PermanentDeleteSetup

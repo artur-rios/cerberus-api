@@ -14,7 +14,7 @@ namespace ArturRios.Cerberus.Data.Collections;
 
 public sealed class CollectionGrantChangeStore(IDbContextFactory<AppDbContext> factory) : ICollectionGrantChangeStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<VaultResult<CollectionGrantChangeDetails>> ChangeAsync(CollectionGrantChangeRequest request, CancellationToken ct)
@@ -52,8 +52,8 @@ public sealed class CollectionGrantChangeStore(IDbContextFactory<AppDbContext> f
                 return new(Error: error);
             if (captured.Stable != locked.Stable || captured.Grants != locked.Grants || captured.RecipientGeneration != locked.RecipientGeneration)
                 return new(Error: "revision_conflict");
-            var item = JsonSerializer.Deserialize<Item>(captured.Item!, Json)!;
-            var grant = JsonSerializer.Deserialize<GrantRow[]>(captured.Rows, Json)!.Single();
+            var item = JsonSerializer.Deserialize<Item>(captured.Item!, s_json)!;
+            var grant = JsonSerializer.Deserialize<GrantRow[]>(captured.Rows, s_json)!.Single();
             async Task<string?> Recheck()
             {
                 var current = await SnapshotAsync(db, request, ct);
@@ -95,7 +95,7 @@ public sealed class CollectionGrantChangeStore(IDbContextFactory<AppDbContext> f
                 request.GrantId, revision, captured.RecipientIdentity.Value, recipientPins!.RecipientKey, ownerPins!.AuthorKey))
                 return new(Error: "validation_failed");
 
-            var bytes = JsonSerializer.SerializeToUtf8Bytes(input.KeyEnvelope, Json);
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(input.KeyEnvelope, s_json);
             var stamp = Guid.NewGuid();
             var parameters = Parameters(request).Concat(
             [
@@ -159,7 +159,7 @@ public sealed class CollectionGrantChangeStore(IDbContextFactory<AppDbContext> f
 
     private static bool ValidCollection(Item item)
     {
-        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(item.Envelope), Json);
+        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(item.Envelope), s_json);
         return envelope?.IsValid() == true && envelope.KeyEpoch == item.KeyEpoch && item.PurgeAt is null
             && item.Revision is > 0 and <= ProtocolBinary.MaxInteger && item.Sequence is > 0 and <= ProtocolBinary.MaxInteger;
     }
@@ -173,8 +173,8 @@ public sealed class CollectionGrantChangeStore(IDbContextFactory<AppDbContext> f
             return "not_found";
         if (!s.ForeignTarget)
             return null;
-        var item = JsonSerializer.Deserialize<Item>(s.Item, Json)!;
-        var g = s.Native is null ? null : JsonSerializer.Deserialize<Native>(s.Native, Json);
+        var item = JsonSerializer.Deserialize<Item>(s.Item, s_json)!;
+        var g = s.Native is null ? null : JsonSerializer.Deserialize<Native>(s.Native, s_json);
         return g is not null && !s.CorruptAccounts && g.Access is (int)CollectionGrantAccess.ReadOnly or (int)CollectionGrantAccess.ReadWrite
             && ValidCollection(item)
             && CollectionGrantBinding.TryReadPins(Pins(g.OwnerMaterial, g.OwnerRevision, g.OwnerEpoch, g.OwnerGeneration), out var owner)

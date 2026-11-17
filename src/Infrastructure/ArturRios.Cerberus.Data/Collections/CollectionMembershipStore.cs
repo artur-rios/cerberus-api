@@ -15,7 +15,7 @@ namespace ArturRios.Cerberus.Data.Collections;
 
 public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> factory) : ICollectionMembershipStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<VaultResult<CollectionMembershipDetails>> SetAsync(CollectionMembershipRequest request, CancellationToken ct)
@@ -43,7 +43,7 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
             var error = Error(initial);
             if (error is not null)
                 return new(Error: error);
-            var target = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
+            var target = JsonSerializer.Deserialize<Item>(initial.Item!, s_json)!;
             async Task<string?> Reload()
             {
                 var current = await SnapshotAsync(db, request, ct);
@@ -87,14 +87,14 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
             if (target.Revision != input.ExpectedRevision || target.Revision == ProtocolBinary.MaxInteger || initial.Exhausted)
                 return new(Error: "revision_conflict");
             var original = Convert.FromHexString(target.Envelope);
-            var previous = JsonSerializer.Deserialize<EncryptedEnvelope>(original, Json)!;
+            var previous = JsonSerializer.Deserialize<EncryptedEnvelope>(original, s_json)!;
             if (input.Envelope.KeyEpoch != target.KeyEpoch
                 || input.Envelope != previous && (input.Envelope.KeySalt == previous.KeySalt || input.Envelope.Nonce == previous.Nonce))
                 return new(Error: "validation_failed");
-            var replacement = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
+            var replacement = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, s_json);
             var edited = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             var stamp = Guid.NewGuid();
-            var members = JsonSerializer.Deserialize<Member[]>(initial.Members, Json)!;
+            var members = JsonSerializer.Deserialize<Member[]>(initial.Members, s_json)!;
             var grants = await GrantRowsAsync(db, target.Id, ct);
             var parameters = Parameters(request).Concat(
             [
@@ -185,8 +185,8 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
             return "not_found";
         if (s.Corrupt || s.StructuralCorrupt)
             return "persistence_unavailable";
-        var item = JsonSerializer.Deserialize<Item>(s.Item, Json)!;
-        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(item.Envelope), Json);
+        var item = JsonSerializer.Deserialize<Item>(s.Item, s_json)!;
+        var envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(Convert.FromHexString(item.Envelope), s_json);
         if (!Safe(item.Revision) || !Safe(item.Sequence) || !Safe(item.KeyEpoch) || !Time(item.EditedAt) || item.PurgeAt is not null
             || envelope?.IsValid() != true || envelope.KeyEpoch != item.KeyEpoch || !ValidNative(s))
             return "persistence_unavailable";
@@ -194,8 +194,8 @@ public sealed class CollectionMembershipStore(IDbContextFactory<AppDbContext> fa
     }
     private static bool ValidNative(Snapshot snapshot)
     {
-        var target = JsonSerializer.Deserialize<Item>(snapshot.Item!, Json)!;
-        var evidence = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Native, Json)!;
+        var target = JsonSerializer.Deserialize<Item>(snapshot.Item!, s_json)!;
+        var evidence = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Native, s_json)!;
         if (evidence.Length != snapshot.GrantIds.Length)
             return false;
         foreach (var e in evidence)

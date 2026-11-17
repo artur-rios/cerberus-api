@@ -13,7 +13,7 @@ namespace ArturRios.Cerberus.Data.Tests;
 
 public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
-    private static readonly CerberusOptions Options = new() { MaxPageSize = 100 };
+    private static readonly CerberusOptions s_options = new() { MaxPageSize = 100 };
     [FunctionalFact]
     public async Task GivenAllEightNativeVariants_WhenUploadingAndReplaying_ThenCommitOneAtomicBatchWithStableSequences()
     {
@@ -30,7 +30,7 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
             new SyncFolderUpdate(Guid.NewGuid(), new(folder.ResourceId, ProfileSetup.Envelope(), time)),
             new SyncCollectionUpdate(Guid.NewGuid(), new(collection.ResourceId, ProfileSetup.Envelope(), time)),
             new SyncProfileUpdate(Guid.NewGuid(), new(profile.ResourceId, ProfileSetup.Envelope(), time))];
-        var store = new SyncEditsStore(fixture, Options);
+        var store = new SyncEditsStore(fixture, s_options);
         var request = new SyncEditsRequest(s.Actor, s.Verifier, new(edits));
         var first = await store.UploadAsync(request, default);
         Assert.Null(first.Error);
@@ -61,7 +61,7 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
         await db.SaveChangesAsync();
         var grant = await AssociationSetup.Grant(fixture, owner, keys, recipient, recipientKey, items.Collection, write ? CollectionGrantAccess.ReadWrite : CollectionGrantAccess.ReadOnly);
         var edit = new SyncRecordUpdate(Guid.NewGuid(), new(items.Record.PublicId, ProfileSetup.Envelope(), DateTimeOffset.UtcNow.AddHours(1)));
-        var store = new SyncEditsStore(fixture, Options);
+        var store = new SyncEditsStore(fixture, s_options);
         var request = new SyncEditsRequest(recipient.Actor, recipient.Verifier, new([edit]));
         var first = await store.UploadAsync(request, default);
         Assert.Null(first.Error);
@@ -91,7 +91,7 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
         if (associated)
             record = record with { Input = record.Input with { ProfileIds = [profileId] } };
         var request = new SyncEditsRequest(s.Actor, s.Verifier, new([record]));
-        var store = new SyncEditsStore(fixture, Options);
+        var store = new SyncEditsStore(fixture, s_options);
         var result = await store.UploadAsync(request, default);
         Assert.Null(result.Error);
         Assert.Equal(profileId, result.Details!.ProfileId);
@@ -106,7 +106,7 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
         var s = await ProfileSetup.Create(fixture, keys);
         var edit = Create();
         var request = new SyncEditsRequest(s.Actor, s.Verifier, new([edit]));
-        var store = new SyncEditsStore(fixture, Options);
+        var store = new SyncEditsStore(fixture, s_options);
         var first = await store.UploadAsync(request, default);
         Assert.Null(first.Error);
         var item = Assert.Single(first.Details!.Outcomes);
@@ -129,7 +129,7 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
     {
         using var keys = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, keys);
-        var store = new SyncEditsStore(fixture, Options);
+        var store = new SyncEditsStore(fixture, s_options);
         var edit = Create();
         Assert.Null((await store.UploadAsync(new(s.Actor, s.Verifier, new([edit])), default)).Error);
         var earlier = Create();
@@ -146,7 +146,7 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
     {
         using var keys = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, keys);
-        var store = new SyncEditsStore(fixture, Options);
+        var store = new SyncEditsStore(fixture, s_options);
         var edit = Create();
         var initial = await store.UploadAsync(new(s.Actor, s.Verifier, new([edit])), default);
         Assert.Null(initial.Error);
@@ -170,7 +170,7 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
     {
         using var keys = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, keys);
-        var store = new SyncEditsStore(fixture, Options);
+        var store = new SyncEditsStore(fixture, s_options);
         var denied = new SyncRecordUpdate(Guid.NewGuid(), new(Guid.NewGuid(), ProfileSetup.Envelope(), DateTimeOffset.FromUnixTimeSeconds(1000)));
         var create = Create();
         var result = await store.UploadAsync(new(s.Actor, s.Verifier, new([denied, create])), default);
@@ -187,7 +187,7 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
         using var keys = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, keys);
         var edit = Create();
-        var store = new SyncEditsStore(fixture, Options);
+        var store = new SyncEditsStore(fixture, s_options);
         if (known)
             Assert.Null((await store.UploadAsync(new(s.Actor, s.Verifier, new([edit])), default)).Error);
         await using var db = fixture.CreateContext();
@@ -208,7 +208,7 @@ public partial class SyncEditsStoreTests(PostgresFixture fixture) : IClassFixtur
         using var keys = new ProtectionFixture();
         var s = await ProfileSetup.Create(fixture, keys);
         var edit = Create();
-        var store = new SyncEditsStore(fixture, Options);
+        var store = new SyncEditsStore(fixture, s_options);
         var request = new SyncEditsRequest(s.Actor, s.Verifier, new([edit]));
         Assert.Null((await store.UploadAsync(request, default)).Error);
         await using var db = fixture.CreateContext();

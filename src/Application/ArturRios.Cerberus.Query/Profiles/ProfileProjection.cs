@@ -7,7 +7,7 @@ namespace ArturRios.Cerberus.Query.Profiles;
 
 internal static class ProfileProjection
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { AllowDuplicateProperties = false, PropertyNameCaseInsensitive = false, NumberHandling = JsonNumberHandling.Strict };
     internal static bool TryRead(ProfileListRow? row, Guid actor, out ProfileListItem? item)
     {
@@ -23,8 +23,8 @@ internal static class ProfileProjection
         ProfileKeyWrappers? wrappers;
         try
         {
-            envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, Json);
-            wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, Json);
+            envelope = JsonSerializer.Deserialize<EncryptedEnvelope>(row.Envelope, s_json);
+            wrappers = JsonSerializer.Deserialize<ProfileKeyWrappers>(row.KeyWrappers, s_json);
         }
         catch (JsonException) { return false; }
         if (envelope?.IsValid() != true || wrappers?.IsValid() != true || wrappers.MasterKeyWrapper.GrantId != row.ProfileId

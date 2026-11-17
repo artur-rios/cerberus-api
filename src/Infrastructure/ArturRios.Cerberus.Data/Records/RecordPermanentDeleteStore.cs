@@ -21,7 +21,7 @@ namespace ArturRios.Cerberus.Data.Records;
 
 public sealed class RecordPermanentDeleteStore(IDbContextFactory<AppDbContext> factory, IErasureLedger ledger, CerberusOptions options, TimeProvider clock) : IRecordPermanentDeleteStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web)
     { PropertyNameCaseInsensitive = false, AllowDuplicateProperties = false, NumberHandling = JsonNumberHandling.Strict };
 
     public async Task<VaultResult<RecordPermanentDeleteDetails>> DeleteAsync(RecordPermanentDeleteRequest request, CancellationToken ct)
@@ -66,7 +66,7 @@ public sealed class RecordPermanentDeleteStore(IDbContextFactory<AppDbContext> f
         var error = StateError(initial);
         if (error is not null)
             return new(Error: error);
-        var item = JsonSerializer.Deserialize<Item>(initial.Item!, Json)!;
+        var item = JsonSerializer.Deserialize<Item>(initial.Item!, s_json)!;
         // Foreign routes establish only whether this denial is visible. No foreign locks
         // or content inspection are necessary to deny both RO and RW delete requests.
         if (item.AccountId != account.Id)
@@ -196,10 +196,10 @@ public sealed class RecordPermanentDeleteStore(IDbContextFactory<AppDbContext> f
     private static string? StateError(Snapshot s) => !s.ActorActive ? "not_found" : !s.Allowed ? "vault_access_denied" : s.CorruptAncestry ? "persistence_unavailable" : s.Item is null ? "not_found" : null;
     private static bool ValidNative(Snapshot snapshot)
     {
-        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, Json)!;
+        var grants = JsonSerializer.Deserialize<GrantEvidence[]>(snapshot.Grants, s_json)!;
         if (grants.Length == 0)
             return true;
-        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, Json);
+        var p = snapshot.Protection is null ? null : JsonSerializer.Deserialize<ProtectionEvidence>(snapshot.Protection, s_json);
         if (p is null || !CollectionGrantBinding.TryReadPins(Pins(p.OwnerMaterial, p.OwnerRevision, p.OwnerEpoch, p.OwnerGeneration), out var owner)
             || !CollectionGrantBinding.TryReadPins(Pins(p.RecipientMaterial, p.RecipientRevision, p.RecipientEpoch, p.RecipientGeneration), out var recipient))
             return false;
@@ -209,7 +209,7 @@ public sealed class RecordPermanentDeleteStore(IDbContextFactory<AppDbContext> f
     private static VaultProtection? Pins(string? material, long? revision, long? epoch, long? generation) => material is null || revision is null || epoch is null || generation is null ? null : new() { Material = Convert.FromHexString(material), Revision = revision.Value, KeyEpoch = epoch.Value, RecoveryGeneration = generation.Value };
     private sealed record History(byte[]? Bytes, Guid? Folder, Guid[] Profiles, Guid[] Collections)
     {
-        internal static readonly History Empty = new(null, null, [], []);
+        internal static readonly History s_empty = new(null, null, [], []);
     }
     private sealed class HistoryRow { public bool Needed { get; set; } public byte[]? Bytes { get; set; } }
     private static object[] BaseParameters(RecordPermanentDeleteRequest r) => [new NpgsqlParameter("actor", r.Actor), new NpgsqlParameter("verifier", r.AccessVerifier), new NpgsqlParameter("target", r.RecordId), new NpgsqlParameter("active", (object)(int)AccountState.Active), new NpgsqlParameter("grant_active", (object)(int)CollectionGrantState.Active), new NpgsqlParameter("read_only", (object)(int)CollectionGrantAccess.ReadOnly), new NpgsqlParameter("read_write", (object)(int)CollectionGrantAccess.ReadWrite), new NpgsqlParameter("max", ProtocolBinary.MaxInteger)];
@@ -235,7 +235,7 @@ public sealed class RecordPermanentDeleteStore(IDbContextFactory<AppDbContext> f
                   AND NOT EXISTS(SELECT FROM cerberus.terminal_erasure t WHERE t.resource_kind='record' AND t.resource_id=r.public_id)) AS bytes
             """;
         var historyRow = (await db.Database.SqlQueryRaw<HistoryRow>(historySql, BaseParameters(request)).ToListAsync(ct)).Single();
-        var history = History.Empty;
+        var history = History.s_empty;
         if (historyRow.Needed && historyRow.Bytes is not null)
         {
             using var json = JsonDocument.Parse(historyRow.Bytes);
@@ -268,7 +268,7 @@ public sealed class RecordPermanentDeleteStore(IDbContextFactory<AppDbContext> f
     private sealed record Item(Guid RecordId, long Id, long AccountId);
     private sealed class Snapshot
     {
-        [NotMapped] public History History { get; set; } = History.Empty;
+        [NotMapped] public History History { get; set; } = History.s_empty;
         public bool ActorActive { get; set; }
         public bool Allowed { get; set; }
         public bool CorruptAncestry { get; set; }

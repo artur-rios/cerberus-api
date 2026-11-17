@@ -12,9 +12,9 @@ namespace ArturRios.Cerberus.Command.Tests;
 public class UpdateCollectionHandlerTests
 {
     private const string Access = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    private readonly Guid actor = Guid.NewGuid();
-    private readonly Guid target = Guid.NewGuid();
-    private static readonly JsonSerializerOptions Json = new(ProtectionFixture.Json)
+    private readonly Guid _actor = Guid.NewGuid();
+    private readonly Guid _target = Guid.NewGuid();
+    private static readonly JsonSerializerOptions s_json = new(ProtectionFixture.Json)
     { NumberHandling = JsonNumberHandling.Strict };
 
     [UnitTheory]
@@ -39,9 +39,9 @@ public class UpdateCollectionHandlerTests
     public async Task GivenInvalidAuthorityOrInput_WhenHandling_ThenRejectBeforePersistence(string kind, string error)
     {
         var command = Command();
-        command.SetContext(kind == "actor" ? Guid.Empty : actor,
+        command.SetContext(kind == "actor" ? Guid.Empty : _actor,
             kind == "missing" ? null : kind == "empty" ? "" : kind == "handle" ? "bad" : Access,
-            kind == "id" ? Guid.Empty : target);
+            kind == "id" ? Guid.Empty : _target);
         switch (kind)
         {
             case "revision":
@@ -118,7 +118,7 @@ public class UpdateCollectionHandlerTests
                 received = request;
                 token = ct;
                 return Task.FromResult(new VaultResult<CollectionCreateDetails>(
-                    new(target, kind == "maximumRevision" ? 9007199254740991 : 2,
+                    new(_target, kind == "maximumRevision" ? 9007199254740991 : 2,
                         9007199254740991, Normalize(command.EditedAt))));
             });
 
@@ -126,21 +126,21 @@ public class UpdateCollectionHandlerTests
 
         Assert.True(result.Success);
         Assert.Contains("collection_updated", result.Messages);
-        Assert.Equal(target, result.Data!.CollectionId);
+        Assert.Equal(_target, result.Data!.CollectionId);
         Assert.Equal(kind == "maximumRevision" ? 9007199254740991 : 2, result.Data.Revision);
         Assert.Equal(9007199254740991, result.Data.ServerSequence);
         Assert.Equal(Normalize(command.EditedAt), result.Data.EditedAt);
-        Assert.Equal(actor, received!.Actor);
-        Assert.Equal(target, received.CollectionId);
+        Assert.Equal(_actor, received!.Actor);
+        Assert.Equal(_target, received.CollectionId);
         Assert.Equal(command.ExpectedRevision, received.Input.ExpectedRevision);
         Assert.Equal(command.Envelope, received.Input.Envelope);
         Assert.Equal(command.EditedAt, received.Input.EditedAt);
         Assert.Equal(cancellation.Token, token);
         Assert.Equal("66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925", received.AccessVerifier);
-        using var data = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, Json));
+        using var data = JsonDocument.Parse(JsonSerializer.Serialize(result.Data, s_json));
         Assert.Equal(["collectionId", "editedAt", "revision", "serverSequence"],
             data.RootElement.EnumerateObject().Select(x => x.Name).Order());
-        using var wire = JsonDocument.Parse(JsonSerializer.Serialize(command, Json));
+        using var wire = JsonDocument.Parse(JsonSerializer.Serialize(command, s_json));
         Assert.Equal(["editedAt", "envelope", "expectedRevision"],
             wire.RootElement.EnumerateObject().Select(x => x.Name).Order());
     }
@@ -183,7 +183,7 @@ public class UpdateCollectionHandlerTests
         var command = Command();
         var store = new Mock<ICollectionUpdateStore>();
         store.Setup(x => x.UpdateAsync(It.IsAny<CollectionUpdateRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new VaultResult<CollectionCreateDetails>(new(target, 2, 7, Normalize(command.EditedAt)), error));
+            .ReturnsAsync(new VaultResult<CollectionCreateDetails>(new(_target, 2, 7, Normalize(command.EditedAt)), error));
 
         var result = await Handler(store.Object).HandleAsync(command);
 
@@ -213,7 +213,7 @@ public class UpdateCollectionHandlerTests
         var command = Command();
         if (kind == "exhaustedRevision")
             command.ExpectedRevision = 9007199254740991;
-        CollectionCreateDetails? details = new(target, 2, 7, Normalize(command.EditedAt));
+        CollectionCreateDetails? details = new(_target, 2, 7, Normalize(command.EditedAt));
         details = kind switch
         {
             "nullData" => null,
@@ -248,10 +248,10 @@ public class UpdateCollectionHandlerTests
     [InlineData("editedAt")]
     public void GivenOmittedRequiredMember_WhenParsing_ThenReject(string name)
     {
-        var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
+        var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
         body.Remove(name);
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateCollectionCommand>(body.ToJsonString(), Json));
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionUpdateInput>(body.ToJsonString(), Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateCollectionCommand>(body.ToJsonString(), s_json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionUpdateInput>(body.ToJsonString(), s_json));
     }
 
     [UnitTheory]
@@ -267,10 +267,10 @@ public class UpdateCollectionHandlerTests
     [InlineData("keyWrappers")]
     public void GivenForgedContextOrRelationshipMember_WhenParsing_ThenReject(string name)
     {
-        var body = JsonSerializer.SerializeToNode(Command(), Json)!.AsObject();
+        var body = JsonSerializer.SerializeToNode(Command(), s_json)!.AsObject();
         body[name] = null;
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateCollectionCommand>(body.ToJsonString(), Json));
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionUpdateInput>(body.ToJsonString(), Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateCollectionCommand>(body.ToJsonString(), s_json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionUpdateInput>(body.ToJsonString(), s_json));
     }
 
     [UnitTheory]
@@ -280,7 +280,7 @@ public class UpdateCollectionHandlerTests
     [InlineData("numericEpoch")]
     public void GivenAlternateJsonShape_WhenParsing_ThenReject(string kind)
     {
-        var body = JsonSerializer.Serialize(Command(), Json);
+        var body = JsonSerializer.Serialize(Command(), s_json);
         body = kind switch
         {
             "duplicate" => body.Insert(1, "\"expectedRevision\":1,"),
@@ -288,8 +288,8 @@ public class UpdateCollectionHandlerTests
             "numericRevision" => body.Replace("\"expectedRevision\":1", "\"expectedRevision\":\"1\""),
             _ => body.Replace("\"keyEpoch\":1", "\"keyEpoch\":\"1\"")
         };
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateCollectionCommand>(body, Json));
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionUpdateInput>(body, Json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<UpdateCollectionCommand>(body, s_json));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<CollectionUpdateInput>(body, s_json));
     }
 
     [UnitFact]
@@ -329,7 +329,7 @@ public class UpdateCollectionHandlerTests
             Envelope = new("cerberus-content-v1", 1, Access, "AAAAAAAAAAAAAAAA", "AQID", "AAAAAAAAAAAAAAAAAAAAAA"),
             EditedAt = DateTimeOffset.UnixEpoch.AddTicks(19)
         };
-        command.SetContext(actor, Access, target);
+        command.SetContext(_actor, Access, _target);
         return command;
     }
 

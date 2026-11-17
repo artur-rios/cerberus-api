@@ -8,9 +8,9 @@ namespace ArturRios.Cerberus.Command.Tests;
 
 public class VaultRecoveryHandlerTests
 {
-    private static readonly Guid Actor = Guid.NewGuid(), Challenge = Guid.NewGuid();
-    private static readonly long Issued = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-    private static readonly string Proof = ProtectionFixture.Encode(new byte[64]);
+    private static readonly Guid s_actor = Guid.NewGuid(), s_challenge = Guid.NewGuid();
+    private static readonly long s_issued = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    private static readonly string s_proof = ProtectionFixture.Encode(new byte[64]);
     [UnitTheory]
     [InlineData("actor", "authentication_required")]
     [InlineData("operation", "validation_failed")]
@@ -39,7 +39,7 @@ public class VaultRecoveryHandlerTests
             c.RecoveryWrapper = null!;
         if (invalid == "verifier")
             c.NewRecoveryVerifier = null!;
-        c.SetContext(invalid == "actor" ? Guid.Empty : Actor, invalid == "iat" ? -1 : Issued, invalid == "challenge" ? Guid.Empty : Challenge, invalid == "proof" ? "bad" : Proof, invalid == "raw" ? [] : [1]);
+        c.SetContext(invalid == "actor" ? Guid.Empty : s_actor, invalid == "iat" ? -1 : s_issued, invalid == "challenge" ? Guid.Empty : s_challenge, invalid == "proof" ? "bad" : s_proof, invalid == "raw" ? [] : [1]);
         var result = await Handler(Strict()).HandleAsync(c);
         Assert.Contains(error, result.Errors);
         Assert.Null(result.Data);
@@ -50,9 +50,9 @@ public class VaultRecoveryHandlerTests
         using var client = new ProtectionFixture();
         var c = Command(client);
         var raw = JsonSerializer.SerializeToUtf8Bytes(c, ProtectionFixture.Json);
-        c.SetContext(Actor, Issued, Challenge, Proof, raw);
+        c.SetContext(s_actor, s_issued, s_challenge, s_proof, raw);
         var store = new Mock<IVaultRecoveryStore>(MockBehavior.Strict);
-        store.Setup(x => x.RecoverAsync(It.Is<RecoveryRequest>(r => r.Actor == Actor && r.IdentityIssuedAt == Issued && r.ChallengeId == Challenge && r.Proof == Proof && r.RawBody == raw && r.Replacement == c.ToReplacement()), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecoveryDetails>(new("committed", 2, 2, 7)));
+        store.Setup(x => x.RecoverAsync(It.Is<RecoveryRequest>(r => r.Actor == s_actor && r.IdentityIssuedAt == s_issued && r.ChallengeId == s_challenge && r.Proof == s_proof && r.RawBody == raw && r.Replacement == c.ToReplacement()), It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<RecoveryDetails>(new("committed", 2, 2, 7)));
         var result = await Handler(store.Object).HandleAsync(c);
         Assert.True(result.Success);
         Assert.Equal(7, result.Data!.RevocationGeneration);
@@ -107,11 +107,11 @@ public class VaultRecoveryHandlerTests
     public async Task GivenRecoveryChallenge_WhenHandling_ThenRequireCurrentSafeGeneration(long? generation, bool success)
     {
         var c = new IssueVaultChallengeCommand { Operation = "recover", RequestHash = ProtectionFixture.Encode(new byte[32]) };
-        c.SetActor(Actor);
+        c.SetActor(s_actor);
         var id = Guid.NewGuid();
-        var challenge = new VaultProofChallenge("cerberus-challenge-v1", Challenge, ProtectionFixture.Encode(new byte[32]), "recover", Actor, id, "account", id, 1, 1, generation, c.RequestHash, 1000, 1060);
+        var challenge = new VaultProofChallenge("cerberus-challenge-v1", s_challenge, ProtectionFixture.Encode(new byte[32]), "recover", s_actor, id, "account", id, 1, 1, generation, c.RequestHash, 1000, 1060);
         var store = new Mock<IVaultProtectionStore>(MockBehavior.Strict);
-        store.Setup(x => x.ChallengeAsync(Actor, "recover", c.RequestHash, It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<VaultProofChallenge>(challenge));
+        store.Setup(x => x.ChallengeAsync(s_actor, "recover", c.RequestHash, It.IsAny<CancellationToken>())).ReturnsAsync(new VaultResult<VaultProofChallenge>(challenge));
         var result = await new IssueVaultChallengeHandler(new IssueVaultChallengeValidator(), store.Object).HandleAsync(c);
         Assert.Equal(success, result.Success);
         if (success)
@@ -128,7 +128,7 @@ public class VaultRecoveryHandlerTests
     {
         var m = client.Rewrap();
         var c = new RecoverVaultCommand { Operation = "recover", IdempotencyKey = Guid.NewGuid(), ExpectedRevision = 1, PasswordWrapper = m.PasswordWrapper, RecoveryWrapper = m.RecoveryWrapper with { Generation = 2 }, NewRecoveryVerifier = m.RecoveryVerifier };
-        c.SetContext(Actor, Issued, Challenge, Proof, [1]);
+        c.SetContext(s_actor, s_issued, s_challenge, s_proof, [1]);
         return c;
     }
 }

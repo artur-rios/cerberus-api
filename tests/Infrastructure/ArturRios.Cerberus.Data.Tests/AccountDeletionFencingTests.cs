@@ -43,15 +43,15 @@ public partial class AccountDeletionStoreTests
         await using var check = fixture.CreateContext();
         Assert.Equal(expected, await Snapshot(check, w.Owner));
         Assert.True(await check.Records.AnyAsync(x => x.Id == w.Owned.Record.Id));
-        Assert.NotEmpty(Directory.EnumerateFiles(directory, "*.json"));
+        Assert.NotEmpty(Directory.EnumerateFiles(_directory, "*.json"));
         await check.RetentionWorkItems.Where(x => x.PublicId == claim.WorkId).ExecuteUpdateAsync(x => x.SetProperty(v => v.ClaimExpiresAt, DateTimeOffset.UtcNow.AddSeconds(-1)));
         var next = await new RetentionWorkStore(fixture).TryClaimAsync(claim.WorkId, DateTimeOffset.UtcNow, TimeSpan.FromMinutes(1), default);
         Assert.NotNull(next);
         var handler = new AccountPurgeHandler(fixture, Ledger);
         await handler.ExecuteAsync(next!, default);
-        var files = Directory.GetFiles(directory, "*.json").Length;
+        var files = Directory.GetFiles(_directory, "*.json").Length;
         await handler.ExecuteAsync(next!, default);
-        Assert.Equal(files, Directory.GetFiles(directory, "*.json").Length);
+        Assert.Equal(files, Directory.GetFiles(_directory, "*.json").Length);
         Assert.True(await new RetentionWorkStore(fixture).TryCompleteAsync(next!, DateTimeOffset.UtcNow, default));
         await Purged(check, w);
     }
@@ -82,7 +82,7 @@ public partial class AccountDeletionStoreTests
         await Assert.ThrowsAsync<TimeoutException>(() => new AccountPurgeHandler(new ProfileSetup.Factory(fixture, new AfterCascade()), Ledger).ExecuteAsync(claim, default));
         Assert.Equal(before, await Snapshot(db, w.Owner));
         Assert.Equal(foreign, await Foreign(db, w));
-        Assert.NotEmpty(Directory.GetFiles(directory, "*.json"));
+        Assert.NotEmpty(Directory.GetFiles(_directory, "*.json"));
         await new AccountPurgeHandler(fixture, Ledger).ExecuteAsync(claim, default);
         await Purged(db, w);
     }
@@ -98,7 +98,7 @@ public partial class AccountDeletionStoreTests
         var w = await Create();
         await using var held = fixture.CreateContext();
         var request = Request(w.Owner);
-        var bound = RealTime.Soon(RealTime.SetupLead);
+        var bound = RealTime.Soon(RealTime.s_setupLead);
         if (fault == "access")
             await held.VaultAccessSessions.Where(x => x.AccountId == w.Owner.InternalId).ExecuteUpdateAsync(x => x.SetProperty(v => v.ExpiresAt, bound));
         if (fault == "freshness")

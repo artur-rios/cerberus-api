@@ -12,7 +12,7 @@ namespace ArturRios.Cerberus.Data.Collections;
 
 public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factory) : ICollectionCreateStore
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web);
 
     public async Task<VaultResult<CollectionCreateDetails>> CreateAsync(CollectionCreateRequest request, CancellationToken ct)
     {
@@ -73,7 +73,7 @@ public sealed class CollectionCreateStore(IDbContextFactory<AppDbContext> factor
                 stable[(item.Kind, item.Id)] = await StableAsync(db, item, ct);
 
             var input = request.Input;
-            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, Json);
+            var envelope = JsonSerializer.SerializeToUtf8Bytes(input.Envelope, s_json);
             var time = input.EditedAt.AddTicks(-(input.EditedAt.Ticks % TimeSpan.TicksPerMicrosecond));
             var stamp = Guid.NewGuid();
             var parameters = Parameters(request).Concat([ new NpgsqlParameter("frozen", NpgsqlDbType.Jsonb) { Value = current.Frozen },

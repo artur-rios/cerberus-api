@@ -17,13 +17,13 @@ public class IdentityUpdateClientTests
     public async Task GivenValidActor_WhenUpdatingIdentity_ThenUseOwnPublicRouteOriginalTokenAndOnlyPermittedFields()
     {
         var token = Token();
-        var result = await Client(async (request, _) =>
+        var result = await Client(async (request, cancellationToken) =>
         {
             Assert.Equal(HttpMethod.Put, request.Method);
             Assert.Equal("/api/persons/" + Identity.ToString("D"), request.RequestUri!.AbsolutePath);
             Assert.Equal(token, request.Headers.Authorization?.Parameter);
             Assert.NotEqual(Options().HeimdallServiceCredential, request.Headers.Authorization?.Parameter);
-            using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync());
+            using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(cancellationToken));
             Assert.Equal(new[] { "email", "name" }, body.RootElement.EnumerateObject().Select(x => x.Name).Order().ToArray());
             Assert.Equal(Name, body.RootElement.GetProperty("name").GetString());
             Assert.Equal(Email, body.RootElement.GetProperty("email").GetString());

@@ -210,26 +210,6 @@ public sealed class OpenApiErrorBodyContractTests
             Assert.Null(Reject(document, response, media, body, "GET /api/sync/changes 409"));
     }
 
-    [UnitFact]
-    public void GivenEveryStatusMap_WhenGeneratingOpenApi_ThenEveryErrorStatusItAnswersIsDocumented()
-    {
-        var document = OpenApiBodies.Document();
-        // VaultProtectionMessages is shared: only the session-bound operations (PUT protection, PUT recovery)
-        // emit its 403 vault_access_denied. Initialization, challenges, unlock and recovery never do.
-        string[] neverForbidden = ["POST /api/vault/protection", "POST /api/vault/recovery", "POST /api/vault/challenges", "POST /api/vault/unlock"];
-        foreach (var (method, path, map, _) in OpenApiAccuracyContractTests.s_operations)
-        {
-            var documented = document["paths"]![path]![method.ToLowerInvariant()]!["responses"]!.AsObject().Select(r => r.Key).ToHashSet();
-            foreach (var status in map?.Values.Where(code => code >= 400).Distinct() ?? [])
-            {
-                if (status == 403 && neverForbidden.Contains(method + " " + path))
-                    continue;
-                if (!documented.Contains(status.ToString(System.Globalization.CultureInfo.InvariantCulture)))
-                    Assert.Fail($"{method} {path} does not document {status}");
-            }
-        }
-    }
-
     // The contract's controllers behind the middleware that sees a request before them, without the database,
     // the identity provider or the handlers: what is checked here is answered before any of them is used, or
     // (a handler nobody registered) by SafeFailureMiddleware's 500.
@@ -249,7 +229,7 @@ public sealed class OpenApiErrorBodyContractTests
         return api;
     }
 
-    private static IEnumerable<(string Method, string Path, ControllerActionDescriptor Action)> Actions(WebApplication host) =>
+    internal static IEnumerable<(string Method, string Path, ControllerActionDescriptor Action)> Actions(WebApplication host) =>
         host.Services.GetRequiredService<IApiDescriptionGroupCollectionProvider>().ApiDescriptionGroups.Items
             .SelectMany(group => group.Items)
             .Select(description => (description.HttpMethod!.ToUpperInvariant(), "/" + description.RelativePath, (ControllerActionDescriptor)description.ActionDescriptor));

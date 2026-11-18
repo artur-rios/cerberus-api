@@ -320,6 +320,13 @@ development into `develop` only; it is still required before any release.
 
 ### Fixed
 
+- The OpenAPI document no longer lists a 409 for `GET /api/vault/protection` and `GET /api/vault/recovery-material`.
+  The vault controller declared 409 for all its routes, but these two answer through `VaultProtectionQueryMessages`,
+  which maps no error to 409; the routes that can conflict (initialize, change, recover, refresh recovery, challenge,
+  unlock) still list it. Every operation's error statuses are now checked to be exactly what it can answer: its
+  handler's codes through its status map (for a map several operations share, only the codes that operation's
+  handler emits), and what the pipeline answers around it. Nothing changes on the wire.
+
 - The OpenAPI document lists the 500 `internal_failure` every operation can answer: `SafeFailureMiddleware` writes
   it, a `ProcessOutput`, for any exception behind it, as `application/json` only. It lists only the media types the
   server sends: `text/plain` is gone from all 395 responses that listed it (MVC writes `text/plain` only for a

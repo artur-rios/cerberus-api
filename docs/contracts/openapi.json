@@ -8352,21 +8352,6 @@
               }
             }
           },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FailureOutput"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FailureOutput"
-                }
-              }
-            }
-          },
           "413": {
             "description": "Content Too Large"
           },
@@ -8767,21 +8752,6 @@
           },
           "404": {
             "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FailureOutput"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FailureOutput"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {

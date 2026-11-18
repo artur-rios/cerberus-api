@@ -70,7 +70,7 @@ public sealed class OpenApiStatusContractTests
     private static readonly Dictionary<string, int[]> s_layers = new()
     {
         [nameof(NoStoreMiddleware)] = [],
-        [nameof(SafeFailureMiddleware)] = [500],
+        [nameof(SafeFailureMiddleware)] = [400, 408, 500],
         [nameof(RequestLimitMiddleware)] = [413],
         [nameof(RestoreBarrierMiddleware)] = [503],
         [nameof(ProtectedEndpointMiddleware)] = [401, 403, 503],

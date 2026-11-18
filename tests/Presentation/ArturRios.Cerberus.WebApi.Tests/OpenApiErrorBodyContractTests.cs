@@ -234,9 +234,9 @@ public sealed class OpenApiErrorBodyContractTests
             .SelectMany(group => group.Items)
             .Select(description => (description.HttpMethod!.ToUpperInvariant(), "/" + description.RelativePath, (ControllerActionDescriptor)description.ActionDescriptor));
 
-    // The error responses a handler's failure can be: SafeFailureMiddleware's 500 never comes from one.
+    // The error responses a handler's failure can be: SafeFailureMiddleware's 408 and 500 never come from one.
     private static IEnumerable<(string Status, JsonObject Response)> Errors(JsonNode document, string method, string path) =>
-        OpenApiBodies.Responses(document).Where(r => r.Method == method && r.Path == path && r.Status != "500" && Error(r.Status, r.Response))
+        OpenApiBodies.Responses(document).Where(r => r.Method == method && r.Path == path && r.Status is not ("408" or "500") && Error(r.Status, r.Response))
             .Select(r => (r.Status, r.Response));
 
     // An error response with a ProcessOutput-shaped body: every 4xx and 5xx but the empty 413 and MVC's 415.

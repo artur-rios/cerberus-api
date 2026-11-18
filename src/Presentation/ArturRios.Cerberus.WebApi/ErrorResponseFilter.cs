@@ -29,8 +29,9 @@ namespace ArturRios.Cerberus.WebApi;
 //   request can meet them, so every operation lists them, without content where nothing else answers the
 //   status and in the description where something else does (400).
 // - A request body Kestrel refuses while the API reads it (badly chunked, or slower than the minimum data
-//   rate) is a BadHttpRequestException that only RequestLimitMiddleware's 413 catch would take; any other
-//   status reaches SafeFailureMiddleware, which answers its 500. The 500's description says so.
+//   rate) is a BadHttpRequestException: RequestLimitMiddleware answers its 413, SafeFailureMiddleware its 400
+//   request_body_invalid and 408 request_timeout (SafeFailureMiddleware.BodyRefusals), as a ProcessOutput.
+//   Only an operation that binds a body reads one, so those list them.
 // - No response lists text/plain. ApiExplorer offers every output formatter's media types for every
 //   response, and MVC's StringOutputFormatter claims text/plain for any type, but it writes only a string,
 //   which no action answers: an envelope asked for as text/plain is written as application/json. The JSON
@@ -99,10 +100,9 @@ internal sealed class ErrorResponseFilter : IOperationFilter
         }
         responses[InternalServerError] = new OpenApiResponse
         {
-            Description = "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: "
-                + "a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives "
-                + "here too. An exception escapes it only while it writes to a client that has already gone, so no client "
-                + "receives Kestrel's own bodiless 500.",
+            Description = "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it. "
+                + "An exception escapes it only while it writes to a client that has already gone, so no client receives "
+                + "Kestrel's own bodiless 500.",
             Content = new Dictionary<string, IOpenApiMediaType>
             {
                 ["application/json"] = new OpenApiMediaType
@@ -115,6 +115,22 @@ internal sealed class ErrorResponseFilter : IOperationFilter
                 known.Description += ". Kestrel can also refuse the request before the API sees it, with no body: " + cause;
             else
                 responses[status] = new OpenApiResponse { Description = reason + ". " + KestrelRefused + cause, Content = new Dictionary<string, IOpenApiMediaType>() };
+        }
+        if (context.ApiDescription.ParameterDescriptions.Any(p => p.Source == BindingSource.Body))
+        {
+            var known = (OpenApiResponse)responses["400"];
+            known.Description += ". Or Kestrel refused the request body as the API read it (badly chunked, or otherwise malformed): "
+                + "SafeFailureMiddleware's ProcessOutput, " + SafeFailureMiddleware.BodyRefusals[StatusCodes.Status400BadRequest] + ".";
+            var timeout = (OpenApiResponse)responses["408"];
+            timeout.Description = "Request Timeout. Kestrel refused the request body as the API read it: it arrived slower than the "
+                + "minimum data rate (240 bytes a second, after a 5-second grace, by default). SafeFailureMiddleware's ProcessOutput, "
+                + SafeFailureMiddleware.BodyRefusals[StatusCodes.Status408RequestTimeout] + ". Or "
+                + KestrelRefused + s_server.Single(server => server.Status == "408").Cause;
+            timeout.Content = new Dictionary<string, IOpenApiMediaType>
+            {
+                ["application/json"] = new OpenApiMediaType
+                { Schema = context.SchemaGenerator.GenerateSchema(typeof(ProcessOutput), context.SchemaRepository) }
+            };
         }
         foreach (var ((action, status), note) in s_notes)
         {

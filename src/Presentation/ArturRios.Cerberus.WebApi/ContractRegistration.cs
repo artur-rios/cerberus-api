@@ -21,6 +21,22 @@ public static class ContractRegistration
     public static void WriteContract(OpenApiDocument document, TextWriter output) =>
         document.SerializeAsV31(new OpenApiJsonWriter(output));
 
+    // The document's own text: what a client can meet that OpenAPI cannot list as an operation's response.
+    // KestrelRefusalTests holds the paths, methods and aborts it names against a real Kestrel.
+    public const string Description = "Cerberus encrypted vault API. Identity authentication and vault access are separate.\n\n"
+        + "Each operation lists every status it can answer, from Kestrel, the middleware, MVC and its handler. A client can "
+        + "also meet these, which OpenAPI cannot list as an operation's response:\n\n"
+        + "- A path no operation matches is answered 404, with no body. A method an operation's path does not declare is "
+        + "answered 405, with no body, to a request with a valid person token; without one, the authentication middleware "
+        + "answers 401 authentication_required first. While a restore is being reconciled, the restore barrier answers "
+        + "503 restore_reconciliation_required to both instead.\n"
+        + "- The connection can close with no response: when the client stops sending a request body short of its "
+        + "Content-Length; when a response that has started fails (the account export's stream, or any response the "
+        + "failure middleware cannot complete); when an idle keep-alive connection times out; and, over HTTP/2, when "
+        + "either side resets a stream.\n"
+        + "- Cerberus is not deployed behind a reverse proxy yet: no proxy is configured for it. A proxy placed in front of "
+        + "it would answer statuses of its own, such as 502 or 504, which this document does not list.";
+
     public static IServiceCollection AddCerberusContracts(this IServiceCollection services)
     {
         services.AddControllers().AddApplicationPart(typeof(Program).Assembly)
@@ -41,7 +57,7 @@ public static class ContractRegistration
             {
                 Title = "Cerberus API",
                 Version = "v1",
-                Description = "Cerberus encrypted vault API. Identity authentication and vault access are separate."
+                Description = Description
             });
             options.OperationFilter<StrictRequestContentFilter>();
             options.UseOneOfForPolymorphism();

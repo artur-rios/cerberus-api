@@ -2,7 +2,7 @@
   "openapi": "3.1.2",
   "info": {
     "title": "Cerberus API",
-    "description": "Cerberus encrypted vault API. Identity authentication and vault access are separate.",
+    "description": "Cerberus encrypted vault API. Identity authentication and vault access are separate.\n\nEach operation lists every status it can answer, from Kestrel, the middleware, MVC and its handler. A client can also meet these, which OpenAPI cannot list as an operation's response:\n\n- A path no operation matches is answered 404, with no body. A method an operation's path does not declare is answered 405, with no body, to a request with a valid person token; without one, the authentication middleware answers 401 authentication_required first. While a restore is being reconciled, the restore barrier answers 503 restore_reconciliation_required to both instead.\n- The connection can close with no response: when the client stops sending a request body short of its Content-Length; when a response that has started fails (the account export's stream, or any response the failure middleware cannot complete); when an idle keep-alive connection times out; and, over HTTP/2, when either side resets a stream.\n- Cerberus is not deployed behind a reverse proxy yet: no proxy is configured for it. A proxy placed in front of it would answer statuses of its own, such as 502 or 504, which this document does not list.",
     "version": "v1"
   },
   "paths": {
@@ -53,7 +53,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -112,6 +112,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -128,10 +131,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -154,6 +163,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -190,7 +202,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -234,6 +246,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -265,10 +280,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -291,6 +312,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -327,7 +351,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -371,6 +395,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -387,10 +414,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -413,6 +446,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -449,7 +485,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -508,6 +544,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -524,10 +563,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -550,6 +595,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -583,7 +631,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -642,11 +690,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -669,6 +726,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -724,7 +784,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -783,6 +843,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -799,7 +862,10 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
           },
           "415": {
             "description": "Unsupported Media Type",
@@ -811,8 +877,11 @@
               }
             }
           },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
+          },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -835,6 +904,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -868,7 +940,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -927,11 +999,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -954,6 +1035,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -1015,7 +1099,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1074,6 +1158,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -1090,7 +1177,10 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
           },
           "415": {
             "description": "Unsupported Media Type",
@@ -1102,8 +1192,11 @@
               }
             }
           },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
+          },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1126,6 +1219,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -1167,7 +1263,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1206,6 +1302,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -1217,10 +1316,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1238,6 +1343,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -1274,7 +1382,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1318,6 +1426,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "410": {
             "description": "Gone",
             "content": {
@@ -1334,10 +1445,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1360,6 +1477,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -1396,7 +1516,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1440,6 +1560,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "410": {
             "description": "Gone",
             "content": {
@@ -1456,10 +1579,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1482,6 +1611,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -1528,7 +1660,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1572,8 +1704,14 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
           },
           "415": {
             "description": "Unsupported Media Type",
@@ -1585,8 +1723,11 @@
               }
             }
           },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
+          },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1609,6 +1750,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -1655,7 +1799,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1699,8 +1843,14 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
           },
           "415": {
             "description": "Unsupported Media Type",
@@ -1712,8 +1862,11 @@
               }
             }
           },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
+          },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1736,6 +1889,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -1807,7 +1963,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1866,6 +2022,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -1882,10 +2041,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1908,6 +2073,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -1977,7 +2145,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2036,6 +2204,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -2052,10 +2223,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2078,6 +2255,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -2141,7 +2321,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2200,6 +2380,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -2216,10 +2399,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2242,6 +2431,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -2305,7 +2497,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2364,6 +2556,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -2380,10 +2575,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2406,6 +2607,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -2469,7 +2673,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2528,6 +2732,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -2544,10 +2751,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2570,6 +2783,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -2631,7 +2847,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2690,6 +2906,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -2706,10 +2925,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2732,6 +2957,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -2773,7 +3001,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2832,11 +3060,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2859,6 +3096,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -2908,7 +3148,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2967,11 +3207,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2994,6 +3243,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -3047,7 +3299,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3106,6 +3358,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -3122,10 +3377,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3148,6 +3409,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -3211,7 +3475,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3270,6 +3534,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -3286,10 +3553,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3312,6 +3585,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -3373,7 +3649,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3432,6 +3708,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -3448,10 +3727,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3474,6 +3759,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -3515,7 +3803,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3574,11 +3862,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3601,6 +3898,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -3664,7 +3964,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3723,6 +4023,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -3739,10 +4042,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3765,6 +4074,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -3814,7 +4126,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3873,11 +4185,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3900,6 +4221,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -3953,7 +4277,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4012,6 +4336,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -4028,10 +4355,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4054,6 +4387,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -4074,11 +4410,23 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request. Kestrel refused the request before the API saw it, and answered with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding."
+          },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4086,6 +4434,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -4106,11 +4457,23 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request. Kestrel refused the request before the API saw it, and answered with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding."
+          },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4128,6 +4491,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -4147,6 +4513,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request. Kestrel refused the request before the API saw it, and answered with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding."
           },
           "401": {
             "description": "Unauthorized",
@@ -4168,11 +4537,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4197,6 +4575,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -4252,7 +4633,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4311,6 +4692,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -4327,7 +4711,10 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
           },
           "415": {
             "description": "Unsupported Media Type",
@@ -4339,8 +4726,11 @@
               }
             }
           },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
+          },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4363,6 +4753,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -4408,7 +4801,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4467,6 +4860,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -4483,10 +4879,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4509,6 +4911,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -4565,7 +4970,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4609,6 +5014,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -4625,10 +5033,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4651,6 +5065,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -4721,7 +5138,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4765,6 +5182,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -4781,10 +5201,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4807,6 +5233,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -4870,7 +5299,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4929,6 +5358,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -4945,10 +5377,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4971,6 +5409,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -5032,7 +5473,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5091,6 +5532,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -5107,10 +5551,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5133,6 +5583,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -5174,7 +5627,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5233,11 +5686,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5260,6 +5722,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -5323,7 +5788,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5382,6 +5847,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -5398,10 +5866,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5424,6 +5898,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -5473,7 +5950,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5532,11 +6009,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5559,6 +6045,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -5612,7 +6101,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5671,6 +6160,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -5687,10 +6179,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5713,6 +6211,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -5776,7 +6277,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5835,6 +6336,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -5851,10 +6355,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5877,6 +6387,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -5940,7 +6453,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5999,6 +6512,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -6015,10 +6531,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6041,6 +6563,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -6104,7 +6629,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6163,6 +6688,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -6179,10 +6707,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6205,6 +6739,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -6266,7 +6803,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6325,6 +6862,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -6341,10 +6881,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6367,6 +6913,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -6408,7 +6957,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6467,11 +7016,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6494,6 +7052,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -6543,7 +7104,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6602,11 +7163,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6629,6 +7199,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -6682,7 +7255,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6741,6 +7314,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -6757,10 +7333,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6783,6 +7365,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -6837,7 +7422,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6896,6 +7481,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -6912,10 +7500,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6938,6 +7532,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -6983,7 +7580,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7042,6 +7639,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -7058,10 +7658,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7084,6 +7690,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -7143,7 +7752,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7187,11 +7796,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7214,6 +7832,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -7259,7 +7880,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7318,6 +7939,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -7334,10 +7958,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7360,6 +7990,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -7410,7 +8043,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7469,6 +8102,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -7499,10 +8135,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7525,6 +8167,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -7570,7 +8215,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7629,6 +8274,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -7645,10 +8293,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7671,6 +8325,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -7718,7 +8375,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7777,11 +8434,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7804,6 +8470,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -7858,7 +8527,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7917,6 +8586,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -7948,10 +8620,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7974,6 +8652,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -8020,7 +8701,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8064,6 +8745,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -8080,7 +8764,10 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
           },
           "415": {
             "description": "Unsupported Media Type",
@@ -8092,8 +8779,11 @@
               }
             }
           },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
+          },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8116,6 +8806,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -8183,7 +8876,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8242,6 +8935,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -8258,10 +8954,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8284,6 +8986,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -8308,7 +9013,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8352,11 +9057,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8379,6 +9093,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -8441,7 +9158,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8485,6 +9202,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -8501,10 +9221,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8527,6 +9253,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       },
@@ -8594,7 +9323,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8653,6 +9382,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -8669,10 +9401,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8695,6 +9433,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -8721,7 +9462,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8765,11 +9506,20 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8792,6 +9542,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -8838,7 +9591,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8882,8 +9635,11 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
-            "description": "Conflict",
+            "description": "Conflict. Kept because it cannot be ruled out statically: VaultProtectionStore runs the challenge in a transaction whose DbUpdateConcurrencyException catch answers revision_conflict, though the challenge's insert should never raise one.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8898,7 +9654,10 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
           },
           "415": {
             "description": "Unsupported Media Type",
@@ -8910,8 +9669,11 @@
               }
             }
           },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
+          },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8934,6 +9696,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }
@@ -8996,7 +9761,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request. Kestrel can also refuse the request before the API sees it, with no body: a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9040,6 +9805,9 @@
               }
             }
           },
+          "408": {
+            "description": "Request Timeout. Kestrel refused the request before the API saw it, and answered with no body: its headers arrived slower than the request headers timeout (30 seconds by default)."
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -9056,10 +9824,16 @@
             }
           },
           "413": {
-            "description": "Content Too Large"
+            "description": "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit (CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body."
+          },
+          "414": {
+            "description": "URI Too Long. Kestrel refused the request before the API saw it, and answered with no body: its request line is longer than the limit (8 KB by default)."
+          },
+          "431": {
+            "description": "Request Header Fields Too Large. Kestrel refused the request before the API saw it, and answered with no body: its headers are larger than the limit (32 KB, or 100 headers, by default)."
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives here too. An exception escapes it only while it writes to a client that has already gone, so no client receives Kestrel's own bodiless 500.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9082,6 +9856,9 @@
                 }
               }
             }
+          },
+          "505": {
+            "description": "HTTP Version Not Supported. Kestrel refused the request before the API saw it, and answered with no body: it names an HTTP version Kestrel does not speak."
           }
         }
       }

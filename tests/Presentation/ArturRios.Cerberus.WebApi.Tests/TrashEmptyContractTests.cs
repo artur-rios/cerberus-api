@@ -16,7 +16,7 @@ public sealed class TrashEmptyContractTests
         Assert.Contains("/api/trash", doc.Paths.Keys);
         Assert.Contains(HttpMethod.Delete, doc.Paths["/api/trash"].Operations!.Keys);
         var op = doc.Paths["/api/trash"].Operations![HttpMethod.Delete];
-        Assert.Equal(new[] { "200", "400", "401", "403", "404", "409", "413", "500", "503" }.Order(), op.Responses!.Keys.Order());
+        Assert.Equal(new[] { "200", "400", "401", "403", "404", "409", "413", "500", "503", "408", "414", "431", "505" }.Order(), op.Responses!.Keys.Order());
         Assert.True(op.Responses["413"].Content is null or { Count: 0 });
         Assert.True(op.RequestBody!.Required);
         Assert.Equal("application/json", Assert.Single(op.RequestBody.Content!).Key);

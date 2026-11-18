@@ -24,6 +24,13 @@ namespace ArturRios.Cerberus.WebApi;
 //   MVC, which answers 415 with an application/problem+json ProblemDetails.
 // - 500 internal_failure is SafeFailureMiddleware's, for an exception anywhere behind it, so every operation
 //   lists it: a ProcessOutput it writes with WriteAsJsonAsync, so application/json whatever was asked for.
+// - Kestrel refuses a request before the API sees it while it parses the request line and headers, and
+//   answers itself with Content-Length: 0: 400, 408, 414, 431 and 505 (KestrelRefusalTests holds each). Any
+//   request can meet them, so every operation lists them, without content where nothing else answers the
+//   status and in the description where something else does (400).
+// - A request body Kestrel refuses while the API reads it (badly chunked, or slower than the minimum data
+//   rate) is a BadHttpRequestException that only RequestLimitMiddleware's 413 catch would take; any other
+//   status reaches SafeFailureMiddleware, which answers its 500. The 500's description says so.
 // - No response lists text/plain. ApiExplorer offers every output formatter's media types for every
 //   response, and MVC's StringOutputFormatter claims text/plain for any type, but it writes only a string,
 //   which no action answers: an envelope asked for as text/plain is written as application/json. The JSON
@@ -35,6 +42,26 @@ internal sealed class ErrorResponseFilter : IOperationFilter
     private const string UnsupportedMediaType = "415";
     private const string InternalServerError = "500";
     private const string TextPlain = "text/plain";
+
+    private const string KestrelRefused = "Kestrel refused the request before the API saw it, and answered with no body: ";
+
+    // Kestrel's own refusals of a request line or headers, which it answers with an empty body.
+    private static readonly (string Status, string Reason, string Cause)[] s_server =
+    [
+        ("400", "Bad Request", "a malformed request line or header, a missing or invalid Host, or an invalid Content-Length or transfer coding."),
+        ("408", "Request Timeout", "its headers arrived slower than the request headers timeout (30 seconds by default)."),
+        ("414", "URI Too Long", "its request line is longer than the limit (8 KB by default)."),
+        ("431", "Request Header Fields Too Large", "its headers are larger than the limit (32 KB, or 100 headers, by default)."),
+        ("505", "HTTP Version Not Supported", "it names an HTTP version Kestrel does not speak.")
+    ];
+
+    // A status kept for a reason the document should carry.
+    private static readonly Dictionary<(string Action, string Status), string> s_notes = new()
+    {
+        [(nameof(Controllers.VaultController.Challenge), "409")] =
+            "Kept because it cannot be ruled out statically: VaultProtectionStore runs the challenge in a transaction whose "
+            + "DbUpdateConcurrencyException catch answers revision_conflict, though the challenge's insert should never raise one."
+    };
 
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
@@ -51,7 +78,12 @@ internal sealed class ErrorResponseFilter : IOperationFilter
             }
         }
         // RFC 9110's name, as Swashbuckle gives it; ReasonPhrases still has the older "Payload Too Large".
-        responses[PayloadTooLarge] = new OpenApiResponse { Description = "Content Too Large", Content = new Dictionary<string, IOpenApiMediaType>() };
+        responses[PayloadTooLarge] = new OpenApiResponse
+        {
+            Description = "Content Too Large. RequestLimitMiddleware refused a Content-Length over the configured limit "
+                + "(CERBERUS_MAX_REQUEST_BYTES), or a body read past it or past Kestrel's maximum request body size. No body.",
+            Content = new Dictionary<string, IOpenApiMediaType>()
+        };
         if (context.ApiDescription.ParameterDescriptions.Any(p => p.Source == BindingSource.Body)
             && context.MethodInfo.GetCustomAttributes(typeof(VaultProofBodyAttribute), inherit: true).Length == 0)
         {
@@ -67,13 +99,29 @@ internal sealed class ErrorResponseFilter : IOperationFilter
         }
         responses[InternalServerError] = new OpenApiResponse
         {
-            Description = ReasonPhrases.GetReasonPhrase(StatusCodes.Status500InternalServerError),
+            Description = "Internal Server Error. SafeFailureMiddleware's internal_failure, for an exception anywhere behind it: "
+                + "a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum data rate) arrives "
+                + "here too. An exception escapes it only while it writes to a client that has already gone, so no client "
+                + "receives Kestrel's own bodiless 500.",
             Content = new Dictionary<string, IOpenApiMediaType>
             {
                 ["application/json"] = new OpenApiMediaType
                 { Schema = context.SchemaGenerator.GenerateSchema(typeof(ProcessOutput), context.SchemaRepository) }
             }
         };
+        foreach (var (status, reason, cause) in s_server)
+        {
+            if (responses.TryGetValue(status, out var listed) && listed is OpenApiResponse known)
+                known.Description += ". Kestrel can also refuse the request before the API sees it, with no body: " + cause;
+            else
+                responses[status] = new OpenApiResponse { Description = reason + ". " + KestrelRefused + cause, Content = new Dictionary<string, IOpenApiMediaType>() };
+        }
+        foreach (var ((action, status), note) in s_notes)
+        {
+            if (context.MethodInfo.Name == action && context.MethodInfo.DeclaringType == typeof(Controllers.VaultController)
+                && responses.TryGetValue(status, out var noted) && noted is OpenApiResponse kept)
+                kept.Description += ". " + note;
+        }
         foreach (var response in responses.Values.OfType<OpenApiResponse>())
             response.Content?.Remove(TextPlain);
         var ordered = responses.OrderBy(entry => entry.Key, StringComparer.Ordinal).ToArray();

@@ -320,6 +320,13 @@ development into `develop` only; it is still required before any release.
 
 ### Fixed
 
+- A request body the server refuses while reading it is answered with the status the server meant, not 500
+  `internal_failure`: a malformed one (badly chunked, for example) is 400 `request_body_invalid`, and one sent slower
+  than the minimum data rate is 408 `request_timeout`, both as a `ProcessOutput` in `application/json`, logged as the
+  client's mistake without a stack trace. An oversized body still gets the empty 413, and every other failure still
+  answers 500 `internal_failure`. This changes the wire for those two cases; the OpenAPI document lists them on every
+  operation that takes a body.
+
 - The OpenAPI document lists the statuses Kestrel answers itself before the API sees a request, with no body: 408
   (headers too slow), 414 (request line too long), 431 (headers too large) and 505 (an HTTP version it does not
   speak) on all 64 operations, and its 400 (a malformed request line or header, a missing Host, an invalid

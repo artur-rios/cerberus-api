@@ -51,7 +51,10 @@ cross-account probes return nonrevealing not-found responses. Return 400 for inv
 input, 401 for failed authentication/unlock proof, 403 for known denied operations, 404 for
 absent/hidden resources, 409 for revision/state conflicts, 410 for expired own trash/cursors
 requiring resynchronization, and 503 for unavailable required dependencies. Use stable output
-error codes alongside these statuses. All responses containing identity/vault/recovery/export
+error codes alongside these statuses. A request body the server refuses while reading it returns
+400 `request_body_invalid` (malformed, such as badly chunked) or 408 `request_timeout` (sent slower
+than the minimum data rate); oversized input returns an empty 413, and an unexpected failure 500
+`internal_failure`. All responses containing identity/vault/recovery/export
 data carry `Cache-Control: no-store`; do not use conditional-cache validators for such responses.
 Empty/read-only results still require authorization. Identity passwords may transit the login
 adapter under encrypted transport; vault passwords and usable content keys may not.

@@ -81,10 +81,10 @@ public sealed class OpenApiMediaTypeContractTests
     public void GivenResponsesOnlyMiddlewareWrites_WhenGeneratingOpenApi_ThenTheyListOnlyApplicationJson()
     {
         var document = OpenApiBodies.Document();
-        // The 500 (SafeFailureMiddleware), and /health/details' 401 and 403 (ProtectedEndpointMiddleware's
+        // The 500 and a body operation's 408 (SafeFailureMiddleware), and /health/details' 401 and 403 (ProtectedEndpointMiddleware's
         // operational authentication) are written with WriteAsJsonAsync; the 413 has no body at all.
         var responses = OpenApiBodies.Responses(document).ToArray();
-        foreach (var (_, _, _, response) in responses.Where(r => r.Status == "500"
+        foreach (var (_, _, _, response) in responses.Where(r => r.Status == "500" || r.Status == "408" && r.Response["content"] is not null
             || r.Path == "/health/details" && r.Status is "401" or "403"))
             Assert.Equal(["application/json"], response["content"]!.AsObject().Select(media => media.Key));
         Assert.All(responses.Where(r => r.Status == "413"), r => Assert.Null(r.Response["content"]));

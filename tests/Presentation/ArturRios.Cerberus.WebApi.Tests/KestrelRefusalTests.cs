@@ -57,11 +57,12 @@ public sealed class KestrelRefusalTests
     }
 
     [UnitTheory]
-    [InlineData("/api/auth/login", "Transfer-Encoding: chunked\r\n\r\nZZ\r\n{}\r\n0\r\n\r\n", 0)]
-    [InlineData("/api/auth/closure/login", "Transfer-Encoding: chunked\r\n\r\nZZ\r\n{}\r\n0\r\n\r\n", 0)]
-    [InlineData("/api/auth/login", "Content-Length: 100\r\n\r\n{\"email\":", 4)]
-    [InlineData("/api/auth/closure/login", "Content-Length: 100\r\n\r\n{\"email\":", 4)]
-    public async Task GivenABodyKestrelRefusesAsItIsRead_WhenSent_ThenSafeFailureAnswersTheDocumented500(string path, string rest, int seconds)
+    [InlineData("/api/auth/login", "Transfer-Encoding: chunked\r\n\r\nZZ\r\n{}\r\n0\r\n\r\n", 0, "400", "request_body_invalid")]
+    [InlineData("/api/auth/closure/login", "Transfer-Encoding: chunked\r\n\r\nZZ\r\n{}\r\n0\r\n\r\n", 0, "400", "request_body_invalid")]
+    [InlineData("/api/auth/login", "Content-Length: 100\r\n\r\n{\"email\":", 4, "408", "request_timeout")]
+    [InlineData("/api/auth/closure/login", "Content-Length: 100\r\n\r\n{\"email\":", 4, "408", "request_timeout")]
+    public async Task GivenABodyKestrelRefusesAsItIsRead_WhenSent_ThenTheApiAnswersTheStatusKestrelMeant(string path, string rest, int seconds,
+        string status, string code)
     {
         await using var api = await Api();
 
@@ -69,14 +70,17 @@ public sealed class KestrelRefusalTests
         var response = await Send(api, "POST " + path + " HTTP/1.1\r\nHost: cerberus\r\nContent-Type: application/json\r\n" + rest,
             wait: seconds == 0 ? null : TimeSpan.FromSeconds(seconds));
 
-        Assert.StartsWith("HTTP/1.1 500 ", response);
+        Assert.StartsWith("HTTP/1.1 " + status + " ", response);
         Assert.Contains("Content-Type: application/json", response);
-        var body = response[(response.IndexOf('{'))..(response.LastIndexOf('}') + 1)];
-        Assert.Contains("internal_failure", body);
+        var body = response[response.IndexOf('{')..(response.LastIndexOf('}') + 1)];
+        Assert.Contains("\"" + code + "\"", body);
+        Assert.DoesNotContain("internal_failure", body);
         var document = OpenApiBodies.Document();
-        var documented = document["paths"]![path]!["post"]!["responses"]!["500"]!;
+        var responses = document["paths"]![path]!["post"]!["responses"]!;
+        var documented = responses[status]!;
         Assert.Null(OpenApiBodies.Reject(document, documented["content"]!["application/json"]!["schema"]!, body));
-        Assert.Contains("minimum data rate", documented["description"]!.GetValue<string>());
+        Assert.Contains(code, documented["description"]!.GetValue<string>());
+        Assert.DoesNotContain("minimum data rate", responses["500"]!["description"]!.GetValue<string>());
     }
 
     [UnitFact]

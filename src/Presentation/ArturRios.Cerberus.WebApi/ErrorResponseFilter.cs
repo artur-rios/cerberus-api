@@ -22,11 +22,19 @@ namespace ArturRios.Cerberus.WebApi;
 //   the limit, so every operation lists it.
 // - A [FromBody] action that VaultProofBodyMiddleware does not guard leaves an unreadable Content-Type to
 //   MVC, which answers 415 with an application/problem+json ProblemDetails.
+// - 500 internal_failure is SafeFailureMiddleware's, for an exception anywhere behind it, so every operation
+//   lists it: a ProcessOutput it writes with WriteAsJsonAsync, so application/json whatever was asked for.
+// - No response lists text/plain. ApiExplorer offers every output formatter's media types for every
+//   response, and MVC's StringOutputFormatter claims text/plain for any type, but it writes only a string,
+//   which no action answers: an envelope asked for as text/plain is written as application/json. The JSON
+//   media types an ObjectResult negotiates (application/json, text/json) stay.
 internal sealed class ErrorResponseFilter : IOperationFilter
 {
     public const string FailureSchema = "FailureOutput";
     private const string PayloadTooLarge = "413";
     private const string UnsupportedMediaType = "415";
+    private const string InternalServerError = "500";
+    private const string TextPlain = "text/plain";
 
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
@@ -57,6 +65,17 @@ internal sealed class ErrorResponseFilter : IOperationFilter
                 }
             };
         }
+        responses[InternalServerError] = new OpenApiResponse
+        {
+            Description = ReasonPhrases.GetReasonPhrase(StatusCodes.Status500InternalServerError),
+            Content = new Dictionary<string, IOpenApiMediaType>
+            {
+                ["application/json"] = new OpenApiMediaType
+                { Schema = context.SchemaGenerator.GenerateSchema(typeof(ProcessOutput), context.SchemaRepository) }
+            }
+        };
+        foreach (var response in responses.Values.OfType<OpenApiResponse>())
+            response.Content?.Remove(TextPlain);
         var ordered = responses.OrderBy(entry => entry.Key, StringComparer.Ordinal).ToArray();
         responses.Clear();
         foreach (var (status, response) in ordered)

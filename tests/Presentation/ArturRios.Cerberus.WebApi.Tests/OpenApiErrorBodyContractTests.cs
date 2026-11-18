@@ -231,8 +231,9 @@ public sealed class OpenApiErrorBodyContractTests
     }
 
     // The contract's controllers behind the middleware that sees a request before them, without the database,
-    // the identity provider or the handlers: what is checked here is answered before any of them is used.
-    private static async Task<WebApplication> Api()
+    // the identity provider or the handlers: what is checked here is answered before any of them is used, or
+    // (a handler nobody registered) by SafeFailureMiddleware's 500.
+    internal static async Task<WebApplication> Api()
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { ApplicationName = typeof(Startup).Assembly.GetName().Name, Args = [] });
         builder.WebHost.UseTestServer();
@@ -240,6 +241,7 @@ public sealed class OpenApiErrorBodyContractTests
         builder.Services.AddScoped<CommandMediator>();
         builder.Services.AddScoped<QueryMediator>();
         var api = builder.Build();
+        api.UseMiddleware<SafeFailureMiddleware>();
         api.UseRouting();
         api.UseMiddleware<VaultProofBodyMiddleware>();
         api.MapControllers();
@@ -252,8 +254,9 @@ public sealed class OpenApiErrorBodyContractTests
             .SelectMany(group => group.Items)
             .Select(description => (description.HttpMethod!.ToUpperInvariant(), "/" + description.RelativePath, (ControllerActionDescriptor)description.ActionDescriptor));
 
+    // The error responses a handler's failure can be: SafeFailureMiddleware's 500 never comes from one.
     private static IEnumerable<(string Status, JsonObject Response)> Errors(JsonNode document, string method, string path) =>
-        OpenApiBodies.Responses(document).Where(r => r.Method == method && r.Path == path && Error(r.Status, r.Response))
+        OpenApiBodies.Responses(document).Where(r => r.Method == method && r.Path == path && r.Status != "500" && Error(r.Status, r.Response))
             .Select(r => (r.Status, r.Response));
 
     // An error response with a ProcessOutput-shaped body: every 4xx and 5xx but the empty 413 and MVC's 415.

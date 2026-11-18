@@ -72,7 +72,7 @@ public sealed class OpenApiMediaTypeContractTests
             .ToArray();
         Assert.Empty(strings);
         var responses = OpenApiBodies.Responses(document).ToArray();
-        Assert.Equal(544, responses.Length);
+        Assert.Equal(542, responses.Length);
         var listed = responses.Where(r => r.Response["content"]?["text/plain"] is not null).Select(r => r.Method + " " + r.Path + " " + r.Status).ToArray();
         Assert.True(listed.Length == 0, "text/plain is listed on: " + string.Join(", ", listed));
     }

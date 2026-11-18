@@ -15,12 +15,12 @@ namespace ArturRios.Cerberus.WebApi.Controllers;
 [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status400BadRequest)]
 [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status404NotFound)]
-[ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
 [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status503ServiceUnavailable)]
 public sealed class VaultController(CommandMediator commands, QueryMediator queries, TimeProvider clock) : ControllerBase
 {
     [HttpPost("protection")]
     [ProducesResponseType(typeof(DataOutput<VaultInitializationOutput>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<DataOutput<VaultInitializationOutput?>>> Initialize([FromBody] InitializeVaultCommand command, CancellationToken cancellationToken)
     {
         if (Request.Query.Count != 0)
@@ -33,6 +33,7 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
     [HttpPut("protection")]
     [VaultProofBody]
     [ProducesResponseType(typeof(DataOutput<ChangeVaultProtectionOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<DataOutput<ChangeVaultProtectionOutput?>>> Change([FromBody] ChangeVaultProtectionCommand command,
         [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess,
@@ -59,6 +60,7 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
     [HttpPost("recovery")]
     [VaultProofBody]
     [ProducesResponseType(typeof(DataOutput<RecoverVaultOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
     public Task<ActionResult<DataOutput<RecoverVaultOutput?>>> Recover([FromBody] RecoverVaultCommand command,
         [FromHeader(Name = "X-Cerberus-Challenge-Id")] string? challengeId,
         [FromHeader(Name = "X-Cerberus-Proof")] string? proof, CancellationToken cancellationToken) =>
@@ -67,6 +69,7 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
     [HttpPut("recovery")]
     [VaultProofBody]
     [ProducesResponseType(typeof(DataOutput<RecoverVaultOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status403Forbidden)]
     public Task<ActionResult<DataOutput<RecoverVaultOutput?>>> RefreshRecovery([FromBody] RecoverVaultCommand command,
         [FromHeader(Name = "X-Cerberus-Vault-Access")] string? vaultAccess,
@@ -120,6 +123,7 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
 
     [HttpPost("challenges")]
     [ProducesResponseType(typeof(DataOutput<VaultChallengeOutput>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<DataOutput<VaultChallengeOutput?>>> Challenge([FromBody] IssueVaultChallengeCommand command, CancellationToken cancellationToken)
     {
         if (Request.Query.Count != 0)
@@ -134,6 +138,7 @@ public sealed class VaultController(CommandMediator commands, QueryMediator quer
     [HttpPost("unlock")]
     [VaultProofBody]
     [ProducesResponseType(typeof(DataOutput<VaultUnlockOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProcessOutput), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<DataOutput<VaultUnlockOutput?>>> Unlock([FromBody] UnlockVaultCommand command,
         [FromHeader(Name = "X-Cerberus-Challenge-Id")] string? challengeId,
         [FromHeader(Name = "X-Cerberus-Proof")] string? proof, CancellationToken cancellationToken)

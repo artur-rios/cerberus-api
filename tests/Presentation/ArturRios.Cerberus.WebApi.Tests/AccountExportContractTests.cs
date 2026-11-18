@@ -38,7 +38,7 @@ public sealed class AccountExportContractTests
         var doc = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
         Assert.Contains("/api/accounts/me/export", doc.Paths.Keys);
         var op = doc.Paths["/api/accounts/me/export"].Operations![HttpMethod.Post];
-        Assert.Equal(new[] { "200", "400", "401", "403", "404", "409", "413", "500", "503" }.Order(), op.Responses!.Keys.Order());
+        Assert.Equal(new[] { "200", "400", "401", "403", "404", "409", "413", "500", "503", "408", "414", "431", "505" }.Order(), op.Responses!.Keys.Order());
         Assert.True(op.RequestBody!.Required);
         Assert.Equal(["application/json"], op.RequestBody.Content!.Keys);
         var access = Assert.Single(op.Parameters!);

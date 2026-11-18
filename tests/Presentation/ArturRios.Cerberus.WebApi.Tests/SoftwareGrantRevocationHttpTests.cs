@@ -50,7 +50,7 @@ public sealed class SoftwareGrantRevocationContractTests
         Assert.Equal("integer", command.GetProperty("properties").GetProperty("expectedRevision").GetProperty("type").GetString());
         Assert.Equal(["grantId", "revision"], schemas.GetProperty("RevokeSoftwareAccessOutput").GetProperty("properties").EnumerateObject().Select(x => x.Name).Order());
         var responses = operation.GetProperty("responses");
-        Assert.Equal(["200", "400", "401", "403", "404", "409", "413", "500", "503"], responses.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(["200", "400", "401", "403", "404", "408", "409", "413", "414", "431", "500", "503", "505"], responses.EnumerateObject().Select(x => x.Name).Order());
         Assert.EndsWith("/RevokeSoftwareAccessOutputDataOutput", responses.GetProperty("200").GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString());
         // The handler's failed envelope ("data": null) or a refusal's ProcessOutput: FailureOutput is both.
         foreach (var status in new[] { "400", "401", "403", "404", "409", "503" })

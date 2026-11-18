@@ -22,8 +22,8 @@ public sealed class OperationalHealthContractTests
         Assert.Equal(["elapsedMilliseconds", "name", "status"], schemas["HealthComponent"].Required!.Order());
         Assert.False(schemas["HealthComponent"].AdditionalPropertiesAllowed);
         var details = doc.Paths["/health/details"].Operations![HttpMethod.Get];
-        // 413 is the request limit's and 500 SafeFailureMiddleware's, both before routing.
-        Assert.Equal(["200", "401", "403", "413", "500", "503"], details.Responses!.Keys.Order());
+        // 413 is the request limit's and 500 SafeFailureMiddleware's, both before routing; 400, 408, 414, 431 and 505 Kestrel's.
+        Assert.Equal(["200", "400", "401", "403", "408", "413", "414", "431", "500", "503", "505"], details.Responses!.Keys.Order());
         foreach (var code in new[] { "401", "403" })
             Assert.Equal("ProcessOutput", Assert.IsType<OpenApiSchemaReference>(details.Responses[code].Content!["application/json"].Schema!).Reference.Id);
         Assert.NotEmpty(details.Responses["503"].Content!["application/json"].Schema!.OneOf!);

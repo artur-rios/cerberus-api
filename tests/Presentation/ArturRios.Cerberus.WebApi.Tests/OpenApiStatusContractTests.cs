@@ -3,6 +3,7 @@ using ArturRios.Cerberus.Query.Accounts;
 using ArturRios.Cerberus.WebApi.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
 using UtilAllowAnonymous = ArturRios.Util.WebApi.Security.Attributes.AllowAnonymousAttribute;
 
 namespace ArturRios.Cerberus.WebApi.Tests;
@@ -64,6 +65,34 @@ public sealed class OpenApiStatusContractTests
         }
     }
 
+    // Every layer of the API's own that can answer a request, with the statuses the audit found it answers and
+    // Pipeline() and the document hold. A middleware or filter added later fails this until it is audited too.
+    private static readonly Dictionary<string, int[]> s_layers = new()
+    {
+        [nameof(NoStoreMiddleware)] = [],
+        [nameof(SafeFailureMiddleware)] = [500],
+        [nameof(RequestLimitMiddleware)] = [413],
+        [nameof(RestoreBarrierMiddleware)] = [503],
+        [nameof(ProtectedEndpointMiddleware)] = [401, 403, 503],
+        [nameof(VaultProofBodyMiddleware)] = [400],
+        [nameof(SyncEditDiscriminatorsAttribute)] = [400]
+    };
+
+    [UnitFact]
+    public void GivenTheApiAssembly_WhenListingItsMiddlewareAndFilters_ThenEachIsOneTheStatusAuditCovers()
+    {
+        var layers = typeof(Startup).Assembly.GetTypes()
+            .Where(type => typeof(Microsoft.AspNetCore.Mvc.Filters.IFilterMetadata).IsAssignableFrom(type)
+                || type.GetMethod("InvokeAsync") is { } invoke && invoke.GetParameters().FirstOrDefault()?.ParameterType == typeof(Microsoft.AspNetCore.Http.HttpContext))
+            .Select(type => type.Name).Order();
+        Assert.Equal(s_layers.Keys.Order(), layers);
+        // MVC's own global filters, as AddCerberusContracts leaves them: the 415 and model-state 400 among them.
+        using var host = OpenApiBodies.Host();
+        var filters = host.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Mvc.MvcOptions>>().Value.Filters
+            .Select(filter => (filter is Microsoft.AspNetCore.Mvc.TypeFilterAttribute typed ? typed.ImplementationType : filter.GetType()).Name).Order();
+        Assert.Equal(["UnsupportedContentTypeFilter"], filters);
+    }
+
     [UnitFact]
     public void GivenTheVaultReads_WhenGeneratingOpenApi_ThenNeitherListsAConflict()
     {
@@ -81,8 +110,9 @@ public sealed class OpenApiStatusContractTests
     private static HashSet<int> Pipeline(Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor action)
     {
         var metadata = action.EndpointMetadata;
-        // SafeFailureMiddleware's 500 and RequestLimitMiddleware's 413 answer any request.
-        HashSet<int> statuses = [413, 500];
+        // SafeFailureMiddleware's 500 and RequestLimitMiddleware's 413 answer any request, and so do Kestrel's own
+        // refusals of a request line or headers (KestrelRefusalTests).
+        HashSet<int> statuses = [413, 500, 400, 408, 414, 431, 505];
         var health = metadata.OfType<HealthEndpointAttribute>().Any();
         if (!health)
             statuses.Add(503); // RestoreBarrierMiddleware, which lets only the health routes through.

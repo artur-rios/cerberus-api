@@ -15,7 +15,7 @@ public class TrashRestoreContractTests
         var doc = host.Services.GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
         Assert.Contains("/api/trash/{id}/restore", doc.Paths.Keys);
         var op = doc.Paths["/api/trash/{id}/restore"].Operations![HttpMethod.Post];
-        Assert.Equal(new[] { "200", "400", "401", "403", "404", "409", "410", "413", "500", "503" }.Order(), op.Responses!.Keys.Order());
+        Assert.Equal(new[] { "200", "400", "401", "403", "404", "409", "410", "413", "500", "503", "408", "414", "431", "505" }.Order(), op.Responses!.Keys.Order());
         Assert.True(op.Responses["413"].Content is null or { Count: 0 });
         Assert.True(op.RequestBody!.Required);
         Assert.Equal("application/json", Assert.Single(op.RequestBody.Content!).Key);

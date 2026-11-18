@@ -320,6 +320,17 @@ development into `develop` only; it is still required before any release.
 
 ### Fixed
 
+- The OpenAPI document lists the statuses Kestrel answers itself before the API sees a request, with no body: 408
+  (headers too slow), 414 (request line too long), 431 (headers too large) and 505 (an HTTP version it does not
+  speak) on all 64 operations, and its 400 (a malformed request line or header, a missing Host, an invalid
+  Content-Length or transfer coding) beside the API's own 400, or alone on the three health routes. The 500's
+  description says that a request body Kestrel refuses as it is read (badly chunked, or slower than the minimum
+  data rate) arrives as `internal_failure` too, and the 413's that Kestrel's own body limit ends there as well.
+  `POST /api/vault/challenges`' 409 says why it stays listed. `info.description` names what OpenAPI cannot list as
+  an operation's response: 404 for an unknown path, 405 (or 401 first) for an undeclared method, the restore
+  barrier's 503 for both, connections that close with no response, and that no reverse proxy is in front of the
+  API yet. Nothing changes on the wire.
+
 - The OpenAPI document no longer lists a 409 for `GET /api/vault/protection` and `GET /api/vault/recovery-material`.
   The vault controller declared 409 for all its routes, but these two answer through `VaultProtectionQueryMessages`,
   which maps no error to 409; the routes that can conflict (initialize, change, recover, refresh recovery, challenge,

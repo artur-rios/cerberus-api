@@ -231,8 +231,9 @@ public sealed class OpenApiErrorBodyContractTests
     }
 
     // The contract's controllers behind the middleware that sees a request before them, without the database,
-    // the identity provider or the handlers: what is checked here is answered before any of them is used.
-    private static async Task<WebApplication> Api()
+    // the identity provider or the handlers: what is checked here is answered before any of them is used, or
+    // (a handler nobody registered) by SafeFailureMiddleware's 500.
+    internal static async Task<WebApplication> Api()
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { ApplicationName = typeof(Startup).Assembly.GetName().Name, Args = [] });
         builder.WebHost.UseTestServer();
@@ -240,6 +241,7 @@ public sealed class OpenApiErrorBodyContractTests
         builder.Services.AddScoped<CommandMediator>();
         builder.Services.AddScoped<QueryMediator>();
         var api = builder.Build();
+        api.UseMiddleware<SafeFailureMiddleware>();
         api.UseRouting();
         api.UseMiddleware<VaultProofBodyMiddleware>();
         api.MapControllers();

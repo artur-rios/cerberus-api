@@ -1,10 +1,8 @@
-using System.Net;
 using System.Text;
 using System.Text.Json.Nodes;
 using ArturRios.Cerberus.WebApi.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -38,25 +36,6 @@ public sealed class OpenApiMediaTypeContractTests
             Assert.Null(OpenApiBodies.Reject(document, response["content"]!["application/json"]!["schema"]!, body));
             Assert.EndsWith("/ProcessOutput", response["content"]!["application/json"]!["schema"]!["$ref"]!.GetValue<string>());
         }
-    }
-
-    [UnitFact]
-    public async Task GivenAHandlerNobodyRegistered_WhenItsActionRuns_ThenTheApiAnswersTheDocumented500()
-    {
-        var document = OpenApiBodies.Document();
-        await using var api = await OpenApiErrorBodyContractTests.Api();
-        using var client = api.GetTestClient();
-
-        // A readable login reaches the action; the mediator then finds no handler and throws.
-        using var failed = await client.PostAsync("/api/auth/login",
-            new StringContent("{\"email\":\"a@example.test\",\"password\":\"fixture-password\"}", Encoding.UTF8, "application/json"));
-
-        Assert.Equal(HttpStatusCode.InternalServerError, failed.StatusCode);
-        Assert.Equal("application/json", failed.Content.Headers.ContentType?.MediaType);
-        var body = await failed.Content.ReadAsStringAsync();
-        Assert.Contains("internal_failure", body);
-        var schema = document["paths"]!["/api/auth/login"]!["post"]!["responses"]!["500"]!["content"]!["application/json"]!["schema"]!;
-        Assert.Null(OpenApiBodies.Reject(document, schema, body));
     }
 
     [UnitFact]

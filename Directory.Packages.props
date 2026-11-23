@@ -5,18 +5,18 @@
   </PropertyGroup>
   <!-- Util.Test 5 and PostgreSql 4 require Relational.Core 5; upgrade these together. -->
   <ItemGroup>
-    <PackageVersion Include="ArturRios.Output" Version="3.3.2" />
-    <PackageVersion Include="ArturRios.Util" Version="2.2.1" />
-    <PackageVersion Include="ArturRios.Extensions" Version="1.4.2" />
-    <PackageVersion Include="ArturRios.Configuration" Version="2.0.1" />
-    <PackageVersion Include="ArturRios.Logging" Version="2.0.2" />
-    <PackageVersion Include="ArturRios.Jwt" Version="1.4.2" />
-    <PackageVersion Include="ArturRios.Validation" Version="2.0.2" />
-    <PackageVersion Include="ArturRios.Mediator" Version="2.0.2" />
-    <PackageVersion Include="ArturRios.Data.Relational.Core" Version="5.0.2" />
-    <PackageVersion Include="ArturRios.Data.PostgreSql" Version="4.0.1" />
-    <PackageVersion Include="ArturRios.Util.WebApi" Version="6.0.0" />
-    <PackageVersion Include="ArturRios.Util.Test" Version="6.0.0" />
+    <PackageVersion Include="ArturRios.Output" Version="3.3.3" />
+    <PackageVersion Include="ArturRios.Util" Version="2.3.1" />
+    <PackageVersion Include="ArturRios.Extensions" Version="1.4.4" />
+    <PackageVersion Include="ArturRios.Configuration" Version="2.0.3" />
+    <PackageVersion Include="ArturRios.Logging" Version="2.0.4" />
+    <PackageVersion Include="ArturRios.Jwt" Version="1.5.0" />
+    <PackageVersion Include="ArturRios.Validation" Version="2.0.4" />
+    <PackageVersion Include="ArturRios.Mediator" Version="2.0.4" />
+    <PackageVersion Include="ArturRios.Data.Relational.Core" Version="5.0.4" />
+    <PackageVersion Include="ArturRios.Data.PostgreSql" Version="4.0.3" />
+    <PackageVersion Include="ArturRios.Util.WebApi" Version="6.0.2" />
+    <PackageVersion Include="ArturRios.Util.Test" Version="6.1.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.15" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.15" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.15" />
